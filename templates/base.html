@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" href="/static/styles/font-awesome.min.css" />
+		<link rel="stylesheet" href="/static/styles/w3.css" />
+		<title>{% block title %}{% endblock %} - MD</title>
+	</head>
+	<body>
+		<div class="w3-medium" id="header">
+			<div class="w3-top" style="z-index:1112">
+				<div class="w3-white w3-opacity-min" id="scroll">
+					<div class="w3-blue" id="scroll-bar" style="height:4px;width:0%">
+					</div>
+				</div>
+				<div class="w3-bar w3-card-2 w3-black" id="mdNavBar">
+					<div class="w3-dropdown-hover">
+						<a class="w3-button w3-ripple w3-black" onclick="window.location='/MD';"><i class="fa fa-home w3-xxlarge"></i></a>
+						<div class="w3-dropdown-content w3-bar-block w3-card-4">
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/perl/U2/aboutMD.pl">About</a>
+						</div>
+					</div>
+					<div class="w3-dropdown-hover">
+						<a class="w3-button w3-ripple w3-black"><i class="fa fa-ioxhost w3-xxlarge"></i></a>
+						<div class="w3-dropdown-content w3-bar-block w3-card-4">
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=ALL">ALL</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=DSD">DSD</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=DSDR">DSD Research</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=ND">ND</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=NM">NM</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/genes?sort=NS">NS</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="content">{% block content %}{% endblock %}</div>
+		<div id="footer" class="w3-medium">
+			<div class="w3-bottom" style="z-index:1112">
+				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
+			<!--<script type="text/javascript">
+$(document).ready(function() {
+	$('#engine').autocomplete({
+		serviceUrl: '/perl/U2/autocomplete.pl',
+		type: 'POST',
+		dataType: 'json',
+		orientation: 'top',
+		onSelect: function(){$("#search_form").submit();},
+		minChars: 2,
+		preventBadQueries: false,
+		showNoSuggestionNotice: true,
+		noSuggestionNotice: 'No results in patient or gene names'
+	});
+	$('#main_engine').autocomplete({
+		serviceUrl: '/perl/U2/autocomplete.pl',
+		type: 'POST',
+		dataType: 'json',
+		orientation: 'top',
+		onSelect: function(){$("#main").submit();},
+		minChars: 2,
+		preventBadQueries: false,
+		showNoSuggestionNotice: true,
+		noSuggestionNotice: 'No results in patient or gene names'
+	});
+});
+</script>-->
+					<form method="post" action="" enctype="multipart/form-data" id="search_form">
+						<div class="w3-row-padding">
+							<div class="w3-half w3-right-align">
+								<input autofocus="autofocus" class="w3-input w3-border w3-large" id="engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:200px;display:inline;" type="text" />
+							</div>
+							<div class="w3-quarter"><input class="w3-button w3-white w3-large w3-border" id="submit_a" type="submit" value="Submit" />
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
