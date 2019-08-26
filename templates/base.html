@@ -3,6 +3,8 @@
 	<head>
 		<link rel="stylesheet" href="/static/styles/font-awesome.min.css" />
 		<link rel="stylesheet" href="/static/styles/w3.css" />
+		<script src="/static/javascript/jquery-3.4.1.min.js" type="text/javascript"></script>
+		{% block more_header %}{% endblock %}
 		<title>{% block title %}{% endblock %} - MD</title>
 	</head>
 	<body>
@@ -16,7 +18,7 @@
 					<div class="w3-dropdown-hover">
 						<a class="w3-button w3-ripple w3-black" onclick="window.location='/MD';"><i class="fa fa-home w3-xxlarge"></i></a>
 						<div class="w3-dropdown-content w3-bar-block w3-card-4">
-							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/perl/U2/aboutMD.pl">About</a>
+							<a class="w3-bar-item w3-button w3-ripple w3-large" href="/MD/about">About</a>
 						</div>
 					</div>
 					<div class="w3-dropdown-hover">
@@ -33,6 +35,7 @@
 				</div>
 			</div>
 		</div>
+		<br/><br/><br/><br/>
 		<div id="content">{% block content %}{% endblock %}</div>
 		<div id="footer" class="w3-medium">
 			<div class="w3-bottom" style="z-index:1112">
