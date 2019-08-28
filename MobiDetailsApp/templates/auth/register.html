@@ -1,0 +1,38 @@
+{% from 'macros.html' import input, fa, info %}
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 align="center" class="w3-text-blue">{% block title %}Register{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+	{{ info("Registering is mandatory to modify variant ACMG classes. However, for browsing the site, you do not require to log in.") }}
+	<div align = "center">
+		<form method="post" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
+			<h2>Please register using your academic email address:</h2><br/>
+			<div class="w3-row w3-section"/>
+				{{ fa('user') }}
+				<div class="w3-rest">{{ input('username') }}</div>
+			</div>
+			<div class="w3-row w3-section"/>
+				{{ fa('key') }}
+				<div class="w3-rest">{{ input('password', 'password') }}</div>
+			</div>
+			<div class="w3-row w3-section"/>
+				{{ fa('globe') }}
+				<div class="w3-rest">{{ input('country') }}</div>
+			</div>
+			<div class="w3-row w3-section"/>
+				{{ fa('hospital-o') }}
+				<div class="w3-rest">{{ input('institute') }}</div>
+			</div>
+			<div class="w3-row w3-section"/>
+				{{ fa('envelope-o') }}
+				<div class="w3-rest">{{ input('email') }}</div>
+			</div>
+			<p class="w3-center">
+				<input type="submit" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
+			</p>
+		</form>
+	</div>
+{% endblock %}

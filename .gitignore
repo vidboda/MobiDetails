@@ -104,4 +104,10 @@ venv.bak/
 .mypy_cache/
 
 # sql files
-sql/
+MobiDetailsApp/sql/
+
+#videos
+MobiDetailsApp/static/videos/
+#img
+MobiDetailsApp/static/img/
+#styles
