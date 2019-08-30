@@ -1,5 +1,7 @@
+import os
 import psycopg2
 import psycopg2.extras
+#requires MobiDetails config module + database.ini file
 from . import config
 import click
 from flask import current_app, g
@@ -22,8 +24,11 @@ def close_db(e=None):
 
 def init_db():
 	db = get_db()
-	with current_app.open_resource('sql/MobiDetails.sql') as f:
-		db.executescript(f.read().decode('utf8'))
+	curs = db.cursor()
+	#print(os.getcwd())
+	curs.execute(open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r").read())
+	#with current_app.open_resource('sql/MobiDetails.sql') as f:
+	#	db.executescript(f.read().decode('utf8'))
 
 @click.command('init-db')
 @with_appcontext

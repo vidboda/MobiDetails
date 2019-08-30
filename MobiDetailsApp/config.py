@@ -1,7 +1,7 @@
 import os
 from configparser import ConfigParser
 
-#SQLALCHEMY_DATABASE_URI='postgresql://user:passwd@localhost/mobidetails'
+#SQLALCHEMY_DATABASE_URI='postgresql://user:passwd@localhost/database'
 #SQLALCHEMY_TRACK_MODIFICATIONS=False
 
 #SECRET_KEY='dev'

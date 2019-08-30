@@ -1,0 +1,4 @@
+include MobiDetailsApp/sql/MobiDetails.sql
+graft MobiDetailsApp/static
+graft MobiDetailsApp/templates
+global-exclude *.pyc

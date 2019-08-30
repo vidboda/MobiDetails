@@ -27,9 +27,9 @@ def create_app(test_config=None):
 	app.add_url_rule('/', endpoint='index')
 	
 	# a simple page that says hello
-	#@app.route('/hello')
-	#def hello():
-	#	return 'Hello, World!'
+	@app.route('/factory_test')
+	def hello():
+		return 'Flask factory ok!'
 	
 	
 	return app

@@ -23,7 +23,7 @@ def register():
 		email = request.form['email']
 	
 		db = get_db()
-		curs = g.db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		error = None
 	
 		if not username:
@@ -61,7 +61,7 @@ def login():
 		username = request.form['username']
 		password = request.form['password']
 		db = get_db()
-		curs = g.db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		error = None
 		curs.execute(
 			"SELECT * FROM mobiuser WHERE username = '{}'".format(username,)
@@ -90,7 +90,7 @@ def load_logged_in_user():
 		g.user = None
 	else:
 		db = get_db()
-		curs = g.db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		curs.execute(
 			"SELECT * FROM mobiuser WHERE id = '{}'".format(user_id,)
 		)
