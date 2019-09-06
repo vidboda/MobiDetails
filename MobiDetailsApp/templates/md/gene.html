@@ -1,0 +1,94 @@
+{% from 'macros.html' import danger, info, gnomad_oe, gene_redirection, create_variant, modal_js %}
+{% extends "base.html" %}
+
+{% block header %}
+  <h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{% block title %}{{ gene }}{% endblock %}</em> gene page:</h1>
+{% endblock %}
+{% block content %}
+	<div class="w3-container">
+		<br />
+		<div class="w3-row">
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="window.open('{{ url_for('md.vars', gene_name=gene) }}', '_self');">Get variants</span>
+		</div>
+	</div>
+	<div class="tab_content w3-padding" style="display:block;" />
+		<br /><p>
+			<h2 align="center" class="w3-text-red">
+				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em></span>
+				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }}</span> / 
+				<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>
+			</h2>
+		</p>
+		<p align="center">
+		{{ create_variant(gene, main_iso) }}
+		</p><br /><br />
+		{{ gene_redirection(gene) }}
+		{{ modal_js('gene_modal', 'var_modal') }}
+		<div class="w3-responsive" id="gene_table">
+			<table class="w3-table w3-striped w3-bordered w3-centered">
+				<caption>Gene info table:</caption>
+				<tr>
+					<th class="w3-left-align">Chr</th>
+					<th class="w3-left-align">Strand</th>
+					<th class="w3-left-align">Protein name</th>
+					<th class="w3-left-align">Genomic Accession #</th>
+					<th class="w3-left-align">Synonymous <br />obs/exp* (CI)</th>
+					<th class="w3-left-align">Missense <br />obs/exp* (CI)</th>
+					<th class="w3-left-align">Loss of function <br />obs/exp* (CI)</th>
+				</tr>
+				<tr>
+					<td><span>{{ main_iso.chr }}</span></td>
+					<td><span>-</span></td>
+					<td><span>{{ main_iso.prot_name }} {{ main_iso.short_prot }}</span></td>
+					<td><span><span class="w3-button w3-hover-sand" onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
+					{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
+					<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
+					{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
+					<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>			
+					{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
+					<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<br /><br />
+		<div class="w3-responsive" id="info_table">
+			<table class="w3-table w3-striped w3-bordered w3-centered">
+				<caption>Transcript info table:</caption>
+				<tr>
+					<th class="w3-left-align">RefSeq transcript</th>
+					<th class="w3-left-align">Ensembl transcript</th>
+					<th class="w3-left-align">Number of exons</th>
+					<th class="w3-left-align">RefSeq protein</th>
+					<th class="w3-left-align">Uniprot ID</th>
+				</tr>
+				{% for iso in res %}
+					<tr>
+						<td class="w3-button w3-hover-sand"  onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
+							<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}</span></strong>
+						</td>
+						<td class="w3-button w3-hover-sand"  onclick="window.open('http://ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
+							<span>{{ iso.enst }}</span>
+						</td>
+						<td>
+							<span>{{ iso.number_of_exons }}</span>
+						</td>
+						<td class="w3-button w3-hover-sand"  onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
+							<span>{{ iso.np }}</span>
+						</td>
+						<td class="w3-button w3-hover-sand" onclick="window.open('http://www.uniprot.org/uniprot/{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
+							<span>{{ iso.uniprot_id }}</span>
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</div><br /><br />
+		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.") }}
+		<br /><br />
+		<!--<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+			<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
+			<p>*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.<br /> Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is &lt; 0.35. See "Gene constraint" explanations in gnomAD browser for more details (e.g. <a href="https://gnomad.broadinstitute.org/awesome?query={{ gene }}" target="_blank" title="go to {{ gene }} gene page and click the question mark near Gene Constraint">here</a>).</p>
+		</div>-->
+		<div id="created_variant"></div>
+{% endblock %}

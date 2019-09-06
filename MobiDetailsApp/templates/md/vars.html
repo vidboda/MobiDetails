@@ -1,0 +1,98 @@
+{% from 'macros.html' import danger, info, gene_redirection, create_variant, modal_js, var_class_div %}
+{% extends "base.html" %}
+
+{% block header %}
+  <h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{% block title %}{{ gene }}{% endblock %}</em> gene page:</h1>
+{% endblock %}
+{% block content %}
+	<div class="w3-container">
+		<br />
+		<div class="w3-row">
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="window.open({{ url_for('md.vars', gene_name=gene) }}, '_self');">Get variants</span>
+		</div>
+	</div>
+	<div class="tab_content w3-padding" style="display:block;" />
+		<br /><p>
+			<h2 align="center" class="w3-text-red">
+				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em> variants: </span>
+			</h2>
+		</p>
+		<p align="center">
+			{{ create_variant(gene, gene_info) }}
+			{{ gene_redirection(gene) }}
+			{{ modal_js('gene_modal', 'var_modal') }}
+		</p><br />
+	</div>
+	{# requires jinja > 2.10 #}
+	{# 2 namespaces for couting variant classes and store div content #}
+	{% set count = namespace(missense=0, ptc=0, silent=0, intronic=0, inframe_indels=0, all=0) %}
+	{% autoescape false %}
+	{% set div_content = namespace(missense=var_class_div('missens', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}
+	{% for variant in variants|sort(attribute='ng_name') %}
+		{% set count.all = count.all + 1 %}
+		{% set div_content.all = div_content.all + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.p_name) %}
+		{#{% set div_content.all = div_content.all + "<li><a href='' target='_blank'>" + {{ gene_info.name[1] }} + ":c." + {{ variant.c_name }} + "</a><span> - " + {{ variant.p_name }} + " - (exon X)</span></li>" %}#}
+		{% if variant.prot_type == 'nonsense' or variant.prot_type == 'frameshift' %}
+			{% set count.ptc = count.ptc + 1 %}
+			{% set div_content.ptc = div_content.ptc + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.p_name) %}
+		{% elif variant.prot_type == 'missense' %}
+			{% set count.missense = count.missense + 1 %}
+			{% set div_content.missense = div_content.pmissensetc + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.p_name) %}
+		{% elif variant.prot_type == 'silent' %}
+			{% set count.silent = count.silent + 1 %}
+			{% set div_content.silent = div_content.silent + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.p_name) %}
+		{# match is a custom filter for regexp - see md_utilities.py, and loaded in __init__.py #}
+		{% elif variant.prot_type|match('in frame') %}
+			{% set count.inframe_indels = count.inframe_indels + 1 %}
+			{% set div_content.inframe_indels = div_content.inframe_indels + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.p_name) %}
+		{% elif variant.ivs_name != None %}
+			{% set count.intronic = count.intronic + 1 %}
+			{% set div_content.intronic = div_content.intronic + "<li class='w3-hover-sand'><a href='' target='_blank'>%s:c.%s</a><span> - %s - (exon X)</span></li>"|format(gene_info.name[1], variant.c_name, variant.ivs_name) %}
+		{% endif %}
+	{% endfor %}
+	{#{% set div_content.all = div_content.all + "</ul></div>" %}#}
+	
+	
+	<script>
+		function hide_all() {
+			$('#all_vars').hide();
+			$('#silent').hide();
+			$('#intronic').hide();
+			$('#ptc').hide();
+			$('#inframe').hide();
+			$('#missense').hide();
+		}
+	</script>
+	
+	<div id="created_variant"></div>
+	<div class="w3-row w3-center" />
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#missense').show();" style="width:100%">Missense ({{ count.missense }})</strong>
+		</div>
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#silent').show();" style="width:100%">Silent* ({{ count.silent }})</strong>
+		</div>
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#intronic').show();" style="width:100%">Intronic** ({{ count.intronic }})</strong>
+		</div>
+	</div>
+	<div class="w3-row" />
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#ptc').show();" style="width:100%">PTC*** ({{ count.ptc }})</strong>
+		</div>
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#inframe').show();" style="width:100%">In frame Indels ({{ count.inframe_indels }})</strong>
+		</div>
+		<div class="w3-col m4" />
+			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#all_vars').show();" style="width:100%">All ({{ count.all }})</strong>
+		</div>
+	</div>
+	<br/><br />
+	{{ div_content.all }}</ul></div>
+	{{ div_content.ptc }}</ul></div>
+	{% endautoescape %}
+	<br /><br />
+	{{ info("* shortcut for variants not predicted by the genetic code to alter the protein sequence - does not consider splicing at all","** Might include large rearrangements","***Premature Termination Codons, including nonsense variants and frameshifts") }}
+	<br /><br />
+{% endblock %}

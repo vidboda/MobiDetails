@@ -15,12 +15,13 @@ def app():
     app = create_app({
         'TESTING': True,
         'DATABASE': db_path,
+        'SECRET_KEY': 'test',
     })
 
     with app.app_context():
         init_db()
-        db =get_db()
-        cuss = db.cursor.execute(_data_sql)
+      #  db = get_db()
+      #  curs = db.cursor.execute(_data_sql)
 
     yield app
 
@@ -36,5 +37,21 @@ def client(app):
 @pytest.fixture
 def runner(app):
     return app.test_cli_runner()
-    
-    
+
+class AuthActions(object):
+    def __init__(self, client):
+        self._client = client
+
+    def login(self, username='test', password='test'):
+        return self._client.post(
+            '/auth/login',
+            data={'username': username, 'password': password}
+        )
+
+    def logout(self):
+        return self._client.get('/auth/logout')
+
+
+@pytest.fixture
+def auth(client):
+    return AuthActions(client)

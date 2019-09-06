@@ -1,10 +1,12 @@
 import os
-
+from . import md_utilities
 
 from flask import Flask
 
 def create_app(test_config=None):
 	app =  Flask(__name__)
+	#define custom jinja filters
+	app.jinja_env.filters['match'] = md_utilities.match
 	if test_config is None:
 		# load the instance config, if it exists, when not testing
 		app.config.from_pyfile('config.py', silent=True)

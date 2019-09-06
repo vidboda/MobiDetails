@@ -1,4 +1,5 @@
 #import functools
+import re
 import psycopg2
 import psycopg2.extras
 
@@ -7,7 +8,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from MobiDetailsApp.db import get_db
+from MobiDetailsApp.db import get_db, close_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,14 +29,20 @@ def register():
 	
 		if not username:
 			error = 'Username is required.'
+		elif len(username) < 5:
+			error = 'Username should be at least 5 characters.'
 		elif not password:
 			error = 'Password is required.'
-		elif not country:
+		elif len(password) < 8 or not re.match('[a-zA-Z0-9]+', password):
+			error = 'Password should be at least 8 characters and mix at least letters and numbers.'
+		elif not country or re.match('--', country):
 			error = 'Country is required.'
 		elif not institute:
 			error = 'Institute is required.'
 		elif not email:
-			error = 'Email is required.'	
+			error = 'Email is required.'
+		elif not re.match('^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+			error = 'The email address does not look valid.'
 		else:
 			curs.execute(
 				"SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
@@ -95,6 +102,7 @@ def load_logged_in_user():
 			"SELECT * FROM mobiuser WHERE id = '{}'".format(user_id,)
 		)
 		g.user = curs.fetchone()
+	close_db()
 
 #logout
 @bp.route('/logout')

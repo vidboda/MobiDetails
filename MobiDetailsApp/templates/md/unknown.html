@@ -1,0 +1,6 @@
+{% from 'macros.html' import danger %}
+{% extends "base.html" %}
+{% block title %}Unknown in MD{% endblock %}
+{% block content %}
+	{{ danger("MobiDetails does not understand your query:", query, transformed_query) }}
+{% endblock %}
