@@ -11,25 +11,38 @@
 {% block content %}
 	{{ info("Click on a link to go to the detailed page:") }}
 	<div class="w3-responsive w3-margin">
-		<table class="w3-table w3-striped w3-bordered w3-centered" id="gene_table">
+		<table class="w3-table w3-centered display compact" style="width:90%" id="gene_table">
 			<caption>Genes table:</caption>
-			<tr>
-				<th class="w3-left-align">Genes</th>
-				<th class="w3-left-align">Links</th>
-				<th class="w3-left-align"></th>
-			</tr>
-			{% for gene_name in genes %}
+			<thead>
 				<tr>
-					<td>{{ gene_name.hgnc }}</td>
-					<td>Link1</td>
-					<td>Link2</td>
+					<th class="w3-left-align">Genes</th>
+					<th class="w3-left-align">Links</th>
+					<th class="w3-left-align"></th>
 				</tr>
-			{% endfor %}
+			</thead>
+			<tbody>
+				{% for gene_name in genes %}
+					<tr>
+						<td><em>{{ gene_name.hgnc }}</em></td>
+						<td><a href="{{ url_for('md.gene', gene_name=gene_name.hgnc) }}" target="_blank" title="Go to {{ gene_name.hgnc }} main page">General Info</a></td>
+						<td><a href="{{ url_for('md.vars', gene_name=gene_name.hgnc) }}" target="_blank" title="Go to {{ gene_name.hgnc }} variants page">All Variants</a></td>
+					</tr>
+				{% endfor %}
+			</tbody>
 		</table>
-	</div>
+	</div><br/><br/>
 	<script>
 		$(document).ready(function() {
-			$('#gene_table').DataTable();
+			$('#gene_table').DataTable({
+				responsive: true,
+				lengthMenu: [ [50, 100, 200, -1], [50, 100, 200, "All"] ],
+				dom: 'lfrtBip',
+				scrollY: 600,
+				"order": [],
+				buttons: [
+					'copy', 'excel', 'pdf'
+				]
+			});
 		} );
 	</script>
 {% endblock %}

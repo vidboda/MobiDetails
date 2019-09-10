@@ -119,7 +119,7 @@ def variant(variant_id=None):
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
-		"SELECT * FROM variant_feature WHERE id = '{0}'".format(variant_id)
+		"SELECT * FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.id = '{0}'".format(variant_id)
 	)
 	variant_features = curs.fetchone()
 	curs.execute(

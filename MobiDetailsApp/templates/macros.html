@@ -130,3 +130,7 @@
 		<p><span>{{ div_name }} variants recorded: </span>
 		<ul class="w3-ul w3-hoverable w3-center" style="width:50%">
 {%- endmacro %}
+<!--create links for variants view-->
+{% macro link(link, text) -%}
+		<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link }}" target="_blank">{{ text }}</a>
+{%- endmacro %}
