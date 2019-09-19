@@ -367,6 +367,8 @@ INSERT INTO protein_domain (name, gene_name, aa_start, aa_end) VALUES ('Fibronec
 INSERT INTO protein_domain (name, gene_name, aa_start, aa_end) VALUES ('Fibronectin type-III 34','{"USH2A","NM_206933"}','4828','4927');
 INSERT INTO protein_domain (name, gene_name, aa_start, aa_end) VALUES ('PDZ-binding','{"USH2A","NM_206933"}','5200','5202');
 
+INSERT INTO gene_annotation VALUES('{"USH2A","NM_206933"}','1.16','1.10','1.22','1.13','1.10','1.17','0.76','0.67','0.86');
+
 INSERT INTO variant_feature (c_name,gene_name,ng_name,ivs_name,p_name,wt_seq,mt_seq,dna_type,rna_type,prot_type,acmg_class,start_segment_type,start_segment_number,end_segment_type,end_segment_number,variant_size,dbsnp_id,comment,creation_date,creation_user) VALUES
  ('2276G>T','{"USH2A","NM_206933"}','181279G>T',NULL,'Cys759Phe','CTCCATGGCTCAGTGAACAAATTCT G CAATCCTCACTCTGGGCAGTGTGAG','CTCCATGGCTCAGTGAACAAATTCT T CAATCCTCACTCTGGGCAGTGTGAG','substitution','neutral inferred','missense','5','exon','13','exon','13','1','80338902','First MD variant ever','2019-08-26','1');
 INSERT INTO variant (chr,g_name,pos,pos_ref,pos_alt,genome_version,feature_id) VALUES

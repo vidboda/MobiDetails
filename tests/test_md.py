@@ -16,6 +16,9 @@ def test_genes_page(client):
 	
 def test_vars_page(client):
 	assert client.get('/vars/PCDH15').status_code == 200
+	
+def test_variant_page(client):
+	assert client.get('/variant/5').status_code == 200
 
 @pytest.mark.parametrize(('t_search', 'url'), (
 	('R34X', 'variant/5'),

@@ -1,0 +1,12 @@
+a {
+    color:#337AB7;
+    text-decoration:none;
+}
+a:hover {
+	color:#FF6020;
+	font-style:italic;
+}
+/*a:visited {
+	color:#F70F00;
+    text-decoration:none;
+}*/

@@ -118,15 +118,32 @@ def variant(variant_id=None):
 		return render_template('unknown.html', query='No variant provided')
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	# get all variant_features and gene info
 	curs.execute(
 		"SELECT * FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.id = '{0}'".format(variant_id)
 	)
 	variant_features = curs.fetchone()
+	# get variant info
 	curs.execute(
 		"SELECT * FROM variant WHERE feature_id = '{0}'".format(variant_id)
 	)
 	variant = curs.fetchall()
-	return render_template('md/variant.html', variant_features=variant_features, variant=variant)
+	# compute position / splice sites - TO BE FINISHED
+	if variant_features['variant_size'] < 50:
+		for var in variant:
+			if var['genome_version'] == 'hg38':
+				#get a tuple ['site_type', 'dist(bp)']
+				pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
+			if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
+				#indels > 1 bp
+				#get a tuple ['site_type', 'dist(bp)']
+				pos_splice_site_second = md_utilities.get_pos_splice_site(var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
+				if pos_splice_site[1] > pos_splice_site_second[1]:
+					#pos_splice_site_second nearest from splice site
+					pos_splice_site = pos_splice_site_second
+		aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+	
+	return render_template('md/variant.html', variant_features=variant_features, variant=variant, pos_splice=pos_splice_site)
 
 ######################################################################
 #web app - search engine

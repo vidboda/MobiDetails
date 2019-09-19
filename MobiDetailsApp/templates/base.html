@@ -26,14 +26,14 @@
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBar">
 					<!--home, about-->
 					<div class="w3-dropdown-hover">
-						<span class="w3-button w3-ripple w3-black" onclick="window.location='{{ url_for('md.index') }}';"><i class="fa fa-home w3-xxlarge"></i></span>
+						<span class="w3-button w3-ripple w3-black" onclick="window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage"><i class="fa fa-home w3-xxlarge"></i></span>
 						<div class="w3-dropdown-content w3-bar-block w3-card-4">
 							<span class="w3-bar-item w3-button w3-ripple w3-large" onclick="window.location='{{ url_for('md.about') }}';">About</span>
 						</div>
 					</div>
 					<!--all genes-->
 					<div class="w3-dropdown-hover">
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('md.genes') }}';">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('md.genes') }}';" title="Show all genes">
 							<i class="fa fa-ioxhost w3-xxlarge"></i>
 						</span>
 					</div>
@@ -41,13 +41,13 @@
 					{% if variant_features is defined %}
 						<!--left menu-->
 						<div>
-							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="openNav" onclick="w3_open()" style="visibility:visible" title="Click here to open the menu of useful external links">
+							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="openNav" onclick="w3_open()" style="visibility:visible" title="Open the menu of useful external links">
 								<i class="fa fa-bars w3-xxlarge"></i>
 							</span>
 						</div>
 						<!--export tables as pdf-->
 						<div>
-							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="ExportPdf" style="visibility:visible" title="Click here to export the tables as pdf file">
+							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="ExportPdf" style="visibility:visible" title="Export the tables as pdf file">
 								<i class="fa fa-file-pdf-o w3-xxlarge"></i>
 							</span>
 						</div>
