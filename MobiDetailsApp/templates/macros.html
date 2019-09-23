@@ -118,12 +118,14 @@
 	<script>
 		// When the user clicks anywhere outside of the modal, close it
 		window.onclick = function(event) {
-		  if (event.target == document.getElementById('gene_modal') || event.target == document.getElementById('var_modal')) {
+		 // if (event.target == document.getElementById('gene_modal') || event.target == document.getElementById('var_modal')) {
 			{% for modal_div in varargs %}
-				document.getElementById('{{ modal_div }}').style.display = "none";
+				if (event.target == document.getElementById('{{ modal_div }}')) {
+					document.getElementById('{{ modal_div }}').style.display = "none";
+				}
 				//document.getElementById('var_modal').style.display = "none";
 			{% endfor %}
-		  }
+		  //}
 		}
 	</script>
 {%- endmacro %}

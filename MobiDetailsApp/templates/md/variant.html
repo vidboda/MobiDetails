@@ -70,7 +70,7 @@
 				<!--HGVS DNA on transcript-->
 				<tr>
 					<td class="w3-left-align">HGVS DNA on transcript:</td>
-					<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:c.{{ variant_features.c_name }}</td>
+					<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:c.{{ variant_features.c_name }}</td>
 					<td class="w3-left-align">HGVS full nomenclature at DNA level on transcript</td>
 				</tr>
 				<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}">-->
@@ -118,20 +118,26 @@
 					<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator">hg38:{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}</a></td>
 					<td class="w3-left-align">chr-pos-ref-alt (hg38)</td>
 				</tr>
+				<!--dbSNP id-->
+				<tr>
+					<td class="w3-left-align">dbSNP rsid:</td>
+					<td class="w3-left-align"><a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a></td>
+					<td class="w3-left-align">Identifier for NCBI dbSNP</td>
+				</tr>
 			</tbody>
 		</table><br/><br/>
 		<!--External links-->
-		<div class = "w3-row">
+		<div class="w3-row">
 			<!--Mutalyzer-->
-			<div class = "w3-col m4">
+			<div class="w3-col m4">
 				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}', '_blank');" title="Mutalyzer for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" style="width:100%">Mutalyzer</span>
 			</div>
 			<!--VariantValidator-->
-			<div class = "w3-col m4">
+			<div class="w3-col m4">
 				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
 			</div>
 			<!--HGVS-->
-			<div class = "w3-col m4">
+			<div class="w3-col m4">
 				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.hgvs }}', '_blank')" title="HGVS sequence variant nomenclature web site" style="width:100%">HGVS website</span>
 			</div>
 		</div>
@@ -195,6 +201,22 @@
 				</tr>
 			</tbody>
 		</table><br/><br/>
+		<div class="w3-row">
+			<div class="w3-col m4">
+				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%" id ="litvar_data">
+					Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
+				</span>
+			</div>
+			<div class="w3-col m4">
+				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.id }}');">Export to DEFGEN (hg19)</span>
+				<div class="w3-modal" id="defgen_modal_hg19"></div>
+				<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
+			</div>
+			<div class="w3-col m4">
+				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.id }}');">Export to DEFGEN (hg38)</span>
+				<div class="w3-modal" id="defgen_modal_hg38"></div>
+			</div>
+		</div>
 	</div>
 	<!--third section-->
 	<hr />

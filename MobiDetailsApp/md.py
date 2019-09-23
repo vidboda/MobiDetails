@@ -1,4 +1,4 @@
-#import os
+import os
 import re
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
@@ -191,10 +191,7 @@ def variant(variant_id=None):
 			# 		annot['sift4g_score'] = re.split(';', record['39'])[i]
 			# 		annot['sift4g_color'] = get_preditor_single_threshold_color(1-annot['sift4g_score'], 'sift')
 			#litvar
-			http = urllib3.PoolManager()
-			litvar_url = "{0}rs{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], variant_features['dbsnp_id'])
-			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
-			print(litvar_data)
+			
 					
 		elif var['genome_version'] == 'hg19':
 			#gnomad ex
@@ -243,73 +240,110 @@ def variant(variant_id=None):
 	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 ######################################################################
+#web app - ajax for litvar
+@bp.route('/litVar', methods=['POST'])
+def litvar():
+	rsid = request.form['rsid']
+	if rsid is not None:
+		http = urllib3.PoolManager()
+		litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
+		litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
+		#print (litvar_url)
+		return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data)
+
+######################################################################
+#web app - ajax for defgen export file
+@bp.route('/defgen', methods=['POST'])
+def defgen():
+	variant_id = request.form['vfid']
+	genome = request.form['genome']
+	if variant_id is not None:
+		db = get_db()
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		# get all variant_features and gene info
+		curs.execute(
+			"SELECT * FROM variant_feature a, variant b, gene c WHERE a.id = b.feature_id AND a.gene_name = c.name AND a.id = '{0}' AND b.genome_version = '{1}'".format(variant_id, genome)
+		)
+		vf = curs.fetchone()
+		file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
+		#"$res->{nom}[0];$res->{nom}[1].$res->{acc_version}:$res->{var};;;;$res->{hgvs_prot};$res->{var};$res->{enst};$res->{nom}[1].$res->{acc_version};$pos;$defgen_acmg;;;$res->{snp_id};;$res->{type_prot};;$chr;hg19;$res->{nom_g};$res->{type_segment} $res->{num_segment};;;;\r\n";
+		file_content += "{0};{1}.{2}:c.{3};;;;p.{4};c.{3};{5}:{1}.{2};{6};{7};;;rs{8};;{9};;;chr{10};{11};chr{10}:g.{12};{13} {14};;;;\r\n".format(vf['gene_name'][0], vf['gene_name'][1], vf['nm_version'], vf['c_name'], vf['p_name'], vf['enst'], vf['pos'], vf['acmg_class'], vf['dbsnp_id'], vf['prot_type'], vf['chr'], genome, vf['g_name'], vf['start_segment_type'], vf['start_segment_number'])
+		#print(file_content)
+		app_path = os.path.dirname(os.path.realpath(__file__))
+		file_loc = "defgen/{0}-{1}-{2}{3}-{4}.csv".format(genome, vf['chr'], vf['pos'], vf['pos_ref'], vf['pos_alt'])
+		defgen_file = open("{0}/static/{1}".format(app_path, file_loc), "w")
+		defgen_file.write(file_content)
+		return render_template('ajax/defgen.html', variant="{0}.{1}:c.{2}".format(vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
+
+######################################################################
 #web app - search engine
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
 	query_engine = request.form['search']
 	#query_engine = query_engine.upper()
-	pattern = ''
-	query_type = ''
-	sql_table = 'variant_feature'
-	col_names = 'id'
-	# for aa in one2three.keys():
-	#     aas += "{0}, ".format(aa)
-	# return render_template('md/search_engine.html', query=aas)
-	#deal w/ protein names
-
-	match_object = re.match('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
-	if match_object:
-		query_type = 'p_name'
-		pattern = md_utilities.one2three_fct(query_engine)
-	elif re.match('^p\..+', query_engine):
-		query_type = 'p_name'
-		var = md_utilities.clean_var_name(query_engine)
-		match_object = re.match('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
-		match_object_long = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
+	if query_engine is not None:
+		pattern = ''
+		query_type = ''
+		sql_table = 'variant_feature'
+		col_names = 'id'
+		# for aa in one2three.keys():
+		#     aas += "{0}, ".format(aa)
+		# return render_template('md/search_engine.html', query=aas)
+		#deal w/ protein names
+	
+		match_object = re.match('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
 		if match_object:
-			pattern = md_utilities.one2three_fct(var)
+			query_type = 'p_name'
+			pattern = md_utilities.one2three_fct(query_engine)
+		elif re.match('^p\..+', query_engine):
+			query_type = 'p_name'
+			var = md_utilities.clean_var_name(query_engine)
+			match_object = re.match('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
+			match_object_long = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
+			if match_object:
+				pattern = md_utilities.one2three_fct(var)
+			else:
+				pattern = re.sub('X', '*', var)
+		elif re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
+			sql_table = 'variant'
+			query_type = 'g_name'
+			col_names = 'feature_id'
+			match_object = re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
+			pattern = match_object.group(1)
+		elif re.match('^g\..+', query_engine):#g. ng dna vars
+			query_type = 'ng_name'
+			pattern = md_utilities.clean_var_name(query_engine)
+		elif re.match('^c\..+', query_engine):#c. dna vars
+			query_type = 'c_name'
+			pattern = md_utilities.clean_var_name(query_engine)
+		elif re.match('^[A-Z0-9]+$', query_engine):#genes
+			sql_table = 'gene'
+			query_type = 'name[1]'
+			col_names = 'name'
+			pattern = query_engine
 		else:
-			pattern = re.sub('X', '*', var)
-	elif re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
-		sql_table = 'variant'
-		query_type = 'g_name'
-		col_names = 'feature_id'
-		match_object = re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
-		pattern = match_object.group(1)
-	elif re.match('^g\..+', query_engine):#g. ng dna vars
-		query_type = 'ng_name'
-		pattern = md_utilities.clean_var_name(query_engine)
-	elif re.match('^c\..+', query_engine):#c. dna vars
-		query_type = 'c_name'
-		pattern = md_utilities.clean_var_name(query_engine)
-	elif re.match('^[A-Z0-9]+$', query_engine):#genes
-		sql_table = 'gene'
-		query_type = 'name[1]'
-		col_names = 'name'
-		pattern = query_engine
-	else:
-		return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
-	
-	db = get_db()
-	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-	#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-	#return render_template('md/search_engine.html', query=text)
-	#a little bit of formatting
-	if re.match('variant', sql_table) and re.match('>', pattern):
-		#upper for the end of the variant, lwer for genomic chr
-		var_match = re.match('^(.*)(\.+)([ACTG]>[ACTG])$')
-		pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
-	curs.execute(
-		"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-	)
-	result = curs.fetchone()
-	if result is None:
-		return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
-	elif sql_table == 'gene':
-		return redirect(url_for('md.gene', gene_name=result[col_names][0]))
-	else:
-		return redirect(url_for('md.variant', variant_id=result[col_names]))
-	
+			return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
+		
+		db = get_db()
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+		#return render_template('md/search_engine.html', query=text)
+		#a little bit of formatting
+		if re.match('variant', sql_table) and re.match('>', pattern):
+			#upper for the end of the variant, lwer for genomic chr
+			var_match = re.match('^(.*)(\.+)([ACTG]>[ACTG])$')
+			pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
+		curs.execute(
+			"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+		)
+		result = curs.fetchone()
+		if result is None:
+			return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
+		elif sql_table == 'gene':
+			return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+		else:
+			return redirect(url_for('md.variant', variant_id=result[col_names]))
+		
 #1st attempt with SQLalchemy
 #@app.route('/MD')
 # def homepage(mduser='Public user'):
