@@ -1,3 +1,4 @@
+#import os
 import re
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
@@ -5,6 +6,7 @@ from flask import (
 from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
+import tabix
 
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db
@@ -65,7 +67,7 @@ def gene(gene_name=None):
 				"SELECT * FROM gene_annotation WHERE gene_name[1] = '{}'".format(gene_name)
 			)
 			annot = curs.fetchone();
-			return render_template('md/gene.html', gene=gene_name, main_iso=main, res=result_all, annotations=annot)
+			return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name, main_iso=main, res=result_all, annotations=annot)
 		else:
 			return render_template('md/unknown.html', query=gene_name)
 	else:
@@ -106,7 +108,7 @@ def vars(gene_name=None):
 		)
 		variants = curs.fetchall()
 		#if vars_type is not None:
-		return render_template('md/vars.html', gene=gene_name, variants=variants, gene_info=main)
+		return render_template('md/vars.html', urls=md_utilities.urls, gene=gene_name, variants=variants, gene_info=main)
 	else:
 		return render_template('md/unknown.html', query=gene_name)
 
@@ -128,7 +130,7 @@ def variant(variant_id=None):
 		"SELECT * FROM variant WHERE feature_id = '{0}'".format(variant_id)
 	)
 	variant = curs.fetchall()
-	# compute position / splice sites - TO BE FINISHED
+	# compute position / splice sites
 	if variant_features['variant_size'] < 50:
 		for var in variant:
 			if var['genome_version'] == 'hg38':
@@ -141,9 +143,80 @@ def variant(variant_id=None):
 				if pos_splice_site[1] > pos_splice_site_second[1]:
 					#pos_splice_site_second nearest from splice site
 					pos_splice_site = pos_splice_site_second
+		#compute position in domain
+		#1st get aa pos
 		aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+		curs.execute(
+			"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
+		)
+		domain = curs.fetchall()
 	
-	return render_template('md/variant.html', variant_features=variant_features, variant=variant, pos_splice=pos_splice_site)
+	#dict for annotations
+	annot = {}
+	
+	# clinvar search & gnomad
+	# tabix searches in fact
+	
+	for var in variant:
+		if var['genome_version'] == 'hg38':
+			#clinvar
+			record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
+			if isinstance(record, str):
+				annot['clinsig'] = record
+			else:
+				annot['clinvar_id'] = record[2]
+				match_object =  re.match('CLNSIG=(.+);', record[7])
+				if match_object:
+					annot['clinsig'] = match_object.group(1)
+			#dbNSFP
+			if variant_features['prot_type'] == 'missense':
+				dbNSFP_file = md_utilities.get_dbNSFP_file(variant_features['chr'])
+			
+		elif var['genome_version'] == 'hg19':
+			#gnomad ex
+			record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome'][0], var)
+			if isinstance(record, str):
+				annot['gnomad_exome_all'] = record
+			else:
+				annot['gnomad_exome_all'] = record[5]
+			#gnomad ge
+			record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome'][0], var)
+			if isinstance(record, str):
+				annot['gnomad_genome_all'] = record
+			else:
+				annot['gnomad_genome_all'] = record[5]
+			#dbscSNV
+			record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv'][0], var)
+			if isinstance(record, str):
+				annot['dbscsnv_ada'] = record
+				annot['dbscsnv_rf'] = record
+			else:
+				annot['dbscsnv_ada'] = record[14]
+				annot['dbscsnv_ada_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+				annot['dbscsnv_rf'] = record[15]
+				annot['dbscsnv_rf_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+			#spliceai
+			if variant_features['dna_type'] == 'substitution':
+				record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
+				if isinstance(record, str):
+					annot['spliceai'] = record
+				else:
+					spliceais = re.split(';', record[7])
+					for spliceai in spliceais:
+						#DIST=-73;DS_AG=0.0002;DS_AL=0.0000;DS_DG=0.0000;DS_DL=0.0000;DP_AG=14;DP_AL=-3;DP_DG=9;DP_DL=15
+						match_object = re.match('(\w+)=(.+)', spliceai)
+						#put value in annot dict
+						identifier = "spliceai_{}".format(match_object.group(1))
+						annot[identifier] = match_object.group(2)
+						#put also html color corresponging to value
+						if re.match('spliceai_DS_', identifier):
+							id_color = "{}_color".format(identifier)
+							annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
+			
+
+	print(annot)
+	
+	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 ######################################################################
 #web app - search engine

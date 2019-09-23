@@ -16,14 +16,14 @@
 		<br /><p>
 			<h2 align="center" class="w3-text-red">
 				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em></span>
-				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }}</span> / 
-				<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>
+				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }})</span>
+				<!--<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>-->
 			</h2>
 		</p>
 		<p align="center">
 		{{ create_variant(gene, main_iso) }}
 		</p><br /><br />
-		{{ gene_redirection(gene) }}
+		{{ gene_redirection(gene, urls) }}
 		{{ modal_js('gene_modal', 'var_modal') }}
 		<div class="w3-responsive" id="gene_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
@@ -41,7 +41,7 @@
 					<td><span>{{ main_iso.chr }}</span></td>
 					<td><span>-</span></td>
 					<td><span>{{ main_iso.prot_name }} {{ main_iso.short_prot }}</span></td>
-					<td><span><span class="w3-button w3-hover-sand" onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
+					<td><span><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
 					{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
 					<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
 					{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
@@ -65,19 +65,19 @@
 				</tr>
 				{% for iso in res %}
 					<tr>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
+						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
 							<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}</span></strong>
 						</td>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('http://ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
+						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
 							<span>{{ iso.enst }}</span>
 						</td>
 						<td>
 							<span>{{ iso.number_of_exons }}</span>
 						</td>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('http://www.ncbi.nlm.nih.gov/nuccore/{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
+						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
 							<span>{{ iso.np }}</span>
 						</td>
-						<td class="w3-button w3-hover-sand" onclick="window.open('http://www.uniprot.org/uniprot/{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
+						<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
 							<span>{{ iso.uniprot_id }}</span>
 						</td>
 					</tr>

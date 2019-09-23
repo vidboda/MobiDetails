@@ -1,3 +1,4 @@
+import re
 import pytest
 from flask import g, session
 from MobiDetailsApp import md_utilities
@@ -35,7 +36,7 @@ def test_one2three_fct(client, variant_in, variant_out):
 	('p.Arg34_Glu65del', 'R34_E65del'),
 	('p.(Arg34tyr)', 'R34Y'),
 	('p.(Arg34_Glu65del)', 'R34_E65del'),
-	('p.(Arg34=', 'R34='),
+	('p.(Arg34=', 'R34=')
 ))
 def test_three2one_fct(client, variant_in, variant_out):
 	test_var = md_utilities.three2one_fct(variant_in)
@@ -69,8 +70,49 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 	('Arg34_Glu65del', '34_65'),
 	('Glu35Arg', '35'),
 	('His3417_Gly3425dup', '3417_3425'),
-	('Arg34=', '34'),
+	('Arg34=', '34')
 ))
 def test_get_aa_position(client, variant_in, aa_pos):
 	aa = md_utilities.get_aa_position(variant_in)
 	assert aa == aa_pos
+	
+#app_path = '/home/adminbioinfo/Devs/MobiDetails/MobiDetailsApp'
+@pytest.mark.parametrize(('chrom', 'gzfile'), (
+	('1', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr1.gz'),
+	('X', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrX.gz'),
+	('M', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrM.gz'),
+	('22', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr22.gz')
+))
+def test_get_dbNSFP_file(client, chrom, gzfile):
+	dbnsfp_file = md_utilities.get_dbNSFP_file(chrom)
+	assert dbnsfp_file == gzfile
+	
+var = {
+	'chr': '1',
+	'pos': '216247118',
+	'pos_ref': 'C',
+	'pos_alt': 'A'
+}
+def test_get_value_from_tabix_file():
+	record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
+	assert re.search('Pathogenic', record[7])
+	assert re.search('2356', record[2])
+	
+@pytest.mark.parametrize(('value', 'result_color'), (
+	(0.1270, '#00A020'),
+	(0.0000, '#00A020'),
+	(0.4289, '#FFA020'),
+	(0.6854, '#FF6020'),
+	(0.9847, '#FF0000')
+))
+def test_get_spliceai_color(client, value, result_color):
+	color = md_utilities.get_spliceai_color(value)
+	assert color == result_color
+
+@pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
+	(0.12, '#00A020', 'dbscsnv'),
+	(0.85, '#FF0000', 'dbscsnv')
+))
+def test_get_preditor_single_threshold_color(client, value, result_color, predictor):
+	color = md_utilities.get_preditor_single_threshold_color(value, predictor)
+	assert color == result_color
