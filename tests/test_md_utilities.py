@@ -63,14 +63,14 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 	assert dist == result
 
 @pytest.mark.parametrize(('variant_in', 'aa_pos'), (
-	('Arg34X', '34'),
-	('Arg34del', '34'),
-	('Arg34Ter', '34'),
-	('Arg34*', '34'),
-	('Arg34_Glu65del', '34_65'),
-	('Glu35Arg', '35'),
-	('His3417_Gly3425dup', '3417_3425'),
-	('Arg34=', '34')
+	('Arg34X', ('34', '34')),
+	('Arg34del', ('34', '34')),
+	('Arg34Ter', ('34', '34')),
+	('Arg34*', ('34', '34')),
+	('Arg34_Glu65del', ('34', '65')),
+	('Glu35Arg', ('35', '35')),
+	('His3417_Gly3425dup', ('3417', '3425')),
+	('Arg34=', ('34', '34'))
 ))
 def test_get_aa_position(client, variant_in, aa_pos):
 	aa = md_utilities.get_aa_position(variant_in)

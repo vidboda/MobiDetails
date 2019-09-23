@@ -18,11 +18,12 @@ urls = {
 	'ncbi_nuccore':  '{}nuccore/'.format(url_ncbi),
 	'ncbi_prot': '{}protein/'.format(url_ncbi),
 	'ncbi_dbsnp': '{}snp/'.format(url_ncbi),
-	'ncbi_clinvar': '{}clinvar?term='.format(url_ncbi),
+	'ncbi_clinvar': '{}clinvar'.format(url_ncbi),
 	'ncbi_1000g': '{}variation/tools/1000genomes/?'.format(url_ncbi),
 	'ncbi_gene': '{}gene/?term='.format(url_ncbi),
+	'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
-	'variantvalidator': 'https://variantvalidator.org/variantvalidation/?variant=',
+	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
 	'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
 	'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
 	'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
@@ -34,22 +35,27 @@ urls = {
 	'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?',
 	'marrvel': 'http://marrvel.org/search/gene/',
 	'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
-	'spliceai': 'https://github.com/Illumina/SpliceAI'
+	'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
+	'spliceai': 'https://github.com/Illumina/SpliceAI',
+	'sift4g': 'https://sift.bii.a-star.edu.sg/sift4g/AboutSIFT4G.html',
 }
 local_files = {
-	'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
-	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', '20190916'],
-	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2'],
-	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2'],
-	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1'],
-	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1'],
-	'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr', '4.0a'],
+	#'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
+	# id :[local path, version, name, short desc, urls Xref]
+	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', '20190916', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
+	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
+	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
+	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
+	'dbNSFP': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', '4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
+	'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
 	'spliceai_min': 0.2,
 	'spliceai_mid': 0.5,
 	'spliceai_max': 0.8,
-	'dbscsnv': 0.8
+	'dbscsnv': 0.8,
+	'SIFT': 0.95, #SIFT is reversed
 }
 predictor_colors = {
 	'min': '#00A020',

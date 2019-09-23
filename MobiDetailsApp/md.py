@@ -7,6 +7,8 @@ from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
 import tabix
+import json
+import urllib3
 
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db
@@ -39,8 +41,8 @@ def index():
 
 #web app - about
 @bp.route('/about')
-def about():
-	return render_template('md/about.html')
+def about():	
+	return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files)
 
 
 ######################################################################
@@ -169,9 +171,31 @@ def variant(variant_id=None):
 				if match_object:
 					annot['clinsig'] = match_object.group(1)
 			#dbNSFP
-			if variant_features['prot_type'] == 'missense':
-				dbNSFP_file = md_utilities.get_dbNSFP_file(variant_features['chr'])
-			
+			# if variant_features['prot_type'] == 'missense':				
+			# 	dbNSFP_file = md_utilities.get_dbNSFP_file(variant_features['chr'])
+			# 	#print(dbNSFP_file)
+			# 	record = md_utilities.get_value_from_tabix_file('dbNSFP', dbNSFP_file, var)
+			# 	if isinstance(record, str):
+			# 		annot['dbNSFP'] = record
+			# 	else:
+			# 		#first: get enst we're dealing with
+			# 		i=0
+			# 		enst_list = re.split(';', record['14'])
+			# 		for enst in enst_list:
+			# 			if variant_features['enst'] == enst:
+			# 				transcript_index = i
+			# 				i += 1
+			# 		#then iterate for each score of interest, e.g.  sift..
+			# 		#missense:
+			# 		#sift4g
+			# 		annot['sift4g_score'] = re.split(';', record['39'])[i]
+			# 		annot['sift4g_color'] = get_preditor_single_threshold_color(1-annot['sift4g_score'], 'sift')
+			#litvar
+			http = urllib3.PoolManager()
+			litvar_url = "{0}rs{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], variant_features['dbsnp_id'])
+			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
+			print(litvar_data)
+					
 		elif var['genome_version'] == 'hg19':
 			#gnomad ex
 			record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome'][0], var)
@@ -222,69 +246,70 @@ def variant(variant_id=None):
 #web app - search engine
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
-    query_engine = request.form['search']
-    #query_engine = query_engine.upper()
-    pattern = ''
-    query_type = ''
-    sql_table = 'variant_feature'
-    col_names = 'id'
-   # for aa in one2three.keys():
-   #     aas += "{0}, ".format(aa)
-   # return render_template('md/search_engine.html', query=aas)
-    #deal w/ protein names
-    
-    match_object = re.match('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
-    if match_object:
-        query_type = 'p_name'
-        pattern = md_utilities.one2three_fct(query_engine)
-    elif re.match('^p\..+', query_engine):
-        query_type = 'p_name'
-        var = md_utilities.clean_var_name(query_engine)
-        match_object = re.match('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
-        match_object_long = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
-        if match_object:
-            pattern = md_utilities.one2three_fct(var)
-        else:
-            pattern = re.sub('X', '*', var)
-    elif re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
-        sql_table = 'variant'
-        query_type = 'g_name'
-        col_names = 'feature_id'
-        pattern = query_engine
-    elif re.match('^g\..+', query_engine):#g. ng dna vars
-        query_type = 'ng_name'
-        pattern = md_utilities.clean_var_name(query_engine)
-    elif re.match('^c\..+', query_engine):#c. dna vars
-        query_type = 'c_name'
-        pattern = md_utilities.clean_var_name(query_engine)
-    elif re.match('^[A-Z0-9]+$', query_engine):#genes
-        sql_table = 'gene'
-        query_type = 'name[1]'
-        col_names = 'name'
-        pattern = query_engine
-    else:
-        return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
-    
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    #sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-    #return render_template('md/search_engine.html', query=text)
-    #a little bit of formatting
-    if re.match('variant', sql_table) and re.match('>', pattern):
-        #upper for the end of the variant, lwer for genomic chr
-        var_match = re.match('^(.*)(\.+)([ACTG]>[ACTG])$')
-        pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
-    curs.execute(
-        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-    )
-    result = curs.fetchone()
-    if result is None:
-        return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
-    elif sql_table == 'gene':
-        return redirect(url_for('md.gene', gene_name=result[col_names][0]))
-    else:
-        return redirect(url_for('md.variant', variant_id=result[col_names]))
+	query_engine = request.form['search']
+	#query_engine = query_engine.upper()
+	pattern = ''
+	query_type = ''
+	sql_table = 'variant_feature'
+	col_names = 'id'
+	# for aa in one2three.keys():
+	#     aas += "{0}, ".format(aa)
+	# return render_template('md/search_engine.html', query=aas)
+	#deal w/ protein names
 
+	match_object = re.match('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
+	if match_object:
+		query_type = 'p_name'
+		pattern = md_utilities.one2three_fct(query_engine)
+	elif re.match('^p\..+', query_engine):
+		query_type = 'p_name'
+		var = md_utilities.clean_var_name(query_engine)
+		match_object = re.match('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
+		match_object_long = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
+		if match_object:
+			pattern = md_utilities.one2three_fct(var)
+		else:
+			pattern = re.sub('X', '*', var)
+	elif re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
+		sql_table = 'variant'
+		query_type = 'g_name'
+		col_names = 'feature_id'
+		match_object = re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
+		pattern = match_object.group(1)
+	elif re.match('^g\..+', query_engine):#g. ng dna vars
+		query_type = 'ng_name'
+		pattern = md_utilities.clean_var_name(query_engine)
+	elif re.match('^c\..+', query_engine):#c. dna vars
+		query_type = 'c_name'
+		pattern = md_utilities.clean_var_name(query_engine)
+	elif re.match('^[A-Z0-9]+$', query_engine):#genes
+		sql_table = 'gene'
+		query_type = 'name[1]'
+		col_names = 'name'
+		pattern = query_engine
+	else:
+		return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
+	
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+	#return render_template('md/search_engine.html', query=text)
+	#a little bit of formatting
+	if re.match('variant', sql_table) and re.match('>', pattern):
+		#upper for the end of the variant, lwer for genomic chr
+		var_match = re.match('^(.*)(\.+)([ACTG]>[ACTG])$')
+		pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
+	curs.execute(
+		"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+	)
+	result = curs.fetchone()
+	if result is None:
+		return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
+	elif sql_table == 'gene':
+		return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+	else:
+		return redirect(url_for('md.variant', variant_id=result[col_names]))
+	
 #1st attempt with SQLalchemy
 #@app.route('/MD')
 # def homepage(mduser='Public user'):
