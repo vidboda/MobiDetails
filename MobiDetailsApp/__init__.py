@@ -26,6 +26,8 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	from . import md
 	app.register_blueprint(md.bp)
+	from . import ajax
+	app.register_blueprint(ajax.bp)
 	app.add_url_rule('/', endpoint='index')
 	
 	# a simple page that says hello
