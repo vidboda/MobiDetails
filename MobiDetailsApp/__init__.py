@@ -1,7 +1,8 @@
 import os
 from . import md_utilities
-
 from flask import Flask
+from logging.handlers import RotatingFileHandler
+import logging
 
 def create_app(test_config=None):
 	app =  Flask(__name__)
@@ -28,12 +29,30 @@ def create_app(test_config=None):
 	app.register_blueprint(md.bp)
 	from . import ajax
 	app.register_blueprint(ajax.bp)
+	from . import error
+	app.register_blueprint(error.bp)
 	app.add_url_rule('/', endpoint='index')
 	
 	# a simple page that says hello
-	@app.route('/factory_test')
-	def hello():
-		return 'Flask factory ok!'
+	# @app.route('/factory_test')
+	# def hello():
+	# 	return 'Flask factory ok!'
+	# 
+	if not app.debug:
+		
+		#logging into a file (from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-error-handling)
+		if not os.path.exists('logs'):
+			os.mkdir('logs')
+		file_handler = RotatingFileHandler('logs/mobidetails.log', maxBytes=10240,
+										   backupCount=10)
+		file_handler.setFormatter(logging.Formatter(
+			'%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+		file_handler.setLevel(logging.INFO)
+		app.logger.addHandler(file_handler)
+	
+		app.logger.setLevel(logging.INFO)
+		app.logger.info('Mobidetails startup')
 	
 	
 	return app
+

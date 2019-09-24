@@ -38,6 +38,10 @@ urls = {
 	'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
 	'spliceai': 'https://github.com/Illumina/SpliceAI',
 	'sift4g': 'https://sift.bii.a-star.edu.sg/sift4g/AboutSIFT4G.html',
+	'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
+	'fathmm': 'http://fathmm.biocompute.org.uk/',
+	'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
+	'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
 }
 local_files = {
 	#'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
@@ -48,14 +52,20 @@ local_files = {
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
 	'dbNSFP': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', '4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-	'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
+	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
 	'spliceai_min': 0.2,
 	'spliceai_mid': 0.5,
 	'spliceai_max': 0.8,
 	'dbscsnv': 0.8,
-	'SIFT': 0.95, #SIFT is reversed
+	'sift': 0.95, #SIFT is reversed
+	'pph2_hdiv_max': 0.957,
+	'pph2_hdiv_mid': 0.454,
+	'pph2_hvar_max': 0.909,
+	'pph2_hvar_mid': 0.447,
+	'fathmm': -1.5,
+	'meta': 0.5,
 }
 predictor_colors = {
 	'min': '#00A020',
@@ -63,9 +73,14 @@ predictor_colors = {
 	'mid_effect': '#FF6020',
 	'max': '#FF0000'
 }
+predictors_translations = {
+	'basic': {'D': 'Damaging', 'T': 'Tolerated'},
+	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign'}
+}
 
-def get_dbNSFP_file(chrom):
-	return local_files['dbNSFP_base'][0] + chrom + '.gz'
+#useless as dbNSFP has been concatenated in a single file
+#def get_dbNSFP_file(chrom):
+#	return local_files['dbNSFP_base'][0] + chrom + '.gz'
 
 
 def clean_var_name(variant):
@@ -135,8 +150,11 @@ def get_aa_position(hgvs_p):
 def get_value_from_tabix_file(text, tabix_file, var):
 	tb = tabix.open(tabix_file)
 	records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
+	i = 3
+	if re.search('dbNSFP', tabix_file):
+		i -= 1
 	for record in records:
-		if record[3] == var['pos_ref'] and record[4] == var['pos_alt']:
+		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
 			return record
 	return 'No match in {}'.format(text)
 #returns an html color depending on spliceai score
@@ -154,4 +172,18 @@ def get_preditor_single_threshold_color(value, predictor):
 	#function to get green or red
 	if value > predictor_thresholds[predictor]:
 		return predictor_colors['max']
+	return predictor_colors['min']
+#returns an html color depending on a single threshold (reverted, e.g. for fathmm)
+def get_preditor_single_threshold_reverted_color(value, predictor):
+	#function to get green or red
+	if value < predictor_thresholds[predictor]:
+		return predictor_colors['max']
+	return predictor_colors['min']
+#returns an html color depending on a double threshold
+def get_preditor_double_threshold_color(value, predictor_min, predictor_max):
+	#function to get green or red
+	if value > predictor_thresholds[predictor_max]:
+		return predictor_colors['max']
+	elif value > predictor_thresholds[predictor_min]:
+		return predictor_colors['mid_effect']
 	return predictor_colors['min']

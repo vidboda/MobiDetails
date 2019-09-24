@@ -75,17 +75,17 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 def test_get_aa_position(client, variant_in, aa_pos):
 	aa = md_utilities.get_aa_position(variant_in)
 	assert aa == aa_pos
-	
+#deprecated
 #app_path = '/home/adminbioinfo/Devs/MobiDetails/MobiDetailsApp'
-@pytest.mark.parametrize(('chrom', 'gzfile'), (
-	('1', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr1.gz'),
-	('X', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrX.gz'),
-	('M', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrM.gz'),
-	('22', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr22.gz')
-))
-def test_get_dbNSFP_file(client, chrom, gzfile):
-	dbnsfp_file = md_utilities.get_dbNSFP_file(chrom)
-	assert dbnsfp_file == gzfile
+# @pytest.mark.parametrize(('chrom', 'gzfile'), (
+# 	('1', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr1.gz'),
+# 	('X', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrX.gz'),
+# 	('M', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrM.gz'),
+# 	('22', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr22.gz')
+# ))
+# def test_get_dbNSFP_file(client, chrom, gzfile):
+# 	dbnsfp_file = md_utilities.get_dbNSFP_file(chrom)
+# 	assert dbnsfp_file == gzfile
 	
 var = {
 	'chr': '1',
@@ -115,4 +115,20 @@ def test_get_spliceai_color(client, value, result_color):
 ))
 def test_get_preditor_single_threshold_color(client, value, result_color, predictor):
 	color = md_utilities.get_preditor_single_threshold_color(value, predictor)
+	assert color == result_color
+	
+@pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
+	(0, '#00A020', 'fathmm'),
+	(-5.88, '#FF0000', 'fathmm')
+))
+def test_get_preditor_single_threshold_reverted_color(client, value, result_color, predictor):
+	color = md_utilities.get_preditor_single_threshold_reverted_color(value, predictor)
+	assert color == result_color
+	
+@pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max'), (
+	(0.12, '#00A020', 'pph2_hdiv_mid', 'pph2_hdiv_max'),
+	(0.97, '#FF0000', 'pph2_hdiv_mid', 'pph2_hdiv_max')
+))
+def test_get_preditor_double_threshold_color(client, value, result_color, predictor_min, predictor_max):
+	color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
 	assert color == result_color

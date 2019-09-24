@@ -1,4 +1,3 @@
-#import os
 import re
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
@@ -7,8 +6,7 @@ from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
 import tabix
-# import json
-# import urllib3
+
 
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db
@@ -132,27 +130,7 @@ def variant(variant_id=None):
 		"SELECT * FROM variant WHERE feature_id = '{0}'".format(variant_id)
 	)
 	variant = curs.fetchall()
-	# compute position / splice sites
-	if variant_features['variant_size'] < 50:
-		for var in variant:
-			if var['genome_version'] == 'hg38':
-				#get a tuple ['site_type', 'dist(bp)']
-				pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
-			if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
-				#indels > 1 bp
-				#get a tuple ['site_type', 'dist(bp)']
-				pos_splice_site_second = md_utilities.get_pos_splice_site(var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
-				if pos_splice_site[1] > pos_splice_site_second[1]:
-					#pos_splice_site_second nearest from splice site
-					pos_splice_site = pos_splice_site_second
-		#compute position in domain
-		#1st get aa pos
-		aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
-		curs.execute(
-			"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
-		)
-		domain = curs.fetchall()
-	
+
 	#dict for annotations
 	annot = {}
 	
@@ -161,36 +139,73 @@ def variant(variant_id=None):
 	
 	for var in variant:
 		if var['genome_version'] == 'hg38':
+			# compute position / splice sites
+			if variant_features['variant_size'] < 50:
+				#get a tuple ['site_type', 'dist(bp)']
+				pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
+				if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
+					#indels > 1 bp
+					#get a tuple ['site_type', 'dist(bp)']
+					pos_splice_site_second = md_utilities.get_pos_splice_site(var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
+					if pos_splice_site[1] > pos_splice_site_second[1]:
+						#pos_splice_site_second nearest from splice site
+						pos_splice_site = pos_splice_site_second
+				#compute position in domain
+				#1st get aa pos
+				aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+				curs.execute(
+					"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
+				)
+				domain = curs.fetchall()
 			#clinvar
 			record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
 			if isinstance(record, str):
 				annot['clinsig'] = record
 			else:
 				annot['clinvar_id'] = record[2]
-				match_object =  re.match('CLNSIG=(.+);', record[7])
+				match_object =  re.search('CLNSIG=(.+);CLNVC=', record[7])
 				if match_object:
 					annot['clinsig'] = match_object.group(1)
 			#dbNSFP
-			# if variant_features['prot_type'] == 'missense':				
-			# 	dbNSFP_file = md_utilities.get_dbNSFP_file(variant_features['chr'])
-			# 	#print(dbNSFP_file)
-			# 	record = md_utilities.get_value_from_tabix_file('dbNSFP', dbNSFP_file, var)
-			# 	if isinstance(record, str):
-			# 		annot['dbNSFP'] = record
-			# 	else:
-			# 		#first: get enst we're dealing with
-			# 		i=0
-			# 		enst_list = re.split(';', record['14'])
-			# 		for enst in enst_list:
-			# 			if variant_features['enst'] == enst:
-			# 				transcript_index = i
-			# 				i += 1
-			# 		#then iterate for each score of interest, e.g.  sift..
-			# 		#missense:
-			# 		#sift4g
-			# 		annot['sift4g_score'] = re.split(';', record['39'])[i]
-			# 		annot['sift4g_color'] = get_preditor_single_threshold_color(1-annot['sift4g_score'], 'sift')
-			#litvar
+			if variant_features['prot_type'] == 'missense':				
+				record = md_utilities.get_value_from_tabix_file('dbNSFP', md_utilities.local_files['dbNSFP'][0], var)
+				if isinstance(record, str):
+					annot['dbNSFP'] = record
+				else:
+					#first: get enst we're dealing with
+					i=0
+					enst_list = re.split(';', record[14])
+					for enst in enst_list:
+						if variant_features['enst'] == enst:
+							transcript_index = i
+							i += 1
+					#then iterate for each score of interest, e.g.  sift..
+					#missense:
+					#sift4g
+					annot['sift4g_score'] = re.split(';', record[39])[i]
+					annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(1-float(annot['sift4g_score']), 'sift')
+					annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[i]]
+					#polyphen 2
+					annot['pph2_hdiv_score'] = re.split(';', record[42])[i]
+					annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(float(annot['pph2_hdiv_score']), 'pph2_hdiv_mid', 'pph2_hdiv_max')
+					annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[i]]
+					annot['pph2_hvar_score'] = re.split(';', record[45])[i]
+					annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(float(annot['pph2_hvar_score']), 'pph2_hvar_mid', 'pph2_hvar_max')
+					annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[i]]
+					#fathmm
+					annot['fathmm_score'] = re.split(';', record[60])[i]
+					annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(float(annot['fathmm_score']), 'fathmm')
+					annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[i]]
+					#meta SVM
+					print(record[68])
+					annot['msvm_score'] = record[68]
+					annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['msvm_score']), 'meta')
+					annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
+					#meta LR
+					annot['mlr_score'] = record[71]
+					annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['mlr_score']), 'meta')
+					annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
+					annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
 			
 					
 		elif var['genome_version'] == 'hg19':

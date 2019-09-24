@@ -18,7 +18,7 @@ function defgen_export(genome, vf_id) {
 $(document).ready(function() {
 	$('.w3-table').DataTable({
 		responsive: true,
-		dom: 'ft',
+		dom: 't',
 		"order": [],
 		//scrollY: 600,
 		buttons: [
@@ -34,6 +34,16 @@ $(document).ready(function() {
 	})
 		.done(function(html) {
 		$("#litvar_data").replaceWith(html);
+	});
+		$.ajax({
+		type: "POST",
+		url: '/intervar',
+		data: {
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+		}
+	})
+		.done(function(html) {
+		$("#intervar_data").replaceWith(html);
 	});
 	//$('#defgen_btn').click(function(){	
 	//alert($('#dbsnp_id').text());

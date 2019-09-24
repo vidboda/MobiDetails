@@ -51,3 +51,25 @@ def defgen():
 		defgen_file = open("{0}/static/{1}".format(app_path, file_loc), "w")
 		defgen_file.write(file_content)
 		return render_template('ajax/defgen.html', variant="{0}.{1}:c.{2}".format(vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
+	
+#web app - ajax for intervar API
+@bp.route('/intervar', methods=['POST'])
+def intervar():
+	genome = request.form['genome']
+	chrom = request.form['chrom']
+	pos = request.form['pos']
+	ref = request.form['ref']
+	alt = request.form['alt']
+	http = urllib3.PoolManager()
+	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
+	#return intervar_url
+	intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	# get all variant_features and gene info
+	curs.execute(
+		"SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(intervar_data['Intervar'].lower())
+	)
+	res = curs.fetchone()
+	return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
+	

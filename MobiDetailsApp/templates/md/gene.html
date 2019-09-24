@@ -15,8 +15,8 @@
 	<div class="tab_content w3-padding" style="display:block;" />
 		<br /><p>
 			<h2 align="center" class="w3-text-red">
-				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em></span>
-				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }})</span>
+				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em> ({{ main_iso.second_name }})</span>
+				<!--<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }})</span>-->
 				<!--<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>-->
 			</h2>
 		</p>
@@ -66,7 +66,11 @@
 				{% for iso in res %}
 					<tr>
 						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
-							<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}</span></strong>
+							<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}
+								{% if iso.canonical == 1 %}
+									(canonical)
+								{% endif %}
+							</span></strong>
 						</td>
 						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
 							<span>{{ iso.enst }}</span>
