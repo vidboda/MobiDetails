@@ -1,5 +1,5 @@
 # MobiDetails
-MobiDetails is a webapp which intends to agregate data on DNA variants in order to help with the interpretation of those variants
+MobiDetails is a webapp which intends to aggregate data on DNA variants in order to help with their interpretation.
 
 It consists in a website where users can easily create variants and retrieve many information.
 
