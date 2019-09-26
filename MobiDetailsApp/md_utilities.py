@@ -42,16 +42,20 @@ urls = {
 	'fathmm': 'http://fathmm.biocompute.org.uk/',
 	'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
 	'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
+	'lovd': 'http://www.lovd.nl/',
+	'cadd': 'https://cadd.gs.washington.edu/',
 }
 local_files = {
 	#'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
 	# id :[local path, version, name, short desc, urls Xref]
-	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', '20190916', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', 'v20190916', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
 	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
 	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
-	'dbNSFP': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', '4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
+	'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', 'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
+	'cadd': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
+	'cadd_indels': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
@@ -187,3 +191,14 @@ def get_preditor_double_threshold_color(value, predictor_min, predictor_max):
 	elif value > predictor_thresholds[predictor_min]:
 		return predictor_colors['mid_effect']
 	return predictor_colors['min']
+
+#in ajax.py return end pos of a specific variant
+#receives g_name as 216420460C>A or 76885812_76885817del
+def compute_pos_end(g_name):
+	match_object = re.search('^(\d+)[ATGC]>', g_name)
+	if match_object is not None:
+		return match_object.group(1)	
+	else:
+		match_object = re.search('_(\d+)[di]', g_name)
+		if match_object is not None:
+			return match_object.group(1)

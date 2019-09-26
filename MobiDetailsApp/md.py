@@ -160,17 +160,17 @@ def variant(variant_id=None):
 			#clinvar
 			record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
 			if isinstance(record, str):
-				annot['clinsig'] = record
+				annot['clinsig'] = "{0} {1}".format(record, md_utilities.local_files['clinvar_hg38'][1])
 			else:
 				annot['clinvar_id'] = record[2]
 				match_object =  re.search('CLNSIG=(.+);CLNVC=', record[7])
 				if match_object:
 					annot['clinsig'] = match_object.group(1)
 			#dbNSFP
-			if variant_features['prot_type'] == 'missense':				
-				record = md_utilities.get_value_from_tabix_file('dbNSFP', md_utilities.local_files['dbNSFP'][0], var)
+			if variant_features['prot_type'] == 'missense':
+				record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
 				if isinstance(record, str):
-					annot['dbNSFP'] = record
+					annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.local_files['dbnsfp'][1])
 				else:
 					#first: get enst we're dealing with
 					i=0
@@ -206,6 +206,21 @@ def variant(variant_id=None):
 					annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['mlr_score']), 'meta')
 					annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
 					annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
+			#CADD
+			if variant_features['dna_type'] == 'substitution':
+				record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd'][0], var)
+				if isinstance(record, str):
+					annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd'][1])
+				else:
+					annot['cadd_raw'] = record[4]
+					annot['cadd_phred'] = record[5]
+			else:
+				record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels'][0], var)
+				if isinstance(record, str):
+					annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels'][1])
+				else:
+					annot['cadd_raw'] = record[4]
+					annot['cadd_phred'] = record[5]
 			
 					
 		elif var['genome_version'] == 'hg19':
@@ -221,21 +236,21 @@ def variant(variant_id=None):
 				annot['gnomad_genome_all'] = record
 			else:
 				annot['gnomad_genome_all'] = record[5]
-			#dbscSNV
-			record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv'][0], var)
-			if isinstance(record, str):
-				annot['dbscsnv_ada'] = record
-				annot['dbscsnv_rf'] = record
-			else:
-				annot['dbscsnv_ada'] = record[14]
-				annot['dbscsnv_ada_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
-				annot['dbscsnv_rf'] = record[15]
-				annot['dbscsnv_rf_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
-			#spliceai
 			if variant_features['dna_type'] == 'substitution':
+				#dbscSNV
+				record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv'][0], var)
+				if isinstance(record, str):
+					annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
+					annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
+				else:
+					annot['dbscsnv_ada'] = record[14]
+					annot['dbscsnv_ada_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+					annot['dbscsnv_rf'] = record[15]
+					annot['dbscsnv_rf_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+				#spliceai
 				record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
 				if isinstance(record, str):
-					annot['spliceai'] = record
+					annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
 				else:
 					spliceais = re.split(';', record[7])
 					for spliceai in spliceais:

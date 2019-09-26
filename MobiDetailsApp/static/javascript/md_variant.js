@@ -16,6 +16,7 @@ function defgen_export(genome, vf_id) {
 
 
 $(document).ready(function() {
+	// transform all tables as datatables
 	$('.w3-table').DataTable({
 		responsive: true,
 		dom: 't',
@@ -25,6 +26,7 @@ $(document).ready(function() {
 				'copy', 'excel', 'pdf'
 		]
 	});
+	//ajax for litvar
 	$.ajax({
 		type: "POST",
 		url: '/litVar',
@@ -32,18 +34,30 @@ $(document).ready(function() {
 			rsid: $('#dbsnp_id').text()
 		}
 	})
-		.done(function(html) {
+	.done(function(html) {
 		$("#litvar_data").replaceWith(html);
 	});
-		$.ajax({
+	//ajax for intervar
+	$.ajax({
 		type: "POST",
 		url: '/intervar',
 		data: {
 			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
 		}
 	})
-		.done(function(html) {
+	.done(function(html) {
 		$("#intervar_data").replaceWith(html);
+	});
+	//ajax for LOVD
+	$.ajax({
+		type: "POST",
+		url: '/lovd',
+		data: {
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
+		}
+	})
+	.done(function(html) {
+		$("#lovd_data").replaceWith(html);
 	});
 	//$('#defgen_btn').click(function(){	
 	//alert($('#dbsnp_id').text());

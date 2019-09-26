@@ -1,4 +1,5 @@
 import os
+import re
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -25,8 +26,12 @@ def litvar():
 		http = urllib3.PoolManager()
 		litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
 		litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
-		#print (litvar_url)
+		#print (rsid)
+		if len(litvar_data) == 0:
+			return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
 		return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data)
+	else:
+		return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
 
 ######################################################################
 #web app - ajax for defgen export file
@@ -51,6 +56,8 @@ def defgen():
 		defgen_file = open("{0}/static/{1}".format(app_path, file_loc), "w")
 		defgen_file.write(file_content)
 		return render_template('ajax/defgen.html', variant="{0}.{1}:c.{2}".format(vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
+	else:
+		return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
 	
 #web app - ajax for intervar API
 @bp.route('/intervar', methods=['POST'])
@@ -60,6 +67,8 @@ def intervar():
 	pos = request.form['pos']
 	ref = request.form['ref']
 	alt = request.form['alt']
+	if len(ref) > 1 or len(alt) > 1:
+		return 'No wintervar for indels'
 	http = urllib3.PoolManager()
 	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
 	#return intervar_url
@@ -72,4 +81,41 @@ def intervar():
 	)
 	res = curs.fetchone()
 	return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
+
+#web app - ajax for LOVD API
+@bp.route('/lovd', methods=['POST'])
+def lovd():
+	genome = request.form['genome']
+	chrom = request.form['chrom']
+	pos = request.form['pos']
+	g_name = request.form['g_name']
+	c_name = request.form['c_name']
+	pos_end = md_utilities.compute_pos_end(g_name)
+	http = urllib3.PoolManager()
+	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
+	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, pos, pos_end)
+	lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
+	if len(lovd_data) == 1:
+		return 'No match in LOVD public instances'
+	#print(lovd_data)
+	lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
+	lovd_urls = []
+	i = 1
+	html = ''
+	for candidate in lovd_data:
+		fields = re.split('\t', candidate)
+		#print(fields)
+		if len(fields) > 1:
+			fields[4] = fields[4].replace('"','')			
+			if fields[4] == c_name:				
+				lovd_urls.append(fields[5])
+	if len(lovd_urls) > 0:
+		for url in lovd_urls:
+			url = url.replace('"','')
+			html += "<a href='{0}' target='_blank'>Link {1}</a> - ".format(url, i)
+			i += 1
+	else:
+		return 'No match in LOVD public instances'
 	
+	return html
+	#return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
