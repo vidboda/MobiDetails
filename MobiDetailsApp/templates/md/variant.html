@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, link, span_color, section_title %}
+{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection %}
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
@@ -7,7 +7,7 @@
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
-	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left w3-light-grey" id="smart_menu" style="display:none;z-index:2001;width:15%;">
+	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="display:block;z-index:2001;width:15%;">
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom" onclick="w3_close()">Close ×</span>
 		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
@@ -50,8 +50,9 @@
 				{{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }}
 			{% endif %}		
 		{% endfor %}
+		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
 	</div>	
-	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;">
+	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
@@ -63,279 +64,14 @@
 			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
 	</div>
-	<!--first section-->
-	<hr />
-	{{ section_title('nomenclatures', 'Nomenclatures') }}
-	<div class="w3-container w3-responsive">
-		<table class="w3-table w3-centered display compact" style="width:90%" id="nomenclature_table">
-			<thead>
-				<tr>
-					<th class="w3-left-align">Features</th>
-					<th class="w3-left-align" width="40%">Values</th>
-					<th class="w3-left-align">Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<!--HGVS DNA on transcript-->
-				<tr>
-					<td class="w3-left-align">HGVS DNA on transcript:</td>
-					<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>
-					<td class="w3-left-align"><em>HGVS full nomenclature at DNA level on transcript</em></td>
-				</tr>
-				<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}">-->
-				<!--IVS name-->
-				{% if variant_features.start_segment_type == 'intron' %}
-					<tr>
-						<td class="w3-left-align">IVS name:</td>
-						<td class="w3-left-align">{{ variant_features.ivs_name }}</td>
-						<td class="w3-left-align"><em>IVS nomenclature</em></td>
-					</tr>
-				{% endif %}				
-				<!--HGVS Protein-->
-				<tr>
-					<td class="w3-left-align">HGVS Protein:</td>
-					<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ variant_features.np }}" target="_blank" title="open NCBI page for {{ variant_features.np }}">{{ variant_features.np }}</a>:p.({{ variant_features.p_name }})</td>
-					<td class="w3-left-align"><em>HGVS full nomenclature at protein level</em></td>
-				</tr>
-				<!--HGVS genomic (gene)-->
-				<tr>
-					<td class="w3-left-align">HGVS genomic (gene):</td>
-					<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
-					<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (gene centered)</em></td>
-				</tr>
-				<!--HGVS genomic (hg19)-->
-				<tr>
-					<td class="w3-left-align">HGVS genomic (hg19):</td>
-					<td class="w3-left-align">hg19:chr{{ variant_features.chr }}:g.<span id="hg19_g_name">{{ hg19_var.g_name }}</span></td>
-					<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (hg19)</em></td>
-				</tr>
-				<!--pseudo VCF (hg19)-->
-				<tr>
-					<td class="w3-left-align">pseudo VCF (hg19):</td>
-					<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_19">hg19</span>:<span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
-					<td class="w3-left-align"><em>chr-pos-ref-alt (hg19)</em></td>
-				</tr>
-				<!--HGVS genomic (hg38)-->
-				<tr>
-					<td class="w3-left-align">HGVS genomic (hg38):</td>
-					<td class="w3-left-align">hg38:chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}</td>
-					<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (hg38)</em></td>
-				</tr>
-				<!--pseudo VCF (hg38)-->
-				<tr>
-					<td class="w3-left-align">pseudo VCF (hg38):</td>
-					<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_38">hg38</span>:<span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
-					<td class="w3-left-align"><em>chr-pos-ref-alt (hg38)</em></td>
-				</tr>
-			</tbody>
-		</table><br/><br/>
-		<!--External links-->
-		<div class="w3-row">
-			<!--Mutalyzer-->
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}', '_blank');" title="Mutalyzer for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" style="width:100%">Mutalyzer</span>
-			</div>
-			<!--VariantValidator-->
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
-			</div>
-			<!--HGVS-->
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.hgvs }}', '_blank')" title="HGVS sequence variant nomenclature web site" style="width:100%">HGVS website</span>
-			</div>
-		</div>
-	</div>
-	<!--second section-->
-	<hr />
-	{{ section_title('positions', 'Positions') }}
-	<div class="w3-responsive w3-container">
-		<!--Position in transcript/protein-->
-		<table class="w3-table w3-centered display compact" style="width:90%" id="position_table">
-			<thead>
-				<tr>
-					<th class="w3-left-align">Features</th>
-					<th class="w3-left-align" width="40%">Values</th>
-					<th class="w3-left-align">Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr><!--Position in transcript-->
-					<td class="w3-left-align">Position in transcript:</td>				
-					{% if variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
-						<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }}</td>
-					{% else %}
-						<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }} - {{ variant_features.end_segment_type|capitalize }} {{ variant_features.end_segment_number }}</td>
-					{% endif %}
-					<td class="w3-left-align"><em>Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
-				</tr><!--position in exon-->
-				{% if variant_features.start_segment_type == 'exon' %}
-					<tr>
-						<td class="w3-left-align">Position / splice site</td>
-						<td class="w3-left-align">{{ pos_splice[1] }} bp from {{ pos_splice[0] }}</td>
-						<td class="w3-left-align"><em>Position relative to the nearest splice site</em></td>
-					</tr>
-				{% endif %}
-				<tr><!--protein-->
-					<td class="w3-left-align">Position / protein</td>
-					<td class="w3-left-align">
-						<span>{{ aa_pos[0] }}</span>
-						{% if aa_pos[0] != aa_pos[1] %}
-							<span> - {{ aa_pos[1] }}</span>
-						{%endif %}
-					 <span> / {{ variant_features.prot_size }}</span>
-					</td>
-					<td class="w3-left-align"><em>Position relative to the protein</em></td>
-				</tr>
-				</tr><!--protein domain-->
-				<tr>
-					<td class="w3-left-align">Position / domain</td>
-					{% if protein_domain[0] is defined %}
-						<td class="w3-left-align">
-						{% for dom in protein_domain  %}
-							{{ dom.name }} ({{ dom.aa_start }} - {{ dom.aa_end }})&nbsp;&nbsp;
-						{% endfor %}
-						</td>
-					{% else %}
-						<td class="w3-left-align">Not in a UNIPROT defined domain</td>
-					{% endif %}
-					<td class="w3-left-align"><em>Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ variant_features.uniprot_id }}" target="_blank" title="Visit UNIPROT {{ variant_features.uniprot_id }}">{{ variant_features.uniprot_id }})</a></em></td>
-				</tr>
-			</tbody>
-		</table><br/><br/>
-		<div class="w3-row">
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%" id ="litvar_data">
-					Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
-				</span>
-			</div>
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.id }}');">Export to DEFGEN (hg19)</span>
-				<div class="w3-modal" id="defgen_modal_hg19"></div>
-				<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
-			</div>
-			<div class="w3-col m4">
-				<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.id }}');">Export to DEFGEN (hg38)</span>
-				<div class="w3-modal" id="defgen_modal_hg38"></div>
-			</div>
-		</div>
-	</div>
-	<!--third section-->
-	<hr />
-	{{ section_title('frequencies', 'Population Frequencies and Databases') }}
-	<div class="w3-responsive w3-container">
-		<!--Position in transcript/protein-->
-		<table class="w3-table w3-centered display compact" style="width:90%" id="population_table">
-			<thead>
-				<tr>
-					<th class="w3-left-align">Features</th>
-					<th class="w3-left-align" width="40%">Values</th>
-					<th class="w3-left-align">Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr><!--gnomAD exome-->
-					<td class="w3-left-align">gnomAD exome:</td>
-					<td class="w3-left-align">{{ annot.gnomad_exome_all }}</td>
-					<td class="w3-left-align"><em><a href={{ "%svariant/%s-%s-%s-%s"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD">gnomAD</a> exomes global MAF</em></td>
-				</tr>
-				<tr><!--gnomAD genome-->
-					<td class="w3-left-align">gnomAD genome:</td>
-					<td class="w3-left-align">{{ annot.gnomad_genome_all }}</td>
-					<td class="w3-left-align"><em><a href={{ "%svariant/%s-%s-%s-%s"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD">gnomAD</a> genomes global MAF</em></td>
-				</tr>				
-				<tr><!--dbSNP id-->
-					<td class="w3-left-align">dbSNP rsid:</td>
-					<td class="w3-left-align">
-						{% if variant_features.dbsnp_id != None %}
-							<a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a>
-						{% else %}
-							Not known in dbSNP
-						{% endif %}						
-					</td>
-					<td class="w3-left-align"><em>Identifier for NCBI dbSNP</em></td>
-				</tr>
-				<tr><!--clinvar-->
-					<td class="w3-left-align">Clinvar:</td>
-					<td class="w3-left-align">						
-						{% if annot.clinvar_id is defined %}
-							<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant"> {{ annot.clinsig }}</a>
-						{% else %}
-							 {{ annot.clinsig }}
-						{%endif %}
-					</td>
-					<td class="w3-left-align"><em>
-						{% if annot.clinvar_id is defined %}
-							<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }} target="_blank" title="Visit Clinvar">
-						{% else %}
-							<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
-						{%endif %}
-						Clinvar</a> interpretation</em>
-					</td>
-				</tr>
-				{% if variant_features.dna_type == 'substitution' %}
-					<tr><!--intervar-->
-						<td class="w3-left-align">Intervar</td>
-						<td class="w3-left-align">
-							<span  id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
-						</td>
-						<td class="w3-left-align"><em>
-							<a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>
-							 automated ACMG classification</em>
-						</td>
-					</tr>
-				{% endif %}
-				<tr><!--LOVD matches-->
-					<td class="w3-left-align">LOVD matches:</td>
-					<td class="w3-left-align">
-						<span  id='lovd_data'>Searching LOVD...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
-					</td>
-					<td class="w3-left-align"><em>LOVD match in public instances</em></td>
-				</tr>
-			</tbody>
-		</table><br/><br/>
-	</div>
-	<!--fourth section-->
-	<hr />
-	{{ section_title('predictions', 'Overall predictions') }}
-	<div class="w3-responsive w3-container">
-		<!--dbscSNV-->
-		<table class="w3-table w3-centered display compact" style="width:90%" id="prediction_table">
-			<thead>
-				<tr>
-					<th class="w3-left-align">Features</th>
-					<th class="w3-left-align" width="40%">Values</th>
-					<th class="w3-left-align">Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr><!--CADD raw-->
-					<td class="w3-left-align">CADD raw:</td>
-					{% if annot.cadd is not defined %}
-						<td class="w3-left-align">{{ annot.cadd_raw }}</td>
-					{% else %}
-						<td class="w3-left-align">{{ annot.cadd }}</td>
-					{% endif %}
-					<td class="w3-left-align"><em><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw score</em></td>
-				</tr>
-				<tr><!--CADD phred-->
-					<td class="w3-left-align">CADD phred:</td>
-					{% if annot.cadd is not defined %}
-						<td class="w3-left-align">{{ annot.cadd_phred }}</td>
-					{% else %}
-						<td class="w3-left-align">{{ annot.cadd }}</td>
-					{% endif %}
-					<td class="w3-left-align"><em><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred score</em></td>
-				</tr>
-			</tbody>
-		</table><br/><br/>
-	</div>
-	<!--fifth section-->
-	{% if variant_features.dna_type == 'substitution' %}
+	{{ gene_redirection(variant_features.name[0], urls) }}
+	{{ modal_js('gene_modal') }}
+	<div id="global_content" style="margin-left:15%">
+		<!--first section-->
 		<hr />
-		{{ section_title('splicing', 'Splicing predictions') }}
-		<div class="w3-responsive w3-container">
-			<!--dbscSNV-->
-			<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
+		{{ section_title('nomenclatures', 'Nomenclatures') }}
+		<div class="w3-container w3-responsive">
+			<table class="w3-table w3-centered display compact" style="width:90%" id="nomenclature_table">
 				<thead>
 					<tr>
 						<th class="w3-left-align">Features</th>
@@ -344,103 +80,381 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if variant_features.dna_type == 'substitution' %}
-						<tr><!--dbscSNV ADA-->
-							<td class="w3-left-align">dbscSNV ADA:</td>
-							<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
-							<td class="w3-left-align"><em><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA prediction</em></td>
+					<!--HGVS DNA on transcript-->
+					<tr>
+						<td class="w3-left-align">HGVS DNA on transcript:</td>
+						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>
+						<td class="w3-left-align"><em>HGVS full nomenclature at DNA level on transcript</em></td>
+					</tr>
+					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}">-->
+					<!--IVS name-->
+					{% if variant_features.start_segment_type == 'intron' %}
+						<tr>
+							<td class="w3-left-align">IVS name:</td>
+							<td class="w3-left-align">{{ variant_features.ivs_name }}</td>
+							<td class="w3-left-align"><em>IVS nomenclature</em></td>
 						</tr>
-						<tr><!--dbscSNV RF-->
-							<td class="w3-left-align">dbscSNV RF:</td>
-							<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_ada_color) }}</td>
-							<td class="w3-left-align"><em><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF prediction</em></td>
-						</tr>
-					{% endif %}
-					{% if annot.spliceai_DS_AG is defined %}
-						<tr><!--spliceAI AG-->
-							<td class="w3-left-align">spliceAI AG:</td>
-							<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
-							<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
-							<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Acceptor Gain (distance in bp)</em></td>
-						</tr>
-						<tr><!--spliceAI AL-->
-							<td class="w3-left-align">spliceAI AL:</td>
-							<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
-							<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Acceptor Loss (distance in bp)</em></td>
-						</tr>
-						<tr><!--spliceAI DG-->
-							<td class="w3-left-align">spliceAI DG:</td>
-							<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
-							<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Donor Gain (distance in bp)</em></td>
-						</tr>
-						<tr><!--spliceAI DL-->
-							<td class="w3-left-align">spliceAI DL:</td>
-							<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
-							<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Donor Loss (distance in bp)</em></td>
-						</tr>
-					{% endif %}
+					{% endif %}				
+					<!--HGVS Protein-->
+					<tr>
+						<td class="w3-left-align">HGVS Protein:</td>
+						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ variant_features.np }}" target="_blank" title="open NCBI page for {{ variant_features.np }}">{{ variant_features.np }}</a>:p.({{ variant_features.p_name }})</td>
+						<td class="w3-left-align"><em>HGVS full nomenclature at protein level</em></td>
+					</tr>
+					<!--HGVS genomic (gene)-->
+					<tr>
+						<td class="w3-left-align">HGVS genomic (gene):</td>
+						<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
+						<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (gene centered)</em></td>
+					</tr>
+					<!--HGVS genomic (hg19)-->
+					<tr>
+						<td class="w3-left-align">HGVS genomic (hg19):</td>
+						<td class="w3-left-align">hg19:chr{{ variant_features.chr }}:g.<span id="hg19_g_name">{{ hg19_var.g_name }}</span></td>
+						<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (hg19)</em></td>
+					</tr>
+					<!--pseudo VCF (hg19)-->
+					<tr>
+						<td class="w3-left-align">pseudo VCF (hg19):</td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_19">hg19</span>:<span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
+						<td class="w3-left-align"><em>chr-pos-ref-alt (hg19)</em></td>
+					</tr>
+					<!--HGVS genomic (hg38)-->
+					<tr>
+						<td class="w3-left-align">HGVS genomic (hg38):</td>
+						<td class="w3-left-align">hg38:chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}</td>
+						<td class="w3-left-align"><em>HGVS full nomenclature at genomic level (hg38)</em></td>
+					</tr>
+					<!--pseudo VCF (hg38)-->
+					<tr>
+						<td class="w3-left-align">pseudo VCF (hg38):</td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_38">hg38</span>:<span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
+						<td class="w3-left-align"><em>chr-pos-ref-alt (hg38)</em></td>
+					</tr>
 				</tbody>
 			</table><br/><br/>
+			<!--External links-->
+			<div class="w3-row-padding">
+				<!--Mutalyzer-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}', '_blank');" title="Mutalyzer for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" style="width:100%">Mutalyzer</span>
+				</div>
+				<!--VariantValidator-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
+				</div>
+				<!--HGVS-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.hgvs }}', '_blank')" title="HGVS sequence variant nomenclature web site" style="width:100%">HGVS website</span>
+				</div>
+			</div>
 		</div>
-	{% endif %}
-	<!--seventh section-->
-	{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
+		<!--second section-->
 		<hr />
-		{{ section_title('missense', 'Missense predictions') }}
+		{{ section_title('positions', 'Positions') }}
 		<div class="w3-responsive w3-container">
-			<!--dbscSNV-->
-			<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
+			<!--Position in transcript/protein-->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="position_table">
 				<thead>
 					<tr>
 						<th class="w3-left-align">Features</th>
-						<th class="w3-left-align">Values</th>
-						<th class="w3-left-align">Prediction</th>
+						<th class="w3-left-align" width="40%">Values</th>
 						<th class="w3-left-align">Description</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr><!--SIFT-->
-						<td class="w3-left-align">SIFT4G:</td>
-						<td class="w3-left-align">{{ span_color(annot.sift4g_score, annot.sift4g_color) }}</td>
-						<td class="w3-left-align">{{ span_color(annot.sift4g_pred, annot.sift4g_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.sift4g }}" target="_blank" title="Visit SIFT 4G">SIFT4G</a>  prediction</em></td>
+					<tr><!--Position in transcript-->
+						<td class="w3-left-align">Position in transcript:</td>				
+						{% if variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
+							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }} - {{ variant_features.end_segment_type|capitalize }} {{ variant_features.end_segment_number }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em>Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
+					</tr><!--position in exon-->
+					{% if variant_features.start_segment_type == 'exon' %}
+						<tr>
+							<td class="w3-left-align">Position / splice site</td>
+							<td class="w3-left-align">{{ pos_splice[1] }} bp from {{ pos_splice[0] }}</td>
+							<td class="w3-left-align"><em>Position relative to the nearest splice site</em></td>
+						</tr>				
+						<tr><!--protein-->
+							<td class="w3-left-align">Position / protein</td>
+							<td class="w3-left-align">
+								<span>{{ aa_pos[0] }}</span>
+								{% if aa_pos[0] != aa_pos[1] %}
+									<span> - {{ aa_pos[1] }}</span>
+								{%endif %}
+							 <span> / {{ variant_features.prot_size }}</span>
+							</td>
+							<td class="w3-left-align"><em>Position relative to the protein</em></td>
+						</tr>
+						</tr><!--protein domain-->
+						<tr>
+							<td class="w3-left-align">Position / domain</td>
+							{% if protein_domain[0] is defined %}
+								<td class="w3-left-align">
+								{% for dom in protein_domain  %}
+									{{ dom.name }} ({{ dom.aa_start }} - {{ dom.aa_end }})&nbsp;&nbsp;
+								{% endfor %}
+								</td>
+							{% else %}
+								<td class="w3-left-align">Not in a UNIPROT defined domain</td>
+							{% endif %}
+							<td class="w3-left-align"><em>Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ variant_features.uniprot_id }}" target="_blank" title="Visit UNIPROT {{ variant_features.uniprot_id }}">{{ variant_features.uniprot_id }})</a></em></td>
+						</tr>
+					{% endif %}
+					<tr>
+						<td class="w3-left-align">Wild type sequence</td>
+						<td class="w3-left-align">{{ variant_features.wt_seq }}</td>
+						<td class="w3-left-align"><em>Wild type DNA sequence +/- 25 bp</em></td>
 					</tr>
-					<tr><!--PH2 HDIV-->
-						<td class="w3-left-align">Polyphen2  HumDiv:</td>
-						<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}</td>
-						<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_pred, annot.pph2_hdiv_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2 HumDiv</a>  prediction</em></td>
+					<tr>
+						<td class="w3-left-align">Mutant sequence</td>
+						<td class="w3-left-align">{{ variant_features.mt_seq }}</td>
+						<td class="w3-left-align"><em>Mutant type DNA sequence +/- 25 bp</em></td>
 					</tr>
-					<tr><!--PH2 HVAR-->
-						<td class="w3-left-align">Polyphen2  HumVar:</td>
-						<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}</td>
-						<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2 HumVar</a>  prediction</em></td>
+				</tbody>
+			</table><br/><br/>
+			<div class="w3-row-padding">
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%" id ="litvar_data">
+						Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
+					</span>
+				</div>
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.id }}');">Export to DEFGEN (hg19)</span>
+					<div class="w3-modal" id="defgen_modal_hg19"></div>
+					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
+				</div>
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.id }}');">Export to DEFGEN (hg38)</span>
+					<div class="w3-modal" id="defgen_modal_hg38"></div>
+				</div>
+			</div>
+		</div>
+		<!--third section-->
+		<hr />
+		{{ section_title('frequencies', 'Population Frequencies and Databases') }}
+		<div class="w3-responsive w3-container">
+			<!--Position in transcript/protein-->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="population_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align" width="40%">Values</th>
+						<th class="w3-left-align">Description</th>
 					</tr>
-					<tr><!--FATHMM-->
-						<td class="w3-left-align">Fathmm:</td>
-						<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}</td>
-						<td class="w3-left-align">{{ span_color(annot.fathmm_pred, annot.fathmm_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>  prediction</em></td>
+				</thead>
+				<tbody>
+					<tr><!--gnomAD exome-->
+						<td class="w3-left-align">gnomAD exome:</td>
+						<td class="w3-left-align">{{ annot.gnomad_exome_all }}</td>
+						<td class="w3-left-align"><em><a href={{ "%svariant/%s-%s-%s-%s"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD">gnomAD</a> exomes global MAF</em></td>
 					</tr>
-					<tr><!--Meta SVM-->
-						<td class="w3-left-align">Meta SVM:</td>
-						<td class="w3-left-align">{{ span_color(annot.msvm_score, annot.msvm_color) }} ({{ annot.m_rel }})</td>
-						<td class="w3-left-align">{{ span_color(annot.msvm_pred, annot.msvm_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>  prediction (reliabilty index: 0-10)</em></td>
+					<tr><!--gnomAD genome-->
+						<td class="w3-left-align">gnomAD genome:</td>
+						<td class="w3-left-align">{{ annot.gnomad_genome_all }}</td>
+						<td class="w3-left-align"><em><a href={{ "%svariant/%s-%s-%s-%s"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD">gnomAD</a> genomes global MAF</em></td>
+					</tr>				
+					<tr><!--dbSNP id-->
+						<td class="w3-left-align">dbSNP rsid:</td>
+						<td class="w3-left-align">
+							{% if variant_features.dbsnp_id != None %}
+								<a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a>
+							{% else %}
+								Not known in dbSNP
+							{% endif %}						
+						</td>
+						<td class="w3-left-align"><em>Identifier for NCBI dbSNP</em></td>
 					</tr>
-					<tr><!--Meta LR-->
-						<td class="w3-left-align">Meta LR:</td>
-						<td class="w3-left-align">{{ span_color(annot.mlr_score, annot.mlr_color) }} ({{ annot.m_rel }})</td>
-						<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
-						<td class="w3-left-align"><em><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>  prediction (reliabilty index: 0-10)</em></td>
+					<tr><!--clinvar-->
+						<td class="w3-left-align">Clinvar:</td>
+						<td class="w3-left-align">						
+							{% if annot.clinvar_id is defined %}
+								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant"> {{ annot.clinsig }}</a>
+							{% else %}
+								 {{ annot.clinsig }}
+							{%endif %}
+						</td>
+						<td class="w3-left-align"><em>
+							{% if annot.clinvar_id is defined %}
+								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }} target="_blank" title="Visit Clinvar">
+							{% else %}
+								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
+							{%endif %}
+							Clinvar</a> interpretation</em>
+						</td>
+					</tr>
+					{% if variant_features.dna_type == 'substitution' %}
+						<tr><!--intervar-->
+							<td class="w3-left-align">Intervar</td>
+							<td class="w3-left-align">
+								<span  id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+							</td>
+							<td class="w3-left-align"><em>
+								<a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>
+								 automated ACMG classification</em>
+							</td>
+						</tr>
+					{% endif %}
+					<tr><!--LOVD matches-->
+						<td class="w3-left-align">LOVD matches:</td>
+						<td class="w3-left-align">
+							<span  id='lovd_data'>Searching LOVD...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+						</td>
+						<td class="w3-left-align"><em>LOVD match in public instances</em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>
 		</div>
-	{% elif annot.dbnsfp is defined %}
-		{{ info(annot.dbnsfp) }}
-	{% endif %}
-	<br/><br/>
-
+		<!--fourth section-->
+		<hr />
+		{{ section_title('predictions', 'Overall predictions') }}
+		<div class="w3-responsive w3-container">
+			<!--dbscSNV-->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="prediction_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align" width="40%">Values</th>
+						<th class="w3-left-align">Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><!--CADD raw-->
+						<td class="w3-left-align">CADD raw:</td>
+						{% if annot.cadd is not defined %}
+							<td class="w3-left-align">{{ annot.cadd_raw }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ annot.cadd }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw score</em></td>
+					</tr>
+					<tr><!--CADD phred-->
+						<td class="w3-left-align">CADD phred:</td>
+						{% if annot.cadd is not defined %}
+							<td class="w3-left-align">{{ annot.cadd_phred }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ annot.cadd }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred score</em></td>
+					</tr>
+				</tbody>
+			</table><br/><br/>
+		</div>
+		<!--fifth section-->
+		{% if variant_features.dna_type == 'substitution' %}
+			<hr />
+			{{ section_title('splicing', 'Splicing predictions') }}
+			<div class="w3-responsive w3-container">
+				<!--dbscSNV-->
+				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align">Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if variant_features.dna_type == 'substitution' %}
+							<tr><!--dbscSNV ADA-->
+								<td class="w3-left-align">dbscSNV ADA:</td>
+								<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
+								<td class="w3-left-align"><em><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA prediction</em></td>
+							</tr>
+							<tr><!--dbscSNV RF-->
+								<td class="w3-left-align">dbscSNV RF:</td>
+								<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_ada_color) }}</td>
+								<td class="w3-left-align"><em><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF prediction</em></td>
+							</tr>
+						{% endif %}
+						{% if annot.spliceai_DS_AG is defined %}
+							<tr><!--spliceAI AG-->
+								<td class="w3-left-align">spliceAI AG:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
+								<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
+								<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Acceptor Gain (distance in bp)</em></td>
+							</tr>
+							<tr><!--spliceAI AL-->
+								<td class="w3-left-align">spliceAI AL:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
+								<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Acceptor Loss (distance in bp)</em></td>
+							</tr>
+							<tr><!--spliceAI DG-->
+								<td class="w3-left-align">spliceAI DG:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
+								<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Donor Gain (distance in bp)</em></td>
+							</tr>
+							<tr><!--spliceAI DL-->
+								<td class="w3-left-align">spliceAI DL:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
+								<td class="w3-left-align"><em><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> Donor Loss (distance in bp)</em></td>
+							</tr>
+						{% endif %}
+					</tbody>
+				</table><br/><br/>
+			</div>
+		{% endif %}
+		<!--seventh section-->
+		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
+			<hr />
+			{{ section_title('missense', 'Missense predictions') }}
+			<div class="w3-responsive w3-container">
+				<!--dbscSNV-->
+				<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align">Values</th>
+							<th class="w3-left-align">Prediction</th>
+							<th class="w3-left-align">Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><!--SIFT-->
+							<td class="w3-left-align">SIFT4G:</td>
+							<td class="w3-left-align">{{ span_color(annot.sift4g_score, annot.sift4g_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.sift4g_pred, annot.sift4g_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.sift4g }}" target="_blank" title="Visit SIFT 4G">SIFT4G</a>  prediction</em></td>
+						</tr>
+						<tr><!--PH2 HDIV-->
+							<td class="w3-left-align">Polyphen2  HumDiv:</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_pred, annot.pph2_hdiv_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2 HumDiv</a>  prediction</em></td>
+						</tr>
+						<tr><!--PH2 HVAR-->
+							<td class="w3-left-align">Polyphen2  HumVar:</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2 HumVar</a>  prediction</em></td>
+						</tr>
+						<tr><!--FATHMM-->
+							<td class="w3-left-align">Fathmm:</td>
+							<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.fathmm_pred, annot.fathmm_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>  prediction</em></td>
+						</tr>
+						<tr><!--Meta SVM-->
+							<td class="w3-left-align">Meta SVM:</td>
+							<td class="w3-left-align">{{ span_color(annot.msvm_score, annot.msvm_color) }} ({{ annot.m_rel }})</td>
+							<td class="w3-left-align">{{ span_color(annot.msvm_pred, annot.msvm_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>  prediction (reliabilty index: 0-10)</em></td>
+						</tr>
+						<tr><!--Meta LR-->
+							<td class="w3-left-align">Meta LR:</td>
+							<td class="w3-left-align">{{ span_color(annot.mlr_score, annot.mlr_color) }} ({{ annot.m_rel }})</td>
+							<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
+							<td class="w3-left-align"><em><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>  prediction (reliabilty index: 0-10)</em></td>
+						</tr>
+					</tbody>
+				</table><br/><br/>
+			</div>
+		{% elif annot.dbnsfp is defined %}
+			{{ info(annot.dbnsfp) }}
+		{% endif %}
+		<br/><br/>
+	</div>
 {% endblock %}

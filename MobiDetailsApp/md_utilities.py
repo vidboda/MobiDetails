@@ -24,6 +24,7 @@ urls = {
 	'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
+	'variant_validator_api': 'https://rest.variantvalidator.org:443/',
 	'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
 	'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
 	'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
@@ -54,8 +55,8 @@ local_files = {
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
 	'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', 'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-	'cadd': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
-	'cadd_indels': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
+	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
+	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
@@ -155,7 +156,7 @@ def get_value_from_tabix_file(text, tabix_file, var):
 	tb = tabix.open(tabix_file)
 	records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
 	i = 3
-	if re.search('dbNSFP', tabix_file):
+	if re.search('(dbNSFP|Indels|whole_genome_SNVs)', tabix_file) or re.search('InDels', tabix_file):
 		i -= 1
 	for record in records:
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:

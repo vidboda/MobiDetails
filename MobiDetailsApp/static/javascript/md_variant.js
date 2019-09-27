@@ -4,17 +4,14 @@ function defgen_export(genome, vf_id) {
 		type: "POST",
 		url: '/defgen',
 		data: {
-			vfid: vf_id,
-			genome: genome
+			vfid: vf_id, genome: genome
 		}
 	})
-		.done(function(html) {
+	.done(function(html) {
 		$('#defgen_modal_' + genome).html(html);
 		$('#defgen_modal_' + genome).show();
 	});
 }
-
-
 $(document).ready(function() {
 	// transform all tables as datatables
 	$('.w3-table').DataTable({
@@ -59,6 +56,15 @@ $(document).ready(function() {
 	.done(function(html) {
 		$("#lovd_data").replaceWith(html);
 	});
+	//hide sidebar on small screen
+	//if ($('#smart_menu').length) {		
+	if ($(window).width() < 400) {
+		document.getElementById('smart_menu').style.display = 'none';
+		document.getElementById('openNav').style.visibility = 'visible';
+		document.getElementById('global_content').style.marginLeft = '0%';
+		document.getElementById('page_menu').style.display = 'none';	
+	}
+	//}
 	//$('#defgen_btn').click(function(){	
 	//alert($('#dbsnp_id').text());
 	//adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page

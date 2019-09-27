@@ -132,3 +132,13 @@ def test_get_preditor_single_threshold_reverted_color(client, value, result_colo
 def test_get_preditor_double_threshold_color(client, value, result_color, predictor_min, predictor_max):
 	color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
 	assert color == result_color
+
+@pytest.mark.parametrize(('g_name', 'pos_end'), (
+	('216422237G>A', '216422237'),
+	('76885812_76885817del', '76885817'),
+	('76885812_76885813insATGC', '76885813'),
+	('76885812_76885817dup', '76885817')
+))	
+def test_compute_pos_end(g_name, pos_end):
+	pos = md_utilities.compute_pos_end(g_name)
+	assert pos == pos_end

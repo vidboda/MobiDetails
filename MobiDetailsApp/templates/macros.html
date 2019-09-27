@@ -101,14 +101,15 @@
 				<h2 id="main_text">Create a variant ({{ main_iso.name[1] }})</h2>
 			</div>
 			<div class="w3-container">
-				<form method="post" action="" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
-					<input for="creation_form" id="geneblue" name="gene" type="hidden" value="{{ gene }}" />
-					<input for="creation_form" id="acc_noblue" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
-					<input for="creation_form" id="ng_accnoblue" name="ng_accno" type="hidden" value="{{ main_iso.ng }}" />
+				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
+					<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
+					<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
+					<input for="creation_form" id="acc_version" name="acc_version" type="hidden" value="{{ main_iso.nm_version }}" />
+					<!--<input for="creation_form" id="ng_accno" name="ng_accno" type="hidden" value="{{ main_iso.ng }}" />-->
 					<div class="w3-panel w3-large">
 						<label for="new_variantblue">New variant (HGVS DNA):</label>
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input id="new_variantblue" maxlength="50" name="new_variant" size="20" type="text" value="c." />
+						<input id="new_variant" maxlength="50" name="new_variant" size="20" type="text" value="c." />
 					</div>
 					<div class="w3-panel w3-large w3-center">
 						<input type="button"  name="submit" value="Create variant" onclick="create_var();" class="w3-btn w3-blue" for="creation_form" type="submit" />

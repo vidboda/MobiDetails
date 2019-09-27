@@ -12,6 +12,7 @@ import psycopg2
 import psycopg2.extras
 import json
 import urllib3
+import certifi
 
 bp = Blueprint('ajax', __name__)
 
@@ -119,3 +120,21 @@ def lovd():
 	
 	return html
 	#return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
+	
+#web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
+@bp.route('/create', methods=['POST'])
+def create():
+	gene = request.form['gene']
+	acc_no = request.form['acc_no']
+	new_variant = request.form['new_variant']
+	acc_version = request.form['acc_version']
+	#print(new_variant)
+	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+	vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+	print(vv_url)
+
+	vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+	if 'validation_warning_1' in vv_data:
+		return '<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>VariantValidator error: {0}<br/>{1}</strong></span><br /></p></div>'.format(vv_data['validation_warning_1']['validation_warnings'][0], vv_data['validation_warning_1']['validation_warnings'][1])
+	
+	return new_variant

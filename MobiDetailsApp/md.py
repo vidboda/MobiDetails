@@ -133,14 +133,16 @@ def variant(variant_id=None):
 
 	#dict for annotations
 	annot = {}
-	
+	aa_pos = None
+	pos_splice_site = None
+	domain = None
 	# clinvar search & gnomad
 	# tabix searches in fact
 	
 	for var in variant:
 		if var['genome_version'] == 'hg38':
 			# compute position / splice sites
-			if variant_features['variant_size'] < 50:
+			if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon':
 				#get a tuple ['site_type', 'dist(bp)']
 				pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
 				if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:

@@ -4,7 +4,7 @@ a {
 }
 a:hover {
 	color:#FF6020;
-	font-style:italic;
+	/*font-style:italic;*/
 }
 /*a:visited {
 	color:#F70F00;
