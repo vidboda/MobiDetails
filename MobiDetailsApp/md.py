@@ -196,27 +196,28 @@ def variant(variant_id=None):
 						#sift4g
 						#print(record)
 						annot['sift4g_score'] = re.split(';', record[39])[i]
-						annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(1-float(annot['sift4g_score']), 'sift')
+						#if annot['sift4g_score'] != '.':
+						annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift4g_score'], 'sift')
 						annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[i]]
 						#polyphen 2
 						annot['pph2_hdiv_score'] = re.split(';', record[42])[i]
-						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(float(annot['pph2_hdiv_score']), 'pph2_hdiv_mid', 'pph2_hdiv_max')
+						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
 						annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[i]]
 						annot['pph2_hvar_score'] = re.split(';', record[45])[i]
-						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(float(annot['pph2_hvar_score']), 'pph2_hvar_mid', 'pph2_hvar_max')
+						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
 						annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[i]]
 						#fathmm
 						annot['fathmm_score'] = re.split(';', record[60])[i]
-						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(float(annot['fathmm_score']), 'fathmm')
+						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
 						annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[i]]
 						#meta SVM
 						#print(record[68])
 						annot['msvm_score'] = record[68]
-						annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['msvm_score']), 'meta')
+						annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta')
 						annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
 						#meta LR
 						annot['mlr_score'] = record[71]
-						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['mlr_score']), 'meta')
+						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta')
 						annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
 						annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
 				#CADD

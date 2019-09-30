@@ -85,11 +85,12 @@ predictor_colors = {
 	'min': '#00A020',
 	'small_effect': '#FFA020',
 	'mid_effect': '#FF6020',
-	'max': '#FF0000'
+	'max': '#FF0000',
+	'no_effect': '#000000'
 }
 predictors_translations = {
-	'basic': {'D': 'Damaging', 'T': 'Tolerated'},
-	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign'}
+	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction'},
+	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'}
 }
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
 def reverse_complement(seq):
@@ -169,35 +170,52 @@ def get_value_from_tabix_file(text, tabix_file, var):
 			return record
 	return 'No match in {}'.format(text)
 #returns an html color depending on spliceai score
-def get_spliceai_color(value):
-	if value > predictor_thresholds['spliceai_max']:
-		return predictor_colors['max']
-	elif value > predictor_thresholds['spliceai_mid']:
-		return predictor_colors['mid_effect']
-	elif value > predictor_thresholds['spliceai_min']:
-		return predictor_colors['small_effect']
+def get_spliceai_color(val):
+	if val != '.':
+		value = float(val)
+		if value > predictor_thresholds['spliceai_max']:
+			return predictor_colors['max']
+		elif value > predictor_thresholds['spliceai_mid']:
+			return predictor_colors['mid_effect']
+		elif value > predictor_thresholds['spliceai_min']:
+			return predictor_colors['small_effect']
+		else:
+			return predictor_colors['min']
 	else:
-		return predictor_colors['min']
+		return predictor_colors['no_effect']
 #returns an html color depending on a single threshold
-def get_preditor_single_threshold_color(value, predictor):
+def get_preditor_single_threshold_color(val, predictor):
 	#function to get green or red
-	if value > predictor_thresholds[predictor]:
-		return predictor_colors['max']
-	return predictor_colors['min']
+	if val != '.':
+		if float(val) > predictor_thresholds[predictor]:
+			return predictor_colors['max']
+		return predictor_colors['min']
+	else:
+		return predictor_colors['no_effect']
 #returns an html color depending on a single threshold (reverted, e.g. for fathmm)
-def get_preditor_single_threshold_reverted_color(value, predictor):
+def get_preditor_single_threshold_reverted_color(val, predictor):
 	#function to get green or red
-	if value < predictor_thresholds[predictor]:
-		return predictor_colors['max']
-	return predictor_colors['min']
+	if val != '.':
+		value = float(val)
+		if predictor == 'sift':
+			value = 1-(float(val))
+		if value < predictor_thresholds[predictor]:
+			return predictor_colors['max']
+		return predictor_colors['min']
+	else:
+		return predictor_colors['no_effect']
 #returns an html color depending on a double threshold
-def get_preditor_double_threshold_color(value, predictor_min, predictor_max):
+def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
 	#function to get green or red
-	if value > predictor_thresholds[predictor_max]:
-		return predictor_colors['max']
-	elif value > predictor_thresholds[predictor_min]:
-		return predictor_colors['mid_effect']
-	return predictor_colors['min']
+	if val != '.':
+		value = float(val)
+		if value > predictor_thresholds[predictor_max]:
+			return predictor_colors['max']
+		elif value > predictor_thresholds[predictor_min]:
+			return predictor_colors['mid_effect']
+		return predictor_colors['min']
+	else:
+		return predictor_colors['no_effect']
 
 #in ajax.py return end pos of a specific variant
 #receives g_name as 216420460C>A or 76885812_76885817del
