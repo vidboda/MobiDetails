@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$('.w3-table').DataTable({
 		responsive: true,
-		dom: 'ft',
+		dom: 'Bft',
 		"order": [],
 		//scrollY: 600,
 		buttons: [

@@ -45,13 +45,19 @@
 				</thead>
 				<tbody>
 					{% for resource in local_files %}
-						<tr>
-							<td class="w3-left-align"><a href="{{ urls[local_files[resource][4]] }}" target="_blank" title="Visit {{ local_files[resource][2] }}">{{ local_files[resource][2] }}</a></td>
-							<td class="w3-left-align">{{ local_files[resource][1] }}</td>
-						</tr>
+						{% if local_files[resource][1] != 'hg38' and local_files[resource][1] != 'hg19' %}
+							<tr>
+								<td class="w3-left-align">
+									<a href="{{ urls[local_files[resource][4]] }}" target="_blank" title="Visit {{ local_files[resource][2] }}">{{ local_files[resource][2] }}</a>
+								</td>
+								<td class="w3-left-align">{{ local_files[resource][1] }}</td>
+							</tr>
+						{% endif %}
 					{% endfor %}
 					<tr>
-						<td class="w3-left-align"><a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a></td>
+						<td class="w3-left-align">
+							<a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a>
+						</td>
 						<td class="w3-left-align">{{ vv_data.apiVersion }}</td>
 					</tr>
 				</tbody>
