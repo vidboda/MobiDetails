@@ -89,16 +89,22 @@ $(document).ready(function() {
 			pageSize: "A4",
 			title: "*"
 		};
-
-		var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table"];
+		var tables = ["nomenclature_table", "position_table", "population_table",  "prediction_table"];
+		if ($('#splicing_table').length > 0) {
+			tables.push("splicing_table");
+		}
+		if ($('#missense_table').length > 0) {
+			tables.push("missense_table");
+		}
+		tables.push("admin_table");
+		//var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
 		var tablesConverted = {};
 		for (var k = 0; k < tables.length; k++) {
 			var dt = $('#' + tables[k]).DataTable();
 			var data = dt.buttons.exportData(config.exportOptions);
 			var info = dt.buttons.exportInfo(config);
-
+			//alert(tables[k]);
 			var rows = [];
-
 			if (config.header) {
 				rows.push($.map(data.header, function(d) {
 					return {
@@ -134,44 +140,44 @@ $(document).ready(function() {
 			pageSize: config.pageSize,
 			pageOrientation: config.orientation,
 			content: [
-					"Data for " + tables[0],
-					" ", {
+				"Data for " + tables[0],
+				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[0]]
 					},
 					layout: 'noBorders'
 				},
-					" ",
-					"Data for " + tables[1],
-					" ", {
+				" ",
+				"Data for " + tables[1],
+				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[1]]
 					},
 					layout: 'noBorders'
 				},
-					" ",
-					"Data for " + tables[2],
-					" ", {
+				" ",
+				"Data for " + tables[2],
+				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[2]]
 					},
 					layout: 'noBorders'
 				},
-					" ",
-					"Data for " + tables[3],
-					" ", {
+				" ",
+				"Data for " + tables[3],
+				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[3]]
 					},
 					layout: 'noBorders'
 				},
-					" ",
-					"Data for " + tables[4],
-					" ", {
+				" ",
+				"Data for " + tables[4],
+				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[4]]
@@ -179,6 +185,26 @@ $(document).ready(function() {
 					layout: 'noBorders'
 				},
 			],
+			
+			//	" ",
+			//	"Data for " + tables[5],
+			//	" ", {
+			//		table: {
+			//			headerRows: 1,
+			//			body: tablesConverted[tables[5]]
+			//		},
+			//		layout: 'noBorders'
+			//	},
+			//	" ",
+			//	"Data for " + tables[6],
+			//	" ", {
+			//		table: {
+			//			headerRows: 1,
+			//			body: tablesConverted[tables[6]]
+			//		},
+			//		layout: 'noBorders'
+			//	},
+			//],
 			styles: {
 				tableHeader: {
 					bold: true,
@@ -207,6 +233,32 @@ $(document).ready(function() {
 				fontSize: 10
 			}
 		};
+		if ($('#splicing_table').length > 0) {
+			doc['content'].push(
+				" ",
+				"Data for " + tables[5],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[5]]
+					},
+					layout: 'noBorders'
+				}
+			);
+		}
+		if ($('#missense_table').length > 0) {
+			doc['content'].push(
+				" ",
+				"Data for " + tables[6],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[6]]
+					},
+					layout: 'noBorders'
+				}
+			);
+		}
 
 		if (info.messageTop) {
 			doc.content.unshift({
@@ -235,7 +287,7 @@ $(document).ready(function() {
 		if (config.customize) {
 			config.customize(doc, config);
 		}
-		pdfMake.createPdf(doc).download($('#nm_var').text());
+		pdfMake.createPdf(doc).download($('#nm_var').text() + '.pdf');
 		//'{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}_{{ variant_features.c_name }}.pdf'
 	});
 });

@@ -7,18 +7,22 @@ def test_homepage(client):
 	
 def test_about(client):
 	assert client.get('/about').status_code == 200
-	
+
+
 def test_gene_page(client, app):
 	with app.app_context():
 		db = get_db()
 		curs = db.cursor()
 		curs.execute(
-			"SELECT name[1] FROM gene",
+			"SELECT name[1] FROM gene LIMIT 1",
 		)
 		res = curs.fetchall()
 		for name in res:
-			#print(name[0])
 			assert client.get('/gene/{}'.format(name[0])).status_code == 200
+# 			gene_page_result(client, name)
+# def gene_page_result(client, name):
+# 	assert client.get('/gene/{}'.format(name[0])).status_code == 200
+			
 	
 def test_genes_page(client):
 	assert client.get('/genes').status_code == 200

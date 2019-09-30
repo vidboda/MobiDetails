@@ -56,9 +56,10 @@ def gene(gene_name=None):
 		return render_template('unknown.html')
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-	#main isoform?
+	#main isoform? now canonical is stored in db
+	#"SELECT * FROM gene WHERE name[1] = '{0}' AND number_of_exons = (SELECT MAX(number_of_exons) FROM gene WHERE name[1] = '{0}')".format(gene_name)
 	curs.execute(
-		"SELECT * FROM gene WHERE name[1] = '{0}' AND number_of_exons = (SELECT MAX(number_of_exons) FROM gene WHERE name[1] = '{0}')".format(gene_name)
+		"SELECT * FROM gene WHERE name[1] = '{0}' AND canonical = 't'".format(gene_name)
 	)
 	main = curs.fetchone()
 	if main is not None:
@@ -184,13 +185,15 @@ def variant(variant_id=None):
 					#first: get enst we're dealing with
 					i=0
 					enst_list = re.split(';', record[14])
-					for enst in enst_list:
-						if variant_features['enst'] == enst:
-							transcript_index = i
-							i += 1
+					if len(enst_list) > 1:
+						for enst in enst_list:
+							if variant_features['enst'] == enst:
+								transcript_index = i
+								i += 1
 					#then iterate for each score of interest, e.g.  sift..
 					#missense:
 					#sift4g
+					#print(record)
 					annot['sift4g_score'] = re.split(';', record[39])[i]
 					annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(1-float(annot['sift4g_score']), 'sift')
 					annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[i]]
