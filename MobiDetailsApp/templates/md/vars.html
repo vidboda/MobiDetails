@@ -32,7 +32,7 @@
 	{# TODO: this part should be placed in md.py which could send a count dict #}
 	{% set count = namespace(missense=0, ptc=0, silent=0, intronic=0, inframe_indels=0, all=0) %}
 	{% autoescape false %}
-	{% set div_content = namespace(missense=var_class_div('missens', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}
+	{% set div_content = namespace(missense=var_class_div('missense', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}
 	{% for variant in variants|sort(attribute='ng_name') %}
 		{% set count.all = count.all + 1 %}
 		{% set div_content.all = div_content.all + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - %s - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), gene_info.name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}
@@ -92,8 +92,30 @@
 		</div>
 	</div>
 	<br/><br />
+	{% if count.all == 0 %}
+		{% set div_content.all = div_content.all + "No variants recorded yet" %}
+	{% endif %}
+	{% if count.ptc == 0 %}
+		{% set div_content.ptc = div_content.ptc + "No PTC recorded yet" %}
+	{% endif %}
+	{% if count.silent == 0 %}
+		{% set div_content.silent = div_content.silent + "No Silent variants recorded yet" %}
+	{% endif %}
+	{% if count.missense == 0 %}
+		{% set div_content.missense = div_content.missense + "No missense recorded yet" %}
+	{% endif %}
+	{% if count.inframe_indels == 0 %}
+		{% set div_content.inframe_indels = div_content.inframe_indels + "No in frame variant recorded yet" %}
+	{% endif %}
+	{% if count.intronic == 0 %}
+		{% set div_content.intronic = div_content.intronic + "No intronic variant recorded yet" %}
+	{% endif %}
 	{{ div_content.all }}</ul></div>
 	{{ div_content.ptc }}</ul></div>
+	{{ div_content.silent }}</ul></div>
+	{{ div_content.missense }}</ul></div>
+	{{ div_content.inframe_indels }}</ul></div>
+	{{ div_content.intronic }}</ul></div>
 	{% endautoescape %}
 	<br /><br />
 	{{ info("* shortcut for variants not predicted by the genetic code to alter the protein sequence - does not consider splicing at all","** Might include large rearrangements","***Premature Termination Codons, including nonsense variants and frameshifts") }}
