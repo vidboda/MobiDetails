@@ -35,16 +35,18 @@ $(document).ready(function() {
 		$("#litvar_data").replaceWith(html);
 	});
 	//ajax for intervar
-	$.ajax({
-		type: "POST",
-		url: '/intervar',
-		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
-		}
-	})
-	.done(function(html) {
-		$("#intervar_data").replaceWith(html);
-	});
+	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
+		$.ajax({
+			type: "POST",
+			url: '/intervar',
+			data: {
+				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+			}
+		})
+		.done(function(html) {
+			$("#intervar_data").replaceWith(html);
+		});
+	}
 	//ajax for LOVD
 	$.ajax({
 		type: "POST",

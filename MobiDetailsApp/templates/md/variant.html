@@ -26,7 +26,7 @@
 				{% endif %}
 				{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
 				{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD")}}
-				{% if variant_features.dna_type == 'substitution' %}
+				{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
 					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
 				{% endif %}
 				{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
@@ -65,6 +65,7 @@
 		{% if variant_features.prot_type == 'missense' %}
 			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
+		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
 	</div>
 	{{ gene_redirection(variant_features.name[0], urls) }}
 	{{ modal_js('gene_modal') }}
@@ -288,7 +289,7 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
-					{% if variant_features.dna_type == 'substitution' %}
+					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
 						<tr><!--intervar-->
 							<td class="w3-left-align">Intervar</td>
 							<td class="w3-left-align">
@@ -309,6 +310,9 @@
 					</tr>
 				</tbody>
 			</table><br/><br/>
+			<!--hidden values to trigger intervar ajax-->
+			<span style="visibility:hidden" id="segment_type">{{ variant_features.start_segment_type }}</span>
+			<span style="visibility:hidden" id="dna_type">{{ variant_features.dna_type }}</span>
 		</div>
 		<!--fourth section-->
 		<hr />
@@ -399,7 +403,7 @@
 				</table><br/><br/>
 			</div>
 		{% endif %}
-		<!--seventh section-->
+		<!--sixth section-->
 		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
 			<hr />
 			{{ section_title('missense', 'Missense predictions') }}
@@ -457,6 +461,33 @@
 		{% elif annot.dbnsfp is defined %}
 			{{ info(annot.dbnsfp) }}
 		{% endif %}
+		<!--seventh section-->
+			<hr />
+			{{ section_title('admin', 'Administrative information') }}
+			<div class="w3-responsive w3-container">
+				<!--dbscSNV-->
+				<table class="w3-table w3-centered display compact" style="width:90%" id="admin_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align">Values</th>
+							<th class="w3-left-align">Description</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><!--creation user-->
+							<td class="w3-left-align">Creation user:</td>
+							<td class="w3-left-align">{{ variant_features.username }}</td>
+							<td class="w3-left-align"><em>User who created the variant</em></td>
+						</tr>
+						<tr><!--creation date-->
+							<td class="w3-left-align">Creation date:</td>
+							<td class="w3-left-align">{{ variant_features.creation_date }}</td>
+							<td class="w3-left-align"><em>Date of creation in MD</em></td>
+						</tr>
+					</tbody>
+				</table><br/><br/>
+			</div>
 		<br/><br/>
 	</div>
 {% endblock %}

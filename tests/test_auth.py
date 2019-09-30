@@ -16,7 +16,7 @@ def test_register(client, app):
 		db = get_db()
 		curs = db.cursor()
 		curs.execute(
-			"select * from mobiuser where username = 'davidb'",
+			"SELECT * FROM mobiuser WHERE username = 'davidb'",
 		)
 		res = curs.fetchone()
 		assert res is not None

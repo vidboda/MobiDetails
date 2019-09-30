@@ -493,7 +493,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#date, user
 	if g.user is not None:
 		curs.execute(
-			"SELECT id FROM mobiuser WHERE username = 'g.user'"
+			"SELECT id FROM mobiuser WHERE username = '{}'".format(g.user['username'])
 		)
 		vf_d['creation_user'] = curs.fetchone()['id']
 	else:

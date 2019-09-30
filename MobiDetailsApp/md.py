@@ -72,6 +72,8 @@ def gene(gene_name=None):
 				"SELECT * FROM gene_annotation WHERE gene_name[1] = '{}'".format(gene_name)
 			)
 			annot = curs.fetchone();
+			if annot is None:
+				annot = {'nognomad': 'No values in gnomAD'}
 			return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name, main_iso=main, res=result_all, annotations=annot)
 		else:
 			return render_template('md/unknown.html', query=gene_name)
@@ -127,7 +129,7 @@ def variant(variant_id=None):
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	# get all variant_features and gene info
 	curs.execute(
-		"SELECT * FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.id = '{0}'".format(variant_id)
+		"SELECT * FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
 	)
 	variant_features = curs.fetchone()
 	# get variant info
@@ -204,7 +206,7 @@ def variant(variant_id=None):
 					annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(float(annot['fathmm_score']), 'fathmm')
 					annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[i]]
 					#meta SVM
-					print(record[68])
+					#print(record[68])
 					annot['msvm_score'] = record[68]
 					annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['msvm_score']), 'meta')
 					annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
@@ -272,8 +274,6 @@ def variant(variant_id=None):
 							annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
 			
 
-	#print(annot)
-	
 	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 
