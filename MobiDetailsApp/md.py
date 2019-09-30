@@ -267,7 +267,7 @@ def variant(variant_id=None):
 							annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
 			
 
-	print(annot)
+	#print(annot)
 	
 	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 

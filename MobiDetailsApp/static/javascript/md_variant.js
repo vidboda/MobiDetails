@@ -39,7 +39,7 @@ $(document).ready(function() {
 		type: "POST",
 		url: '/intervar',
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
 		}
 	})
 	.done(function(html) {

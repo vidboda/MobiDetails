@@ -142,3 +142,114 @@ def test_get_preditor_double_threshold_color(client, value, result_color, predic
 def test_compute_pos_end(g_name, pos_end):
 	pos = md_utilities.compute_pos_end(g_name)
 	assert pos == pos_end
+	
+vv_dict = {
+  "flag": "gene_variant",
+  "NM_206933.2:c.100_101delinsA": {
+    "hgvs_lrg_transcript_variant": "",
+    "validation_warnings": [],
+    "refseqgene_context_intronic_sequence": "",
+    "alt_genomic_loci": [],
+    "transcript_description": "Homo sapiens usherin (USH2A), transcript variant 2, mRNA",
+    "gene_symbol": "USH2A",
+    "hgvs_predicted_protein_consequence": {
+      "tlr": "NP_996816.2:p.(Arg34LysfsTer111)",
+      "slr": "NP_996816.2:p.(R34Kfs*111)"
+    },
+    "submitted_variant": "NM_206933.2:c.100_101delCGinsA",
+    "genome_context_intronic_sequence": "",
+    "hgvs_lrg_variant": "",
+    "hgvs_transcript_variant": "NM_206933.2:c.100_101delinsA",
+    "hgvs_refseqgene_variant": "NG_009497.1:g.6160_6161delinsA",
+    "primary_assembly_loci": {
+      "hg19": {
+        "hgvs_genomic_description": "NC_000001.10:g.216595578_216595579delinsT",
+        "vcf": {
+          "chr": "chr1",
+          "ref": "CG",
+          "pos": "216595578",
+          "alt": "T"
+        }
+      },
+      "hg38": {
+        "hgvs_genomic_description": "NC_000001.11:g.216422236_216422237delinsT",
+        "vcf": {
+          "chr": "chr1",
+          "ref": "CG",
+          "pos": "216422236",
+          "alt": "T"
+        }
+      },
+      "grch37": {
+        "hgvs_genomic_description": "NC_000001.10:g.216595578_216595579delinsT",
+        "vcf": {
+          "chr": "1",
+          "ref": "CG",
+          "pos": "216595578",
+          "alt": "T"
+        }
+      },
+      "grch38": {
+        "hgvs_genomic_description": "NC_000001.11:g.216422236_216422237delinsT",
+        "vcf": {
+          "chr": "1",
+          "ref": "CG",
+          "pos": "216422236",
+          "alt": "T"
+        }
+      }
+    },
+    "reference_sequence_records": {
+      "refseqgene": "https://www.ncbi.nlm.nih.gov/nuccore/NG_009497.1",
+      "protein": "https://www.ncbi.nlm.nih.gov/nuccore/NP_996816.2",
+      "transcript": "https://www.ncbi.nlm.nih.gov/nuccore/NM_206933.2"
+    }
+  },
+  "metadata": {
+    "variantvalidator_hgvs_version": "1.1.3",
+    "uta_schema": "uta_20180821",
+    "seqrepo_db": "2018-08-21",
+    "variantvalidator_version": "v0.2.5"
+  }
+}
+hg38_test_d = {
+	'genome_version': 'hg38',
+	'g_name': '216422236_216422237delinsT',
+	'chr': '1',
+	'ref': 'CG',
+	'pos': '216422236',
+	'alt': 'T'
+}
+hg19_test_d = {
+	'genome_version': 'hg19',
+	'g_name': '216595578_216595579delinsT',
+	'chr': '1',
+	'ref': 'CG',
+	'pos': '216595578',
+	'alt': 'T'
+}
+@pytest.mark.parametrize(('genome', 'var', 'test_d', 'vv_dict'), (
+	('hg38', 'NM_206933.2:c.100_101delinsA', hg38_test_d, vv_dict),
+	('hg19', 'NM_206933.2:c.100_101delinsA', hg19_test_d, vv_dict)
+))
+def test_get_genomic_values(genome, var, test_d, vv_dict):
+	var_dict = md_utilities.get_genomic_values(genome, vv_dict, var)
+	assert var_dict == test_d
+
+@pytest.mark.parametrize(('name', 'result'), (
+	('216595578_216595582delinsT', ('216595578', '216595582')),
+	('100_101del', ('100', '101')),
+	('100C>T', ('100', '100')),
+))
+def test_compute_start_end_pos(name, result):
+	positions = md_utilities.compute_start_end_pos(name)
+	assert positions == result
+
+@pytest.mark.parametrize(('seq', 'result'), (
+	('ATCG', 'CGAT'),
+	('TCTCCAGCCTTGGGAAAAGACCTCGTGACTCAGTCAAGGATATTGAAGCA', 'TGCTTCAATATCCTTGACTGAGTCACGAGGTCTTTTCCCAAGGCTGGAGA'),
+	('TGCTTCAATATCCTTGACTGAGTCACGAGGTCTTTTCCCAAGGCTGGAGAA', 'TTCTCCAGCCTTGGGAAAAGACCTCGTGACTCAGTCAAGGATATTGAAGCA')
+))
+def test_reverse_complement(seq, result):
+	rev_comp = md_utilities.reverse_complement(seq)
+	assert rev_comp == result

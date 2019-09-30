@@ -26,7 +26,9 @@
 				{% endif %}
 				{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
 				{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD")}}
-				{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+				{% if variant_features.dna_type == 'substitution' %}
+					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+				{% endif %}
 				{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
 				{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
 				{{ link("%s?term='%s:c.%s' [Variant name]"|format(urls.ncbi_clinvar, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}

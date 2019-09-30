@@ -76,7 +76,6 @@ def intervar():
 	intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-	# get all variant_features and gene info
 	curs.execute(
 		"SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(intervar_data['Intervar'].lower())
 	)
@@ -88,21 +87,21 @@ def intervar():
 def lovd():
 	genome = request.form['genome']
 	chrom = request.form['chrom']
-	pos = request.form['pos']
 	g_name = request.form['g_name']
 	c_name = request.form['c_name']
-	pos_end = md_utilities.compute_pos_end(g_name)
+	positions = md_utilities.compute_start_end_pos(g_name)
 	http = urllib3.PoolManager()
 	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
-	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, pos, pos_end)
+	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
 	lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
+	#print(lovd_url)
 	if len(lovd_data) == 1:
-		return 'No match in LOVD public instances'
-	#print(lovd_data)
+		return 'No match in LOVD public instances'	
 	lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
 	lovd_urls = []
 	i = 1
 	html = ''
+	html_list = []
 	for candidate in lovd_data:
 		fields = re.split('\t', candidate)
 		#print(fields)
@@ -113,11 +112,11 @@ def lovd():
 	if len(lovd_urls) > 0:
 		for url in lovd_urls:
 			url = url.replace('"','')
-			html += "<a href='{0}' target='_blank'>Link {1}</a> - ".format(url, i)
+			html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
 			i += 1
 	else:
 		return 'No match in LOVD public instances'
-	
+	html = ' - '.join(html_list)
 	return html
 	#return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 	
@@ -126,15 +125,25 @@ def lovd():
 def create():
 	gene = request.form['gene']
 	acc_no = request.form['acc_no']
-	new_variant = request.form['new_variant']
+	new_variant = request.form['new_variant'].replace(" ", "")
 	acc_version = request.form['acc_version']
-	#print(new_variant)
-	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-	vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
-	print(vv_url)
-
-	vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-	if 'validation_warning_1' in vv_data:
-		return '<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>VariantValidator error: {0}<br/>{1}</strong></span><br /></p></div>'.format(vv_data['validation_warning_1']['validation_warnings'][0], vv_data['validation_warning_1']['validation_warnings'][1])
+	#variant already registered?
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	var_db = new_variant.replace("c.", "")
+	curs.execute(
+		"SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(var_db, acc_no)
+	)
+	res = curs.fetchone()
+	if res is not None:
+		return md_utilities.info_panel('Variant already in MobiDetails: ', new_variant, res['id'])
 	
-	return new_variant
+	if re.search('c\..+', new_variant):
+		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+		vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+		vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
+		vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+	else:
+		return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
+	
+	return md_utilities.create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, 'webApp', db, g)
