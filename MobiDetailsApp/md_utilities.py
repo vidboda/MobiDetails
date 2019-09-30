@@ -331,7 +331,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	p_obj =  re.search(':p\.\((.+)\)$', vv_data[vv_key_var]['hgvs_predicted_protein_consequence']['tlr'])
 	if p_obj:
 		vf_d['p_name'] = p_obj.group(1)
-		vf_d['rna_type'] = 'neutral inferred'
 		if re.search('Ter$', vf_d['p_name']):
 			vf_d['prot_type'] = 'nonsense'
 		elif re.search('fsTer\d+', vf_d['p_name']):
@@ -357,7 +356,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			else:
 				vf_d['prot_type'] = 'unknown'
 	else:
-		vf_d['p_name'] = 'NULL'
+		vf_d['p_name'] = '?'
+		vf_d['prot_type'] = 'unknown'
+		
+	#TODO deal with +1,+2 etc
+	vf_d['rna_type'] = 'neutral inferred'
 	#exons pos, etc - based on hg38
 	
 	
