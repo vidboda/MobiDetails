@@ -379,6 +379,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		
 	#TODO deal with +1,+2 etc
 	vf_d['rna_type'] = 'neutral inferred'
+	if re.search('\d+[\+-][12][^\d]', vf_d['c_name']):
+		vf_d['rna_type'] = 'altered inferred'
 	#exons pos, etc - based on hg38
 	
 	
