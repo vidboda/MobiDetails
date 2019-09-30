@@ -257,10 +257,10 @@ def variant(variant_id=None):
 						annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
 						annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
 					else:
-						annot['dbscsnv_ada'] = record[14]
-						annot['dbscsnv_ada_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
-						annot['dbscsnv_rf'] = record[15]
-						annot['dbscsnv_rf_color'] = get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+						annot['dbscsnv_ada'] = "{:.2f}".format(float(record[14]))
+						annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+						annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
+						annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
 					#spliceai
 					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
 					if isinstance(record, str):

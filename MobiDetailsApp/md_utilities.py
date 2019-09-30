@@ -163,8 +163,9 @@ def get_value_from_tabix_file(text, tabix_file, var):
 	tb = tabix.open(tabix_file)
 	records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
 	i = 3
-	if re.search('(dbNSFP|Indels|whole_genome_SNVs)', tabix_file) or re.search('InDels', tabix_file):
+	if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
 		i -= 1
+	print(records)
 	for record in records:
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
 			return record
