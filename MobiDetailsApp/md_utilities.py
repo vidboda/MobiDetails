@@ -29,6 +29,7 @@ urls = {
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
 	'variant_validator_api': 'https://rest.variantvalidator.org:443/',
+	'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
 	'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
 	'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
 	'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
@@ -60,8 +61,8 @@ local_files = {
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
 	'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', 'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
-	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD', 'Prediction of deleterious effect for all variant types', 'cadd'],
+	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
+	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v151', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
 	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
@@ -333,7 +334,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		vf_d['rna_type'] = 'neutral inferred'
 		if re.search('Ter$', vf_d['p_name']):
 			vf_d['prot_type'] = 'nonsense'
-		elif re.search('Terfs', vf_d['p_name']):
+		elif re.search('fsTer\d+', vf_d['p_name']):
 			vf_d['prot_type'] = 'frameshift'
 		elif re.search('\w{3}\d+=', vf_d['p_name']):
 			vf_d['prot_type'] = 'silent'
@@ -343,9 +344,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			vf_d['prot_type'] = 'start codon'
 		elif re.search('ext', vf_d['p_name']):
 			vf_d['prot_type'] = 'stop codon'
-		elif re.search('_\d+del', vf_d['p_name']):
+		elif re.search('_\d+del', vf_d['p_name']) or re.search('^\d+del', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe deletion'
-		elif re.search('_\d+dup', vf_d['p_name']):
+		elif re.search('_\d+dup', vf_d['p_name']) or re.search('^\d+dup', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe duplication'
 		elif re.search('_\d+ins', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe insertion'

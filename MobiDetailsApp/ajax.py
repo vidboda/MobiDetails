@@ -104,15 +104,19 @@ def lovd():
 	html_list = []
 	for candidate in lovd_data:
 		fields = re.split('\t', candidate)
+		#check if the variant is the same than ours		
 		#print(fields)
 		if len(fields) > 1:
 			fields[4] = fields[4].replace('"','')			
-			if fields[4] == c_name:				
+			if fields[4] == c_name or re.match(c_name, fields[4]):	
 				lovd_urls.append(fields[5])
 	if len(lovd_urls) > 0:
 		for url in lovd_urls:
 			url = url.replace('"','')
-			html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
+			if re.search('databases.lovd.nl/shared/', url):
+				html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
+			else:
+				html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
 			i += 1
 	else:
 		return 'No match in LOVD public instances'
@@ -142,7 +146,11 @@ def create():
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 		vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
-		vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+		try:
+			vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+		except:
+			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. A possible cause is that the variant is too large.')
+			
 	else:
 		return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
 	

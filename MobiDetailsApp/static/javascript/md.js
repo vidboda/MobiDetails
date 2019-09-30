@@ -1,6 +1,7 @@
 function accord(id) {
-	if ($('#'+id).css('display') == 'block') {$('#'+id).hide();}
-	else {$('#'+id).show();}
+	$('#'+id).fadeToggle("slow");
+	//if ($('#'+id).css('display') == 'block') {$('#'+id).hide();}
+	//else {$('#'+id).show();}
 }
 function w3_open() {
   document.getElementById('smart_menu').style.width = '15%';

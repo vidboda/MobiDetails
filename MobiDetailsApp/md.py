@@ -1,4 +1,7 @@
 import re
+import urllib3
+import certifi
+import json
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -6,7 +9,6 @@ from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
 import tabix
-
 
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db
@@ -39,8 +41,11 @@ def index():
 
 #web app - about
 @bp.route('/about')
-def about():	
-	return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files)
+def about():
+	#get VV API version
+	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+	vv_data = json.loads(http.request('GET', 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json').data.decode('utf-8'))
+	return render_template('md/about.html', vv_data=vv_data, urls=md_utilities.urls, local_files=md_utilities.local_files)
 
 
 ######################################################################

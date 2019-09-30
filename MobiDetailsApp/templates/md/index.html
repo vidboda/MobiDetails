@@ -2,7 +2,9 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
-	<div class="w3-container w3-center w3-padding-32"><img alt="MobiDetails" height="200" src="/static/img/MobiDetails1.png" width="700" /><br /><p class="w3-large">
+	<div class="w3-container w3-center w3-padding-32">
+		<img alt="MobiDetails" height="200" src="/static/img/MobiDetails1.png" width="700" /><br />
+		<p class="w3-large">
 	{% if g.user['username'] %}
 		{{ g.user['username'] }}
 	{% else %}
@@ -12,32 +14,39 @@
 	{% if g.user['username'] %}
 	, annotate
 	{% endif %}
-	and investigate variants in </p>
-	<div>
-	<span class="w3-badge w3-jumbo w3-blue">{{ nb_genes }}</span><span> genes and</span><span class="w3-badge w3-jumbo w3-red">{{ nb_isoforms }}</span><span> isoforms </span>
+	and investigate variants in
+		</p>
+		<div>
+			<span class="w3-badge w3-jumbo w3-blue">{{ nb_genes }}</span><span> genes and</span><span class="w3-badge w3-jumbo w3-red">{{ nb_isoforms }}</span><span> isoforms </span>
+		</div>
 	</div>
-	</p></div></div>
 	<div align="center">
-	<form method="post" action="/search_engine" enctype="application/x-www-form-urlencoded" id="main">
-	<div class="w3-margin-16 w3-container" style="width:50%">
-	<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
-	<br /><br /><input class="w3-button w3-blue" type="submit" value="Submit" /></div>
-	</form>
+		<form method="post" action="/search_engine" enctype="application/x-www-form-urlencoded" id="main">
+			<div class="w3-margin-16 w3-container" style="width:50%">
+				<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
+				<br /><br /><input class="w3-button w3-blue" type="submit" value="Submit" />
+			</div>
+		</form>
 	</div>
 	<br />
 	{{ danger("WARNING: MobiDetails is in current active development. This is a &beta; version.","If you experience any trouble or have any idea to improve the software, please contact David at david.baux@inserm.fr") }}
-	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span><p>NEWS:<ul>
-			<li>2019-08-26: First running version using <a href = 'https://flask.palletsprojects.com/en/1.1.x/', target = '_blank'>Flask</a>, <a href = 'https://jinja.palletsprojects.com/en/2.10.x/', target = '_blank'>Jinja</a> and <a href = 'https://www.python.org/', target = '_blank'>python</a>. Bye <a href = 'https://www.perl.org/', target = '_blank'>Perl</a>! See you next time!</li>
-			<li>2019-06-04: Added gnomAD obs/exp scores instead of ExAC pLI.</li>
-			<li>2019-05-15: Added <a href = 'https://variantvalidator.org/', target = '_blank'>VariantValidator</a> API to create variants. Use it in priority except for SHANK3 gene.</li>
-			<li>2019-02-26: Added <a href = 'https://www.cell.com/cell/fulltext/S0092-8674(18)31629-5', target = '_blank'>spliceAI</a> scores for SNVs!</li>
-			<li>2019-01-24: more than 300 new genes added (potential DSD genes)</li>
-			<li>2018-12-19: check out our new <a href = '', target = '_blank'>About</a> page!</li>
-			<li>2018-12-12: when a variant is known in dbSNP, possibility to retrive PubMed articles citing the variant</li>
-			<li>2018-12-12 again: added pLi, pRec, pNull values for each gene.</li>
-			<li>2018-12-06: You can modify the RNA impact status depending on what you've found.</li>
-			<li>2018-12-07: You can export your variant in a DEFGEN compliant csv format using the dedicated button!</li>
-		</ul></p></div>
+	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+		<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
+		<p>NEWS:
+			<ul>
+				<li>2019-08-26: First running version using <a href = 'https://flask.palletsprojects.com/en/1.1.x/', target = '_blank'>Flask</a>, <a href = 'https://jinja.palletsprojects.com/en/2.10.x/', target = '_blank'>Jinja</a> and <a href = 'https://www.python.org/', target = '_blank'>python</a>. Bye <a href = 'https://www.perl.org/', target = '_blank'>Perl</a>! See you next time!</li>
+				<li>2019-06-04: Added gnomAD obs/exp scores instead of ExAC pLI.</li>
+				<li>2019-05-15: Added <a href = 'https://variantvalidator.org/', target = '_blank'>VariantValidator</a> API to create variants. Use it in priority except for SHANK3 gene.</li>
+				<li>2019-02-26: Added <a href = 'https://www.cell.com/cell/fulltext/S0092-8674(18)31629-5', target = '_blank'>spliceAI</a> scores for SNVs!</li>
+				<li>2019-01-24: more than 300 new genes added (potential DSD genes)</li>
+				<li>2018-12-19: check out our new <a href = '', target = '_blank'>About</a> page!</li>
+				<li>2018-12-12: when a variant is known in dbSNP, possibility to retrive PubMed articles citing the variant</li>
+				<li>2018-12-12 again: added pLi, pRec, pNull values for each gene.</li>
+				<li>2018-12-06: You can modify the RNA impact status depending on what you've found.</li>
+				<li>2018-12-07: You can export your variant in a DEFGEN compliant csv format using the dedicated button!</li>
+			</ul>
+		</p>
+	</div>
 	<br /><br />
 	<!--    <h1>Welcome to MobiDetails!!</h1>
 		<p>
