@@ -149,7 +149,7 @@ def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):
 			
 #get aa position fomr hgvs p. (3 letter)
 def get_aa_position(hgvs_p):
-	match_object = re.match('^\w{3}(\d+)[^\d]+.+$', hgvs_p)
+	match_object = re.match('^\w{3}(\d+)[^\d]+.*$', hgvs_p)
 	if match_object:
 		return match_object.group(1), match_object.group(1)
 	match_object = re.match('^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p)
