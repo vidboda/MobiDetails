@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 from MobiDetailsApp.auth import login_required
-from MobiDetailsApp.db import get_db
+from MobiDetailsApp.db import get_db, close_db
 from . import md_utilities
 
 import psycopg2
@@ -56,8 +56,10 @@ def defgen():
 		file_loc = "defgen/{0}-{1}-{2}{3}-{4}.csv".format(genome, vf['chr'], vf['pos'], vf['pos_ref'], vf['pos_alt'])
 		defgen_file = open("{0}/static/{1}".format(app_path, file_loc), "w")
 		defgen_file.write(file_content)
+		close_db()
 		return render_template('ajax/defgen.html', variant="{0}.{1}:c.{2}".format(vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
 	else:
+		close_db()
 		return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
 	
 #web app - ajax for intervar API
@@ -80,6 +82,7 @@ def intervar():
 		"SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(intervar_data['Intervar'].lower())
 	)
 	res = curs.fetchone()
+	close_db()
 	return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
 
 #web app - ajax for LOVD API
@@ -140,6 +143,7 @@ def create():
 	)
 	res = curs.fetchone()
 	if res is not None:
+		close_db()
 		return md_utilities.info_panel('Variant already in MobiDetails: ', new_variant, res['id'])
 	
 	if re.search('c\..+', new_variant):
@@ -149,9 +153,11 @@ def create():
 		try:
 			vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 		except:
+			close_db()
 			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. A possible cause is that the variant is too large.')
 			
 	else:
+		close_db()
 		return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
-	
+	close_db()
 	return md_utilities.create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, 'webApp', db, g)

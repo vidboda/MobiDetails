@@ -11,7 +11,7 @@ import psycopg2.extras
 import tabix
 
 from MobiDetailsApp.auth import login_required
-from MobiDetailsApp.db import get_db
+from MobiDetailsApp.db import get_db, close_db
 from . import md_utilities
 
 bp = Blueprint('md', __name__)
@@ -37,6 +37,7 @@ def index():
 		error = "There is a problem with the number of genes."
 		flash(error)
 	else:
+		close_db()
 		return render_template('md/index.html', nb_genes=res['gene'], nb_isoforms=res['transcript'])
 
 #web app - about
@@ -75,10 +76,13 @@ def gene(gene_name=None):
 			annot = curs.fetchone();
 			if annot is None:
 				annot = {'nognomad': 'No values in gnomAD'}
+			close_db()
 			return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name, main_iso=main, res=result_all, annotations=annot)
 		else:
+			close_db()
 			return render_template('md/unknown.html', query=gene_name)
 	else:
+		close_db()
 		return render_template('md/unknown.html', query=gene_name)
 	
 ######################################################################
@@ -92,8 +96,10 @@ def genes():
 	)
 	genes = curs.fetchall()
 	if genes is not None:
+		close_db()
 		return render_template('md/genes.html', genes=genes)
 	else:
+		close_db()
 		return render_template('md/unknown.html')
 
 ######################################################################
@@ -116,8 +122,10 @@ def vars(gene_name=None):
 		)
 		variants = curs.fetchall()
 		#if vars_type is not None:
+		close_db()
 		return render_template('md/vars.html', urls=md_utilities.urls, gene=gene_name, variants=variants, gene_info=main)
 	else:
+		close_db()
 		return render_template('md/unknown.html', query=gene_name)
 
 ######################################################################
@@ -278,8 +286,9 @@ def variant(variant_id=None):
 								id_color = "{}_color".format(identifier)
 								annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
 	else:
+		close_db()
 		return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
-
+	close_db()
 	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 
@@ -346,10 +355,13 @@ def search_engine():
 		)
 		result = curs.fetchone()
 		if result is None:
+			close_db()
 			return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
 		elif sql_table == 'gene':
+			close_db()
 			return redirect(url_for('md.gene', gene_name=result[col_names][0]))
 		else:
+			close_db()
 			return redirect(url_for('md.variant', variant_id=result[col_names]))
 		
 #1st attempt with SQLalchemy
