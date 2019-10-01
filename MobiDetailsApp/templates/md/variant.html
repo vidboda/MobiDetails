@@ -175,7 +175,7 @@
 						{% endif %}
 						<td class="w3-left-align"><em>Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
 					</tr><!--position in exon-->
-					{% if variant_features.start_segment_type == 'exon' %}
+					{% if variant_features.start_segment_type == 'exon' and variant_features.c_name|match('[^\*]') %}
 						<tr>
 							<td class="w3-left-align">Position / splice site</td>
 							<td class="w3-left-align">{{ pos_splice[1] }} bp from {{ pos_splice[0] }}</td>

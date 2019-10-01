@@ -75,7 +75,12 @@ def intervar():
 	http = urllib3.PoolManager()
 	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
 	#return intervar_url
-	intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+	intervar_resp = http.request('GET', intervar_url).data.decode('utf-8')
+	#print("----".format(intervar_resp))
+	if intervar_resp != '':
+		intervar_data = json.loads(intervar_resp)
+	else:
+		return "<span>No intervar class</span>"
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
@@ -159,5 +164,4 @@ def create():
 	else:
 		close_db()
 		return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
-	close_db()
 	return md_utilities.create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, 'webApp', db, g)

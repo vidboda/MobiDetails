@@ -45,7 +45,8 @@ def index():
 def about():
 	#get VV API version
 	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-	vv_data = json.loads(http.request('GET', 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json').data.decode('utf-8'))
+	vv_data = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_info']).data.decode('utf-8'))
+	#vv_data = json.loads(http.request('GET', 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json').data.decode('utf-8'))
 	return render_template('md/about.html', vv_data=vv_data, urls=md_utilities.urls, local_files=md_utilities.local_files)
 
 

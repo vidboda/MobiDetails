@@ -7,7 +7,7 @@ import tabix
 import urllib3
 import json
 import twobitreader
-from MobiDetailsApp.db import get_db
+#from MobiDetailsApp.db import get_db
 
 app_path = os.path.dirname(os.path.realpath(__file__))
 one2three = {
@@ -28,8 +28,11 @@ urls = {
 	'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
-	'variant_validator_api': 'https://rest.variantvalidator.org:443/',
-	'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
+	#uncomment below to use VV web API
+	#'variant_validator_api': 'https://rest.variantvalidator.org:443/',
+	#'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
+	'variant_validator_api': 'http://0.0.0.0:8000/',
+	'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
 	'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
 	'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
 	'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
@@ -165,7 +168,7 @@ def get_value_from_tabix_file(text, tabix_file, var):
 	i = 3
 	if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
 		i -= 1
-	print(records)
+	#print(records)
 	for record in records:
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
 			return record
@@ -533,7 +536,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#print(insert_variant_feature)
 	curs.execute(insert_variant_feature)
 	vf_id = curs.fetchone()[0]
-	print(vf_id)
+	#print(vf_id)
 	#vf_id = 55
 	insert_variant_38 = "INSERT INTO variant (feature_id, {0}) VALUES ('{1}', '{2}')".format(s.join(hg38_d.keys()), vf_id, t.join(map(str, hg38_d.values())))
 	curs.execute(insert_variant_38)
