@@ -369,14 +369,14 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			vf_d['prot_type'] = 'start codon'
 		elif re.search('ext', vf_d['p_name']):
 			vf_d['prot_type'] = 'stop codon'
-		elif re.search('_\d+del', vf_d['p_name']) or re.search('^\d+del', vf_d['p_name']):
+		elif re.search('_\w{3}\d+del', vf_d['p_name']) or re.search('^\w{3}\d+del', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe deletion'
-		elif re.search('_\d+dup', vf_d['p_name']) or re.search('^\d+dup', vf_d['p_name']):
+		elif re.search('_\w{3}\d+dup', vf_d['p_name']) or re.search('^\w{3}\d+dup', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe duplication'
-		elif re.search('_\d+ins', vf_d['p_name']):
+		elif re.search('_\w{3}\d+ins', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe insertion'
 		else:
-			var_obj = re.search('(\w{3})\d+(\w{3})', vf_d['p_name'])
+			var_obj = re.search('^(\w{3})\d+(\w{3})$', vf_d['p_name'])
 			if var_obj.group(1) != var_obj.group(2):
 				vf_d['prot_type'] = 'missense'
 			else:

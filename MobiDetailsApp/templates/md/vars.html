@@ -48,7 +48,7 @@
 				{% set count.silent = count.silent + 1 %}
 				{% set div_content.silent = div_content.silent + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), gene_info.name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}
 			{# match is a custom filter for regexp - see md_utilities.py, and loaded in __init__.py #}
-			{% elif variant.prot_type|match('in frame') %}
+			{% elif variant.prot_type|match('inframe') %}
 				{% set count.inframe_indels = count.inframe_indels + 1 %}
 				{% set div_content.inframe_indels = div_content.inframe_indels + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), gene_info.name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}
 			{% endif %}
