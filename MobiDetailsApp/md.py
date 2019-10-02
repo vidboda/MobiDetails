@@ -160,7 +160,7 @@ def variant(variant_id=None):
 		for var in variant:
 			if var['genome_version'] == 'hg38':
 				# compute position / splice sites
-				if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and not re.match('\*', variant_features['c_name']) and not re.match('^-', variant_features['c_name']):
+				if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and not re.match('\*', variant_features['c_name']) and not re.search('^-', variant_features['c_name']):
 					#get a tuple ['site_type', 'dist(bp)']
 					pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
 					if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
@@ -309,32 +309,37 @@ def search_engine():
 		# return render_template('md/search_engine.html', query=aas)
 		#deal w/ protein names
 	
-		match_object = re.match('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
+		match_object = re.search('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
 		if match_object:
 			query_type = 'p_name'
 			pattern = md_utilities.one2three_fct(query_engine)
-		elif re.match('^p\..+', query_engine):
+		elif re.search('^p\..+', query_engine):
 			query_type = 'p_name'
 			var = md_utilities.clean_var_name(query_engine)
-			match_object = re.match('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
-			match_object_long = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
-			if match_object:
+			match_object = re.search('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
+			match_object_long = re.search('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
+			if match_object or match_object_long:
 				pattern = md_utilities.one2three_fct(var)
 			else:
-				pattern = re.sub('X', '*', var)
-		elif re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
+				if re.search('X', var):
+					pattern = re.sub('X', 'Ter', var)
+				elif re.search('\*', var):
+					pattern = re.sub('\*', 'Ter', var)
+				else:
+					pattern = var
+		elif re.search('[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
 			sql_table = 'variant'
 			query_type = 'g_name'
 			col_names = 'feature_id'
-			match_object = re.match('[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
+			match_object = re.search('[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
 			pattern = match_object.group(1)
-		elif re.match('^g\..+', query_engine):#g. ng dna vars
+		elif re.search('^g\..+', query_engine):#g. ng dna vars
 			query_type = 'ng_name'
 			pattern = md_utilities.clean_var_name(query_engine)
-		elif re.match('^c\..+', query_engine):#c. dna vars
+		elif re.search('^c\..+', query_engine):#c. dna vars
 			query_type = 'c_name'
 			pattern = md_utilities.clean_var_name(query_engine)
-		elif re.match('^[A-Z0-9]+$', query_engine):#genes
+		elif re.search('^[A-Z0-9]+$', query_engine):#genes
 			sql_table = 'gene'
 			query_type = 'name[1]'
 			col_names = 'name'
@@ -349,7 +354,7 @@ def search_engine():
 		#a little bit of formatting
 		if re.match('variant', sql_table) and re.match('>', pattern):
 			#upper for the end of the variant, lwer for genomic chr
-			var_match = re.match('^(.*)(\.+)([ACTG]>[ACTG])$')
+			var_match = re.search('^(.*)(\.+)([ACTG]>[ACTG])$')
 			pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
 		curs.execute(
 			"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)

@@ -7,7 +7,7 @@ def test_register(client, app):
 	#test register returns no error
 	assert client.get('/auth/register').status_code == 200
 	response = client.post(
-	'/auth/register', data={'username': 'davidb', 'password': 'a', 'country': 'a', 'institute': 'a', 'email': 'david.baux@inserm.fr',}
+	'/auth/register', data={'username': 'davidbaux', 'password': 'a', 'country': 'a', 'institute': 'a', 'email': 'david.baux@inserm.fr',}
 	)
 	assert response.status_code  == 200
 
@@ -24,7 +24,7 @@ def test_register(client, app):
 #multiple tests to check known username and email returns a message
 @pytest.mark.parametrize(('username', 'password', 'email', 'message'), (
 	('djsdlm', 'ss9kghgf', 'david.baux@inserm.fr', b'is already registered.'),
-	('davidb', 'ss9kghgf', 'kevin@inserm.fr', b'is already registered.'),
+	('davidbaux', 'ss9kghgf', 'kevin@inserm.fr', b'is already registered.'),
 	('1', 's', 'v', b'Username should be at least 5 characters.'),
 	('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters and numbers.'),
 	('djsdlm', 'ss9kghgf', 'kevin@inserm.f', b'The email address does not look valid.')

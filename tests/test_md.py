@@ -36,8 +36,8 @@ def test_variant_page(client):
 @pytest.mark.parametrize(('t_search', 'url'), (
 	('R34X', 'variant/5'),
 	('R34*', 'variant/5'),
-	('p.Arg34X', 'variant/5'),
-	('p.(Arg34X)', 'variant/5'),
+	('p.Arg34*', 'variant/5'),
+	('p.(Arg34Ter)', 'variant/5'),
 	('p.(Arg34*)', 'variant/5'),
 	('p.Arg34*', 'variant/5'),
 	('c.100C>T', 'variant/5'),
