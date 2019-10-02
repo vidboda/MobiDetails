@@ -289,19 +289,22 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			#		there was a space in submitted name
 	if 'validation_warnings' in vv_data[first_level_key]:
 		for warning in vv_data[first_level_key]['validation_warnings']:
-			if warning == vv_key_var or re.search('does not agree with reference', warning):
-				if caller == 'webApp':
-					return danger_panel(warning, vv_data[first_level_key]['validation_warnings'][1])
-			elif re.search('length must be', warning) or re.search('that lies outside of the reference sequence', warning) or re.search('No transcripts found ', warning) or re.search('start or end or both are beyond', warning):
-				if caller == 'webApp':
-					return danger_panel(vv_key_var, warning)
-			elif re.search('RefSeqGene record not available', warning):
+			#if warning == vv_key_var or re.search('does not agree with reference', warning):
+			#	if caller == 'webApp':
+			#		return danger_panel(warning, vv_data[first_level_key]['validation_warnings'][1])
+			#elif re.search('length must be', warning) or re.search('that lies outside of the reference sequence', warning) or re.search('No transcripts found ', warning) or re.search('start or end or both are beyond', warning):
+			#	if caller == 'webApp':
+			#		return danger_panel(vv_key_var, warning)
+			if re.search('RefSeqGene record not available', warning):
 				vf_d['ng_name'] = 'NULL'
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
 				match_obj = re.search('automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
 				return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
 				if caller == 'webApp':
 					return danger_panel(vv_key_var, return_text)
+			else:
+				if caller == 'webApp':
+					return danger_panel(vv_key_var, warning)
 	genome = 'hg38'
 	#hg38
 	hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
