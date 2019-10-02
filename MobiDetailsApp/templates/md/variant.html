@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/md.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}" type="text/javascript"></script>	
 {% endblock %}
@@ -209,12 +210,12 @@
 					{% endif %}
 					<tr>
 						<td class="w3-left-align">Wild type sequence</td>
-						<td class="w3-left-align">{{ variant_features.wt_seq }}</td>
+						<td class="w3-left-align txt">{{ variant_features.wt_seq }}</td>
 						<td class="w3-left-align"><em>Wild type DNA sequence +/- 25 bp</em></td>
 					</tr>
 					<tr>
 						<td class="w3-left-align">Mutant sequence</td>
-						<td class="w3-left-align">{{ variant_features.mt_seq }}</td>
+						<td class="w3-left-align txt">{{ variant_features.mt_seq }}</td>
 						<td class="w3-left-align"><em>Mutant type DNA sequence +/- 25 bp</em></td>
 					</tr>
 				</tbody>

@@ -6,6 +6,10 @@ a:hover {
 	color:#FF6020;
 	/*font-style:italic;*/
 }
+.txt {
+	font-family: monospace;
+	font-size: 1.2em;
+}
 /*a:visited {
 	color:#F70F00;
     text-decoration:none;
