@@ -25,6 +25,7 @@ urls = {
 	'ncbi_clinvar': '{}clinvar'.format(url_ncbi),
 	'ncbi_1000g': '{}variation/tools/1000genomes/?'.format(url_ncbi),
 	'ncbi_gene': '{}gene/?term='.format(url_ncbi),
+	'ncbi_pubmed': '{}pubmed/'.format(url_ncbi),
 	'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
