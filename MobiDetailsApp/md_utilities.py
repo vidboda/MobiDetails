@@ -291,7 +291,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			if warning == vv_key_var or re.search('does not agree with reference', warning):
 				if caller == 'webApp':
 					return danger_panel(warning, vv_data[first_level_key]['validation_warnings'][1])
-			elif re.search('length must be', warning) or re.search('that lies outside of the reference sequence', warning) or re.search('No transcripts found ', warning):
+			elif re.search('length must be', warning) or re.search('that lies outside of the reference sequence', warning) or re.search('No transcripts found ', warning) or re.search('start or end or both are beyond', warning):
 				if caller == 'webApp':
 					return danger_panel(vv_key_var, warning)
 			elif re.search('RefSeqGene record not available', warning):
