@@ -27,7 +27,8 @@
 		</p><br /><br />
 		{{ gene_redirection(gene, urls) }}
 		{{ modal_js('gene_modal', 'var_modal') }}
-		<div id="created_var"></div>
+		{{ danger("WARNING: currently, you can only create variants in canonical isoforms.") }}
+		<div id="created_var"></div>		
 		<div class="w3-responsive" id="gene_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
 				<caption>Gene info table:</caption>
