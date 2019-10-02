@@ -119,7 +119,7 @@ def vars(gene_name=None):
 	main = curs.fetchone()
 	if main is not None:
 		curs.execute(
-			"SELECT * FROM variant_feature WHERE gene_name[1] = '{}' ORDER BY prot_type, ng_name".format(gene_name)
+			"SELECT * FROM variant_feature a, variant b WHERE a.id = b.feature_id AND a.gene_name[1] = '{}' AND b.genome_version = 'hg38'".format(gene_name)
 		)
 		variants = curs.fetchall()
 		#if vars_type is not None:

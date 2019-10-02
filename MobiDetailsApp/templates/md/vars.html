@@ -33,7 +33,7 @@
 	{% set count = namespace(missense=0, ptc=0, silent=0, intronic=0, inframe_indels=0, all=0) %}
 	{% autoescape false %}
 	{% set div_content = namespace(missense=var_class_div('missense', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}
-	{% for variant in variants|sort(attribute='ng_name') %}
+	{% for variant in variants|sort(attribute='pos') %}
 		{% set count.all = count.all + 1 %}
 		{% set div_content.all = div_content.all + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), gene_info.name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}
 		{#{% set div_content.all = div_content.all + "<li><a href='' target='_blank'>" + {{ gene_info.name[1] }} + ":c." + {{ variant.c_name }} + "</a><span> - " + {{ variant.p_name }} + " - (exon X)</span></li>" %}#}
