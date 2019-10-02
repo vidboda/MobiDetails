@@ -192,19 +192,19 @@ def get_spliceai_color(val):
 def get_preditor_single_threshold_color(val, predictor):
 	#function to get green or red
 	if val != '.':
-		if float(val) > predictor_thresholds[predictor]:
-			return predictor_colors['max']
-		return predictor_colors['min']
+		value = float(val)
+		if predictor == 'sift':
+			value = 1-(float(val))
+			if value > predictor_thresholds[predictor]:
+				return predictor_colors['max']
+			return predictor_colors['min']
 	else:
 		return predictor_colors['no_effect']
 #returns an html color depending on a single threshold (reverted, e.g. for fathmm)
 def get_preditor_single_threshold_reverted_color(val, predictor):
 	#function to get green or red
 	if val != '.':
-		value = float(val)
-		if predictor == 'sift':
-			value = 1-(float(val))
-		if value < predictor_thresholds[predictor]:
+		if float(val) < predictor_thresholds[predictor]:
 			return predictor_colors['max']
 		return predictor_colors['min']
 	else:
