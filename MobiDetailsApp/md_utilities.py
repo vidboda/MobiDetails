@@ -114,7 +114,10 @@ def three2one_fct(var):
 	var = clean_var_name(var)
 	match_object = re.match('^(\w{3})(\d+)(\w{3}|[X\*=])$', var)
 	if match_object:
-		return three2one[match_object.group(1).capitalize()] + match_object.group(2) + three2one[match_object.group(3).capitalize()]
+		if re.search('d[ue][pl]', match_object.group(3)):
+			return three2one[match_object.group(1).capitalize()] + match_object.group(2) + match_object.group(3)
+		else:
+			return three2one[match_object.group(1).capitalize()] + match_object.group(2) + three2one[match_object.group(3).capitalize()]
 	match_object = re.match('^(\w{3})(\d+_)(\w{3})(\d+.+)$', var)
 	if match_object:
 		return three2one[match_object.group(1)].capitalize() + match_object.group(2) + three2one[match_object.group(3)].capitalize() + match_object.group(4)
@@ -124,6 +127,9 @@ def one2three_fct(var):
 	match_object = re.match('^(\w{1})(\d+)([\w\*=]{1})$', var)
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + one2three[match_object.group(3).capitalize()]
+	match_object = re.match('^(\w{1})(\d+)(d[ue][pl])$', var)
+	if match_object:
+		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + match_object.group(3)
 	match_object = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var)
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + one2three[match_object.group(3).capitalize()] + match_object.group(4)
@@ -154,13 +160,14 @@ def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):
 			
 #get aa position fomr hgvs p. (3 letter)
 def get_aa_position(hgvs_p):
-	match_object = re.match('^\w{3}(\d+)[^\d]+.*$', hgvs_p)
-	if match_object:
-		return match_object.group(1), match_object.group(1)
 	match_object = re.match('^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p)
 	if match_object:
 		#return "{0}_{1}".format(match_object.group(1), match_object.group(2))
 		return match_object.group(1), match_object.group(2)
+	match_object = re.match('^\w{3}(\d+)[^\d]+.*$', hgvs_p)
+	if match_object:
+		return match_object.group(1), match_object.group(1)
+	
 	
 #open a file with tabix and look for a record:
 def get_value_from_tabix_file(text, tabix_file, var):
@@ -195,9 +202,9 @@ def get_preditor_single_threshold_color(val, predictor):
 		value = float(val)
 		if predictor == 'sift':
 			value = 1-(float(val))
-			if value > predictor_thresholds[predictor]:
-				return predictor_colors['max']
-			return predictor_colors['min']
+		if value > predictor_thresholds[predictor]:
+			return predictor_colors['max']
+		return predictor_colors['min']
 	else:
 		return predictor_colors['no_effect']
 #returns an html color depending on a single threshold (reverted, e.g. for fathmm)

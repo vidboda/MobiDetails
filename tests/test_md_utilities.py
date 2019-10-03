@@ -17,8 +17,8 @@ def test_clean_var_name(client, variant_in, variant_out):
 	assert test_var == variant_out
 
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
-	('p.R34X', 'Arg34*'),
-	('p.(R34*', 'Arg34*'),
+	('p.R34X', 'Arg34Ter'),
+	('p.(R34*', 'Arg34Ter'),
 	('p.R34_E65del', 'Arg34_Glu65del'),
 	('p.(R34Y)', 'Arg34Tyr'),
 	('p.(R34_E65del)', 'Arg34_Glu65del'),
@@ -29,14 +29,15 @@ def test_one2three_fct(client, variant_in, variant_out):
 	assert test_var == variant_out
 	
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
-	('p.Arg34X', 'R34*'),
+	('p.Arg34X', 'R34Ter'),
 	('p.Arg34del', 'R34del'),
-	('p.Arg34Ter', 'R34*'),
-	('p.(Arg34*', 'R34*'),
+	('p.Arg34Ter', 'R34Ter'),
+	('p.(Arg34*', 'R34Ter'),
 	('p.Arg34_Glu65del', 'R34_E65del'),
 	('p.(Arg34tyr)', 'R34Y'),
 	('p.(Arg34_Glu65del)', 'R34_E65del'),
-	('p.(Arg34=', 'R34=')
+	('p.(Arg34=', 'R34='),
+	('p.Leu34del', 'L34del'),
 ))
 def test_three2one_fct(client, variant_in, variant_out):
 	test_var = md_utilities.three2one_fct(variant_in)
@@ -216,17 +217,17 @@ hg38_test_d = {
 	'genome_version': 'hg38',
 	'g_name': '216422236_216422237delinsT',
 	'chr': '1',
-	'ref': 'CG',
+	'pos_ref': 'CG',
 	'pos': '216422236',
-	'alt': 'T'
+	'pos_alt': 'T'
 }
 hg19_test_d = {
 	'genome_version': 'hg19',
 	'g_name': '216595578_216595579delinsT',
 	'chr': '1',
-	'ref': 'CG',
+	'pos_ref': 'CG',
 	'pos': '216595578',
-	'alt': 'T'
+	'pos_alt': 'T'
 }
 @pytest.mark.parametrize(('genome', 'var', 'test_d', 'vv_dict'), (
 	('hg38', 'NM_206933.2:c.100_101delinsA', hg38_test_d, vv_dict),

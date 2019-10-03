@@ -44,7 +44,11 @@ def test_variant_page(client):
 	('g.6160C>T', 'variant/5'),
 	('chr1:g.216595579G>A', 'variant/5'),
 	('chr1:g.216422237G>A', 'variant/5'),
-	('USH2A', 'gene/USH2A')
+	('USH2A', 'gene/USH2A'),
+	('p.Gly816_Glu820del', 'variant/71'),
+	('p.G816_E820del', 'variant/71'),
+	('p.Leu1278del', 'variant/19'),
+	('p.L1278del', 'variant/19')
 	))
 def test_search_engine(client, t_search, url):
 	response = client.post(

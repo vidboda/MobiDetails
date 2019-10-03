@@ -317,8 +317,9 @@ def search_engine():
 			query_type = 'p_name'
 			var = md_utilities.clean_var_name(query_engine)
 			match_object = re.search('^(\w{1})(\d+)([\w\*]{1})$', var) #e.g. p.R34X
+			match_object_inter = re.search('^(\w{1})(\d+)([d][ue][pl])', var) #e.g. p.L34del
 			match_object_long = re.search('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var) #e.g. p.R34_E68del
-			if match_object or match_object_long:
+			if match_object or match_object_inter or match_object_long:
 				pattern = md_utilities.one2three_fct(var)
 			else:
 				if re.search('X', var):
