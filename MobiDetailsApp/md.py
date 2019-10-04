@@ -54,7 +54,7 @@ def about():
 #web app - gene
 @bp.route('/gene/<string:gene_name>', methods=['GET', 'POST'])
 def gene(gene_name=None):
-	if gene is None:
+	if gene_name is None:
 		return render_template('unknown.html')
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -304,11 +304,8 @@ def search_engine():
 		query_type = ''
 		sql_table = 'variant_feature'
 		col_names = 'id'
-		# for aa in one2three.keys():
-		#     aas += "{0}, ".format(aa)
-		# return render_template('md/search_engine.html', query=aas)
 		#deal w/ protein names
-	
+		query_engine = re.sub('\s', '', query_engine)
 		match_object = re.search('^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
 		if match_object:
 			query_type = 'p_name'
@@ -347,7 +344,6 @@ def search_engine():
 			pattern = query_engine
 		else:
 			return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
-		
 		db = get_db()
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
@@ -370,75 +366,3 @@ def search_engine():
 		else:
 			close_db()
 			return redirect(url_for('md.variant', variant_id=result[col_names]))
-		
-#1st attempt with SQLalchemy
-#@app.route('/MD')
-# def homepage(mduser='Public user'):
-# 	#Base = automap_base()
-# 	#Base.prepare(db.engine, reflect=True)
-# 	#VarF = Base.classes.variant_feature
-# 	Gene = MobiDetailsDB.classes.gene
-# 	nb_genes = db.session.query(func.count(distinct(Gene.name[0]))).count()
-# 	#nb_vars = db.session.query(VarF).count()
-# 	nb_isoforms = db.session.query(func.count(Gene.name)).count()
-# 	return render_template('md/homepage.html', nb_genes=nb_genes, nb_isoforms=nb_isoforms, mduser=mduser)
-# 
-# @app.route('/MD/about')
-# def aboutpage():
-# 	return render_template('md/about.html')
-# 
-# 
-# #api
-# 
-# @app.route('/MD/api/gene_list')
-# def gene_list():
-# 	Gene = MobiDetailsDB.classes.gene
-# 	#gene_list = Gene.query.filter.all()
-# 	#below code displays all mehtods available for a given object
-# 	object_methods = [method_name for method_name in dir(Gene)
-# 		if callable(getattr(Gene, method_name))]
-# 	
-# 	return render_template('md/api.html', gene_list=object_methods)
-
-
-
-
-#####below was the first draft to test flask - deprecated 08/2019
-# from flask import Flask, escape, url_for, render_template
-# from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy.ext.automap import automap_base
-# from sqlalchemy import func, distinct
-#import sys
-#sys.path.append('./sql/')
-#import mdsecrets
-
-#app definition and db connection
-#app =  Flask(__name__)
-#app.config['SQLALCHEMY_DATABASE_URI'] = mdsecrets.mddbms + '://' + mdsecrets.mdusername + ':' + mdsecrets.mdpassword + '@' + mdsecrets.mdhost + '/' + mdsecrets.mddb
-#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#db = SQLAlchemy(app)
-
-#db Model instantiation
-# class Gene(db.Model):
-# 	__tablename__ = 'gene'
-# 	name = Gene.c.name
-# 	second_name = db.Column(db.String(20))
-# 	chrom = db.Column('chr', db.String(2), nullable=False)
-# 
-# class MobiUser(db.Model):
-# 	__tablename__ = 'mobiuser'
-# 	
-# 	id = db.Column(db.Integer, primary_key=True)
-# 	email = db.Column(db.String(120), unique=True, nullable=False)
-# 	first_name = db.Column(db.String(30))
-# 	last_name = db.Column(db.String(30))
-# 	institute = db.Column(db.String(100))
-# 	country = db.Column(db.String(50))
-# 
-# 	def __repr__(self):
-# 		return "<User (first_name='%s', last_name='%s', email='%s', institute='%s', country='%s')>" % (self.first_name, self.last_name, self.email, self.institute, self.country)
-
-#SQLAlchemy allows automapping to existing database
-#mapping useful tables for each view?
-#MobiDetailsDB = automap_base()
-#MobiDetailsDB.prepare(db.engine, reflect=True)

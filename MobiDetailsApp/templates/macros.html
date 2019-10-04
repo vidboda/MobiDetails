@@ -98,7 +98,7 @@
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>
-				<h2 id="main_text">Create a variant ({{ main_iso.name[1] }})</h2>
+				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})</h2>
 			</div>
 			<div class="w3-container">
 				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">

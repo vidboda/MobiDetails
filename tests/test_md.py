@@ -48,7 +48,8 @@ def test_variant_page(client):
 	('p.Gly816_Glu820del', 'variant/71'),
 	('p.G816_E820del', 'variant/71'),
 	('p.Leu1278del', 'variant/19'),
-	('p.L1278del', 'variant/19')
+	('p.L1278del', 'variant/19'),
+	('MYO7A', 'gene/MYO7A')
 	))
 def test_search_engine(client, t_search, url):
 	response = client.post(
