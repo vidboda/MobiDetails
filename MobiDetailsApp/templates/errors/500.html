@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>An unexpected error has occurred</h1>
-    <p>The administrator has been notified. Sorry for the inconvenience!</p>
-    <p><a href="{{ url_for('index') }}">Home</a></p>
+	<div class="w3-container w3-padding-64">
+		<h1>An unexpected error has occurred</h1>
+		<!--<p>The administrator has been notified. Sorry for the inconvenience!</p>-->
+		<p>Sorry for the inconvenience!</p>
+		<p>This is very likely a bug, please report ideally as a github issue: <a href="https://github.com/beboche/MobiDetails/issues" target="_blank" title="report the error on github"></a>, explaining how you got the error, or directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;</p>
+		<p>I'll do my best to fix it as soon as possible.</p>
+		<p class="classname"></p><a href="{{ url_for('index') }}">Home</a></p>
+	</div>
 {% endblock %}

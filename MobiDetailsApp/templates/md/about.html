@@ -10,7 +10,7 @@
 		<h1>What you will get with MobiDetails</h1>
 	</div><br/>
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouwillget" style="display:none">
-		<img src="/static/img/MD1.png" width="80%" />
+		<img class="w3-image" src="/static/img/MD1.png"/>
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('whatyouneed');" title="toggle section">
 		<h1>What you need to run MobiDetails</h1>
@@ -18,15 +18,15 @@
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouneed" style="display:none">
 		<span>Internet, a web browser, a gene and a variant of interest (HGVS c. nomenclature) or a VCF like nomenclature. That's all.</span>
 	</div>
-	<div class="w3-button w3-block w3-blue" onclick="accord('video1');" title="toggle section">
-		<h1>Check out the general video tutorial</h1>
-	</div><br/>
-	<div class="w3-container w3-padding-64 w3-center" id="video1" style="display:none">
-		<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD1.mp4'></video>
-	</div>
-	<div class="w3-button w3-block w3-blue" onclick="accord('video2');" title="toggle section">
-		<h1>How to find relevant publications</h1>
-	</div><br/>
+	<!--<div class="w3-button w3-block w3-blue" onclick="accord('video1');" title="toggle section">-->
+	<!--	<h1>Check out the general video tutorial</h1>-->
+	<!--</div><br/>-->
+	<!--<div class="w3-container w3-padding-64 w3-center" id="video1" style="display:none">-->
+	<!--	<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD1.mp4'></video>-->
+	<!--</div>-->
+	<!--<div class="w3-button w3-block w3-blue" onclick="accord('video2');" title="toggle section">-->
+	<!--	<h1>How to find relevant publications</h1>-->
+	<!--</div><br/>-->
 	<div class="w3-container w3-padding-64 w3-center" id="video2" style="display:none">
 		<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD_pubmed.mp4'></video>
 	</div>
@@ -65,10 +65,12 @@
 		</div>
 	</div>
 	<div class="w3-container w3-padding-64" style="display:block">
-		<h3>Credits:</h3>
-		<p>This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.</p>
+		<h3>Group's website:</h3>
+		<p><a href="https://neuro-2.iurc.montp.inserm.fr/group/diag_en.html" target="_blank">Deafness and blindness group</a> at Laboratory of molecular genetics, Montpellier University Hospital</a></p>
 		<h3>Source code:</h3>
 		<p>Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a></p>
+		<h3>Credits:</h3>
+		<p>This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.</p>
 	</div>
 	<br /><br />
 {% endblock %}

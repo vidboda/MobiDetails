@@ -1,11 +1,14 @@
 import os
 from . import md_utilities
-from flask import Flask
+from flask import Flask, render_template
 from logging.handlers import RotatingFileHandler
 import logging
 
 def create_app(test_config=None):
 	app =  Flask(__name__)
+	#errors
+	app.register_error_handler(404, not_found_error)
+	app.register_error_handler(500, internal_error)
 	#define custom jinja filters
 	app.jinja_env.filters['match'] = md_utilities.match
 	if test_config is None:
@@ -29,8 +32,8 @@ def create_app(test_config=None):
 	app.register_blueprint(md.bp)
 	from . import ajax
 	app.register_blueprint(ajax.bp)
-	from . import error
-	app.register_blueprint(error.bp)
+	#from . import error
+	#app.register_blueprint(error.bp)
 	app.add_url_rule('/', endpoint='index')
 	
 	# a simple page that says hello
@@ -56,3 +59,10 @@ def create_app(test_config=None):
 	
 	return app
 
+
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
+
+def internal_error(error):
+    #db.session.rollback()
+    return render_template('errors/500.html'), 500
