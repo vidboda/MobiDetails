@@ -8,6 +8,7 @@
 {%- endmacro %}
 <!--info panel -->
 {% macro info() -%}
+	{% autoescape false %}
 	<div class="w3-margin w3-panel w3-sand w3-leftbar">
 		<p>
 			{% for text in varargs %}
@@ -15,6 +16,7 @@
 			{% endfor %}
 		</p>
 	</div><br />
+	{% endautoescape %}
 {%- endmacro %}
 <!--danger panel -->
 {% macro danger() -%}
