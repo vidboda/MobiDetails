@@ -299,7 +299,9 @@ def variant(variant_id=None):
 def search_engine():
 	query_engine = request.form['search']
 	#query_engine = query_engine.upper()
-	if query_engine is not None:
+	error = None
+	#print("--{}--".format(query_engine))
+	if query_engine is not None and query_engine != '':
 		pattern = ''
 		query_type = ''
 		sql_table = 'variant_feature'
@@ -343,26 +345,35 @@ def search_engine():
 			col_names = 'name'
 			pattern = query_engine
 		else:
-			return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
-		db = get_db()
-		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-		#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-		#return render_template('md/search_engine.html', query=text)
-		#a little bit of formatting
-		if re.match('variant', sql_table) and re.match('>', pattern):
-			#upper for the end of the variant, lwer for genomic chr
-			var_match = re.search('^(.*)(\.+)([ACTG]>[ACTG])$')
-			pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
-		curs.execute(
-			"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-		)
-		result = curs.fetchone()
-		if result is None:
-			close_db()
-			return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
-		elif sql_table == 'gene':
-			close_db()
-			return redirect(url_for('md.gene', gene_name=result[col_names][0]))
-		else:
-			close_db()
-			return redirect(url_for('md.variant', variant_id=result[col_names]))
+			error = 'Sorry I did not understood this query ({}).'.format(query_engine)
+			#return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
+		if error is None:
+			db = get_db()
+			curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+			#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+			#return render_template('md/search_engine.html', query=text)
+			#a little bit of formatting
+			if re.match('variant', sql_table) and re.match('>', pattern):
+				#upper for the end of the variant, lwer for genomic chr
+				var_match = re.search('^(.*)(\.+)([ACTG]>[ACTG])$')
+				pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(1).upper()
+			curs.execute(
+				"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+			)
+			result = curs.fetchone()
+			if result is None:
+				
+				#transformed_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+				error = 'Sorry the variant does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+				close_db()
+				#return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
+			elif sql_table == 'gene':
+				close_db()
+				return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+			else:
+				close_db()
+				return redirect(url_for('md.variant', variant_id=result[col_names]))
+	else:
+		error = 'Please type something for the search engine to work.'
+	flash(error)
+	return render_template('md/unknown.html')

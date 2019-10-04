@@ -2,6 +2,7 @@
 import re
 import psycopg2
 import psycopg2.extras
+import functools
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -65,17 +66,17 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 	if request.method == 'POST':
-		username = request.form['username']
+		email = request.form['email']
 		password = request.form['password']
 		db = get_db()
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		error = None
 		curs.execute(
-			"SELECT * FROM mobiuser WHERE username = '{}'".format(username,)
+			"SELECT * FROM mobiuser WHERE email = '{}'".format(email)
 		)
 		user = curs.fetchone()
 		if user is None:
-			error = 'Incorrect username.'
+			error = 'Unknown email.'
 		elif not check_password_hash(user['password'], password):
 			error = 'Incorrect password.'
 
@@ -87,6 +88,42 @@ def login():
 		flash(error)
 
 	return render_template('auth/login.html')
+
+#for views that require login
+def login_required(view):
+	@functools.wraps(view)
+	def wrapped_view(**kwargs):
+		if g.user is None:
+			return redirect(url_for('auth.login'))
+
+		return view(**kwargs)
+
+	return wrapped_view
+
+#profile
+@bp.route('/profile')
+@login_required
+def profile():
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	curs.execute(
+		"SELECT username, email, institute, country FROM mobiuser  WHERE id = '{}'".format(g.user['id'])
+	)
+	mobiuser = curs.fetchone()
+	error = None
+	if mobiuser is None:
+		error = 'You seem to be unknown by MobiDetails.'	
+	
+	curs.execute(
+		"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date".format(g.user['id'])
+	)
+	variants = curs.fetchall()
+	if error is None:
+		num_var = len(variants)
+		return render_template('auth/profile.html', mobiuser=mobiuser, variants=variants, num_var=num_var)
+	
+	flash(error)
+	return render_template('auth/index.html')
 
 #load profile when browsing
 @bp.before_app_request
@@ -110,14 +147,5 @@ def logout():
 	session.clear()
 	return redirect(url_for('index'))
 
-#for views that require login
-def login_required(view):
-	@functools.wraps(view)
-	def wrapped_view(**kwargs):
-		if g.user is None:
-			return redirect(url_for('auth.login'))
 
-		return view(**kwargs)
-
-	return wrapped_view
 

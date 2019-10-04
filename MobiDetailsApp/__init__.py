@@ -7,6 +7,7 @@ import logging
 def create_app(test_config=None):
 	app =  Flask(__name__)
 	#errors
+	app.register_error_handler(403, not_found_error)
 	app.register_error_handler(404, not_found_error)
 	app.register_error_handler(500, internal_error)
 	#define custom jinja filters
@@ -66,3 +67,5 @@ def not_found_error(error):
 def internal_error(error):
     #db.session.rollback()
     return render_template('errors/500.html'), 500
+def forbidden_error(error):
+	return render_template('errors/403.html'), 500

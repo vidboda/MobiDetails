@@ -10,6 +10,9 @@ a:hover {
 	font-family: monospace;
 	font-size: 1.2em;
 }
+.var_li:hover {
+	cursor: pointer;
+}
 /*a:visited {
 	color:#F70F00;
     text-decoration:none;

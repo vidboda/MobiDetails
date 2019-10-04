@@ -2,5 +2,7 @@
 {% extends "base.html" %}
 {% block title %}Unknown in MD{% endblock %}
 {% block content %}
-	{{ danger("MobiDetails does not understand your query:", query, transformed_query) }}
+	{% if query is defined %}
+		{{ danger("MobiDetails does not understand your query:", query, transformed_query) }}
+	{% endif %}
 {% endblock %}
