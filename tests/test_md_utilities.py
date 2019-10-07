@@ -7,10 +7,17 @@ from MobiDetailsApp.db import get_db
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
 	('p.Arg34*', 'Arg34*'),
 	('c.100C>T', '100C>T'),
+	('c.100c>t', '100C>T'),
 	('g.6160C>T', '6160C>T'),
+	('g.6160c>T', '6160C>T'),
 	('p.(Arg34*)', 'Arg34*'),
 	('p.(Arg34*', 'Arg34*'),
-	('p.(Arg34=', 'Arg34=')
+	('p.(Arg34=', 'Arg34='),
+	('c.2447_2461del', '2447_2461del'),
+	('c.2447_2461delGAGGGAGGGGAAGTA', '2447_2461del'),
+	('c.2447_2461delGAGGGAGGGGAAGTAinsA', '2447_2461delinsA'),
+	('c.2447_2461dupGAGGGAGGGGAAGTA', '2447_2461dup'),
+	('c.2447_2461dup', '2447_2461dup'),
 ))
 def test_clean_var_name(client, variant_in, variant_out):
 	test_var = md_utilities.clean_var_name(variant_in)

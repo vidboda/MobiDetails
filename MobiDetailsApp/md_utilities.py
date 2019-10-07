@@ -108,6 +108,16 @@ def clean_var_name(variant):
 	variant = re.sub('^[cpg]\.', '', variant)
 	variant = re.sub(r'\(', '', variant)
 	variant = re.sub(r'\)', '', variant)
+	if re.search('>', variant):
+				variant = variant.upper()
+	elif re.search('d[eu][lp]', variant):
+		match_obj = re.search('^(.+d[eu][lp])[ATCG]+$', variant)
+		if match_obj:
+			variant = match_obj.group(1)
+		else:
+			match_obj = re.search('^(.+del)[ATCG]+(ins[ACTG])$', variant)
+			if match_obj:
+				variant = match_obj.group(1) + match_obj.group(2)
 	return variant
 
 def three2one_fct(var):

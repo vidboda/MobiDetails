@@ -41,15 +41,25 @@ def test_variant_page(client):
 	('p.(Arg34*)', 'variant/5'),
 	('p.Arg34*', 'variant/5'),
 	('c.100C>T', 'variant/5'),
+	('c.100c>t', 'variant/5'),
+	('c.100c>T', 'variant/5'),
 	('g.6160C>T', 'variant/5'),
 	('chr1:g.216595579G>A', 'variant/5'),
 	('chr1:g.216422237G>A', 'variant/5'),
+	('chr1:g.216422237g>A', 'variant/5'),
 	('USH2A', 'gene/USH2A'),
+	('c.2447_2461delGAGGGAGGGGAAGTA', 'variant/71'),
+	('c.2447_2461del', 'variant/71'),
 	('p.Gly816_Glu820del', 'variant/71'),
 	('p.G816_E820del', 'variant/71'),
 	('p.Leu1278del', 'variant/19'),
 	('p.L1278del', 'variant/19'),
-	('MYO7A', 'gene/MYO7A')
+	('MYO7A', 'gene/MYO7A'),
+	('myo7a', 'gene/MYO7A'),
+	('mYo7A', 'gene/MYO7A'),
+	('c12ORF65', 'gene/C12orf65'),
+	('C12oRf65', 'gene/C12orf65'),
+	('C12orf65', 'gene/C12orf65'),
 	))
 def test_search_engine(client, t_search, url):
 	response = client.post(
