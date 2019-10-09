@@ -56,7 +56,8 @@ urls = {
 	'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
 	'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
 	'lovd': 'http://www.lovd.nl/',
-	'cadd': 'https://cadd.gs.washington.edu/',	
+	'cadd': 'https://cadd.gs.washington.edu/',
+	'mp': 'https://github.com/mobidic/MPA'
 }
 local_files = {
 	#'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
@@ -86,6 +87,7 @@ predictor_thresholds = {
 	'pph2_hvar_mid': 0.447,
 	'fathmm': -1.5,
 	'meta': 0.5,
+	'provean': -2.5
 }
 predictor_colors = {
 	'min': '#00A020',
@@ -95,8 +97,9 @@ predictor_colors = {
 	'no_effect': '#000000'
 }
 predictors_translations = {
-	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction'},
-	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'}
+	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
+	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'},
+	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic'} #Mutationtaster
 }
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
 def reverse_complement(seq):
@@ -124,25 +127,25 @@ def clean_var_name(variant):
 
 def three2one_fct(var):
 	var = clean_var_name(var)
-	match_object = re.match('^(\w{3})(\d+)(\w{3}|[X\*=])$', var)
+	match_object = re.search(r'^(\w{3})(\d+)(\w{3}|[X\*=])$', var)
 	if match_object:
 		if re.search('d[ue][pl]', match_object.group(3)):
 			return three2one[match_object.group(1).capitalize()] + match_object.group(2) + match_object.group(3)
 		else:
 			return three2one[match_object.group(1).capitalize()] + match_object.group(2) + three2one[match_object.group(3).capitalize()]
-	match_object = re.match('^(\w{3})(\d+_)(\w{3})(\d+.+)$', var)
+	match_object = re.search(r'^(\w{3})(\d+_)(\w{3})(\d+.+)$', var)
 	if match_object:
 		return three2one[match_object.group(1)].capitalize() + match_object.group(2) + three2one[match_object.group(3)].capitalize() + match_object.group(4)
 	
 def one2three_fct(var):
 	var = clean_var_name(var)
-	match_object = re.match('^(\w{1})(\d+)([\w\*=]{1})$', var)
+	match_object = re.search(r'^(\w{1})(\d+)([\w\*=]{1})$', var)
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + one2three[match_object.group(3).capitalize()]
-	match_object = re.match('^(\w{1})(\d+)(d[ue][pl])$', var)
+	match_object = re.search(r'^(\w{1})(\d+)(d[ue][pl])$', var)
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + match_object.group(3)
-	match_object = re.match('^(\w{1})(\d+_)(\w{1})(\d+.+)$', var)
+	match_object = re.search(r'^(\w{1})(\d+_)(\w{1})(\d+.+)$', var)
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + one2three[match_object.group(3).capitalize()] + match_object.group(4)
 	
@@ -169,7 +172,15 @@ def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):
 			#near from segment_start
 			#if seg_type == 'exon':
 			return ['acceptor', abs(int(positions['segment_start'])-int(pos))+1]
-			
+#get position of intronic variant to the nearest ss
+def get_pos_splice_site_intron(name):
+	match_obj = re.search(r'\d+[\+-](\d+)[^\d_]', name)
+	if match_obj:
+		return match_obj.group(1)
+	match_obj = re.search(r'\d+[\+-](\d+)_\d+[\+-](\d+)[^\d_]', name)
+	if match_obj:
+		return min(match_obj.group(1), match_obj.group(2))
+		
 #get aa position fomr hgvs p. (3 letter)
 def get_aa_position(hgvs_p):
 	match_object = re.match('^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p)

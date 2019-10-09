@@ -175,7 +175,7 @@ def variant(variant_id=None):
 						pos_splice_site_second = md_utilities.get_pos_splice_site(var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
 						if pos_splice_site[1] > pos_splice_site_second[1]:
 							#pos_splice_site_second nearest from splice site
-							pos_splice_site = pos_splice_site_second
+							pos_splice_site = pos_splice_site_second						
 					#compute position in domain
 					#1st get aa pos
 					aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
@@ -183,6 +183,12 @@ def variant(variant_id=None):
 						"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
 					)
 					domain = curs.fetchall()
+				#MPA indel splice
+				elif variant_features['start_segment_type'] == 'intron' and variant_features['dna_type'] == 'indel' and variant_features['variant_size'] < 50:
+					#pos_splice = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
+					if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and 'mpa_score' not in annot or annot['mpa_score'] < 6:
+						annot['mpa_score'] = 6
+						annot['mpa_impact'] = 'splice indel'		
 				#clinvar
 				record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
 				if isinstance(record, str):
@@ -198,6 +204,14 @@ def variant(variant_id=None):
 							annot['clinsigconf'] = annot['clinsigconf'].replace('%3B', '-')
 						else:
 							annot['clinsig'] = match_object.group(1)
+					if re.search('pathogenic', annot['clinsig'], re.IGNORECASE):
+						annot['mpa_score'] = 10
+						annot['mpa_impact'] = 'clinvar pathogenic'
+				#MPA PTC
+				if 'mpa_score' not in annot or annot['mpa_impact'] != 'clinvar pathogenic':
+					if variant_features['prot_type'] == 'nonsense' or variant_features['prot_type'] == 'frameshift':
+						annot['mpa_score'] = 10
+						annot['mpa_impact'] = variant_features['prot_type']
 				#dbNSFP
 				if variant_features['prot_type'] == 'missense':
 					record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
@@ -214,33 +228,84 @@ def variant(variant_id=None):
 									i += 1
 						#then iterate for each score of interest, e.g.  sift..
 						#missense:
+						#mpa score
+						mpa_missense = 0
 						#sift4g
 						#print(record)
 						annot['sift4g_score'] = re.split(';', record[39])[i]
 						#if annot['sift4g_score'] != '.':
 						annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift4g_score'], 'sift')
 						annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[i]]
+						if annot['sift4g_pred'] == 'Damaging':
+							mpa_missense += 1
 						#polyphen 2
 						annot['pph2_hdiv_score'] = re.split(';', record[42])[i]
 						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
 						annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[i]]
+						if re.search('Damaging', annot['pph2_hdiv_pred']):
+							mpa_missense += 1
 						annot['pph2_hvar_score'] = re.split(';', record[45])[i]
 						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
 						annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[i]]
+						if re.search('Damaging', annot['pph2_hvar_pred']):
+							mpa_missense += 1
 						#fathmm
 						annot['fathmm_score'] = re.split(';', record[60])[i]
 						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
 						annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[i]]
+						if annot['fathmm_pred'] == 'Damaging':
+							mpa_missense += 1
+						#fathmm-mkl
+						#annot['fathmm_mkl_score'] = re.split(';', record[106])[i]
+						#annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_color(annot['fathmm_mkl_score'], 'meta')
+						#annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[108])[i]]
+						#print(re.split(';', record[108])[0])
+						if re.split(';', record[108])[0] == 'D':
+							mpa_missense += 1
+						#provean
+						#annot['provean_score'] = re.split(';', record[63])[i]
+						#annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
+						#annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[i]]
+						#print(re.split(';', record[65])[i])
+						if re.split(';', record[65])[i] == 'D':
+							mpa_missense += 1
+						#LRT
+						#annot['lrt_score'] = re.split(';', record[48])[i]
+						#annot['lrt_color'] = md_utilities.get_preditor_single_threshold_color(annot['lrt_score'], 'lrt')
+						#annot['lrt_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[50])[i]]
+						#print(re.split(';', record[50]))
+						if re.split(';', record[50])[0] == 'D':
+							mpa_missense += 1
+						#MutationTaster
+						#annot['mt_score'] = re.split(';', record[48])[i]
+						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
+						#annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[50])[i]]
+						#print(re.split(';', record[54])[i])
+						if re.split(';', record[54])[i] == 'A' or  re.split(';', record[50]) == 'D':
+							mpa_missense += 1
 						#meta SVM
 						#print(record[68])
 						annot['msvm_score'] = record[68]
 						annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta')
 						annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
+						if annot['msvm_pred'] == 'Damaging':
+							mpa_missense += 1
 						#meta LR
 						annot['mlr_score'] = record[71]
 						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta')
 						annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
+						if annot['msvm_pred'] == 'Damaging':
+							mpa_missense += 1
 						annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
+						if 'mpa_score' not in annot or annot['mpa_score'] < 6:
+							annot['mpa_score'] = mpa_missense
+							if annot['mpa_score'] >= 8:
+								annot['mpa_impact'] = 'high missense'
+							elif annot['mpa_score'] >= 6:
+								annot['mpa_impact'] = 'moderate missense'
+							else:
+								annot['mpa_impact'] = 'low missense'
+						
 				#CADD
 				if variant_features['dna_type'] == 'substitution':
 					record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd'][0], var)
@@ -255,9 +320,7 @@ def variant(variant_id=None):
 						annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels'][1])
 					else:
 						annot['cadd_raw'] = record[4]
-						annot['cadd_phred'] = record[5]
-				
-						
+						annot['cadd_phred'] = record[5]		
 			elif var['genome_version'] == 'hg19':
 				#gnomad ex
 				record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome'][0], var)
@@ -282,6 +345,12 @@ def variant(variant_id=None):
 						annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
 						annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
 						annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+						dbscsnv_mpa_threshold = 0.6
+						if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+							if annot['dbscsnv_ada'] > dbscsnv_mpa_threshold or annot['dbscsnv_ada']  > dbscsnv_mpa_threshold:
+								annot['mpa_score'] = 10
+								annot['mpa_impact'] = 'high splice'
+							
 					#spliceai
 					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
 					if isinstance(record, str):
@@ -298,10 +367,23 @@ def variant(variant_id=None):
 							if re.match('spliceai_DS_', identifier):
 								id_color = "{}_color".format(identifier)
 								annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
+								if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+									if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+										annot['mpa_score'] = 10
+										annot['mpa_impact'] = 'high splice'
+									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+										annot['mpa_score'] = 8
+										annot['mpa_impact'] = 'moderate splice'
+									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+										annot['mpa_score'] = 6
+										annot['mpa_impact'] = 'low splice'
 	else:
 		close_db()
 		return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
 	close_db()
+	if 'mpa_score' not in annot:
+		annot['mpa_score'] = 0
+		annot['mpa_impact'] = 'unknown'
 	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 
