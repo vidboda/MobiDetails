@@ -95,17 +95,16 @@
 {%- endmacro %}
 <!--create variant-->
 {% macro create_variant(gene, main_iso, num_iso, res) -%}
-	<input type="button"  value="Create a variant" onclick="document.getElementById('var_modal').style.display='block';$('#creation_form :input').prop('disabled', false);" class="w3-button w3-ripple w3-blue w3-border w3-border-blue" id="add_var" type="button" />
+	<input type="button"  value="Create a variant" onclick="document.getElementById('var_modal').style.display='block';$('#creation_form :input').prop('disabled', false);$('#new_variant').val('c.')" class="w3-button w3-ripple w3-blue w3-border w3-border-blue" id="add_var"/>
 	<div class="w3-modal w3-animate-opacity" id="var_modal" style="z-index:1000">
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>				
 				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
 				{% if num_iso > 1 %}
-					<span onclick="new_isoform();" class="w3-button w3-light-blue" id="alt_span">Display all isoforms</span>
+					<span onclick="new_isoform();" class="w3-button w3-sand" id="alt_span">Choose an isoform</span>
 				{% endif %}
-				</h2>
-				
+				</h2>				
 			</div>
 			<div class="w3-container">
 				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
@@ -150,7 +149,27 @@
 	</div>
 {%- endmacro %}
 {% macro info_create_variant() -%}
-	
+	<div class="w3-button w3-ripple w3-blue w3-border w3-border-blue w3-xxlarge w3-right" id="help_btn" onclick="document.getElementById('help_modal').style.display='block';$('#creation_form :input').prop('disabled', false);$('#new_variant').val('c.')">
+		<i class="fa fa-info-circle" aria-hidden="true"></i>
+	</div>
+	<div class="w3-modal w3-animate-opacity" id="help_modal" style="z-index:1000">
+		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
+			<header class="w3-container w3-blue">
+				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('help_modal').style.display='none';">&times;</span>
+				<h2>Variant creation</h2>
+			</header>
+			<div class="w3-container">
+					<p>To create a variant, you need to fill in the form with the HGVS 'c.' nomenclature. <strong>By default, the canonical isoform is selected</strong>.</p>
+					<p>If your gene of interest has several isoforms in MobiDetails, please consider to use the canonical to create your variant.
+					If you select an alternative isoform,  <strong>MobiDetails will try to enforce the mapping on the canonical isoform</strong>.</p>
+					<ul>
+						<li>If this is possible, the variant will be attached to the canonical isoform. The variant HGVS DNA nomenclature may therefore change (you will be notified).</li>
+						<li>If not, the variant will be created with the isoform you selected.</li>
+					</ul>
+					<p>In the 'Get variants' tab, variants are shown attached to their isoform.</p>
+			</div>
+		</div>
+	</div>
 {%- endmacro %}
 <!--js to close modals by cliking out of scope-->
 {% macro modal_js() -%}

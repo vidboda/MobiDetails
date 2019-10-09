@@ -66,7 +66,7 @@ def gene(gene_name=None):
 	main = curs.fetchone()
 	if main is not None:
 		curs.execute(
-			"SELECT  name, nm_version FROM gene WHERE name[1] = '{}'".format(gene_name)
+			"SELECT * FROM gene WHERE name[1] = '{}' ORDER BY number_of_exons DESC".format(gene_name)
 		)#get all isoforms
 		result_all = curs.fetchall()
 		num_iso = len(result_all)

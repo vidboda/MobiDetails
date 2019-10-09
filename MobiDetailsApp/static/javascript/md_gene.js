@@ -25,8 +25,8 @@ function create_var() {
 }
 function new_isoform() {
 	$('#iso_form').fadeToggle(function (){
-			if ($('#iso_form').css('display') == 'none') {
-				$('#alt_iso option[value=""]').prop('selected', true);
-			}
-		});
+		if ($('#iso_form').css('display') == 'none') {
+			$('#alt_iso option[value=""]').prop('selected', true);
+		}
+	});
 }

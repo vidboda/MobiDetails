@@ -155,7 +155,7 @@ def create():
 	res = curs.fetchone()
 	if res is not None:
 		close_db()
-		return md_utilities.info_panel('Variant already in MobiDetails: ', new_variant, res['id'])
+		return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
 	
 	if re.search('c\..+', new_variant):
 		#clean dels and up
