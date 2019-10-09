@@ -94,25 +94,53 @@
 	</div>
 {%- endmacro %}
 <!--create variant-->
-{% macro create_variant(gene, main_iso) -%}
+{% macro create_variant(gene, main_iso, num_iso, res) -%}
 	<input type="button"  value="Create a variant" onclick="document.getElementById('var_modal').style.display='block';$('#creation_form :input').prop('disabled', false);" class="w3-button w3-ripple w3-blue w3-border w3-border-blue" id="add_var" type="button" />
 	<div class="w3-modal w3-animate-opacity" id="var_modal" style="z-index:1000">
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
 			<div class="w3-container w3-blue">
-				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>
-				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})</h2>
+				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>				
+				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
+				{% if num_iso > 1 %}
+					<span onclick="new_isoform();" class="w3-button w3-light-blue" id="alt_span">Display all isoforms</span>
+				{% endif %}
+				</h2>
+				
 			</div>
 			<div class="w3-container">
 				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
 					<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
+					<input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" />
 					<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
 					<input for="creation_form" id="acc_version" name="acc_version" type="hidden" value="{{ main_iso.nm_version }}" />
 					<!--<input for="creation_form" id="ng_accno" name="ng_accno" type="hidden" value="{{ main_iso.ng }}" />-->
-					<div class="w3-panel w3-large">
-						<label for="new_variantblue">New variant (HGVS DNA):</label>
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-						<input id="new_variant" maxlength="50" name="new_variant" size="20" type="text" value="c." />
+					<div class="w3-panel w3-large w3-row-padding" id="new_var_div">
+						<div class="w3-third">
+							<label for="new_variantblue">New variant (HGVS DNA):</label>
+						</div>
+						<div class="w3-third">
+							<input  for="creation_form" id="new_variant" maxlength="50" name="new_variant" size="20" type="text" value="c." />
+						</div>
+						<div class="w3-third w3-text-red" id="error_name"></div>
 					</div>
+					{% if num_iso > 1 %}
+						<div class="w3-panel w3-large" id ="iso_form" style="display:none;">
+							<!--<div class="w3-third">
+								<label for="alt_iso">Select an isoform:</label>
+							</div>-->
+							<!--<div class="w3-twothird">-->
+								<select  for="creation_form" name="alt_iso" id="alt_iso" class="w3-select">
+									<option value="" selected="selected" disabled="disabled">Select an isoform</option>
+									<option value="{{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" >{{ "%s.%s (canonical)"|format(main_iso.name[1], main_iso.nm_version) }}</option>
+									{% for iso in res %}
+										{% if iso.name[1] != main_iso.name[1] %}
+											<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							<!--</div>-->
+						</div>
+					{% endif %}
 					<div class="w3-panel w3-large w3-center">
 						<input type="button"  name="submit" value="Create variant" onclick="create_var();" class="w3-btn w3-blue" for="creation_form" type="submit" />
 					</div>
@@ -120,6 +148,9 @@
 			</div>
 		</div>
 	</div>
+{%- endmacro %}
+{% macro info_create_variant() -%}
+	
 {%- endmacro %}
 <!--js to close modals by cliking out of scope-->
 {% macro modal_js() -%}

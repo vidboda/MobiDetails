@@ -66,9 +66,10 @@ def gene(gene_name=None):
 	main = curs.fetchone()
 	if main is not None:
 		curs.execute(
-			"SELECT * FROM gene WHERE name[1] = '{}'".format(gene_name)
+			"SELECT  name, nm_version FROM gene WHERE name[1] = '{}'".format(gene_name)
 		)#get all isoforms
 		result_all = curs.fetchall()
+		num_iso = len(result_all)
 		if result_all is not None:
 			#get annotations
 			curs.execute(
@@ -78,7 +79,7 @@ def gene(gene_name=None):
 			if annot is None:
 				annot = {'nognomad': 'No values in gnomAD'}
 			close_db()
-			return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name, main_iso=main, res=result_all, annotations=annot)
+			return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name, num_iso=num_iso, main_iso=main, res=result_all, annotations=annot)
 		else:
 			close_db()
 			return render_template('md/unknown.html', query=gene_name)
@@ -107,24 +108,29 @@ def genes():
 #web app - variants in genes
 @bp.route('/vars/<string:gene_name>', methods=['GET', 'POST'])
 def vars(gene_name=None):
-	if gene is None:
+	if gene_name is None:
 		return render_template('unknown.html', query='No gene provided')
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#error = None
 	#main isoform?
 	curs.execute(
-		"SELECT * FROM gene WHERE name[1] = '{0}' AND number_of_exons = (SELECT MAX(number_of_exons) FROM gene WHERE name[1] = '{0}')".format(gene_name)
+		"SELECT * FROM gene WHERE name[1] = '{0}' AND canonical = 't'".format(gene_name)
 	)
 	main = curs.fetchone()
 	if main is not None:
+		curs.execute(
+			"SELECT name, nm_version FROM gene WHERE name[1] = '{}'".format(gene_name)
+		)#get all isoforms
+		result_all = curs.fetchall()
+		num_iso = len(result_all)
 		curs.execute(
 			"SELECT * FROM variant_feature a, variant b WHERE a.id = b.feature_id AND a.gene_name[1] = '{}' AND b.genome_version = 'hg38'".format(gene_name)
 		)
 		variants = curs.fetchall()
 		#if vars_type is not None:
 		close_db()
-		return render_template('md/vars.html', urls=md_utilities.urls, gene=gene_name, variants=variants, gene_info=main)
+		return render_template('md/vars.html', urls=md_utilities.urls, gene=gene_name, num_iso=num_iso, variants=variants, gene_info=main, res=result_all)
 	else:
 		close_db()
 		return render_template('md/unknown.html', query=gene_name)

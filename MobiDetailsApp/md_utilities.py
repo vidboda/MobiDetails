@@ -5,6 +5,7 @@ import psycopg2
 import psycopg2.extras
 import tabix
 import urllib3
+import certifi
 import json
 import twobitreader
 #from MobiDetailsApp.db import get_db
@@ -28,6 +29,7 @@ urls = {
 	'ncbi_pubmed': '{}pubmed/'.format(url_ncbi),
 	'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
+	'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
 	#uncomment below to use VV web API
 	#'variant_validator_api': 'https://rest.variantvalidator.org:443/',
@@ -274,15 +276,61 @@ def danger_panel(var, warning):
 	return '<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>VariantValidator error: {0}<br/>{1}</strong></span><br /></p></div>'.format(var, warning)
 def info_panel(text, var, id_var):
 	#Newly created variant:
-	return '<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>{0}<a href="/variant/{1}" target="_blank" title="Go to the variant page"> c.{2}</a><br/></strong></span><br /></p></div>'.format(text, id_var, var)
+	c = 'c.'
+	if re.search('N[MR]_', var):
+		c= ''
+	return '<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>{0}<a href="/variant/{1}" target="_blank" title="Go to the variant page"> {2}{3}</a><br/></strong></span><br /></p></div>'.format(text, id_var, c, var)
 
 def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, caller, db, g):
 	vf_d = {}
 	#deal with various warnings
+	#docker up?
+	if 'flag' not in vv_data:
+		return danger_panel(vv_key_var, "VariantValidator docker looks down!! TODO: an email warning to be sent to admin")	
+	
+		
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	#main isoform?
+	curs.execute(
+		"SELECT canonical FROM gene WHERE name[2] = '{0}'".format(acc_no)
+	)
+	res_main = curs.fetchone()
+	remapper = False
+	if res_main['canonical'] is not True:
+		#check if canonical in vv_data
+		#we want variants in priority in canonical isoforms
+		curs.execute(
+			"SELECT name, nm_version FROM gene WHERE name[1] = '{0}' and canonical = 't'".format(gene)
+		)
+		res_can = curs.fetchone()
+		#main_key_reg = "{0}\.{1}".format(res_can['name'][1], res_can['nm_version'])
+		# for key in vv_data:
+		# 	if re.search('{}'.format(main_key_reg), key):
+		# 		vv_key_var = key
+				#cannot happen as VV when queried with an isoform returns the results  only for this isoform
+		#we could get pseudo VCF values an rerun VV instead
+		hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+		vv_url = "{0}variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
+		try:
+			vv_data2 = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+			for key in vv_data2:
+				if re.search('{0}.{1}'.format(res_can['name'][1], res_can['nm_version']), key):
+					#if canonical isoform in new query
+					vv_data = vv_data2
+					vv_key_var = key
+					var_obj = re.search(':c\.(.+)$', key)
+					vf_d['c_name'] = var_obj.group(1)
+					first_level_key = key
+					remapper = True
+		except:
+			pass	
+	
 	if 'validation_warning_1' in vv_data:
 		first_level_key = 'validation_warning_1'
 	if vv_key_var in vv_data:
 		first_level_key = vv_key_var
+	
 	if vv_data['flag'] == 'intergenic':
 		first_level_key = 'intergenic_variant_1'
 	else:
@@ -294,16 +342,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				vf_d['c_name'] = var_obj.group(1)
 				first_level_key = key
 				break
-			# else:
-			# 	if re.search('{}'.format(acc_no), key):
-			# 		#case of intronic variants with minus sign e.g. NM_206933.2:c.14344-223C>T
-			# 		#for an unknown reason vv_key_var is not recognized the same as key
-			# 		#typing issue? both are str
-			# 		#print('{0}-{1}'.format(type(key), type(vv_key_var)))
-			# 		#return danger_panel(key, vv_key_var)
-			# 		first_level_key = key
-			# 		vv_key_var = key
-			#		there was a space in submitted name
 	if 'validation_warnings' in vv_data[first_level_key]:
 		for warning in vv_data[first_level_key]['validation_warnings']:
 			#if warning == vv_key_var or re.search('does not agree with reference', warning):
@@ -319,20 +357,24 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
 				if caller == 'webApp':
 					return danger_panel(vv_key_var, return_text)
+			elif re.search('A more recent version of', warning) or re.search('LRG_', warning):
+				next
 			else:
 				if caller == 'webApp':
 					return danger_panel(vv_key_var, warning)
 	genome = 'hg38'
 	#hg38
 	hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
-	#check again if variant exixst
-	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	
+	
+		
+	#check again if variant exist
 	curs.execute(
 		"SELECT feature_id FROM variant WHERE genome_version = '{0}' AND g_name = '{1}'".format(genome, hg38_d['g_name'])
 	)
 	res = curs.fetchone()
 	if res is not None:
-		return info_panel('Variant already in MobiDetails: ', vv_key_var, res['id'])
+		return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
 	
 	hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
 	positions = compute_start_end_pos(hg38_d['g_name'])
@@ -565,8 +607,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	curs.execute(insert_variant_19)
 	
 	db.commit()
-	
-	return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
+	if remapper is True:
+		return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id)
+	else:
+		return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
 
 def get_genomic_values(genome, vv_data, vv_key_var):
 	if vv_data[vv_key_var]['primary_assembly_loci'][genome]:

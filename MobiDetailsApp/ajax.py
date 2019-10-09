@@ -74,12 +74,9 @@ def intervar():
 		return 'No wintervar for indels'
 	http = urllib3.PoolManager()
 	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
-	#return intervar_url
-	intervar_resp = http.request('GET', intervar_url).data.decode('utf-8')
-	#print("----".format(intervar_resp))
-	if intervar_resp != '':
-		intervar_data = json.loads(intervar_resp)
-	else:
+	try:
+		intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+	except:
 		return "<span>No intervar class</span>"
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -135,10 +132,19 @@ def lovd():
 #web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
 @bp.route('/create', methods=['POST'])
 def create():
+	if request.form['new_variant'] == '':
+		return md_utilities.danger_panel('Please fill in the form before submitting!')
+	
 	gene = request.form['gene']
 	acc_no = request.form['acc_no']
 	new_variant = request.form['new_variant'].replace(" ", "")
 	acc_version = request.form['acc_version']
+	alt_nm = None
+	if 'alt_iso' in request.form:
+		alt_nm = request.form['alt_iso']
+		#return md_utilities.danger_panel(alt_nm, acc_version)
+		if alt_nm != '' and alt_nm != "{0}.{1}".format(acc_no, acc_version):
+			acc_no, acc_version = alt_nm.split('.')
 	#variant already registered?
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -152,14 +158,29 @@ def create():
 		return md_utilities.info_panel('Variant already in MobiDetails: ', new_variant, res['id'])
 	
 	if re.search('c\..+', new_variant):
+		#clean dels and up
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-		vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+		if alt_nm is None or acc_no == request.form['acc_no']:
+			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+		else:
+			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/all".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 		vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
+		
+					
 		try:
 			vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 		except:
 			close_db()
 			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. A possible cause is that the variant is too large.')
+		if re.search('[di][neu][psl]',new_variant):
+			#need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
+			for key in vv_data:
+				if re.search('{0}.{1}'.format(acc_no, acc_version), key):
+					vv_key_var = key
+					print(key)
+					var_obj = re.search(':(c\..+)$', key)
+					if var_obj is not None:
+						new_variant = var_obj.group(1)
 			
 	else:
 		close_db()
