@@ -191,7 +191,13 @@ def variant(variant_id=None):
 					annot['clinvar_id'] = record[2]
 					match_object =  re.search('CLNSIG=(.+);CLNVC=', record[7])
 					if match_object:
-						annot['clinsig'] = match_object.group(1)
+						match2_object = re.search('^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
+						if match2_object:
+							annot['clinsig'] = match2_object.group(1)
+							annot['clinsigconf'] = match2_object.group(2)
+							annot['clinsigconf'] = annot['clinsigconf'].replace('%3B', '-')
+						else:
+							annot['clinsig'] = match_object.group(1)
 				#dbNSFP
 				if variant_features['prot_type'] == 'missense':
 					record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)

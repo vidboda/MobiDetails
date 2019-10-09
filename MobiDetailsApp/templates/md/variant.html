@@ -277,7 +277,10 @@
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">						
 							{% if annot.clinvar_id is defined %}
-								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant"> {{ annot.clinsig }}</a>
+								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant">{{ annot.clinsig }}</a>
+								{% if annot.clinsigconf is defined %}
+									({{ annot.clinsigconf }})
+								{% endif %}
 							{% else %}
 								 {{ annot.clinsig }}
 							{%endif %}
