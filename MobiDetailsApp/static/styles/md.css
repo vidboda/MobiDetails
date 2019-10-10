@@ -13,6 +13,10 @@ a:hover {
 .var_li:hover {
 	cursor: pointer;
 }
+.star_fav {
+	color:yellow;
+	font-style:500%;
+}
 /*a:visited {
 	color:#F70F00;
     text-decoration:none;

@@ -114,11 +114,13 @@ def profile():
 	)
 	mobiuser = curs.fetchone()
 	error = None
+	num_var = 0
+	num_var_fav = 0
 	if mobiuser is None:
 		error = 'You seem to be unknown by MobiDetails.'	
 	
 	curs.execute(
-		"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date".format(g.user['id'])
+		"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
 	)
 	variants = curs.fetchall()
 	#if error is None:
