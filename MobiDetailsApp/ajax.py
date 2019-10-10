@@ -61,7 +61,8 @@ def defgen():
 	else:
 		close_db()
 		return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
-	
+
+######################################################################	
 #web app - ajax for intervar API
 @bp.route('/intervar', methods=['POST'])
 def intervar():
@@ -87,6 +88,7 @@ def intervar():
 	close_db()
 	return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
 
+######################################################################
 #web app - ajax for LOVD API
 @bp.route('/lovd', methods=['POST'])
 def lovd():
@@ -129,6 +131,7 @@ def lovd():
 	return html
 	#return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 	
+######################################################################
 #web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
 @bp.route('/create', methods=['POST'])
 def create():
@@ -186,3 +189,28 @@ def create():
 		close_db()
 		return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
 	return md_utilities.create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, 'webApp', db, g)
+
+######################################################################
+#web app - ajax to mark/unmark variants as favourite for logged users
+@bp.route('/favourite', methods=['POST'])
+@login_required
+def favourite():
+	vf_id = request.form['vf_id']
+	#print(vf_id)
+	#g.user['id']
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	if request.form['marker'] == 'mark':
+		curs.execute(
+			"INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(g.user['id'], vf_id)
+		)
+	else:
+		curs.execute(
+			"DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(g.user['id'], vf_id)
+		)
+	db.commit()
+	close_db()
+	return 'ok'
+	
+	
+	

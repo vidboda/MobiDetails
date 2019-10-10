@@ -55,8 +55,13 @@
 		{% endfor %}
 		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
 		{% if g.user %}
-			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" onclick="" title="Mark as favourite"><i class="fa fa-star"></i>
+			{% if favourite != True %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'mark');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
+			{% else %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'unmark');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+</span>
+			{% endif %}
 		{% endif %}
 	</div>	
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="page_menu">
@@ -84,7 +89,7 @@
 					<tr>
 						<th class="w3-left-align">Features</th>
 						<th class="w3-left-align" width="40%">Values</th>
-						<th class="w3-left-align">Description</th>
+						<th class="w3-left-align">Descriptions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -168,7 +173,7 @@
 					<tr>
 						<th class="w3-left-align">Features</th>
 						<th class="w3-left-align" width="40%">Values</th>
-						<th class="w3-left-align">Description</th>
+						<th class="w3-left-align">Descriptions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -252,7 +257,7 @@
 					<tr>
 						<th class="w3-left-align">Features</th>
 						<th class="w3-left-align" width="40%">Values</th>
-						<th class="w3-left-align">Description</th>
+						<th class="w3-left-align">Descriptions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -331,7 +336,7 @@
 					<tr>
 						<th class="w3-left-align">Features</th>
 						<th class="w3-left-align" width="40%">Values</th>
-						<th class="w3-left-align">Description</th>
+						<th class="w3-left-align">Descriptions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -355,12 +360,12 @@
 					</tr>
 					<tr><!--MPA score-->
 						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> score:</td>
-							<td class="w3-left-align">{{ annot.mpa_score }}</td>
+							<td class="w3-left-align">{{ span_color(annot.mpa_score, annot.mpa_color) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Raw score (0-10), 10: high impact</em></td>
 					</tr>
 					<tr><!--MPA impact-->
 						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> impact:</td>
-							<td class="w3-left-align">{{ annot.mpa_impact.capitalize() }}</td>
+							<td class="w3-left-align">{{ span_color(annot.mpa_impact.capitalize(), annot.mpa_color) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Impact type</em></td>
 					</tr>
 				</tbody>
@@ -377,7 +382,7 @@
 						<tr>
 							<th class="w3-left-align">Features</th>
 							<th class="w3-left-align" width="40%">Values</th>
-							<th class="w3-left-align">Description</th>
+							<th class="w3-left-align">Descriptions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -385,12 +390,12 @@
 							<tr><!--dbscSNV ADA-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
 								<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold > 0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold > {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 							<tr><!--dbscSNV RF-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
 								<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_ada_color) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold > 0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold > {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 						{% endif %}
 						{% if annot.spliceai_DS_AG is defined %}
@@ -398,22 +403,22 @@
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
 								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
 								<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
-								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds > 0.2;0.5;0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds > {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI AL-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
 								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
-								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds > 0.2;0.5;0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds > {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI DG-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
 								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
-								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds > 0.2;0.5;0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds > {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI DL-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
 								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
-								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds > 0.2;0.5;0.8 for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds > {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 						{% endif %}
 					</tbody>
@@ -432,7 +437,7 @@
 							<th class="w3-left-align">Features</th>
 							<th class="w3-left-align">Values</th>
 							<th class="w3-left-align">Prediction</th>
-							<th class="w3-left-align">Description</th>
+							<th class="w3-left-align">Descriptions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -446,31 +451,31 @@
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_pred, annot.pph2_hdiv_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds > 0.454;0.957 for probably damaging and damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds > {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for probably damaging and damaging</em></td>
 						</tr>
 						<tr><!--PH2 HVAR-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds > 0.447;0.909 for Probably damaging and Damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds > {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Probably damaging and Damaging</em></td>
 						</tr>
 						<tr><!--FATHMM-->
 							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
 							<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}</td>
 							<td class="w3-left-align">{{ span_color(annot.fathmm_pred, annot.fathmm_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold <= -1.5 for Damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold <= {{ thresholds.fathmm }} for Damaging</em></td>
 						</tr>
 						<tr><!--Meta SVM-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
 							<td class="w3-left-align">{{ span_color(annot.msvm_score, annot.msvm_color) }} ({{ annot.m_rel }})</td>
 							<td class="w3-left-align">{{ span_color(annot.msvm_pred, annot.msvm_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold >= 0.5 for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds.meta }} for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 						<tr><!--Meta LR-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
 							<td class="w3-left-align">{{ span_color(annot.mlr_score, annot.mlr_color) }} ({{ annot.m_rel }})</td>
 							<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold >= 0.5 for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds.meta }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 					</tbody>
 				</table><br/><br/>
@@ -488,7 +493,7 @@
 						<tr>
 							<th class="w3-left-align">Features</th>
 							<th class="w3-left-align">Values</th>
-							<th class="w3-left-align">Description</th>
+							<th class="w3-left-align">Descriptions</th>
 						</tr>
 					</thead>
 					<tbody>

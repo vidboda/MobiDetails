@@ -87,7 +87,9 @@ predictor_thresholds = {
 	'pph2_hvar_mid': 0.447,
 	'fathmm': -1.5,
 	'meta': 0.5,
-	'provean': -2.5
+	'provean': -2.5,
+	'mpa_max': 8,
+	'mpa_mid': 6
 }
 predictor_colors = {
 	'min': '#00A020',

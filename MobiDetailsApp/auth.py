@@ -14,7 +14,7 @@ from MobiDetailsApp.db import get_db, close_db
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 #https://flask.palletsprojects.com/en/1.1.x/tutorial/views/
-
+######################################################################
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
 	if request.method == 'POST':
@@ -62,6 +62,7 @@ def register():
 
 	return render_template('auth/register.html')
 
+######################################################################
 #login
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -89,6 +90,7 @@ def login():
 
 	return render_template('auth/login.html')
 
+######################################################################
 #for views that require login
 def login_required(view):
 	@functools.wraps(view)
@@ -100,6 +102,7 @@ def login_required(view):
 
 	return wrapped_view
 
+######################################################################
 #profile
 @bp.route('/profile')
 @login_required
@@ -118,13 +121,22 @@ def profile():
 		"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date".format(g.user['id'])
 	)
 	variants = curs.fetchall()
+	#if error is None:
+	num_var = len(variants)
+		#return render_template('auth/profile.html', mobiuser=mobiuser, variants=variants, num_var=num_var)
+	
+	curs.execute(
+		"SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
+	)
+	variants_favourite = curs.fetchall()
 	if error is None:
-		num_var = len(variants)
-		return render_template('auth/profile.html', mobiuser=mobiuser, variants=variants, num_var=num_var)
+		num_var_fav = len(variants_favourite)
+		return render_template('auth/profile.html', mobiuser=mobiuser, num_var=num_var, num_var_fav=num_var_fav, variants=variants, variants_favourite=variants_favourite)
 	
 	flash(error)
 	return render_template('auth/index.html')
 
+######################################################################
 #load profile when browsing
 @bp.before_app_request
 def load_logged_in_user():
@@ -141,6 +153,7 @@ def load_logged_in_user():
 		g.user = curs.fetchone()
 	close_db()
 
+######################################################################
 #logout
 @bp.route('/logout')
 def logout():

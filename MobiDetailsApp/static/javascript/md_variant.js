@@ -12,6 +12,30 @@ function defgen_export(genome, vf_id) {
 		$('#defgen_modal_' + genome).show();
 	});
 }
+function favourite(vf_id, marker) {
+	$.ajax({
+		type: "POST",
+		url: '/favourite',
+		data: {
+			vf_id: vf_id, marker: marker
+		}
+	})
+	.done(function() {
+		if (marker === 'mark') {
+			$('#favour').removeClass('fa-star').addClass('fa-star-o');
+			$('#favour_span').attr('title', 'Unmark the variant');
+			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
+			$('#favour_star').show();
+		}
+		else {
+			$('#favour').removeClass('fa-star-o').addClass('fa-star');
+			$('#favour_span').attr('title', 'Mark the variant');
+			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
+			$('#favour_star').hide();
+		}
+		
+	});
+}
 $(document).ready(function() {
 	// transform all tables as datatables
 	$('.w3-table').DataTable({

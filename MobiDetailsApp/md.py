@@ -145,7 +145,7 @@ def variant(variant_id=None):
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	# get all variant_features and gene info
 	curs.execute(
-		"SELECT * FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
+		"SELECT *, a.id as var_id FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
 	)
 	variant_features = curs.fetchone()
 	if variant_features is not None:
@@ -160,8 +160,13 @@ def variant(variant_id=None):
 		aa_pos = None
 		pos_splice_site = None
 		domain = None
-		# clinvar search & gnomad
-		# tabix searches in fact
+		#favourite var?
+		curs.execute(
+			"SELECT mobiuser_id FROM mobiuser_favourite WHERE feature_id = '{0}'".format(variant_id)
+		)
+		favourite = curs.fetchone()
+		if favourite is not None:
+			favourite = True
 		
 		for var in variant:
 			if var['genome_version'] == 'hg38':
@@ -281,7 +286,7 @@ def variant(variant_id=None):
 						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
 						#annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[50])[i]]
 						#print(re.split(';', record[54])[i])
-						if re.split(';', record[54])[i] == 'A' or  re.split(';', record[50]) == 'D':
+						if re.split(';', record[54]) == 'A' or  re.split(';', record[50]) == 'D':
 							mpa_missense += 1
 						#meta SVM
 						#print(record[68])
@@ -297,7 +302,7 @@ def variant(variant_id=None):
 						if annot['msvm_pred'] == 'Damaging':
 							mpa_missense += 1
 						annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
-						if 'mpa_score' not in annot or annot['mpa_score'] < 6:
+						if 'mpa_score' not in annot or annot['mpa_score'] < mpa_missense:
 							annot['mpa_score'] = mpa_missense
 							if annot['mpa_score'] >= 8:
 								annot['mpa_impact'] = 'high missense'
@@ -384,7 +389,9 @@ def variant(variant_id=None):
 	if 'mpa_score' not in annot:
 		annot['mpa_score'] = 0
 		annot['mpa_impact'] = 'unknown'
-	return render_template('md/variant.html', aa_pos=aa_pos, urls=md_utilities.urls, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
+	else:
+		annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
+	return render_template('md/variant.html', favourite=favourite, aa_pos=aa_pos, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 
 ######################################################################

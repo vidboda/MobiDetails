@@ -67,6 +67,16 @@
 							<!--<span class="w3-bar-item w3-button w3-ripple w3-xlarge" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</em></span>-->
 							<span class="w3-bar-item w3-xlarge" id="variant_name">{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span>
 						</div>
+						<div>
+							{% if g.user and favourite == True %}
+								<span class="w3-bar-item w3-ripple w3-xlarge" id="favour_star" style="color:yellow;font-style:300%;display:block;" title="This variant is marked as one of your favourites.">
+							{% else %}
+								<span class="w3-bar-item w3-ripple w3-xlarge" id="favour_star" style="color:yellow;font-style:300%;display:none;" title="This variant is marked as one of your favourites.">
+							{% endif %}
+								<i class="fa fa-star-o w3-xxlarge"></i>
+							</span>
+						</div>
+						
 					{% endif %}					
 					<!--auth-->
 					<div>
@@ -78,7 +88,7 @@
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="My profile" onclick="window.location='{{ url_for('auth.profile') }}';" title="Visit your page">
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
 						</span>						
-						<span class="w3-bar-item w3-xlarge w3-right">Logged in as {{ g.user['username'] }}</span>
+						<span class="w3-bar-item w3-xlarge w3-right">Logged in as {{ g.user.username }}</span>
 					{% else %}
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('auth.register') }}';" title="Register">
 							<i class="fa fa fa-user-plus w3-xxlarge"></i>
