@@ -65,7 +65,7 @@
 						<!--page title-->
 						<div>
 							<!--<span class="w3-bar-item w3-button w3-ripple w3-xlarge" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</em></span>-->
-							<span class="w3-bar-item w3-xlarge" id="variant_name">{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span>
+							<span class="w3-bar-item w3-xlarge" id="variant_name"><em>{{ variant_features.gene_name[0] }}</em>:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span>
 						</div>
 						<div>
 							{% if g.user and favourite == True %}
@@ -82,13 +82,13 @@
 					<div>
 					{% if g.user %}
 						<!--profile-->
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('auth.logout') }}';" title="Log out">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="window.location='{{ url_for('auth.logout') }}';" title="Log out">
 							<i class="fa fa-user-times w3-xxlarge"></i>
 						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="My profile" onclick="window.location='{{ url_for('auth.profile') }}';" title="Visit your page">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="window.location='{{ url_for('auth.profile') }}';" title="Visit your page">
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
 						</span>						
-						<span class="w3-bar-item w3-xlarge w3-right">Logged in as {{ g.user.username }}</span>
+						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
 					{% else %}
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('auth.register') }}';" title="Register">
 							<i class="fa fa fa-user-plus w3-xxlarge"></i>

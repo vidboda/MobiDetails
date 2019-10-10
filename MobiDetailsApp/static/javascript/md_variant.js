@@ -22,13 +22,15 @@ function favourite(vf_id, marker) {
 	})
 	.done(function() {
 		if (marker === 'mark') {
-			$('#favour').removeClass('fa-star').addClass('fa-star-o');
+			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
+			$('#favour').toggleClass('fa-star fa-star-o');
 			$('#favour_span').attr('title', 'Unmark the variant');
 			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
 			$('#favour_star').show();
 		}
 		else {
-			$('#favour').removeClass('fa-star-o').addClass('fa-star');
+			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
+			$('#favour').toggleClass('fa-star-o fa-star');
 			$('#favour_span').attr('title', 'Mark the variant');
 			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
 			$('#favour_star').hide();
