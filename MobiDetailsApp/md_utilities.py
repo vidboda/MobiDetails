@@ -580,9 +580,13 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		#intervar api returns empty results with hg38
 		http = urllib3.PoolManager()
 		intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(urls['intervar_api'], 'hg19', hg19_d['chr'], hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt'])
-		intervar_data = http.request('GET', intervar_url).data.decode('utf-8')
+		intervar_data = None
+		try:
+			intervar_data = http.request('GET', intervar_url).data.decode('utf-8')
+		except:
+			pass
 		#return intervar_data
-		if intervar_data != '':
+		if intervar_data is not None:
 			intervar_json = json.loads(intervar_data)
 			#curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 			curs.execute(

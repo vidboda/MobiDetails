@@ -86,11 +86,15 @@ $(document).ready(function() {
 	});
 	//hide sidebar on small screen
 	//if ($('#smart_menu').length) {		
-	if ($(window).width() < 400) {
-		document.getElementById('smart_menu').style.display = 'none';
-		document.getElementById('openNav').style.visibility = 'visible';
-		document.getElementById('global_content').style.marginLeft = '0%';
-		document.getElementById('page_menu').style.display = 'none';	
+	if ($(window).width() < 600) {
+		$('#smart_menu').hide();
+		$('#openNav').css('visibility', 'visible');
+		$('#page_menu').hide();
+		$('#global_content').animate({marginLeft: '0%'});
+		//document.getElementById('smart_menu').style.display = 'none';
+		//document.getElementById('openNav').style.visibility = 'visible';
+		//document.getElementById('global_content').style.marginLeft = '0%';
+		//document.getElementById('page_menu').style.display = 'none';	
 	}
 	//}
 	//$('#defgen_btn').click(function(){	

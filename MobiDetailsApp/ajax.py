@@ -25,12 +25,19 @@ def litvar():
 	rsid = request.form['rsid']
 	if rsid is not None:
 		http = urllib3.PoolManager()
+		litvar_data = None
 		litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
-		litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
+		try:
+			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
+		except:
+			pass
 		#print (rsid)
-		if len(litvar_data) == 0:
+		if litvar_data is not None:
+			if len(litvar_data) == 0:
+				return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
+			return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data)
+		else:
 			return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
-		return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data)
 	else:
 		return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
 
@@ -100,35 +107,42 @@ def lovd():
 	http = urllib3.PoolManager()
 	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
 	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
-	lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
+	lovd_data = None
+	try:
+		lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
+	except:
+		pass
 	#print(lovd_url)
-	if len(lovd_data) == 1:
-		return 'No match in LOVD public instances'	
-	lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
-	lovd_urls = []
-	i = 1
-	html = ''
-	html_list = []
-	for candidate in lovd_data:
-		fields = re.split('\t', candidate)
-		#check if the variant is the same than ours		
-		#print(fields)
-		if len(fields) > 1:
-			fields[4] = fields[4].replace('"','')			
-			if fields[4] == c_name or re.match(c_name, fields[4]):	
-				lovd_urls.append(fields[5])
-	if len(lovd_urls) > 0:
-		for url in lovd_urls:
-			url = url.replace('"','')
-			if re.search('databases.lovd.nl/shared/', url):
-				html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
-			else:
-				html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
-			i += 1
+	if lovd_data is not None:
+		if len(lovd_data) == 1:
+			return 'No match in LOVD public instances'	
+		lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
+		lovd_urls = []
+		i = 1
+		html = ''
+		html_list = []
+		for candidate in lovd_data:
+			fields = re.split('\t', candidate)
+			#check if the variant is the same than ours		
+			#print(fields)
+			if len(fields) > 1:
+				fields[4] = fields[4].replace('"','')			
+				if fields[4] == c_name or re.match(c_name, fields[4]):	
+					lovd_urls.append(fields[5])
+		if len(lovd_urls) > 0:
+			for url in lovd_urls:
+				url = url.replace('"','')
+				if re.search('databases.lovd.nl/shared/', url):
+					html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
+				else:
+					html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
+				i += 1
+		else:
+			return 'No match in LOVD public instances'
+		html = ' - '.join(html_list)
+		return html
 	else:
-		return 'No match in LOVD public instances'
-	html = ' - '.join(html_list)
-	return html
+		return "LOVD service looks down"
 	#return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 	
 ######################################################################

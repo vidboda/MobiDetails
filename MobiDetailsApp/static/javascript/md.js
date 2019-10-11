@@ -5,10 +5,11 @@ function w3_open() {
 	$('#smart_menu').width('15%');
 	$('#smart_menu').show();
 	var wi = $(window).width();
-	if (wi < 400) {
+	if (wi < 600) {
 		$('#global_content').animate({marginLeft: '35%'});
 		$('#smart_menu').width('35%');
 		$('#smart_menu').children().toggleClass('w3-large', 'w3-small');
+		$('#smart_menu').children().toggleClass('w3-xxlarge', 'w3-small');
 	}
 	else {
 		$('#global_content').animate({marginLeft: '15%'});
@@ -30,6 +31,7 @@ function w3_close() {
 $(document).ready(function(){
 	//reduce icon size on small screens
 	var wi = $(window).width();
+	//alert(wi);
 	if (wi < 400) {
 		$('i').toggleClass('w3-xxlarge w3-small');
 		$('#engine').toggleClass('w3-large w3-small');
@@ -38,12 +40,29 @@ $(document).ready(function(){
 		$('#myprofile').removeClass('w3-right');
 		if ($('#variant_name').length) {
 			$('#variant_name').hide();
-			//$('#variant_name').toggleClass('w3-xlarge w3-small');
-			//$('#variant_name').addClass('w3-right');
 		}
 		if ($('#login_name').length) {
 			$('#login_name').hide();
 		}
+		//if ($('#smart_menu').length) {
+		//	$('#smart_menu').hide();
+		//}
+	}
+	else if (wi <= 600) {
+		$('i').toggleClass('w3-xxlarge w3-large');
+		$('#engine').toggleClass('w3-large w3-small');
+		$('#submit_a').toggleClass('w3-large w3-small');
+		$('#logout').removeClass('w3-right');
+		$('#myprofile').removeClass('w3-right');
+		if ($('#variant_name').length) {
+			$('#variant_name').hide();
+		}
+		if ($('#login_name').length) {
+			$('#login_name').hide();
+		}
+		//if ($('#smart_menu').length) {
+		//	$('#smart_menu').hide();
+		//}
 	}
 	else if (wi <= 900) {
 		$('i').toggleClass('w3-xxlarge w3-xlarge');
