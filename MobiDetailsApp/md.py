@@ -158,7 +158,14 @@ def variant(variant_id=None):
 			"SELECT * FROM variant WHERE feature_id = '{0}'".format(variant_id)
 		)
 		variant = curs.fetchall()
-	
+		
+		#length of c_name for priting on screen
+		var_cname = variant_features['c_name']
+		if len(var_cname) > 30:
+			match_obj = re.search('(.+ins)[ATGC]+$', var_cname)
+			if match_obj is not None:
+				var_cname = match_obj.group(1)
+		
 		#dict for annotations
 		annot = {}
 		aa_pos = None
@@ -394,7 +401,7 @@ def variant(variant_id=None):
 		annot['mpa_impact'] = 'unknown'
 	else:
 		annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
-	return render_template('md/variant.html', favourite=favourite, aa_pos=aa_pos, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
+	return render_template('md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 
 ######################################################################
@@ -479,7 +486,7 @@ def search_engine():
 			if result is None:
 				
 				#transformed_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-				error = 'Sorry the variant does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+				error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
 				close_db()
 				#return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
 			elif sql_table == 'gene':

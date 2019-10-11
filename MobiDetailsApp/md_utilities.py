@@ -300,8 +300,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#docker up?
 	if 'flag' not in vv_data:
 		return danger_panel(vv_key_var, "VariantValidator docker looks down!! TODO: an email warning to be sent to admin")	
-	
-		
+	elif vv_data['flag'] is None:
+		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")	
+	#print(vv_data['flag'])
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#main isoform?
 	curs.execute(
@@ -357,24 +358,31 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				break
 	if 'validation_warnings' in vv_data[first_level_key]:
 		for warning in vv_data[first_level_key]['validation_warnings']:
-			#if warning == vv_key_var or re.search('does not agree with reference', warning):
-			#	if caller == 'webApp':
-			#		return danger_panel(warning, vv_data[first_level_key]['validation_warnings'][1])
-			#elif re.search('length must be', warning) or re.search('that lies outside of the reference sequence', warning) or re.search('No transcripts found ', warning) or re.search('start or end or both are beyond', warning):
-			#	if caller == 'webApp':
-			#		return danger_panel(vv_key_var, warning)
+			print(vv_data[first_level_key])
 			if re.search('RefSeqGene record not available', warning):
 				vf_d['ng_name'] = 'NULL'
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
 				match_obj = re.search('automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
-				return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
-				if caller == 'webApp':
-					return danger_panel(vv_key_var, return_text)
-			elif re.search('A more recent version of', warning) or re.search('LRG_', warning):
+				if match_obj.group(1) is not None:
+					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
+					if caller == 'webApp':
+						return danger_panel(vv_key_var, return_text)
+				else:
+					danger_panel(vv_key_var, warning)
+			elif re.search('normalized', warning):
+				match_obj = re.search('normalized to ({0}\.{1}:c\..+)'.format(acc_no, acc_version), warning)
+				if match_obj.group(1) is not None and match_obj.group(1) == vv_key_var:
+					next
+				else:
+					return danger_panel(vv_key_var, warning)
+			elif re.search('A more recent version of', warning) or re.search('LRG_', warning) or re.search('Whitespace', warning):
 				next
 			else:
 				if caller == 'webApp':
-					return danger_panel(vv_key_var, warning)
+					if len(vv_data[first_level_key]['validation_warnings']) > 1:
+						return danger_panel(vv_key_var, "".join(vv_data[first_level_key]['validation_warnings']))
+					else:
+						return danger_panel(vv_key_var, warning)
 	genome = 'hg38'
 	#hg38
 	hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
@@ -556,10 +564,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		elif vf_d['dna_type'] == 'insertion':
 			ins_obj = re.search('ins([ATGC]+)', vf_d['c_name'])
 			exp = ''
-			for i in range(0,len(ins_obj.group[1])):
+			for i in range(0,len(ins_obj.group(1))):
 				exp += '-'
 			vf_d['wt_seq'] = "{0} {1} {2}".format(begin, exp, end)
-			vf_d['mt_seq'] = "{0} {1}{2} {3}".format(begin, ins_obj.group(1), exp, end)
+			vf_d['mt_seq'] = "{0} {1} {2}".format(begin, ins_obj.group(1), end)
 		elif vf_d['dna_type'] == 'deletion':
 			vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
 			exp = ''

@@ -35,7 +35,7 @@ def register():
 		elif not password:
 			error = 'Password is required.'
 		elif len(password) < 8 or not re.match('[a-zA-Z0-9]+', password):
-			error = 'Password should be at least 8 characters and mix at least letters and numbers.'
+			error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
 		elif not country or re.match('--', country):
 			error = 'Country is required.'
 		elif not institute:

@@ -188,13 +188,13 @@ def create():
 			vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 		except:
 			close_db()
-			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. A possible cause is that the variant is too large.')
+			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. Please check carefully your nomenclature!')
 		if re.search('[di][neu][psl]',new_variant):
 			#need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
 			for key in vv_data:
 				if re.search('{0}.{1}'.format(acc_no, acc_version), key):
 					vv_key_var = key
-					print(key)
+					#print(key)
 					var_obj = re.search(':(c\..+)$', key)
 					if var_obj is not None:
 						new_variant = var_obj.group(1)

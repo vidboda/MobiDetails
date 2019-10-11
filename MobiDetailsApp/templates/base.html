@@ -65,7 +65,7 @@
 						<!--page title-->
 						<div>
 							<!--<span class="w3-bar-item w3-button w3-ripple w3-xlarge" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</em></span>-->
-							<span class="w3-bar-item w3-xlarge" id="variant_name"><em>{{ variant_features.gene_name[0] }}</em>:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span>
+							<span class="w3-bar-item w3-xlarge" id="variant_name"><em>{{ variant_features.gene_name[0] }}</em>:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ var_cname }}</span>
 						</div>
 						<div>
 							{% if g.user and favourite == True %}
