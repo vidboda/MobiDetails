@@ -91,6 +91,11 @@ $(document).ready(function() {
 		$('#openNav').css('visibility', 'visible');
 		$('#page_menu').hide();
 		$('#global_content').animate({marginLeft: '0%'});
+		$('#mobile_var_name').show();
+		$('#defgen_hg19').hide();
+		$('#defgen_hg38').hide();
+		//$('#smart_menu').children().toggleClass('w3-large', 'w3-small');
+		//$('#smart_menu').children().toggleClass('w3-xxlarge', 'w3-small');
 		//document.getElementById('smart_menu').style.display = 'none';
 		//document.getElementById('openNav').style.visibility = 'visible';
 		//document.getElementById('global_content').style.marginLeft = '0%';

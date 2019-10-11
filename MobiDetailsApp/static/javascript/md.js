@@ -4,12 +4,12 @@ function accord(id) {
 function w3_open() {
 	$('#smart_menu').width('15%');
 	$('#smart_menu').show();
+	$('#smart_menu').children().removeClass('w3-large').addClass('w3-small');
+	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-small');
 	var wi = $(window).width();
 	if (wi < 600) {
 		$('#global_content').animate({marginLeft: '35%'});
-		$('#smart_menu').width('35%');
-		$('#smart_menu').children().toggleClass('w3-large', 'w3-small');
-		$('#smart_menu').children().toggleClass('w3-xxlarge', 'w3-small');
+		$('#smart_menu').width('35%');		
 	}
 	else {
 		$('#global_content').animate({marginLeft: '15%'});
@@ -33,9 +33,9 @@ $(document).ready(function(){
 	var wi = $(window).width();
 	//alert(wi);
 	if (wi < 400) {
-		$('i').toggleClass('w3-xxlarge w3-small');
-		$('#engine').toggleClass('w3-large w3-small');
-		$('#submit_a').toggleClass('w3-large w3-small');
+		$('i').removeClass('w3-xxlarge').addClass('w3-small');
+		$('#engine').removeClass('w3-large').addClass('w3-small');
+		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
 		if ($('#variant_name').length) {
@@ -49,11 +49,12 @@ $(document).ready(function(){
 		//}
 	}
 	else if (wi <= 600) {
-		$('i').toggleClass('w3-xxlarge w3-large');
-		$('#engine').toggleClass('w3-large w3-small');
-		$('#submit_a').toggleClass('w3-large w3-small');
+		$('i').removeClass('w3-xxlarge').addClass('w3-large');
+		$('#engine').removeClass('w3-large').addClass('w3-small');
+		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
+		
 		if ($('#variant_name').length) {
 			$('#variant_name').hide();
 		}
@@ -67,10 +68,10 @@ $(document).ready(function(){
 	else if (wi <= 900) {
 		$('i').toggleClass('w3-xxlarge w3-xlarge');
 		if ($('#variant_name').length) {
-			$('#variant_name').toggleClass('w3-xlarge w3-large');
+			$('#variant_name').removeClass('w3-xlarge').addClass('w3-large');
 		}
 		if ($('#login_name').length) {
-			$('#login_name').toggleClass('w3-xlarge w3-large');
+			$('#login_name').removeClass('w3-xlarge').addClass('w3-large');
 		}
 	}
 	// scroll nav-bar

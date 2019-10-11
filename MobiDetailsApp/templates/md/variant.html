@@ -81,6 +81,7 @@
 	{{ modal_js('gene_modal') }}
 	<div id="global_content" style="margin-left:15%">
 		<!--first section-->
+		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s.%s:c.%s"|format(variant_features.gene_name[0], variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
 		<div class="w3-container w3-responsive">
@@ -236,12 +237,12 @@
 						Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
 					</span>
 				</div>
-				<div class="w3-col m4">
+				<div class="w3-col m4" id="defgen_hg19">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.id }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19"></div>
 					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
-				<div class="w3-col m4">
+				<div class="w3-col m4" id="defgen_hg38">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.id }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38"></div>
 				</div>

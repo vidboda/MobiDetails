@@ -240,28 +240,27 @@ def variant(variant_id=None):
 						#mpa score
 						mpa_missense = 0
 						#sift4g
-						#print(record)
-						annot['sift4g_score'] = re.split(';', record[39])[i]
+						annot['sift4g_score'] = re.split(';', record[39])[transcript_index]
 						#if annot['sift4g_score'] != '.':
 						annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift4g_score'], 'sift')
-						annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[i]]
+						annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[transcript_index]]
 						if annot['sift4g_pred'] == 'Damaging':
 							mpa_missense += 1
 						#polyphen 2
-						annot['pph2_hdiv_score'] = re.split(';', record[42])[i]
+						annot['pph2_hdiv_score'] = re.split(';', record[42])[transcript_index]
 						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
-						annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[i]]
+						annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[transcript_index]]
 						if re.search('Damaging', annot['pph2_hdiv_pred']):
 							mpa_missense += 1
-						annot['pph2_hvar_score'] = re.split(';', record[45])[i]
+						annot['pph2_hvar_score'] = re.split(';', record[45])[transcript_index]
 						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
-						annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[i]]
+						annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[transcript_index]]
 						if re.search('Damaging', annot['pph2_hvar_pred']):
 							mpa_missense += 1
 						#fathmm
-						annot['fathmm_score'] = re.split(';', record[60])[i]
+						annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
 						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
-						annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[i]]
+						annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
 						if annot['fathmm_pred'] == 'Damaging':
 							mpa_missense += 1
 						#fathmm-mkl
@@ -276,7 +275,7 @@ def variant(variant_id=None):
 						#annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
 						#annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[i]]
 						#print(re.split(';', record[65])[i])
-						if re.split(';', record[65])[i] == 'D':
+						if re.split(';', record[65])[transcript_index] == 'D':
 							mpa_missense += 1
 						#LRT
 						#annot['lrt_score'] = re.split(';', record[48])[i]
