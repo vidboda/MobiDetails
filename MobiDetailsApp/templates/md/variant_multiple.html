@@ -1,0 +1,14 @@
+{% from 'macros.html' import danger, info %}
+{% extends "base.html" %}
+{% block title %} MD Variants page {% endblock %}
+{% block header %}
+	<h1 align="center" class="w3-text-blue">Query results:</h1>
+{% endblock %}
+{% block content %}
+{{ info("Your query returned multiple results:") }}
+<ul  class="w3-ul">
+{% for var in variants %}
+	 <li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>
+{% endfor %}
+</ul>
+{% endblock %}

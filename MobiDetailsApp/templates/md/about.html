@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import info %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
@@ -58,7 +59,7 @@
 						<td class="w3-left-align">
 							<a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a>
 						</td>
-						<td class="w3-left-align">{{ vv_data.apiVersion }}</td>
+						<td class="w3-left-align">v{{ vv_data.apiVersion }}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -66,11 +67,13 @@
 	</div>
 	<div class="w3-container w3-padding-64" style="display:block">
 		<h3>Group's website:</h3>
-		<p><a href="https://neuro-2.iurc.montp.inserm.fr/group/diag_en.html" target="_blank">Deafness and blindness group</a> at Laboratory of molecular genetics, Montpellier University Hospital</a></p>
+		{{ info('<a href="https://neuro-2.iurc.montp.inserm.fr/group/diag_en.html" target="_blank">Deafness and blindness group</a> at Laboratory of molecular genetics, Montpellier University Hospital</a>') }}
 		<h3>Source code:</h3>
-		<p>Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a></p>
+		{{ info('Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a>') }}
 		<h3>Credits:</h3>
-		<p>This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.</p>
+		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.') }}
+		<h3>Disclaimer:</h3>
+		{{ info("This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free service on an 'as-is' basis, without any warranty as to its accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.") }}
 	</div>
 	<br /><br />
 {% endblock %}

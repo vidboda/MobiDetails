@@ -1,8 +1,8 @@
 {% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection %}
 {% extends "base.html" %}
+{% block title %} MD Variant page {% endblock %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
-	<!--<link rel="stylesheet" href="{{ url_for('static', filename='styles/md.css') }}">-->
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}" type="text/javascript"></script>	
 {% endblock %}
@@ -372,8 +372,9 @@
 				</tbody>
 			</table><br/><br/>
 		</div>
+		--{{ annot.spliceai_DS_AG }}--
 		<!--fifth section-->
-		{% if variant_features.dna_type == 'substitution' %}
+		{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 			<hr />
 			{{ section_title('splicing', 'Splicing predictions') }}
 			<div class="w3-responsive w3-container">

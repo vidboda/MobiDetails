@@ -139,6 +139,7 @@ def vars(gene_name=None):
 		close_db()
 		return render_template('md/unknown.html', query=gene_name)
 
+
 ######################################################################
 #web app - variant
 @bp.route('/variant/<int:variant_id>', methods=['GET', 'POST'])
@@ -335,7 +336,51 @@ def variant(variant_id=None):
 						annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels'][1])
 					else:
 						annot['cadd_raw'] = record[4]
-						annot['cadd_phred'] = record[5]		
+						annot['cadd_phred'] = record[5]
+				#spliceAI 1.3
+				##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation. These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL). Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
+				spliceai_res = False
+				if variant_features['dna_type'] == 'substitution':
+					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
+					spliceai_res = True
+				elif (variant_features['dna_type'] == 'insertion' and variant_features['variant_size'] == 1) or (variant_features['dna_type'] == 'deletion' and variant_features['variant_size'] <= 4):
+					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
+					spliceai_res = True
+				if spliceai_res is True:
+					if isinstance(record, str):
+						annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
+					else:
+						spliceais = re.split('\|', record[7])
+						#ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+						order_list = ['DS_AG','DS_AL','DS_DG','DS_DL','DP_AG','DP_AL','DP_DG','DP_DL']
+						i = 2
+						for tag in order_list:
+							identifier = "spliceai_{}".format(tag)
+							annot[identifier] = spliceais[i]
+							i += 1
+							if re.match('spliceai_DS_', identifier):
+								id_color = "{}_color".format(identifier)
+								annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
+								if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+									if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+										annot['mpa_score'] = 10
+										annot['mpa_impact'] = 'high splice'
+									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+										annot['mpa_score'] = 8
+										annot['mpa_impact'] = 'moderate splice'
+									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+										annot['mpa_score'] = 6
+										annot['mpa_impact'] = 'low splice'
+						# 	
+						# annot['spliceai_DS_AG'] = spliceais[2]
+						# annot['spliceai_DS_AL'] = spliceais[3]
+						# annot['spliceai_DS_DG'] = spliceais[4]
+						# annot['spliceai_DS_DL'] = spliceais[5]
+						# annot['spliceai_DP_AG'] = spliceais[6]
+						# annot['spliceai_DP_AL'] = spliceais[7]
+						# annot['spliceai_DP_DG'] = spliceais[8]
+						# annot['spliceai_DP_DL'] = spliceais[9]						
+						
 			elif var['genome_version'] == 'hg19':
 				#gnomad ex
 				record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome'][0], var)
@@ -367,31 +412,31 @@ def variant(variant_id=None):
 								annot['mpa_impact'] = 'high splice'
 							
 					#spliceai
-					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
-					if isinstance(record, str):
-						annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
-					else:
-						spliceais = re.split(';', record[7])
-						for spliceai in spliceais:
-							#DIST=-73;DS_AG=0.0002;DS_AL=0.0000;DS_DG=0.0000;DS_DL=0.0000;DP_AG=14;DP_AL=-3;DP_DG=9;DP_DL=15
-							match_object = re.search(r'(\w+)=(.+)', spliceai)
-							#put value in annot dict
-							identifier = "spliceai_{}".format(match_object.group(1))
-							annot[identifier] = match_object.group(2)
-							#put also html color corresponging to value
-							if re.match('spliceai_DS_', identifier):
-								id_color = "{}_color".format(identifier)
-								annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
-								if 'mpa_score' not in annot or annot['mpa_score'] < 10:
-									if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
-										annot['mpa_score'] = 10
-										annot['mpa_impact'] = 'high splice'
-									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
-										annot['mpa_score'] = 8
-										annot['mpa_impact'] = 'moderate splice'
-									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
-										annot['mpa_score'] = 6
-										annot['mpa_impact'] = 'low splice'
+					# record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
+					# if isinstance(record, str):
+					# 	annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
+					# else:
+					# 	spliceais = re.split(';', record[7])
+					# 	for spliceai in spliceais:
+					# 		#DIST=-73;DS_AG=0.0002;DS_AL=0.0000;DS_DG=0.0000;DS_DL=0.0000;DP_AG=14;DP_AL=-3;DP_DG=9;DP_DL=15
+					# 		match_object = re.search(r'(\w+)=(.+)', spliceai)
+					# 		#put value in annot dict
+					# 		identifier = "spliceai_{}".format(match_object.group(1))
+					# 		annot[identifier] = match_object.group(2)
+					# 		#put also html color corresponging to value
+					# 		if re.match('spliceai_DS_', identifier):
+					# 			id_color = "{}_color".format(identifier)
+					# 			annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
+					# 			if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+					# 				if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+					# 					annot['mpa_score'] = 10
+					# 					annot['mpa_impact'] = 'high splice'
+					# 				elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+					# 					annot['mpa_score'] = 8
+					# 					annot['mpa_impact'] = 'moderate splice'
+					# 				elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+					# 					annot['mpa_score'] = 6
+					# 					annot['mpa_impact'] = 'low splice'
 	else:
 		close_db()
 		return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
@@ -402,7 +447,6 @@ def variant(variant_id=None):
 	else:
 		annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
 	return render_template('md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
-
 
 ######################################################################
 #web app - search engine
@@ -416,7 +460,7 @@ def search_engine():
 		pattern = ''
 		query_type = ''
 		sql_table = 'variant_feature'
-		col_names = 'id'
+		col_names = 'id, c_name, gene_name, p_name'
 		#deal w/ protein names
 		query_engine = re.sub(r'\s', '', query_engine)
 		match_object = re.search(r'^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
@@ -482,19 +526,32 @@ def search_engine():
 			curs.execute(
 				"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
 			)
-			result = curs.fetchone()
-			if result is None:
-				
-				#transformed_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-				error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+			result = None
+			if sql_table == 'gene':
+				result = curs.fetchone()
 				close_db()
-				#return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
-			elif sql_table == 'gene':
-				close_db()
-				return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+				if result is None:
+					error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+				else:
+					return redirect(url_for('md.gene', gene_name=result[col_names][0]))
 			else:
+				result = curs.fetchall()
 				close_db()
-				return redirect(url_for('md.variant', variant_id=result[col_names]))
+				if len(result) == 0:
+					error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+				else:
+					if len(result) == 1:
+						print(result[0][0])
+						return redirect(url_for('md.variant', variant_id=result[0][0]))
+					else:
+						return render_template('md/variant_multiple.html', variants=result)
+				#return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
+			#elif sql_table == 'gene':
+			#	close_db()
+			#	return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+			#else:
+			#	close_db()
+			#	return redirect(url_for('md.variant', variant_id=result[col_names]))
 	else:
 		error = 'Please type something for the search engine to work.'
 	flash(error)
