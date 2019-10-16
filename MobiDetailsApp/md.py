@@ -242,7 +242,8 @@ def variant(variant_id=None):
 							for enst in enst_list:
 								if variant_features['enst'] == enst:
 									transcript_index = i
-									i += 1
+								i += 1
+						#print(transcript_index)
 						#then iterate for each score of interest, e.g.  sift..
 						#missense:
 						#mpa score
