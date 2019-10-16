@@ -33,23 +33,14 @@
 	{{ danger("WARNING: MobiDetails is in current active development. This is an &alpha; version.","If you experience any trouble or have any idea to improve the software, please e-mail me at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;") }}
 	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 		<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
-		<p>NEWS:
+		<p><strong>NEWS:</strong>
 			<ul>
 				<li>2019-09-26: Release of the first complete &alpha; version (github commit 0954177)</li>
 				<li>2019-09-26: MobiDetails runs using <a href = 'https://flask.palletsprojects.com/en/1.1.x/', target = '_blank'>Flask</a>, <a href = 'https://jinja.palletsprojects.com/en/2.10.x/', target = '_blank'>Jinja</a> <a href = 'https://www.python.org/', target = '_blank'>python</a> and <a href = 'https://www.postgresql.org/', target = '_blank'>postgreSQL</a></li>
-				<!--. Bye <a href = 'https://www.perl.org/', target = '_blank'>Perl</a>! See you next time!</li>-->
-				<!--<li>2019-06-04: Added gnomAD obs/exp scores instead of ExAC pLI.</li>-->
-				<!--<li>2019-05-15: Added <a href = 'https://variantvalidator.org/', target = '_blank'>VariantValidator</a> API to create variants. Use it in priority except for SHANK3 gene.</li>-->
-				<!--<li>2019-02-26: Added <a href = 'https://www.cell.com/cell/fulltext/S0092-8674(18)31629-5', target = '_blank'>spliceAI</a> scores for SNVs!</li>-->
-				<!--<li>2019-01-24: more than 300 new genes added (potential DSD genes)</li>-->
-				<!--<li>2018-12-19: check out our new <a href = '', target = '_blank'>About</a> page!</li>-->
-				<!--<li>2018-12-12: when a variant is known in dbSNP, possibility to retrive PubMed articles citing the variant</li>-->
-				<!--<li>2018-12-12 again: added pLi, pRec, pNull values for each gene.</li>-->
-				<!--<li>2018-12-06: You can modify the RNA impact status depending on what you've found.</li>-->
-				<!--<li>2018-12-07: You can export your variant in a DEFGEN compliant csv format using the dedicated button!</li>-->
 			</ul>
 		</p>
 	</div>
+	{{ info("<strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c_name or p_name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c_name or p_name, but not 22991, for example</li><li>gene name, e.g. 'USH2A'</li></ul>") }}
 	<br /><br />
 	<div class="w3-row w3-padding-64 w3-margin">
 		<div class="w3-third w3-center">
