@@ -343,8 +343,8 @@ def variant(variant_id=None):
 				if variant_features['dna_type'] == 'substitution':
 					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
 					spliceai_res = True
-				elif (variant_features['dna_type'] == 'insertion' and variant_features['variant_size'] == 1) or (variant_features['dna_type'] == 'deletion' and variant_features['variant_size'] <= 4):
-					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
+				elif ((variant_features['dna_type'] == 'insertion' or variant_features['dna_type'] == 'duplication') and variant_features['variant_size'] == 1) or (variant_features['dna_type'] == 'deletion' and variant_features['variant_size'] <= 4):
+					record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels'][0], var)
 					spliceai_res = True
 				if spliceai_res is True:
 					if isinstance(record, str):
@@ -407,7 +407,7 @@ def variant(variant_id=None):
 						annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
 						dbscsnv_mpa_threshold = 0.6
 						if 'mpa_score' not in annot or annot['mpa_score'] < 10:
-							if annot['dbscsnv_ada'] > dbscsnv_mpa_threshold or annot['dbscsnv_ada']  > dbscsnv_mpa_threshold:
+							if float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold or float(annot['dbscsnv_ada'])  > dbscsnv_mpa_threshold:
 								annot['mpa_score'] = 10
 								annot['mpa_impact'] = 'high splice'
 							
@@ -461,6 +461,7 @@ def search_engine():
 		query_type = ''
 		sql_table = 'variant_feature'
 		col_names = 'id, c_name, gene_name, p_name'
+		semaph_query = 0
 		#deal w/ protein names
 		query_engine = re.sub(r'\s', '', query_engine)
 		match_object = re.search(r'^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine) #e.g. R34X
@@ -496,6 +497,22 @@ def search_engine():
 		elif re.search(r'^c\..+', query_engine):#c. dna vars
 			query_type = 'c_name'
 			pattern = md_utilities.clean_var_name(query_engine)
+		elif re.search(r'^z\d+$', query_engine):#only numbers: get matching variants (exact position match) - specific query
+			match_obj = re.search(r'^z(\d+)$', query_engine)
+			pattern = match_obj.group(1)
+			db = get_db()
+			curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+			curs.execute(
+				"SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(col_names, sql_table, pattern)
+			)
+			semaph_query = 1
+		elif re.search(r'^\d{2,}$', query_engine):#only numbers: get matching variants (partial match, at least 2 numbers) - specific query
+			db = get_db()
+			curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+			curs.execute(
+				"SELECT {0} FROM {1} WHERE c_name LIKE '%{2}%' OR p_name LIKE '%{2}%'".format(col_names, sql_table, query_engine)
+			)
+			semaph_query = 1
 		elif re.search(r'^[A-Za-z0-9]+$', query_engine):#genes
 			sql_table = 'gene'
 			query_type = 'name[1]'
@@ -504,29 +521,31 @@ def search_engine():
 			if not re.search(r'[oO][rR][fF]', pattern):
 				pattern = pattern.upper()
 			else:
+				#from experience the only low case in gene is 'orf'
 				pattern = re.sub(r'O', 'o', pattern)
 				pattern = re.sub(r'R', 'r', pattern)
 				pattern = re.sub(r'F', 'f', pattern)
-				pattern = pattern.capitalize()
-				#print(pattern)
+				pattern = pattern.capitalize()		
 		else:
 			error = 'Sorry I did not understood this query ({}).'.format(query_engine)
 			#return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
 		if error is None:
-			db = get_db()
-			curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-			#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-			#return render_template('md/search_engine.html', query=text)
-			#a little bit of formatting
-			if re.search('variant', sql_table) and re.search('>', pattern):
-				#upper for the end of the variant, lower for genomic chr
-				var_match = re.search(r'^(.*)(\d+)([ACTGactg]>[ACTGactg])$', pattern)
-				pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
-				print(pattern)
-			curs.execute(
-				"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-			)
-			result = None
+			#print(semaph_query)
+			if semaph_query == 0:
+				db = get_db()
+				curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+				#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+				#return render_template('md/search_engine.html', query=text)
+				#a little bit of formatting
+				if re.search('variant', sql_table) and re.search('>', pattern):
+					#upper for the end of the variant, lower for genomic chr
+					var_match = re.search(r'^(.*)(\d+)([ACTGactg]>[ACTGactg])$', pattern)
+					pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
+					#print(pattern)
+				curs.execute(
+					"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+				)
+				result = None
 			if sql_table == 'gene':
 				result = curs.fetchone()
 				close_db()
@@ -541,17 +560,10 @@ def search_engine():
 					error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
 				else:
 					if len(result) == 1:
-						print(result[0][0])
+						#print(result[0][0])
 						return redirect(url_for('md.variant', variant_id=result[0][0]))
 					else:
 						return render_template('md/variant_multiple.html', variants=result)
-				#return render_template('md/unknown.html', query=query_engine, transformed_query="SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern))
-			#elif sql_table == 'gene':
-			#	close_db()
-			#	return redirect(url_for('md.gene', gene_name=result[col_names][0]))
-			#else:
-			#	close_db()
-			#	return redirect(url_for('md.variant', variant_id=result[col_names]))
 	else:
 		error = 'Please type something for the search engine to work.'
 	flash(error)

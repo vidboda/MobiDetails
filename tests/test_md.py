@@ -60,6 +60,8 @@ def test_variant_page(client):
 	('c12ORF65', 'gene/C12orf65'),
 	('C12oRf65', 'gene/C12orf65'),
 	('C12orf65', 'gene/C12orf65'),
+	('229', 'variant/18'),
+	('z2299', 'variant/18')
 	))
 def test_search_engine(client, t_search, url):
 	response = client.post(

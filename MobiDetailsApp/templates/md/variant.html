@@ -69,7 +69,7 @@
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
-		{% if variant_features.dna_type == 'substitution' %}
+		{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{% endif %}
 		{% if variant_features.prot_type == 'missense' %}
@@ -372,7 +372,6 @@
 				</tbody>
 			</table><br/><br/>
 		</div>
-		--{{ annot.spliceai_DS_AG }}--
 		<!--fifth section-->
 		{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 			<hr />
