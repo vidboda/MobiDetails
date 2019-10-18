@@ -1,4 +1,5 @@
 import re
+import os.path
 import urllib3
 import certifi
 import json
@@ -60,6 +61,7 @@ def about():
 def gene(gene_name=None):
 	if gene_name is None:
 		return render_template('unknown.html')
+	
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#main isoform? now canonical is stored in db
@@ -74,12 +76,64 @@ def gene(gene_name=None):
 		)#get all isoforms
 		result_all = curs.fetchall()
 		num_iso = len(result_all)
+		#get metadome json?
+		enst_ver = {}
+		#if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
+		for gene in result_all:
+			if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst'])):
+				http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+				if gene['enst'] not in enst_ver:
+					#get enst versions in a dict
+					metad_ts = None
+					try:
+						metad_ts = json.loads(http.request('GET', '{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0])).data.decode('utf-8'))
+						if metad_ts is not None and 'trancript_ids' in metad_ts:
+							for ts in metad_ts['trancript_ids']:
+								if ts['has_protein_data']:
+									match_obj = re.search('^(ENST\d+)\.\d', ts['gencode_id'])
+									enst_ver[match_obj.group(1)] = ts['gencode_id']
+					except:
+						pass
+				break
+					
+		#we check if data exist at metadome
+		#we have a set of metadome transcripts
+		for enst in enst_ver:
+			#print(enst)
+			metad_data = None
+			try:
+				metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
+			except:
+				pass
+			#print(metad_data['status'])
+			if metad_data is not None:
+				if metad_data['status'] == 'PENDING':
+					#get transcript_ids ?? coz of the version number
+					#send request to build visualization ot metadome
+					vis_request = None
+					try:
+						vis_request = json.loads(http.request('POST', '{0}submit_visualization/'.format(md_utilities.urls['metadome_api']),
+												   headers={'Content-Type': 'application/json'},
+												   body=json.dumps({'transcript_id' : enst_ver[enst]})).data.decode('utf-8'))
+						print('{} submitted to metadome'.format(vis_request['transcript_id']))
+					except:
+						pass
+				elif metad_data['status'] == 'SUCCESS':
+					#get_request = None
+					#try:
+					get_request = json.loads(http.request('GET', '{0}result/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))		
+						#copy in file system
+					with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
+						json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
+					print('saving metadome {} into local file system'.format(enst_ver[enst]))
+					#except:
+					#	pass
 		if result_all is not None:
 			#get annotations
 			curs.execute(
 				"SELECT * FROM gene_annotation WHERE gene_name[1] = '{}'".format(gene_name)
 			)
-			annot = curs.fetchone();
+			annot = curs.fetchone()
 			if annot is None:
 				annot = {'nognomad': 'No values in gnomAD'}
 			close_db()
@@ -200,6 +254,19 @@ def variant(variant_id=None):
 						"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
 					)
 					domain = curs.fetchall()
+					#metadome data?
+					if variant_features['dna_type'] == 'substitution' and os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
+						#get value in json file
+						with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst']), "r") as metad_file:
+							metad_json = json.load(metad_file)
+							if 'positional_annotation' in metad_json:
+								for pos in metad_json['positional_annotation']:
+									if int(pos['protein_pos']) == int(aa_pos[0]):
+										if 'sw_dn_ds' in pos:
+											annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
+											#TO DO define threshold and associated metadome_dn_ds_color
+					
+					
 				#MPA indel splice
 				elif variant_features['start_segment_type'] == 'intron' and variant_features['dna_type'] == 'indel' and variant_features['variant_size'] < 50:
 					#pos_splice = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
@@ -371,16 +438,7 @@ def variant(variant_id=None):
 										annot['mpa_impact'] = 'moderate splice'
 									elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
 										annot['mpa_score'] = 6
-										annot['mpa_impact'] = 'low splice'
-						# 	
-						# annot['spliceai_DS_AG'] = spliceais[2]
-						# annot['spliceai_DS_AL'] = spliceais[3]
-						# annot['spliceai_DS_DG'] = spliceais[4]
-						# annot['spliceai_DS_DL'] = spliceais[5]
-						# annot['spliceai_DP_AG'] = spliceais[6]
-						# annot['spliceai_DP_AL'] = spliceais[7]
-						# annot['spliceai_DP_DG'] = spliceais[8]
-						# annot['spliceai_DP_DL'] = spliceais[9]						
+										annot['mpa_impact'] = 'low splice'					
 						
 			elif var['genome_version'] == 'hg19':
 				#gnomad ex

@@ -45,7 +45,7 @@ urls = {
 	'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome',
 	'gnomad': 'http://gnomad.broadinstitute.org/',
 	'hgvs': 'http://varnomen.hgvs.org/',
-	'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?',
+	'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t=',
 	'marrvel': 'http://marrvel.org/search/gene/',
 	'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
 	'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
@@ -57,10 +57,11 @@ urls = {
 	'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
 	'lovd': 'http://www.lovd.nl/',
 	'cadd': 'https://cadd.gs.washington.edu/',
-	'mp': 'https://github.com/mobidic/MPA'
+	'mp': 'https://github.com/mobidic/MPA',
+	'metadome': 'https://stuart.radboudumc.nl/metadome/',
+	'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
 }
 local_files = {
-	#'clinvar_hg19': [app_path + '/static/resources/clinvar/hg19/clinvar_20190916.vcf.gz', '20190916'],
 	# id :[local path, version, name, short desc, urls Xref]
 	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', 'v20190916', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
 	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
@@ -75,6 +76,7 @@ local_files = {
 	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v151', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
 	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+	'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'mutation tolerance at each position in a human protein', 'metadome scores', 'metadome']
 	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
@@ -325,7 +327,13 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		# 		vv_key_var = key
 				#cannot happen as VV when queried with an isoform returns the results  only for this isoform
 		#we could get pseudo VCF values an rerun VV instead
-		hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+		try:
+			hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+		except:
+			#means we have an error
+			if vv_data['flag'] == 'warning':
+				if caller == 'webApp':
+					return danger_panel(vv_key_var, "".join(vv_data['validation_warning_1']['validation_warnings']))
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		vv_url = "{0}variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
 		try:
@@ -340,7 +348,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 					first_level_key = key
 					remapper = True
 		except:
-			pass	
+			pass
 	
 	if 'validation_warning_1' in vv_data:
 		first_level_key = 'validation_warning_1'
@@ -360,7 +368,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				break
 	if 'validation_warnings' in vv_data[first_level_key]:
 		for warning in vv_data[first_level_key]['validation_warnings']:
-			print(vv_data[first_level_key])
+			#print(vv_data[first_level_key])
 			if re.search('RefSeqGene record not available', warning):
 				vf_d['ng_name'] = 'NULL'
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
