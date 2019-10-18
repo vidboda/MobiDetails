@@ -141,6 +141,18 @@ def test_get_preditor_double_threshold_color(client, value, result_color, predic
 	color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
 	assert color == result_color
 
+	
+@pytest.mark.parametrize(('val', 'result'), (
+	('0.2', ['intolerant', '#FF0000']),
+	('0.6', ['slightly intolerant', '#FF6020']),
+	('0.8', ['neutral', '#FFA020']),
+	('1.25', ['tolerant', '#2E64FE']),
+	('1.4', ['highly tolerant', '#0404B4'])
+))
+def test_get_metadome_colors(val, result):
+	res = md_utilities.get_metadome_colors(val)
+	assert res == result
+
 @pytest.mark.parametrize(('g_name', 'pos_end'), (
 	('216422237G>A', '216422237'),
 	('76885812_76885817del', '76885817'),

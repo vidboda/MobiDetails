@@ -93,27 +93,33 @@ predictor_thresholds = {
 	'meta': 0.5,
 	'provean': -2.5,
 	'mpa_max': 8,
-	'mpa_mid': 6
+	'mpa_mid': 6,
+	'metadome_intolerant': 0.5,
+	'metadome_sintolerant': 0.7,
+	'metadome_neutral': 1,
+	'metadome_tolerant': 1.3
 }
 predictor_colors = {
 	'min': '#00A020',
 	'small_effect': '#FFA020',
 	'mid_effect': '#FF6020',
 	'max': '#FF0000',
-	'no_effect': '#000000'
+	'no_effect': '#000000',
+	'tolerant': '#2E64FE',
+	'highly_tolerant': '#0404B4'	
 }
 predictors_translations = {
 	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
 	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'},
 	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic'} #Mutationtaster
 }
+
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
 def reverse_complement(seq):
 	return "".join(complement[base] for base in reversed(seq.upper()))
 #useless as dbNSFP has been concatenated in a single file
 #def get_dbNSFP_file(chrom):
 #	return local_files['dbNSFP_base'][0] + chrom + '.gz'
-
 
 def clean_var_name(variant):
 	variant = re.sub('^[cpg]\.', '', variant)
@@ -257,7 +263,19 @@ def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
 		return predictor_colors['min']
 	else:
 		return predictor_colors['no_effect']
-
+#returns a list of effect and color for metadome
+def get_metadome_colors(val):
+	value = float(val)
+	if value < predictor_thresholds['metadome_intolerant']:
+		return ['intolerant', predictor_colors['max']]
+	elif value < predictor_thresholds['metadome_sintolerant']:
+		return ['slightly intolerant', predictor_colors['mid_effect']]
+	elif value < predictor_thresholds['metadome_neutral']:
+		return ['neutral', predictor_colors['small_effect']]
+	elif value < predictor_thresholds['metadome_tolerant']:
+		return ['tolerant', predictor_colors['tolerant']]
+	else:
+		return ['highly tolerant', predictor_colors['highly_tolerant']]
 #in ajax.py return end pos of a specific variant
 #receives g_name as 216420460C>A or 76885812_76885817del
 def compute_pos_end(g_name):
