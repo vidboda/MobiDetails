@@ -30,3 +30,8 @@ function new_isoform() {
 		}
 	});
 }
+$(document).ready(function(){
+	if ($('#iso_form').length) {
+		$('#alt_iso option[value=""]').prop('selected', true);
+	}
+});
