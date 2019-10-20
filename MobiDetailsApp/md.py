@@ -279,7 +279,7 @@ def variant(variant_id=None):
 				#MPA indel splice
 				elif variant_features['start_segment_type'] == 'intron' and variant_features['dna_type'] == 'indel' and variant_features['variant_size'] < 50:
 					#pos_splice = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
-					if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and 'mpa_score' not in annot or annot['mpa_score'] < 6:
+					if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and ('mpa_score' not in annot or annot['mpa_score'] < 6):
 						annot['mpa_score'] = 6
 						annot['mpa_impact'] = 'splice indel'		
 				#clinvar
