@@ -94,19 +94,24 @@ predictor_thresholds = {
 	'provean': -2.5,
 	'mpa_max': 8,
 	'mpa_mid': 6,
-	'metadome_intolerant': 0.5,
+	'metadome_hintolerant': 0.175,
+	'metadome_intolerant': 0.52,
 	'metadome_sintolerant': 0.7,
-	'metadome_neutral': 1,
-	'metadome_tolerant': 1.3
+	'metadome_neutral': 0.875,
+	'metadome_stolerant': 1.025,
+	'metadome_tolerant': 1.375
 }
 predictor_colors = {
 	'min': '#00A020',
+	'highly_tolerant': '#0404B4',
+	'tolerant': '#2E64FE',
+	'slightly_tolerant': '#00CCBC',
+	'no_effect': '#000000',
+	'neutral': '#F9D057',
 	'small_effect': '#FFA020',
 	'mid_effect': '#FF6020',
 	'max': '#FF0000',
-	'no_effect': '#000000',
-	'tolerant': '#2E64FE',
-	'highly_tolerant': '#0404B4'	
+	'highly_intolerant': '#D7191C',
 }
 predictors_translations = {
 	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
@@ -266,12 +271,16 @@ def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
 #returns a list of effect and color for metadome
 def get_metadome_colors(val):
 	value = float(val)
+	if value < predictor_thresholds['metadome_hintolerant']:
+		return ['highly intolerant', predictor_colors['highly_intolerant']]
 	if value < predictor_thresholds['metadome_intolerant']:
 		return ['intolerant', predictor_colors['max']]
 	elif value < predictor_thresholds['metadome_sintolerant']:
 		return ['slightly intolerant', predictor_colors['mid_effect']]
 	elif value < predictor_thresholds['metadome_neutral']:
-		return ['neutral', predictor_colors['small_effect']]
+		return ['neutral', predictor_colors['neutral']]
+	elif value < predictor_thresholds['metadome_stolerant']:
+		return ['slightly tolerant', predictor_colors['slightly_tolerant']]
 	elif value < predictor_thresholds['metadome_tolerant']:
 		return ['tolerant', predictor_colors['tolerant']]
 	else:
@@ -351,7 +360,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			#means we have an error
 			if vv_data['flag'] == 'warning':
 				if caller == 'webApp':
-					return danger_panel(vv_key_var, "".join(vv_data['validation_warning_1']['validation_warnings']))
+					return danger_panel(vv_key_var, " ".join(vv_data['validation_warning_1']['validation_warnings']))
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		vv_url = "{0}variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
 		try:

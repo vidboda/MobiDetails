@@ -100,27 +100,26 @@ def gene(gene_name=None):
 		#we have a set of metadome transcripts
 		for enst in enst_ver:
 			#print(enst)
+			#print('--{}--'.format(app.debug))
 			metad_data = None
 			try:
 				metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
 			except:
 				pass
-			#print(metad_data['status'])
 			if metad_data is not None:
 				if metad_data['status'] == 'PENDING':
 					#get transcript_ids ?? coz of the version number
 					#send request to build visualization ot metadome
 					vis_request = None
 					#find out how to get app object
-					print('--{}--'.format(app.debug))
 					try:
 						vis_request = json.loads(http.request('POST', '{0}submit_visualization/'.format(md_utilities.urls['metadome_api']),
 												   headers={'Content-Type': 'application/json'},
 												   body=json.dumps({'transcript_id' : enst_ver[enst]})).data.decode('utf-8'))						
-						#if not app.debug:
-						#	app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
-						#else:
-						print('{} submitted to metadome'.format(vis_request['transcript_id']))
+						if not app.debug:
+							app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
+						else:
+							print('{} submitted to metadome'.format(vis_request['transcript_id']))
 					except:
 						print('error with metadome submission for {}'.format(enst))
 				elif metad_data['status'] == 'SUCCESS':
@@ -130,10 +129,10 @@ def gene(gene_name=None):
 						#copy in file system
 						with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
 							json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
-						#if not app.debug:
-						#	app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
-						#else:
-						print('saving metadome {} into local file system'.format(enst_ver[enst]))
+						if not app.debug:
+							app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
+						else:
+							print('saving metadome {} into local file system'.format(enst_ver[enst]))
 					except:
 						print('error saving metadome json file for {}'.format(enst))
 		if result_all is not None:
