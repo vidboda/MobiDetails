@@ -1,12 +1,14 @@
 {% from 'macros.html' import danger, info, gnomad_oe, gene_redirection, create_variant, info_create_variant, modal_js %}
 {% extends "base.html" %}
 {% block more_head %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
+	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_gene.js') }}" type="text/javascript"></script>	
 {% endblock %}
 {% block header %}
 	<div class="w3-row">
 		<div class="w3-half w3-align-left">
-			<h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="document.getElementById('gene_modal').style.display='block';"><em>{% block title %}{{ gene }}{% endblock %}</em> gene page:</h1>
+			<h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="$('#gene_modal').show();"><em>{% block title %}{{ gene }}{% endblock %}</em> gene page:</h1>
 		</div>
 		<div class="w3-half w3-padding-32">
 			{{ info_create_variant() }}
@@ -24,7 +26,7 @@
 	<div class="tab_content w3-padding" style="display:block;" />
 		<br /><p>
 			<h2 align="center" class="w3-text-red">
-				<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere"><em>{{ gene }}</em> ({{ main_iso.second_name }})</span>
+				<span class="w3-button w3-hover-sand" onclick="$('#gene_modal').show();" title="click to get somewhere"><em>{{ gene }}</em> ({{ main_iso.second_name }})</span>
 				<!--<span class="w3-button w3-hover-sand" onclick="document.getElementById('gene_modal').style.display='block';" title="click to get somewhere">({{ main_iso.second_name }})</span>-->
 				<!--<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>-->
 			</h2>
@@ -39,70 +41,78 @@
 		<div class="w3-responsive" id="gene_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
 				<caption>Gene info table:</caption>
-				<tr>
-					<th class="w3-left-align">Chr</th>
-					<th class="w3-left-align">Strand</th>
-					<th class="w3-left-align">Protein name</th>
-					<th class="w3-left-align">Genomic Accession #</th>
-					<th class="w3-left-align">Synonymous <br />obs/exp* (CI)</th>
-					<th class="w3-left-align">Missense <br />obs/exp* (CI)</th>
-					<th class="w3-left-align">Loss of function <br />obs/exp* (CI)</th>
-				</tr>
-				<tr>
-					<td><span>{{ main_iso.chr }}</span></td>
-					<td><span>-</span></td>
-					<td><span>{{ main_iso.prot_name }} {{ main_iso.short_prot }}</span></td>
-					<td><span><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
-					{% if annotations.nognomad != 'No values in gnomAD' %}
-						{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
-						<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
-						{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
-						<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>			
-						{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
-						<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
-						</td>
-					{% else %}
-						<td>{{ annotations.nognomad }}</td>
-						<td>{{ annotations.nognomad }}</td>
-						<td>{{ annotations.nognomad }}</td>
-					{% endif %}
-				</tr>
+				<thead>
+					<tr>
+						<th class="w3-left-align">Chr</th>
+						<th class="w3-left-align">Strand</th>
+						<th class="w3-left-align">Protein name</th>
+						<th class="w3-left-align">Genomic Accession #</th>
+						<th class="w3-left-align">Synonymous <br />obs/exp* (CI)</th>
+						<th class="w3-left-align">Missense <br />obs/exp* (CI)</th>
+						<th class="w3-left-align">Loss of function <br />obs/exp* (CI)</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><span>{{ main_iso.chr }}</span></td>
+						<td><span>-</span></td>
+						<td><span>{{ main_iso.prot_name }} {{ main_iso.short_prot }}</span></td>
+						<td><span><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
+						{% if annotations.nognomad != 'No values in gnomAD' %}
+							{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
+							<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
+							{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
+							<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>			
+							{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
+							<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
+							</td>
+						{% else %}
+							<td>{{ annotations.nognomad }}</td>
+							<td>{{ annotations.nognomad }}</td>
+							<td>{{ annotations.nognomad }}</td>
+						{% endif %}
+					</tr>
+				</tbody>
 			</table>
 		</div>
 		<br /><br />
 		<div class="w3-responsive" id="info_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
 				<caption>Transcript info table:</caption>
-				<tr>
-					<th class="w3-left-align">RefSeq transcript</th>
-					<th class="w3-left-align">Ensembl transcript</th>
-					<th class="w3-left-align">Number of exons</th>
-					<th class="w3-left-align">RefSeq protein</th>
-					<th class="w3-left-align">Uniprot ID</th>
-				</tr>
-				{% for iso in res %}
+				<thead>
 					<tr>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
-							<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}
-								{% if iso.canonical == 1 %}
-									(canonical)
-								{% endif %}
-							</span></strong>
-						</td>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
-							<span>{{ iso.enst }}</span>
-						</td>
-						<td>
-							<span>{{ iso.number_of_exons }}</span>
-						</td>
-						<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
-							<span>{{ iso.np }}</span>
-						</td>
-						<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
-							<span>{{ iso.uniprot_id }}</span>
-						</td>
+						<th class="w3-left-align">RefSeq transcript</th>
+						<th class="w3-left-align">Ensembl transcript</th>
+						<th class="w3-left-align">Number of exons</th>
+						<th class="w3-left-align">RefSeq protein</th>
+						<th class="w3-left-align">Uniprot ID</th>
 					</tr>
-				{% endfor %}
+				</thead>
+				<tbody>
+					{% for iso in res %}
+						<tr>
+							<td class="w3-button w3-hover-sand">
+								<strong><span  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">{{ iso.name[1] }}.{{ iso.nm_version }}
+									{% if iso.canonical == 1 %}
+										(canonical)
+									{% endif %}
+								</span></strong>
+							</td>
+							<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
+								<span>{{ iso.enst }}</span>
+							</td>
+							<td>
+								<span>{{ iso.number_of_exons }}</span>
+							</td>
+							<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
+								<span>{{ iso.np }}</span>
+							</td>
+							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
+								<span>{{ iso.uniprot_id }}</span>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
 			</table>
 		</div><br /><br />
 		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.") }}

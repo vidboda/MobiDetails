@@ -3,11 +3,13 @@ function accord(id) {
 }
 function w3_open() {
 	$('#smart_menu').width('15%');
-	$('#smart_menu').show();
-	$('#smart_menu').children().removeClass('w3-large').addClass('w3-small');
-	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-small');
+	$('#smart_menu').show();	
 	var wi = $(window).width();
 	if (wi < 600) {
+		$('#smart_menu').find('a').removeClass('w3-large').addClass('w3-small');
+		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-small');
+		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-small');
+		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-small');
 		$('#global_content').animate({marginLeft: '35%'});
 		$('#smart_menu').width('35%');		
 	}
@@ -15,18 +17,11 @@ function w3_open() {
 		$('#global_content').animate({marginLeft: '15%'});
 	}
 	$('#openNav').css('visibility', 'hidden');
-  //document.getElementById('smart_menu').style.width = '15%';
-	//document.getElementById('global_content').style.marginLeft = '15%';
-  //document.getElementById('smart_menu').style.display = 'block';
-	//document.getElementById('openNav').style.visibility = 'hidden';
 }
 function w3_close() {
 	$('#smart_menu').hide();
 	$('#global_content').animate({marginLeft: '0%'});
 	$('#openNav').css('visibility', 'visible');
-	//document.getElementById('smart_menu').style.display = 'none';
-	//document.getElementById('openNav').style.visibility = 'visible';
-	//document.getElementById('global_content').style.marginLeft = '0%';
 }
 $(document).ready(function(){
 	//reduce icon size on small screens
@@ -34,6 +29,7 @@ $(document).ready(function(){
 	//alert(wi);
 	if (wi < 400) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-small');
+		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-medium');
 		$('.w3-modal').addClass('w3-small');
 		$('#engine').removeClass('w3-large').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
@@ -51,6 +47,8 @@ $(document).ready(function(){
 	}
 	else if (wi <= 600) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-large');
+		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
+		$('.w3-modal').addClass('w3-medium');
 		$('#engine').removeClass('w3-large').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');

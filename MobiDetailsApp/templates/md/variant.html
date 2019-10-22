@@ -9,8 +9,8 @@
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
-	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="display:block;z-index:2001;width:15%;">
-		<span class="w3-bar-item w3-button w3-large w3-border-bottom" onclick="w3_close()">Close ×</span>
+	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left " id="smart_menu" style="display:block;z-index:2001;width:15%;">
+		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
 		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% for vari in variant %}			
@@ -26,18 +26,21 @@
 					{% set positions.end = vari.pos + variant_features.variant_size %}
 					{% set positions.max = vari.pos + variant_features.variant_size +25 %}
 				{% endif %}
-				{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
-				{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD")}}
-				{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
-					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
-				{% endif %}
-				{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
-				{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
-				{{ link("%s?term='%s:c.%s' [Variant name]"|format(urls.ncbi_clinvar, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
-				{{ link("%srs%s"|format(urls.ncbi_dbsnp, variant_features.dbsnp_id), "dbSNP")}}
-				{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
-				{{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }}
-				{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "VarSome") }}
+				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
+				<div class="w3-show" id="hg19_acc">
+					{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
+					{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD")}}
+					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
+						{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+					{% endif %}
+					{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
+					{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
+					{{ link("%s?term='%s:c.%s' [Variant name]"|format(urls.ncbi_clinvar, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
+					{{ link("%srs%s"|format(urls.ncbi_dbsnp, variant_features.dbsnp_id), "dbSNP")}}
+					{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
+					{{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }}
+				{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "VarSome") }}#}
+				</div>
 			{% elif vari.genome_version == 'hg38' %}
 				{# set variables #}
 				{% set hg38_var.pos = vari.pos %}
@@ -50,8 +53,11 @@
 					{% set positions.end = vari.pos + variant_features.variant_size %}
 					{% set positions.max = vari.pos + variant_features.variant_size +25 %}
 				{% endif %}
-				{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
-				{{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }}
+				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
+				<div class="w3-show" id="hg38_acc">
+					{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
+					{{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }}
+				</div>
 			{% endif %}
 		{% endfor %}
 		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
@@ -496,14 +502,14 @@
 			<div class="w3-row-padding">
 				<!--Missense radar chart-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="document.getElementById('radar_missense_modal').style.display='block';" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
 				</div>
 			</div>
 			<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;">
 				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 					<header class="w3-container w3-blue">
-						<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('radar_missense_modal').style.display='none';">X</span>
-						<h2>Radar view of missense predictors</h2>
+						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide()";">X</span>
+						<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
 						<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
 					</header>
 					<div class="w3-container">
@@ -536,27 +542,14 @@
 			<script>
 				var ctx = document.getElementById("missense_radar").getContext('2d')
 				Chart.defaults.global.defaultFontSize=16;
-				//var myRadarChart = new Chart(ctx, {
-				//	type: 'radar',
-				//	data: {
-				//		labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'FATHMM', 'MetaSVM', 'MetaLR'],
-				//		datasets: [{
-				//			label:'Missense predictors',
-				//			data: [{{ annot.sift4g_score }}, {{ annot.pph2_hdiv_score }}, {{ annot.pph2_hvar_score }}, {{ annot.fathmm_score }}, {{ annot.msvm_score }}, {{ annot.mlr_score }}],
-				//			fill: true,
-				//			borderColor:'rgb(255, 99, 132)',
-				//			borderColor:'rgb(255, 99, 132)',
-				//			pointBackgroundColor:'rgb(255, 99, 132)',
-				//			pointBorderColor:'#fff',
-				//			pointHoverBackgroundColor:'#fff',
-				//			pointHoverBorderColor:'rgb(255, 99, 132)'
-				//		}]
-				//	},
-				//	options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:16}}}
-				//});
+				var point_font_size = 16
+				var wi = $(window).width();
+				if (wi < 400) {
+					Chart.defaults.global.defaultFontSize=12;
+					point_font_size = 12;
+				}
+
 				function normalizeData(val, my_array) {
-					//var val_max = _.max(my_array); // underscore max and min functions
-					//var val_min = _.min(my_array);
 					var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 					return new_val;
 				}
@@ -576,7 +569,7 @@
 							pointHoverBorderColor:'rgb(255, 99, 132)'
 						}]
 					},
-					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:16},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>" }
+					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>" }
 				});
 			</script>			
 		{% elif annot.dbnsfp is defined %}

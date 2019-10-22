@@ -63,7 +63,7 @@
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile" style="width:500px;">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('gene_modal').style.display='none'">&times;</span>
-				<h2 id="main_text">Choose your destination:</h2>
+				<br /><span class="w3-xlarge" id="main_text">Choose your destination:</span><br />
 			</div>
 			<div class="w3-container">
 				<ul class="w3-ul w3-padding-small w3-hoverable">
@@ -100,11 +100,11 @@
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>				
-				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
+				<br /><span class="w3-xlarge" id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
 				{% if num_iso > 1 %}
 					<span onclick="new_isoform();" class="w3-button w3-sand" id="alt_span">Choose an isoform</span>
 				{% endif %}
-				</h2>				
+				</span><br />
 			</div>
 			<div class="w3-container">
 				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
@@ -159,7 +159,7 @@
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 			<header class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('help_modal').style.display='none';">&times;</span>
-				<h2>Variant creation</h2>
+				<br /><span class="w3-xlarge">Variant creation policy</span><br />
 			</header>
 			<div class="w3-container">
 					<p>To create a variant, you need to fill in the form with the HGVS 'c.' nomenclature. <strong>By default, the canonical isoform is selected</strong>.</p>

@@ -38,6 +38,23 @@ function favourite(vf_id, marker) {
 		
 	});
 }
+function myAccFunc(acc_id, icon_id) {
+	//adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
+	//should be rewritten in jquery for consistency
+	var x = document.getElementById(acc_id);
+	if (x.className.indexOf("w3-show") == -1) {
+		//x.className += " w3-show";
+		$('#' + acc_id).removeClass("w3-hide").addClass("w3-show");
+		x.previousElementSibling.className += " w3-blue";
+		$('#' + icon_id).removeClass("fa-caret-right").addClass("fa-caret-down");
+	} else { 
+		//x.className = x.className.replace(" w3-show", "");
+		$('#' + acc_id).removeClass("w3-show").addClass("w3-hide");
+		x.previousElementSibling.className = 
+		x.previousElementSibling.className.replace(" w3-blue", "");
+		$('#' + icon_id).removeClass("fa-caret-down").addClass("fa-caret-right");
+	}
+  }
 $(document).ready(function() {
 	// transform all tables as datatables
 	$('.w3-table').DataTable({
@@ -94,16 +111,10 @@ $(document).ready(function() {
 		$('#mobile_var_name').show();
 		$('#defgen_hg19').hide();
 		$('#defgen_hg38').hide();
-		//$('#smart_menu').children().toggleClass('w3-large', 'w3-small');
-		//$('#smart_menu').children().toggleClass('w3-xxlarge', 'w3-small');
-		//document.getElementById('smart_menu').style.display = 'none';
-		//document.getElementById('openNav').style.visibility = 'visible';
-		//document.getElementById('global_content').style.marginLeft = '0%';
-		//document.getElementById('page_menu').style.display = 'none';	
+		//hide left menu items
+		myAccFunc('hg19_acc', 'hg19_icon');
+		myAccFunc('hg38_acc', 'hg38_icon');
 	}
-	//}
-	//$('#defgen_btn').click(function(){	
-	//alert($('#dbsnp_id').text());
 	//adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {
