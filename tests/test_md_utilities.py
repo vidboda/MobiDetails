@@ -143,9 +143,11 @@ def test_get_preditor_double_threshold_color(client, value, result_color, predic
 
 	
 @pytest.mark.parametrize(('val', 'result'), (
+	('0.1', ['highly intolerant', '#D7191C']),
 	('0.2', ['intolerant', '#FF0000']),
 	('0.6', ['slightly intolerant', '#FF6020']),
-	('0.8', ['neutral', '#FFA020']),
+	('0.8', ['neutral', '#F9D057']),
+	('0.95', ['slightly tolerant', '#00CCBC']),
 	('1.25', ['tolerant', '#2E64FE']),
 	('1.4', ['highly tolerant', '#0404B4'])
 ))

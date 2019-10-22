@@ -127,17 +127,17 @@ def reverse_complement(seq):
 #	return local_files['dbNSFP_base'][0] + chrom + '.gz'
 
 def clean_var_name(variant):
-	variant = re.sub('^[cpg]\.', '', variant)
+	variant = re.sub(r'^[cpg]\.', '', variant)
 	variant = re.sub(r'\(', '', variant)
 	variant = re.sub(r'\)', '', variant)
 	if re.search('>', variant):
 				variant = variant.upper()
 	elif re.search('d[eu][lp]', variant):
-		match_obj = re.search('^(.+d[eu][lp])[ATCG]+$', variant)
+		match_obj = re.search(r'^(.+d[eu][lp])[ATCG]+$', variant)
 		if match_obj:
 			variant = match_obj.group(1)
 		else:
-			match_obj = re.search('^(.+del)[ATCG]+(ins[ACTG])$', variant)
+			match_obj = re.search(r'^(.+del)[ATCG]+(ins[ACTG])$', variant)
 			if match_obj:
 				variant = match_obj.group(1) + match_obj.group(2)
 	return variant
@@ -288,30 +288,30 @@ def get_metadome_colors(val):
 #in ajax.py return end pos of a specific variant
 #receives g_name as 216420460C>A or 76885812_76885817del
 def compute_pos_end(g_name):
-	match_object = re.search('^(\d+)[ATGC]>', g_name)
+	match_object = re.search(r'^(\d+)[ATGC]>', g_name)
 	if match_object is not None:
 		return match_object.group(1)
 	else:
-		match_object = re.search('_(\d+)[di]', g_name)
+		match_object = re.search(r'_(\d+)[di]', g_name)
 		if match_object is not None:
 			return match_object.group(1)
 		else:
 			#case of single nt dels ins dup
-			match_object = re.search('^(\d+)[d]', g_name)
+			match_object = re.search(r'^(\d+)[d]', g_name)
 			if match_object is not None:
 				return match_object.group(1)
 #slightly diffenent as above as start can differ from VCF and HGVS - for variants > 1bp
 def compute_start_end_pos(name):
-	match_object = re.search('(\d+)_(\d+)[di]', name)
+	match_object = re.search(r'(\d+)_(\d+)[di]', name)
 	if match_object is not None:
 		return match_object.group(1), match_object.group(2)
 	else:
-		match_object = re.search('^(\d+)[ATGC]>', name)
+		match_object = re.search(r'^(\d+)[ATGC]>', name)
 		if match_object is not None:
 			return match_object.group(1), match_object.group(1)
 		else:
 			#single nt del or delins
-			match_object = re.search('^(\d+)[d]', name)
+			match_object = re.search(r'^(\d+)[d]', name)
 			if match_object is not None:
 				return match_object.group(1), match_object.group(1)
 
@@ -366,11 +366,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		try:
 			vv_data2 = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 			for key in vv_data2:
-				if re.search('{0}.{1}'.format(res_can['name'][1], res_can['nm_version']), key):
+				if re.search(r'{0}\.{1}'.format(res_can['name'][1], res_can['nm_version']), key):
 					#if canonical isoform in new query
 					vv_data = vv_data2
 					vv_key_var = key
-					var_obj = re.search(':c\.(.+)$', key)
+					var_obj = re.search(r':c\.(.+)$', key)
 					vf_d['c_name'] = var_obj.group(1)
 					first_level_key = key
 					remapper = True
@@ -389,7 +389,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			#if vv modified the nomenclature
 			if re.search('{}'.format(acc_no), key) and vv_data[key]['submitted_variant'] == vv_key_var:
 				vv_key_var = key
-				var_obj = re.search(':c\.(.+)$', key)
+				var_obj = re.search(r':c\.(.+)$', key)
 				vf_d['c_name'] = var_obj.group(1)
 				first_level_key = key
 				break
@@ -399,7 +399,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			if re.search('RefSeqGene record not available', warning):
 				vf_d['ng_name'] = 'NULL'
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
-				match_obj = re.search('automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
+				match_obj = re.search(r'automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
 				if match_obj.group(1) is not None:
 					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
 					if caller == 'webApp':
@@ -407,7 +407,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				else:
 					danger_panel(vv_key_var, warning)
 			elif re.search('normalized', warning):
-				match_obj = re.search('normalized to ({0}\.{1}:c\..+)'.format(acc_no, acc_version), warning)
+				match_obj = re.search(r'normalized to ({0}\.{1}:c\..+)'.format(acc_no, acc_version), warning)
 				if match_obj.group(1) is not None and match_obj.group(1) == vv_key_var:
 					next
 				else:
@@ -437,16 +437,16 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
 	positions = compute_start_end_pos(hg38_d['g_name'])
 	if 'c_name' not in vf_d:
-		var_obj = re.search('c\.(.+)$', new_variant)
+		var_obj = re.search(r'c\.(.+)$', new_variant)
 		vf_d['c_name'] = var_obj.group(1)
 	if 'ng_name' not in vf_d:
-		ng_name_obj = re.search(':g\.(.+)$', vv_data[vv_key_var]['hgvs_refseqgene_variant'])
+		ng_name_obj = re.search(r':g\.(.+)$', vv_data[vv_key_var]['hgvs_refseqgene_variant'])
 		vf_d['ng_name'] = ng_name_obj.group(1)
 	#dna_type
 	if re.search('>', vf_d['c_name']):
 		vf_d['dna_type'] = 'substitution'
 		vf_d['variant_size'] = 1 
-	elif re.search('del.*ins', vf_d['c_name']):
+	elif re.search(r'del.*ins', vf_d['c_name']):
 		vf_d['dna_type'] = 'indel'
 	elif re.search('dup', vf_d['c_name']):
 		vf_d['dna_type'] = 'duplication'
@@ -471,29 +471,29 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		return danger_panel(vv_key_var, 'No strand for gene {}, impossible to create a variant, please contact us'.format(gene))
 			
 	#p_name
-	p_obj =  re.search(':p\.\((.+)\)$', vv_data[vv_key_var]['hgvs_predicted_protein_consequence']['tlr'])
+	p_obj =  re.search(r':p\.\((.+)\)$', vv_data[vv_key_var]['hgvs_predicted_protein_consequence']['tlr'])
 	if p_obj:
 		vf_d['p_name'] = p_obj.group(1)
-		if re.search('Ter$', vf_d['p_name']):
+		if re.search(r'Ter$', vf_d['p_name']):
 			vf_d['prot_type'] = 'nonsense'
-		elif re.search('fsTer\d+', vf_d['p_name']):
+		elif re.search(r'fsTer\d+', vf_d['p_name']):
 			vf_d['prot_type'] = 'frameshift'
-		elif re.search('\w{3}\d+=', vf_d['p_name']):
+		elif re.search(r'\w{3}\d+=', vf_d['p_name']):
 			vf_d['prot_type'] = 'silent'
-		elif re.search('^\?$', vf_d['p_name']):
+		elif re.search(r'^\?$', vf_d['p_name']):
 			vf_d['prot_type'] = 'unknown'
-		elif re.search('^Met1\?$', vf_d['p_name']):
+		elif re.search(r'^Met1\?$', vf_d['p_name']):
 			vf_d['prot_type'] = 'start codon'
-		elif re.search('ext', vf_d['p_name']):
+		elif re.search(r'ext', vf_d['p_name']):
 			vf_d['prot_type'] = 'stop codon'
-		elif re.search('_\w{3}\d+del', vf_d['p_name']) or re.search('^\w{3}\d+del', vf_d['p_name']):
+		elif re.search(r'_\w{3}\d+del', vf_d['p_name']) or re.search('^\w{3}\d+del', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe deletion'
-		elif re.search('_\w{3}\d+dup', vf_d['p_name']) or re.search('^\w{3}\d+dup', vf_d['p_name']):
+		elif re.search(r'_\w{3}\d+dup', vf_d['p_name']) or re.search('^\w{3}\d+dup', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe duplication'
-		elif re.search('_\w{3}\d+ins', vf_d['p_name']):
+		elif re.search(r'_\w{3}\d+ins', vf_d['p_name']):
 			vf_d['prot_type'] = 'inframe insertion'
 		else:
-			var_obj = re.search('^(\w{3})\d+(\w{3})$', vf_d['p_name'])
+			var_obj = re.search(r'^(\w{3})\d+(\w{3})$', vf_d['p_name'])
 			if var_obj.group(1) != var_obj.group(2):
 				vf_d['prot_type'] = 'missense'
 			else:
@@ -504,7 +504,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		
 	#TODO deal with +1,+2 etc
 	vf_d['rna_type'] = 'neutral inferred'
-	if re.search('\d+[\+-][12][^\d]', vf_d['c_name']):
+	if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
 		vf_d['rna_type'] = 'altered inferred'
 	#exons pos, etc - based on hg38
 	
@@ -541,7 +541,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				vf_d['end_segment_number'] = res_seg1['number']
 		#get IVS name
 		if vf_d['start_segment_type'] == 'intron':
-			ivs_obj = re.search('^\d+([\+-]\d+)_\d+([\+-]\d+)(.+)$', vf_d['c_name'])
+			ivs_obj = re.search(r'^\d+([\+-]\d+)_\d+([\+-]\d+)(.+)$', vf_d['c_name'])
 			vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(vf_d['start_segment_number'], ivs_obj.group(1), vf_d['end_segment_number'], ivs_obj.group(2), ivs_obj.group(3))
 	else:
 		#substitutions
@@ -554,7 +554,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		vf_d['end_segment_type'] = res_seg['type']
 		vf_d['end_segment_number'] = res_seg['number']
 		if vf_d['start_segment_type'] == 'intron':
-			ivs_obj = re.search('^-?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
+			ivs_obj = re.search(r'^-?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
 			vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2))
 	if not 'ivs_name' in vf_d:
 		vf_d['ivs_name'] = 'NULL'
@@ -562,7 +562,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	if isinstance(record, str):
 		vf_d['dbsnp_id'] = 'NULL'
 	else:
-		match_object =  re.search('RS=(.+);RSPOS=', record[7])
+		match_object =  re.search(r'RS=(.+);RSPOS=', record[7])
 		if match_object:
 			vf_d['dbsnp_id'] = match_object.group(1)
 		#print(record[7])
@@ -584,10 +584,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		#substitutions
 		if vf_d['dna_type'] == 'substitution':
 			vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
-			mt_obj = re.search('>([ATGC])$', vf_d['c_name'])
+			mt_obj = re.search(r'>([ATGC])$', vf_d['c_name'])
 			vf_d['mt_seq'] = "{0} {1} {2}".format(begin, mt_obj.group(1), end)
 		elif vf_d['dna_type'] == 'indel':
-			ins_obj = re.search('delins([ATGC]+)', vf_d['c_name'])
+			ins_obj = re.search(r'delins([ATGC]+)', vf_d['c_name'])
 			exp_size = abs(len(middle)-len(ins_obj.group(1)))
 			exp = ''
 			for i in range(0,exp_size):
@@ -599,7 +599,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 				vf_d['wt_seq'] = "{0} {1}{2} {3}".format(begin, middle, exp, end)
 				vf_d['mt_seq'] = "{0} {1} {2}".format(begin, ins_obj.group(1), end)
 		elif vf_d['dna_type'] == 'insertion':
-			ins_obj = re.search('ins([ATGC]+)', vf_d['c_name'])
+			ins_obj = re.search(r'ins([ATGC]+)', vf_d['c_name'])
 			exp = ''
 			for i in range(0,len(ins_obj.group(1))):
 				exp += '-'
@@ -675,8 +675,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 
 def get_genomic_values(genome, vv_data, vv_key_var):
 	if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
-		g_name_obj = re.search(':g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['hgvs_genomic_description'])
-		chr_obj = re.search('chr([\dXYM]{1,2})$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['chr'])
+		g_name_obj = re.search(r':g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['hgvs_genomic_description'])
+		chr_obj = re.search(r'chr([\dXYM]{1,2})$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['chr'])
 		return {
 			'genome_version': genome,
 			'g_name': g_name_obj.group(1),

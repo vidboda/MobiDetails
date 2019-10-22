@@ -90,7 +90,7 @@ def gene(gene_name=None):
 						if metad_ts is not None and 'trancript_ids' in metad_ts:
 							for ts in metad_ts['trancript_ids']:
 								if ts['has_protein_data']:
-									match_obj = re.search('^(ENST\d+)\.\d', ts['gencode_id'])
+									match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
 									enst_ver[match_obj.group(1)] = ts['gencode_id']
 					except:
 						pass
@@ -224,7 +224,7 @@ def variant(variant_id=None):
 		#length of c_name for priting on screen
 		var_cname = variant_features['c_name']
 		if len(var_cname) > 30:
-			match_obj = re.search('(.+ins)[ATGC]+$', var_cname)
+			match_obj = re.search(r'(.+ins)[ATGC]+$', var_cname)
 			if match_obj is not None:
 				var_cname = match_obj.group(1)
 		
@@ -287,9 +287,9 @@ def variant(variant_id=None):
 					annot['clinsig'] = "{0} {1}".format(record, md_utilities.local_files['clinvar_hg38'][1])
 				else:
 					annot['clinvar_id'] = record[2]
-					match_object =  re.search('CLNSIG=(.+);CLNVC=', record[7])
+					match_object =  re.search(r'CLNSIG=(.+);CLNVC=', record[7])
 					if match_object:
-						match2_object = re.search('^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
+						match2_object = re.search(r'^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
 						if match2_object:
 							annot['clinsig'] = match2_object.group(1)
 							annot['clinsigconf'] = match2_object.group(2)
@@ -425,9 +425,9 @@ def variant(variant_id=None):
 					spliceai_res = True
 				if spliceai_res is True:
 					if isinstance(record, str):
-						annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
+						annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai_indels'][1])
 					else:
-						spliceais = re.split('\|', record[7])
+						spliceais = re.split(r'\|', record[7])
 						#ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
 						order_list = ['DS_AG','DS_AL','DS_DG','DS_DL','DP_AG','DP_AL','DP_DG','DP_DL']
 						i = 2

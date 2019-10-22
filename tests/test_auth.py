@@ -26,7 +26,7 @@ def test_register(client, app):
 	('djsdlm', 'ss9kghgf', 'david.baux@inserm.fr', b'is already registered.'),
 	('davidbaux', 'ss9kghgf', 'kevin@inserm.fr', b'is already registered.'),
 	('1', 's', 'v', b'Username should be at least 5 characters.'),
-	('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters and numbers.'),
+	('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
 	('djsdlm', 'ss9kghgf', 'kevin@inserm.f', b'The email address does not look valid.')
 ))
 def test_register_validate_input(client, username, password, email, message):
@@ -37,15 +37,15 @@ def test_register_validate_input(client, username, password, email, message):
 	print(response.get_data())
 	assert message in response.get_data()
 
-@pytest.mark.parametrize(('username', 'password', 'message'), (
-    ('1', 's', b'Incorrect username.'),
-    ('davidb', 'r', b'Incorrect password.')
+@pytest.mark.parametrize(('email', 'password', 'message'), (
+    ('1', 's', b'Unknown email.'),
+    ('david.baux@inserm.fr', 'r', b'Incorrect password.')
 ))
 #mutliple tests check cannot login with bad credentials
-def test_login_validate_input(client, username, password, message):
+def test_login_validate_input(client, email, password, message):
 	response = client.post(
 		'/auth/login',
-		data={'username': username, 'password': password}
+		data={'email': email, 'password': password}
 	)
 	print(response.get_data())
 	assert message in response.get_data()
