@@ -60,7 +60,7 @@
 <!--gene external sites-->
 {% macro gene_redirection(gene_name, urls) -%}
 	<div class="w3-modal w3-animate-opacity" id="gene_modal" style="z-index:1000;">
-		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity" style="width:500px;">
+		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile" style="width:500px;">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('gene_modal').style.display='none'">&times;</span>
 				<h2 id="main_text">Choose your destination:</h2>
@@ -97,7 +97,7 @@
 {% macro create_variant(gene, main_iso, num_iso, res) -%}
 	<input type="button"  value="Create a variant" onclick="document.getElementById('var_modal').style.display='block';$('#creation_form :input').prop('disabled', false);$('#new_variant').val('c.')" class="w3-button w3-ripple w3-blue w3-border w3-border-blue" id="add_var"/>
 	<div class="w3-modal w3-animate-opacity" id="var_modal" style="z-index:1000">
-		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
+		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 			<div class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>				
 				<h2 id="main_text">Create a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
@@ -156,7 +156,7 @@
 		<i class="fa fa-info-circle" aria-hidden="true"></i>
 	</div>
 	<div class="w3-modal w3-animate-opacity" id="help_modal" style="z-index:1000">
-		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
+		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 			<header class="w3-container w3-blue">
 				<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('help_modal').style.display='none';">&times;</span>
 				<h2>Variant creation</h2>

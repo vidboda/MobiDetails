@@ -499,8 +499,8 @@
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="document.getElementById('radar_missense_modal').style.display='block';" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
 				</div>
 			</div>
-			<div id="radar_missense_modal" class="w3-modal w3-animate-opacity">
-				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity">
+			<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 					<header class="w3-container w3-blue">
 						<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('radar_missense_modal').style.display='none';">X</span>
 						<h2>Radar view of missense predictors</h2>
@@ -576,7 +576,7 @@
 							pointHoverBorderColor:'rgb(255, 99, 132)'
 						}]
 					},
-					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:16},ticks:{beginAtZero:true,min:0,max:1}},multiTooltipTemplate : "<%=label%> : <%=value%>" }
+					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:16},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>" }
 				});
 			</script>			
 		{% elif annot.dbnsfp is defined %}

@@ -34,6 +34,7 @@ $(document).ready(function(){
 	//alert(wi);
 	if (wi < 400) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-small');
+		$('.w3-modal').addClass('w3-small');
 		$('#engine').removeClass('w3-large').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');

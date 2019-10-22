@@ -2,7 +2,7 @@
 {% from 'macros.html' import modal_js %}
 <span onclick="$('#pubmed').show();" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%" id="litvar_data">show Pubmed IDs</span>
 <div class="w3-modal" id="pubmed">
-	<div class="w3-modal-content w3-display-middle w3-animate-opacity"  style="max-height:80%;overflow:auto;">
+	<div class="w3-modal-content w3-display-middle w3-animate-opacity w3-mobile" style="max-height:80%;overflow:auto;">
 		<header class="w3-container w3-blue">
 			<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#pubmed').hide();">×</span>
 			<h2>PubMed IDs of articles citing this variant:</h2>
