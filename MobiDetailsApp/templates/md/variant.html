@@ -1,10 +1,11 @@
 {% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection %}
 {% extends "base.html" %}
-{% block title %} MD Variant page {% endblock %}
+{% block title %}  {{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} {% endblock %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
@@ -540,7 +541,7 @@
 				{% set missense_pred.metalr = 0 %}
 			{% endif %}
 			<script>
-				var ctx = document.getElementById("missense_radar").getContext('2d')
+				//var ctx = document.getElementById("missense_radar").getContext('2d')
 				Chart.defaults.global.defaultFontSize=16;
 				var point_font_size = 16
 				var wi = $(window).width();
@@ -553,7 +554,7 @@
 					var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 					return new_val;
 				}
-				var myRadarChart = new Chart(ctx, {
+				var myRadarChart = new Chart($("#missense_radar"), {
 					type: 'radar',
 					data: {
 						labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'FATHMM', 'MetaSVM', 'MetaLR'],

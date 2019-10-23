@@ -54,7 +54,13 @@ function myAccFunc(acc_id, icon_id) {
 		x.previousElementSibling.className.replace(" w3-blue", "");
 		$('#' + icon_id).removeClass("fa-caret-down").addClass("fa-caret-right");
 	}
-  }
+}
+//https://www.chartjs.org/docs/latest/general/responsive.html#important-note
+function beforePrintHandler () {
+    for (var id in Chart.instances) {
+        Chart.instances[id].resize();
+    }
+}
 $(document).ready(function() {
 	// transform all tables as datatables
 	$('.w3-table').DataTable({
@@ -305,7 +311,40 @@ $(document).ready(function() {
 				}
 			);
 		}
-
+		function addZero(i) {
+			if (i < 10) {
+				i = "0" + i;
+			}
+			return i;
+		}
+		function formatDate() {
+			var d = new Date();
+			//var x = document.getElementById("demo");
+			var h = addZero(d.getHours());
+			var m = addZero(d.getMinutes());
+			var s = addZero(d.getSeconds());
+			js_date = "MobiDetails accessed " + d.toLocaleDateString();
+			js_time = " - " + h + ":" + m + ":" + s;
+			return js_date + js_time;// + "-" h + ":" + m + ":" + s;
+		} 
+		
+		//get formatted date to report access time
+		info.messageTop = formatDate();
+		
+		//if ($('#missense_radar').length) {
+		////	//attempt to transform chart.js canvas into pdf
+		////	info.messageBottom = document.getElementById('missense_radar').toDataURL();
+		//	var canvas = document.querySelector('#missense_radar');
+		//	//creates image
+		//	var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
+		//	//creates PDF from img
+		//	var doc = new jsPDF('landscape');
+		//	//doc.setFontSize(20);
+		//	//doc.text(15, 15, "Cool Chart");
+		//	doc.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
+		//	info.messageBottom = doc
+		//}
+		
 		if (info.messageTop) {
 			doc.content.unshift({
 				text: info.messageTop,
