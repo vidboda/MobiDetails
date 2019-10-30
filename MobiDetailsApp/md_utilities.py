@@ -573,7 +573,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		y = int(positions[1])+25
 		genome = twobitreader.TwoBitFile(local_files['human_genome_hg38'][0])
 		current_chrom = genome['chr{}'.format(hg38_d['chr'])]
-		seq_slice = current_chrom[x:y]
+		seq_slice = current_chrom[x:y].upper()
 		#seq2 = current_chrom[int(positions[0])+1:int(positions[0])+2]
 		#return seq2
 		if res_strand['strand'] == '-':
