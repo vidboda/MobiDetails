@@ -346,9 +346,13 @@ def variant(variant_id=None):
 						if re.search('Damaging', annot['pph2_hvar_pred']):
 							mpa_missense += 1
 						#fathmm
-						annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
+						if re.search(';', record[60]):
+							annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
+							annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
+						else:
+							 annot['fathmm_score'] = record[60]
+							 annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][record[62]]
 						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
-						annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
 						if annot['fathmm_pred'] == 'Damaging':
 							mpa_missense += 1
 						#fathmm-mkl
