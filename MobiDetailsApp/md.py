@@ -299,7 +299,7 @@ def variant(variant_id=None):
 							annot['clinsigconf'] = annot['clinsigconf'].replace('%3B', '-')
 						else:
 							annot['clinsig'] = match_object.group(1)
-					if re.search('pathogenic', annot['clinsig'], re.IGNORECASE):
+					if re.search('pathogenic', annot['clinsig'], re.IGNORECASE) and not re.search('pathogenicity', annot['clinsig'], re.IGNORECASE):
 						annot['mpa_score'] = 10
 						annot['mpa_impact'] = 'clinvar pathogenic'
 				#MPA PTC
