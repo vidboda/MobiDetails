@@ -80,12 +80,14 @@ def gene(gene_name=None):
 		enst_ver = {}
 		#if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
 		for gene in result_all:
+			#print('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst']))
 			if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst'])):
 				http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 				if gene['enst'] not in enst_ver:
 					#get enst versions in a dict
 					metad_ts = None
 					try:
+						#print('{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0]))
 						metad_ts = json.loads(http.request('GET', '{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0])).data.decode('utf-8'))
 						if metad_ts is not None and 'trancript_ids' in metad_ts:
 							for ts in metad_ts['trancript_ids']:
@@ -101,40 +103,41 @@ def gene(gene_name=None):
 		for enst in enst_ver:
 			#print(enst)
 			#print('--{}--'.format(app.debug))
-			metad_data = None
-			try:
-				metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
-			except:
-				pass
-			if metad_data is not None:
-				if metad_data['status'] == 'PENDING':
-					#get transcript_ids ?? coz of the version number
-					#send request to build visualization ot metadome
-					vis_request = None
-					#find out how to get app object
-					try:
-						vis_request = json.loads(http.request('POST', '{0}submit_visualization/'.format(md_utilities.urls['metadome_api']),
-												   headers={'Content-Type': 'application/json'},
-												   body=json.dumps({'transcript_id' : enst_ver[enst]})).data.decode('utf-8'))						
-						if not app.debug:
-							app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
-						else:
-							print('{} submitted to metadome'.format(vis_request['transcript_id']))
-					except:
-						print('error with metadome submission for {}'.format(enst))
-				elif metad_data['status'] == 'SUCCESS':
-					#get_request = None
-					try:
-						get_request = json.loads(http.request('GET', '{0}result/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))		
-						#copy in file system
-						with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
-							json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
-						if not app.debug:
-							app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
-						else:
-							print('saving metadome {} into local file system'.format(enst_ver[enst]))
-					except:
-						print('error saving metadome json file for {}'.format(enst))
+			if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst)):
+				metad_data = None
+				try:
+					metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
+				except:
+					pass
+				if metad_data is not None:
+					if metad_data['status'] == 'PENDING':
+						#get transcript_ids ?? coz of the version number
+						#send request to build visualization to metadome
+						vis_request = None
+						#find out how to get app object
+						try:
+							vis_request = json.loads(http.request('POST', '{0}submit_visualization/'.format(md_utilities.urls['metadome_api']),
+													   headers={'Content-Type': 'application/json'},
+													   body=json.dumps({'transcript_id' : enst_ver[enst]})).data.decode('utf-8'))						
+							if not app.debug:
+								app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
+							else:
+								print('{} submitted to metadome'.format(vis_request['transcript_id']))
+						except:
+							print('error with metadome submission for {}'.format(enst))
+					elif metad_data['status'] == 'SUCCESS':
+						#get_request = None
+						try:
+							get_request = json.loads(http.request('GET', '{0}result/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))		
+							#copy in file system
+							with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
+								json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
+							if not app.debug:
+								app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
+							else:
+								print('saving metadome {} into local file system'.format(enst_ver[enst]))
+						except:
+							print('error saving metadome json file for {}'.format(enst))
 		if result_all is not None:
 			#get annotations
 			curs.execute(
