@@ -10,7 +10,7 @@
 		<div class="w3-container">
 			<ul>
 				{% for pubmedid in pmids %}
-					<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid.pmid }}" target="_blank">{{ pubmedid.pmid }}</a></li>
+						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank">{{ pubmedid }}</a></li>
 				{% endfor %}
 			</ul>
 		<br><br></div>
