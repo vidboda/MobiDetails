@@ -73,16 +73,21 @@ $(document).ready(function() {
 		]
 	});
 	//ajax for litvar
-	$.ajax({
-		type: "POST",
-		url: '/litVar',
-		data: {
-			rsid: $('#dbsnp_id').text()
-		}
-	})
-	.done(function(html) {
-		$("#litvar_data").replaceWith(html);
-	});
+	if ($('#dbsnp_id').text() !== '') {
+		$.ajax({
+			type: "POST",
+			url: '/litVar',
+			data: {
+				rsid: $('#dbsnp_id').text()
+			}
+		})
+		.done(function(html) {
+			$("#litvar_data").replaceWith(html);
+		});
+	}
+	else {
+		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
+	}
 	//ajax for intervar
 	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
 		$.ajax({

@@ -31,11 +31,12 @@ def litvar():
 		#print(litvar_url)
 		try:
 			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
-			#print(litvar_data[0]['pmids'])
+			#print(litvar_data)
 		except:
 			pass
 		#print (rsid)
 		if litvar_data is not None:
+			#if len(litvar_data) == 0: or re.search(r'mandatory', litvar_data[0])
 			if len(litvar_data) == 0:
 				return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
 			return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data[0]['pmids'])
