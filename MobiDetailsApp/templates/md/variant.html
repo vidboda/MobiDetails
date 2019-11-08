@@ -251,12 +251,12 @@
 					</span>
 				</div>
 				<div class="w3-col m4" id="defgen_hg19">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.id }}');">Export to DEFGEN (hg19)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19"></div>
 					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
 				<div class="w3-col m4" id="defgen_hg38">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.id }}');">Export to DEFGEN (hg38)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38"></div>
 				</div>
 			</div>
@@ -570,7 +570,7 @@
 							pointHoverBorderColor:'rgb(255, 99, 132)'
 						}]
 					},
-					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>" }
+					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
 				});
 			</script>			
 		{% elif annot.dbnsfp is defined %}
