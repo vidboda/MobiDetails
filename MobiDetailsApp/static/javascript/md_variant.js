@@ -237,7 +237,7 @@ $(document).ready(function() {
 					layout: 'noBorders'
 				},
 			],
-			
+			//images: [],			
 			//	" ",
 			//	"Data for " + tables[5],
 			//	" ", {
@@ -331,19 +331,22 @@ $(document).ready(function() {
 		//get formatted date to report access time
 		info.messageTop = formatDate();
 		
-		//if ($('#missense_radar').length) {
-		////	//attempt to transform chart.js canvas into pdf
-		////	info.messageBottom = document.getElementById('missense_radar').toDataURL();
-		//	var canvas = document.querySelector('#missense_radar');
-		//	//creates image
-		//	var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
-		//	//creates PDF from img
-		//	var doc = new jsPDF('landscape');
-		//	//doc.setFontSize(20);
-		//	//doc.text(15, 15, "Cool Chart");
-		//	doc.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
-		//	info.messageBottom = doc
-		//}
+		if ($('#missense_radar').length) {
+		//	//attempt to transform chart.js canvas into pdf
+		//	info.messageBottom = document.getElementById('missense_radar').toDataURL();
+			var canvas = document.querySelector('#missense_radar');
+			//doc.content.push({
+			//	image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
+			//});
+			//creates image
+			//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
+			//creates PDF from img
+			//var doc_chart = new jsPDF('landscape');
+			//doc.setFontSize(20);
+			//doc.text(15, 15, "Cool Chart");
+			//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
+			//info.radarImg = canvasImg
+		}
 		
 		if (info.messageTop) {
 			doc.content.unshift({
@@ -352,7 +355,14 @@ $(document).ready(function() {
 				margin: [0, 0, 0, 12]
 			});
 		}
-
+		//if (info.radarImg) {
+		//	doc.content.push({
+		//		image:'data:image/jpeg;base64,' + info.radarImg
+		//	});
+		//	//doc.images.push({
+		//	//	radarImg: 'data:image/jpeg;base64,' + info.radarImg
+		//	//});
+		//}		
 		if (info.messageBottom) {
 			doc.content.push({
 				text: info.messageBottom,

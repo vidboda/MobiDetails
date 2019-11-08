@@ -31,7 +31,7 @@ def litvar():
 		#print(litvar_url)
 		try:
 			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
-			print(litvar_data[0]['pmids'])
+			#print(litvar_data[0]['pmids'])
 		except:
 			pass
 		#print (rsid)
