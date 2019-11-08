@@ -28,15 +28,17 @@ def litvar():
 		litvar_data = None
 		#litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
 		litvar_url = "{0}{1}".format(md_utilities.urls['ncbi_litvar_api'], rsid)
+		#print(litvar_url)
 		try:
 			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
+			print(litvar_data[0]['pmids'])
 		except:
 			pass
 		#print (rsid)
 		if litvar_data is not None:
 			if len(litvar_data) == 0:
 				return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
-			return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data)
+			return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data[0]['pmids'])
 		else:
 			return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>'
 	else:
