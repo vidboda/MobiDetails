@@ -26,7 +26,8 @@ def litvar():
 	if rsid is not None:
 		http = urllib3.PoolManager()
 		litvar_data = None
-		litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
+		#litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
+		litvar_url = "{0}{1}".format(md_utilities.urls['ncbi_litvar_api'], rsid)
 		try:
 			litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
 		except:
