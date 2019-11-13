@@ -221,6 +221,9 @@ def get_value_from_tabix_file(text, tabix_file, var):
 	for record in records:
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
 			return record
+		elif record[i] == var['pos_ref'] and re.search(r'{},'.format(var['pos_alt']), record[i+1]):
+			#multiple alts
+			return record 
 	return 'No match in {}'.format(text)
 #returns an html color depending on spliceai score
 def get_spliceai_color(val):
