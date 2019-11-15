@@ -93,6 +93,7 @@ predictor_thresholds = {
 	'fathmm': -1.5,
 	'fathmm-mkl': -1.5,
 	'meta-lr': 0.5,
+	'lrt': 0.5,#must be precised - which is not solely determined by the score. => take pred directly into account?
 	'meta-svm': 0,
 	'provean': -2.5,
 	'mpa_max': 8,

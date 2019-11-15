@@ -437,7 +437,8 @@ def variant(variant_id=None):
 						except:
 							annot['lrt_score'] = record[48]
 							annot['lrt_pred'] = md_utilities.predictors_translations['basic'][record[50]]
-						annot['lrt_color'] = md_utilities.get_preditor_single_threshold_color(annot['lrt_score'], 'lrt')
+						#color must be determined by pred and not score
+						#annot['lrt_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['lrt_score'], 'lrt')
 						#print(re.split(';', record[50]))
 						if annot['lrt_pred'] == 'Damaging':
 						#if re.split(';', record[50])[0] == 'D':
@@ -451,7 +452,8 @@ def variant(variant_id=None):
 						except:
 							annot['mt_score'] = record[48]
 							annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[50]]
-						annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
+						#color must be determined by pred and not score
+						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
 						#print(re.split(';', record[54])[i])
 						if re.search('Disease causing', annot['mt_pred']):
 						#if re.split(';', record[54]) == 'A' or  re.split(';', record[50]) == 'D':
