@@ -51,6 +51,80 @@ def test_three2one_fct(client, variant_in, variant_out):
 	print(test_var)
 	assert test_var == variant_out
 
+@pytest.mark.parametrize(('chr_name', 'genome', 'ncbi_name'), (
+	('CHR12', 'hg19', 'NC_000012.11'),
+	('cHr12', 'hg19', 'NC_000012.11'),
+	('chrX', 'hg19', 'NC_000023.10'),
+	('chrM', 'hg19', None),
+	('chrX', 'hg38', 'NC_000023.11'),
+	('CHR12', 'hg38', 'NC_000012.12'),
+	('cHr12', 'hg38', 'NC_000012.12'),
+	('cHr12', 'hg38', 'NC_000012.12')
+))
+def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
+	with app.app_context():
+		db = get_db()
+		ncbi_test = md_utilities.get_ncbi_chr_name(db, chr_name, genome)
+		assert ncbi_test[0] == ncbi_name
+
+@pytest.mark.parametrize(('chr_name', 'genome', 'ncbi_name'), (
+	('12', 'hg19', 'NC_000012.11'),
+	('X', 'hg19', 'NC_000023.10'),
+	('X', 'hg38', 'NC_000023.11'),
+	('12', 'hg38', 'NC_000012.12')
+))
+def test_get_common_chr_name(client, app, chr_name, genome, ncbi_name):
+	with app.app_context():
+		db = get_db()
+		res_test = md_utilities.get_common_chr_name(db, ncbi_name)
+		assert res_test == [chr_name, genome]
+
+@pytest.mark.parametrize(('chr_name', 'valid'), (
+	('CHR12', True),
+	('cHr12', True),
+	('chx21', False),
+	('chrM', True),
+	('chrM1', False),
+))
+def test_is_valid_full_chr(client, chr_name, valid):
+	valid_test = md_utilities.is_valid_full_chr(chr_name)
+	assert valid_test == valid
+
+@pytest.mark.parametrize(('chr_name', 'short_name'), (
+	('CHR12', '12'),
+	('cHr12', '12'),
+	('chr21', '21'),
+	('chrM', 'M'),
+	('M1', None),
+))
+def test_get_short_chr_name(client, chr_name, short_name):
+	valid_test = md_utilities.get_short_chr_name(chr_name)
+	assert valid_test == short_name
+
+
+@pytest.mark.parametrize(('chr_name', 'valid'), (
+	('12', True),
+	('2', True),
+	('x', False),
+	('M', True),
+	('M1', False),
+))
+def test_is_valid_chr(client, chr_name, valid):
+	valid_test = md_utilities.is_valid_chr(chr_name)
+	assert valid_test == valid
+
+@pytest.mark.parametrize(('chr_name', 'valid'), (
+	('NC_000002.11', True),
+	('NC_000015.9', True),
+	('Nc_000015.9', True),
+	('NC_000021.a', False),
+	('NC_000024.10', True),
+))
+def test_is_valid_ncbi_chr(client, chr_name, valid):
+	valid_test = md_utilities.is_valid_ncbi_chr(chr_name)
+	assert valid_test == valid
+
+
 #pytest tests/test_md_utilities.py::test_get_pos_splice_site
 @pytest.mark.parametrize(('pos', 'seg_type', 'seg_num', 'gene', 'genome', 'result'), (
 	(216595579, 'exon', 2, ['USH2A','NM_206933'], 'hg19', ['acceptor', 304]),

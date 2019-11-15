@@ -558,12 +558,23 @@ def search_engine():
 					pattern = re.sub(r'\*', 'Ter', var)
 				else:
 					pattern = var
-		elif re.search(r'[Cc][Hh][Rr][\dXYM]{1,2}:g\..+', query_engine): #deal w/ genomic
+		elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', query_engine):#strict HGVS genomic
 			sql_table = 'variant'
 			query_type = 'g_name'
 			col_names = 'feature_id'
-			match_object = re.search(r'[Cc][Hh][Rr][\dXYM]{1,2}:g\.(.+)', query_engine)
-			pattern = match_object.group(1)
+			db = get_db()
+			match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', query_engine)
+			#res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
+			chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
+			pattern = match_object.group(2)
+			#res_common = md_utilities.get_common_chr_name(db, )
+		elif re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM]):g\..+', query_engine): #deal w/ genomic
+			sql_table = 'variant'
+			query_type = 'g_name'
+			col_names = 'feature_id'
+			match_object = re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM]):g\.(.+)', query_engine)
+			chrom = match_object.group(1)
+			pattern = match_object.group(2)
 			#if re.search(r'>', pattern):
 			#	pattern = pattern.upper()
 		elif re.search(r'^g\..+', query_engine):#g. ng dna vars
@@ -607,7 +618,8 @@ def search_engine():
 		if error is None:
 			#print(semaph_query)
 			if semaph_query == 0:
-				db = get_db()
+				if 'db' not in locals():
+					db = get_db()
 				curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 				#sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
 				#return render_template('md/search_engine.html', query=text)
@@ -617,9 +629,14 @@ def search_engine():
 					var_match = re.search(r'^(.*)(\d+)([ACTGactg]>[ACTGactg])$', pattern)
 					pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
 					#print(pattern)
-				curs.execute(
-					"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
-				)
+				if pattern == 'g_name':
+					curs.execute(
+					"SELECT {0} FROM {1} WHERE chr = {2} AND {3} = '{4}'".format(col_names, sql_table, chrom, query_type, pattern)
+					)
+				else:
+					curs.execute(
+						"SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+					)
 				result = None
 			if sql_table == 'gene':
 				result = curs.fetchone()

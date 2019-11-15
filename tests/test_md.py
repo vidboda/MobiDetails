@@ -46,6 +46,7 @@ def test_variant_page(client):
 	('chr1:g.216595579G>A', 'variant/5'),
 	('chr1:g.216422237G>A', 'variant/5'),
 	('chr1:g.216422237g>A', 'variant/5'),
+	('NC_000001.11:g.216422237G>A', 'variant/5'),
 	('USH2A', 'gene/USH2A'),
 	('c.2447_2461delGAGGGAGGGGAAGTA', 'variant/71'),
 	('c.2447_2461del', 'variant/71'),

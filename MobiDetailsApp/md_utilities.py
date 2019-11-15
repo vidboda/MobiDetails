@@ -171,6 +171,54 @@ def one2three_fct(var):
 def match(value, regexp):
 	return re.match(regexp, value)
 
+#get NCBI chr names for common names
+def get_ncbi_chr_name(db, chr_name, genome):
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	if is_valid_full_chr(chr_name) == True:
+		short_chr = get_short_chr_name(chr_name)
+		if short_chr is not None:
+			curs.execute(
+				"SELECT ncbi_name FROM chromosomes WHERE genome_version = '{0}' AND name = '{1}'".format(genome, short_chr)
+			)
+			ncbi_name = curs.fetchone()
+			if ncbi_name is not None:
+				return ncbi_name
+
+#get common chr names for NCBI names
+def get_common_chr_name(db, ncbi_name):
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	if is_valid_ncbi_chr(ncbi_name) == True:
+		curs.execute(
+			"SELECT name, genome_version FROM chromosomes WHERE ncbi_name = '{}'".format(ncbi_name)
+		)
+		res = curs.fetchone()
+		if res is not None:
+			return res
+		
+#chr name is valid?
+def is_valid_full_chr(chr_name):
+	if re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM])$', chr_name):
+		return True
+	return False
+
+#get small chr name
+def get_short_chr_name(chr_name):
+	match_obj = re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM])$', chr_name)
+	if match_obj is not None:
+		return match_obj.group(1)
+
+#chr name is valid?
+def is_valid_chr(chr_name):
+	if re.search(r'^(\d{1,2}|[XYM])$', chr_name):
+		return True
+	return False
+
+#NCBI chr name is valid?
+def is_valid_ncbi_chr(chr_name):
+	if re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}$', chr_name):
+		return True
+	return False
+
 #compute position relative to nearest splice site
 def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
