@@ -51,7 +51,7 @@ urls = {
 	'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
 	'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
 	'spliceai': 'https://github.com/Illumina/SpliceAI',
-	'sift4g': 'https://sift.bii.a-star.edu.sg/sift4g/AboutSIFT4G.html',
+	'sift': 'https://sift.bii.a-star.edu.sg/',
 	'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
 	'fathmm': 'http://fathmm.biocompute.org.uk/',
 	'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
@@ -91,7 +91,9 @@ predictor_thresholds = {
 	'pph2_hvar_max': 0.909,
 	'pph2_hvar_mid': 0.447,
 	'fathmm': -1.5,
-	'meta': 0.5,
+	'fathmm-mkl': -1.5,
+	'meta-lr': 0.5,
+	'meta-svm': 0,
 	'provean': -2.5,
 	'mpa_max': 8,
 	'mpa_mid': 6,
@@ -117,7 +119,7 @@ predictor_colors = {
 predictors_translations = {
 	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
 	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'},
-	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic'} #Mutationtaster
+	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic', '.': 'no prediction'} #Mutationtaster
 }
 
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
@@ -287,6 +289,26 @@ def get_spliceai_color(val):
 			return predictor_colors['min']
 	else:
 		return predictor_colors['no_effect']
+	
+#returns most deleterious score of predictors when not found in desires transcript
+def get_most_other_deleterious_pred(score, pred, threshold, direction):
+	j = 0
+	k = 0
+	best_score = threshold
+	for score in re.split(';', score):
+		if direction == 'lt':
+			if score != '.' and float(score) < float(best_score):
+				best_score = score
+				k = j
+		else:
+			if score != '.' and float(score) > float(best_score):
+				best_score = score
+				k = j
+		j += 1
+	if best_score != threshold:
+		return best_score, predictors_translations['basic'][re.split(';', pred)[k]], '*'
+	else:
+		return '.', 'no prediction', ''
 #returns an html color depending on a single threshold
 def get_preditor_single_threshold_color(val, predictor):
 	#function to get green or red

@@ -339,78 +339,146 @@ def variant(variant_id=None):
 						#missense:
 						#mpa score
 						mpa_missense = 0
-						#sift4g
-						annot['sift4g_score'] = re.split(';', record[39])[transcript_index]
-						#if annot['sift4g_score'] != '.':
-						annot['sift4g_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift4g_score'], 'sift')
-						annot['sift4g_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[41])[transcript_index]]
-						if annot['sift4g_pred'] == 'Damaging':
+						mpa_avail = 0
+						#sift
+						#if re.search(';', record[39]):
+						try:
+							annot['sift_score'] = re.split(';', record[36])[transcript_index]
+							annot['sift_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[38])[transcript_index]]
+							annot['sift_star'] = ''
+							if annot['sift_score'] == '.':#search most deleterious in other isoforms
+								annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.get_most_other_deleterious_pred(record[36], record[38], 1.1, 'lt')
+						except:
+							annot['sift_score'] = record[36]
+							annot['sift_pred'] = md_utilities.predictors_translations['basic'][record[38]]
+						annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')						
+						if annot['sift_pred'] == 'Damaging':
 							mpa_missense += 1
-						#polyphen 2
-						annot['pph2_hdiv_score'] = re.split(';', record[42])[transcript_index]
+						if annot['sift_pred'] != 'no prediction':
+							mpa_avail += 1
+						#polyphen 2 hdiv
+						try:
+							annot['pph2_hdiv_score'] = re.split(';', record[42])[transcript_index]
+							annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[transcript_index]]
+							if annot['pph2_hdiv_score'] == '.':#search most deleterious in other isoforms
+								annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.get_most_other_deleterious_pred(record[42], record[44], -0.1, 'gt')
+						except:
+							annot['pph2_hdiv_score'] = record[42]
+							annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][record[44]]
 						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
-						annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[transcript_index]]
 						if re.search('Damaging', annot['pph2_hdiv_pred']):
 							mpa_missense += 1
-						annot['pph2_hvar_score'] = re.split(';', record[45])[transcript_index]
+						if annot['pph2_hdiv_pred'] != 'no prediction':
+							mpa_avail += 1
+						#hvar
+						try:
+							annot['pph2_hvar_score'] = re.split(';', record[45])[transcript_index]						
+							annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[transcript_index]]
+							if annot['pph2_hvar_score'] == '.':#search most deleterious in other isoforms
+								annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.get_most_other_deleterious_pred(record[45], record[47], -0.1, 'gt')
+						except:
+							annot['pph2_hvar_score'] = record[42]						
+							annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][record[47]]
 						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
-						annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[transcript_index]]
 						if re.search('Damaging', annot['pph2_hvar_pred']):
 							mpa_missense += 1
+						if annot['pph2_hvar_pred'] != 'no prediction':
+							mpa_avail += 1
 						#fathmm
-						if re.search(';', record[60]):
+						try:	
 							annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
 							annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
-						else:
+							if annot['fathmm_score'] == '.':#search most deleterious in other isoforms
+								annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.get_most_other_deleterious_pred(record[60], record[62], 20, 'lt')
+						except:
 							 annot['fathmm_score'] = record[60]
 							 annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][record[62]]
 						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
 						if annot['fathmm_pred'] == 'Damaging':
 							mpa_missense += 1
-						#fathmm-mkl
-						#annot['fathmm_mkl_score'] = re.split(';', record[106])[i]
-						#annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_color(annot['fathmm_mkl_score'], 'meta')
-						#annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[108])[i]]
-						#print(re.split(';', record[108])[0])
-						if re.split(';', record[108])[0] == 'D':
+						if annot['fathmm_pred'] != 'no prediction':
+							mpa_avail += 1
+						#fathmm-mkl -- not displayed
+						try:	
+							annot['fathmm_mkl_score'] = re.split(';', record[106])[transcript_index]
+							annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[108])[transcript_index]]
+							if annot['fathmm_mkl_score'] == '.':#search most deleterious in other isoforms
+								annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.get_most_other_deleterious_pred(record[106], record[108], 20, 'lt')
+						except:
+							annot['fathmm_mkl_score'] = record[106]
+							annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][record[108]]
+						annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_mkl_score'], 'fathmm-mkl')
+						if annot['fathmm_mkl_pred'] == 'Damaging':
 							mpa_missense += 1
-						#provean
-						#annot['provean_score'] = re.split(';', record[63])[i]
-						#annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
-						#annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[i]]
+						if annot['fathmm_mkl_pred'] != 'no prediction':
+							mpa_avail += 1
+						#provean -- not displayed
+						try:
+							annot['provean_score'] = re.split(';', record[63])[transcript_index]
+							annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[transcript_index]]
+							if annot['provean_score'] == '.':#search most deleterious in other isoforms
+								annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.get_most_other_deleterious_pred(record[63], record[65], 20, 'lt')
+						except:
+							annot['provean_score'] = record[63]						
+							annot['provean_pred'] = md_utilities.predictors_translations['basic'][record[65]]
+						annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
 						#print(re.split(';', record[65])[i])
-						if re.split(';', record[65])[transcript_index] == 'D':
+						if annot['provean_pred'] == 'Damaging':
+						#if re.split(';', record[65])[transcript_index] == 'D':
 							mpa_missense += 1
-						#LRT
-						#annot['lrt_score'] = re.split(';', record[48])[i]
-						#annot['lrt_color'] = md_utilities.get_preditor_single_threshold_color(annot['lrt_score'], 'lrt')
-						#annot['lrt_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[50])[i]]
+						if annot['provean_pred'] != 'no prediction':
+							mpa_avail += 1
+						#LRT -- not displayed
+						try:
+							annot['lrt_score'] = re.split(';', record[48])[transcript_index]
+							annot['lrt_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[50])[transcript_index]]
+							if annot['lrt_score'] == '.':#search most deleterious in other isoforms
+								annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.get_most_other_deleterious_pred(record[48], record[50], -1, 'gt')
+						except:
+							annot['lrt_score'] = record[48]
+							annot['lrt_pred'] = md_utilities.predictors_translations['basic'][record[50]]
+						annot['lrt_color'] = md_utilities.get_preditor_single_threshold_color(annot['lrt_score'], 'lrt')
 						#print(re.split(';', record[50]))
-						if re.split(';', record[50])[0] == 'D':
+						if annot['lrt_pred'] == 'Damaging':
+						#if re.split(';', record[50])[0] == 'D':
 							mpa_missense += 1
-						#MutationTaster
-						#annot['mt_score'] = re.split(';', record[48])[i]
-						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
-						#annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[50])[i]]
+						if annot['lrt_pred'] != 'no prediction':
+							mpa_avail += 1
+						#MutationTaster -- not displayed
+						try:
+							annot['mt_score'] = re.split(';', record[48])[transcript_index]
+							annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[50])[transcript_index]]
+						except:
+							annot['mt_score'] = record[48]
+							annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[50]]
+						annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
 						#print(re.split(';', record[54])[i])
-						if re.split(';', record[54]) == 'A' or  re.split(';', record[50]) == 'D':
+						if re.search('Disease causing', annot['mt_pred']):
+						#if re.split(';', record[54]) == 'A' or  re.split(';', record[50]) == 'D':
 							mpa_missense += 1
+						if annot['mt_pred'] != 'no prediction':
+							mpa_avail += 1
 						#meta SVM
 						#print(record[68])
 						annot['msvm_score'] = record[68]
-						annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta')
+						annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta-svm')
 						annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
 						if annot['msvm_pred'] == 'Damaging':
 							mpa_missense += 1
+						if annot['msvm_pred'] != 'no prediction':
+							mpa_avail += 1
 						#meta LR
 						annot['mlr_score'] = record[71]
-						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta')
+						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta-lr')
 						annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
 						if annot['msvm_pred'] == 'Damaging':
 							mpa_missense += 1
+						if annot['msvm_pred'] != 'no prediction':
+							mpa_avail += 1
 						annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
 						if 'mpa_score' not in annot or annot['mpa_score'] < mpa_missense:
-							annot['mpa_score'] = mpa_missense
+							#print('{0}/{1}'.format(mpa_missense, mpa_avail))
+							annot['mpa_score'] = float('{0:.2f}'.format((mpa_missense / mpa_avail) * 10))
 							if annot['mpa_score'] >= 8:
 								annot['mpa_impact'] = 'high missense'
 							elif annot['mpa_score'] >= 6:

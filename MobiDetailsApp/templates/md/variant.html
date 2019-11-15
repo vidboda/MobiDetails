@@ -474,26 +474,26 @@
 					</thead>
 					<tbody>
 						<tr><!--SIFT-->
-							<td class="w3-left-align"><a href="{{ urls.sift4g }}" target="_blank" title="Visit SIFT 4G">SIFT4G</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.sift4g_score, annot.sift4g_color) }}</td>
-							<td class="w3-left-align">{{ span_color(annot.sift4g_pred, annot.sift4g_color) }}</td>
+							<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G">SIFT</a>:</td>
+							<td class="w3-left-align">{{ span_color(annot.sift_score, annot.sift_color) }}{{ annot.sift_star }}</td>
+							<td class="w3-left-align">{{ span_color(annot.sift_pred, annot.sift_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold < 0.05 for Damaging</em></td>
 						</tr>
 						<tr><!--PH2 HDIV-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
-							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}{{ annot.pph2_hdiv_star }}</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_pred, annot.pph2_hdiv_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Thresholds > {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Probably damaging and Damaging</em></td>
 						</tr>
 						<tr><!--PH2 HVAR-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
-							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}{{ annot.pph2_hvar_star }}</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Thresholds > {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Probably damaging and Damaging</em></td>
 						</tr>
 						<tr><!--FATHMM-->
 							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}{{ annot.fathmm_star }}</td>
 							<td class="w3-left-align">{{ span_color(annot.fathmm_pred, annot.fathmm_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold <= {{ thresholds.fathmm }} for Damaging</em></td>
 						</tr>
@@ -510,8 +510,13 @@
 							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds.meta }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 					</tbody>
-				</table><br/><br/>
+				</table>
+				{% if annot.sift_star == '*' or annot.pph2_hdiv_star == '*' or annot.pph2_hvar_star == '*' or annot.fathmm_star == '*' %}
+					<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
+				{% endif %}
+				<br/><br/>
 			</div>
+			
 			<div class="w3-row-padding">
 				<!--Missense radar chart-->
 				<div class="w3-col m4">
