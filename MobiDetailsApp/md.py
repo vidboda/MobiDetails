@@ -231,6 +231,8 @@ def variant(variant_id=None):
 			if match_obj is not None:
 				var_cname = match_obj.group(1)
 		
+		
+		
 		#dict for annotations
 		annot = {}
 		aa_pos = None
@@ -246,6 +248,16 @@ def variant(variant_id=None):
 		
 		for var in variant:
 			if var['genome_version'] == 'hg38':
+				#HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
+				curs.execute(
+					"SELECT ncbi_name, genome_version FROM chromosomes WHERE name = '{0}'".format(var['chr'])
+				)
+				res_chr = curs.fetchall()
+				for res in res_chr:
+					if res['genome_version'] == 'hg19':
+						annot['ncbi_chr_hg19'] = res['ncbi_name']
+					elif res['genome_version'] == 'hg38':
+						annot['ncbi_chr_hg38'] = res['ncbi_name']
 				# compute position / splice sites
 				if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and not re.search(r'\*', variant_features['c_name']) and not re.search(r'^-', variant_features['c_name']):
 					#get a tuple ['site_type', 'dist(bp)']
@@ -485,33 +497,6 @@ def variant(variant_id=None):
 							if float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold or float(annot['dbscsnv_ada'])  > dbscsnv_mpa_threshold:
 								annot['mpa_score'] = 10
 								annot['mpa_impact'] = 'high splice'
-							
-					#spliceai
-					# record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai'][0], var)
-					# if isinstance(record, str):
-					# 	annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai'][1])
-					# else:
-					# 	spliceais = re.split(';', record[7])
-					# 	for spliceai in spliceais:
-					# 		#DIST=-73;DS_AG=0.0002;DS_AL=0.0000;DS_DG=0.0000;DS_DL=0.0000;DP_AG=14;DP_AL=-3;DP_DG=9;DP_DL=15
-					# 		match_object = re.search(r'(\w+)=(.+)', spliceai)
-					# 		#put value in annot dict
-					# 		identifier = "spliceai_{}".format(match_object.group(1))
-					# 		annot[identifier] = match_object.group(2)
-					# 		#put also html color corresponging to value
-					# 		if re.match('spliceai_DS_', identifier):
-					# 			id_color = "{}_color".format(identifier)
-					# 			annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
-					# 			if 'mpa_score' not in annot or annot['mpa_score'] < 10:
-					# 				if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
-					# 					annot['mpa_score'] = 10
-					# 					annot['mpa_impact'] = 'high splice'
-					# 				elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
-					# 					annot['mpa_score'] = 8
-					# 					annot['mpa_impact'] = 'moderate splice'
-					# 				elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
-					# 					annot['mpa_score'] = 6
-					# 					annot['mpa_impact'] = 'low splice'
 	else:
 		close_db()
 		return render_template('md/unknown.html', query="variant id: {}".format(variant_id))

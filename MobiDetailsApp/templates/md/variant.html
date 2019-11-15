@@ -132,25 +132,37 @@
 					<!--HGVS genomic (hg19)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg19):</td>
-						<td class="w3-left-align">hg19:chr{{ variant_features.chr }}:g.<span id="hg19_g_name">{{ hg19_var.g_name }}</span></td>
+						<td class="w3-left-align">chr{{ variant_features.chr }}:g.<span id="hg19_g_name">{{ hg19_var.g_name }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg19)</em></td>
+					</tr>
+					<!--HGVS genomic strict (hg19)-->
+					<tr>
+						<td class="w3-left-align">HGVS strict genomic (hg19):</td>
+						<td class="w3-left-align">{{ annot.ncbi_chr_hg19 }}:g.{{ hg19_var.g_name }}</td>
+						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg19)</em></td>
 					</tr>
 					<!--pseudo VCF (hg19)-->
 					<tr>
-						<td class="w3-left-align">pseudo VCF (hg19):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_19">hg19</span>:<span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
+						<td class="w3-left-align">pseudo VCF (<span id="genome_19">hg19</span>):</td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg19)</em></td>
 					</tr>
 					<!--HGVS genomic (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg38):</td>
-						<td class="w3-left-align">hg38:chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}</td>
+						<td class="w3-left-align">chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg38)</em></td>
+					</tr>
+					<!--HGVS genomic strict (hg38)-->
+					<tr>
+						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
+						<td class="w3-left-align">{{ annot.ncbi_chr_hg38 }}:g.{{ hg19_var.g_name }}</td>
+						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
 					<tr>
-						<td class="w3-left-align">pseudo VCF (hg38):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="genome_38">hg38</span>:<span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
+						<td class="w3-left-align">pseudo VCF (<span id="genome_38">hg38</span>):</td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg38)</em></td>
 					</tr>
 				</tbody>
