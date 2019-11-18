@@ -347,7 +347,7 @@ def variant(variant_id=None):
 							annot['sift_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[38])[transcript_index]]
 							annot['sift_star'] = ''
 							if annot['sift_score'] == '.':#search most deleterious in other isoforms
-								annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.get_most_other_deleterious_pred(record[36], record[38], 1.1, 'lt')
+								annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.get_most_other_deleterious_pred(record[36], record[38], 1.1, 'lt', 'basic')
 						except:
 							annot['sift_score'] = record[36]
 							annot['sift_pred'] = md_utilities.predictors_translations['basic'][record[38]]
@@ -357,12 +357,12 @@ def variant(variant_id=None):
 						if annot['sift_pred'] != 'no prediction':
 							mpa_avail += 1
 						#polyphen 2 hdiv
-						try:
+						if re.search(';', record[42]):
 							annot['pph2_hdiv_score'] = re.split(';', record[42])[transcript_index]
 							annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[transcript_index]]
 							if annot['pph2_hdiv_score'] == '.':#search most deleterious in other isoforms
-								annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.get_most_other_deleterious_pred(record[42], record[44], -0.1, 'gt')
-						except:
+								annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.get_most_other_deleterious_pred(record[42], record[44], -0.1, 'gt', 'pph2')
+						else:
 							annot['pph2_hdiv_score'] = record[42]
 							annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][record[44]]
 						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
@@ -375,7 +375,7 @@ def variant(variant_id=None):
 							annot['pph2_hvar_score'] = re.split(';', record[45])[transcript_index]						
 							annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[transcript_index]]
 							if annot['pph2_hvar_score'] == '.':#search most deleterious in other isoforms
-								annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.get_most_other_deleterious_pred(record[45], record[47], -0.1, 'gt')
+								annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.get_most_other_deleterious_pred(record[45], record[47], -0.1, 'gt', 'pph2')
 						except:
 							annot['pph2_hvar_score'] = record[42]						
 							annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][record[47]]
@@ -389,7 +389,7 @@ def variant(variant_id=None):
 							annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
 							annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
 							if annot['fathmm_score'] == '.':#search most deleterious in other isoforms
-								annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.get_most_other_deleterious_pred(record[60], record[62], 20, 'lt')
+								annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.get_most_other_deleterious_pred(record[60], record[62], 20, 'lt', 'basic')
 						except:
 							 annot['fathmm_score'] = record[60]
 							 annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][record[62]]
@@ -403,7 +403,7 @@ def variant(variant_id=None):
 							annot['fathmm_mkl_score'] = re.split(';', record[106])[transcript_index]
 							annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[108])[transcript_index]]
 							if annot['fathmm_mkl_score'] == '.':#search most deleterious in other isoforms
-								annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.get_most_other_deleterious_pred(record[106], record[108], 20, 'lt')
+								annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.get_most_other_deleterious_pred(record[106], record[108], 20, 'lt', 'basic')
 						except:
 							annot['fathmm_mkl_score'] = record[106]
 							annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][record[108]]
@@ -417,7 +417,7 @@ def variant(variant_id=None):
 							annot['provean_score'] = re.split(';', record[63])[transcript_index]
 							annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[transcript_index]]
 							if annot['provean_score'] == '.':#search most deleterious in other isoforms
-								annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.get_most_other_deleterious_pred(record[63], record[65], 20, 'lt')
+								annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.get_most_other_deleterious_pred(record[63], record[65], 20, 'lt', 'basic')
 						except:
 							annot['provean_score'] = record[63]						
 							annot['provean_pred'] = md_utilities.predictors_translations['basic'][record[65]]
@@ -431,27 +431,29 @@ def variant(variant_id=None):
 						#LRT -- not displayed
 						try:
 							annot['lrt_score'] = re.split(';', record[48])[transcript_index]
-							annot['lrt_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[50])[transcript_index]]
+							annot['lrt_pred'] = re.split(';', record[50])[transcript_index]
 							if annot['lrt_score'] == '.':#search most deleterious in other isoforms
-								annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.get_most_other_deleterious_pred(record[48], record[50], -1, 'gt')
+								annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.get_most_other_deleterious_pred(record[48], record[50], -1, 'gt', 'basic')
 						except:
 							annot['lrt_score'] = record[48]
-							annot['lrt_pred'] = md_utilities.predictors_translations['basic'][record[50]]
+							annot['lrt_pred'] = record[50]
 						#color must be determined by pred and not score
 						#annot['lrt_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['lrt_score'], 'lrt')
 						#print(re.split(';', record[50]))
-						if annot['lrt_pred'] == 'Damaging':
+						if annot['lrt_pred'] == 'D':
 						#if re.split(';', record[50])[0] == 'D':
 							mpa_missense += 1
-						if annot['lrt_pred'] != 'no prediction':
+						if re.search(r'^[DUN]', annot['lrt_pred']):
 							mpa_avail += 1
 						#MutationTaster -- not displayed
 						try:
-							annot['mt_score'] = re.split(';', record[48])[transcript_index]
-							annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[50])[transcript_index]]
+							annot['mt_score'] = re.split(';', record[52])[transcript_index]
+							annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[54])[transcript_index]]
+							if annot['mt_score'] == '.':#search most deleterious in other isoforms
+								annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.get_most_other_deleterious_pred(record[52], record[54], -1, 'gt', 'mt')
 						except:
-							annot['mt_score'] = record[48]
-							annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[50]]
+							annot['mt_score'] = record[52]
+							annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[54]]
 						#color must be determined by pred and not score
 						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
 						#print(re.split(';', record[54])[i])

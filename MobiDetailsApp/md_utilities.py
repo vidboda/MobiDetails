@@ -292,7 +292,7 @@ def get_spliceai_color(val):
 		return predictor_colors['no_effect']
 	
 #returns most deleterious score of predictors when not found in desires transcript
-def get_most_other_deleterious_pred(score, pred, threshold, direction):
+def get_most_other_deleterious_pred(score, pred, threshold, direction, pred_type):
 	j = 0
 	k = 0
 	best_score = threshold
@@ -307,7 +307,7 @@ def get_most_other_deleterious_pred(score, pred, threshold, direction):
 				k = j
 		j += 1
 	if best_score != threshold:
-		return best_score, predictors_translations['basic'][re.split(';', pred)[k]], '*'
+		return best_score, predictors_translations[pred_type][re.split(';', pred)[k]], '*'
 	else:
 		return '.', 'no prediction', ''
 #returns an html color depending on a single threshold

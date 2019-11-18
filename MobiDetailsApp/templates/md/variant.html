@@ -538,8 +538,8 @@
 				</div>
 			</div>
 			{# set missense predictors values to min when no values to plot radar chart #}
-			{% set missense_pred = namespace(sift=annot.sift4g_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
-			{% if annot.sift4g_pred == 'no prediction' %}
+			{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
+			{% if annot.sift_pred == 'no prediction' %}
 				{% set missense_pred.sift = 1 %}
 			{% endif %}
 			{% if annot.pph2_hvar_pred == 'no prediction' %}
