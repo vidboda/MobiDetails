@@ -1,8 +1,8 @@
 
-function defgen_export(genome, vf_id) {
+function defgen_export(genome, vf_id, defgen_url) {
 	$.ajax({
 		type: "POST",
-		url: '/defgen',
+		url: defgen_url,
 		data: {
 			vfid: vf_id, genome: genome
 		}
@@ -12,10 +12,10 @@ function defgen_export(genome, vf_id) {
 		$('#defgen_modal_' + genome).show();
 	});
 }
-function favourite(vf_id, marker) {
+function favourite(vf_id, marker, fav_url) {
 	$.ajax({
 		type: "POST",
-		url: '/favourite',
+		url: fav_url,
 		data: {
 			vf_id: vf_id, marker: marker
 		}
@@ -38,6 +38,54 @@ function favourite(vf_id, marker) {
 		
 	});
 }
+function litvar(litvar_url) {
+	//ajax for litvar
+	if ($('#dbsnp_id').text() !== '') {
+		$.ajax({
+			type: "POST",
+			url: litvar_url,
+			data: {
+				rsid: $('#dbsnp_id').text()
+			}
+		})
+		.done(function(html) {
+			$("#litvar_data").replaceWith(html);
+		});
+	}
+	else {
+		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
+	}
+}
+function lovd(lovd_url) {
+	//ajax for LOVD
+	$.ajax({
+		type: "POST",
+		url: lovd_url,
+		data: {
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
+		}
+	})
+	.done(function(html) {
+		$("#lovd_data").replaceWith(html);
+	});
+}
+function intervar(intervar_url) {
+	//ajax for intervar
+	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
+		$.ajax({
+			type: "POST",
+			url: intervar_url,
+			data: {
+				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+			}
+		})
+		.done(function(html) {
+			$("#intervar_data").replaceWith(html);
+		});
+	}
+}
+
+
 function myAccFunc(acc_id, icon_id) {
 	//adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
 	//should be rewritten in jquery for consistency
@@ -73,45 +121,45 @@ $(document).ready(function() {
 		]
 	});
 	//ajax for litvar
-	if ($('#dbsnp_id').text() !== '') {
-		$.ajax({
-			type: "POST",
-			url: '/litVar',
-			data: {
-				rsid: $('#dbsnp_id').text()
-			}
-		})
-		.done(function(html) {
-			$("#litvar_data").replaceWith(html);
-		});
-	}
-	else {
-		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
-	}
-	//ajax for intervar
-	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
-		$.ajax({
-			type: "POST",
-			url: '/intervar',
-			data: {
-				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
-			}
-		})
-		.done(function(html) {
-			$("#intervar_data").replaceWith(html);
-		});
-	}
-	//ajax for LOVD
-	$.ajax({
-		type: "POST",
-		url: '/lovd',
-		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
-		}
-	})
-	.done(function(html) {
-		$("#lovd_data").replaceWith(html);
-	});
+	//if ($('#dbsnp_id').text() !== '') {
+	//	$.ajax({
+	//		type: "POST",
+	//		url: '/litVar',
+	//		data: {
+	//			rsid: $('#dbsnp_id').text()
+	//		}
+	//	})
+	//	.done(function(html) {
+	//		$("#litvar_data").replaceWith(html);
+	//	});
+	//}
+	//else {
+	//	$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
+	//}
+	////ajax for intervar
+	//if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
+	//	$.ajax({
+	//		type: "POST",
+	//		url: '/intervar',
+	//		data: {
+	//			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+	//		}
+	//	})
+	//	.done(function(html) {
+	//		$("#intervar_data").replaceWith(html);
+	//	});
+	//}
+	////ajax for LOVD
+	//$.ajax({
+	//	type: "POST",
+	//	url: '/lovd',
+	//	data: {
+	//		genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
+	//	}
+	//})
+	//.done(function(html) {
+	//	$("#lovd_data").replaceWith(html);
+	//});
 	//hide sidebar on small screen
 	//if ($('#smart_menu').length) {		
 	if ($(window).width() < 600) {

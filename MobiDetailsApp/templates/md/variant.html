@@ -64,10 +64,10 @@
 		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
 		{% if g.user %}
 			{% if favourite != True %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'mark');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'mark', '{{ url_for('ajax.favourite') }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
 			{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'unmark');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'unmark', '{{ url_for('ajax.favourite') }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 </span>
 			{% endif %}
 		{% endif %}
@@ -263,12 +263,12 @@
 					</span>
 				</div>
 				<div class="w3-col m4" id="defgen_hg19">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}');">Export to DEFGEN (hg19)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19"></div>
 					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
 				<div class="w3-col m4" id="defgen_hg38">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}');">Export to DEFGEN (hg38)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38"></div>
 				</div>
 			</div>
@@ -623,4 +623,11 @@
 			</div>
 		<br/><br/>
 	</div>
+	<script>
+		$(document).ready(function() {
+			litvar('{{ url_for('ajax.litvar') }}');
+			lovd('{{ url_for('ajax.lovd') }}');
+			intervar('{{ url_for('ajax.intervar') }}');
+		});
+	</script>
 {% endblock %}
