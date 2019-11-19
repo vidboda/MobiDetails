@@ -717,13 +717,20 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		else:
 			vf_d['acmg_class'] = 3
 	#date, user
+	mobiuser = 'mobidetails'
 	if g.user is not None:
-		curs.execute(
-			"SELECT id FROM mobiuser WHERE username = '{}'".format(g.user['username'])
-		)
-		vf_d['creation_user'] = curs.fetchone()['id']
-	else:
-		vf_d['creation_user'] = 10
+		mobiuser = g.user['username']
+		#curs.execute(
+		# 	"SELECT id FROM mobiuser WHERE username = '{}'".format(g.user['username'])
+		# )
+		# vf_d['creation_user'] = curs.fetchone()['id']
+	#else:
+		
+		#vf_d['creation_user'] = 10
+	curs.execute(
+		"SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
+	)
+	vf_d['creation_user'] = curs.fetchone()['id']
 	today = datetime.datetime.now()
 	vf_d['creation_date'] = '{0}-{1}-{2}'.format(today.strftime("%Y"), today.strftime("%m"), today.strftime("%d"))
 	
