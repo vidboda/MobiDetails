@@ -1,4 +1,4 @@
-function create_var() {
+function create_var(create_url) {
 	$("#error_name").empty();
 	$('html').css('cursor', 'progress');
 	$('.w3-btn').css('cursor', 'progress');
@@ -11,7 +11,7 @@ function create_var() {
 	}
 	$.ajax({
 		type: "POST",
-		url: '/create',
+		url: create_url,
 		data: {
 			gene: $("#gene").val(), acc_no: $("#acc_no").val(), new_variant: $("#new_variant").val(), acc_version: $("#acc_version").val(), alt_iso: $("#alt_iso").val()
 		}

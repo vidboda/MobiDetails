@@ -144,7 +144,7 @@
 						<p>Variant creation usually takes up to 30 seconds for variants located in genes with many isoforms</p>
 					</div>
 					<div class="w3-panel w3-large w3-center">
-						<input type="button"  name="submit" value="Create variant" onclick="create_var();" class="w3-btn w3-blue" for="creation_form" type="submit" />
+						<input type="button"  name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}');" class="w3-btn w3-blue" for="creation_form" type="submit" />
 					</div>
 				</form>
 			</div>
