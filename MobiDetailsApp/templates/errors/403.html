@@ -6,6 +6,6 @@
         <p>You cannot acces this resource until logged in... Go back <a href="{{ url_for('index') }}">home</a></p>
     </div>
 	<div class="w3-container w3-padding-64 w3-center">
-        <img class="w3-image" alt="403" src="static/img/LogoMakr_403.png"
+        <img class="w3-image" alt="403" src="{{ url_for('static', filename='img/LogoMakr_403.png') }}"
     </div>
 {% endblock %}
