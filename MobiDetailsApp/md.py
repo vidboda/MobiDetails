@@ -287,7 +287,6 @@ def variant(variant_id=None):
 										if 'sw_dn_ds' in pos:
 											annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
 											[annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
-											#TO DO define threshold and associated metadome_dn_ds_color
 					
 					
 				#MPA indel splice

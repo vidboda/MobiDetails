@@ -501,13 +501,13 @@
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
 							<td class="w3-left-align">{{ span_color(annot.msvm_score, annot.msvm_color) }} ({{ annot.m_rel }})</td>
 							<td class="w3-left-align">{{ span_color(annot.msvm_pred, annot.msvm_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds.meta }} for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 						<tr><!--Meta LR-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
 							<td class="w3-left-align">{{ span_color(annot.mlr_score, annot.mlr_color) }} ({{ annot.m_rel }})</td>
 							<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds.meta }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold >= {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 					</tbody>
 				</table>
