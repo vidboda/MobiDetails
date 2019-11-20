@@ -410,7 +410,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	if 'flag' not in vv_data:
 		return danger_panel(vv_key_var, "VariantValidator docker looks down!! TODO: an email warning to be sent to admin")	
 	elif vv_data['flag'] is None:
-		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")	
+		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
+	elif re.search('Major error', vv_data['flag']):
+		return danger_panel(vv_key_var, "A major validation error has occurred in VariantValidator. VV Admin have been made aware of the issue. Sorry for the inconvenience.")
 	#print(vv_data['flag'])
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#main isoform?
