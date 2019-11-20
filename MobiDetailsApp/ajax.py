@@ -89,7 +89,7 @@ def intervar():
 	try:
 		intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 	except:
-		return "<span>No intervar class</span>"
+		return "<span>No wintervar class</span>"
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(

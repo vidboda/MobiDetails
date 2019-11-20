@@ -3,7 +3,10 @@ import re
 import psycopg2
 import psycopg2.extras
 import functools
-
+import urllib3
+import certifi
+import json
+from . import config
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -43,8 +46,28 @@ def register():
 		elif not email:
 			error = 'Email is required.'
 		elif not re.match('^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-			error = 'The email address does not look valid.'
+			error = 'The email address does not look valid.'			
 		else:
+			http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+			#try:
+			# read api key for mailboxvalidator
+			apikey = config.email_check_key()
+			mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(apikey, email)
+			try:
+				mv_json = json.loads(http.request('GET', mv_url).data.decode('utf-8'))
+			except:
+				mv_json = None
+			if mv_json is not None:
+				try:
+					if mv_json['credits_available'] > 0:
+						if mv_json['status'] == "False":
+							if mv_json['is_high_risk'] == "True" or mv_json['is_suppressed'] == "True" or mv_json['is_catchall'] == "True":
+								error = 'The email address is reported as risky or suppressed. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+							#else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
+							#	error ='The email address does not look genuine. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+				except:
+					pass
+		if error is None:
 			curs.execute(
 				"SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
 			)
