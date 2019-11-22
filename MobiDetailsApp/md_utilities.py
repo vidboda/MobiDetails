@@ -9,8 +9,11 @@ import certifi
 import json
 import twobitreader
 from flask import (
-    url_for
+    url_for, current_app as app
 )
+from flask_mail import Message
+from . import config
+from MobiDetailsApp import mail
 #from MobiDetailsApp.db import get_db
 
 app_path = os.path.dirname(os.path.realpath(__file__))
@@ -78,9 +81,9 @@ local_files = {
 	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v151', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
+    'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-	'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'mutation tolerance at each position in a human protein', 'metadome scores', 'metadome']
+	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']	
 	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
@@ -173,9 +176,7 @@ def one2three_fct(var):
 	if match_object:
 		return one2three[match_object.group(1).capitalize()] + match_object.group(2) + one2three[match_object.group(3).capitalize()] + match_object.group(4)
 	
-#jinja custom filter
-def match(value, regexp):
-	return re.match(regexp, value)
+
 
 #get NCBI chr names for common names
 def get_ncbi_chr_name(db, chr_name, genome):
@@ -408,10 +409,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#deal with various warnings
 	#docker up?
 	if 'flag' not in vv_data:
-		return danger_panel(vv_key_var, "VariantValidator looks down!! Sorry for the inconvenience. Please retry later.")	
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
+		return danger_panel(vv_key_var, "VariantValidator looks down!! Sorry for the inconvenience. Please retry later.")
 	elif vv_data['flag'] is None:
 		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
 	elif re.search('Major error', vv_data['flag']):
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>A major validation error has occurred in VariantValidator.</p>'), '[MobiDetails - VariantValidator Error]')
 		return danger_panel(vv_key_var, "A major validation error has occurred in VariantValidator. VV Admin have been made aware of the issue. Sorry for the inconvenience. Please retry later.")
 	#print(vv_data['flag'])
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -709,6 +712,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		try:
 			intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 		except:
+			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - Code Error]'))
 			pass
 		#return intervar_data
 		if intervar_json is not None:
@@ -772,4 +776,24 @@ def get_genomic_values(genome, vv_data, vv_key_var):
 			'pos_ref': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref'],
 			'pos_alt': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']
 		}
-		
+
+def prepare_email_html(title, message):
+    return """<div style="padding:0.01em 16px;line-height:1.5;font-family:Verdana,sans-serif;background-color:#FFFFFF;">
+                <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;">
+                    <p style="margin:10px 0;font-weight:600;font-size:20px;">{0}</p>
+                </div><br />
+                <div style="font-size:15px;padding:32px;border-left:6px solid #ccc !important;background-color:#fdf5e6 !important;">{1}</div><br />
+                <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;font-weight:600;">
+                    <p><a style="color:#FFFFFF;font-size:18px;" href="https://mobidetails.iurc.montp.inserm.fr/MD">MobiDetails</a></p>
+                    <p style="font-size:15px;">Open-source DNA variant data interpretation</p>
+                    <p style="font-size:12px;">This message is automatically generated. Please do not reply. For specific queries, please contact david baux at <span style="color:#FFFFFF;">&#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;</span>.</p>
+                </div> 
+            </div>""".format(title, message)
+
+def send_error_email(message, mail_object):
+    params = config.mdconfig(section='email_auth')
+    msg = Message(mail_object,
+            sender = params['mail_username'],
+            recipients = [params['mail_error_recipient']])
+    msg.html = message
+    mail.send(msg)

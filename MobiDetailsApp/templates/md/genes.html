@@ -2,7 +2,8 @@
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
-	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_genes.js') }}" type="text/javascript"></script>
 {% endblock %}
 {% block title %}All genes{% endblock %}
 {% block header %}
@@ -31,7 +32,7 @@
 			</tbody>
 		</table>
 	</div><br/><br/>
-	<script>
+<!--	<script>
 		$(document).ready(function() {
 			$('#gene_table').DataTable({
 				responsive: true,
@@ -44,5 +45,5 @@
 				]
 			});
 		} );
-	</script>
+	</script>-->
 {% endblock %}

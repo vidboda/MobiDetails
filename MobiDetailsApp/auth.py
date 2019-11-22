@@ -6,7 +6,9 @@ import functools
 import urllib3
 import certifi
 import json
-from . import config
+from . import (
+	config, md_utilities
+)
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -51,7 +53,7 @@ def register():
 			http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 			#try:
 			# read api key for mailboxvalidator
-			apikey = config.email_check_key()
+			apikey = config.mdconfig(section='email_check')['apikey']
 			mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(apikey, email)
 			try:
 				mv_json = json.loads(http.request('GET', mv_url).data.decode('utf-8'))
@@ -65,7 +67,10 @@ def register():
 								error = 'The email address is reported as risky or suppressed. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
 							#else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
 							#	error ='The email address does not look genuine. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+					else:
+						md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails email validation error', '<p>mailboxvalidator credits == 0</p>'))
 				except:
+					md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails email validation error', '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1}</p>'.format(mv_json, os.path.basename(__file__)), '[MobiDetails - Email Validation Error]'))
 					pass
 		if error is None:
 			curs.execute(
@@ -82,6 +87,9 @@ def register():
 			return redirect(url_for('auth.login'))
 
 		flash(error)
+		if error is not None:
+			message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li><li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(error, request.remote_addr, username, country, institute, email)
+			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', message_body), '[MobiDetails - Registering Error]')
 
 	return render_template('auth/register.html')
 
@@ -140,6 +148,7 @@ def profile():
 	num_var = 0
 	num_var_fav = 0
 	if mobiuser is None:
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Bad profile attempt username: {0} from {1}</p>'.format(g.user['id'], os.path.basename(__file__)), '[MobiDetails - Profile Error]'))
 		error = 'You seem to be unknown by MobiDetails.'	
 	
 	curs.execute(

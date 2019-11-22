@@ -4,6 +4,7 @@ $(document).ready(function() {
 		dom: 'Bft',
 		"order": [],
 		//scrollY: 600,
+		"pageLength": 15,
 		buttons: [
 			'copy', 'excel', 'pdf'
 		]

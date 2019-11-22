@@ -46,7 +46,7 @@
 				</thead>
 				<tbody>
 					{% for resource in local_files %}
-						{% if local_files[resource][1] != 'hg38' and local_files[resource][1] != 'hg19' %}
+						{% if local_files[resource][2] != 'Human genome sequence' %}
 							<tr>
 								<td class="w3-left-align">
 									<a href="{{ urls[local_files[resource][4]] }}" target="_blank" title="Visit {{ local_files[resource][2] }}">{{ local_files[resource][2] }}</a>

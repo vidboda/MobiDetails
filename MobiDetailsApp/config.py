@@ -1,4 +1,5 @@
 import os
+import re
 from configparser import ConfigParser
 
 #get secret key from config file
@@ -17,52 +18,53 @@ else:
 
 #from http://www.postgresqltutorial.com/postgresql-python/connect/
 def mdconfig(filename=dir_path + '/sql/database.ini', section='postgresql'):
-    # create a parser
-    parser = ConfigParser()
-    # read config file
-    parser.read(filename) 
-    # get section, default to postgresql
-    db_params = {}
-    if parser.has_section(section):
-        params = parser.items(section)
-        for param in params:
-            db_params[param[0]] = param[1]
-    else:
-        raise Exception('Section {0} not found in the {1} file'.format(section, filename))
- 
-    return db_params
-def email_check_key(filename=dir_path + '/sql/database.ini', section='emailcheck'):
 	# create a parser
 	parser = ConfigParser()
 	# read config file
 	parser.read(filename) 
-	# get section
+	# get section, default to postgresql
+	md_params = {}
 	if parser.has_section(section):
 		params = parser.items(section)
 		for param in params:
-			if param[0] == 'apikey':
-				return param[1]
-	else:
-		raise Exception('Section {0} not found in the {1} file'.format('emailcheck', dir_path + '/sql/database.ini'))
-#https://medium.com/@dushan14/create-a-web-application-with-python-flask-postgresql-and-deploy-on-heroku-243d548335cc#
-# class Config(object):
-# 	DEBUG = False
-# 	TESTING = False
-# 	CSRF_ENABLED = True
-# 	SECRET_KEY = 'this-really-needs-to-be-changed'
-# 	#SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-# 
-# 
-# class ProductionConfig(Config):
-# 	DEBUG = False
-# 
-# 
-# class StagingConfig(Config):
-# 	DEVELOPMENT = True
-# 	DEBUG = True
-# 
-# 
-# class DevelopmentConfig(Config):
-# 	DEVELOPMENT = True
-# 	DEBUG = True
+			md_params[param[0]] = param[1]
 
+	else:
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Section {0} not found in the {1} file <br /> - from {2}</p>'.format(section, filename, os.path.basename(__file__)), '[MobiDetails - Config Error]'))
+		raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+
+	return md_params
+
+#jinja custom filter
+def match(value, regexp):
+	return re.match(regexp, value)
+# def email_check_key(filename=dir_path + '/sql/database.ini', section='emailcheck'):
+# 	# create a parser
+# 	parser = ConfigParser()
+# 	# read config file
+# 	parser.read(filename) 
+# 	# get section
+# 	if parser.has_section(section):
+# 		params = parser.items(section)
+# 		for param in params:
+# 			if param[0] == 'apikey':
+# 				return param[1]
+# 	else:
+# 		raise Exception('Section {0} not found in the {1} file'.format('emailcheck', dir_path + '/sql/database.ini'))
+# 	
+# def email_config(filename=dir_path + '/sql/database.ini', section='emailauth'):
+# 	# create a parser
+# 	parser = ConfigParser()
+# 	# read config file
+# 	parser.read(filename) 
+# 	# get section
+# 	if parser.has_section(section):
+# 		email_params = {}
+# 		params =  parser.items(section)
+# 		for param in params:
+# 			email_params[param[0]] = param[1]
+# 				
+				
+7
+	
+	

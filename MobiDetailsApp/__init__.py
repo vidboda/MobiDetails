@@ -1,17 +1,34 @@
 import os
-from . import md_utilities
+from . import config
 from flask import Flask, render_template
+from flask_mail import Mail
 from logging.handlers import RotatingFileHandler
 import logging
 
+mail = Mail()
+
 def create_app(test_config=None):
 	app =  Flask(__name__)
+	#confgi flaskmail
+	params = config.mdconfig(section='email_auth')
+	app.config.update(
+		DEBUG=True,
+		#EMAIL SETTINGS
+		MAIL_SERVER=params['mail_server'],
+		MAIL_PORT=params['mail_port'],
+		MAIL_USE_TLS=params['mail_use_tls'],
+		MAIL_USERNAME = params['mail_username'],
+		MAIL_PASSWORD = params['mail_password'],
+		MAIL_DEFAULT_SENDER = params['mail_default_sender']
+	)
+	
+	mail.init_app(app)
 	#errors
 	app.register_error_handler(403, not_found_error)
 	app.register_error_handler(404, not_found_error)
 	app.register_error_handler(500, internal_error)
 	#define custom jinja filters
-	app.jinja_env.filters['match'] = md_utilities.match
+	app.jinja_env.filters['match'] = config.match
 	if test_config is None:
 		# load the instance config, if it exists, when not testing
 		app.config.from_pyfile('config.py', silent=True)

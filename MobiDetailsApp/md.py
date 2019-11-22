@@ -37,6 +37,7 @@ def index():
 	if res is None:
 		error = "There is a problem with the number of genes."
 		flash(error)
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails PostGreSQL error', '<p>There is a problem with the number of genes.<br /> in {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - PostGreSQL Error]')
 	else:
 		close_db()
 		return render_template('md/index.html', nb_genes=res['gene'], nb_isoforms=res['transcript'])
@@ -50,6 +51,7 @@ def about():
 	try:
 		vv_data = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_info']).data.decode('utf-8'))
 	except:
+		d_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
 		vv_data = {'apiVersion': 'Service Unavailable'}
 	#vv_data = json.loads(http.request('GET', 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json').data.decode('utf-8'))
 	return render_template('md/about.html', vv_data=vv_data, urls=md_utilities.urls, local_files=md_utilities.local_files)
@@ -95,6 +97,7 @@ def gene(gene_name=None):
 									match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
 									enst_ver[match_obj.group(1)] = ts['gencode_id']
 					except:
+						md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome first block code failed.<br /> - from  {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
 						pass
 				break
 					
@@ -108,6 +111,7 @@ def gene(gene_name=None):
 				try:
 					metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
 				except:
+					md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome second block code failed.<br /> - from  {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
 					pass
 				if metad_data is not None:
 					if metad_data['status'] == 'PENDING':
@@ -124,7 +128,8 @@ def gene(gene_name=None):
 							else:
 								print('{} submitted to metadome'.format(vis_request['transcript_id']))
 						except:
-							print('error with metadome submission for {}'.format(enst))
+							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome submission for {0}<br /> - from  {1}</p>'.format(enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+							print('Error with metadome submission for {}'.format(enst))
 					elif metad_data['status'] == 'SUCCESS':
 						#get_request = None
 						try:
@@ -137,6 +142,7 @@ def gene(gene_name=None):
 							else:
 								print('saving metadome {} into local file system'.format(enst_ver[enst]))
 						except:
+							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome file writing for {0}<br /> - from  {1}</p>'.format(enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
 							print('error saving metadome json file for {}'.format(enst))
 		if result_all is not None:
 			#get annotations

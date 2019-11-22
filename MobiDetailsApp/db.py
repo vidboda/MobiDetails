@@ -14,6 +14,7 @@ def get_db():
 			params = config.mdconfig()
 			g.db = psycopg2.connect(**params)
 		except (Exception, psycopg2.DatabaseError) as error:
+			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>DB connection issue {0}<br /> - from {1}</p>'.format(psycopg2.DatabaseError, os.path.basename(__file__)), '[MobiDetails - DB Error]'))
 			print(error)
 		return g.db
 	
