@@ -569,7 +569,7 @@ def variant(variant_id=None):
 						annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
 						annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
 						annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
-						dbscsnv_mpa_threshold = 0.6
+						dbscsnv_mpa_threshold = 0.8
 						if 'mpa_score' not in annot or annot['mpa_score'] < 10:
 							if float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold or float(annot['dbscsnv_ada'])  > dbscsnv_mpa_threshold:
 								annot['mpa_score'] = 10
