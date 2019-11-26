@@ -274,9 +274,10 @@ def get_value_from_tabix_file(text, tabix_file, var):
 		i -= 1
 	#print(records)
 	for record in records:
+		#print(record)
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
 			return record
-		elif record[i] == var['pos_ref'] and re.search(r'{},'.format(var['pos_alt']), record[i+1]):
+		elif record[i] == var['pos_ref'] and (re.search(r'{},'.format(var['pos_alt']), record[i+1]) or re.search(r',{}'.format(var['pos_alt']), record[i+1])):
 			#multiple alts
 			return record 
 	return 'No match in {}'.format(text)
