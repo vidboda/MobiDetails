@@ -4,6 +4,7 @@
 {% block content %}
 	<div class="w3-container w3-center w3-padding-32">
 		<img class="w3-image" alt="MobiDetails" height="200" src="{{ url_for('static', filename='img/MobiDetails1.png') }}" width="700" /><br />
+		<p class="w3-xlarge">Online DNA Variant Interpretation</p>
 		<p class="w3-large">
 	{% if g.user['username'] %}
 		{{ g.user['username'] }}
@@ -30,7 +31,7 @@
 	</div>
 	<br />
 	{{ info("MobiDetails is a web app aiming at helping to interprete genetics DNA variations.<br/>You can create variants in your gene of interest. MobiDetails then agregates information from several sources (see <a href='/about'>about page</a>) for the variant including population frequencies, predictors, etc.<br/>If your gene is not in the <a href='/genes'>list</a>, you can request it at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.<br/> MobiDetails is developped in Montpellier University Hospital (Laboratory of Molecular Genetics).") }}
-	{{ danger("WARNING: MobiDetails is in current active development. This is an &alpha; version.","If you experience any trouble or have any idea to improve the software, please e-mail me at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;") }}
+	{{ danger("WARNING: MobiDetails is in current active development. This is a &beta; version.","If you experience any trouble or have any great idea to improve the software, please e-mail me at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;") }}
 <!--	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 		<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
 		<p><strong>NEWS:</strong>

@@ -38,6 +38,9 @@ $(document).ready(function(){
 		if ($('#variant_name').length) {
 			$('#variant_name').hide();
 		}
+		//if ($('#app_desc').length) {
+		//	$('#app_desc').hide();
+		//}
 		if ($('#login_name').length) {
 			$('#login_name').hide();
 		}
