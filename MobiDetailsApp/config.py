@@ -1,6 +1,7 @@
 import os
 import re
 from configparser import ConfigParser
+from . import md_utilities
 
 #get secret key from config file
 dir_path = os.path.dirname(os.path.realpath(__file__))
