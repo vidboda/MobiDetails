@@ -410,12 +410,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#deal with various warnings
 	#docker up?
 	if 'flag' not in vv_data:
-		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
+		send_error_email(prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
 		return danger_panel(vv_key_var, "VariantValidator looks down!! Sorry for the inconvenience. Please retry later.")
 	elif vv_data['flag'] is None:
 		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
 	elif re.search('Major error', vv_data['flag']):
-		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>A major validation error has occurred in VariantValidator.</p>'), '[MobiDetails - VariantValidator Error]')
+		send_error_email(prepare_email_html('MobiDetails error', '<p>A major validation error has occurred in VariantValidator.</p>'), '[MobiDetails - VariantValidator Error]')
 		return danger_panel(vv_key_var, "A major validation error has occurred in VariantValidator. VV Admin have been made aware of the issue. Sorry for the inconvenience. Please retry later.")
 	#print(vv_data['flag'])
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -713,7 +713,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		try:
 			intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 		except:
-			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - Code Error]'))
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - Code Error]'))
 			pass
 		#return intervar_data
 		if intervar_json is not None:
