@@ -1,7 +1,7 @@
 import os
 import re
 from configparser import ConfigParser
-from . import md_utilities
+#from . import md_utilities
 
 #get secret key from config file
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -30,9 +30,9 @@ def mdconfig(filename=dir_path + '/sql/database.ini', section='postgresql'):
 		for param in params:
 			md_params[param[0]] = param[1]
 
-	else:
-		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Section {0} not found in the {1} file <br /> - from {2}</p>'.format(section, filename, os.path.basename(__file__)), '[MobiDetails - Config Error]'))
-		raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+	# else:
+	# 	md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Section {0} not found in the {1} file <br /> - from {2}</p>'.format(section, filename, os.path.basename(__file__)), '[MobiDetails - Config Error]'))
+	# 	raise Exception('Section {0} not found in the {1} file'.format(section, filename))
 
 	return md_params
 
