@@ -713,7 +713,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		try:
 			intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 		except:
-			send_error_email(prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - Code Error]'))
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - Code Error]')
 			pass
 		#return intervar_data
 		if intervar_json is not None:
