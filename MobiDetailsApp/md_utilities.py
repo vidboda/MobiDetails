@@ -81,7 +81,7 @@ local_files = {
 	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v151', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
-    'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
+	'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
 	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']	
 	#'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
@@ -135,6 +135,8 @@ def reverse_complement(seq):
 #useless as dbNSFP has been concatenated in a single file
 #def get_dbNSFP_file(chrom):
 #	return local_files['dbNSFP_base'][0] + chrom + '.gz'
+
+
 
 def clean_var_name(variant):
 	variant = re.sub(r'^[cpg]\.', '', variant)
@@ -713,7 +715,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 		try:
 			intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 		except:
-			send_error_email(prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - Code Error]')
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Intervar API call failed in {0} for {1}</p>'.format(os.path.basename(__file__), intervar_url)), '[MobiDetails - Code Error]')
 			pass
 		#return intervar_data
 		if intervar_json is not None:

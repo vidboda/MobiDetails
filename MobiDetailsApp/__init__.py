@@ -23,8 +23,9 @@ def create_app(test_config=None):
 	)
 	
 	mail.init_app(app)
+	
 	#errors
-	app.register_error_handler(403, not_found_error)
+	app.register_error_handler(403, forbidden_error)
 	app.register_error_handler(404, not_found_error)
 	app.register_error_handler(500, internal_error)
 	#define custom jinja filters
@@ -76,7 +77,6 @@ def create_app(test_config=None):
 	
 	
 	return app
-
 
 def not_found_error(error):
     return render_template('errors/404.html'), 404

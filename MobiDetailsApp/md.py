@@ -565,13 +565,21 @@ def variant(variant_id=None):
 						annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
 						annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
 					else:
-						annot['dbscsnv_ada'] = "{:.2f}".format(float(record[14]))
-						annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
-						annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
-						annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+						try:
+							annot['dbscsnv_ada'] = "{:.2f}".format(float(record[14]))
+							annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+						except:
+							#"score" is '.'
+							annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv'][1])
+						try:
+							annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
+							annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+						except:
+							#"score" is '.'
+							annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
 						dbscsnv_mpa_threshold = 0.8
 						if 'mpa_score' not in annot or annot['mpa_score'] < 10:
-							if float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold or float(annot['dbscsnv_ada'])  > dbscsnv_mpa_threshold:
+							if (isinstance(annot['dbscsnv_ada'], float) and float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold) or (isinstance(annot['dbscsnv_rf'], float) and float(annot['dbscsnv_ada'])  > dbscsnv_mpa_threshold):
 								annot['mpa_score'] = 10
 								annot['mpa_impact'] = 'high splice'
 	else:
