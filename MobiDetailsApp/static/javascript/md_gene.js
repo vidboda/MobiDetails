@@ -7,7 +7,8 @@ function create_var(create_url) {
 		$("#error_name").append('<span>Please enter a variant name</span>');
 		$('html').css('cursor', 'default');
 		$('.w3-btn').css('cursor', 'default');
-		return;
+		$("#new_variant").focus();
+		return false;
 	}
 	$.ajax({
 		type: "POST",
@@ -30,7 +31,17 @@ function new_isoform() {
 		}
 	});
 }
+
 $(document).ready(function(){
+	$('#new_variant').keydown(function (e) {
+		//alert(e.which);
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {			
+			$('#submit_btn').click();
+			return false;
+		} else {
+			return true;
+		}
+	});
 	if ($('#iso_form').length) {
 		$('#alt_iso option[value=""]').prop('selected', true);
 	}

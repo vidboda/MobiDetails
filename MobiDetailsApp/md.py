@@ -97,7 +97,7 @@ def gene(gene_name=None):
 									match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
 									enst_ver[match_obj.group(1)] = ts['gencode_id']
 					except:
-						md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome first block code failed.<br /> - from  {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
+						md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(gene_name, gene['enst'], os.path.basename(__file__)), '[MobiDetails - API Error]'))
 						pass
 				break
 					
@@ -111,7 +111,7 @@ def gene(gene_name=None):
 				try:
 					metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
 				except:
-					md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome second block code failed.<br /> - from  {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
+					md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
 					pass
 				if metad_data is not None:
 					if metad_data['status'] == 'PENDING':
@@ -128,8 +128,9 @@ def gene(gene_name=None):
 							else:
 								print('{} submitted to metadome'.format(vis_request['transcript_id']))
 						except:
-							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome submission for {0}<br /> - from  {1}</p>'.format(enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
-							print('Error with metadome submission for {}'.format(enst))
+							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome submission for {0} ({1})<br /> - from  {2}</p>'.format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+							pass
+							#print('Error with metadome submission for {}'.format(enst))
 					elif metad_data['status'] == 'SUCCESS':
 						#get_request = None
 						try:
@@ -142,8 +143,9 @@ def gene(gene_name=None):
 							else:
 								print('saving metadome {} into local file system'.format(enst_ver[enst]))
 						except:
-							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome file writing for {0}<br /> - from  {1}</p>'.format(enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
-							print('error saving metadome json file for {}'.format(enst))
+							md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Error with metadome file writing for {0} ({1})<br /> - from  {2}</p>'.format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+							pass
+							#print('error saving metadome json file for {}'.format(enst))
 		if result_all is not None:
 			#get annotations
 			curs.execute(

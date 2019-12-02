@@ -107,7 +107,7 @@
 				</span><br />
 			</div>
 			<div class="w3-container">
-				<form method="post" action="create_variant()" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
+				<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
 					<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
 					<input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" />
 					<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
@@ -144,7 +144,7 @@
 						<p>Variant creation usually takes up to 30 seconds for variants located in genes with many isoforms</p>
 					</div>
 					<div class="w3-panel w3-large w3-center">
-						<input type="button"  name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}');" class="w3-btn w3-blue" for="creation_form" type="submit" />
+						<input type="button" id="submit_btn" name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}');" class="w3-btn w3-blue" for="creation_form"/>
 					</div>
 				</form>
 			</div>
