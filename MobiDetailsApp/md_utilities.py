@@ -412,13 +412,22 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#deal with various warnings
 	#docker up?
 	if 'flag' not in vv_data:
-		send_error_email(prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
-		return danger_panel(vv_key_var, "VariantValidator looks down!! Sorry for the inconvenience. Please retry later.")
+		if caller == 'webApp':
+			send_error_email(prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
+			return danger_panel(vv_key_var, "VariantValidator looks down!! Sorry for the inconvenience. Please retry later.")
+		elif caller == 'api':
+			return {'mobidetails_error': 'VariantValidator looks down'}
 	elif vv_data['flag'] is None:
-		return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
+		if caller == 'webApp':
+			return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
+		elif caller == 'api':
+			return {'mobidetails_error': 'No flag in VariantValidator answer. Please check your variant.'}
 	elif re.search('Major error', vv_data['flag']):
-		send_error_email(prepare_email_html('MobiDetails error', '<p>A major validation error has occurred in VariantValidator.</p>'), '[MobiDetails - VariantValidator Error]')
-		return danger_panel(vv_key_var, "A major validation error has occurred in VariantValidator. VV Admin have been made aware of the issue. Sorry for the inconvenience. Please retry later.")
+		if caller == 'webApp':
+			send_error_email(prepare_email_html('MobiDetails error', '<p>A major validation error has occurred in VariantValidator.</p>'), '[MobiDetails - VariantValidator Error]')
+			return danger_panel(vv_key_var, "A major validation error has occurred in VariantValidator. VV Admin have been made aware of the issue. Sorry for the inconvenience. Please retry later.")
+		elif caller == 'api':
+			return {'mobidetails_error': 'A major validation error has occurred in VariantValidator'}
 	#print(vv_data['flag'])
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#main isoform?
@@ -447,6 +456,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			if vv_data['flag'] == 'warning':
 				if caller == 'webApp':
 					return danger_panel(vv_key_var, " ".join(vv_data['validation_warning_1']['validation_warnings']))
+				elif caller == 'api':
+					return {'mobidetails_error': vv_data['validation_warning_1']['validation_warnings']}
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		vv_url = "{0}variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
 		try:
@@ -490,14 +501,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), original_variant)
 					if caller == 'webApp':
 						return danger_panel(vv_key_var, return_text)
+					elif caller == 'api':
+						return {'mobidetails_error': '{}'.format(return_text)}
 				else:
 					danger_panel(vv_key_var, warning)
 			elif re.search('normalized', warning):
 				match_obj = re.search(r'normalized to ({0}\.{1}:c\..+)'.format(acc_no, acc_version), warning)
 				if match_obj.group(1) is not None and match_obj.group(1) == vv_key_var:
 					next
-				else:
+				elif caller == 'webApp':
 					return danger_panel(vv_key_var, warning)
+				elif caller == 'api':
+					return {'mobidetails_error': '{}'.format(warning)}
 			elif re.search('A more recent version of', warning) or re.search('LRG_', warning) or re.search('Whitespace', warning):
 				next
 			else:
@@ -506,6 +521,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 						return danger_panel(vv_key_var, "".join(vv_data[first_level_key]['validation_warnings']))
 					else:
 						return danger_panel(vv_key_var, warning)
+				elif caller == 'api':
+					if len(vv_data[first_level_key]['validation_warnings']) > 1:
+						return {'mobidetails_error':  ''.join(vv_data[first_level_key]['validation_warnings'])}
+					else:
+						return {'mobidetails_error':  '{}'.format(warning)}
 	genome = 'hg38'
 	#hg38
 	hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
@@ -518,7 +538,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	)
 	res = curs.fetchone()
 	if res is not None:
-		return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
+		if caller == 'webApp':
+			return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
+		elif caller == 'api':
+			return {'mobidetails_id': res['feature_id']}
 	
 	hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
 	positions = compute_start_end_pos(hg38_d['g_name'])
@@ -554,7 +577,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	)
 	res_strand = curs.fetchone()
 	if res_strand is None:
-		return danger_panel(vv_key_var, 'No strand for gene {}, impossible to create a variant, please contact us'.format(gene))
+		if caller == 'webApp':
+			return danger_panel(vv_key_var, 'No strand for gene {}, impossible to create a variant, please contact us'.format(gene))
+		elif caller == 'api':
+			return {'mobidetails_error': 'No strand for gene {}, impossible to create a variant, please contact us'.format(gene)}
 			
 	#p_name
 	p_obj =  re.search(r':p\.\((.+)\)$', vv_data[vv_key_var]['hgvs_predicted_protein_consequence']['tlr'])
@@ -764,10 +790,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	curs.execute(insert_variant_19)
 	
 	db.commit()
-	if remapper is True:
-		return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id)
-	else:
-		return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
+	if remapper is True and caller == 'webApp':
+			return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id)		
+	elif caller == 'webApp':
+			return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
+	if caller == 'api':
+			return {'mobidetails_id': vf_id}
 
 def get_genomic_values(genome, vv_data, vv_key_var):
 	if vv_data[vv_key_var]['primary_assembly_loci'][genome]:

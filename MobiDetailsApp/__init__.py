@@ -51,6 +51,9 @@ def create_app(test_config=None):
 	app.register_blueprint(md.bp)
 	from . import ajax
 	app.register_blueprint(ajax.bp)
+	from . import api
+	app.register_blueprint(api.bp)
+	
 	#from . import error
 	#app.register_blueprint(error.bp)
 	app.add_url_rule('/', endpoint='index')
