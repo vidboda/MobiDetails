@@ -17,7 +17,23 @@
 		<h1>What you need to run MobiDetails</h1>
 	</div><br/>
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouneed" style="display:none">
-		<span>Internet, a web browser, a gene and a variant of interest (HGVS c. nomenclature). That's all.</span>
+		{{ info("<span>Internet, a web browser, a gene and a variant of interest (HGVS c. nomenclature). That's all.</span>") }}
+	</div>
+	<div class="w3-button w3-block w3-blue" onclick="accord('howto');" title="toggle section">
+		<h1>How to use it</h1>
+	</div><br/>
+	<div class="w3-container w3-padding-64" id="howto" style="display:none">
+		{{ info("<span>MobiDetails is a DNA variant online interpretation tool. Users create the variants which must be linked to a gene. <br/>To create a variant:</span>
+		<ul>
+			<li>go to your gene page e.g. using the search engine at the bottom of each page (HGNC names),</li>
+			<li>then use the variant creation form by clicking on the 'create variant' button (substitutions or small indels HGVS c. nomenclature)</li>
+			<li>if the creation is successfull, a new link appears in the middle of the page,</li>
+			<li>which will bring you to the variant page. You're done!</li>
+		</ul>
+		<p>For genes including multiple isoforms, you can select your isoform of interest. But beware, MobiDetails includes ons isoform which is considered as canonical (from UCSC) and will try to enforce the variant creation on that isoform (if so, you will be noticed). If this is not possible, it will try to create the variant on the selected isoform.</p>
+		<p>Once created, a variant will be stored in the system and you won't have to create it again.</p>
+		<p>You can also create an account (top right of all pages, icon <i class='fa fa fa-user-plus'></i>), which will allow you to quickly retrieve all the variants you created and all your favourite variants.<br /> You can mark a variant as favourite in the variant page when you're logged in (<i class='fa fa fa-user'></i>) by cliking on the star <i class='fa fa-star'></i> at the bottom of the left menu. You can retrieve your variants using the 'identity card' <i class='fa fa-id-card-o'></i> on the top right menu when you're logged in.</p>") }}
+		{{ info("<strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li><li>gene symbol, e.g. 'USH2A'</li></ul>") }}
 	</div>
 	<!--<div class="w3-button w3-block w3-blue" onclick="accord('video1');" title="toggle section">-->
 	<!--	<h1>Check out the general video tutorial</h1>-->
@@ -59,7 +75,7 @@
 						<td class="w3-left-align">
 							<a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a>
 						</td>
-						<td class="w3-left-align">v{{ vv_data.apiVersion }}</td>
+						<td class="w3-left-align">{{ vv_data.apiVersion }}</td>
 					</tr>
 				</tbody>
 			</table>

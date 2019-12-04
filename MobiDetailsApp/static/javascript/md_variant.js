@@ -202,6 +202,7 @@ $(document).ready(function() {
 			tables.push("missense_table");
 		}
 		tables.push("admin_table");
+		tables.push("resource_table");
 		//var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
 		var tablesConverted = {};
 		for (var k = 0; k < tables.length; k++) {
@@ -289,7 +290,15 @@ $(document).ready(function() {
 					},
 					layout: 'noBorders'
 				},
-			],
+				" ",
+				"Data for " + tables[5],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[5]]
+					},
+					layout: 'noBorders'
+				},
 			//images: [],			
 			//	" ",
 			//	"Data for " + tables[5],
@@ -309,7 +318,7 @@ $(document).ready(function() {
 			//		},
 			//		layout: 'noBorders'
 			//	},
-			//],
+			],
 			styles: {
 				tableHeader: {
 					bold: true,
@@ -341,11 +350,11 @@ $(document).ready(function() {
 		if ($('#splicing_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[5],
+				"Data for " + tables[6],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[5]]
+						body: tablesConverted[tables[6]]
 					},
 					layout: 'noBorders'
 				}
@@ -354,11 +363,11 @@ $(document).ready(function() {
 		if ($('#missense_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[6],
+				"Data for " + tables[7],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[6]]
+						body: tablesConverted[tables[7]]
 					},
 					layout: 'noBorders'
 				}
