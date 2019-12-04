@@ -34,7 +34,7 @@
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
 		<h1>External Resources Used by MobiDetails</h1>
 	</div><br/>
-	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:none">
+	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
 		<div class="w3-responsive w3-container">
 			<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
 				<caption>Links and versions of external resources used in MD:</caption>
@@ -66,14 +66,14 @@
 		</div>
 	</div>
 	<div class="w3-container w3-padding-64" style="display:block">
+		<h3>Disclaimer:</h3>
+		{{ info("<strong>This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free for academic use service on an 'as-is' basis, without any warranty as to its accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.</strong>") }}
 		<h3>Group's website:</h3>
 		{{ info('<a href="https://neuro-2.iurc.montp.inserm.fr/group/diag_en.html" target="_blank">Deafness and blindness group</a> at Laboratory of molecular genetics, Montpellier University Hospital</a>') }}
 		<h3>Source code:</h3>
 		{{ info('Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a>') }}
 		<h3>Credits:</h3>
-		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.<br/>Logos made using <a href="https://my.logomakr.com" target="_blank">Logomakr</a>.') }}
-		<h3>Disclaimer:</h3>
-		{{ info("This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free service on an 'as-is' basis, without any warranty as to its accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.") }}
+		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.<br/>Logos made using <a href="https://my.logomakr.com" target="_blank">Logomakr</a>.') }}		
 	</div>
 	<br /><br />
 {% endblock %}
