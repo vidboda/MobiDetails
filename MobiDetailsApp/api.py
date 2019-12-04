@@ -31,12 +31,12 @@ def api_variant_exists(variant_ghgvs=None):
 		)
 		res = curs.fetchone()
 		if res is not None:
-			return jsonify({'mobidetails_id': res['feature_id']})
+			return jsonify(mobidetails_id = res['feature_id'])
 		else:
 			#return jsonify("SELECT feature_id FROM variant WHERE g_name = 'chr{0}:g.{1}' AND genome_version = '{2}'".format(chrom, pattern, genome_version))
-			return jsonify({'mobidetails_warning': 'The variant {} does not exist yet in MD'.format(variant_ghgvs)})
+			return jsonify(mobidetails_warning = 'The variant {} does not exist yet in MD'.format(variant_ghgvs))
 	else:
-		return jsonify({'mobidetails_error': 'malformed query {}'.format(variant_ghgvs)})
+		return jsonify(mobidetails_error = 'malformed query {}'.format(variant_ghgvs))
 	
 
 ######################################################################
@@ -56,7 +56,7 @@ def api_variant_create(variant_chgvs=None):
 		)
 		res = curs.fetchone();
 		if res is not None:
-			return jsonify({'mobidetails_id': res['id']})
+			return jsonify(mobidetails_id = res['id'])
 		else:
 			#creation
 			
@@ -66,7 +66,7 @@ def api_variant_create(variant_chgvs=None):
 			)
 			res_gene = curs.fetchone();
 			if res_gene is None:
-				return jsonify({'mobidetails_error': 'The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no)})
+				return jsonify(mobidetails_error = 'The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no))
 			
 					
 			http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -77,7 +77,7 @@ def api_variant_create(variant_chgvs=None):
 				vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 			except:
 				close_db()
-				return jsonify({'mobidetails_error': 'Variant Validator did not return any value for the variant {}.'.format(new_variant)})
+				return jsonify(mobidetails_error = 'Variant Validator did not return any value for the variant {}.'.format(new_variant))
 			if re.search('[di][neu][psl]',new_variant):
 				#need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
 				for key in vv_data:
@@ -90,4 +90,4 @@ def api_variant_create(variant_chgvs=None):
 			creation_dict =  md_utilities.create_var_vv(vv_key_var, res_gene['gene'], acc_no, new_variant, original_variant, acc_version, vv_data, 'api', db, g)
 			return jsonify(creation_dict)
 	else:
-		return jsonify({'mobidetails_error': 'malformed query {}'.format(variant_chgvs)})
+		return jsonify(mobidetails_error = 'malformed query {}'.format(variant_chgvs))
