@@ -21,13 +21,33 @@
 			<span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}'" title="see all genes">{{ nb_genes }}</span><span> genes and </span><span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}'" title="see all genes">{{ nb_isoforms }}</span><span> isoforms </span>
 		</div>
 	</div>
-	<div align="center">
+	<div align="center">		
 		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main">
 			<div class="w3-margin-16 w3-container" style="width:50%">
 				<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
 				<br /><br /><input class="w3-button w3-blue" type="submit" value="Submit" />
 			</div>
 		</form>
+		<!--autocomplete-->
+		<script type="text/javascript">
+			$('#main_engine').autocomplete({
+				source: function(request, response){									
+					$.ajax({
+						url: '{{ url_for('ajax.autocomplete') }}',
+						dataType: 'json',
+						method: 'POST',
+						data: {
+							query_engine: request.term
+						},
+						success: response
+						//success : function(data){
+						//	response(data);
+						//}
+					});
+				},
+				minLength: 2,
+			});
+		</script>
 	</div>
 	<br />
 	{{ info("MobiDetails is a web app aiming at helping to interprete genetics DNA variations.<br/>You can create variants in your gene of interest. MobiDetails then agregates information from several sources (see <a href='/about'>about page</a>) for the variant including population frequencies, predictors, etc.<br/>If your gene is not in the <a href='/genes'>list</a>, you can request it at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.<br/> MobiDetails is developped in Montpellier University Hospital (Laboratory of Molecular Genetics).") }}

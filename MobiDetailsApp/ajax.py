@@ -197,14 +197,14 @@ def create():
 			vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 		except:
 			close_db()
-			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. Please check carefully your nomenclature!')
+			return md_utilities.danger_panel(new_variant, 'Variant Validator did not return any value for the variant. Either it is down or your nomenclature is very odd!')
 		if re.search('[di][neu][psl]',new_variant):
 			#need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
 			for key in vv_data:
 				if re.search('{0}.{1}'.format(acc_no, acc_version), key):
 					vv_key_var = key
 					#print(key)
-					var_obj = re.search(':(c\..+)$', key)
+					var_obj = re.search(r':(c\..+)$', key)
 					if var_obj is not None:
 						new_variant = var_obj.group(1)
 			
@@ -235,5 +235,71 @@ def favourite():
 	close_db()
 	return 'ok'
 	
+######################################################################
+#web app - ajax for search engine autocomplete
+@bp.route('/autocomplete', methods=['POST'])
+def autocomplete():
+	query = request.form['query_engine']
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	if re.search(r'^c\..+', query):
+		match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+		md_query = match_object.group(1)
+		curs.execute(
+			"SELECT c_name FROM variant_feature WHERE c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
+		)
+		res = curs.fetchall()
+		result = []
+		for var in res:
+			result.append('c.{}'.format(var[0]))
+		#print(json.dumps(result))
+		#print("SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query))
+		if result is not None:
+			return json.dumps(result)
+		else:
+			return None
+	i = 1
+	if re.search(r'^[Nn][Mm]_.+', query):
+		i = 2
+		query = query.upper()
+	elif not re.search(r'orf', query):
+		query = query.upper()
+	curs.execute(
+		"SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
+	)
+	res = curs.fetchall()
+	result = []
+	for gene in res:
+		result.append(gene[0])
+	#print("SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query))
+	if result is not None:
+		return json.dumps(result)
+	else:
+		return None
+	
+######################################################################
+#web app - ajax for variant creation autocomplete
+@bp.route('/autocomplete_var', methods=['POST'])
+def autocomplete_var():
+	query = request.form['query_engine']
+	gene = request.form['gene']
+	if re.search(r'^c\..+', query):
+		match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+		md_query = match_object.group(1)
+		db = get_db()
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		curs.execute(
+			"SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query)
+		)
+		res = curs.fetchall()
+		result = []
+		for var in res:
+			result.append('c.{}'.format(var[0]))
+		#print(json.dumps(result))
+		#print("SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query))
+		if result is not None:
+			return json.dumps(result)
+		else:
+			return None
 	
 	

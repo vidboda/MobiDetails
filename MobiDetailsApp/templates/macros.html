@@ -118,8 +118,35 @@
 							<label for="new_variantblue">New variant (HGVS DNA):</label>
 						</div>
 						<div class="w3-third">
-							<input  for="creation_form" id="new_variant" maxlength="50" name="new_variant" size="20" type="text" value="c." />
+							<input  for="creation_form" id="new_variant" maxlength="50" name="new_variant" size="20" type="text" value="c." style="position:relative;"/>
 						</div>
+						<!--autocomplete-->
+						<style>
+							.ui-autocomplete {
+								z-index:1001;
+							}
+						</style>
+						<script type="text/javascript">
+							$('#new_variant').autocomplete({
+								source : function(request, response){									
+									$.ajax({
+										url : '{{ url_for('ajax.autocomplete_var') }}',
+										dataType : 'json',
+										method: 'POST',
+										appendTo: '#new_variant',
+										data: {
+											query_engine: request.term,
+											gene: '{{ gene }}'
+										},
+										success: response
+										//success : function(data){
+										//	response(data);
+										//}
+									});
+								},
+								minLength: 4
+							});
+						</script>
 						<div class="w3-third w3-text-red" id="error_name"></div>
 					</div>
 					{% if num_iso > 1 %}
