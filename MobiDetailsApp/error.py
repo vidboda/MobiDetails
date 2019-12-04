@@ -1,5 +1,10 @@
 from flask import render_template, Blueprint, current_app as app
 #from MobiDetailsApp import current_app as app#, db
+###################
+###Deprecated errors are handled in __init__.py
+###################
+
+
 
 bp = Blueprint('error', __name__)
 

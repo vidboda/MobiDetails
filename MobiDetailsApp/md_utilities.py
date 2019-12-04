@@ -407,7 +407,7 @@ def info_panel(text, var, id_var):
 		c= ''
 	return '<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container"><span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span><p><span><strong>{0}<a href="{1}" target="_blank" title="Go to the variant page"> {2}{3}</a><br/></strong></span><br /></p></div>'.format(text, url_for('md.variant', variant_id=id_var), c, var)
 
-def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, caller, db, g):
+def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
 	vf_d = {}
 	#deal with various warnings
 	#docker up?
@@ -487,7 +487,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
 				match_obj = re.search(r'automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
 				if match_obj.group(1) is not None:
-					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), new_variant)
+					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), original_variant)
 					if caller == 'webApp':
 						return danger_panel(vv_key_var, return_text)
 				else:
@@ -707,8 +707,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, acc_version, vv_data, c
 	#get intervar automated class
 	if vf_d['variant_size'] > 1:
 		vf_d['acmg_class'] = 3
-	elif vf_d['dna_type'] == 'substitution':
-		#intervar api returns empty results with hg38
+	elif vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon':
+		#intervar api returns empty results with hg38 09/2019
 		http = urllib3.PoolManager()
 		intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(urls['intervar_api'], 'hg19', hg19_d['chr'], hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt'])
 		intervar_json = None
