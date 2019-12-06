@@ -469,6 +469,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 					vv_key_var = key
 					var_obj = re.search(r':c\.(.+)$', key)
 					vf_d['c_name'] = var_obj.group(1)
+					acc_no = res_can['name'][1]
+					acc_version = res_can['nm_version']
 					first_level_key = key
 					remapper = True
 		except:
@@ -667,6 +669,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 		vf_d['end_segment_number'] = res_seg['number']
 		if vf_d['start_segment_type'] == 'intron':
 			ivs_obj = re.search(r'^-?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
+			print(vf_d['c_name'])
 			vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2))
 	if not 'ivs_name' in vf_d:
 		vf_d['ivs_name'] = 'NULL'
