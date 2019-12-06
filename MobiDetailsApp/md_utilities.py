@@ -9,7 +9,7 @@ import certifi
 import json
 import twobitreader
 from flask import (
-    url_for, current_app as app
+    url_for, request, current_app as app
 )
 from flask_mail import Message
 from . import config
@@ -500,7 +500,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			elif re.search('automapped to {0}\.{1}:c\..+'.format(acc_no, acc_version), warning):
 				match_obj = re.search(r'automapped to {0}\.{1}:(c\..+)'.format(acc_no, acc_version), warning)
 				if match_obj.group(1) is not None:
-					return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), original_variant)
+					return_text = " VariantValidator reports that your variant should be {0} instead of {1}".format(match_obj.group(1), original_variant)
 					if caller == 'webApp':
 						return danger_panel(vv_key_var, return_text)
 					elif caller == 'api':
@@ -543,7 +543,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 		if caller == 'webApp':
 			return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
 		elif caller == 'api':
-			return {'mobidetails_id': res['feature_id']}
+			return {'mobidetails_id': res['feature_id'], 'url': '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id']))}
 	
 	hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
 	positions = compute_start_end_pos(hg38_d['g_name'])
@@ -736,7 +736,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#get intervar automated class
 	if vf_d['variant_size'] > 1:
 		vf_d['acmg_class'] = 3
-	elif vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon':
+	elif (vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon'):
 		#intervar api returns empty results with hg38 09/2019
 		http = urllib3.PoolManager()
 		intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(urls['intervar_api'], 'hg19', hg19_d['chr'], hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt'])
@@ -748,7 +748,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			pass
 		#return intervar_data
 		if intervar_json is not None:
-			#curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 			curs.execute(
 				"SELECT acmg_class FROM valid_class WHERE acmg_translation = '{}'".format(intervar_json['Intervar'].lower())
 			)
@@ -763,13 +762,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	mobiuser = 'mobidetails'
 	if g.user is not None:
 		mobiuser = g.user['username']
-		#curs.execute(
-		# 	"SELECT id FROM mobiuser WHERE username = '{}'".format(g.user['username'])
-		# )
-		# vf_d['creation_user'] = curs.fetchone()['id']
-	#else:
-		
-		#vf_d['creation_user'] = 10
+
 	curs.execute(
 		"SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
 	)
@@ -798,7 +791,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	elif caller == 'webApp':
 			return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
 	if caller == 'api':
-			return {'mobidetails_id': vf_id}
+			return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=vf_id))}
 
 def get_genomic_values(genome, vv_data, vv_key_var):
 	if vv_data[vv_key_var]['primary_assembly_loci'][genome]:

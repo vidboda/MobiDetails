@@ -56,7 +56,7 @@ def api_variant_create(variant_chgvs=None):
 		)
 		res = curs.fetchone();
 		if res is not None:
-			return jsonify(mobidetails_id = res['id'])
+			return jsonify(mobidetails_id = res['id'], url = '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['id'])))
 		else:
 			#creation
 			
@@ -71,7 +71,7 @@ def api_variant_create(variant_chgvs=None):
 					
 			http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/all".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
-			vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)		
+			vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)		
 			
 			try:
 				vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
@@ -84,10 +84,10 @@ def api_variant_create(variant_chgvs=None):
 					if re.search('{0}.{1}'.format(acc_no, acc_version), key):
 						vv_key_var = key
 						#print(key)
-						var_obj = re.search(r':(c\..+)$', key)
+						var_obj = re.search(r':c\.(.+)$', key)
 						if var_obj is not None:
 							new_variant = var_obj.group(1)
-			creation_dict =  md_utilities.create_var_vv(vv_key_var, res_gene['gene'], acc_no, new_variant, original_variant, acc_version, vv_data, 'api', db, g)
+			creation_dict =  md_utilities.create_var_vv(vv_key_var, res_gene['gene'], acc_no, 'c.{}'.format(new_variant), original_variant, acc_version, vv_data, 'api', db, g)
 			return jsonify(creation_dict)
 	else:
 		return jsonify(mobidetails_error = 'malformed query {}'.format(variant_chgvs))
