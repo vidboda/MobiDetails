@@ -62,8 +62,9 @@ def about():
 @bp.route('/gene/<string:gene_name>', methods=['GET', 'POST'])
 def gene(gene_name=None):
 	if gene_name is None:
-		return render_template('unknown.html')
-	
+		return render_template('unknown.html', query='No gene provided')
+	elif re.search(r'^[^\w+]$', gene_name):
+		return render_template('unknown.html', query=gene_name)
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#main isoform? now canonical is stored in db
@@ -186,6 +187,8 @@ def genes():
 def vars(gene_name=None):
 	if gene_name is None:
 		return render_template('unknown.html', query='No gene provided')
+	elif re.search(r'^[^\w+]$', gene_name):
+		return render_template('unknown.html', query=gene_name)
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	#error = None
