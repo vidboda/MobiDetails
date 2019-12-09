@@ -1,4 +1,4 @@
-{% from 'macros.html' import input, fa, info %}
+{% from 'macros.html' import input, fa, info, danger %}
 {% extends 'base.html' %}
 
 {% block header %}
@@ -6,7 +6,8 @@
 {% endblock %}
 
 {% block content %}
-	{{ info("Registering is mandatory to modify variant ACMG classes. However, for browsing the site, you do not require to log in.") }}
+	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. However, for browsing the site, you do not require to log in.") }}
+	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.") }}
 	<div align = "center">
 		<form method="post" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
 			<h2>Please register using your academic email address:</h2><br/>
