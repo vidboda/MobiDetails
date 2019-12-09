@@ -6,18 +6,18 @@
 {% endblock %}
 
 {% block content %}
-	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. However, for browsing the site, you do not require to log in.") }}
-	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.") }}
+	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />If you do not ant any cookies at all, just do not register.") }}
+	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. However, for browsing the site, you do not require to log in.") }}	
 	<div align = "center">
 		<form method="post" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
 			<h2>Please register using your academic email address:</h2><br/>
 			<div class="w3-row w3-section"/>
 				{{ fa('user') }}
-				<div class="w3-rest">{{ input('username') }}</div>
+				<div class="w3-rest">{{ input('username', value=prev_username) }}</div>
 			</div>
 			<div class="w3-row w3-section"/>
 				{{ fa('key') }}
-				<div class="w3-rest">{{ input('password', 'password') }}</div>
+				<div class="w3-rest">{{ input('password', type='password') }}</div>
 			</div>
 			<div class="w3-row w3-section"/>
 				{{ fa('globe') }}
@@ -62,7 +62,7 @@
 					<option value="Belize">Belize</option>
 					<option value="Canada">Canada</option>
 					<option value="Cocos (Keeling) Islands">Cocos (Keeling) Islands</option>
-					<option value=""Congo">"Congo</option>
+					<option value="Congo">Congo</option>
 					<option value="Central African Republic">Central African Republic</option>
 					<option value="Congo">Congo</option>
 					<option value="Switzerland">Switzerland</option>
@@ -277,11 +277,11 @@
 			</div>
 			<div class="w3-row w3-section"/>
 				{{ fa('hospital-o') }}
-				<div class="w3-rest">{{ input('institute') }}</div>
+				<div class="w3-rest">{{ input('institute', value=prev_institute) }}</div>
 			</div>
 			<div class="w3-row w3-section"/>
 				{{ fa('envelope-o') }}
-				<div class="w3-rest">{{ input('email') }}</div>
+				<div class="w3-rest">{{ input('email', value=prev_email) }}</div>
 			</div>
 			<p class="w3-center">
 				<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple" onclick="$('html').css('cursor', 'progress');$('sub').css('cursor', 'progress');" value="submit"/>

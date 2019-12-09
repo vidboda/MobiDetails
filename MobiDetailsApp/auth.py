@@ -32,7 +32,9 @@ def register():
 		db = get_db()
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		error = None
-	
+		
+		
+		
 		if not username:
 			error = 'Username is required.'
 		elif len(username) < 5:
@@ -64,7 +66,7 @@ def register():
 					if mv_json['credits_available'] > 0:
 						if mv_json['status'] == "False":
 							if mv_json['is_high_risk'] == "True" or mv_json['is_suppressed'] == "True" or mv_json['is_catchall'] == "True":
-								error = 'The email address is reported as risky or suppressed. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+								error = 'The email address is reported as risky or suppressed. If this is not the case, please send us an email directly to &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
 							#else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
 							#	error ='The email address does not look genuine. If this is not the case, please send us an email directly at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
 					else:
@@ -90,6 +92,7 @@ def register():
 		if error is not None:
 			message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li><li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(error, request.remote_addr, username, country, institute, email)
 			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', message_body), '[MobiDetails - Registering Error]')
+		return render_template('auth/register.html', prev_username=username, prev_institute=institute, prev_email=email)
 
 	return render_template('auth/register.html')
 
