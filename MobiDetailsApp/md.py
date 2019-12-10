@@ -462,8 +462,12 @@ def variant(variant_id=None):
 							if annot['mt_score'] == '.':#search most deleterious in other isoforms
 								annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.get_most_other_deleterious_pred(record[52], record[54], -1, 'gt', 'mt')
 						except:
-							annot['mt_score'] = record[52]
-							annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[54]]
+							try:
+								annot['mt_score'] = record[52]
+								annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[54]]
+							except:
+								annot['mt_score'] = '.'
+								annot['mt_pred'] = 'no prediction'
 						#color must be determined by pred and not score
 						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
 						#print(re.split(';', record[54])[i])

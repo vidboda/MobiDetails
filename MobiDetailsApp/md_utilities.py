@@ -298,7 +298,7 @@ def get_spliceai_color(val):
 	else:
 		return predictor_colors['no_effect']
 	
-#returns most deleterious score of predictors when not found in desires transcript
+#returns most deleterious score of predictors when not found in desired transcript
 def get_most_other_deleterious_pred(score, pred, threshold, direction, pred_type):
 	j = 0
 	k = 0
