@@ -91,7 +91,7 @@ def intervar():
 	try:
 		intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
 	except:
-		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5}</p>'.format(genome, chrom, pos, ref, alt, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails API error', '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5}</p>'.format(genome, chrom, pos, ref, alt, os.path.basename(__file__))), '[MobiDetails - API Error]')
 		return "<span>No wintervar class</span>"
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
