@@ -28,6 +28,7 @@ def create_app(test_config=None):
 	app.register_error_handler(403, forbidden_error)
 	app.register_error_handler(404, not_found_error)
 	app.register_error_handler(500, internal_error)
+	app.register_error_handler(405, not_allowed_error)
 	#define custom jinja filters
 	app.jinja_env.filters['match'] = config.match
 	if test_config is None:
@@ -83,9 +84,10 @@ def create_app(test_config=None):
 
 def not_found_error(error):
     return render_template('errors/404.html'), 404
-
 def internal_error(error):
     #db.session.rollback()
     return render_template('errors/500.html'), 500
 def forbidden_error(error):
-	return render_template('errors/403.html'), 500
+	return render_template('errors/403.html'), 403
+def not_allowed_error(error):
+	return render_template('errors/405.html'), 405

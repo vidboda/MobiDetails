@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %} 405 Error {% endblock %}
+{% block content %}
+    <div class="w3-container w3-padding-64">
+        <h1>Method not allowed</h1>
+        <p>The method is not allowed for the requested URL.... Go back <a href="{{ url_for('index') }}">home</a></p>
+    </div>
+	<div class="w3-container w3-padding-64 w3-center">
+        <img class="w3-image" alt="403" src="{{ url_for('static', filename='img/LogoMakr_405.png') }}"
+    </div>
+{% endblock %}

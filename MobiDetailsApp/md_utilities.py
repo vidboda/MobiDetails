@@ -283,6 +283,26 @@ def get_value_from_tabix_file(text, tabix_file, var):
 			#multiple alts
 			return record 
 	return 'No match in {}'.format(text)
+
+#manage dbNSFP scores and values
+def getdbNSFP_results(transcript_index, score_index, pred_index, sep, translation_mode, threshold_for_other, direction_for_other, dbnsfp_record):
+	score = '.'
+	pred = 'no prediction'
+	star = ''
+	try:
+		score = re.split('{}'.format(sep), dbnsfp_record[score_index])[transcript_index]		
+		pred = predictors_translations[translation_mode][re.split('{}'.format(sep), dbnsfp_record[pred_index])[transcript_index]]
+		if score == '.':#search most deleterious in other isoforms
+			score, pred, star = get_most_other_deleterious_pred(dbnsfp_record[score_index], dbnsfp_record[pred_index], threshold_for_other, direction_for_other, translation_mode)
+	except:
+		try:
+			score = dbnsfp_record[score_index]
+			pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
+		except:
+			pass
+	return score, pred, star
+
+
 #returns an html color depending on spliceai score
 def get_spliceai_color(val):
 	if val != '.':
