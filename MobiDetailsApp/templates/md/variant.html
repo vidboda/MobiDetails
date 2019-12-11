@@ -329,7 +329,7 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
-					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
+					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' %}
 						<tr><!--intervar-->
 							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
 							<td class="w3-left-align">
