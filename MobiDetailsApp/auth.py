@@ -124,7 +124,7 @@ def login():
 
 		flash(error)
 
-	return render_template('auth/profile.html')
+	return render_template('auth/login.html')
 
 ######################################################################
 #for views that require login
