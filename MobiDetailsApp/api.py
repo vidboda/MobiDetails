@@ -1,6 +1,6 @@
 import re
 from flask import (
-    Blueprint, flash, g, request, url_for, jsonify, current_app as app
+    Blueprint, flash, g, request, url_for, jsonify, session, current_app as app
 )
 import psycopg2
 import psycopg2.extras
@@ -41,16 +41,29 @@ def api_variant_exists(variant_ghgvs=None):
 
 ######################################################################
 #api - variant create
-@bp.route('/api/variant/create/<string:variant_chgvs>')
-def api_variant_create(variant_chgvs=None):
+@bp.route('/api/variant/create/<string:variant_chgvs>', defaults={'api_key': None})
+@bp.route('/api/variant/create/<string:variant_chgvs>/<string:api_key>')
+def api_variant_create(variant_chgvs=None, api_key=None):
+	db = get_db()
+	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+	mobiuser_id = None
+	if api_key is not None and len(api_key) != 43:
+		return jsonify({'mobidetails_error': 'Invalid API key'})
+	else:
+		curs.execute(
+			"SELECT * FROM mobiuser WHERE api_key = '{}'".format(api_key)
+		)
+		res = curs.fetchone()
+		if res is None:
+			return jsonify({'mobidetails_error': 'Unknown API key'})
+		else:
+			g.user = res
 	if variant_chgvs is None:
 		return jsonify({'mobidetails_error': 'No variant submitted'})
-	elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):#strict HGVS cdna
-		db = get_db()
+	elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):#strict HGVS cdna		
 		match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
 		acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
-		original_variant = new_variant
-		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		original_variant = new_variant		
 		curs.execute(
 			"SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(new_variant, acc_no)
 		)

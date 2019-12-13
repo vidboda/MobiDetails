@@ -756,7 +756,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#get intervar automated class
 	if vf_d['variant_size'] > 1:
 		vf_d['acmg_class'] = 3
-	elif (vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon' and re.search(r'^[^\*]', vf_d['c_name'])):
+	elif (vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon' and re.search(r'^[^\*-]', vf_d['c_name'])):
 		#intervar api returns empty results with hg38 09/2019
 		http = urllib3.PoolManager()
 		intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(urls['intervar_api'], 'hg19', hg19_d['chr'], hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt'])
@@ -780,13 +780,17 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['acmg_class'] = 3
 	#date, user
 	mobiuser = 'mobidetails'
-	if g.user is not None:
-		mobiuser = g.user['username']
-
-	curs.execute(
-		"SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
-	)
-	vf_d['creation_user'] = curs.fetchone()['id']
+	if caller == 'web':
+		if g.user is not None:
+			mobiuser = g.user['username']
+	
+		curs.execute(
+			"SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
+		)
+		vf_d['creation_user'] = curs.fetchone()['id']
+	elif caller == 'api':
+		vf_d['creation_user'] = g.user['id']
+		
 	today = datetime.datetime.now()
 	vf_d['creation_date'] = '{0}-{1}-{2}'.format(today.strftime("%Y"), today.strftime("%m"), today.strftime("%d"))
 	

@@ -6,6 +6,7 @@ import functools
 import urllib3
 import certifi
 import json
+import secrets
 from . import (
 	config, md_utilities
 )
@@ -82,8 +83,9 @@ def register():
 				error = 'User {0} or email address {1} is already registered.'.format(username, email)
 
 		if error is None:
+			key = secrets.token_urlsafe(32)
 			curs.execute(
-				"INSERT INTO mobiuser (username, password, country, institute, email) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')".format(username, generate_password_hash(password), country, institute, email)
+				"INSERT INTO mobiuser (username, password, country, institute, email, api_key) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(username, generate_password_hash(password), country, institute, email, key)
 			)
 			db.commit()
 			return redirect(url_for('auth.login'))
@@ -122,7 +124,7 @@ def login():
 
 		flash(error)
 
-	return render_template('auth/login.html')
+	return render_template('auth/profile.html')
 
 ######################################################################
 #for views that require login
@@ -144,7 +146,7 @@ def profile():
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
-		"SELECT username, email, institute, country FROM mobiuser  WHERE id = '{}'".format(g.user['id'])
+		"SELECT username, email, institute, country, api_key FROM mobiuser  WHERE id = '{}'".format(g.user['id'])
 	)
 	mobiuser = curs.fetchone()
 	error = None

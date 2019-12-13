@@ -23,6 +23,17 @@ function w3_close() {
 	$('#global_content').animate({marginLeft: '0%'});
 	$('#openNav').css('visibility', 'visible');
 }
+function copy_text(copy_id) {
+	/* Get the text field */
+  var copyText = document.getElementById(copy_id);
+  /* Select the text field */
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+  /* Alert the copied text */
+  //alert("Copied the text: " + copyText.value);
+}
 $(document).ready(function(){
 	//reduce icon size on small screens
 	var wi = $(window).width();
