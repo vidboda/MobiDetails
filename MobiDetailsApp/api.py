@@ -41,13 +41,13 @@ def api_variant_exists(variant_ghgvs=None):
 
 ######################################################################
 #api - variant create
-@bp.route('/api/variant/create/<string:variant_chgvs>', defaults={'api_key': None})
+#@bp.route('/api/variant/create/<string:variant_chgvs>', defaults={'api_key': None})
 @bp.route('/api/variant/create/<string:variant_chgvs>/<string:api_key>')
 def api_variant_create(variant_chgvs=None, api_key=None):
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	mobiuser_id = None
-	if api_key is not None and len(api_key) != 43:
+	if api_key is None or len(api_key) != 43:
 		return jsonify({'mobidetails_error': 'Invalid API key'})
 	else:
 		curs.execute(
