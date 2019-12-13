@@ -6,3 +6,5 @@ It consists in a website where users can easily create variants and retrieve man
 It will also include an API for programmatic access.
 
 It is currently under intense development and I hope to release a first version in the coming weeks.
+
+https://mobidetails.iurc.montp.inserm.fr/MD/
