@@ -2,6 +2,7 @@ import os
 from . import config
 from flask import Flask, render_template
 from flask_mail import Mail
+from flask_cors import CORS
 from logging.handlers import RotatingFileHandler
 import logging
 
@@ -23,6 +24,11 @@ def create_app(test_config=None):
 	)
 	
 	mail.init_app(app)
+	
+	#cors
+	#for swaggerUI
+	#https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
+	cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 	
 	#errors
 	app.register_error_handler(403, forbidden_error)
