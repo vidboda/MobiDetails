@@ -780,10 +780,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['acmg_class'] = 3
 	#date, user
 	mobiuser = 'mobidetails'
-	if caller == 'web':
+	if caller == 'webApp':
 		if g.user is not None:
 			mobiuser = g.user['username']
-	
 		curs.execute(
 			"SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
 		)
