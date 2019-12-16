@@ -120,7 +120,7 @@
 					<!--HGVS Protein-->
 					<tr>
 						<td class="w3-left-align">HGVS Protein:</td>
-						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ variant_features.np }}" target="_blank" title="open NCBI page for {{ variant_features.np }}">{{ variant_features.np }}</a>:p.({{ variant_features.p_name }})</td>
+						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ variant_features.np }}" target="_blank" title="open NCBI page for {{ variant_features.np }}">{{ variant_features.np }}</a>:<span id="hgvs_p_name">p.({{ variant_features.p_name }})</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene)-->

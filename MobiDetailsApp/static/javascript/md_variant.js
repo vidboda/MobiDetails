@@ -71,7 +71,7 @@ function lovd(lovd_url) {
 }
 function intervar(intervar_url) {
 	//ajax for intervar
-	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
+	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {
 		$.ajax({
 			type: "POST",
 			url: intervar_url,
