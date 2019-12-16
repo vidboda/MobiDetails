@@ -9,7 +9,7 @@ import logging
 mail = Mail()
 
 def create_app(test_config=None):
-	app =  Flask(__name__)
+	app =  Flask(__name__, static_folder='static')
 	#confgi flaskmail
 	params = config.mdconfig(section='email_auth')
 	app.config.update(
@@ -59,7 +59,9 @@ def create_app(test_config=None):
 	from . import ajax
 	app.register_blueprint(ajax.bp)
 	from . import api
-	app.register_blueprint(api.bp)
+	app.register_blueprint(api.bp)	
+	from . import static_route
+	app.register_blueprint(static_route.bp)
 	
 	#from . import error
 	#app.register_blueprint(error.bp)

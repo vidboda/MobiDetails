@@ -1,0 +1,5 @@
+User-agent: *
+Allow:https://mobidetails.iurc.montp.inserm.fr/MD/
+Allow:https://mobidetails.iurc.montp.inserm.fr/MD/about
+Allow:https://mobidetails.iurc.montp.inserm.fr/MD/genes
+Disallow:https://mobidetails.iurc.montp.inserm.fr/static/*
