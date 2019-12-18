@@ -2,7 +2,7 @@ User-agent: *
 Allow:https://mobidetails.iurc.montp.inserm.fr/MD/
 Allow:https://mobidetails.iurc.montp.inserm.fr/MD/about
 Allow:https://mobidetails.iurc.montp.inserm.fr/MD/genes
-Disallow:https://mobidetails.iurc.montp.inserm.fr/static/*
-Disallow:https://mobidetails.iurc.montp.inserm.fr/gene/*
-Disallow:https://mobidetails.iurc.montp.inserm.fr/vars/*
-Disallow:https://mobidetails.iurc.montp.inserm.fr/variant/*
+Disallow:https://mobidetails.iurc.montp.inserm.fr/MD/static/*
+Disallow:https://mobidetails.iurc.montp.inserm.fr/MD/gene/*
+Disallow:https://mobidetails.iurc.montp.inserm.fr/MD/vars/*
+Disallow:https://mobidetails.iurc.montp.inserm.fr/MD/variant/*
