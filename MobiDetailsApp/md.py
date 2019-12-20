@@ -696,7 +696,7 @@ def search_engine():
 				"SELECT {0} FROM {1} WHERE c_name LIKE '%{2}%' OR p_name LIKE '%{2}%'".format(col_names, sql_table, query_engine)
 			)
 			semaph_query = 1
-		elif re.search(r'^[A-Za-z0-9]+$', query_engine):#genes
+		elif re.search(r'^[A-Za-z0-9-]+$', query_engine):#genes
 			sql_table = 'gene'
 			query_type = 'name[1]'
 			col_names = 'name'
