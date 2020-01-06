@@ -30,7 +30,7 @@
 				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
 				<div class="w3-show" id="hg19_acc">
 					{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
-					{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD")}}
+					{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v2")}}
 					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
 						{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
 					{% endif %}
