@@ -223,7 +223,8 @@
 {%- endmacro %}
 <!--create links for variants view-->
 {% macro link(link, text) -%}
-	<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link }}" target="_blank">{{ text }}</a>
+	<!-- for some reason jinja (2.10) urlencode filter does not encode this link and returns a wrong url-->
+	<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link | replace('+', '%2B') }}" target="_blank">{{ text }}</a>
 {%- endmacro %}
 <!--create span with color for predictors-->
 {% macro span_color(value, color = None) %}

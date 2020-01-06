@@ -124,11 +124,13 @@
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene)-->
-					<tr>
-						<td class="w3-left-align">HGVS genomic (gene):</td>
-						<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
-						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (gene centered)</em></td>
-					</tr>
+					{% if variant_features.ng != 'NG_000000.0' %}
+						<tr>
+							<td class="w3-left-align">HGVS genomic (gene):</td>
+							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
+							<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (gene centered)</em></td>
+						</tr>
+					{% endif %}		
 					<!--HGVS genomic (hg19)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg19):</td>
