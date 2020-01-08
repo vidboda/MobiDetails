@@ -1,0 +1,11 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>MD search engine</ShortName>
+  <Description>Search engine for MobiDetails</Description>
+  <InputEncoding>ISO-8859-1</InputEncoding>
+  <Image height="16" width="16" type="image/x-icon">https://mobidetails.iurc.montp.inserm.fr/MD/static/img/favicon.ico</Image>
+  <Url type="text/html" method="POST" template="https://mobidetails.iurc.montp.inserm.fr/MD/search_engine?search={searchTerms}">
+   <Param name="search" value="{searchTerms}"/>
+  </Url>
+  <moz:SearchForm>https://mobidetails.iurc.montp.inserm.fr/MD/</moz:SearchForm> 
+</OpenSearchDescription>
