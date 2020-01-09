@@ -114,6 +114,7 @@ def lovd():
 	http = urllib3.PoolManager()
 	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
 	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
+	#print(lovd_url)
 	lovd_data = None
 	try:
 		lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))

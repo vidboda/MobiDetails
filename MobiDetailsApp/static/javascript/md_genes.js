@@ -9,4 +9,6 @@ $(document).ready(function() {
 			'copy', 'excel', 'pdf'
 		]
 	});
+	$('#waiting_wheel').hide();
+	$('#gene_table').show();
 });

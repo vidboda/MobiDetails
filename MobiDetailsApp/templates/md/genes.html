@@ -12,7 +12,8 @@
 {% block content %}
 	{{ info("Click on a link to go to the detailed page:") }}
 	<div class="w3-responsive w3-margin">
-		<table class="w3-table w3-centered display compact" style="width:90%" id="gene_table">
+		<div id="waiting_wheel" class="w3-center">Please wait while the table is loading <br/><i class="fa fa-spinner w3-spin" style="font-size:48px"></i></div>
+		<table class="w3-table w3-centered display compact" style="width:90%;display:none;" id="gene_table">
 			<caption>Genes table:</caption>
 			<thead>
 				<tr>
