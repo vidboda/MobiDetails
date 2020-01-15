@@ -67,6 +67,7 @@ urls = {
 	'mp': 'https://github.com/mobidic/MPA',
 	'metadome': 'https://stuart.radboudumc.nl/metadome/',
 	'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
+	'revel': 'https://sites.google.com/site/revelgenomics/',
 }
 local_files = {
 	# id :[local path, version, name, short desc, urls Xref]
@@ -109,7 +110,9 @@ predictor_thresholds = {
 	'metadome_sintolerant': 0.7,
 	'metadome_neutral': 0.875,
 	'metadome_stolerant': 1.025,
-	'metadome_tolerant': 1.375
+	'metadome_tolerant': 1.375,
+	'revel_min': 0.2,
+	'revel_max': 0.8,
 }
 predictor_colors = {
 	'min': '#00A020',
@@ -126,7 +129,8 @@ predictor_colors = {
 predictors_translations = {
 	'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
 	'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'},
-	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic', '.': 'no prediction'} #Mutationtaster
+	'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing', 'N': 'polymorphism', 'P': 'polymorphism automatic', '.': 'no prediction'},#mutation taster
+	'revel': {'D': 'Damaging', 'U': 'Uncertain', 'B': 'Benign', '.': 'no prediction'}
 }
 
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
@@ -290,14 +294,16 @@ def getdbNSFP_results(transcript_index, score_index, pred_index, sep, translatio
 	pred = 'no prediction'
 	star = ''
 	try:
-		score = re.split('{}'.format(sep), dbnsfp_record[score_index])[transcript_index]		
-		pred = predictors_translations[translation_mode][re.split('{}'.format(sep), dbnsfp_record[pred_index])[transcript_index]]
-		if score == '.':#search most deleterious in other isoforms
-			score, pred, star = get_most_other_deleterious_pred(dbnsfp_record[score_index], dbnsfp_record[pred_index], threshold_for_other, direction_for_other, translation_mode)
+		score = re.split('{}'.format(sep), dbnsfp_record[score_index])[transcript_index]
+		if pred_index != score_index:
+			pred = predictors_translations[translation_mode][re.split('{}'.format(sep), dbnsfp_record[pred_index])[transcript_index]]
+			if score == '.':#search most deleterious in other isoforms
+				score, pred, star = get_most_other_deleterious_pred(dbnsfp_record[score_index], dbnsfp_record[pred_index], threshold_for_other, direction_for_other, translation_mode)
 	except:
 		try:
 			score = dbnsfp_record[score_index]
-			pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
+			if pred_index != score_index:
+				pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
 		except:
 			pass
 	return score, pred, star

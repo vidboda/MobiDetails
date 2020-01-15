@@ -484,6 +484,21 @@ def variant(variant_id=None):
 							mpa_missense += 1
 						if annot['mt_pred'] != 'no prediction':
 							mpa_avail += 1
+						#REVEL
+						annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record)
+						#no REVEL pred in dbNSFP => custom (arbitrary threshold 0.5)
+						if annot['revel_score'] != '.' and float(annot['revel_score']) < 0.2:
+							annot['revel_pred'] = md_utilities.predictors_translations['revel']['B']
+						elif annot['revel_score'] != '.' and float(annot['revel_score']) > 0.5:
+							annot['revel_pred'] = md_utilities.predictors_translations['revel']['D']
+						elif annot['revel_score'] != '.':
+							annot['revel_pred'] = md_utilities.predictors_translations['revel']['U']
+						else:
+							annot['revel_pred'] = 'no prediction'
+							
+						#	annot['revel_pred'] = 'No interpretation'
+						annot['revel_color'] = md_utilities.get_preditor_double_threshold_color(annot['revel_score'], 'revel_min', 'revel_max')
+							
 						#meta SVM
 						#print(record[68])
 						annot['msvm_score'] = record[68]

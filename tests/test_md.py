@@ -14,7 +14,7 @@ def test_gene_page(client, app):
 		db = get_db()
 		curs = db.cursor()
 		curs.execute(
-			"SELECT name[1] FROM gene LIMIT 1",
+			"SELECT name[1] FROM gene LIMIT 50",
 		)
 		res = curs.fetchall()
 		for name in res:
@@ -69,3 +69,15 @@ def test_search_engine(client, t_search, url):
 	)
 	print(response.headers['Location'] + 'http://localhost/{}'.format(url))
 	assert 'http://localhost/{}'.format(url) == response.headers['Location']
+	
+#test missense
+def test_missense_page(client, app):
+	with app.app_context():
+		db = get_db()
+		curs = db.cursor()
+		curs.execute(
+			"SELECT id FROM variant_feature WHERE prot_type = 'missense'",# LIMIT 50
+		)
+		res = curs.fetchall()
+		for variant_id in res:
+			assert client.get('/variant/{}'.format(variant_id[0])).status_code == 200
