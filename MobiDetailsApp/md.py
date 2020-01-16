@@ -51,7 +51,7 @@ def about():
 	try:
 		vv_data = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_info']).data.decode('utf-8'))
 	except:
-		d_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
 		vv_data = {'apiVersion': 'Service Unavailable'}
 	#vv_data = json.loads(http.request('GET', 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json').data.decode('utf-8'))
 	return render_template('md/about.html', vv_data=vv_data, urls=md_utilities.urls, local_files=md_utilities.local_files)
