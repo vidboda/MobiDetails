@@ -127,7 +127,7 @@ def api_gene(gene_hgnc=None):
 			if 'chr' not in d_gene:
 				d_gene['Chr'] = transcript['chr']
 			if 'strand' not in d_gene:
-				d_gene['Strand'] = transcript['strand']
+				d_gene['Strand'] = transcript['strand']			
 			if 'ng' not in d_gene:
 				if transcript['ng'] == 'NG_000000.0':
 					d_gene['RefGene'] = 'No RefGene in MobiDetails'
@@ -142,6 +142,10 @@ def api_gene(gene_hgnc=None):
 					d_gene[refseq]['RefProtein'] = 'No RefProtein in MobiDetails'
 				else:
 					d_gene[refseq]['RefProtein'] = transcript['np']
+			if 'UNIPROT' not in d_gene[refseq]:
+				d_gene[refseq]['UNIPROT'] = transcript['uniprot_id']
+			if 'variantCreationTag' not in d_gene[refseq]:
+				d_gene[refseq]['variantCreationTag'] = transcript['variant_creation']
 		return jsonify(d_gene)
 	return jsonify({'mobidetails_error': 'Unknown gene ({})'.format(gene_hgnc)})
 			
