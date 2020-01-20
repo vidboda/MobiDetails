@@ -303,5 +303,6 @@ def autocomplete_var():
 			return json.dumps(result)
 		else:
 			return None
+	return None
 	
 	
