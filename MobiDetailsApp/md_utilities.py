@@ -556,8 +556,13 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 						return {'mobidetails_error':  '{}'.format(warning)}
 	genome = 'hg38'
 	#hg38
-	hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
-	
+	try:
+		hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+	except:
+		if caller == 'webApp':
+			return danger_panel(vv_key_var, 'Transcript {0} for gene {1} does not seem to map correctly to hg38. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene))
+		elif caller == 'api':
+			return {'mobidetails_error':  'Transcript {0} for gene {1} does not seem to map correctly to hg38. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene)}
 	
 		
 	#check again if variant exist
@@ -570,8 +575,13 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
 		elif caller == 'api':
 			return {'mobidetails_id': res['feature_id'], 'url': '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id']))}
-	
-	hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
+	try:
+		hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
+	except:
+		if caller == 'webApp':
+			return danger_panel(vv_key_var, 'Transcript {0} for gene {1} does not seem to map correctly to hg19. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene))
+		elif caller == 'api':
+			return {'mobidetails_error':  'Transcript {0} for gene {1} does not seem to map correctly to hg19. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene)}
 	positions = compute_start_end_pos(hg38_d['g_name'])
 	if 'c_name' not in vf_d:
 		var_obj = re.search(r'c\.(.+)$', new_variant)
@@ -685,6 +695,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(vf_d['start_segment_number'], ivs_obj.group(1), vf_d['end_segment_number'], ivs_obj.group(2), ivs_obj.group(3))
 	else:
 		#substitutions
+		print("SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0]))
 		curs.execute(
 			"SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0])
 		)
