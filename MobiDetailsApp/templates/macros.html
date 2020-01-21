@@ -179,7 +179,7 @@
 			</div>
 		</div>
 	{% else %}
-		{{ danger('Sorry, this gene is currently not available for variant creation in MobiDetails due to hg19/hg38 mapping issues. A future version may fix it.') }}
+		{{ danger('<br/>Sorry, this gene is currently not available for variant creation in MobiDetails due to hg19/hg38 mapping issues. A future version may fix it.') }}
 	{% endif %}
 {%- endmacro %}
 {% macro info_create_variant() -%}
