@@ -695,7 +695,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(vf_d['start_segment_number'], ivs_obj.group(1), vf_d['end_segment_number'], ivs_obj.group(2), ivs_obj.group(3))
 	else:
 		#substitutions
-		print("SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0]))
+		#print("SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0]))
 		curs.execute(
 			"SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0])
 		)
