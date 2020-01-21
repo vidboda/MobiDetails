@@ -31,7 +31,7 @@ def index():
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
-		"SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) as transcript FROM gene"
+		"SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) as transcript FROM gene WHERE variant_creation = 'ok'"
 	)
 	res = curs.fetchone()
 	if res is None:
