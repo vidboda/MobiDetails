@@ -55,7 +55,7 @@
 				<tbody>
 					<tr>
 						<td><span>{{ main_iso.chr }}</span></td>
-						<td><span>-</span></td>
+						<td><span>{{ main_iso.strand }}</span></td>
 						<td><span>{{ main_iso.prot_name }} {{ main_iso.short_prot }}</span></td>
 						<td><span><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
 						{% if annotations.nognomad != 'No values in gnomAD' %}
