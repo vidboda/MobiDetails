@@ -11,7 +11,8 @@
 {% block content %}
 	{% if view == 'own' -%}
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other people can see from you when they follow a link (e.g. when they visit a variant you created).</p>
+			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
+			<p>Public user (not logged in) only see your username on the variant page (when you created the variant)</p>
 		</div>
 		<hr />
 	{%- endif %}	

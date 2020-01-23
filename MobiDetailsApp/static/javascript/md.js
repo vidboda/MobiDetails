@@ -11,7 +11,7 @@ function w3_open() {
 		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-small');
 		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-small');
 		$('#global_content').animate({marginLeft: '35%'});
-		$('#smart_menu').width('35%');		
+		$('#smart_menu').width('35%');
 	}
 	else {
 		$('#global_content').animate({marginLeft: '15%'});
@@ -46,18 +46,9 @@ $(document).ready(function(){
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
-		if ($('#variant_name').length) {
-			$('#variant_name').hide();
-		}
-		//if ($('#app_desc').length) {
-		//	$('#app_desc').hide();
-		//}
-		if ($('#login_name').length) {
-			$('#login_name').hide();
-		}
-		//if ($('#smart_menu').length) {
-		//	$('#smart_menu').hide();
-		//}
+		if ($('#variant_name').length) {$('#variant_name').hide();}
+		if ($('#about_menu').length) {$('#about_menu').hide();}
+		if ($('#login_name').length) {$('#login_name').hide();}
 	}
 	else if (wi <= 600) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-large');
