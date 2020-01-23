@@ -445,7 +445,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			return {'mobidetails_error': 'VariantValidator looks down'}
 	elif vv_data['flag'] is None:
 		if caller == 'webApp':
-			return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature!")
+			return danger_panel(vv_key_var, "VariantValidator could not process your variant, please check carefully your nomenclature! Of course this may also come from the gene and not from you!")
 		elif caller == 'api':
 			return {'mobidetails_error': 'No flag in VariantValidator answer. Please check your variant.'}
 	elif re.search('Major error', vv_data['flag']):
@@ -481,7 +481,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			#means we have an error
 			if vv_data['flag'] == 'warning':
 				if caller == 'webApp':
-					return danger_panel(vv_key_var, " ".join(vv_data['validation_warning_1']['validation_warnings']))
+					return danger_panel(vv_key_var, ' '.join(vv_data['validation_warning_1']['validation_warnings']))
 				elif caller == 'api':
 					return {'mobidetails_error': vv_data['validation_warning_1']['validation_warnings']}
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -546,12 +546,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			else:
 				if caller == 'webApp':
 					if len(vv_data[first_level_key]['validation_warnings']) > 1:
-						return danger_panel(vv_key_var, "".join(vv_data[first_level_key]['validation_warnings']))
+						return danger_panel(vv_key_var, ' '.join(vv_data[first_level_key]['validation_warnings']))
 					else:
 						return danger_panel(vv_key_var, warning)
 				elif caller == 'api':
 					if len(vv_data[first_level_key]['validation_warnings']) > 1:
-						return {'mobidetails_error':  ''.join(vv_data[first_level_key]['validation_warnings'])}
+						return {'mobidetails_error':  ' '.join(vv_data[first_level_key]['validation_warnings'])}
 					else:
 						return {'mobidetails_error':  '{}'.format(warning)}
 	genome = 'hg38'
