@@ -1,4 +1,5 @@
 #import functools
+import os
 import re
 import psycopg2
 import psycopg2.extras
@@ -120,7 +121,7 @@ def login():
 		if error is None:
 			session.clear()
 			session['user_id'] = user['id']
-			return redirect(url_for('auth.profile'))
+			return redirect(url_for('auth.profile', mobiuser_id=0))
 
 		flash(error)
 
@@ -140,40 +141,46 @@ def login_required(view):
 
 ######################################################################
 #profile
-@bp.route('/profile')
+@bp.route('/profile/<int:mobiuser_id>', methods=['GET','POST'])
 @login_required
-def profile():
+def profile(mobiuser_id=0):
+	user_id = g.user['id']
+	if mobiuser_id != 0:
+		user_id = mobiuser_id
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
-		"SELECT username, email, institute, country, api_key FROM mobiuser  WHERE id = '{}'".format(g.user['id'])
+		"SELECT username, email, institute, country, api_key FROM mobiuser  WHERE id = '{}'".format(user_id)
 	)
 	mobiuser = curs.fetchone()
 	error = None
-	num_var = 0
-	num_var_fav = 0
 	if mobiuser is None:
-		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Bad profile attempt username: {0} from {1}</p>'.format(g.user['id'], os.path.basename(__file__)), '[MobiDetails - Profile Error]'))
-		error = 'You seem to be unknown by MobiDetails.'	
-	
-	curs.execute(
-		"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
-	)
-	variants = curs.fetchall()
-	#if error is None:
-	num_var = len(variants)
-		#return render_template('auth/profile.html', mobiuser=mobiuser, variants=variants, num_var=num_var)
-	
-	curs.execute(
-		"SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
-	)
-	variants_favourite = curs.fetchall()
-	if error is None:
-		num_var_fav = len(variants_favourite)
-		return render_template('auth/profile.html', mobiuser=mobiuser, num_var=num_var, num_var_fav=num_var_fav, variants=variants, variants_favourite=variants_favourite)
+		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails error', '<p>Bad profile attempt username: {0} from {1}</p>'.format(g.user['id'], os.path.basename(__file__))), '[MobiDetails - Profile Error]')
+		error = 'You seem to be unknown by MobiDetails.'
+		if mobiuser_id != 0:
+			error = 'This user seems to be unknown by MobiDetails.'
+	if mobiuser_id == 0:
+		curs.execute(
+			"SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
+		)
+		variants = curs.fetchall()
+		num_var = curs.rowcount
+		#if error is None:
+			#return render_template('auth/profile.html', mobiuser=mobiuser, variants=variants, num_var=num_var)
+		
+		curs.execute(
+			"SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
+		)
+		variants_favourite = curs.fetchall()
+		if error is None:
+			num_var_fav = curs.rowcount
+			return render_template('auth/profile.html', mobiuser=mobiuser, view='own', num_var=num_var, num_var_fav=num_var_fav, variants=variants, variants_favourite=variants_favourite)
+	elif error is None:
+		#other profile view
+		return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None, num_var_fav=None, variants=None, variants_favourite=None)
 	
 	flash(error)
-	return render_template('auth/index.html')
+	return render_template('md/index.html')
 
 ######################################################################
 #load profile when browsing

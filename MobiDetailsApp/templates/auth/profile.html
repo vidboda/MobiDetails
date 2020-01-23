@@ -2,21 +2,36 @@
 {% from 'macros.html' import info %}
 {% block title %} {{ mobiuser.username }} profile{% endblock %}
 {% block header %}
-	<h1 align="center" class="w3-text-blue">Your profile</h1>
+	{% if view == 'own' %}
+		<h1 align="center" class="w3-text-blue">Your profile</h1>
+	{% else %}
+		<h1 align="center" class="w3-text-blue">{{ mobiuser.username }} profile</h1>
+	{% endif %}
 {% endblock %}
 {% block content %}
+	{% if view == 'own' -%}
+		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other people can see from you when they follow a link (e.g. when they visit a variant you created).</p>
+		</div>
+		<hr />
+	{%- endif %}	
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile">
 		<div class=" w3-card w3-mobile">
 			<ul class="w3-ul">
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Username: {{ mobiuser.username }}</li>
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Institute: {{ mobiuser.institute }}</li>
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Country: {{ mobiuser.country }}</li>
-				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >E-mail: {{ mobiuser.email }}</li>
-				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+				{% if view == 'own' %}
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >E-mail: {{ mobiuser.email }}</li>
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+				{% endif %}
 			</ul>
 		</div>
 	</div>
-	<hr />
+	{% if view == 'own' -%}
+		{{ info('Please consider that the API key is personal and identifies your account, therefore you should not share it.') }}
+		<hr />
+	{%- endif %}
 	{% if variants_favourite != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
@@ -32,7 +47,7 @@
 				</ul>
 			</div>
 		</div>
-	{% else %}
+	{% elif view == 'own' %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
 				<h3>You have no favourite variants yet.</h3>			
@@ -56,12 +71,12 @@
 				</ul>
 			</div>
 		</div>
-	{% else %}
+	{% elif view == 'own' %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-				<h3>You have not created a variant yet.</h3>
-				{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
+				<h3>You have not created a variant yet.</h3>				
 			</div>
+			{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
 		</div>
 	{% endif %}
 	<br /><br />
