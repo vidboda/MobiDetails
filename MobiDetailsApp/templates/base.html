@@ -91,7 +91,7 @@
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="window.location='{{ url_for('auth.logout') }}';" title="Log out">
 							<i class="fa fa-user-times w3-xxlarge"></i>
 						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="window.location='{{ url_for('auth.profile') }}';" title="Visit your page">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
 						</span>						
 						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>

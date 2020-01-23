@@ -854,7 +854,7 @@ def prepare_email_html(title, message):
                 <div style="font-size:15px;padding:32px;border-left:6px solid #ccc !important;background-color:#fdf5e6 !important;">{1}</div><br />
                 <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;font-weight:600;">
                     <p><a style="color:#FFFFFF;font-size:18px;" href="https://mobidetails.iurc.montp.inserm.fr/MD">MobiDetails</a></p>
-                    <p style="font-size:15px;">Open-source DNA variant data interpretation</p>
+                    <p style="font-size:15px;">Online DNA variant interpretation</p>
                     <p style="font-size:12px;">This message is automatically generated. Please do not reply. For specific queries, please contact david baux at <span style="color:#FFFFFF;">&#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;</span>.</p>
                 </div> 
             </div>""".format(title, message)

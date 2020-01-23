@@ -225,7 +225,7 @@ def variant(variant_id=None):
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	# get all variant_features and gene info
 	curs.execute(
-		"SELECT *, a.id as var_id FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
+		"SELECT *, a.id as var_id, c.id as mobiuser_id FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
 	)
 	variant_features = curs.fetchone()
 	if variant_features is not None:
@@ -256,7 +256,8 @@ def variant(variant_id=None):
 		favourite = curs.fetchone()
 		if favourite is not None:
 			favourite = True
-		
+		splicing_radar_labels = []
+		splicing_radar_values = []
 		for var in variant:
 			if var['genome_version'] == 'hg38':
 				#HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
@@ -351,17 +352,8 @@ def variant(variant_id=None):
 						mpa_missense = 0
 						mpa_avail = 0
 						#sift
-						#if re.search(';', record[39]):
 						annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record)
-						# try:
-						# 	annot['sift_score'] = re.split(';', record[36])[transcript_index]
-						# 	annot['sift_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[38])[transcript_index]]
-						# 	annot['sift_star'] = ''
-						# 	if annot['sift_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.get_most_other_deleterious_pred(record[36], record[38], 1.1, 'lt', 'basic')
-						# except:
-						# 	annot['sift_score'] = record[36]
-						# 	annot['sift_pred'] = md_utilities.predictors_translations['basic'][record[38]]
+
 						annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')						
 						if annot['sift_pred'] == 'Damaging':
 							mpa_missense += 1
@@ -369,14 +361,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#polyphen 2 hdiv
 						annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.getdbNSFP_results(transcript_index, 42, 44, ';', 'pph2', -0.1, 'gt', record)
-						# if re.search(';', record[42]):
-						# 	annot['pph2_hdiv_score'] = re.split(';', record[42])[transcript_index]
-						# 	annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[44])[transcript_index]]
-						# 	if annot['pph2_hdiv_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.get_most_other_deleterious_pred(record[42], record[44], -0.1, 'gt', 'pph2')
-						# else:
-						# 	annot['pph2_hdiv_score'] = record[42]
-						# 	annot['pph2_hdiv_pred'] = md_utilities.predictors_translations['pph2'][record[44]]
+
 						annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
 						if re.search('Damaging', annot['pph2_hdiv_pred']):
 							mpa_missense += 1
@@ -384,14 +369,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#hvar
 						annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.getdbNSFP_results(transcript_index, 45, 47, ';', 'pph2', -0.1, 'gt', record)
-						# try:
-						# 	annot['pph2_hvar_score'] = re.split(';', record[45])[transcript_index]						
-						# 	annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][re.split(';', record[47])[transcript_index]]
-						# 	if annot['pph2_hvar_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.get_most_other_deleterious_pred(record[45], record[47], -0.1, 'gt', 'pph2')
-						# except:
-						# 	annot['pph2_hvar_score'] = record[42]						
-						# 	annot['pph2_hvar_pred'] = md_utilities.predictors_translations['pph2'][record[47]]
+
 						annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
 						if re.search('Damaging', annot['pph2_hvar_pred']):
 							mpa_missense += 1
@@ -399,14 +377,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#fathmm
 						annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.getdbNSFP_results(transcript_index, 60, 62, ';', 'basic', 20, 'lt', record)
-						# try:	
-						# 	annot['fathmm_score'] = re.split(';', record[60])[transcript_index]
-						# 	annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[62])[transcript_index]]
-						# 	if annot['fathmm_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.get_most_other_deleterious_pred(record[60], record[62], 20, 'lt', 'basic')
-						# except:
-						# 	 annot['fathmm_score'] = record[60]
-						# 	 annot['fathmm_pred'] = md_utilities.predictors_translations['basic'][record[62]]
+
 						annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
 						if annot['fathmm_pred'] == 'Damaging':
 							mpa_missense += 1
@@ -414,14 +385,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#fathmm-mkl -- not displayed
 						annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.getdbNSFP_results(transcript_index, 106, 108, ';', 'basic', 20, 'lt', record)
-						# try:	
-						# 	annot['fathmm_mkl_score'] = re.split(';', record[106])[transcript_index]
-						# 	annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[108])[transcript_index]]
-						# 	if annot['fathmm_mkl_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.get_most_other_deleterious_pred(record[106], record[108], 20, 'lt', 'basic')
-						# except:
-						# 	annot['fathmm_mkl_score'] = record[106]
-						# 	annot['fathmm_mkl_pred'] = md_utilities.predictors_translations['basic'][record[108]]
+
 						annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_mkl_score'], 'fathmm-mkl')
 						if annot['fathmm_mkl_pred'] == 'Damaging':
 							mpa_missense += 1
@@ -429,14 +393,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#provean -- not displayed
 						annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(transcript_index, 63, 65, ';', 'basic', 20, 'lt', record)
-						# try:
-						# 	annot['provean_score'] = re.split(';', record[63])[transcript_index]
-						# 	annot['provean_pred'] = md_utilities.predictors_translations['basic'][re.split(';', record[65])[transcript_index]]
-						# 	if annot['provean_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.get_most_other_deleterious_pred(record[63], record[65], 20, 'lt', 'basic')
-						# except:
-						# 	annot['provean_score'] = record[63]						
-						# 	annot['provean_pred'] = md_utilities.predictors_translations['basic'][record[65]]
+
 						annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
 						#print(re.split(';', record[65])[i])
 						if annot['provean_pred'] == 'Damaging':
@@ -446,17 +403,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#LRT -- not displayed
 						annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.getdbNSFP_results(transcript_index, 48, 50, ';', 'basic', -1, 'gt', record)
-						# try:
-						# 	annot['lrt_score'] = re.split(';', record[48])[transcript_index]
-						# 	annot['lrt_pred'] = re.split(';', record[50])[transcript_index]
-						# 	if annot['lrt_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.get_most_other_deleterious_pred(record[48], record[50], -1, 'gt', 'basic')
-						# except:
-						# 	annot['lrt_score'] = record[48]
-						# 	annot['lrt_pred'] = md_utilities.predictors_translations['basic'][record[50]]
-						#color must be determined by pred and not score
-						#annot['lrt_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['lrt_score'], 'lrt')
-						#print(re.split(';', record[50]))
+
 						if annot['lrt_pred'] == 'Damaging':
 						#if re.split(';', record[50])[0] == 'D':
 							mpa_missense += 1
@@ -464,21 +411,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#MutationTaster -- not displayed
 						annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(transcript_index, 52, 54, ';', 'mt', -1, 'gt', record)
-						# try:
-						# 	annot['mt_score'] = re.split(';', record[52])[transcript_index]
-						# 	annot['mt_pred'] = md_utilities.predictors_translations['mt'][re.split(';', record[54])[transcript_index]]
-						# 	if annot['mt_score'] == '.':#search most deleterious in other isoforms
-						# 		annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.get_most_other_deleterious_pred(record[52], record[54], -1, 'gt', 'mt')
-						# except:
-						# 	try:
-						# 		annot['mt_score'] = record[52]
-						# 		annot['mt_pred'] = md_utilities.predictors_translations['mt'][record[54]]
-						# 	except:
-						# 		annot['mt_score'] = '.'
-						# 		annot['mt_pred'] = 'no prediction'
-						#color must be determined by pred and not score
-						#annot['mt_color'] = md_utilities.get_preditor_single_threshold_color(annot['mt_score'], 'mt')
-						#print(re.split(';', record[54])[i])
+
 						if re.search('Disease causing', annot['mt_pred']):
 						#if re.split(';', record[54]) == 'A' or  re.split(';', record[50]) == 'D':
 							mpa_missense += 1
@@ -486,7 +419,7 @@ def variant(variant_id=None):
 							mpa_avail += 1
 						#REVEL
 						annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record)
-						#no REVEL pred in dbNSFP => custom (arbitrary threshold 0.5)
+						#no REVEL pred in dbNSFP => custom 
 						if annot['revel_score'] != '.' and float(annot['revel_score']) < 0.2:
 							annot['revel_pred'] = md_utilities.predictors_translations['revel']['B']
 						elif annot['revel_score'] != '.' and float(annot['revel_score']) > 0.5:
@@ -512,9 +445,9 @@ def variant(variant_id=None):
 						annot['mlr_score'] = record[71]
 						annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta-lr')
 						annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
-						if annot['msvm_pred'] == 'Damaging':
+						if annot['mlr_pred'] == 'Damaging':
 							mpa_missense += 1
-						if annot['msvm_pred'] != 'no prediction':
+						if annot['mlr_pred'] != 'no prediction':
 							mpa_avail += 1
 						annot['m_rel'] = record[74] #reliability index for meta score (1-10): the higher, the higher the reliability
 						if 'mpa_score' not in annot or annot['mpa_score'] < mpa_missense:
@@ -557,11 +490,14 @@ def variant(variant_id=None):
 					else:
 						spliceais = re.split(r'\|', record[7])
 						#ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+						splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
 						order_list = ['DS_AG','DS_AL','DS_DG','DS_DL','DP_AG','DP_AL','DP_DG','DP_DL']
 						i = 2
 						for tag in order_list:
 							identifier = "spliceai_{}".format(tag)
 							annot[identifier] = spliceais[i]
+							if re.search(r'DS_', tag):
+								splicing_radar_values.append(spliceais[i])
 							i += 1
 							if re.match('spliceai_DS_', identifier):
 								id_color = "{}_color".format(identifier)
@@ -596,16 +532,28 @@ def variant(variant_id=None):
 					if isinstance(record, str):
 						annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
 						annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
+						if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
+							splicing_radar_labels.append('dbscSNV ADA')
+							splicing_radar_values.append(annot['dbscsnv_ada'])
+						if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
+							splicing_radar_labels.append('dbscSNV RF')
+							splicing_radar_values.append(annot['dbscsnv_rf'])
 					else:
 						try:
 							annot['dbscsnv_ada'] = "{:.2f}".format(float(record[14]))
 							annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+							if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
+								splicing_radar_labels.append('dbscSNV ADA')
+								splicing_radar_values.append(annot['dbscsnv_ada'])
 						except:
 							#"score" is '.'
 							annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv'][1])
 						try:
 							annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
 							annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+							if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
+								splicing_radar_labels.append('dbscSNV RF')
+								splicing_radar_values.append(annot['dbscsnv_rf'])
 						except:
 							#"score" is '.'
 							annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
@@ -633,7 +581,7 @@ def variant(variant_id=None):
 		md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
 		vv_data = {'apiVersion': 'Service Unavailable'}
 	
-	return render_template('md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files, vv_data=vv_data, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
+	return render_template('md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos, splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values, urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files, vv_data=vv_data, variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
 
 ######################################################################
 #web app - search engine

@@ -332,7 +332,7 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
-					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' %}
+					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
 						<tr><!--intervar-->
 							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
 							<td class="w3-left-align">
@@ -458,8 +458,59 @@
 						{% endif %}
 					</tbody>
 				</table><br/><br/>
-			</div>
+				<div class="w3-row-padding">
+					<!--Splicing radar chart-->
+					<div class="w3-col m4">
+						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+					</div>
+				</div>
+				<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+						<header class="w3-container w3-blue">
+							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
+							<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
+							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+						</header>
+						<div class="w3-container">
+							<div class="chart-container" style="position: relative;">
+								<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script>
+					Chart.defaults.global.defaultFontSize=16;
+					var point_font_size = 16
+					var wi = $(window).width();
+					if (wi < 400) {
+						Chart.defaults.global.defaultFontSize=12;
+						point_font_size = 12;
+					}
+					{% autoescape false %}
+						var myRadarChart = new Chart($("#splicing_radar"), {
+							type: 'radar',
+							data: {
+								//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
+								labels: {{ splicing_radar_labels }},
+								datasets: [{
+									label:'Splicing predictors',
+									data: {{ splicing_radar_values }},
+									fill: true,
+									backgroundColor:'rgb(255, 99, 132, 0.2)',
+									borderColor:'rgb(255, 99, 132)',
+									pointBackgroundColor:'rgb(255, 99, 132)',
+									pointBorderColor:'#fff',
+									pointHoverBackgroundColor:'#fff',
+									pointHoverBorderColor:'rgb(255, 99, 132)'
+								}]
+							},
+							options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
+						});
+					{% endautoescape %}
+				</script>
+			</div>			
 		{% endif %}
+		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--sixth section-->
 		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
 			<hr />
@@ -524,88 +575,95 @@
 					<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
 				{% endif %}
 				<br/><br/>
-			</div>
-			
-			<div class="w3-row-padding">
-				<!--Missense radar chart-->
-				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
+				<div class="w3-row-padding">
+					<!--Missense radar chart-->
+					<div class="w3-col m4">
+						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
+					</div>
 				</div>
-			</div>
-			<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;">
-				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
-					<header class="w3-container w3-blue">
-						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide()";">X</span>
-						<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
-						<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
-					</header>
-					<div class="w3-container">
-						<div class="chart-container" style="position: relative;" style="display:none;">
-							<canvas id="missense_radar"><p>Radar Chart for missense predictions</p></canvas>
+				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+						<header class="w3-container w3-blue">
+							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>
+							<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
+							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+						</header>
+						<div class="w3-container">
+							<div class="chart-container" style="position: relative;">
+								<canvas id="missense_radar"><p>Radar Chart for missense predictions</p></canvas>
+							</div>
 						</div>
 					</div>
 				</div>
+				{# set missense predictors values to min when no values to plot radar chart #}
+				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
+				{% if annot.sift_pred == 'no prediction' %}
+					{% set missense_pred.sift = 1 %}
+				{% endif %}
+				{% if annot.pph2_hvar_pred == 'no prediction' %}
+					{% set missense_pred.pphvar = 0 %}
+				{% endif %}
+				{% if annot.pph2_hdiv_pred == 'no prediction' %}
+					{% set missense_pred.pphdiv = 0 %}
+				{% endif %}
+				{% if annot.revel_pred == 'no prediction' %}
+					{% set missense_pred.revel = 0 %}
+				{% endif %}
+				{% if annot.fathmm_pred == 'no prediction' %}
+					{% set missense_pred.fathmm = 10.64 %}
+				{% endif %}
+				{% if annot.msvm_pred == 'no prediction' %}
+					{% set missense_pred.metasvm = -2 %}
+				{% endif %}
+				{% if annot.mlr_pred == 'no prediction' %}
+					{% set missense_pred.metalr = 0 %}
+				{% endif %}
+				<script>
+					//var ctx = document.getElementById("missense_radar").getContext('2d')
+					Chart.defaults.global.defaultFontSize=16;
+					var point_font_size = 16
+					var wi = $(window).width();
+					if (wi < 400) {
+						Chart.defaults.global.defaultFontSize=12;
+						point_font_size = 12;
+					}
+	
+					function normalizeData(val, my_array) {
+						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
+						return new_val;
+					}
+					var myRadarChart = new Chart($("#missense_radar"), {
+						type: 'radar',
+						data: {
+							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'FATHMM', 'MetaSVM', 'MetaLR'],
+							datasets: [{
+								label:'Missense predictors',
+								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}],
+								fill: true,
+								backgroundColor:'rgb(255, 99, 132, 0.2)',
+								borderColor:'rgb(255, 99, 132)',
+								pointBackgroundColor:'rgb(255, 99, 132)',
+								pointBorderColor:'#fff',
+								pointHoverBackgroundColor:'#fff',
+								pointHoverBorderColor:'rgb(255, 99, 132)'
+							}]
+						},
+						options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
+					});
+				</script>
+				{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 			</div>
-			{# set missense predictors values to min when no values to plot radar chart #}
-			{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
-			{% if annot.sift_pred == 'no prediction' %}
-				{% set missense_pred.sift = 1 %}
-			{% endif %}
-			{% if annot.pph2_hvar_pred == 'no prediction' %}
-				{% set missense_pred.pphvar = 0 %}
-			{% endif %}
-			{% if annot.pph2_hdiv_pred == 'no prediction' %}
-				{% set missense_pred.pphdiv = 0 %}
-			{% endif %}
-			{% if annot.revel_pred == 'no prediction' %}
-				{% set missense_pred.revel = 0 %}
-			{% endif %}
-			{% if annot.fathmm_pred == 'no prediction' %}
-				{% set missense_pred.fathmm = 10.64 %}
-			{% endif %}
-			{% if annot.msvm_pred == 'no prediction' %}
-				{% set missense_pred.metasvm = -2 %}
-			{% endif %}
-			{% if annot.mlr_pred == 'no prediction' %}
-				{% set missense_pred.metalr = 0 %}
-			{% endif %}
-			<script>
-				//var ctx = document.getElementById("missense_radar").getContext('2d')
-				Chart.defaults.global.defaultFontSize=16;
-				var point_font_size = 16
-				var wi = $(window).width();
-				if (wi < 400) {
-					Chart.defaults.global.defaultFontSize=12;
-					point_font_size = 12;
-				}
-
-				function normalizeData(val, my_array) {
-					var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
-					return new_val;
-				}
-				var myRadarChart = new Chart($("#missense_radar"), {
-					type: 'radar',
-					data: {
-						labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'FATHMM', 'MetaSVM', 'MetaLR'],
-						datasets: [{
-							label:'Missense predictors',
-							data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}],
-							fill: true,
-							backgroundColor:'rgb(255, 99, 132, 0.2)',
-							borderColor:'rgb(255, 99, 132)',
-							pointBackgroundColor:'rgb(255, 99, 132)',
-							pointBorderColor:'#fff',
-							pointHoverBackgroundColor:'#fff',
-							pointHoverBorderColor:'rgb(255, 99, 132)'
-						}]
-					},
-					options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
-				});
-			</script>			
+			
+			
 		{% elif annot.dbnsfp is defined %}
 			{{ info(annot.dbnsfp) }}
+			{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+		{% elif annot.spliceai_DS_AG is defined  %}
+			{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+		{% else %}
+			{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 		{% endif %}
-		{{ modal_js('radar_missense_modal') }}
+		
 		<!--seventh section-->
 			<hr />
 			{{ section_title('admin', 'Administrative information') }}
@@ -622,7 +680,11 @@
 					<tbody>
 						<tr><!--creation user-->
 							<td class="w3-left-align">Creation user:</td>
-							<td class="w3-left-align">{{ variant_features.username }}</td>
+							{% if variant_features.username != 'mobidetails' and g.user %}
+								<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=variant_features.mobiuser_id) }}" target="_blank" title="Click to see {{ variant_features.username }} profile">{{ variant_features.username }}</a></td>
+							{% else %}
+								<td class="w3-left-align">{{ variant_features.username }}</td>
+							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">User who created the variant</em></td>
 						</tr>
 						<tr><!--creation date-->
