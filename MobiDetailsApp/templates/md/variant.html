@@ -458,57 +458,59 @@
 						{% endif %}
 					</tbody>
 				</table><br/><br/>
-				<div class="w3-row-padding">
-					<!--Splicing radar chart-->
-					<div class="w3-col m4">
-						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+				{% if annot.spliceai_DS_AG is defined %}
+					<div class="w3-row-padding">
+						<!--Splicing radar chart-->
+						<div class="w3-col m4">
+							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+						</div>
 					</div>
-				</div>
-				<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
-					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
-						<header class="w3-container w3-blue">
-							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
-							<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
-							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
-						</header>
-						<div class="w3-container">
-							<div class="chart-container" style="position: relative;">
-								<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+							<header class="w3-container w3-blue">
+								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
+								<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
+								<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+							</header>
+							<div class="w3-container">
+								<div class="chart-container" style="position: relative;">
+									<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<script>
-					Chart.defaults.global.defaultFontSize=16;
-					var point_font_size = 16
-					var wi = $(window).width();
-					if (wi < 400) {
-						Chart.defaults.global.defaultFontSize=12;
-						point_font_size = 12;
-					}
-					{% autoescape false %}
-						var myRadarChart = new Chart($("#splicing_radar"), {
-							type: 'radar',
-							data: {
-								//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
-								labels: {{ splicing_radar_labels }},
-								datasets: [{
-									label:'Splicing predictors',
-									data: {{ splicing_radar_values }},
-									fill: true,
-									backgroundColor:'rgb(255, 99, 132, 0.2)',
-									borderColor:'rgb(255, 99, 132)',
-									pointBackgroundColor:'rgb(255, 99, 132)',
-									pointBorderColor:'#fff',
-									pointHoverBackgroundColor:'#fff',
-									pointHoverBorderColor:'rgb(255, 99, 132)'
-								}]
-							},
-							options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
-						});
-					{% endautoescape %}
-				</script>
-			</div>			
+					<script>
+						Chart.defaults.global.defaultFontSize=16;
+						var point_font_size = 16
+						var wi = $(window).width();
+						if (wi < 400) {
+							Chart.defaults.global.defaultFontSize=12;
+							point_font_size = 12;
+						}
+						{% autoescape false %}
+							var myRadarChart = new Chart($("#splicing_radar"), {
+								type: 'radar',
+								data: {
+									//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
+									labels: {{ splicing_radar_labels }},
+									datasets: [{
+										label:'Splicing predictors',
+										data: {{ splicing_radar_values }},
+										fill: true,
+										backgroundColor:'rgb(255, 99, 132, 0.2)',
+										borderColor:'rgb(255, 99, 132)',
+										pointBackgroundColor:'rgb(255, 99, 132)',
+										pointBorderColor:'#fff',
+										pointHoverBackgroundColor:'#fff',
+										pointHoverBorderColor:'rgb(255, 99, 132)'
+									}]
+								},
+								options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
+							});
+						{% endautoescape %}
+					</script>
+				{% endif %}
+			</div>
 		{% endif %}
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--sixth section-->

@@ -86,6 +86,8 @@ def intervar():
 	alt = request.form['alt']
 	if len(ref) > 1 or len(alt) > 1:
 		return 'No wintervar for indels'
+	if ref == alt:
+		return 'hg19 reference is equal to variant: no wIntervar query'
 	http = urllib3.PoolManager()
 	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
 	try:
@@ -110,6 +112,8 @@ def lovd():
 	chrom = request.form['chrom']
 	g_name = request.form['g_name']
 	c_name = request.form['c_name']
+	if re.search(r'=', g_name):
+		return 'hg19 reference is equal to variant: no LOVD query'
 	positions = md_utilities.compute_start_end_pos(g_name)
 	http = urllib3.PoolManager()
 	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end

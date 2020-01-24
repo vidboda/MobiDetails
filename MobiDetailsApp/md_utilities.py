@@ -773,7 +773,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#get intervar automated class
 	if vf_d['variant_size'] > 1:
 		vf_d['acmg_class'] = 3
-	elif (vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon' and re.search(r'^[^\*-]', vf_d['c_name']) and vf_d['p_name'] != 'Met1?'):
+	elif (vf_d['dna_type'] == 'substitution' and vf_d['start_segment_type'] == 'exon' and re.search(r'^[^\*-]', vf_d['c_name']) and vf_d['p_name'] != 'Met1?' and hg19_d['pos_ref'] != hg19_d['pos_alt']):
 		#intervar api returns empty results with hg38 09/2019
 		http = urllib3.PoolManager()
 		intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(urls['intervar_api'], 'hg19', hg19_d['chr'], hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt'])
