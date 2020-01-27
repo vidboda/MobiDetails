@@ -263,7 +263,7 @@ def autocomplete():
 		if result is not None:
 			return json.dumps(result)
 		else:
-			return None
+			return ('', 204)
 	i = 1
 	if re.search(r'^[Nn][Mm]_.+', query):
 		i = 2
@@ -281,7 +281,7 @@ def autocomplete():
 	if result is not None:
 		return json.dumps(result)
 	else:
-		return None
+		return ('', 204)
 	
 ######################################################################
 #web app - ajax for variant creation autocomplete
@@ -306,7 +306,7 @@ def autocomplete_var():
 		if result is not None:
 			return json.dumps(result)
 		else:
-			return None
-	return None
+			return ('', 204)
+	return ('', 204)
 	
 	
