@@ -620,6 +620,12 @@ def search_engine():
 					pattern = re.sub(r'\*', 'Ter', var)
 				else:
 					pattern = var
+		elif re.search(r'^[Nn][Mm]_\d+', query_engine):#NM acc no
+			sql_table = 'gene'
+			query_type = 'name[2]'
+			col_names = 'name'
+			match_object = re.search(r'^([Nn][Mm]_\d+)\.?\d?', query_engine)
+			pattern = match_object.group(1)			
 		elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', query_engine):#strict HGVS genomic
 			sql_table = 'variant'
 			query_type = 'g_name'
@@ -704,7 +710,7 @@ def search_engine():
 				result = curs.fetchone()
 				close_db()
 				if result is None:
-					error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+					error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> If you are looking for a variant, you can create at the corresponding gene page'.format(query_engine)
 				else:
 					return redirect(url_for('md.gene', gene_name=result[col_names][0]))
 			else:

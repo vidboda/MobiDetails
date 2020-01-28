@@ -437,6 +437,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	vf_d = {}
 	#deal with various warnings
 	#docker up?
+	print('Creating variant: {0}-{1}'.format(gene, original_variant))
 	if 'flag' not in vv_data:
 		if caller == 'webApp':
 			send_error_email(prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
@@ -706,7 +707,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 		vf_d['end_segment_number'] = res_seg['number']
 		if vf_d['start_segment_type'] == 'intron':
 			ivs_obj = re.search(r'^-?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
-			print(vf_d['c_name'])
+			#print(vf_d['c_name'])
 			vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2))
 	if not 'ivs_name' in vf_d:
 		vf_d['ivs_name'] = 'NULL'

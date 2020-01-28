@@ -169,6 +169,7 @@ def create():
 	gene = request.form['gene']
 	acc_no = request.form['acc_no']
 	new_variant = request.form['new_variant'].replace(" ", "")
+	new_variant = request.form['new_variant'].replace("\t", "")
 	original_variant = new_variant
 	acc_version = request.form['acc_version']
 	alt_nm = None
@@ -248,8 +249,10 @@ def autocomplete():
 	query = request.form['query_engine']
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-	if re.search(r'^c\..+', query):
-		match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+	match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+	if match_object:
+	#if re.search(r'^c\..+', query):
+	#	match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
 		md_query = match_object.group(1)
 		curs.execute(
 			"SELECT c_name FROM variant_feature WHERE c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
@@ -289,8 +292,10 @@ def autocomplete():
 def autocomplete_var():
 	query = request.form['query_engine']
 	gene = request.form['gene']
-	if re.search(r'^c\..+', query):
-		match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+	match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+	if match_object:
+	#if re.search(r'^c\..+', query):
+	#	match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
 		md_query = match_object.group(1)
 		db = get_db()
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)

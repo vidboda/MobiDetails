@@ -14,6 +14,7 @@
 			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
 			<p>Public user (not logged in) only see your username on the variant page (when you created the variant)</p>
 		</div>
+		<br />
 		<hr />
 	{%- endif %}	
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile">
@@ -31,6 +32,7 @@
 	</div>
 	{% if view == 'own' -%}
 		{{ info('Please consider that the API key is personal and identifies your account, therefore you should not share it.') }}
+		<br />
 		<hr />
 	{%- endif %}
 	{% if variants_favourite != None %}
