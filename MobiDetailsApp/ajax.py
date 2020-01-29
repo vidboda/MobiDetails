@@ -194,9 +194,9 @@ def create():
 		#clean dels and up
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		if alt_nm is None or acc_no == request.form['acc_no']:
-			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+			vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 		else:
-			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/all".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+			vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 		vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
 		
 					

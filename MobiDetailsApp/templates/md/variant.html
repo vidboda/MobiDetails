@@ -147,7 +147,8 @@
 					<!--pseudo VCF (hg19)-->
 					<tr>
 						<td class="w3-left-align">pseudo VCF (<span id="genome_19">hg19</span>):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
+						<!--<a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"></a>-->
+						<td class="w3-left-align"><span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg19)</em></td>
 					</tr>
 					<!--HGVS genomic (hg38)-->
@@ -165,7 +166,8 @@
 					<!--pseudo VCF (hg38)-->
 					<tr>
 						<td class="w3-left-align">pseudo VCF (<span id="genome_38">hg38</span>):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
+						<!--<a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator">-->
+						<td class="w3-left-align"><span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg38)</em></td>
 					</tr>
 				</tbody>
@@ -178,9 +180,9 @@
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}', '_blank');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span>
 				</div>
 				<!--VariantValidator-->
-				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
-				</div>
+				<!--<div class="w3-col m4">-->
+				<!--	<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>-->
+				<!--</div>-->
 				<!--HGVS-->
 				<div class="w3-col m4">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.hgvs }}', '_blank')" title="HGVS sequence variant nomenclature web site" style="width:100%">HGVS website</span>

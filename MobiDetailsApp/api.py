@@ -83,7 +83,7 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 			
 					
 			http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-			vv_url = "{0}variantvalidator/GRCh38/{1}.{2}:{3}/all".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+			vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 			vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)		
 			
 			try:

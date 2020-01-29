@@ -39,7 +39,7 @@ urls = {
 	'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
 	#uncomment below to use VV web API
-	'variant_validator_api': 'https://rest.variantvalidator.org:443/',
+	'variant_validator_api': 'https://rest.variantvalidator.org/',
 	'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
 	#'variant_validator_api': 'http://0.0.0.0:8000/',
 	#'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
@@ -414,7 +414,7 @@ def compute_start_end_pos(name):
 	if match_object is not None:
 		return match_object.group(1), match_object.group(2)
 	else:
-		match_object = re.search(r'^(\d+)[ATGC]>', name)
+		match_object = re.search(r'^(\d+)[ATGC][>=]', name)
 		if match_object is not None:
 			return match_object.group(1), match_object.group(1)
 		else:
@@ -438,7 +438,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#deal with various warnings
 	#docker up?
 	if caller == 'webApp':
-		print('Creating variant: {0} - c.{1}'.format(gene, original_variant))
+		print('Creating variant: {0} - {1}'.format(gene, original_variant))
 	if 'flag' not in vv_data:
 		if caller == 'webApp':
 			send_error_email(prepare_email_html('MobiDetails error', '<p>VariantValidator looks down!! no Flag in json response</p>'), '[MobiDetails - VariantValidator Error]')
@@ -487,7 +487,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 				elif caller == 'api':
 					return {'mobidetails_error': vv_data['validation_warning_1']['validation_warnings']}
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-		vv_url = "{0}variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
+		vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
 		try:
 			vv_data2 = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
 			for key in vv_data2:
@@ -603,6 +603,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 		vf_d['dna_type'] = 'insertion'
 	elif re.search('del', vf_d['c_name']):
 		vf_d['dna_type'] = 'deletion'
+	elif re.search('=', vf_d['c_name']):
+		if caller == 'webApp':
+			return danger_panel(vv_key_var, 'Reference should not be equal to alternative to define a variant.')
+		elif caller == 'api':
+			return {'mobidetails_error':  'Reference should not be equal to alternative to define a variant.'}
 	if 'variant_size' not in vf_d:
 		if not re.search('_', vf_d['c_name']):
 			#one bp del or dup
