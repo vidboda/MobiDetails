@@ -71,17 +71,17 @@ urls = {
 }
 local_files = {
 	# id :[local path, version, name, short desc, urls Xref]
-	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20190916.vcf.gz', 'v20190916', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200127.vcf.gz', 'v20200127', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
 	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
 	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	#'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1.2.1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
-	'spliceai_snvs': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz', 'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai_snv'],
-	'spliceai_indels': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz', 'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai_indels'],
+	'spliceai_snvs': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz', 'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
+	'spliceai_indels': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz', 'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
 	'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', 'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
 	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v151', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
+	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
 	'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
 	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']	
@@ -194,6 +194,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
 				"SELECT ncbi_name FROM chromosomes WHERE genome_version = '{0}' AND name = '{1}'".format(genome, short_chr)
 			)
 			ncbi_name = curs.fetchone()
+			print(ncbi_name)
 			if ncbi_name is not None:
 				return ncbi_name
 
@@ -717,7 +718,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2))
 	if not 'ivs_name' in vf_d:
 		vf_d['ivs_name'] = 'NULL'
+	#ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
+	#hg38_d['chr'] = ncbi_chr[0]
 	record = get_value_from_tabix_file('dbsnp', local_files['dbsnp'][0], hg38_d)
+	#reg_chr = get_common_chr_name(db, ncbi_chr[0])
+	#hg38_d['chr'] = reg_chr[0]
 	if isinstance(record, str):
 		vf_d['dbsnp_id'] = 'NULL'
 	else:
