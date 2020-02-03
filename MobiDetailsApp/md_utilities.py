@@ -81,7 +81,7 @@ local_files = {
 	'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz', 'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
 	'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz', 'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
 	'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz', 'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/All_20180418.vcf.gz', 'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
+	'dbsnp': [app_path + '/static/resources/dbsnp/hg38/GCF_000001405.38.gz', 'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
 	'metadome': [app_path + '/static/resources/metadome/v1/', 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
 	'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit', 'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
 	'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit', 'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']	
@@ -279,10 +279,9 @@ def get_value_from_tabix_file(text, tabix_file, var):
 	i = 3
 	if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
 		i -= 1
-	#print(records)
 	for record in records:
-		#print(record)
 		if record[i] == var['pos_ref'] and record[i+1] == var['pos_alt']:
+			#print('{0}-{1}-{2}-{3}'.format(record[i], var['pos_ref'], record[i+1], var['pos_alt']))
 			return record
 		elif record[i] == var['pos_ref'] and (re.search(r'{},'.format(var['pos_alt']), record[i+1]) or re.search(r',{}'.format(var['pos_alt']), record[i+1])):
 			#multiple alts
@@ -718,15 +717,15 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2))
 	if not 'ivs_name' in vf_d:
 		vf_d['ivs_name'] = 'NULL'
-	#ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
-	#hg38_d['chr'] = ncbi_chr[0]
+	ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
+	hg38_d['chr'] = ncbi_chr[0]
 	record = get_value_from_tabix_file('dbsnp', local_files['dbsnp'][0], hg38_d)
-	#reg_chr = get_common_chr_name(db, ncbi_chr[0])
-	#hg38_d['chr'] = reg_chr[0]
+	reg_chr = get_common_chr_name(db, ncbi_chr[0])
+	hg38_d['chr'] = reg_chr[0]
 	if isinstance(record, str):
 		vf_d['dbsnp_id'] = 'NULL'
 	else:
-		match_object =  re.search(r'RS=(.+);RSPOS=', record[7])
+		match_object =  re.search(r'RS=(\d+);', record[7])
 		if match_object:
 			vf_d['dbsnp_id'] = match_object.group(1)
 		#print(record[7])
