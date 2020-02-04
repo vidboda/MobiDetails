@@ -194,7 +194,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
 				"SELECT ncbi_name FROM chromosomes WHERE genome_version = '{0}' AND name = '{1}'".format(genome, short_chr)
 			)
 			ncbi_name = curs.fetchone()
-			print(ncbi_name)
+			#print(ncbi_name)
 			if ncbi_name is not None:
 				return ncbi_name
 
