@@ -40,7 +40,8 @@ urls = {
 	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
 	#uncomment below to use VV web API
 	'variant_validator_api': 'https://rest.variantvalidator.org/',
-	'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
+	#'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
+	'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
 	#'variant_validator_api': 'http://0.0.0.0:8000/',
 	#'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
 	'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
@@ -486,6 +487,15 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 					return danger_panel(vv_key_var, ' '.join(vv_data['validation_warning_1']['validation_warnings']))
 				elif caller == 'api':
 					return {'mobidetails_error': vv_data['validation_warning_1']['validation_warnings']}
+			else:
+				if caller == 'webApp':
+					send_error_email(prepare_email_html('MobiDetails error', '<p>Mapping issue with {}</p>'.format(vv_key_var)), '[MobiDetails - Mapping issue]')
+					return danger_panel(vv_key_var, 'I have some troubles with the mapping of this variant. ')
+				elif caller == 'api':
+					send_error_email(prepare_email_html('MobiDetails error', '<p>Mapping issue with {}</p>'.format(vv_key_var)), '[MobiDetails API - Mapping issue]')
+					return {'mobidetails_error': '{}: mapping issue'.format(vv_key_var)}
+				
+			
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
 		try:

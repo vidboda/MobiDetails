@@ -191,8 +191,19 @@ def create():
 		return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
 	
 	if re.search('c\..+', new_variant):
-		#clean dels and up
+		#is vv alive?
 		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+		vv_alive = None
+		try:
+			vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
+		except:
+			md_utilities.send_error_email(md_utilities.prepare_email_html('MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
+			#vv_data = {'apiVersion': 'Service Unavailable'}
+			vv_alive = {'status': 'Service Unavailable'}
+			close_db()
+			return md_utilities.danger_panel(new_variant, 'Variant Validator did not answer our call, status: {}. I have been informed by email. Please retry later.'.format(vv_alive['status']))
+		
+		#http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		if alt_nm is None or acc_no == request.form['acc_no']:
 			vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
 		else:
