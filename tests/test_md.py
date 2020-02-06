@@ -1,5 +1,4 @@
 import pytest
-from flask import g, session
 from MobiDetailsApp.db import get_db
 
 def test_homepage(client):

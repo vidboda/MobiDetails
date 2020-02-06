@@ -24,7 +24,7 @@ bp = Blueprint('ajax', __name__)
 def litvar():
 	rsid = request.form['rsid']
 	if rsid is not None:
-		http = urllib3.PoolManager()
+		http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 		litvar_data = None
 		#litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
 		litvar_url = "{0}{1}".format(md_utilities.urls['ncbi_litvar_api'], rsid)
@@ -52,7 +52,7 @@ def litvar():
 def defgen():
 	variant_id = request.form['vfid']
 	genome = request.form['genome']
-	if variant_id is not None:
+	if variant_id is not None and genome is not None:
 		db = get_db()
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		# get all variant_features and gene info
@@ -88,7 +88,7 @@ def intervar():
 		return 'No wintervar for indels'
 	if ref == alt:
 		return 'hg19 reference is equal to variant: no wIntervar query'
-	http = urllib3.PoolManager()
+	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 	intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
 	try:
 		intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
@@ -115,7 +115,7 @@ def lovd():
 	if re.search(r'=', g_name):
 		return 'hg19 reference is equal to variant: no LOVD query'
 	positions = md_utilities.compute_start_end_pos(g_name)
-	http = urllib3.PoolManager()
+	http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 	#http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
 	lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
 	#print(lovd_url)
@@ -164,7 +164,7 @@ def lovd():
 @bp.route('/create', methods=['POST'])
 def create():
 	if request.form['new_variant'] == '':
-		return md_utilities.danger_panel('Please fill in the form before submitting!')
+		return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
 	
 	gene = request.form['gene']
 	acc_no = request.form['acc_no']
@@ -237,6 +237,9 @@ def create():
 @login_required
 def favourite():
 	vf_id = request.form['vf_id']
+	if vf_id is None:
+		flash('Cannot mark a variant without id! Please contact us.')
+		return 'notok'
 	#print(vf_id)
 	#g.user['id']
 	db = get_db()
