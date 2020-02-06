@@ -87,9 +87,9 @@ def test_create(client, app, new_variant, gene, acc_no, acc_version, message1, m
 
 #test favourite - login required - to be developped?
 
-def login(client, username, password):
+def login(client, email, password):
     return client.post('/login', data=dict(
-        username=username,
+        email=email,
         password=password
     ), follow_redirects=True)
 def logout(client):
@@ -98,8 +98,14 @@ def logout(client):
 def test_favourite(client, app):
 	assert client.get('/favourite').status_code == 405
 	with app.app_context():
+		db = get_db()
+		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+		curs.execute(
+			"SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+		)
+		res = curs.fetchone()
 		assert  client.post('/favourite', data=dict(vf_id=5)).status_code == 302
-		login(client, 'mobidetails', '5Q^T8rkkM7^5ukp')#don't dream, this won't work for you
+		login(client, 'mobidetails.iurc@gmail.com', res['password'])
 		#print(client.post('/favourite', data=dict(vf_id=5), follow_redirects=True).get_data())
 		assert  client.post('/favourite', data=dict(vf_id=5), follow_redirects=True).status_code == 200
 		assert  client.post('/favourite', data=dict(vf_id=None), follow_redirects=True).status_code == 200
