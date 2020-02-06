@@ -18,16 +18,16 @@ bp = Blueprint('api', __name__)
 @bp.route('/api/variant/exists/<string:variant_ghgvs>')
 def api_variant_exists(variant_ghgvs=None):
 	if variant_ghgvs is None:
-		return jsonify({'mobidetails_error': 'No variant submitted'})
+		return jsonify(mobidetails_error = 'No variant submitted')
 	elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', variant_ghgvs):#strict HGVS genomic
 		db = get_db()
 		match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
 		#res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
-		chrom, genome_version = md_utilities.get_common_chr_name(db, match_object.group(1))
+		chrom, genome_version = md_utilities.get_common_chr_name(db, match_object.group(1).upper())
 		pattern = match_object.group(2)
 		curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 		curs.execute(
-			"SELECT feature_id FROM variant WHERE chr = '{0}' AND g_name LIKE '{1}%' AND genome_version = '{2}'".format(chrom, pattern, genome_version)
+			"SELECT feature_id FROM variant WHERE chr = '{0}' AND g_name = '{1}' AND genome_version = '{2}'".format(chrom, pattern, genome_version)
 		)
 		res = curs.fetchone()
 		if res is not None:
@@ -48,14 +48,14 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	mobiuser_id = None
 	if api_key is None or len(api_key) != 43:
-		return jsonify({'mobidetails_error': 'Invalid API key'})
+		return jsonify(mobidetails_error = 'Invalid API key')
 	else:
 		curs.execute(
 			"SELECT * FROM mobiuser WHERE api_key = '{}'".format(api_key)
 		)
 		res = curs.fetchone()
 		if res is None:
-			return jsonify({'mobidetails_error': 'Unknown API key'})
+			return jsonify(mobidetails_error = 'Unknown API key')
 		else:
 			g.user = res
 	if variant_chgvs is None:
@@ -110,9 +110,9 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 @bp.route('/api/gene/<string:gene_hgnc>')
 def api_gene(gene_hgnc=None):
 	if gene_hgnc is None:
-		return jsonify({'mobidetails_error': 'No variant submitted'})
-	elif re.search(r'^[^\w+]$', gene_hgnc):
-		return jsonify({'mobidetails_error': 'Invalid gene submitted ({})'.format(gene_hgnc)})
+		return jsonify(mobidetails_error = 'No gene submitted')
+	if re.search(r'[^\w]', gene_hgnc):
+		return jsonify(mobidetails_error = 'Invalid gene submitted ({})'.format(gene_hgnc))
 	db = get_db()
 	curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	curs.execute(
@@ -120,7 +120,7 @@ def api_gene(gene_hgnc=None):
 	)
 	res = curs.fetchall()
 	d_gene = {}
-	if res is not None:		
+	if res:		
 		for transcript in res:
 			if 'HGNC' not in d_gene:
 				d_gene['HGNC'] = transcript['name'][0]
@@ -147,6 +147,7 @@ def api_gene(gene_hgnc=None):
 			if 'variantCreationTag' not in d_gene[refseq]:
 				d_gene[refseq]['variantCreationTag'] = transcript['variant_creation']
 		return jsonify(d_gene)
-	return jsonify({'mobidetails_error': 'Unknown gene ({})'.format(gene_hgnc)})
+	else:
+		return jsonify(mobidetails_warning = 'Unknown gene ({})'.format(gene_hgnc))
 			
 	
