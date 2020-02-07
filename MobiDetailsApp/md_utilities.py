@@ -712,7 +712,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			if ivs_obj:
 				vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(vf_d['start_segment_number'], ivs_obj.group(1), vf_d['end_segment_number'], ivs_obj.group(2), ivs_obj.group(3))
 			else:
-				ivs_obj = re.search(r'^\d+([\+-]\d+)_(\d+)[^\+-](.+)$', vf_d['c_name'])
+				ivs_obj = re.search(r'^\d+([\+-]\d+)_(\d+)([^\+-].+)$', vf_d['c_name'])
 				if ivs_obj:
 					vf_d['ivs_name'] = 'IVS{0}{1}_{2}{3}'.format(vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2), ivs_obj.group(3))
 				else:
