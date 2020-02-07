@@ -307,6 +307,10 @@ def getdbNSFP_results(transcript_index, score_index, pred_index, sep, translatio
 				pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
 		except:
 			pass
+	if score_index == 36:
+		print(score)
+		print(pred)
+		print(star)
 	return score, pred, star
 
 
@@ -597,6 +601,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			return info_panel('Variant already in MobiDetails: ', vv_key_var, res['feature_id'])
 		elif caller == 'api':
 			return {'mobidetails_id': res['feature_id'], 'url': '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id']))}
+		elif caller == 'test':
+			#for unit tests
+			return {'mobidetails_id': res['feature_id']}
 	try:
 		hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
 		if 'mobidetails_error' in hg19_d:
@@ -861,16 +868,35 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	insert_variant_feature = "INSERT INTO variant_feature (gene_name, {0}) VALUES ('{{\"{1}\",\"{2}\"}}', '{3}') RETURNING id".format(s.join(vf_d.keys()), gene, acc_no, t.join(map(str, vf_d.values()))).replace("'NULL'", "NULL")
 	#insert_query = "INSERT INTO variant_features (c_name, gene_name, ng_name, ivs_name, p_name, wt_seq, mt_seq, dna_type, rna_type, prot_type, acmg_class, start_segment_type, start_segment_number, end_segment_type, end_segment_number, variant_size, dbsnp_id, creation_date, creation_user) VALUES ('{0}', '{\"{1}\",\"{2}\"}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}', '{21}', '{22}')".format(vf_d['c_name'], gene, acc_no, vf_d['ng_name'], vf_d['ivs_name'], vf_d['p_name'], vf_d['wt_seq'], vf_d['mt_seq'], vf_d['dna_type'], vf_d['rna_type'], vf_d['prot_type'], vf_d['acmg_class'], vf_d['start_segment_type'], vf_d['start_segment_number'], vf_d['end_segment_type'], vf_d['end_segment_number'], vf_d['variant_size'], vf_d['dbsnp_id'], vf_d['creation_date'], vf_d['creation_user'])
 	#print(insert_variant_feature)
-	curs.execute(insert_variant_feature)
-	vf_id = curs.fetchone()[0]
+	try:
+		curs.execute(insert_variant_feature)
+		vf_id = curs.fetchone()[0]
+	except:
+		if caller == 'webApp':
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Insertion failed for variant features for {}</p>'.format(vv_key_var)), '[MobiDetails - MD variant creation Error]')
+			return danger_panel('MobiDetails error {}'.format(vv_key_var), 'Sorry, an issue occured with variant features. An admin has been warned')
+		elif caller == 'api':
+			return {'mobidetails_error': 'Impossible to insert variant_features for {}'.format(vv_key_var)}
 	#print(vf_id)
 	#vf_id = 55
 	insert_variant_38 = "INSERT INTO variant (feature_id, {0}) VALUES ('{1}', '{2}')".format(s.join(hg38_d.keys()), vf_id, t.join(map(str, hg38_d.values())))
-	print(insert_variant_38)
-	curs.execute(insert_variant_38)
+	try:
+		curs.execute(insert_variant_38)
+	except:
+		if caller == 'webApp':
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Insertion failed for variant hg38 for {}</p>'.format(vv_key_var)), '[MobiDetails - MD variant creation Error]')
+			return danger_panel('MobiDetails error {}'.format(vv_key_var), 'Sorry, an issue occured with variant mapping in hg38. An admin has been warned')
+		elif caller == 'api':
+			return {'mobidetails_error': 'Impossible to insert variant (hg38) for {}'.format(vv_key_var)}
 	insert_variant_19 = "INSERT INTO variant (feature_id, {0}) VALUES ('{1}', '{2}')".format(s.join(hg19_d.keys()), vf_id, t.join(map(str, hg19_d.values())))
-	curs.execute(insert_variant_19)
-	
+	try:
+		curs.execute(insert_variant_19)
+	except:
+		if caller == 'webApp':
+			send_error_email(prepare_email_html('MobiDetails error', '<p>Insertion failed for variant hg19 for {}</p>'.format(vv_key_var)), '[MobiDetails - MD variant creation Error]')
+			return danger_panel('MobiDetails error {}'.format(vv_key_var), 'Sorry, an issue occured with variant mapping in hg19. An admin has been warned')
+		elif caller == 'api':
+			return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
 	db.commit()
 	if remapper is True and caller == 'webApp':
 			return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id)		

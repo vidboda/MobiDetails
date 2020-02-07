@@ -153,7 +153,6 @@ def test_get_pos_splice_site_intron(client, app, name, return_value):
 	dist = md_utilities.get_pos_splice_site_intron(name)
 	assert dist == return_value
 
-
 @pytest.mark.parametrize(('variant_in', 'aa_pos'), (
 	('Arg34X', ('34', '34')),
 	('Arg34del', ('34', '34')),
@@ -178,7 +177,14 @@ def test_get_value_from_tabix_file():
 	record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
 	assert re.search('Pathogenic', record[7])
 	assert re.search('2356', record[2])
-	
+
+def test_getdbNSFP_results():
+	record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
+	score, pred, star = md_utilities.getdbNSFP_results(0, 36, 38, ';', 'basic', 1.1, 'lt', record)
+	assert score == '0.0'
+	assert pred == 'Damaging'
+	assert star == ''
+
 @pytest.mark.parametrize(('value', 'result_color'), (
 	(0.1270, '#00A020'),
 	(0.0000, '#00A020'),
@@ -189,6 +195,17 @@ def test_get_value_from_tabix_file():
 def test_get_spliceai_color(client, value, result_color):
 	color = md_utilities.get_spliceai_color(value)
 	assert color == result_color
+
+@pytest.mark.parametrize(('input_score', 'input_pred', 'threshold', 'direction', 'mode', 'output_score', 'output_pred', 'output_star'), (
+	('0.04;0.21', 'D;N', '0.05', 'lt', 'basic', '0.04', 'Damaging', '*'),
+	('0.96;0.21', 'D;B', '0.50', 'gt', 'pph2', '0.96', 'Probably Damaging', '*'),
+	('0.64;0.21', 'N;N', '0.05', 'lt', 'basic', '.', 'no prediction', '')
+))
+def test_get_most_other_deleterious_pred(input_score, input_pred, threshold, direction, mode, output_score, output_pred, output_star):
+	score, pred, star = md_utilities.get_most_other_deleterious_pred(input_score, input_pred, threshold, direction, mode)
+	assert score == output_score
+	assert pred == output_pred
+	assert star == output_star
 
 @pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
 	(0.12, '#00A020', 'dbscsnv'),
@@ -331,6 +348,18 @@ def test_get_genomic_values(genome, var, test_d, vv_dict):
 	var_dict = md_utilities.get_genomic_values(genome, vv_dict, var)
 	assert var_dict == test_d
 
+class fake_g_obj:
+	user = dict(username='mobideatils')
+
+def test_create_var_vv(client, app):
+	with app.app_context():
+		db = get_db()
+		g = fake_g_obj()
+		error_dict = md_utilities.create_var_vv('NM_206933.2:c.100_101delinsA', 'USH2A', 'NM_206933', 'c.100_101delinsA', 'c.100_101delinsA', '2', vv_dict, 'test', db, g)
+		assert isinstance(error_dict['mobidetails_id'], int)
+		#{'mobidetails_error': 'Impossible to insert variant_features for {}'.format(vv_key_var)}
+
+
 @pytest.mark.parametrize(('name', 'result'), (
 	('216595578_216595582delinsT', ('216595578', '216595582')),
 	('100_101del', ('100', '101')),
@@ -348,3 +377,7 @@ def test_compute_start_end_pos(name, result):
 def test_reverse_complement(seq, result):
 	rev_comp = md_utilities.reverse_complement(seq)
 	assert rev_comp == result
+
+def test_prepare_email_html():
+	email = md_utilities.prepare_email_html('Test', 'Test message')
+	assert 'MobiDetails' in email
