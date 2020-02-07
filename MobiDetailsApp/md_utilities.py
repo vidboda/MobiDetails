@@ -37,7 +37,7 @@ urls = {
 	#'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
 	'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
 	'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',
-	'variant_validator': 'https://variantvalidator.org/variantvalidation/?variant=',
+	'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
 	#uncomment below to use VV web API
 	'variant_validator_api': 'https://rest.variantvalidator.org/',
 	#'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
