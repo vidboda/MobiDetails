@@ -75,6 +75,7 @@ local_files = {
 	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200127.vcf.gz', 'v20200127', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
 	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
 	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
+	'gnomad_3': [app_path + '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz', 'v3', 'gnomAD v3', 'large dataset of variants population frequencies', 'gnomad'],
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	#'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1.2.1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
 	'spliceai_snvs': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz', 'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
@@ -276,7 +277,10 @@ def get_aa_position(hgvs_p):
 #open a file with tabix and look for a record:
 def get_value_from_tabix_file(text, tabix_file, var):
 	tb = tabix.open(tabix_file)
-	records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
+	if text == 'gnomADv3':
+		records = tb.querys("chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
+	else:
+		records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
 	i = 3
 	if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
 		i -= 1
@@ -307,10 +311,6 @@ def getdbNSFP_results(transcript_index, score_index, pred_index, sep, translatio
 				pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
 		except:
 			pass
-	if score_index == 36:
-		print(score)
-		print(pred)
-		print(star)
 	return score, pred, star
 
 

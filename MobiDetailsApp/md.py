@@ -337,6 +337,14 @@ def variant(variant_id=None):
 					if variant_features['prot_type'] == 'nonsense' or variant_features['prot_type'] == 'frameshift':
 						annot['mpa_score'] = 10
 						annot['mpa_impact'] = variant_features['prot_type']
+				#gnomadv3
+				record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3'][0], var)
+				if isinstance(record, str):
+					annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
+				else:
+					match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
+					if match_obj:
+						annot['gnomadv3'] = match_obj.group(1)
 				#dbNSFP
 				if variant_features['prot_type'] == 'missense':
 					record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
