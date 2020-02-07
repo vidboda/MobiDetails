@@ -4,7 +4,9 @@
 {% block header %}
   <h1 align="center" class="w3-text-blue">{% block title %}Register{% endblock %}</h1>
 {% endblock %}
-
+{% block more_head %}
+	<script src="{{ url_for('static', filename='javascript/auth_register.js') }}" type="text/javascript"></script>	
+{% endblock %}
 {% block content %}
 	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />If you do not want any cookies at all, just do not register.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.") }}
 	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
@@ -22,7 +24,7 @@
 			</div>
 			<div class="w3-row w3-section"/>
 				{{ fa('globe') }}
-				<div class="w3-rest"><select class="w3-select w3-border" name="country">
+				<div class="w3-rest"><select class="w3-select w3-border" name="country" id="country">
 					<option value="--">--</option>
 					<option value="Andorra">Andorra</option>
 					<option value="United Arab Emirates">United Arab Emirates</option>
@@ -285,7 +287,7 @@
 				<div class="w3-rest">{{ input('email', value=prev_email) }}</div>
 			</div>
 			<p class="w3-center">
-				<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple" onclick="$('html').css('cursor', 'progress');$('sub').css('cursor', 'progress');" value="submit"/>
+				<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple" onclick="check_register_form();" value="submit"/>
 			</p>
 		</form>
 	</div>

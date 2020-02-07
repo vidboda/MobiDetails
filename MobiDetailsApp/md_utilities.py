@@ -9,7 +9,7 @@ import certifi
 import json
 import twobitreader
 from flask import (
-    url_for, request, current_app as app
+    url_for, request, flash, current_app as app
 )
 from flask_mail import Message
 from . import config
@@ -480,6 +480,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 		#we could get pseudo VCF values an rerun VV instead
 		try:
 			hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+			if 'mobidetails_error' in hg38_d:
+				if caller == 'webApp':
+					return danger_panel('MobiDetails error', hg38_d['mobidetails_error'])
+				elif caller == 'api':
+					return hg38_d
 		except:
 			#means we have an error
 			if vv_data['flag'] == 'warning':
@@ -570,6 +575,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#hg38
 	try:
 		hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+		if 'mobidetails_error' in hg38_d:
+			if caller == 'webApp':
+				return danger_panel('MobiDetails error', hg38_d['mobidetails_error'])
+			elif caller == 'api':
+				return hg38_d
 	except:
 		if caller == 'webApp':
 			return danger_panel(vv_key_var, 'Transcript {0} for gene {1} does not seem to map correctly to hg38. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene))
@@ -589,6 +599,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 			return {'mobidetails_id': res['feature_id'], 'url': '{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id']))}
 	try:
 		hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
+		if 'mobidetails_error' in hg19_d:
+			if caller == 'webApp':
+				return danger_panel('MobiDetails error', hg19_d['mobidetails_error'])
+			elif caller == 'api':
+				return hg19_d
 	except:
 		if caller == 'webApp':
 			return danger_panel(vv_key_var, 'Transcript {0} for gene {1} does not seem to map correctly to hg19. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.'.format(acc_no, gene))
@@ -851,6 +866,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 	#print(vf_id)
 	#vf_id = 55
 	insert_variant_38 = "INSERT INTO variant (feature_id, {0}) VALUES ('{1}', '{2}')".format(s.join(hg38_d.keys()), vf_id, t.join(map(str, hg38_d.values())))
+	print(insert_variant_38)
 	curs.execute(insert_variant_38)
 	insert_variant_19 = "INSERT INTO variant (feature_id, {0}) VALUES ('{1}', '{2}')".format(s.join(hg19_d.keys()), vf_id, t.join(map(str, hg19_d.values())))
 	curs.execute(insert_variant_19)
@@ -867,6 +883,10 @@ def get_genomic_values(genome, vv_data, vv_key_var):
 	if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
 		g_name_obj = re.search(r':g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['hgvs_genomic_description'])
 		chr_obj = re.search(r'chr([\dXYM]{1,2})$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['chr'])
+		if len(vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref']) > 49 or len(vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']) > 49:
+			#flash('MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions')
+			#flash is only useful if we return a new page which is not the case here
+			return {'mobidetails_error': 'MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions)'}
 		return {
 			'genome_version': genome,
 			'g_name': g_name_obj.group(1),
