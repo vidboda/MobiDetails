@@ -212,37 +212,39 @@
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
 					</tr><!--position in exon-->
-					{% if variant_features.start_segment_type == 'exon' and variant_features.c_name|match('[^\*]') %}
+					{% if variant_features.start_segment_type == 'exon' and variant_features.c_name|match('[^\*]')  and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
 						<tr>
 							<td class="w3-left-align">Position / splice site</td>
 							<td class="w3-left-align">{{ pos_splice[1] }} bp from {{ pos_splice[0] }}</td>
 							<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
-						</tr>				
-						<tr><!--protein-->
-							<td class="w3-left-align">Position / protein</td>
-							<td class="w3-left-align">
-								<span>{{ aa_pos[0] }}</span>
-								{% if aa_pos[0] != aa_pos[1] %}
-									<span> - {{ aa_pos[1] }}</span>
-								{%endif %}
-							 <span> / {{ variant_features.prot_size }}</span>
-							</td>
-							<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em></td>
 						</tr>
-						</tr><!--protein domain-->
-						<tr>
-							<td class="w3-left-align">Position / domain</td>
-							{% if protein_domain[0] is defined %}
+						{% if variant_features.prot_type != 'unknown' %}
+							<tr><!--protein-->
+								<td class="w3-left-align">Position / protein</td>
 								<td class="w3-left-align">
-								{% for dom in protein_domain  %}
-									{{ dom.name }} ({{ dom.aa_start }} - {{ dom.aa_end }})&nbsp;&nbsp;
-								{% endfor %}
+									<span>{{ aa_pos[0] }}</span>
+									{% if aa_pos[0] != aa_pos[1] %}
+										<span> - {{ aa_pos[1] }}</span>
+									{%endif %}
+								 <span> / {{ variant_features.prot_size }}</span>
 								</td>
-							{% else %}
-								<td class="w3-left-align">Not in a UNIPROT defined domain</td>
-							{% endif %}
-							<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ variant_features.uniprot_id }}" target="_blank" title="Visit UNIPROT {{ variant_features.uniprot_id }}">{{ variant_features.uniprot_id }})</a></em></td>
-						</tr>
+								<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em
+						
+							</tr><!--protein domain-->
+							<tr>
+								<td class="w3-left-align">Position / domain</td>
+								{% if protein_domain[0] is defined %}
+									<td class="w3-left-align">
+									{% for dom in protein_domain  %}
+										{{ dom.name }} ({{ dom.aa_start }} - {{ dom.aa_end }})&nbsp;&nbsp;
+									{% endfor %}
+									</td>
+								{% else %}
+									<td class="w3-left-align">Not in a UNIPROT defined domain</td>
+								{% endif %}
+								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ variant_features.uniprot_id }}" target="_blank" title="Visit UNIPROT {{ variant_features.uniprot_id }}">{{ variant_features.uniprot_id }})</a></em></td>
+							</tr>
+						{% endif %}
 						{% if annot.metadome_dn_ds is defined %}
 							<td class="w3-left-align">Position tolerance</td>
 							<td class="w3-left-align">{{ annot.metadome_dn_ds }} : {{ span_color(annot.metadome_effect, annot.metadome_color) }}</td>

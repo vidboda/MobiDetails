@@ -144,6 +144,16 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 		dist = md_utilities.get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome)
 	assert dist == result
 
+@pytest.mark.parametrize(('name', 'return_value'), (
+	('1524+37C>T', '37'),
+	('1258+59_1258+61del', '59'),
+	('1258-589_1258-587del', '587')
+))
+def test_get_pos_splice_site_intron(client, app, name, return_value):
+	dist = md_utilities.get_pos_splice_site_intron(name)
+	assert dist == return_value
+
+
 @pytest.mark.parametrize(('variant_in', 'aa_pos'), (
 	('Arg34X', ('34', '34')),
 	('Arg34del', ('34', '34')),
@@ -157,17 +167,6 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 def test_get_aa_position(client, variant_in, aa_pos):
 	aa = md_utilities.get_aa_position(variant_in)
 	assert aa == aa_pos
-#deprecated
-#app_path = '/home/adminbioinfo/Devs/MobiDetails/MobiDetailsApp'
-# @pytest.mark.parametrize(('chrom', 'gzfile'), (
-# 	('1', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr1.gz'),
-# 	('X', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrX.gz'),
-# 	('M', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chrM.gz'),
-# 	('22', md_utilities.app_path + '/static/resources/dbNSFP/v4_0_dbNSFP4.0a_variant.chr22.gz')
-# ))
-# def test_get_dbNSFP_file(client, chrom, gzfile):
-# 	dbnsfp_file = md_utilities.get_dbNSFP_file(chrom)
-# 	assert dbnsfp_file == gzfile
 	
 var = {
 	'chr': '1',

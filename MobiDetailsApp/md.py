@@ -175,7 +175,7 @@ def genes():
 		"SELECT DISTINCT(name[1]) AS hgnc FROM gene ORDER BY name[1]"
 	)
 	genes = curs.fetchall()
-	if genes is not None:
+	if genes:
 		close_db()
 		return render_template('md/genes.html', genes=genes)
 	else:
@@ -272,35 +272,39 @@ def variant(variant_id=None):
 					elif res['genome_version'] == 'hg38':
 						annot['ncbi_chr_hg38'] = res['ncbi_name']
 				# compute position / splice sites
-				if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and not re.search(r'\*', variant_features['c_name']) and not re.search(r'^-', variant_features['c_name']):
+				if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and  variant_features['start_segment_type'] == variant_features['end_segment_type'] and variant_features['start_segment_number'] == variant_features['end_segment_number'] and not re.search(r'\*', variant_features['c_name']) and not re.search(r'^-', variant_features['c_name']):
 					#get a tuple ['site_type', 'dist(bp)']
 					pos_splice_site = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
-					if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
+					#variants beginning in exon and finishing in intron
+					#we don't treat them as this is obvious
+					#if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
 						#indels > 1 bp
 						#get a tuple ['site_type', 'dist(bp)']
-						pos_splice_site_second = md_utilities.get_pos_splice_site(var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
-						if pos_splice_site[1] > pos_splice_site_second[1]:
+						#pos_splice_site_second = md_utilities.get_pos_splice_site(db, var['pos'], variant_features['end_segment_type'], variant_features['end_segment_number'], variant_features['gene_name'])
+						#if pos_splice_site[1] > pos_splice_site_second[1]:
 							#pos_splice_site_second nearest from splice site
-							pos_splice_site = pos_splice_site_second						
+							#print('{0}-{1}'.format(pos_splice_site, pos_splice_site_second))
+							#pos_splice_site = pos_splice_site_second						
 					#compute position in domain
 					#1st get aa pos
-					aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
-					curs.execute(
-						"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
-					)
-					domain = curs.fetchall()
-					#metadome data?
-					if variant_features['dna_type'] == 'substitution' and os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
-						#get value in json file
-						with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst']), "r") as metad_file:
-							metad_json = json.load(metad_file)
-							if 'positional_annotation' in metad_json:
-								for pos in metad_json['positional_annotation']:
-									if int(pos['protein_pos']) == int(aa_pos[0]):
-										if 'sw_dn_ds' in pos:
-											annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
-											[annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
-					
+					if variant_features['prot_type'] != 'unknown':
+						aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+						curs.execute(
+							"SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
+						)
+						domain = curs.fetchall()
+						#metadome data?
+						if variant_features['dna_type'] == 'substitution' and os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
+							#get value in json file
+							with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst']), "r") as metad_file:
+								metad_json = json.load(metad_file)
+								if 'positional_annotation' in metad_json:
+									for pos in metad_json['positional_annotation']:
+										if int(pos['protein_pos']) == int(aa_pos[0]):
+											if 'sw_dn_ds' in pos:
+												annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
+												[annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
+						
 					
 				#MPA indel splice
 				elif variant_features['start_segment_type'] == 'intron' and variant_features['dna_type'] == 'indel' and variant_features['variant_size'] < 50:
