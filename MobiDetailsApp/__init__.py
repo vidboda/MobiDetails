@@ -28,7 +28,7 @@ def create_app(test_config=None):
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
-    #cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
     # errors
     app.register_error_handler(403, forbidden_error)
     app.register_error_handler(404, not_found_error)
