@@ -277,10 +277,16 @@ def get_aa_position(hgvs_p):
 #open a file with tabix and look for a record:
 def get_value_from_tabix_file(text, tabix_file, var):
 	tb = tabix.open(tabix_file)
+	query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
 	if text == 'gnomADv3':
-		records = tb.querys("chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
-	else:
-		records = tb.querys("{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos']))
+		query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
+	#print(query)
+	try:
+		records = tb.querys(query)
+	except:
+		send_error_email(prepare_email_html('MobiDetails error', '<p>A tabix failed</p><p>tabix {0} {1}<br /> for variant:{2}</p>'.format(tabix_file, query, var)), '[MobiDetails - Tabix Error]')
+		return 'Match failed in {}'.format(text)
+	
 	i = 3
 	if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
 		i -= 1
@@ -522,7 +528,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 					remapper = True
 		except:
 			pass
-	print(vv_key_var)
+	#print(vv_key_var)
 	if 'validation_warning_1' in vv_data:
 		first_level_key = 'validation_warning_1'
 	if vv_key_var in vv_data:
