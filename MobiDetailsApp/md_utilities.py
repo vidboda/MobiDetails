@@ -75,7 +75,7 @@ local_files = {
 	'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200127.vcf.gz', 'v20200127', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
 	'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz', 'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
 	'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz', 'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-	'gnomad_3': [app_path + '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz', 'v3', 'gnomAD v3', 'large dataset of variants population frequencies', 'gnomad'],
+	'gnomad_3': [app_path + '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz', 'v3', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
 	'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz', 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
 	#'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz', 'v1.2.1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
 	'spliceai_snvs': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz', 'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
@@ -522,7 +522,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 					remapper = True
 		except:
 			pass
-	
+	print(vv_key_var)
 	if 'validation_warning_1' in vv_data:
 		first_level_key = 'validation_warning_1'
 	if vv_key_var in vv_data:

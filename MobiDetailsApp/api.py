@@ -63,6 +63,8 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 	elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):#strict HGVS cdna		
 		match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
 		acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
+		new_variant = new_variant.replace(" ", "")
+		new_variant = new_variant.replace("\t", "")
 		original_variant = new_variant		
 		curs.execute(
 			"SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(new_variant, acc_no)

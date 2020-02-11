@@ -168,8 +168,9 @@ def create():
 	
 	gene = request.form['gene']
 	acc_no = request.form['acc_no']
-	new_variant = request.form['new_variant'].replace(" ", "")
-	new_variant = request.form['new_variant'].replace("\t", "")
+	new_variant = request.form['new_variant']
+	new_variant = new_variant.replace(" ", "")
+	new_variant = new_variant.replace("\t", "")
 	original_variant = new_variant
 	acc_version = request.form['acc_version']
 	alt_nm = None
