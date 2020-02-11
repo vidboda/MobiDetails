@@ -57,22 +57,20 @@ def create_app(test_config=None):
     from . import ajax
     app.register_blueprint(ajax.bp)
     from . import api
-    app.register_blueprint(api.bp)    
+    app.register_blueprint(api.bp)
     from . import static_route
     app.register_blueprint(static_route.bp)
-    
     # from . import error
     # app.register_blueprint(error.bp)
     app.add_url_rule('/', endpoint='index')
-    
     # a simple page that says hello
     # @app.route('/factory_test')
     # def hello():
     #     return 'Flask factory ok!'
-    # 
     if not app.debug:
-        
-        # logging into a file (from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-error-handling)
+
+        # logging into a file
+        # (from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-error-handling)
         if not os.path.exists('logs'):
             os.mkdir('logs')
         file_handler = RotatingFileHandler('logs/mobidetails.log', maxBytes=10240,
@@ -81,19 +79,25 @@ def create_app(test_config=None):
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-    
+
         app.logger.setLevel(logging.INFO)
         app.logger.info('Mobidetails startup')
-    
-    
+
     return app
+
 
 def not_found_error(error):
     return render_template('errors/404.html'), 404
+
+
 def internal_error(error):
     # db.session.rollback()
     return render_template('errors/500.html'), 500
+
+
 def forbidden_error(error):
     return render_template('errors/403.html'), 403
+
+
 def not_allowed_error(error):
     return render_template('errors/405.html'), 405
