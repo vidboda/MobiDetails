@@ -35,9 +35,13 @@ def index():
     if res is None:
         error = "There is a problem with the number of genes."
         flash(error)
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails PostGreSQL error', '<p>There is a problem with the number of genes.<br /> in {}</p>'
-            .format(os.path.basename(__file__))), '[MobiDetails - PostGreSQL Error]')
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails PostGreSQL error',
+                '<p>There is a problem with the number of genes.<br /> in {}</p>'.format(os.path.basename(__file__))
+            ),
+            '[MobiDetails - PostGreSQL Error]'
+        )
     else:
         close_db()
         return render_template('md/index.html', nb_genes=res['gene'], nb_isoforms=res['transcript'])
@@ -99,17 +103,30 @@ def gene(gene_name=None):
                     metad_ts = None
                     try:
                         # print('{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0]))
-                        metad_ts = json.loads(http.request('GET', '{0}get_transcripts/{1}'
-                                                           .format(md_utilities.urls['metadome_api'], gene['name'][0])).data.decode('utf-8'))
-                        if metad_ts is not None and 'trancript_ids' in metad_ts:
+                        metad_ts = json.loads(
+                                    http.request(
+                                        'GET',
+                                        '{0}get_transcripts/{1}'.format(
+                                            md_utilities.urls['metadome_api'], gene['name'][0]
+                                        )
+                                    ).data.decode('utf-8')
+                        )
+                        if metad_ts is not None and \
+                                'trancript_ids' in metad_ts:
                             for ts in metad_ts['trancript_ids']:
                                 if ts['has_protein_data']:
                                     match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
                                     enst_ver[match_obj.group(1)] = ts['gencode_id']
                     except:
-                        md_utilities.send_error_email(md_utilities.prepare_email_html(
-                            'MobiDetails API error', '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2}</p>'
-                            .format(gene_name, gene['enst'], os.path.basename(__file__)), '[MobiDetails - API Error]'))
+                        md_utilities.send_error_email(
+                            md_utilities.prepare_email_html(
+                                'MobiDetails API error',
+                                '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(
+                                    gene_name, gene['enst'], os.path.basename(__file__)
+                                ),
+                                '[MobiDetails - API Error]'
+                            )
+                        )
                         pass
                 break
 
@@ -121,12 +138,26 @@ def gene(gene_name=None):
             if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst)):
                 metad_data = None
                 try:
-                    metad_data = json.loads(http.request('GET', '{0}status/{1}/'.format(
-                        md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
+                    metad_data = json.loads(
+                                    http.request(
+                                        'GET',
+                                        '{0}status/{1}/'.format(
+                                            md_utilities.urls['metadome_api'],
+                                            enst_ver[enst])
+                                    ).data.decode('utf-8')
+                                )
                 except:
-                    md_utilities.send_error_email(md_utilities.prepare_email_html(
-                        'MobiDetails API error', '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2}</p>'
-                        .format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+                    md_utilities.send_error_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails API error',
+                            '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(
+                                gene_name,
+                                enst,
+                                os.path.basename(__file__)
+                            ),
+                            '[MobiDetails - API Error]'
+                        )
+                    )
                     pass
                 if metad_data is not None:
                     if metad_data['status'] == 'PENDING':
@@ -135,24 +166,46 @@ def gene(gene_name=None):
                         vis_request = None
                         # find out how to get app object
                         try:
-                            vis_request = json.loads(http.request('POST', '{0}submit_visualization/'
-                                                                  .format(md_utilities.urls['metadome_api']), headers={'Content-Type': 'application/json'},
-                                                                  body=json.dumps(transcript_id=enst_ver[enst])).data.decode('utf-8'))
+                            vis_request = json.loads(
+                                            http.request(
+                                                'POST',
+                                                '{0}submit_visualization/'.format(
+                                                    md_utilities.urls['metadome_api']
+                                                ),
+                                                headers={'Content-Type': 'application/json'},
+                                                body=json.dumps(transcript_id=enst_ver[enst])
+                                            ).data.decode('utf-8')
+                            )
                             if not app.debug:
                                 app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
                             else:
                                 print('{} submitted to metadome'.format(vis_request['transcript_id']))
                         except:
-                            md_utilities.send_error_email(md_utilities.prepare_email_html(
-                                'MobiDetails API error', '<p>Error with metadome submission for {0} ({1})<br /> - from  {2}</p>'
-                                .format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails API error',
+                                    '<p>Error with metadome submission for {0} ({1})<br /> - from  {2}</p>'.format(
+                                        gene_name,
+                                        enst,
+                                        os.path.basename(__file__)
+                                    ),
+                                    '[MobiDetails - API Error]'
+                                )
+                            )
                             pass
                             # print('Error with metadome submission for {}'.format(enst))
                     elif metad_data['status'] == 'SUCCESS':
                         # get_request = None
                         try:
-                            get_request = json.loads(http.request('GET', '{0}result/{1}/'
-                                                                  .format(md_utilities.urls['metadome_api'], enst_ver[enst])).data.decode('utf-8'))
+                            get_request = json.loads(
+                                            http.request(
+                                                'GET',
+                                                '{0}result/{1}/'.format(
+                                                    md_utilities.urls['metadome_api'],
+                                                    enst_ver[enst]
+                                                )
+                                            ).data.decode('utf-8')
+                                        )
                             # copy in file system
                             with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
                                 json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
@@ -161,9 +214,16 @@ def gene(gene_name=None):
                             else:
                                 print('saving metadome {} into local file system'.format(enst_ver[enst]))
                         except:
-                            md_utilities.send_error_email(md_utilities.prepare_email_html(
-                                'MobiDetails API error', '<p>Error with metadome file writing for {0} ({1})<br /> - from  {2}</p>'
-                                .format(gene_name, enst, os.path.basename(__file__)), '[MobiDetails - API Error]'))
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails API error',
+                                    '<p>Error with metadome file writing for {0} ({1})<br /> - from  {2}</p>'.format(
+                                        gene_name,
+                                        enst,
+                                        os.path.basename(__file__)
+                                    ), '[MobiDetails - API Error]'
+                                )
+                            )
                             pass
                             # print('error saving metadome json file for {}'.format(enst))
         if result_all is not None:
@@ -175,8 +235,10 @@ def gene(gene_name=None):
             if annot is None:
                 annot = {'nognomad': 'No values in gnomAD'}
             close_db()
-            return render_template('md/gene.html', urls=md_utilities.urls, gene=gene_name,
-                                   num_iso=num_iso, main_iso=main, res=result_all, annotations=annot)
+            return render_template(
+                'md/gene.html', urls=md_utilities.urls, gene=gene_name,
+                num_iso=num_iso, main_iso=main, res=result_all, annotations=annot
+            )
         else:
             close_db()
             return render_template('md/unknown.html', query=gene_name)
@@ -228,13 +290,16 @@ def vars(gene_name=None):
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
-            "SELECT * FROM variant_feature a, variant b WHERE a.id = b.feature_id AND a.gene_name[1] = '{}' AND b.genome_version = 'hg38'".format(gene_name)
+            "SELECT * FROM variant_feature a, variant b WHERE a.id = b.feature_id AND \
+             a.gene_name[1] = '{}' AND b.genome_version = 'hg38'".format(gene_name)
         )
         variants = curs.fetchall()
         # if vars_type is not None:
         close_db()
-        return render_template('md/vars.html', urls=md_utilities.urls, gene=gene_name,
-                               num_iso=num_iso, variants=variants, gene_info=main, res=result_all)
+        return render_template(
+            'md/vars.html', urls=md_utilities.urls, gene=gene_name,
+            num_iso=num_iso, variants=variants, gene_info=main, res=result_all
+        )
     else:
         close_db()
         return render_template('md/unknown.html', query=gene_name)
@@ -252,7 +317,8 @@ def variant(variant_id=None):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # get all variant_features and gene info
     curs.execute(
-        "SELECT *, a.id as var_id, c.id as mobiuser_id FROM variant_feature a, gene b, mobiuser c WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
+        "SELECT *, a.id as var_id, c.id as mobiuser_id FROM variant_feature a, gene b, mobiuser c \
+        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
     )
     variant_features = curs.fetchone()
     if variant_features is not None:
@@ -296,13 +362,21 @@ def variant(variant_id=None):
                     elif res['genome_version'] == 'hg38':
                         annot['ncbi_chr_hg38'] = res['ncbi_name']
                 # compute position / splice sites
-                if variant_features['variant_size'] < 50 and variant_features['start_segment_type'] == 'exon' and variant_features['start_segment_type'] == variant_features['end_segment_type'] and variant_features['start_segment_number'] == variant_features['end_segment_number'] and not re.search(r'\*', variant_features['c_name']) and not re.search(r'^-', variant_features['c_name']):
+                if variant_features['variant_size'] < 50 and \
+                        variant_features['start_segment_type'] == 'exon' and \
+                        variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
+                        variant_features['start_segment_number'] == variant_features['end_segment_number'] and \
+                        not re.search(r'\*', variant_features['c_name']) and \
+                        not re.search(r'^-', variant_features['c_name']):
                     # get a tuple ['site_type', 'dist(bp)']
                     pos_splice_site = md_utilities.get_pos_splice_site(
-                        db, var['pos'], variant_features['start_segment_type'], variant_features['start_segment_number'], variant_features['gene_name'])
+                        db, var['pos'], variant_features['start_segment_type'],
+                        variant_features['start_segment_number'], variant_features['gene_name']
+                    )
                     # variants beginning in exon and finishing in intron
                     # we don't treat them as this is obvious
-                    # if variant_features['start_segment_type'] != variant_features['end_segment_type'] or variant_features['start_segment_number'] != variant_features['end_segment_number']:
+                    # if variant_features['start_segment_type'] != variant_features['end_segment_type'] or \
+                    # variant_features['start_segment_number'] != variant_features['end_segment_number']:
                     #   indels > 1 bp
                     #   get a tuple ['site_type', 'dist(bp)']
                     #   pos_splice_site_second = md_utilities.get_pos_splice_site(
@@ -316,12 +390,15 @@ def variant(variant_id=None):
                     if variant_features['prot_type'] != 'unknown':
                         aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
                         curs.execute(
-                            "SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
-                                variant_features['gene_name'][1], aa_pos[0], aa_pos[1])
+                            "SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' \
+                            BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
+                                variant_features['gene_name'][1], aa_pos[0], aa_pos[1]
+                            )
                         )
                         domain = curs.fetchall()
                         # metadome data?
-                        if variant_features['dna_type'] == 'substitution' and os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
+                        if variant_features['dna_type'] == 'substitution' and \
+                                os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
                             # get value in json file
                             with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst']), "r") as metad_file:
                                 metad_json = json.load(metad_file)
@@ -333,9 +410,12 @@ def variant(variant_id=None):
                                                 [annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
 
                 # MPA indel splice
-                elif variant_features['start_segment_type'] == 'intron' and variant_features['dna_type'] == 'indel' and variant_features['variant_size'] < 50:
+                elif variant_features['start_segment_type'] == 'intron' and \
+                        variant_features['dna_type'] == 'indel' and \
+                        variant_features['variant_size'] < 50:
                     # pos_splice = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
-                    if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and ('mpa_score' not in annot or annot['mpa_score'] < 6):
+                    if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and \
+                            ('mpa_score' not in annot or annot['mpa_score'] < 6):
                         annot['mpa_score'] = 6
                         annot['mpa_impact'] = 'splice indel'
                 # clinvar
@@ -355,12 +435,16 @@ def variant(variant_id=None):
                             annot['clinsig'] = match_object.group(1)
                     elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
                         annot['clinsig'] = 'No interpretation for the single variant'
-                    if 'clinsig' in annot and re.search('pathogenic', annot['clinsig'], re.IGNORECASE) and not re.search('pathogenicity', annot['clinsig'], re.IGNORECASE):
+                    if 'clinsig' in annot and \
+                            re.search('pathogenic', annot['clinsig'], re.IGNORECASE) and \
+                            not re.search('pathogenicity', annot['clinsig'], re.IGNORECASE):
                         annot['mpa_score'] = 10
                         annot['mpa_impact'] = 'clinvar pathogenic'
                 # MPA PTC
-                if 'mpa_score' not in annot or annot['mpa_impact'] != 'clinvar pathogenic':
-                    if variant_features['prot_type'] == 'nonsense' or variant_features['prot_type'] == 'frameshift':
+                if 'mpa_score' not in annot or \
+                        annot['mpa_impact'] != 'clinvar pathogenic':
+                    if variant_features['prot_type'] == 'nonsense' or \
+                            variant_features['prot_type'] == 'frameshift':
                         annot['mpa_score'] = 10
                         annot['mpa_impact'] = variant_features['prot_type']
                 # gnomadv3
@@ -394,7 +478,8 @@ def variant(variant_id=None):
                         mpa_avail = 0
                         # sift
                         annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record)
+                            transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record
+                        )
 
                         annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')
                         if annot['sift_pred'] == 'Damaging':
@@ -403,7 +488,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # polyphen 2 hdiv
                         annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 42, 44, ';', 'pph2', -0.1, 'gt', record)
+                            transcript_index, 42, 44, ';', 'pph2', -0.1, 'gt', record
+                        )
 
                         annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
                         if re.search('Damaging', annot['pph2_hdiv_pred']):
@@ -412,7 +498,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # hvar
                         annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 45, 47, ';', 'pph2', -0.1, 'gt', record)
+                            transcript_index, 45, 47, ';', 'pph2', -0.1, 'gt', record
+                        )
 
                         annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
                         if re.search('Damaging', annot['pph2_hvar_pred']):
@@ -421,7 +508,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # fathmm
                         annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 60, 62, ';', 'basic', 20, 'lt', record)
+                            transcript_index, 60, 62, ';', 'basic', 20, 'lt', record
+                        )
 
                         annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
                         if annot['fathmm_pred'] == 'Damaging':
@@ -430,7 +518,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # fathmm-mkl -- not displayed
                         annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 106, 108, ';', 'basic', 20, 'lt', record)
+                            transcript_index, 106, 108, ';', 'basic', 20, 'lt', record
+                        )
 
                         annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_mkl_score'], 'fathmm-mkl')
                         if annot['fathmm_mkl_pred'] == 'Damaging':
@@ -439,7 +528,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # provean -- not displayed
                         annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 63, 65, ';', 'basic', 20, 'lt', record)
+                            transcript_index, 63, 65, ';', 'basic', 20, 'lt', record
+                        )
 
                         annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
                         # print(re.split(';', record[65])[i])
@@ -449,7 +539,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # LRT -- not displayed
                         annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 48, 50, ';', 'basic', -1, 'gt', record)
+                            transcript_index, 48, 50, ';', 'basic', -1, 'gt', record
+                        )
 
                         if annot['lrt_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -457,7 +548,8 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # MutationTaster -- not displayed
                         annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 52, 54, ';', 'mt', -1, 'gt', record)
+                            transcript_index, 52, 54, ';', 'mt', -1, 'gt', record
+                        )
 
                         if re.search('Disease causing', annot['mt_pred']):
                             mpa_missense += 1
@@ -465,11 +557,14 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # REVEL
                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record)
+                            transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
+                        )
                         # no REVEL pred in dbNSFP => custom
-                        if annot['revel_score'] != '.' and float(annot['revel_score']) < 0.2:
+                        if annot['revel_score'] != '.' and \
+                                float(annot['revel_score']) < 0.2:
                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['B']
-                        elif annot['revel_score'] != '.' and float(annot['revel_score']) > 0.5:
+                        elif annot['revel_score'] != '.' and \
+                                float(annot['revel_score']) > 0.5:
                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['D']
                         elif annot['revel_score'] != '.':
                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['U']
@@ -530,7 +625,11 @@ def variant(variant_id=None):
                 if variant_features['dna_type'] == 'substitution':
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
                     spliceai_res = True
-                elif ((variant_features['dna_type'] == 'insertion' or variant_features['dna_type'] == 'duplication') and variant_features['variant_size'] == 1) or (variant_features['dna_type'] == 'deletion' and variant_features['variant_size'] <= 4):
+                elif ((variant_features['dna_type'] == 'insertion' or
+                        variant_features['dna_type'] == 'duplication') and
+                        variant_features['variant_size'] == 1) or \
+                        (variant_features['dna_type'] == 'deletion' and
+                            variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels'][0], var)
                     spliceai_res = True
                 if spliceai_res is True:
@@ -608,7 +707,10 @@ def variant(variant_id=None):
                             annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
                         dbscsnv_mpa_threshold = 0.8
                         if 'mpa_score' not in annot or annot['mpa_score'] < 10:
-                            if (isinstance(annot['dbscsnv_ada'], float) and float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold) or (isinstance(annot['dbscsnv_rf'], float) and float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold):
+                            if (isinstance(annot['dbscsnv_ada'], float) and
+                                float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold) or \
+                                (isinstance(annot['dbscsnv_rf'], float) and
+                                 float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold):
                                 annot['mpa_score'] = 10
                                 annot['mpa_impact'] = 'high splice'
     else:
@@ -632,10 +734,12 @@ def variant(variant_id=None):
     # .format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
     #     vv_data = {'status': 'Service Unavailable'}
 
-    return render_template('md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
-                           splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
-                           urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
-                           variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot)
+    return render_template(
+        'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
+        splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
+        urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
+        variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot
+    )
 
 # -------------------------------------------------------------------
 # web app - search engine
@@ -647,7 +751,8 @@ def search_engine():
     # query_engine = query_engine.upper()
     error = None
     # print("--{}--".format(query_engine))
-    if query_engine is not None and query_engine != '':
+    if query_engine is not None and \
+            query_engine != '':
         pattern = ''
         query_type = ''
         sql_table = 'variant_feature'
@@ -711,14 +816,19 @@ def search_engine():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(col_names, sql_table, pattern)
+                "SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' \
+                OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(
+                    col_names, sql_table, pattern
+                )
             )
             semaph_query = 1
         elif re.search(r'^\d{2,}$', query_engine):  # only numbers: get matching variants (partial match, at least 2 numbers) - specific query
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT {0} FROM {1} WHERE c_name LIKE '%{2}%' OR p_name LIKE '%{2}%'".format(col_names, sql_table, query_engine)
+                "SELECT {0} FROM {1} WHERE c_name LIKE '%{2}%' OR p_name LIKE '%{2}%'".format(
+                    col_names, sql_table, query_engine
+                )
             )
             semaph_query = 1
         elif re.search(r'^[A-Za-z0-9-]+$', query_engine):  # genes
@@ -746,32 +856,39 @@ def search_engine():
                 # sql_query = "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
                 # return render_template('md/search_engine.html', query=text)
                 # a little bit of formatting
-                if re.search('variant', sql_table) and re.search('>', pattern):
+                if re.search('variant', sql_table) and \
+                        re.search('>', pattern):
                     # upper for the end of the variant, lower for genomic chr
                     var_match = re.search(r'^(.*)(\d+)([ACTGactg]>[ACTGactg])$', pattern)
                     pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
                     # print(pattern)
                 if pattern == 'g_name':
                     curs.execute(
-                        "SELECT {0} FROM {1} WHERE chr = {2} AND {3} = '{4}'".format(col_names, sql_table, chrom, query_type, pattern)
+                        "SELECT {0} FROM {1} WHERE chr = {2} AND {3} = '{4}'".format(
+                            col_names, sql_table, chrom, query_type, pattern
+                        )
                     )
                 else:
                     curs.execute(
-                        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(col_names, sql_table, query_type, pattern)
+                        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(
+                            col_names, sql_table, query_type, pattern
+                        )
                     )
                 result = None
             if sql_table == 'gene':
                 result = curs.fetchone()
                 close_db()
                 if result is None:
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> If you are looking for a variant, you can create at the corresponding gene page'.format(query_engine)
+                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
+                            If you are looking for a variant, you can create at the corresponding gene page'.format(query_engine)
                 else:
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:
                 result = curs.fetchall()
                 close_db()
                 if len(result) == 0:
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). You can create it by first going to the corresponding gene page'.format(query_engine)
+                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). \
+                            You can create it by first going to the corresponding gene page'.format(query_engine)
                 else:
                     if len(result) == 1:
                         # print(result[0][0])

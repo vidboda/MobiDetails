@@ -57,15 +57,19 @@ def defgen():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
         curs.execute(
-            "SELECT * FROM variant_feature a, variant b, gene c WHERE a.id = b.feature_id AND a.gene_name = c.name AND a.id = '{0}' AND b.genome_version = '{1}'"
-            .format(variant_id, genome)
+            "SELECT * FROM variant_feature a, variant b, gene c WHERE \
+            a.id = b.feature_id AND a.gene_name = c.name AND a.id = '{0}'\
+            AND b.genome_version = '{1}'".format(variant_id, genome)
         )
         vf = curs.fetchone()
-        file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
+        file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;VARIANT_C;ENST;NM;POSITION_GENOMIQUE;\
+                       CLASSESUR5;CLASSESUR3;COSMIC;RS;REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;\
+                       NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
 
         file_content += "{0};{1}.{2}:c.{3};;;;p.{4};c.{3};{5}:{1}.{2};{6};{7};;;rs{8};;{9};;;chr{10};{11};chr{10}:g.{12};{13} {14};;;;\r\n".format(
             vf['gene_name'][0], vf['gene_name'][1], vf['nm_version'], vf['c_name'], vf['p_name'], vf['enst'], vf['pos'], vf['acmg_class'],
-            vf['dbsnp_id'], vf['prot_type'], vf['chr'], genome, vf['g_name'], vf['start_segment_type'], vf['start_segment_number'])
+            vf['dbsnp_id'], vf['prot_type'], vf['chr'], genome, vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
+        )
         # print(file_content)
         app_path = os.path.dirname(os.path.realpath(__file__))
         file_loc = "defgen/{0}-{1}-{2}{3}-{4}.csv".format(genome, vf['chr'], vf['pos'], vf['pos_ref'], vf['pos_alt'])
@@ -76,9 +80,15 @@ def defgen():
             vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
     else:
         close_db()
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails Ajax error', '<p>DefGen file generation failed in {} (no variant_id)</p>'
-            .format(os.path.basename(__file__)), '[MobiDetails - Ajax Error]'))
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails Ajax error',
+                '<p>DefGen file generation failed in {} (no variant_id)</p>'.format(
+                    os.path.basename(__file__)
+                ),
+                '[MobiDetails - Ajax Error]'
+            )
+        )
         return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
 
 # -------------------------------------------------------------------
@@ -95,18 +105,30 @@ def intervar():
     if ref == alt:
         return 'hg19 reference is equal to variant: no wIntervar query'
     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-    intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(md_utilities.urls['intervar_api'], genome, chrom, pos, ref, alt)
+    intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
+        md_utilities.urls['intervar_api'], genome, chrom,
+        pos, ref, alt
+    )
     try:
         intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
     except:
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails API error', '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5}</p>'
-            .format(genome, chrom, pos, ref, alt, os.path.basename(__file__))), '[MobiDetails - API Error]')
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails API error',
+                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5}</p>'.format(
+                    genome, chrom, pos, ref,
+                    alt, os.path.basename(__file__)
+                )
+            ),
+            '[MobiDetails - API Error]'
+        )
         return "<span>No wintervar class</span>"
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(intervar_data['Intervar'].lower())
+        "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(
+            intervar_data['Intervar'].lower()
+        )
     )
     res = curs.fetchone()
     close_db()
@@ -167,9 +189,14 @@ def lovd():
         html = ' - '.join(html_list)
         return html
     else:
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails API error', '<p>LOVD service looks down in {}</p>'
-            .format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails API error',
+                '<p>LOVD service looks down in {}</p>'.format(
+                    os.path.basename(__file__)
+                ), '[MobiDetails - API Error]'
+            )
+        )
         return "LOVD service looks down"
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
@@ -221,23 +248,28 @@ def create():
             vv_alive = {'status': 'Service Unavailable'}
             close_db()
             return md_utilities.danger_panel(
-                new_variant, 'Variant Validator did not answer our call, status: {}. I have been informed by email. Please retry later.'
-                .format(vv_alive['status']))
+                new_variant, 'Variant Validator did not answer our call, status: {}. \
+                I have been informed by email. Please retry later.'.format(vv_alive['status']))
 
         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         if alt_nm is None or acc_no == request.form['acc_no']:
             vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
-                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+            )
         else:
             vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+            )
         vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
         try:
             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
         except:
             close_db()
             return md_utilities.danger_panel(
-                new_variant, 'Variant Validator did not return any value for the variant. Either it is down or your nomenclature is very odd!')
+                new_variant,
+                'Variant Validator did not return any value for the variant.\
+                Either it is down or your nomenclature is very odd!'
+            )
         if re.search('[di][neu][psl]', new_variant):
             # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
             for key in vv_data:
@@ -251,7 +283,11 @@ def create():
     else:
         close_db()
         return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
-    return md_utilities.create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, 'webApp', db, g)
+    return md_utilities.create_var_vv(
+        vv_key_var, gene, acc_no, new_variant,
+        original_variant, acc_version, vv_data,
+        'webApp', db, g
+    )
 
 # -------------------------------------------------------------------
 # web app - ajax to mark/unmark variants as favourite for logged users
@@ -270,11 +306,15 @@ def favourite():
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if request.form['marker'] == 'mark':
         curs.execute(
-            "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(g.user['id'], vf_id)
+            "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(
+                g.user['id'], vf_id
+            )
         )
     else:
         curs.execute(
-            "DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(g.user['id'], vf_id)
+            "DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(
+                g.user['id'], vf_id
+            )
         )
     db.commit()
     close_db()
@@ -338,7 +378,9 @@ def autocomplete_var():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query)
+            "SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
+                gene, md_query
+            )
         )
         res = curs.fetchall()
         result = []

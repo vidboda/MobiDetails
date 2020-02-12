@@ -13,7 +13,11 @@ if parser.has_section('flask'):
         if param[0] == 'secretkey':
             SECRET_KEY = param[1]
 else:
-    raise Exception('Section {0} not found in the {1} file'.format('flask', dir_path + '/sql/database.ini'))
+    raise Exception('Section {0} not found in the {1} file'.format(
+        'flask',
+        dir_path + '/sql/database.ini'
+        )
+    )
 
 
 # from http://www.postgresqltutorial.com/postgresql-python/connect/

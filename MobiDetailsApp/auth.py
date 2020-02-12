@@ -67,7 +67,10 @@ def register():
                     if mv_json['credits_available'] > 0:
                         if mv_json['status'] == "False":
                             if mv_json['is_high_risk'] == "True" or mv_json['is_suppressed'] == "True" or mv_json['is_catchall'] == "True":
-                                error = 'The email address is reported as risky or suppressed. If this is not the case, please send us an email directly to &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+                                error = 'The email address is reported as risky or suppressed. \
+                                        If this is not the case, please send us an email directly to \
+                                        &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;\
+                                        &#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
                             # else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
                     else:
                         md_utilities.send_error_email(md_utilities.prepare_email_html(
@@ -95,8 +98,10 @@ def register():
 
         flash(error)
         if error is not None:
-            message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li><li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
-                error, request.remote_addr, username, country, institute, email)
+            message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li>\
+                           <li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
+                error, request.remote_addr, username, country, institute, email
+            )
             md_utilities.send_error_email(md_utilities.prepare_email_html(
                 'MobiDetails error', message_body), '[MobiDetails - Registering Error]')
         return render_template('auth/register.html', prev_username=username, prev_institute=institute, prev_email=email)
@@ -171,13 +176,15 @@ def profile(mobiuser_id=0):
             error = 'This user seems to be unknown by MobiDetails.'
     if mobiuser_id == 0:
         curs.execute(
-            "SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
+            "SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE\
+            creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
         )
         variants = curs.fetchall()
         num_var = curs.rowcount
 
         curs.execute(
-            "SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
+            "SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b \
+            WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
         )
         variants_favourite = curs.fetchall()
         if error is None:

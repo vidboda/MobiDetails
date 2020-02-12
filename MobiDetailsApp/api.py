@@ -29,7 +29,9 @@ def api_variant_exists(variant_ghgvs=None):
         pattern = match_object.group(2)
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT feature_id FROM variant WHERE chr = '{0}' AND g_name = '{1}' AND genome_version = '{2}'".format(chrom, pattern, genome_version)
+            "SELECT feature_id FROM variant WHERE chr = '{0}' AND g_name = '{1}' AND genome_version = '{2}'".format(
+                chrom, pattern, genome_version
+             )
         )
         res = curs.fetchone()
         if res is not None:
@@ -44,12 +46,13 @@ def api_variant_exists(variant_ghgvs=None):
 # api - variant create
 
 
-bp.route('/api/variant/create/<string:variant_chgvs>/<string:api_key>')
+@bp.route('/api/variant/create/<string:variant_chgvs>/<string:api_key>')
 def api_variant_create(variant_chgvs=None, api_key=None):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # mobiuser_id = None
-    if api_key is None or len(api_key) != 43:
+    if api_key is None or \
+            len(api_key) != 43:
         return jsonify(mobidetails_error='Invalid API key')
     else:
         curs.execute(
@@ -69,11 +72,19 @@ def api_variant_create(variant_chgvs=None, api_key=None):
         new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(new_variant, acc_no)
+            "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(
+                new_variant, acc_no
+            )
         )
         res = curs.fetchone()
         if res is not None:
-            return jsonify(mobidetails_id=res['id'], url='{0}{1}'.format(request.host_url[:-1], url_for('md.variant', variant_id=res['id'])))
+            return jsonify(
+                mobidetails_id=res['id'],
+                url='{0}{1}'.format(
+                    request.host_url[:-1],
+                    url_for('md.variant', variant_id=res['id'])
+                )
+            )
         else:
             # creation
             # get gene
@@ -85,7 +96,8 @@ def api_variant_create(variant_chgvs=None, api_key=None):
                 return jsonify(mobidetails_error='The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no))
             http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant)
+                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+            )
             vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
 
             try:
@@ -102,8 +114,11 @@ def api_variant_create(variant_chgvs=None, api_key=None):
                         var_obj = re.search(r':c\.(.+)$', key)
                         if var_obj is not None:
                             new_variant = var_obj.group(1)
-            creation_dict = md_utilities.create_var_vv(vv_key_var, res_gene['gene'], acc_no,
-                                                       'c.{}'.format(new_variant), original_variant, acc_version, vv_data, 'api', db, g)
+            creation_dict = md_utilities.create_var_vv(
+                vv_key_var, res_gene['gene'], acc_no,
+                'c.{}'.format(new_variant), original_variant,
+                acc_version, vv_data, 'api', db, g
+            )
             return jsonify(creation_dict)
     else:
         return jsonify(mobidetails_error='malformed query {}'.format(variant_chgvs))
