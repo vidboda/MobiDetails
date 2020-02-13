@@ -123,9 +123,9 @@ def gene(gene_name=None):
                                 'MobiDetails API error',
                                 '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(
                                     gene_name, gene['enst'], os.path.basename(__file__)
-                                ),
-                                '[MobiDetails - API Error]'
-                            )
+                                )
+                            ),
+                            '[MobiDetails - API Error]'
                         )
                         pass
                 break
@@ -154,9 +154,9 @@ def gene(gene_name=None):
                                 gene_name,
                                 enst,
                                 os.path.basename(__file__)
-                            ),
-                            '[MobiDetails - API Error]'
-                        )
+                            )
+                        ),
+                        '[MobiDetails - API Error]'
                     )
                     pass
                 if metad_data is not None:
@@ -188,9 +188,9 @@ def gene(gene_name=None):
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__)
-                                    ),
-                                    '[MobiDetails - API Error]'
-                                )
+                                    )                                    
+                                ),
+                                '[MobiDetails - API Error]'
                             )
                             pass
                             # print('Error with metadome submission for {}'.format(enst))
@@ -221,8 +221,9 @@ def gene(gene_name=None):
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__)
-                                    ), '[MobiDetails - API Error]'
-                                )
+                                    )
+                                ),
+                                '[MobiDetails - API Error]'
                             )
                             pass
                             # print('error saving metadome json file for {}'.format(enst))

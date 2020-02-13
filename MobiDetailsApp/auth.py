@@ -73,12 +73,24 @@ def register():
                                         &#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
                             # else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
                     else:
-                        md_utilities.send_error_email(md_utilities.prepare_email_html(
-                            'MobiDetails email validation error', '<p>mailboxvalidator credits == 0</p>'))
+                        md_utilities.send_error_email(
+                            md_utilities.prepare_email_html(
+                                'MobiDetails email validation error',
+                                '<p>mailboxvalidator credits == 0</p>'
+                            ),
+                            '[MobiDetails - Email Validation Error]'
+                        )
                 except:
-                    md_utilities.send_error_email(md_utilities.prepare_email_html(
-                        'MobiDetails email validation error', '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1}</p>'
-                        .format(mv_json, os.path.basename(__file__)), '[MobiDetails - Email Validation Error]'))
+                    md_utilities.send_error_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails email validation error',
+                            '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1}</p>'.format(
+                                mv_json,
+                                os.path.basename(__file__)
+                            )
+                        ),
+                        '[MobiDetails - Email Validation Error]'
+                    )
                     pass
         if error is None:
             curs.execute(
@@ -102,8 +114,13 @@ def register():
                            <li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
                 error, request.remote_addr, username, country, institute, email
             )
-            md_utilities.send_error_email(md_utilities.prepare_email_html(
-                'MobiDetails error', message_body), '[MobiDetails - Registering Error]')
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    message_body
+                ),
+                '[MobiDetails - Registering Error]'
+            )
         return render_template('auth/register.html', prev_username=username, prev_institute=institute, prev_email=email)
 
     return render_template('auth/register.html')
@@ -168,9 +185,16 @@ def profile(mobiuser_id=0):
     mobiuser = curs.fetchone()
     error = None
     if mobiuser is None:
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails error', '<p>Bad profile attempt username: {0} from {1}</p>'
-            .format(g.user['id'], os.path.basename(__file__))), '[MobiDetails - Profile Error]')
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails error',
+                '<p>Bad profile attempt username: {0} from {1}</p>'.format(
+                 g.user['id'],
+                    os.path.basename(__file__)
+                )
+            ),
+            '[MobiDetails - Profile Error]'
+        )
         error = 'You seem to be unknown by MobiDetails.'
         if mobiuser_id != 0:
             error = 'This user seems to be unknown by MobiDetails.'

@@ -31,8 +31,15 @@ def litvar():
         try:
             litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
         except:
-            md_utilities.send_error_email(md_utilities.prepare_email_html(
-                'MobiDetails API error', '<p>Litvar API call failed in {}</p>'.format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    '<p>Litvar API call failed in {}</p>'.format(
+                        os.path.basename(__file__)
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
             pass
         if litvar_data is not None:
             # if len(litvar_data) == 0: or re.search(r'mandatory', litvar_data[0])
@@ -85,9 +92,9 @@ def defgen():
                 'MobiDetails Ajax error',
                 '<p>DefGen file generation failed in {} (no variant_id)</p>'.format(
                     os.path.basename(__file__)
-                ),
-                '[MobiDetails - Ajax Error]'
-            )
+                )
+            ),
+            '[MobiDetails - Ajax Error]'
         )
         return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
 
@@ -155,9 +162,15 @@ def lovd():
     try:
         lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
     except:
-        md_utilities.send_error_email(md_utilities.prepare_email_html(
-            'MobiDetails API error', '<p>LOVD API call failed in {}</p>'
-            .format(os.path.basename(__file__)), '[MobiDetails - API Error]'))
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails API error',
+                '<p>LOVD API call failed in {}</p>'.format(
+                    os.path.basename(__file__)
+                )
+            ),
+            '[MobiDetails - API Error]'
+        )
         pass
     # print(lovd_url)
     if lovd_data is not None:
@@ -194,8 +207,9 @@ def lovd():
                 'MobiDetails API error',
                 '<p>LOVD service looks down in {}</p>'.format(
                     os.path.basename(__file__)
-                ), '[MobiDetails - API Error]'
-            )
+                )
+            ),
+            '[MobiDetails - API Error]'
         )
         return "LOVD service looks down"
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
@@ -241,9 +255,15 @@ def create():
         try:
             vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
         except:
-            md_utilities.send_error_email(md_utilities.prepare_email_html(
-                'MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'
-                .format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails VariantValidator error',
+                    '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(
+                        os.path.basename(__file__)
+                    )
+                ),
+                '[MobiDetails - VariantValidator Error]'
+            )
             # vv_data = {'apiVersion': 'Service Unavailable'}
             vv_alive = {'status': 'Service Unavailable'}
             close_db()
