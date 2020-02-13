@@ -57,7 +57,7 @@ def test_intervar(client, app):
         curs.execute(
             "SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt FROM variant a, variant_feature b WHERE \
             a.feature_id = b.id AND a.genome_version = 'hg19' AND b.dna_type = 'substitution' AND \
-            b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '^[\?]' ORDER BY random() LIMIT 5"
+            b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '\?' ORDER BY random() LIMIT 5"
         )
         res = curs.fetchall()
         for values in res:

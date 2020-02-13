@@ -593,7 +593,10 @@ def variant(variant_id=None):
                         if annot['mlr_pred'] != 'no prediction':
                             mpa_avail += 1
                         annot['m_rel'] = record[74]  # reliability index for meta score (1-10): the higher, the higher the reliability
-                        if 'mpa_score' not in annot or annot['mpa_score'] < mpa_missense:
+                        #print('mpa_avail: {}'.format(mpa_avail))
+                        if (('mpa_score' not in annot or
+                                annot['mpa_score'] < mpa_missense) and
+                                mpa_avail > 0):
                             # print('{0}/{1}'.format(mpa_missense, mpa_avail))
                             annot['mpa_score'] = float('{0:.2f}'.format((mpa_missense / mpa_avail) * 10))
                             if annot['mpa_score'] >= 8:
