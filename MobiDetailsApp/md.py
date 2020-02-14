@@ -133,8 +133,9 @@ def gene(gene_name=None):
         # we check if data exist at metadome
         # we have a set of metadome transcripts
         for enst in enst_ver:
-            # print(enst)
+            # print('enst: {}'.format(enst_ver[enst]))
             # print('--{}--'.format(app.debug))
+            # print(json.dumps({'transcript_id': enst_ver[enst]}))
             if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst)):
                 metad_data = None
                 try:
@@ -166,6 +167,7 @@ def gene(gene_name=None):
                         vis_request = None
                         # find out how to get app object
                         try:
+                            #enst_metadome = {transcript_id: enst_ver[enst]}
                             vis_request = json.loads(
                                             http.request(
                                                 'POST',
@@ -173,7 +175,7 @@ def gene(gene_name=None):
                                                     md_utilities.urls['metadome_api']
                                                 ),
                                                 headers={'Content-Type': 'application/json'},
-                                                body=json.dumps(transcript_id=enst_ver[enst])
+                                                body=json.dumps({'transcript_id': enst_ver[enst]})
                                             ).data.decode('utf-8')
                             )
                             if not app.debug:
