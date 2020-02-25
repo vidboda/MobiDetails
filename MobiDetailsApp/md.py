@@ -453,7 +453,8 @@ def variant(variant_id=None):
                 # gnomadv3
                 record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3'][0], var)
                 if isinstance(record, str):
-                    annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
+                    #annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
+                    annot['gnomadv3'] = record
                 else:
                     match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
                     if match_obj:
