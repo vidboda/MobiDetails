@@ -167,7 +167,7 @@ def gene(gene_name=None):
                         vis_request = None
                         # find out how to get app object
                         try:
-                            #enst_metadome = {transcript_id: enst_ver[enst]}
+                            # enst_metadome = {transcript_id: enst_ver[enst]}
                             vis_request = json.loads(
                                             http.request(
                                                 'POST',
@@ -190,7 +190,7 @@ def gene(gene_name=None):
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__)
-                                    )                                    
+                                    )
                                 ),
                                 '[MobiDetails - API Error]'
                             )
@@ -453,7 +453,7 @@ def variant(variant_id=None):
                 # gnomadv3
                 record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3'][0], var)
                 if isinstance(record, str):
-                    #annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
+                    # annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
                     annot['gnomadv3'] = record
                 else:
                     match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
@@ -596,7 +596,7 @@ def variant(variant_id=None):
                         if annot['mlr_pred'] != 'no prediction':
                             mpa_avail += 1
                         annot['m_rel'] = record[74]  # reliability index for meta score (1-10): the higher, the higher the reliability
-                        #print('mpa_avail: {}'.format(mpa_avail))
+                        # print('mpa_avail: {}'.format(mpa_avail))
                         if (('mpa_score' not in annot or
                                 annot['mpa_score'] < mpa_missense) and
                                 mpa_avail > 0):
@@ -884,10 +884,20 @@ def search_engine():
                 result = None
             if sql_table == 'gene':
                 result = curs.fetchone()
-                close_db()
                 if result is None:
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
+                    query_type = 'second_name'
+                    curs.execute(
+                        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(
+                            col_names, sql_table, query_type, pattern
+                        )
+                    )
+                    result = curs.fetchone()
+                    if result is None:
+                        close_db()
+                        error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
                             If you are looking for a variant, you can create at the corresponding gene page'.format(query_engine)
+                    else:
+                        return redirect(url_for('md.gene', gene_name=result[col_names][0]))
                 else:
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:

@@ -189,7 +189,7 @@ def profile(mobiuser_id=0):
             md_utilities.prepare_email_html(
                 'MobiDetails error',
                 '<p>Bad profile attempt username: {0} from {1}</p>'.format(
-                 g.user['id'],
+                    g.user['id'],
                     os.path.basename(__file__)
                 )
             ),

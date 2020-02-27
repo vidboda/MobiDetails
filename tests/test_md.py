@@ -65,6 +65,7 @@ def test_variant_page(client):
     ('NM_206933.', 'gene/USH2A'),
     ('NM_206933.3', 'gene/USH2A'),
     ('NM_206933.33', 'gene/USH2A'),
+    ('GPR98', 'gene/ADGRV1'),
     ('c12ORF65', 'gene/C12orf65'),
     ('C12oRf65', 'gene/C12orf65'),
     ('C12orf65', 'gene/C12orf65'),
