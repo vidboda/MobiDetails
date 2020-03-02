@@ -681,6 +681,26 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 vf_d['c_name'] = var_obj.group(1)
                 first_level_key = key
                 break
+    try:
+        print('First level key: {}'.format(first_level_key))
+    except UnboundLocalError as e:
+        if caller == 'webApp':
+            print(vv_data)
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Insertion failed for variant hg38 for {0} with args: {1}.<br />The unknown error occured again.</p><p>{2}</p>'.format(vv_key_var, e.args, vv_data)
+                ),
+                '[MobiDetails - MD variant creation Error]'
+            )
+            return danger_panel(
+                vv_key_var,
+                'An unknown error has been caught during variant creation with VariantValidator.<br /> \
+                It may work if you try again.<br />I am aware of this bug and actively tracking it, unsuccessfully until now.'
+            )
+        elif caller == 'api':
+            return {'mobidetails_error':  'An unknown error has been caught during variant creation with VariantValidator. \
+                                            It is possible that it works if you try again: {0}-{1}'.format(acc_no, gene)}
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
