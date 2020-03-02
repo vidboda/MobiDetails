@@ -117,12 +117,15 @@ def gene(gene_name=None):
                                 if ts['has_protein_data']:
                                     match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
                                     enst_ver[match_obj.group(1)] = ts['gencode_id']
-                    except:
+                    except Exception as e:
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
                                 'MobiDetails API error',
-                                '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(
-                                    gene_name, gene['enst'], os.path.basename(__file__)
+                                '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    gene_name,
+                                    gene['enst'],
+                                    os.path.basename(__file__),
+                                    e.args
                                 )
                             ),
                             '[MobiDetails - API Error]'
@@ -147,14 +150,15 @@ def gene(gene_name=None):
                                             enst_ver[enst])
                                     ).data.decode('utf-8')
                                 )
-                except:
+                except Exception as e:
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails API error',
-                            '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2}</p>'.format(
+                            '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                 gene_name,
                                 enst,
-                                os.path.basename(__file__)
+                                os.path.basename(__file__),
+                                e.args
                             )
                         ),
                         '[MobiDetails - API Error]'
@@ -182,14 +186,15 @@ def gene(gene_name=None):
                                 app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
                             else:
                                 print('{} submitted to metadome'.format(vis_request['transcript_id']))
-                        except:
+                        except Exception as e:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome submission for {0} ({1})<br /> - from  {2}</p>'.format(
+                                    '<p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         gene_name,
                                         enst,
-                                        os.path.basename(__file__)
+                                        os.path.basename(__file__),
+                                        e.args
                                     )
                                 ),
                                 '[MobiDetails - API Error]'
@@ -215,14 +220,15 @@ def gene(gene_name=None):
                                 app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
                             else:
                                 print('saving metadome {} into local file system'.format(enst_ver[enst]))
-                        except:
+                        except Exception as e:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome file writing for {0} ({1})<br /> - from  {2}</p>'.format(
+                                    '<p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         gene_name,
                                         enst,
-                                        os.path.basename(__file__)
+                                        os.path.basename(__file__),
+                                        e.args
                                     )
                                 ),
                                 '[MobiDetails - API Error]'
@@ -700,7 +706,7 @@ def variant(variant_id=None):
                             if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
                                 splicing_radar_labels.append('dbscSNV ADA')
                                 splicing_radar_values.append(annot['dbscsnv_ada'])
-                        except:
+                        except Exception as e:
                             # "score" is '.'
                             annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv'][1])
                         try:
@@ -709,7 +715,7 @@ def variant(variant_id=None):
                             if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
                                 splicing_radar_labels.append('dbscSNV RF')
                                 splicing_radar_values.append(annot['dbscsnv_rf'])
-                        except:
+                        except Exception as e:
                             # "score" is '.'
                             annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
                         dbscsnv_mpa_threshold = 0.8
@@ -720,6 +726,15 @@ def variant(variant_id=None):
                                  float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold):
                                 annot['mpa_score'] = 10
                                 annot['mpa_impact'] = 'high splice'
+        # get classification info
+        curs.execute(
+            "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.username, c.html_code, c.acmg_translation \
+                FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
+                AND a.variant_feature_id = '{0}' ORDER BY a.class_date ASC".format(variant_id)
+        )
+        class_history = curs.fetchall()
+        if len(class_history) == 0:
+            class_history = None
     else:
         close_db()
         return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
@@ -745,7 +760,8 @@ def variant(variant_id=None):
         'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
         urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
-        variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain, annot=annot
+        variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain,
+        class_history=class_history, annot=annot
     )
 
 # -------------------------------------------------------------------

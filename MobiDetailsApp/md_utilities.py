@@ -152,15 +152,43 @@ predictor_colors = {
     'highly_intolerant': '#D7191C',
 }
 predictors_translations = {
-    'basic': {'D': 'Damaging', 'T': 'Tolerated', '.': 'no prediction', 'N': 'Neutral', 'U': 'Unknown'},
-    'pph2': {'D': 'Probably Damaging', 'P': 'Possibly Damaging', 'B': 'Benign', '.': 'no prediction'},
-    'mt': {'A': 'Disease causing automatic', 'D': 'Disease causing',
-           'N': 'polymorphism', 'P': 'polymorphism automatic', '.': 'no prediction'},  # mutation taster
-    'revel': {'D': 'Damaging', 'U': 'Uncertain', 'B': 'Benign', '.': 'no prediction'}
+    'basic': {
+        'D': 'Damaging',
+        'T': 'Tolerated',
+        '.': 'no prediction',
+        'N': 'Neutral',
+        'U': 'Unknown'
+    },
+    'pph2': {
+        'D': 'Probably Damaging',
+        'P': 'Possibly Damaging',
+        'B': 'Benign',
+        '.': 'no prediction'
+    },
+    'mt': {
+        'A': 'Disease causing automatic',
+        'D': 'Disease causing',
+        'N': 'polymorphism',
+        'P': 'polymorphism automatic',
+        '.': 'no prediction'
+    },  # mutation taster
+    'revel': {
+        'D': 'Damaging',
+        'U': 'Uncertain',
+        'B': 'Benign',
+        '.': 'no prediction'
+    }
 }
 
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
 
+# acmg_class = {
+#     1: ['Neutral', '#00A020'],
+#     2: ['Likely Neutral', '#0404B4'],
+#     3: ['Unknown Significance', '#000000'],
+#     4: ['Likely Pathogenic', '#FF6020'],
+#     5: ['Pathogenic', '#FF0000']
+# }
 
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))
@@ -260,6 +288,14 @@ def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
         return True
     return False
 
+# def acmg_translation(acmg_code):
+#     if isinstance(acmg_code, int) and \
+#         acmg_code > 0 and \
+#         acmg_code < 6:
+#         return acmg_class[int(acmg_code)]
+#     else:
+#         return []
+
 
 def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):  # compute position relative to nearest splice site
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -312,12 +348,12 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
     # print(query)
     try:
         records = tb.querys(query)
-    except:
+    except Exception as e:
         send_error_email(
             prepare_email_html(
                 'MobiDetails error',
-                '<p>A tabix failed</p><p>tabix {0} {1}<br /> for variant:{2}</p>'.format(
-                    tabix_file, query, var
+                '<p>A tabix failed</p><p>tabix {0} {1}<br /> for variant:{2} with args: {3}</p>'.format(
+                    tabix_file, query, var, e.args
                 )
             ),
             '[MobiDetails - Tabix Error]'
@@ -356,12 +392,12 @@ def getdbNSFP_results(
                     dbnsfp_record[score_index], dbnsfp_record[pred_index],
                     threshold_for_other, direction_for_other, translation_mode
                 )
-    except:
+    except Exception as e:
         try:
             score = dbnsfp_record[score_index]
             if pred_index != score_index:
                 pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
-        except:
+        except Exception as e:
             pass
     return score, pred, star
 
@@ -580,7 +616,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     return danger_panel('MobiDetails error', hg38_d['mobidetails_error'])
                 elif caller == 'api':
                     return hg38_d
-        except:
+        except Exception as e:
             # means we have an error
             if vv_data['flag'] == 'warning':
                 if caller == 'webApp':
@@ -592,7 +628,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     send_error_email(
                         prepare_email_html(
                             'MobiDetails error',
-                            '<p>Mapping issue with {}</p>'.format(vv_key_var)
+                            '<p>Mapping issue with {0} with args: {1}</p>'.format(vv_key_var, e.args)
                         ),
                         '[MobiDetails - Mapping issue]'
                     )
@@ -601,7 +637,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     send_error_email(
                         prepare_email_html(
                             'MobiDetails error',
-                            '<p>Mapping issue with {}</p>'.format(vv_key_var)
+                            '<p>Mapping issue with {0} with args: {1}</p>'.format(vv_key_var, e.args)
                         ),
                         '[MobiDetails API - Mapping issue]'
                     )
@@ -625,7 +661,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     acc_version = res_can['nm_version']
                     first_level_key = key
                     remapper = True
-        except:
+        except Exception as e:
             pass
     # print(vv_key_var)
     if 'validation_warning_1' in vv_data:
@@ -695,7 +731,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 return danger_panel('MobiDetails error', hg38_d['mobidetails_error'])
             elif caller == 'api':
                 return hg38_d
-    except:
+    except Exception as e:
         if caller == 'webApp':
             return danger_panel(
                 vv_key_var,
@@ -729,7 +765,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 return danger_panel('MobiDetails error', hg19_d['mobidetails_error'])
             elif caller == 'api':
                 return hg19_d
-    except:
+    except Exception as e:
         if caller == 'webApp':
             return danger_panel(
                 vv_key_var,
@@ -993,12 +1029,14 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         intervar_json = None
         try:
             intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
-        except:
+        except Exception as e:
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
-                    '<p>Intervar API call failed in {0} for {1}</p>'.format(
-                        os.path.basename(__file__), intervar_url
+                    '<p>Intervar API call failed in {0} for {1} with args: {2}</p>'.format(
+                        os.path.basename(__file__),
+                        intervar_url,
+                        e.args
                     )
                 ),
                 '[MobiDetails - Code Error]'
@@ -1055,12 +1093,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     try:
         curs.execute(insert_variant_feature)
         vf_id = curs.fetchone()[0]
-    except:
+    except Exception as e:
         if caller == 'webApp':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
-                    '<p>Insertion failed for variant features for {}</p>'.format(vv_key_var)
+                    '<p>Insertion failed for variant features for {0} with args {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1078,12 +1116,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     )
     try:
         curs.execute(insert_variant_38)
-    except:
+    except Exception as e:
         if caller == 'webApp':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
-                    '<p>Insertion failed for variant hg38 for {}</p>'.format(vv_key_var)
+                    '<p>Insertion failed for variant hg38 for {0} with args: {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1099,12 +1137,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     )
     try:
         curs.execute(insert_variant_19)
-    except:
+    except Exception as e:
         if caller == 'webApp':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
-                    '<p>Insertion failed for variant hg19 for {}</p>'.format(vv_key_var)
+                    '<p>Insertion failed for variant hg19 for {0} with args {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1149,7 +1187,7 @@ def prepare_email_html(title, message):
                 <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;">
                     <p style="margin:10px 0;font-weight:600;font-size:20px;">{0}</p>
                 </div><br />
-                <div style="font-size:15px;padding:32px;border-left:6px solid #ccc !important;background-color:#fdf5e6 !important;">{1}</div><br />
+                <div style="font-size:15px;padding:32px;border-left:6px solid #ccc !important;background-color:#fdf5e6 !important;">{1}<br />URL: {2}</div><br />
                 <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;font-weight:600;">
                     <p><a style="color:#FFFFFF;font-size:18px;" href="https://mobidetails.iurc.montp.inserm.fr/MD">MobiDetails</a></p>
                     <p style="font-size:15px;">Online DNA variant interpretation</p>
@@ -1158,7 +1196,7 @@ def prepare_email_html(title, message):
                     <span style="color:#FFFFFF;">&#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;\
                     &#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;</span>.</p>
                 </div>
-            </div>""".format(title, message)
+            </div>""".format(title, message, request.base_url)
 
 
 def send_error_email(message, mail_object):

@@ -62,6 +62,6 @@ def test_login_validate_input(client, email, password, message):
 
 def test_logout(client):
     response = client.get('/auth/logout')
-    # print(response.headers['Location'])
+    print(response.headers['Location'])
     assert 'http://localhost/' == response.headers['Location']
     # assert b'Homepage' in response.get_data()

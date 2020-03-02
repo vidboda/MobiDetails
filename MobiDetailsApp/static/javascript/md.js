@@ -49,6 +49,7 @@ $(document).ready(function(){
 		if ($('#variant_name').length) {$('#variant_name').hide();}
 		if ($('#about_menu').length) {$('#about_menu').hide();}
 		if ($('#login_name').length) {$('#login_name').hide();}
+		if ($('#modify_class').length) {$('#modify_class').hide();}
 	}
 	else if (wi <= 600) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-large');
@@ -58,7 +59,7 @@ $(document).ready(function(){
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
-		
+		if ($('#modify_class').length) {$('#modify_class').hide();}
 		if ($('#variant_name').length) {
 			$('#variant_name').hide();
 		}

@@ -12,7 +12,10 @@
 	<br />
 	<div align = "center">
 	<form method="post" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
-		<h2>Please log in using your academic email address:</h2><br/>
+		{% if referrer_page != None %}
+      <input type="hidden" name="referrer_page" value="{{ referrer_page }}" />
+    {% endif %}
+    <h2>Please log in using your academic email address:</h2><br/>
 		<div class="w3-row w3-section"/>
 			{{ fa('envelope-o') }}
 			<div class="w3-rest">{{ input('email') }}</div>

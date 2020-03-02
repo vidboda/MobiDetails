@@ -13,6 +13,7 @@ import psycopg2.extras
 import json
 import urllib3
 import certifi
+import datetime
 
 bp = Blueprint('ajax', __name__)
 
@@ -30,12 +31,12 @@ def litvar():
         litvar_url = "{0}{1}".format(md_utilities.urls['ncbi_litvar_api'], rsid)
         try:
             litvar_data = json.loads(http.request('GET', litvar_url).data.decode('utf-8'))
-        except:
+        except Exception as e:
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails API error',
-                    '<p>Litvar API call failed in {}</p>'.format(
-                        os.path.basename(__file__)
+                    '<p>Litvar API call failed in {0} with args: {1}</p>'.format(
+                        os.path.basename(__file__), e.args
                     )
                 ),
                 '[MobiDetails - API Error]'
@@ -98,6 +99,8 @@ def defgen():
 
 # -------------------------------------------------------------------
 # web app - ajax for intervar API
+
+
 @bp.route('/intervar', methods=['POST'])
 def intervar():
     genome = request.form['genome']
@@ -116,13 +119,13 @@ def intervar():
     )
     try:
         intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
-    except:
+    except Exception as e:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5}</p>'.format(
+                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: {6}</p>'.format(
                     genome, chrom, pos, ref,
-                    alt, os.path.basename(__file__)
+                    alt, os.path.basename(__file__), e.args
                 )
             ),
             '[MobiDetails - API Error]'
@@ -159,12 +162,12 @@ def lovd():
     lovd_data = None
     try:
         lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
-    except:
+    except Exception as e:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>LOVD API call failed in {}</p>'.format(
-                    os.path.basename(__file__)
+                '<p>LOVD API call failed in {0} with args: {1}</p>'.format(
+                    os.path.basename(__file__), e.args
                 )
             ),
             '[MobiDetails - API Error]'
@@ -212,6 +215,118 @@ def lovd():
         return "LOVD service looks down"
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
+######################################################################
+# web app - ajax for ACMG classification modification
+
+
+@bp.route('/modif_class', methods=['POST'])
+@login_required
+def modif_class():
+    tr_html = 'notok'
+    if re.search('^\d+$', request.form['variant_id']) and \
+            re.search('^\d+$', request.form['mobiuser_id']) and \
+            re.search('^\d+$', request.form['acmg_select']):
+        variant_id = request.form['variant_id']
+        mobiuser_id = request.form['mobiuser_id']
+        acmg_select = request.form['acmg_select']
+        acmg_comment = request.form['acmg_comment']
+        today = datetime.datetime.now()
+        date = '{0}-{1}-{2}'.format(
+            today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
+        )
+        
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # get all variant_features and gene info
+        try:
+            curs.execute(
+                "SELECT class_date FROM class_history WHERE \
+                    variant_feature_id = '{0}' AND acmg_class = '{1}' \
+                    AND mobiuser_id = '{2}';".format(variant_id, acmg_select, mobiuser_id)
+            )
+            res = curs.fetchone()
+            if res is not None:
+                if str(res['class_date']) == str(date):
+                    # print(("{0}-{1}").format(res['class_date'], date))
+                    tr_html = "<tr id='already_classified'><td colspan='4'>You already classified this variant with the same class today. If you just want to modify comments,  remove the classification and start from scratch.</td></tr>"
+                    return tr_html
+                curs.execute(
+                    "UPDATE class_history SET class_date  = '{0}', comment = '{1}' WHERE \
+                        variant_feature_id = '{2}' AND acmg_class = '{3}' \
+                        AND mobiuser_id = '{4}';".format(date, acmg_comment, variant_id, acmg_select, mobiuser_id)
+                )
+            else:
+                curs.execute(
+                    "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
+                        ('{0}', '{1}', '{2}', '{3}', '{4}' )".format(variant_id, acmg_select, mobiuser_id, date, acmg_comment)
+                )
+            db.commit()
+            curs.execute(
+                "SELECT username FROM mobiuser WHERE id = '{}'".format(mobiuser_id)
+            )
+            mobiuser_name = curs.fetchone()
+            curs.execute(
+                "SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = '{}'".format(acmg_select)
+            )
+            acmg_details = curs.fetchone()
+            tr_html = "<tr id='{0}-{1}-{2}'> \
+                    <td class='w3-left-align'>{3}</td> \
+                    <td class='w3-left-align'>{4}</td> \
+                    <td class='w3-left-align'> \
+                        <span style='color:{5};'>Class {1} ({6})</span>\
+                    </td> \
+                    <td> \
+                        <div class='w3-cell-row'> \
+                            <span class='w3-container w3-left-align w3-cell'>{7}</span>\
+                </tr>".format(mobiuser_id, acmg_select, variant_id, mobiuser_name['username'], date, acmg_details['html_code'], acmg_details['acmg_translation'], acmg_comment)
+        except Exception as e:
+            # pass
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Variant class modification failed for {0} with args: {1}</p>'.format(variant_id, e.args)
+                ),
+                '[MobiDetails - MD variant class Error]'
+            )
+            # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.')
+        return tr_html
+        # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
+    return tr_html
+    # return redirect(url_for('md.index'))
+        
+#######################################################################
+# web app - ajax to remove ACMG classification
+
+
+@bp.route('/remove_class', methods=['POST'])
+@login_required
+def remove_class():      
+    if re.search('^\d+$', request.form['variant_id']) and \
+            re.search('^\d+$', request.form['mobiuser_id']) and \
+            re.search('^\d+$', request.form['acmg_class']):
+        variant_id = request.form['variant_id']
+        mobiuser_id = request.form['mobiuser_id']
+        acmg_class = request.form['acmg_class']
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        try:
+            curs.execute(
+                "DELETE FROM class_history WHERE \
+                    variant_feature_id = '{0}' AND acmg_class = '{1}' \
+                    AND mobiuser_id = '{2}';".format(variant_id, acmg_class, mobiuser_id)
+            )
+            db.commit()
+            return 'ok'
+        except Exception as e:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Variant class deletion failed for {0} with args: {1}</p>'.format(variant_id, e.args)
+                ),
+                '[MobiDetails - MD variant class Error]'
+            )        
+    return 'notok'
 # -------------------------------------------------------------------
 # web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
 
@@ -220,7 +335,9 @@ def lovd():
 def create():
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
-
+    
+    # TODO: add some security checks for form values
+    
     gene = request.form['gene']
     acc_no = request.form['acc_no']
     new_variant = request.form['new_variant']
@@ -252,12 +369,12 @@ def create():
         vv_alive = None
         try:
             vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
-        except:
+        except Exception as e:
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails VariantValidator error',
-                    '<p>VariantValidator looks down!!<br /> - from {}</p>'.format(
-                        os.path.basename(__file__)
+                    '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
+                        os.path.basename(__file__), e.args
                     )
                 ),
                 '[MobiDetails - VariantValidator Error]'
@@ -281,7 +398,7 @@ def create():
         vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
         try:
             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-        except:
+        except Exception as e:
             close_db()
             return md_utilities.danger_panel(
                 new_variant,

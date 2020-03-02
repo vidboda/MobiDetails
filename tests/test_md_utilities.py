@@ -133,6 +133,19 @@ def test_is_valid_ncbi_chr(client, chr_name, valid):
     assert valid_test == valid
 
 
+# @pytest.mark.parametrize(('code', 'class_table'), (
+#     (1, ['Neutral', '#00A020']),
+#     (2, ['Likely Neutral', '#0404B4']),
+#     (5, ['Pathogenic', '#FF0000']),
+#     (17, []),
+#     ('17', []),
+#     ('nimp', [])
+# ))
+# def test_acmg_translation(client, code, class_table):
+#     valid_test = md_utilities.acmg_translation(code)
+#     assert valid_test == class_table
+
+
 # pytest tests/test_md_utilities.py::test_get_pos_splice_site
 
 
@@ -413,6 +426,10 @@ def test_reverse_complement(seq, result):
     assert rev_comp == result
 
 
-def test_prepare_email_html():
-    email = md_utilities.prepare_email_html('Test', 'Test message')
-    assert 'MobiDetails' in email
+def test_prepare_email_html(app):
+    with app.test_request_context('/variant/8'):
+        # the prepare_email_html functions uses request object to send back the calling URL
+        # then we use test_request_context
+        # https://flask.palletsprojects.com/en/1.1.x/api/#flask.Flask.test_request_context
+        email = md_utilities.prepare_email_html('Test', 'Test message')
+        assert 'MobiDetails' in email

@@ -11,9 +11,10 @@ from . import (
     config, md_utilities
 )
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app as app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.urls import url_parse
 
 from MobiDetailsApp.db import get_db, close_db
 
@@ -60,7 +61,7 @@ def register():
             mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(apikey, email)
             try:
                 mv_json = json.loads(http.request('GET', mv_url).data.decode('utf-8'))
-            except:
+            except Exception as e:
                 mv_json = None
             if mv_json is not None:
                 try:
@@ -80,13 +81,14 @@ def register():
                             ),
                             '[MobiDetails - Email Validation Error]'
                         )
-                except:
+                except Exception as e:
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails email validation error',
-                            '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1}</p>'.format(
+                            '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1} with args: {2}</p>'.format(
                                 mv_json,
-                                os.path.basename(__file__)
+                                os.path.basename(__file__),
+                                e.args
                             )
                         ),
                         '[MobiDetails - Email Validation Error]'
@@ -109,7 +111,7 @@ def register():
             return redirect(url_for('auth.login'))
 
         flash(error)
-        if error is not None:
+        if error is not None and not app.config['TESTING']:
             message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li>\
                            <li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
                 error, request.remote_addr, username, country, institute, email
@@ -131,9 +133,23 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    # print(request.base_url)
+    referrer_page = None
+    if request.method == 'GET':
+        # print(request.referrer)        
+        if request.referrer is not None and \
+                url_parse(request.referrer).host == url_parse(request.base_url).host:
+        # if url_parse(request.referrer).host == '10.34.20.79' or \
+        #         url_parse(request.referrer).host == 'mobidetails.iurc.montp.inserm.fr':
+            referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        try:
+            referrer_page = request.form['referrer_page']
+        except Exception as e:
+            pass
+        # print(referrer_page)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
@@ -149,11 +165,16 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('auth.profile', mobiuser_id=0))
+            if referrer_page is not None and \
+                    url_parse(referrer_page).host != url_parse(request.base_url).host:
+                #not coming from mobidetails
+                return redirect(url_for('auth.profile', mobiuser_id=0))
+            else:
+                return redirect(referrer_page)
 
         flash(error)
 
-    return render_template('auth/login.html')
+    return render_template('auth/login.html', referrer_page=referrer_page)
 
 # -------------------------------------------------------------------
 # for views that require login
@@ -248,4 +269,8 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    if request.referrer is not None and \
+            url_parse(request.referrer).host == url_parse(request.base_url).host:
+        return redirect(request.referrer)
+    else:
+        return redirect(url_for('index'))

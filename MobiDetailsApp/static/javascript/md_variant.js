@@ -57,7 +57,7 @@ function litvar(litvar_url) {
 	}
 }
 function lovd(lovd_url) {
-	//ajax for LOVD
+	// ajax for LOVD
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
@@ -70,7 +70,7 @@ function lovd(lovd_url) {
 	});
 }
 function intervar(intervar_url) {
-	//ajax for intervar
+	// ajax for intervar
 	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {
 		$.ajax({
 			type: "POST",
@@ -85,18 +85,76 @@ function intervar(intervar_url) {
 	}
 }
 
+function modify_class(variant_id, mobiuser_id, modify_class_url) {
+	// ajax to modify variant class
+	var acmg = $("#acmg_select").val();
+	$.ajax({
+		type: "POST",
+		url: modify_class_url,
+		data: {
+			variant_id: variant_id, acmg_select: acmg, mobiuser_id: mobiuser_id, acmg_comment: $("#acmg_comment").val()
+		}
+	})
+	.done(function(tr_html) {
+		if (tr_html !== 'notok') {
+			var re = /already_classified/;
+			// alert(re.test(tr_html));
+			if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id).length > 0 ) {
+				if (!re.test(tr_html)) {
+					$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).hide();
+				}
+				else {					
+					$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+				}
+            }
+			if ($("#already_classified").length > 0) {
+                $("#already_classified").remove();
+            }
+            $("#class_table>tbody:last").append(tr_html);
+			$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+			$("#modify_class_modal").hide();
+			$("#acmg_comment").val('');
+			if ($("#no_class").length > 0) {
+                $("#no_class").hide();
+            }
+        }
+		else {
+			alert("Sorry, something went wrong with the addition of this annotation. An admin has been warned.");
+		}
+	});
+}
+
+function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
+	// ajax to modify variant class
+	$.ajax({
+		type: "POST",
+		url: remove_class_url,
+		data: {
+			variant_id: variant_id, acmg_class: acmg_class, mobiuser_id: mobiuser_id
+		}
+	})
+	.done(function(return_code) {
+		if (return_code == 'ok') {
+            $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
+        }
+		else {
+			alert("Sorry, something went wrong with the deletion of this annotation. An admin has been warned.");
+		}
+	});
+}
+
 
 function myAccFunc(acc_id, icon_id) {
-	//adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
-	//should be rewritten in jquery for consistency
+	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
+	// should be rewritten in jquery for consistency
 	var x = document.getElementById(acc_id);
 	if (x.className.indexOf("w3-show") == -1) {
-		//x.className += " w3-show";
+		// x.className += " w3-show";
 		$('#' + acc_id).removeClass("w3-hide").addClass("w3-show");
 		x.previousElementSibling.className += " w3-blue";
 		$('#' + icon_id).removeClass("fa-caret-right").addClass("fa-caret-down");
 	} else { 
-		//x.className = x.className.replace(" w3-show", "");
+		// x.className = x.className.replace(" w3-show", "");
 		$('#' + acc_id).removeClass("w3-show").addClass("w3-hide");
 		x.previousElementSibling.className = 
 		x.previousElementSibling.className.replace(" w3-blue", "");
@@ -201,6 +259,7 @@ $(document).ready(function() {
 		if ($('#missense_table').length > 0) {
 			tables.push("missense_table");
 		}
+		tables.push("class_table");
 		tables.push("admin_table");
 		tables.push("resource_table");
 		//var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
@@ -299,6 +358,14 @@ $(document).ready(function() {
 					},
 					layout: 'noBorders'
 				},
+				"Data for " + tables[6],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[6]]
+					},
+					layout: 'noBorders'
+				},
 			//images: [],			
 			//	" ",
 			//	"Data for " + tables[5],
@@ -350,11 +417,11 @@ $(document).ready(function() {
 		if ($('#splicing_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[6],
+				"Data for " + tables[7],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[6]]
+						body: tablesConverted[tables[7]]
 					},
 					layout: 'noBorders'
 				}
@@ -363,11 +430,11 @@ $(document).ready(function() {
 		if ($('#missense_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[7],
+				"Data for " + tables[8],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[7]]
+						body: tablesConverted[tables[8]]
 					},
 					layout: 'noBorders'
 				}

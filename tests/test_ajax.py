@@ -103,23 +103,110 @@ def test_create(client, app, new_variant, gene, acc_no, acc_version, message1, m
     assert any(test in response.get_data() for test in possible)
     # assert message1 in response.get_data() or message2 in response.get_data()
 
-# test favourite - login required - to be developped?
+# login required - auth defined in conftest.py
 
 
-def login(client, email, password):
-    return client.post('/login', data=dict(
-            email=email,
-            password=password
-        ),
-        follow_redirects=True
-    )
+# def login(client, email, password):
+#     return client.post('/login', data=dict(
+#             email=email,
+#             password=password
+#         ),
+#         follow_redirects=True
+#     )
+# 
+# 
+# def logout(client):
+#     return client.get('/logout', follow_redirects=True)
+
+# test modif_class
+
+@pytest.mark.parametrize(('vf_id', 'm_id', 'acmg', 'acmg_com', 'return_value', 'status_code2'), (
+    (5, 1, 4, 'Variant pathogenic because of its pathogenicity:;,-', b'1-1-5', 200),
+    (5, 1, 1, 'Variant  not pathogenic because of its non-pathogenicity:;,-', b'1-1-5', 200),
+    (5, 1, 7, 'Fake acmg', b'notok', 200),
+    (5, 1112, 7, 'Fake user', b'notok', 200),
+    (-5, 1112, 7, 'Fake variant', b'notok', 200),
+))
+def test_modif_class(client, app, auth, vf_id, m_id, acmg, acmg_com, return_value, status_code2):
+    assert client.get('/modif_class').status_code == 405
+    with app.app_context():
+        response = client.post('/modif_class',
+                           data=dict(
+                                variant_id=vf_id,
+                                mobiuser_id=m_id,
+                                acmg_select=acmg,
+                                acmg_comment=acmg_com
+                            ), follow_redirects=True
+                           )
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        )
+        res = curs.fetchone()
+        # login(client, 'mobidetails.iurc@gmail.com', res['password'])
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        response = client.post('/modif_class',
+                                data=dict(
+                                    variant_id=vf_id,
+                                    mobiuser_id=m_id,
+                                    acmg_select=acmg,
+                                    acmg_comment=acmg_com
+                                 ), follow_redirects=True
+                                )
+        assert response.status_code == status_code2
+        # print(response.get_data())
+        # assert return_value in response.get_data()
+
+# test modif_class
+
+@pytest.mark.parametrize(('vf_id', 'm_id', 'acmg', 'return_value', 'status_code2'), (
+    (5, 1, 4, b'ok', 200),
+    (5, 1, 1, b'ok', 200),
+    (5, 1, 7, b'ok', 200),
+    (5, 1112, 7, b'notok', 200),
+    (-5, 1112, 7, b'notok', 200),
+))
+def test_remove_class(client, app, auth, vf_id, m_id, acmg, return_value, status_code2):
+    assert client.get('/modif_class').status_code == 405
+    with app.app_context():
+        response = client.post('/remove_class',
+                           data=dict(
+                                variant_id=vf_id,
+                                mobiuser_id=m_id,
+                                acmg_select=acmg,
+                            ), follow_redirects=True
+                           )
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        )
+        res = curs.fetchone()
+        # login(client, 'mobidetails.iurc@gmail.com', res['password'])
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        response = client.post('/remove_class',
+                                data=dict(
+                                    variant_id=vf_id,
+                                    mobiuser_id=m_id,
+                                    acmg_select=acmg,
+                                 ), follow_redirects=True
+                                )
+        assert response.status_code == status_code2
+        # print(response.get_data())
+        # assert return_value in response.get_data()
+
+# test favourite
 
 
-def logout(client):
-    return client.get('/logout', follow_redirects=True)
-
-
-def test_favourite(client, app):
+@pytest.mark.parametrize(('vf_id','status_code'), (
+    (5, 200),
+    (None, 200),
+    ('', 200)
+))
+def test_favourite(client, app, auth, vf_id, status_code):
     assert client.get('/favourite').status_code == 405
     with app.app_context():
         db = get_db()
@@ -128,12 +215,13 @@ def test_favourite(client, app):
             "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
         )
         res = curs.fetchone()
-        assert client.post('/favourite', data=dict(vf_id=5)).status_code == 302
-        login(client, 'mobidetails.iurc@gmail.com', res['password'])
-        # print(client.post('/favourite', data=dict(vf_id=5), follow_redirects=True).get_data())
-        assert client.post('/favourite', data=dict(vf_id=5), follow_redirects=True).status_code == 200
-        assert client.post('/favourite', data=dict(vf_id=None), follow_redirects=True).status_code == 200
-        assert client.post('/favourite', data=dict(vf_id=''), follow_redirects=True).status_code == 200
+        response = client.post('/favourite', data=dict(vf_id=vf_id), follow_redirects=True)
+        print(response.get_data())
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        # login(client, 'mobidetails.iurc@gmail.com', res['password'])
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        assert client.post('/favourite', data=dict(vf_id=vf_id), follow_redirects=True).status_code == status_code
+
 
 
 # test autocomplete
