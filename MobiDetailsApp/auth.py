@@ -165,7 +165,6 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            print(referrer_page)
             if referrer_page is None or \
                     (url_parse(referrer_page).host != url_parse(request.base_url).host or
                         re.search(r'(login|register)', referrer_page)):
