@@ -8,11 +8,15 @@
 		<h1 align="center" class="w3-text-blue">{{ mobiuser.username }} profile</h1>
 	{% endif %}
 {% endblock %}
+{% block more_head %}
+	<script src="{{ url_for('static', filename='javascript/md_auth.js') }}" type="text/javascript"></script>	
+{% endblock %}
 {% block content %}
 	{% if view == 'own' -%}
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
-			<p>Public user (not logged in) only see your username on the variant page (when you created the variant)</p>
+			<p>Public user (not logged in) only see your username and cannot follow any link</p>
+			<p>The email contact service is proposed by mobidetails. It is triggered by a user who wants to get in touch because e.g. you classified a particular variant. The user must be logged in and cannot see your email address unless you answer his query. The first message comes from the system.</p>
 		</div>
 		<br />
 		<hr />
@@ -24,12 +28,30 @@
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Institute: {{ mobiuser.institute }}</li>
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Country: {{ mobiuser.country }}</li>
 				{% if view == 'own' %}
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >E-mail: {{ mobiuser.email }}</li>
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue" >API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">E-mail: {{ mobiuser.email }}</li>
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+						{% if mobiuser.email_pref == true %}
+							<span style="vertical-align: middle;">Contact service is <strong id = "contact_value">enabled</strong>
+							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');">Disable it</button>
+							<!--<label for="contact_box" id="contact_box_label" style="vertical-align: middle;">Disable it: </label>
+							<input type="checkbox" name="contact" value="contact" id="contact_box" selected="selected" style="transform: scale(2);vertical-align: middle;" onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');"/>-->
+							<span id="value_to_send" style="display:none;">f</span>
+						{% else %}
+							<span style="vertical-align: middle;">Contact service is <strong id = "contact_value">disabled</strong>
+							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');">Enable it</button>
+							<!--<label for="contact_box" id="contact_box_label" style="vertical-align: middle;">Enable it: </label>
+							<input type="checkbox" name="contact" value="contact" id="contact_box" selected="selected" style="transform: scale(2);vertical-align: middle;" onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');"/>-->
+							<span id="value_to_send" style="display:none;">t</span>
+						{% endif %}
+					</li>
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>
 		</div>
-	</div>
+	</div>	
+	<div id="error_message"></div>
 	{% if view == 'own' -%}
 		{{ info('Please consider that the API key is personal and identifies your account, therefore you should not share it.') }}
 		<br />

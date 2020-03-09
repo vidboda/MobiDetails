@@ -61,7 +61,7 @@ def register():
             mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(apikey, email)
             try:
                 mv_json = json.loads(http.request('GET', mv_url).data.decode('utf-8'))
-            except Exception as e:
+            except Exception:
                 mv_json = None
             if mv_json is not None:
                 try:
@@ -136,18 +136,18 @@ def login():
     # print(request.base_url)
     referrer_page = None
     if request.method == 'GET':
-        # print(request.referrer)        
+        # print(request.referrer)
         if request.referrer is not None and \
                 url_parse(request.referrer).host == url_parse(request.base_url).host:
-        # if url_parse(request.referrer).host == '10.34.20.79' or \
-        #         url_parse(request.referrer).host == 'mobidetails.iurc.montp.inserm.fr':
+            # if url_parse(request.referrer).host == '10.34.20.79' or \
+            #         url_parse(request.referrer).host == 'mobidetails.iurc.montp.inserm.fr':
             referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         try:
             referrer_page = request.form['referrer_page']
-        except Exception as e:
+        except Exception:
             pass
         # print(referrer_page)
         db = get_db()
@@ -166,8 +166,9 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             if referrer_page is not None and \
-                    url_parse(referrer_page).host != url_parse(request.base_url).host:
-                #not coming from mobidetails
+                    (url_parse(referrer_page).host != url_parse(request.base_url).host or
+                        re.search(r'login', referrer_page)):
+                # not coming from mobidetails
                 return redirect(url_for('auth.profile', mobiuser_id=0))
             else:
                 return redirect(referrer_page)
@@ -201,7 +202,7 @@ def profile(mobiuser_id=0):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT username, email, institute, country, api_key FROM mobiuser  WHERE id = '{}'".format(user_id)
+        "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
     )
     mobiuser = curs.fetchone()
     error = None
@@ -209,7 +210,7 @@ def profile(mobiuser_id=0):
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails error',
-                '<p>Bad profile attempt username: {0} from {1}</p>'.format(
+                '<p>Bad profile attempt username: from id: {0} file: {1}</p>'.format(
                     g.user['id'],
                     os.path.basename(__file__)
                 )

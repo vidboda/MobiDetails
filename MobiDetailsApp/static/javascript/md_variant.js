@@ -87,12 +87,13 @@ function intervar(intervar_url) {
 
 function modify_class(variant_id, mobiuser_id, modify_class_url) {
 	// ajax to modify variant class
+	html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
 	var acmg = $("#acmg_select").val();
 	$.ajax({
 		type: "POST",
 		url: modify_class_url,
 		data: {
-			variant_id: variant_id, acmg_select: acmg, mobiuser_id: mobiuser_id, acmg_comment: $("#acmg_comment").val()
+			variant_id: variant_id, acmg_select: acmg, mobiuser_id: mobiuser_id, acmg_comment: html_comment
 		}
 	})
 	.done(function(tr_html) {
@@ -119,13 +120,13 @@ function modify_class(variant_id, mobiuser_id, modify_class_url) {
             }
         }
 		else {
-			alert("Sorry, something went wrong with the addition of this annotation. An admin has been warned.");
+			$("#message_return").html("Sorry, something went wrong with the addition of this annotation. An admin has been warned.");
 		}
 	});
 }
 
 function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
-	// ajax to modify variant class
+	// ajax to remove variant class
 	$.ajax({
 		type: "POST",
 		url: remove_class_url,
@@ -138,11 +139,32 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
             $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
         }
 		else {
-			alert("Sorry, something went wrong with the deletion of this annotation. An admin has been warned.");
+			$("#message_return").html(return_code);
 		}
 	});
 }
 
+function send_var_message(url) {
+    // ajax to send email
+	html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
+	$.ajax({
+		type: "POST",
+		url: url,
+		data: {
+			sender_id: $("#sender_id").val(), receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
+			// variant_mes: $("#variant_mes").val(), 
+		}
+	})
+	.done(function(return_code) {
+//		if (return_code == 'ok') {
+//            $("#message_return").html("The message has successfully been sent.");
+//        }
+//		else {
+		$("#message_return").html(return_code);
+		// }
+		$("#message_modal").hide();
+	});
+}
 
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion

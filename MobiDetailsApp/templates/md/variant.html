@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection %}
+{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection, fa %}
 {% extends "base.html" %}
 {% block title %}  {{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} {% endblock %}
 {% block more_head %}
@@ -126,7 +126,7 @@
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene)-->
-					{% if variant_features.ng != 'NG_000000.0' %}
+					{% if variant_features.ng != 'NG_000000.0' and variant_features.ng_name != None %}
 						<tr>
 							<td class="w3-left-align">HGVS genomic (gene):</td>
 							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
@@ -333,7 +333,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if annot.clinvar_id is defined %}
-								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }} target="_blank" title="Visit Clinvar for this variant">
+							
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
 							{%endif %}
@@ -716,9 +716,16 @@
 						<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}"><!--classification infos-->
 							{% if g.user %}
 								{% if g.user['id'] == classif.id %}
-									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">{{ classif.username }}</a></td>
+									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
+								{% elif classif.username != 'mobidetails' %}
+									<td class="w3-left-align">
+										<a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank" title="See {{ classif.username }} profile">{{ classif.username }}</a>
+										{% if classif.email_pref == true %}
+											&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
+										{% endif %}
+									</td>								
 								{% else %}
-									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank">{{ classif.username }}</a></td>								
+									<td class="w3-left-align">{{ classif.username }}</td>
 								{% endif %}
 							{% else %}
 								<td class="w3-left-align">{{ classif.username }}</td>
@@ -743,6 +750,7 @@
 				</tbody>
 			</table><br/><br/>
 			{% if g.user %}
+				<div class="w3-container" id="message_return"></div>
 				<div class="w3-row-padding">
 					<div class="w3-col m4" id="modify_class">
 						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="add your own classification to the history" style="width:100%" id="modify_class_btn" onclick="$('#modify_class_modal').show();">Add your classification</span>
@@ -750,10 +758,13 @@
 							<div class="w3-modal-content w3-display-middle w3-animate-opacity w3-mobile">
 								<header class="w3-container w3-blue">
 									<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#modify_class_modal').hide();">X</span>
-									<h2>Add your ACMG classification to the history:</h2>
+									<br />
+									<p><span class="w3-xlarge">Add your ACMG classification to the history:</span></p>
+									<br />
 								</header>
 								<div class="w3-container w3-center">
-									<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form" action="{{ url_for('ajax.modif_class') }}">
+									<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form">
+										 <!--action="{{ url_for('ajax.modif_class') }}"-->
 										<input type="hidden" name="variant_id" value="{{ variant_features.var_id }}" />
 										<input type="hidden" name="mobiuser_id" value="{{ g.user['id'] }}" />
 										<h3>This will be visible to all users:</h3><br />
@@ -762,7 +773,7 @@
 												<label for="acmg_select" form="acmg_form">ACMG class:</label>
 											</div>
 											<div class="w3-rest">
-												<select class="w3-select w3-border" name="acmg_select" id="acmg_select">
+												<select class="w3-select w3-border" name="acmg_select" id="acmg_select" form="acmg_form">
 													<option value="1" style="color:#00A020;">Benign</option>
 													<option value="2" style="color:#0000A0;">Likely Benign</option>
 													<option value="3" style="color:#969696;">Uncertain Significance</option>
@@ -776,18 +787,49 @@
 												<label for="acmg_comment" form="acmg_form">Comments (optional, use english, please, limit 500 chars):</label>
 											</div>
 											<div class="w3-rest">
-												<textarea name="acmg_comment" id="acmg_comment" rows="4" cols="50" maxlength="500"></textarea>
+												<textarea name="acmg_comment" id="acmg_comment" rows="4" cols="50" maxlength="500" form="acmg_form"></textarea>
 											</div>
 										</div>
-										<p class="w3-center">
+										<span class="w3-center">
 											<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}');" value="submit"/>
 											<!--<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="$('#html').css('cursor', 'progress');$('#acmg_form').css('cursor', 'progress');" value="submit"/>-->
-										</p>
+										</span>
 									</form>
 								</div>
 								<br /><br />
 							</div>
 						</div>
+					</div>
+				</div>
+				<div class="w3-modal" id="message_modal" style="display:none;">
+					<div class="w3-modal-content w3-display-middle w3-animate-opacity w3-mobile">
+						<header class="w3-container w3-blue">
+							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#message_modal').hide();">X</span>
+							<br />
+							<p><span class="w3-xlarge">Use MobiDetails to contact a peer (<span id="receiver_username"></span>):</span></p>
+							<br />
+						</header>
+						<div class="w3-container w3-center">
+							<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="message_form">
+								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
+								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
+								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" />-->
+								<span>This message will be sent via MobiDetails. The contact will also receive your email address and be able to answer directly.</span><br />
+								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span></p>
+								<div class="w3-row w3-section w3-responsive">
+									<div class="w3-quarter w3-left-align">
+										<label for="message_body" form="message_form"><span >Type your message here:</span></label>
+									</div>
+									<div class="w3-rest">
+										<textarea name="message_body" id="message_body" rows="7" cols="50" maxlength="1000" form="message_form"></textarea>
+									</div>
+								</div>
+								<span class="w3-center">
+									<input type="button" id = "sub_message" class="w3-button w3-section w3-blue w3-ripple"  onclick="send_var_message('{{ url_for("ajax.send_var_message") }}');" value="submit"/>
+								</span>
+							</form>
+						</div>
+						<br /><br />
 					</div>
 				</div>
 			{% else %}

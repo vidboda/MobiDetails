@@ -706,7 +706,7 @@ def variant(variant_id=None):
                             if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
                                 splicing_radar_labels.append('dbscSNV ADA')
                                 splicing_radar_values.append(annot['dbscsnv_ada'])
-                        except Exception as e:
+                        except Exception:
                             # "score" is '.'
                             annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv'][1])
                         try:
@@ -715,7 +715,7 @@ def variant(variant_id=None):
                             if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
                                 splicing_radar_labels.append('dbscSNV RF')
                                 splicing_radar_values.append(annot['dbscsnv_rf'])
-                        except Exception as e:
+                        except Exception:
                             # "score" is '.'
                             annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
                         dbscsnv_mpa_threshold = 0.8
@@ -728,7 +728,7 @@ def variant(variant_id=None):
                                 annot['mpa_impact'] = 'high splice'
         # get classification info
         curs.execute(
-            "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.username, c.html_code, c.acmg_translation \
+            "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, c.html_code, c.acmg_translation \
                 FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
                 AND a.variant_feature_id = '{0}' ORDER BY a.class_date ASC".format(variant_id)
         )
@@ -839,8 +839,7 @@ def search_engine():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' \
-                OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(
+                r"SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(
                     col_names, sql_table, pattern
                 )
             )

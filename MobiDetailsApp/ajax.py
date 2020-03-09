@@ -215,7 +215,7 @@ def lovd():
         return "LOVD service looks down"
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
-######################################################################
+# -------------------------------------------------------------------
 # web app - ajax for ACMG classification modification
 
 
@@ -223,9 +223,9 @@ def lovd():
 @login_required
 def modif_class():
     tr_html = 'notok'
-    if re.search('^\d+$', request.form['variant_id']) and \
-            re.search('^\d+$', request.form['mobiuser_id']) and \
-            re.search('^\d+$', request.form['acmg_select']):
+    if re.search(r'^\d+$', request.form['variant_id']) and \
+            re.search(r'^\d+$', request.form['mobiuser_id']) and \
+            re.search(r'^\d+$', request.form['acmg_select']):
         variant_id = request.form['variant_id']
         mobiuser_id = request.form['mobiuser_id']
         acmg_select = request.form['acmg_select']
@@ -234,7 +234,7 @@ def modif_class():
         date = '{0}-{1}-{2}'.format(
             today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
         )
-        
+
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
@@ -249,7 +249,10 @@ def modif_class():
             if res is not None:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td colspan='4'>You already classified this variant with the same class today. If you just want to modify comments,  remove the classification and start from scratch.</td></tr>"
+                    tr_html = "<tr id='already_classified'><td colspan='4'>\
+                              You already classified this variant with the same class today.\
+                              If you just want to modify comments, reload the page then remove the classification and start from scratch.\
+                              </td></tr>"
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = '{0}', comment = '{1}' WHERE \
@@ -279,7 +282,16 @@ def modif_class():
                     <td> \
                         <div class='w3-cell-row'> \
                             <span class='w3-container w3-left-align w3-cell'>{7}</span>\
-                </tr>".format(mobiuser_id, acmg_select, variant_id, mobiuser_name['username'], date, acmg_details['html_code'], acmg_details['acmg_translation'], acmg_comment)
+                </tr>".format(
+                    mobiuser_id,
+                    acmg_select,
+                    variant_id,
+                    mobiuser_name['username'],
+                    date,
+                    acmg_details['html_code'],
+                    acmg_details['acmg_translation'],
+                    acmg_comment
+                )
         except Exception as e:
             # pass
             md_utilities.send_error_email(
@@ -294,17 +306,18 @@ def modif_class():
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
     return tr_html
     # return redirect(url_for('md.index'))
-        
-#######################################################################
+
+
+# -------------------------------------------------------------------
 # web app - ajax to remove ACMG classification
 
 
 @bp.route('/remove_class', methods=['POST'])
 @login_required
-def remove_class():      
-    if re.search('^\d+$', request.form['variant_id']) and \
-            re.search('^\d+$', request.form['mobiuser_id']) and \
-            re.search('^\d+$', request.form['acmg_class']):
+def remove_class():
+    if re.search(r'^\d+$', request.form['variant_id']) and \
+            re.search(r'^\d+$', request.form['mobiuser_id']) and \
+            re.search(r'^\d+$', request.form['acmg_class']):
         variant_id = request.form['variant_id']
         mobiuser_id = request.form['mobiuser_id']
         acmg_class = request.form['acmg_class']
@@ -325,8 +338,71 @@ def remove_class():
                     '<p>Variant class deletion failed for {0} with args: {1}</p>'.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
-            )        
-    return 'notok'
+            )
+    return md_utilities.danger_panel('', 'Sorry, something went wrong with the deletion of this annotation. An admin has been warned.')
+
+# -------------------------------------------------------------------
+# web app - ajax to contact other users
+
+
+@bp.route('/send_var_message', methods=['POST'])
+@login_required
+def send_var_message():
+    if re.search(r'^\d+$', request.form['sender_id']) and \
+            re.search(r'^\d+$', request.form['receiver_id']):
+        if request.form['message'] != '' and \
+                re.search(r'Query\svia\sMobiDetails\sfrom', request.form['message_object']):
+            sender = {}
+            receiver = {}
+            # variant = request.form['variant_mes']
+            sender['id'] = request.form['sender_id']
+            receiver['id'] = request.form['receiver_id']
+            message = request.form['message']
+            message_object = request.form['message_object']
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            # get username and email
+            curs.execute(
+                "SELECT id, username, email FROM mobiuser WHERE id IN ('{0}', '{1}')".format(
+                        sender['id'],
+                        receiver['id']
+                    )
+            )
+            res = curs.fetchall()
+            for user in res:
+                # print(user)
+                if int(user['id']) == int(sender['id']):
+                    sender['username'] = user['username']
+                    sender['email'] = user['email']
+                elif int(user['id']) == int(receiver['id']):
+                    receiver['username'] = user['username']
+                    receiver['email'] = user['email']
+            message.replace("\n", "<br />")
+            message += "<br /><br /><p>You can contact user {0} directly at {1}</p>".format(
+                    sender['username'],
+                    sender['email']
+                )
+            md_utilities.send_email(
+                md_utilities.prepare_email_html(message_object, message, False),
+                message_object,
+                [receiver['email']]
+            )
+            return md_utilities.info_panel('Your email has just been sent.')
+        else:
+            return md_utilities.danger_panel('', 'Please complete the message part of the form.')
+    md_utilities.send_error_email(
+        md_utilities.prepare_email_html(
+            'MobiDetails error',
+            '<p>An email was not sent from {0} to {1}<br />Variant was {2}<br />Message was:<br />{3}</p>'.format(
+                request.form['sender_id'],
+                request.form['receiver_id'],
+                request.form['variant_mes'],
+                request.form['message'])
+        ),
+        '[MobiDetails - Email Error]'
+    )
+    return md_utilities.danger_panel('', 'Sorry, something went wrong with this message. An admin has been warned.')
+
 # -------------------------------------------------------------------
 # web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
 
@@ -335,9 +411,9 @@ def remove_class():
 def create():
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
-    
+
     # TODO: add some security checks for form values
-    
+
     gene = request.form['gene']
     acc_no = request.form['acc_no']
     new_variant = request.form['new_variant']
@@ -398,7 +474,7 @@ def create():
         vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
         try:
             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-        except Exception as e:
+        except Exception:
             close_db()
             return md_utilities.danger_panel(
                 new_variant,
@@ -423,6 +499,41 @@ def create():
         original_variant, acc_version, vv_data,
         'webApp', db, g
     )
+
+# -------------------------------------------------------------------
+# web app - ajax to modify email prefs for logged users
+
+
+@bp.route('/toggle_email_prefs', methods=['POST'])
+@login_required
+def toggle_email_prefs():
+    if re.search(r'^\d+$', request.form['user_id']) and \
+            re.search(r'^[ft]$', request.form['pref_value']):
+        mobiuser_id = request.form['user_id']
+        email_prefs = request.form['pref_value']
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "UPDATE mobiuser SET email_pref = '{0}' WHERE id = '{1}'".format(
+                email_prefs,
+                mobiuser_id
+            )
+        )
+        db.commit()
+        return 'ok', 'ok'
+
+    md_utilities.send_error_email(
+        md_utilities.prepare_email_html(
+            'MobiDetails error',
+            '<p>MD failed to modify a user email prefs. User id: {0} to {1}</p>'.format(
+                request.form['user_id'],
+                request.form['pref_value']
+            )
+        ),
+        '[MobiDetails - Email prefs Error]'
+    )
+    return 'notok', md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your prefrences.\
+                                              An admin has been warned. Please try again later.')
 
 # -------------------------------------------------------------------
 # web app - ajax to mark/unmark variants as favourite for logged users

@@ -9,7 +9,7 @@ import certifi
 import json
 import twobitreader
 from flask import (
-    url_for, request
+    url_for, request, render_template
 )
 from flask_mail import Message
 from . import config
@@ -182,19 +182,9 @@ predictors_translations = {
 
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
 
-# acmg_class = {
-#     1: ['Neutral', '#00A020'],
-#     2: ['Likely Neutral', '#0404B4'],
-#     3: ['Unknown Significance', '#000000'],
-#     4: ['Likely Pathogenic', '#FF6020'],
-#     5: ['Pathogenic', '#FF0000']
-# }
 
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))
-# useless as dbNSFP has been concatenated in a single file
-# def get_dbNSFP_file(chrom):
-#     return local_files['dbNSFP_base'][0] + chrom + '.gz'
 
 
 def clean_var_name(variant):
@@ -392,12 +382,12 @@ def getdbNSFP_results(
                     dbnsfp_record[score_index], dbnsfp_record[pred_index],
                     threshold_for_other, direction_for_other, translation_mode
                 )
-    except Exception as e:
+    except Exception:
         try:
             score = dbnsfp_record[score_index]
             if pred_index != score_index:
                 pred = predictors_translations[translation_mode][dbnsfp_record[pred_index]]
-        except Exception as e:
+        except Exception:
             pass
     return score, pred, star
 
@@ -528,21 +518,28 @@ def compute_start_end_pos(name):
 
 
 def danger_panel(var, warning):  # to be used in create_var_vv
+    begin_txt = 'VariantValidator error: '
+    if var == '':
+        begin_txt = ''
     return '<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">\
                 <span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span>\
-                <p><span><strong>VariantValidator error: {0}<br/>{1}</strong></span><br /></p></div>'.format(var, warning)
+                <p><span><strong>{0}{1}<br/>{2}</strong></span><br /></p></div>'.format(begin_txt, var, warning)
 
 
-def info_panel(text, var, id_var):
+def info_panel(text, var='', id_var=''):
+    # to print general info do not send var neither id_var
     # Newly created variant:
     c = 'c.'
     if re.search('N[MR]_', var):
         c = ''
+    link = ''
+    if var != '':
+        link = '<a href="{0}" target="_blank" title="Go to the variant page">\
+                {1}{2}</a>'.format(url_for('md.variant', variant_id=id_var), c, var)
     return '<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">\
                 <span class="w3-button w3-ripple w3-display-topright w3-large" \
                 onclick="this.parentElement.style.display=\'none\'">X</span>\
-                <p><span><strong>{0}<a href="{1}" target="_blank" title="Go to the variant page">\
-                {2}{3}</a><br/></strong></span><br /></p></div>'.format(text, url_for('md.variant', variant_id=id_var), c, var)
+                <p><span><strong>{0}{1}<br/></strong></span><br /></p></div>'.format(text, link)
 
 
 def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
@@ -661,7 +658,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     acc_version = res_can['nm_version']
                     first_level_key = key
                     remapper = True
-        except Exception as e:
+        except Exception:
             pass
     # print(vv_key_var)
     if 'validation_warning_1' in vv_data:
@@ -689,14 +686,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
-                    '<p>Insertion failed for variant hg38 for {0} with args: {1}.<br />The unknown error occured again.</p><p>{2}</p>'.format(vv_key_var, e.args, vv_data)
+                    '<p>Insertion failed for variant hg38 for {0} with args: {1}.\
+                    <br />The unknown error arised again.</p><p>{2}</p>'.format(
+                        vv_key_var,
+                        e.args,
+                        vv_data)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
             return danger_panel(
                 vv_key_var,
                 'An unknown error has been caught during variant creation with VariantValidator.<br /> \
-                It may work if you try again.<br />I am aware of this bug and actively tracking it, unsuccessfully until now.'
+                It may work if you try again.<br />I am aware of this bug and actively tracking it.'
             )
         elif caller == 'api':
             return {'mobidetails_error':  'An unknown error has been caught during variant creation with VariantValidator. \
@@ -751,7 +752,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 return danger_panel('MobiDetails error', hg38_d['mobidetails_error'])
             elif caller == 'api':
                 return hg38_d
-    except Exception as e:
+    except Exception:
         if caller == 'webApp':
             return danger_panel(
                 vv_key_var,
@@ -785,7 +786,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 return danger_panel('MobiDetails error', hg19_d['mobidetails_error'])
             elif caller == 'api':
                 return hg19_d
-    except Exception as e:
+    except Exception:
         if caller == 'webApp':
             return danger_panel(
                 vv_key_var,
@@ -1202,21 +1203,22 @@ def get_genomic_values(genome, vv_data, vv_key_var):
         }
 
 
-def prepare_email_html(title, message):
-    return """<div style="padding:0.01em 16px;line-height:1.5;font-family:Verdana,sans-serif;background-color:#FFFFFF;">
-                <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;">
-                    <p style="margin:10px 0;font-weight:600;font-size:20px;">{0}</p>
-                </div><br />
-                <div style="font-size:15px;padding:32px;border-left:6px solid #ccc !important;background-color:#fdf5e6 !important;">{1}<br />URL: {2}</div><br />
-                <div style="color:#FFFFFF;background-color:#2196F3;padding:16px;font-weight:600;">
-                    <p><a style="color:#FFFFFF;font-size:18px;" href="https://mobidetails.iurc.montp.inserm.fr/MD">MobiDetails</a></p>
-                    <p style="font-size:15px;">Online DNA variant interpretation</p>
-                    <p style="font-size:12px;">This message is automatically generated. \
-                    Please do not reply. For specific queries, please contact david baux at \
-                    <span style="color:#FFFFFF;">&#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;\
-                    &#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;</span>.</p>
-                </div>
-            </div>""".format(title, message, request.base_url)
+def prepare_email_html(title, message, send_url=True):
+    if send_url is False:
+        return render_template('md/email.html', title=title, message=message, url='')
+    else:
+        return render_template('md/email.html', title=title, message=message, url=request.base_url)
+
+
+def send_email(message, mail_object, receiver):
+    params = config.mdconfig(section='email_auth')
+    msg = Message(
+        mail_object,
+        sender=params['mail_username'],
+        recipients=receiver
+    )
+    msg.html = message
+    mail.send(msg)
 
 
 def send_error_email(message, mail_object):

@@ -102,7 +102,7 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 
             try:
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-            except Exception as e:
+            except Exception:
                 close_db()
                 return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(new_variant))
             if re.search('[di][neu][psl]', new_variant):

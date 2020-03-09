@@ -49,7 +49,8 @@ $(document).ready(function(){
 		if ($('#variant_name').length) {$('#variant_name').hide();}
 		if ($('#about_menu').length) {$('#about_menu').hide();}
 		if ($('#login_name').length) {$('#login_name').hide();}
-		if ($('#modify_class').length) {$('#modify_class').hide();}
+		//if ($('#modify_class').length) {}
+		if ($('#class_table').length) {$('#modify_class').hide();$('.fa-envelope-o').hide();}
 	}
 	else if (wi <= 600) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-large');
