@@ -33,16 +33,14 @@
 						{% if mobiuser.email_pref == true %}
 							<span style="vertical-align: middle;">Contact service is <strong id = "contact_value">enabled</strong>
 							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');">Disable it</button>
+							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ url_for("ajax.toggle_email_prefs") }}');">Disable it</button>
 							<!--<label for="contact_box" id="contact_box_label" style="vertical-align: middle;">Disable it: </label>
 							<input type="checkbox" name="contact" value="contact" id="contact_box" selected="selected" style="transform: scale(2);vertical-align: middle;" onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');"/>-->
 							<span id="value_to_send" style="display:none;">f</span>
 						{% else %}
 							<span style="vertical-align: middle;">Contact service is <strong id = "contact_value">disabled</strong>
 							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');">Enable it</button>
-							<!--<label for="contact_box" id="contact_box_label" style="vertical-align: middle;">Enable it: </label>
-							<input type="checkbox" name="contact" value="contact" id="contact_box" selected="selected" style="transform: scale(2);vertical-align: middle;" onclick="toggle_email_service('{{ mobiuser.id }}', '{{ url_for("ajax.toggle_email_prefs") }}');"/>-->
+							<button id="contact_btn" name="contact"onclick="toggle_email_service('{{ url_for("ajax.toggle_email_prefs") }}');">Enable it</button>
 							<span id="value_to_send" style="display:none;">t</span>
 						{% endif %}
 					</li>

@@ -93,7 +93,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url) {
 		type: "POST",
 		url: modify_class_url,
 		data: {
-			variant_id: variant_id, acmg_select: acmg, mobiuser_id: mobiuser_id, acmg_comment: html_comment
+			variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment
 		}
 	})
 	.done(function(tr_html) {
@@ -131,7 +131,7 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 		type: "POST",
 		url: remove_class_url,
 		data: {
-			variant_id: variant_id, acmg_class: acmg_class, mobiuser_id: mobiuser_id
+			variant_id: variant_id, acmg_class: acmg_class
 		}
 	})
 	.done(function(return_code) {
@@ -151,8 +151,8 @@ function send_var_message(url) {
 		type: "POST",
 		url: url,
 		data: {
-			sender_id: $("#sender_id").val(), receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
-			// variant_mes: $("#variant_mes").val(), 
+			receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
+			// variant_mes: $("#variant_mes").val(), sender_id: $("#sender_id").val(), 
 		}
 	})
 	.done(function(return_code) {

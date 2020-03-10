@@ -735,7 +735,9 @@
 							<td>
 								<div class="w3-cell-row">
 									<span class="w3-container w3-left-align w3-cell">
-										{{ classif.comment }}
+										{% autoescape false %}
+											{{ classif.comment }}
+										{% endautoescape %}
 									</span>
 									{% if classif.username == g.user['username'] %}
 										<span class="w3-container w3-right-align w3-cell">

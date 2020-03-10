@@ -224,10 +224,8 @@ def lovd():
 def modif_class():
     tr_html = 'notok'
     if re.search(r'^\d+$', request.form['variant_id']) and \
-            re.search(r'^\d+$', request.form['mobiuser_id']) and \
             re.search(r'^\d+$', request.form['acmg_select']):
         variant_id = request.form['variant_id']
-        mobiuser_id = request.form['mobiuser_id']
         acmg_select = request.form['acmg_select']
         acmg_comment = request.form['acmg_comment']
         today = datetime.datetime.now()
@@ -243,7 +241,7 @@ def modif_class():
             curs.execute(
                 "SELECT class_date FROM class_history WHERE \
                     variant_feature_id = '{0}' AND acmg_class = '{1}' \
-                    AND mobiuser_id = '{2}';".format(variant_id, acmg_select, mobiuser_id)
+                    AND mobiuser_id = '{2}';".format(variant_id, acmg_select, g.user['id'])
             )
             res = curs.fetchone()
             if res is not None:
@@ -257,18 +255,18 @@ def modif_class():
                 curs.execute(
                     "UPDATE class_history SET class_date  = '{0}', comment = '{1}' WHERE \
                         variant_feature_id = '{2}' AND acmg_class = '{3}' \
-                        AND mobiuser_id = '{4}';".format(date, acmg_comment, variant_id, acmg_select, mobiuser_id)
+                        AND mobiuser_id = '{4}';".format(date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
                 curs.execute(
                     "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
-                        ('{0}', '{1}', '{2}', '{3}', '{4}' )".format(variant_id, acmg_select, mobiuser_id, date, acmg_comment)
+                        ('{0}', '{1}', '{2}', '{3}', '{4}' )".format(variant_id, acmg_select, g.user['id'], date, acmg_comment)
                 )
             db.commit()
-            curs.execute(
-                "SELECT username FROM mobiuser WHERE id = '{}'".format(mobiuser_id)
-            )
-            mobiuser_name = curs.fetchone()
+            # curs.execute(
+            #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
+            # )
+            # mobiuser_name = curs.fetchone()
             curs.execute(
                 "SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = '{}'".format(acmg_select)
             )
@@ -283,10 +281,10 @@ def modif_class():
                         <div class='w3-cell-row'> \
                             <span class='w3-container w3-left-align w3-cell'>{7}</span>\
                 </tr>".format(
-                    mobiuser_id,
+                    g.user['id'],
                     acmg_select,
                     variant_id,
-                    mobiuser_name['username'],
+                    g.user['username'],
                     date,
                     acmg_details['html_code'],
                     acmg_details['acmg_translation'],
@@ -316,10 +314,8 @@ def modif_class():
 @login_required
 def remove_class():
     if re.search(r'^\d+$', request.form['variant_id']) and \
-            re.search(r'^\d+$', request.form['mobiuser_id']) and \
             re.search(r'^\d+$', request.form['acmg_class']):
         variant_id = request.form['variant_id']
-        mobiuser_id = request.form['mobiuser_id']
         acmg_class = request.form['acmg_class']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -327,7 +323,7 @@ def remove_class():
             curs.execute(
                 "DELETE FROM class_history WHERE \
                     variant_feature_id = '{0}' AND acmg_class = '{1}' \
-                    AND mobiuser_id = '{2}';".format(variant_id, acmg_class, mobiuser_id)
+                    AND mobiuser_id = '{2}';".format(variant_id, acmg_class, g.user['id'])
             )
             db.commit()
             return 'ok'
@@ -348,39 +344,44 @@ def remove_class():
 @bp.route('/send_var_message', methods=['POST'])
 @login_required
 def send_var_message():
-    if re.search(r'^\d+$', request.form['sender_id']) and \
-            re.search(r'^\d+$', request.form['receiver_id']):
+    if re.search(r'^\d+$', request.form['receiver_id']):
         if request.form['message'] != '' and \
                 re.search(r'Query\svia\sMobiDetails\sfrom', request.form['message_object']):
-            sender = {}
+            # sender = {}
             receiver = {}
             # variant = request.form['variant_mes']
-            sender['id'] = request.form['sender_id']
+            # sender['id'] = request.form['sender_id']
             receiver['id'] = request.form['receiver_id']
             message = request.form['message']
             message_object = request.form['message_object']
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # get username and email
+            # curs.execute(
+            #     "SELECT id, username, email FROM mobiuser WHERE id IN ('{0}', '{1}')".format(
+            #             sender['id'],
+            #             receiver['id']
+            #         )
+            # )
             curs.execute(
-                "SELECT id, username, email FROM mobiuser WHERE id IN ('{0}', '{1}')".format(
-                        sender['id'],
+                "SELECT id, username, email FROM mobiuser WHERE id = '{}'".format(
                         receiver['id']
                     )
             )
-            res = curs.fetchall()
-            for user in res:
-                # print(user)
-                if int(user['id']) == int(sender['id']):
-                    sender['username'] = user['username']
-                    sender['email'] = user['email']
-                elif int(user['id']) == int(receiver['id']):
-                    receiver['username'] = user['username']
-                    receiver['email'] = user['email']
+            # res = curs.fetchall()
+            receiver = curs.fetchone()
+            # for user in res:
+            #     # print(user)
+            #     if int(user['id']) == int(sender['id']):
+            #         sender['username'] = user['username']
+            #         sender['email'] = user['email']
+            #     elif int(user['id']) == int(receiver['id']):
+            #         receiver['username'] = user['username']
+            #         receiver['email'] = user['email']
             message.replace("\n", "<br />")
             message += "<br /><br /><p>You can contact user {0} directly at {1}</p>".format(
-                    sender['username'],
-                    sender['email']
+                    g.user['username'],
+                    g.user['email']
                 )
             md_utilities.send_email(
                 md_utilities.prepare_email_html(message_object, message, False),
@@ -394,7 +395,7 @@ def send_var_message():
         md_utilities.prepare_email_html(
             'MobiDetails error',
             '<p>An email was not sent from {0} to {1}<br />Variant was {2}<br />Message was:<br />{3}</p>'.format(
-                request.form['sender_id'],
+                g.user['sender_id'],
                 request.form['receiver_id'],
                 request.form['variant_mes'],
                 request.form['message'])
@@ -507,16 +508,17 @@ def create():
 @bp.route('/toggle_email_prefs', methods=['POST'])
 @login_required
 def toggle_email_prefs():
-    if re.search(r'^\d+$', request.form['user_id']) and \
-            re.search(r'^[ft]$', request.form['pref_value']):
-        mobiuser_id = request.form['user_id']
+    # if re.search(r'^\d+$', request.form['user_id']) and \
+    #        re.search(r'^[ft]$', request.form['pref_value']):
+    if re.search(r'^[ft]$', request.form['pref_value']):
+        # mobiuser_id = request.form['user_id']
         email_prefs = request.form['pref_value']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             "UPDATE mobiuser SET email_pref = '{0}' WHERE id = '{1}'".format(
                 email_prefs,
-                mobiuser_id
+                g.user['id']
             )
         )
         db.commit()
@@ -526,13 +528,13 @@ def toggle_email_prefs():
         md_utilities.prepare_email_html(
             'MobiDetails error',
             '<p>MD failed to modify a user email prefs. User id: {0} to {1}</p>'.format(
-                request.form['user_id'],
+                g.user['id'],
                 request.form['pref_value']
             )
         ),
         '[MobiDetails - Email prefs Error]'
     )
-    return 'notok', md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your prefrences.\
+    return 'notok', md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your preferences.\
                                               An admin has been warned. Please try again later.')
 
 # -------------------------------------------------------------------

@@ -1,11 +1,11 @@
-function toggle_email_service(user_id, email_perf_url) {
+function toggle_email_service(email_perf_url) {
     // ajax to modify prefs for email contacts
     $('html').css('cursor', 'progress');
     $.ajax({
 		type: "POST",
 		url: email_perf_url,
 		data: {
-			user_id: user_id, pref_value: $("#value_to_send").html()
+			pref_value: $("#value_to_send").html()
 		}
 	})
 	.done(function(return_value, html_error) {
