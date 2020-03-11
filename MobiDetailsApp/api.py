@@ -131,12 +131,19 @@ def api_variant_create(variant_chgvs=None, api_key=None):
 def api_gene(gene_hgnc=None):
     if gene_hgnc is None:
         return jsonify(mobidetails_error='No gene submitted')
-    if re.search(r'[^\w]', gene_hgnc):
+    if re.search(r'[^\w\.]', gene_hgnc):
         return jsonify(mobidetails_error='Invalid gene submitted ({})'.format(gene_hgnc))
+    research = gene_hgnc
+    search_id = 1
+    match_obj = re.search(r'(NM_\d+)\.?\d?', gene_hgnc)
+    if match_obj:
+        # we have a RefSeq accession number
+        research = match_obj.group(1)
+        search_id = 2
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT * FROM gene WHERE name[1] = '{}'".format(gene_hgnc)
+        "SELECT * FROM gene WHERE name[{0}] = '{1}'".format(search_id, research)
     )
     res = curs.fetchall()
     d_gene = {}
