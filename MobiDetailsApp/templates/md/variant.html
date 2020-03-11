@@ -218,18 +218,20 @@
 							<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
 						</tr>
 						{% if variant_features.prot_type != 'unknown' %}
-							<tr><!--protein-->
-								<td class="w3-left-align">Position / protein</td>
-								<td class="w3-left-align">
-									<span>{{ aa_pos[0] }}</span>
-									{% if aa_pos[0] != aa_pos[1] %}
-										<span> - {{ aa_pos[1] }}</span>
-									{%endif %}
-								 <span> / {{ variant_features.prot_size }}</span>
-								</td>
-								<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em
-						
-							</tr><!--protein domain-->
+							{% if aa_pos[0]|int <= variant_features.prot_size|int %}
+								<!-- in case prot size is wrong-->
+								<tr><!--protein-->
+									<td class="w3-left-align">Position / protein</td>
+									<td class="w3-left-align">
+										<span>{{ aa_pos[0] }}</span>
+										{% if aa_pos[0] != aa_pos[1] %}
+											<span> - {{ aa_pos[1] }}</span>
+										{%endif %}
+									 <span> / {{ variant_features.prot_size }}</span>
+									</td>
+									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>								
+								</tr><!--protein domain-->
+							{% endif %}
 							<tr>
 								<td class="w3-left-align">Position / domain</td>
 								{% if protein_domain[0] is defined %}
