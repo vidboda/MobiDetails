@@ -522,7 +522,7 @@ def toggle_email_prefs():
             )
         )
         db.commit()
-        return 'ok', 'ok'
+        return 'ok'
 
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
@@ -534,7 +534,7 @@ def toggle_email_prefs():
         ),
         '[MobiDetails - Email prefs Error]'
     )
-    return 'notok', md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your preferences.\
+    return md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your preferences.\
                                               An admin has been warned. Please try again later.')
 
 # -------------------------------------------------------------------

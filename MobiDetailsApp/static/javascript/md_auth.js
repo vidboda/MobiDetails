@@ -9,7 +9,7 @@ function toggle_email_service(email_perf_url) {
 		}
 	})
 	.done(function(return_value, html_error) {
-		if (return_value != 'notok') {
+		if (return_value == 'ok') {
             var txt = 'enabled';
             var label = 'Disable it';
             var value_to_send = 'f';

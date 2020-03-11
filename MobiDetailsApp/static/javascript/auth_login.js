@@ -3,7 +3,8 @@ function check_login_form() {
 		$('html').css('cursor', 'progress');
 		$('#sub').css('cursor', 'progress');
 		$('#sub').attr('disabled', 'disabled');
-		return;
+		alert('ok');
+		return true;
 	}
 	else {
 		return false;
