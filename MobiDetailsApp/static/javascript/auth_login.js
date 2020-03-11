@@ -1,9 +1,9 @@
-function check_login_form() {
+function check_login_form() {	
 	if ($("#email").val() != '' && $("#password").val() != '') {
+		//alert($("#email").val());
 		$('html').css('cursor', 'progress');
 		$('#sub').css('cursor', 'progress');
 		$('#sub').attr('disabled', 'disabled');
-		alert('ok');
 		return true;
 	}
 	else {

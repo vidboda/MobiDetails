@@ -11,7 +11,7 @@
 	{{ info("Please Log in if already registered and if you want to trace your variants. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
 	<br />
 	<div align = "center">
-	<form method="post" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
+	<form method="post" action="{{ url_for('auth.login') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
 		{% if referrer_page != None %}
       <input type="hidden" name="referrer_page" value="{{ referrer_page }}" />
     {% endif %}
@@ -28,5 +28,5 @@
 			<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
 		</p>
 	</form>
-   <!--onclick="check_login_form();"-->
+   <!-- onclick="return check_login_form();"-->
 {% endblock %}
