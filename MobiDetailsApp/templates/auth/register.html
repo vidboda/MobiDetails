@@ -12,17 +12,17 @@
 	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
 	<br />
 	<div align = "center">
-		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%">
-			<h2>Please register using your academic email address:</h2><br/>
-			<div class="w3-row w3-section"/>
+		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form">
+			<span class="w3-xlarge">Please register using your academic email address:</span><br/>
+			<div class="w3-row w3-section">
 				{{ fa('user') }}
 				<div class="w3-rest">{{ input('username', value=prev_username) }}</div>
 			</div>
-			<div class="w3-row w3-section"/>
+			<div class="w3-row w3-section">
 				{{ fa('key') }}
 				<div class="w3-rest">{{ input('password', type='password') }}</div>
 			</div>
-			<div class="w3-row w3-section"/>
+			<div class="w3-row w3-section">
 				{{ fa('globe') }}
 				<div class="w3-rest"><select class="w3-select w3-border" name="country" id="country">
 					<option value="--">--</option>
@@ -278,11 +278,11 @@
 				</select></div>			
 				<!--<div class="w3-rest">{{ input('country') }}</div>-->
 			</div>
-			<div class="w3-row w3-section"/>
+			<div class="w3-row w3-section">
 				{{ fa('hospital-o') }}
 				<div class="w3-rest">{{ input('institute', value=prev_institute) }}</div>
 			</div>
-			<div class="w3-row w3-section"/>
+			<div class="w3-row w3-section">
 				{{ fa('envelope-o') }}
 				<div class="w3-rest">{{ input('email', value=prev_email) }}</div>
 			</div>
@@ -291,5 +291,6 @@
 			</p>
 		</form>
 	</div>
+  <br /><br /><br /><br />
    <!--onclick="return check_register_form();"-->
 {% endblock %}
