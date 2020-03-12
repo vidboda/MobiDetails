@@ -41,6 +41,7 @@ $(document).ready(function(){
 	if (wi < 400) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-small');
 		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-medium');
+		$('li.w3-xlarge').removeClass('w3-xlarge').addClass('w3-medium');
 		$('.w3-modal').addClass('w3-small');
 		$('#engine').removeClass('w3-large').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
@@ -55,6 +56,7 @@ $(document).ready(function(){
 	else if (wi <= 600) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-large');
 		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
+		$('li.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
 		$('.w3-modal').addClass('w3-medium');
 		$('#engine').removeClass('w3-large').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');

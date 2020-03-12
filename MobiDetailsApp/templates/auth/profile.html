@@ -21,8 +21,8 @@
 		<br />
 		<hr />
 	{%- endif %}	
-	<div class="w3-container w3-padding-32 w3-margin w3-mobile">
-		<div class=" w3-card w3-mobile">
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" style="width:98%">
+		<div class="w3-card w3-mobile">
 			<ul class="w3-ul">
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Username: {{ mobiuser.username }}</li>
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Institute: {{ mobiuser.institute }}</li>
@@ -58,7 +58,7 @@
 	{% if variants_favourite != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-				<h3>Toggle your {{ num_var_fav }} favourite variants:</h3>
+				<span class="w3-xlarge">Toggle your {{ num_var_fav }} favourite variants:</span>
 			</div>
 		</div>
 		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="favourite_vars" style="display:none;">
@@ -73,7 +73,7 @@
 	{% elif view == 'own' %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-				<h3>You have no favourite variants yet.</h3>			
+				<span class="w3-xlarge">You have no favourite variants yet.</span>			
 			</div>
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 		</div>
@@ -82,7 +82,7 @@
 	{% if variants != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
-				<h3>Toggle the {{ num_var }} variants you created:</h3>
+				<span class="w3-xlarge">Toggle the {{ num_var }} variants you created:</span>
 			</div>
 		</div>
 		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="created_vars" style="display:none;">
@@ -97,7 +97,7 @@
 	{% elif view == 'own' %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-				<h3>You have not created a variant yet.</h3>				
+				<span class="w3-xlarge">You have not created a variant yet.</span>				
 			</div>
 			{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
 		</div>
