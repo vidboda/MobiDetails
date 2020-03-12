@@ -3,7 +3,7 @@
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_about.js') }}" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_about.js') }}" type="text/javascript"></script>
 {% endblock %}
 {% block title %}About{% endblock %}
 {% block content %}
@@ -15,19 +15,19 @@
 		<a href="#private_life" class="w3-bar-item w3-button w3-mobile">Private Life</a>
 	</div><br />
 	<div class="w3-button w3-block w3-blue w3-center" onclick="accord('whatyouwillget');" title="toggle section">
-		<h1>What you will get with MobiDetails</h1>
+		<span class="w3-xxlarge">What you will get with MobiDetails</span>
 	</div><br />
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouwillget" style="display:none">
 		<img class="w3-image" src="{{ url_for('static', filename='img/MD1.png') }}"/>
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('whatyouneed');" title="toggle section">
-		<h1>What you need to run MobiDetails</h1>
+		<span class="w3-xxlarge">What you need to run MobiDetails</span>
 	</div><br />
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouneed" style="display:none">
 		{{ info("<span>Internet, a web browser, a gene and a variant of interest (HGVS c. nomenclature). That's all.</span>") }}
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('howto');" title="toggle section">
-		<h1>How to use it</h1>
+		<span class="w3-xxlarge">How to use it</span>
 	</div><br/>
 	<div class="w3-container w3-padding-64" id="howto" style="display:none">
 		{{ info("<span>MobiDetails is a DNA variant online interpretation tool. Users create the variants which must be linked to a gene. <br/>To create a variant:</span>
@@ -55,7 +55,7 @@
 	<!--	<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD_pubmed.mp4'></video>-->
 	<!--</div>-->
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
-		<h1>External Resources Used by MobiDetails</h1>
+		<span class="w3-xxlarge">External Resources Used by MobiDetails</span>
 	</div><br/>
 	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
 		<div class="w3-responsive w3-container">
