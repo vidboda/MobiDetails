@@ -68,7 +68,9 @@
 			<div class="w3-container">
 				<ul class="w3-ul w3-padding-small w3-hoverable">
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}awesome?query={{ gene_name }}', '_blank')">gnomAD browser</span>
+						<!--<span class="w3-button" onclick="window.open('{{ urls.gnomad }}awesome?query={{ gene_name }}', '_blank')">gnomAD browser</span>-->
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_name }}?dataset=gnomad_r2_1', '_blank')">gnomADv2</span> /
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_name }}?dataset=gnomad_r3', '_blank')">gnomADv3 browser</span>
 					</li>
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ urls.ncbi_gene }}{{ gene_name }}', '_blank')">NCBI gene</span>
