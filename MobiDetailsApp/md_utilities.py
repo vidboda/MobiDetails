@@ -80,8 +80,8 @@ urls = {
 }
 local_files = {
     # id :[local path, version, name, short desc, urls Xref]
-    'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200127.vcf.gz',
-                     'v20200127', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+    'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200310.vcf.gz',
+                     'v20200310', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
     'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz',
                      'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
     'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz',
