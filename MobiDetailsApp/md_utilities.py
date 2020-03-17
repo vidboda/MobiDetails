@@ -17,6 +17,17 @@ from MobiDetailsApp import mail
 
 
 app_path = os.path.dirname(os.path.realpath(__file__))
+
+def get_clinvar_current_version(clinvar_dir):
+    files = os.listdir(clinvar_dir)
+    dates = []
+    for current_file in files:
+        # print(current_file)
+        match_obj = re.search(r'clinvar_(\d+).vcf.gz$', current_file)
+        if match_obj:
+            dates.append(match_obj.group(1))
+    return max(dates)
+
 one2three = {
     'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',
     'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn', 'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
@@ -78,37 +89,38 @@ urls = {
     'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
     'revel': 'https://sites.google.com/site/revelgenomics/',
 }
+clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
 local_files = {
     # id :[local path, version, name, short desc, urls Xref]
-    'clinvar_hg38': [app_path + '/static/resources/clinvar/hg38/clinvar_20200310.vcf.gz',
-                     'v20200310', 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
-    'gnomad_exome': [app_path + '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz',
+    'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, clinvar_date),
+                     'v{}'.format(clinvar_date), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+    'gnomad_exome': ['{}/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'.format(app_path),
                      'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
-    'gnomad_genome': [app_path + '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz',
+    'gnomad_genome': ['{}/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'.format(app_path),
                       'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-    'gnomad_3': [app_path + '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz',
+    'gnomad_3': ['{}/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'.format(app_path),
                  'v3', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-    'dbscsnv': [app_path + '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz',
+    'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
                 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
     # 'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz',
     # 'v1.2.1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
-    'spliceai_snvs': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz',
+    'spliceai_snvs': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'.format(app_path),
                       'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
-    'spliceai_indels': [app_path + '/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz',
+    'spliceai_indels': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'.format(app_path),
                         'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
-    'dbnsfp': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz',
+    'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
                'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-    'cadd': [app_path + '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz',
+    'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
              'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'cadd_indels': [app_path + '/static/resources/CADD/hg38/InDels.tsv.gz',
+    'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
                     'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'dbsnp': [app_path + '/static/resources/dbsnp/hg38/GCF_000001405.38.gz',
+    'dbsnp': ['{}/static/resources/dbsnp/hg38/GCF_000001405.38.gz'.format(app_path),
               'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
-    'metadome': [app_path + '/static/resources/metadome/v1/',
+    'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
                  'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
-    'human_genome_hg38': [app_path + '/static/resources/genome/hg38.2bit',
+    'human_genome_hg38': ['{}/static/resources/genome/hg38.2bit'.format(app_path),
                           'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-    'human_genome_hg19': [app_path + '/static/resources/genome/hg19.2bit',
+    'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
                           'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']
     # 'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
@@ -137,7 +149,7 @@ predictor_thresholds = {
     'metadome_stolerant': 1.025,
     'metadome_tolerant': 1.375,
     'revel_min': 0.2,
-    'revel_max': 0.8,
+    'revel_max': 0.5,
 }
 predictor_colors = {
     'min': '#00A020',
