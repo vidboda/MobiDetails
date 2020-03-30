@@ -17,6 +17,10 @@ from MobiDetailsApp import mail
 
 
 app_path = os.path.dirname(os.path.realpath(__file__))
+variant_regexp = '[\dACGTdienulps_>+\*-]+'
+genome_regexp = 'hg[13][98]'
+nochr_chrom_regexp = '[\dXYM]{1,2}'
+nochr_captured_regexp = '\d{1,2}|[XYM]'
 
 def get_clinvar_current_version(clinvar_dir):
     files = os.listdir(clinvar_dir)
@@ -89,11 +93,11 @@ urls = {
     'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
     'revel': 'https://sites.google.com/site/revelgenomics/',
 }
-clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
+# clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
 local_files = {
     # id :[local path, version, name, short desc, urls Xref]
-    'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, clinvar_date),
-                     'v{}'.format(clinvar_date), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+    'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
+                     'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
     'gnomad_exome': ['{}/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'.format(app_path),
                      'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
     'gnomad_genome': ['{}/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'.format(app_path),
@@ -268,19 +272,19 @@ def get_common_chr_name(db, ncbi_name):  # get common chr names for NCBI names
 
 
 def is_valid_full_chr(chr_name):  # chr name is valid?
-    if re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM])$', chr_name):
+    if re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name):
         return True
     return False
 
 
 def get_short_chr_name(chr_name):  # get small chr name
-    match_obj = re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM])$', chr_name)
+    match_obj = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name)
     if match_obj is not None:
         return match_obj.group(1)
 
 
 def is_valid_chr(chr_name):  # chr name is valid?
-    if re.search(r'^(\d{1,2}|[XYM])$', chr_name):
+    if re.search(rf'^({nochr_captured_regexp})$', chr_name):
         return True
     return False
 

@@ -62,7 +62,7 @@ function lovd(lovd_url) {
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: encodeURIComponent($('#hg19_g_name').text()), c_name: encodeURIComponent($('#c_name').text())
 		}
 	})
 	.done(function(html) {
@@ -125,6 +125,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url) {
 	});
 }
 
+
 function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 	// ajax to remove variant class
 	$.ajax({
@@ -143,6 +144,7 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 		}
 	});
 }
+
 
 function send_var_message(url) {
     // ajax to send email
@@ -166,6 +168,7 @@ function send_var_message(url) {
 	});
 }
 
+
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
 	// should be rewritten in jquery for consistency
@@ -183,12 +186,16 @@ function myAccFunc(acc_id, icon_id) {
 		$('#' + icon_id).removeClass("fa-caret-down").addClass("fa-caret-right");
 	}
 }
-//https://www.chartjs.org/docs/latest/general/responsive.html#important-note
+
+
+// https://www.chartjs.org/docs/latest/general/responsive.html#important-note
 function beforePrintHandler () {
     for (var id in Chart.instances) {
         Chart.instances[id].resize();
     }
 }
+
+
 $(document).ready(function() {
 	// transform all tables as datatables
 	$('.w3-table').DataTable({
@@ -200,48 +207,8 @@ $(document).ready(function() {
 				'copy', 'excel', 'pdf'
 		]
 	});
-	//ajax for litvar
-	//if ($('#dbsnp_id').text() !== '') {
-	//	$.ajax({
-	//		type: "POST",
-	//		url: '/litVar',
-	//		data: {
-	//			rsid: $('#dbsnp_id').text()
-	//		}
-	//	})
-	//	.done(function(html) {
-	//		$("#litvar_data").replaceWith(html);
-	//	});
-	//}
-	//else {
-	//	$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
-	//}
-	////ajax for intervar
-	//if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon') {
-	//	$.ajax({
-	//		type: "POST",
-	//		url: '/intervar',
-	//		data: {
-	//			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
-	//		}
-	//	})
-	//	.done(function(html) {
-	//		$("#intervar_data").replaceWith(html);
-	//	});
-	//}
-	////ajax for LOVD
-	//$.ajax({
-	//	type: "POST",
-	//	url: '/lovd',
-	//	data: {
-	//		genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
-	//	}
-	//})
-	//.done(function(html) {
-	//	$("#lovd_data").replaceWith(html);
-	//});
-	//hide sidebar on small screen
-	//if ($('#smart_menu').length) {		
+	// hide sidebar on small screen
+	// if ($('#smart_menu').length) {		
 	if ($(window).width() < 600) {
 		$('#smart_menu').hide();
 		$('#openNav').css('visibility', 'visible');
@@ -254,10 +221,10 @@ $(document).ready(function() {
 		myAccFunc('hg19_acc', 'hg19_icon');
 		myAccFunc('hg38_acc', 'hg38_icon');
 	}
-	//adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
+	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {
-
+	
 		var config = {
 			className: "buttons-pdf buttons-html5",
 			customize: null,
@@ -300,7 +267,7 @@ $(document).ready(function() {
 					};
 				}));
 			}
-
+	
 			for (var i = 0, ien = data.body.length; i < ien; i++) {
 				rows.push($.map(data.body[i], function(d) {
 					return {
@@ -309,7 +276,7 @@ $(document).ready(function() {
 					};
 				}));
 			}
-
+	
 			if (config.footer && data.footer) {
 				rows.push($.map(data.footer, function(d) {
 					return {
@@ -318,11 +285,11 @@ $(document).ready(function() {
 					};
 				}));
 			}
-
+	
 			tablesConverted[tables[k]] = rows;
 		}
-
-
+	
+	
 		var doc = {
 			pageSize: config.pageSize,
 			pageOrientation: config.orientation,
@@ -521,7 +488,7 @@ $(document).ready(function() {
 				margin: [0, 0, 0, 12]
 			});
 		}
-
+	
 		if (info.title) {
 			doc.content.unshift({
 				text: info.title,
@@ -529,7 +496,7 @@ $(document).ready(function() {
 				margin: [0, 0, 0, 12]
 			});
 		}
-
+	
 		if (config.customize) {
 			config.customize(doc, config);
 		}

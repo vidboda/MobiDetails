@@ -14,8 +14,13 @@ import json
 import urllib3
 import certifi
 import datetime
+import urllib.parse
 
 bp = Blueprint('ajax', __name__)
+
+
+
+
 
 ######################################################################
 # web app - ajax for litvar
@@ -23,8 +28,8 @@ bp = Blueprint('ajax', __name__)
 
 @bp.route('/litVar', methods=['POST'])
 def litvar():
-    rsid = request.form['rsid']
-    if rsid is not None:
+    if re.search(r'^rs\d+$', request.form['rsid']):
+        rsid = request.form['rsid']
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         litvar_data = None
         # litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
@@ -58,9 +63,10 @@ def litvar():
 
 @bp.route('/defgen', methods=['POST'])
 def defgen():
-    variant_id = request.form['vfid']
-    genome = request.form['genome']
-    if variant_id is not None and genome is not None:
+    if re.search(r'^\d+$', request.form['vfid']) and \
+            re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']):
+        variant_id = request.form['vfid']
+        genome = request.form['genome']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
@@ -103,44 +109,60 @@ def defgen():
 
 @bp.route('/intervar', methods=['POST'])
 def intervar():
-    genome = request.form['genome']
-    chrom = request.form['chrom']
-    pos = request.form['pos']
-    ref = request.form['ref']
-    alt = request.form['alt']
-    if len(ref) > 1 or len(alt) > 1:
-        return 'No wintervar for indels'
-    if ref == alt:
-        return 'hg19 reference is equal to variant: no wIntervar query'
-    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-    intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
-        md_utilities.urls['intervar_api'], genome, chrom,
-        pos, ref, alt
-    )
-    try:
-        intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
-    except Exception as e:
+    if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
+            re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
+            re.search(r'^[ATGC]+$', request.form['ref']) and \
+            re.search(r'^[ATGC]+$', request.form['alt']):
+        genome = request.form['genome']
+        chrom = request.form['chrom']
+        pos = request.form['pos']
+        ref = request.form['ref']
+        alt = request.form['alt']
+        if len(ref) > 1 or len(alt) > 1:
+            return 'No wintervar for indels'
+        if ref == alt:
+            return 'hg19 reference is equal to variant: no wIntervar query'
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
+            md_utilities.urls['intervar_api'], genome, chrom,
+            pos, ref, alt
+        )
+        try:
+            intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+        except Exception as e:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: {6}</p>'.format(
+                        genome, chrom, pos, ref,
+                        alt, os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return "<span>No wintervar class</span>"
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(
+                intervar_data['Intervar'].lower()
+            )
+        )
+        res = curs.fetchone()
+        close_db()
+        return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
+    else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: {6}</p>'.format(
+                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: A mandatory argument is missing</p>'.format(
                     genome, chrom, pos, ref,
-                    alt, os.path.basename(__file__), e.args
+                    alt, os.path.basename(__file__)
                 )
             ),
             '[MobiDetails - API Error]'
         )
         return "<span>No wintervar class</span>"
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    curs.execute(
-        "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(
-            intervar_data['Intervar'].lower()
-        )
-    )
-    res = curs.fetchone()
-    close_db()
-    return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
 
 # -------------------------------------------------------------------
 # web app - ajax for LOVD API
@@ -148,71 +170,87 @@ def intervar():
 
 @bp.route('/lovd', methods=['POST'])
 def lovd():
-    genome = request.form['genome']
-    chrom = request.form['chrom']
-    g_name = request.form['g_name']
-    c_name = request.form['c_name']
-    if re.search(r'=', g_name):
-        return 'hg19 reference is equal to variant: no LOVD query'
-    positions = md_utilities.compute_start_end_pos(g_name)
-    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-    # http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
-    lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
-    # print(lovd_url)
-    lovd_data = None
-    try:
-        lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
-    except Exception as e:
-        md_utilities.send_error_email(
-            md_utilities.prepare_email_html(
-                'MobiDetails API error',
-                '<p>LOVD API call failed in {0} with args: {1}</p>'.format(
-                    os.path.basename(__file__), e.args
-                )
-            ),
-            '[MobiDetails - API Error]'
-        )
-        pass
-    # print(lovd_url)
-    if lovd_data is not None:
-        if len(lovd_data) == 1:
-            return 'No match in LOVD public instances'
-        lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
-        lovd_urls = []
-        i = 1
-        html = ''
-        html_list = []
-        for candidate in lovd_data:
-            fields = re.split('\t', candidate)
-            # check if the variant is the same than ours
-            # print(fields)
-            if len(fields) > 1:
-                fields[4] = fields[4].replace('"', '')
-                if fields[4] == c_name or re.match(c_name, fields[4]):
-                    lovd_urls.append(fields[5])
-        if len(lovd_urls) > 0:
-            for url in lovd_urls:
-                url = url.replace('"', '')
-                if re.search('databases.lovd.nl/shared/', url):
-                    html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
-                else:
-                    html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
-                i += 1
+    genome = chrom = g_name = c_name = None
+    if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
+            re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
+            re.search(rf'^{md_utilities.variant_regexp}$', urllib.parse.unquote(request.form['g_name'])) and \
+            re.search(rf'^c\.{md_utilities.variant_regexp}$', urllib.parse.unquote(request.form['c_name'])):
+        genome = request.form['genome']
+        chrom = request.form['chrom']
+        g_name = urllib.parse.unquote(request.form['g_name'])
+        c_name = urllib.parse.unquote(request.form['c_name'])
+        if re.search(r'=', g_name):
+            return 'hg19 reference is equal to variant: no LOVD query'
+        positions = md_utilities.compute_start_end_pos(g_name)
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
+        lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
+        # print(lovd_url)
+        lovd_data = None
+        try:
+            lovd_data = re.split('\n', http.request('GET', lovd_url).data.decode('utf-8'))
+        except Exception as e:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    '<p>LOVD API call failed in {0} with args: {1}</p>'.format(
+                        os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            pass
+        # print(lovd_url)
+        if lovd_data is not None:
+            if len(lovd_data) == 1:
+                return 'No match in LOVD public instances'
+            lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
+            lovd_urls = []
+            i = 1
+            html = ''
+            html_list = []
+            for candidate in lovd_data:
+                fields = re.split('\t', candidate)
+                # check if the variant is the same than ours
+                # print(fields)
+                if len(fields) > 1:
+                    fields[4] = fields[4].replace('"', '')
+                    if fields[4] == c_name or re.match(c_name, fields[4]):
+                        lovd_urls.append(fields[5])
+            if len(lovd_urls) > 0:
+                for url in lovd_urls:
+                    url = url.replace('"', '')
+                    if re.search('databases.lovd.nl/shared/', url):
+                        html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
+                    else:
+                        html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
+                    i += 1
+            else:
+                return 'No match in LOVD public instances'
+            html = ' - '.join(html_list)
+            return html
         else:
-            return 'No match in LOVD public instances'
-        html = ' - '.join(html_list)
-        return html
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    '<p>LOVD service looks down in {}</p>'.format(
+                        os.path.basename(__file__)
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return "LOVD service looks down"
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>LOVD service looks down in {}</p>'.format(
+                '<p>LOVD API call failed in {0} with args: a mandatory argument is missing</p>'.format(
                     os.path.basename(__file__)
                 )
             ),
             '[MobiDetails - API Error]'
         )
-        return "LOVD service looks down"
+        return "LOVD query malformed"
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
 # -------------------------------------------------------------------
@@ -410,96 +448,100 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
+    print(request.form['new_variant'])
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
-
-    # TODO: add some security checks for form values
-
-    gene = request.form['gene']
-    acc_no = request.form['acc_no']
-    new_variant = request.form['new_variant']
-    new_variant = new_variant.replace(" ", "")
-    new_variant = new_variant.replace("\t", "")
-    original_variant = new_variant
-    acc_version = request.form['acc_version']
-    alt_nm = None
-    if 'alt_iso' in request.form:
-        alt_nm = request.form['alt_iso']
-        # return md_utilities.danger_panel(alt_nm, acc_version)
-        if alt_nm != '' and alt_nm != "{0}.{1}".format(acc_no, acc_version):
-            acc_no, acc_version = alt_nm.split('.')
-    # variant already registered?
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    var_db = new_variant.replace("c.", "")
-    curs.execute(
-        "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(var_db, acc_no)
-    )
-    res = curs.fetchone()
-    if res is not None:
-        close_db()
-        return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
-
-    if re.search(r'c\..+', new_variant):
-        # is vv alive?
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-        vv_alive = None
-        try:
-            vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
-        except Exception as e:
-            md_utilities.send_error_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails VariantValidator error',
-                    '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
-                        os.path.basename(__file__), e.args
-                    )
-                ),
-                '[MobiDetails - VariantValidator Error]'
-            )
-            # vv_data = {'apiVersion': 'Service Unavailable'}
-            vv_alive = {'status': 'Service Unavailable'}
+    if re.search(r'^\w+$', request.form['gene']) and \
+            re.search(r'^NM_\d+$', request.form['acc_no']) and \
+            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['new_variant']) and \
+            re.search(r'^\d+$', request.form['acc_version']):
+        gene = request.form['gene']
+        acc_no = request.form['acc_no']
+        new_variant = request.form['new_variant']
+        new_variant = new_variant.replace(" ", "")
+        new_variant = new_variant.replace("\t", "")
+        original_variant = new_variant
+        acc_version = request.form['acc_version']
+        alt_nm = None
+        if 'alt_iso' in request.form:
+            alt_nm = request.form['alt_iso']
+            # return md_utilities.danger_panel(alt_nm, acc_version)
+            if alt_nm != '' and alt_nm != "{0}.{1}".format(acc_no, acc_version):
+                acc_no, acc_version = alt_nm.split('.')
+        # variant already registered?
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        var_db = new_variant.replace("c.", "")
+        curs.execute(
+            "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(var_db, acc_no)
+        )
+        res = curs.fetchone()
+        if res is not None:
             close_db()
-            return md_utilities.danger_panel(
-                new_variant, 'Variant Validator did not answer our call, status: {}. \
-                I have been informed by email. Please retry later.'.format(vv_alive['status']))
-
-        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-        if alt_nm is None or acc_no == request.form['acc_no']:
-            vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
-                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
-            )
+            return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
+    
+        if re.search(r'c\..+', new_variant):
+            # is vv alive?
+            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            vv_alive = None
+            try:
+                vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
+            except Exception as e:
+                md_utilities.send_error_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails VariantValidator error',
+                        '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
+                            os.path.basename(__file__), e.args
+                        )
+                    ),
+                    '[MobiDetails - VariantValidator Error]'
+                )
+                # vv_data = {'apiVersion': 'Service Unavailable'}
+                vv_alive = {'status': 'Service Unavailable'}
+                close_db()
+                return md_utilities.danger_panel(
+                    new_variant, 'Variant Validator did not answer our call, status: {}. \
+                    I have been informed by email. Please retry later.'.format(vv_alive['status']))
+    
+            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            if alt_nm is None or acc_no == request.form['acc_no']:
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
+                    md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+                )
+            else:
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
+                    md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+                )
+            vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
+            try:
+                vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+            except Exception:
+                close_db()
+                return md_utilities.danger_panel(
+                    new_variant,
+                    'Variant Validator did not return any value for the variant.\
+                    Either it is down or your nomenclature is very odd!'
+                )
+            if re.search('[di][neu][psl]', new_variant):
+                # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
+                for key in vv_data:
+                    if re.search('{0}.{1}'.format(acc_no, acc_version), key):
+                        vv_key_var = key
+                        # print(key)
+                        var_obj = re.search(r':(c\..+)$', key)
+                        if var_obj is not None:
+                            new_variant = var_obj.group(1)
         else:
-            vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
-            )
-        vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
-        try:
-            vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-        except Exception:
             close_db()
-            return md_utilities.danger_panel(
-                new_variant,
-                'Variant Validator did not return any value for the variant.\
-                Either it is down or your nomenclature is very odd!'
-            )
-        if re.search('[di][neu][psl]', new_variant):
-            # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
-            for key in vv_data:
-                if re.search('{0}.{1}'.format(acc_no, acc_version), key):
-                    vv_key_var = key
-                    # print(key)
-                    var_obj = re.search(r':(c\..+)$', key)
-                    if var_obj is not None:
-                        new_variant = var_obj.group(1)
-
+            return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
+        return md_utilities.create_var_vv(
+            vv_key_var, gene, acc_no, new_variant,
+            original_variant, acc_version, vv_data,
+            'webApp', db, g
+        )
     else:
         close_db()
-        return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
-    return md_utilities.create_var_vv(
-        vv_key_var, gene, acc_no, new_variant,
-        original_variant, acc_version, vv_data,
-        'webApp', db, g
-    )
+        return md_utilities.danger_panel('variant creation attempt', 'A mandatory argument is lacking or is malformed.')
 
 # -------------------------------------------------------------------
 # web app - ajax to modify email prefs for logged users
@@ -544,29 +586,33 @@ def toggle_email_prefs():
 @bp.route('/favourite', methods=['POST'])
 @login_required
 def favourite():
-    vf_id = request.form['vf_id']
-    if vf_id is None:
+    if re.search(r'^\d+$', request.form['vf_id']):
+        vf_id = request.form['vf_id']
+        if vf_id is None:
+            flash('Cannot mark a variant without id! Please contact us.')
+            return 'notok'
+        # print(vf_id)
+        # g.user['id']
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if request.form['marker'] == 'mark':
+            curs.execute(
+                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(
+                    g.user['id'], vf_id
+                )
+            )
+        else:
+            curs.execute(
+                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(
+                    g.user['id'], vf_id
+                )
+            )
+        db.commit()
+        close_db()
+        return 'ok'
+    else:
         flash('Cannot mark a variant without id! Please contact us.')
         return 'notok'
-    # print(vf_id)
-    # g.user['id']
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    if request.form['marker'] == 'mark':
-        curs.execute(
-            "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(
-                g.user['id'], vf_id
-            )
-        )
-    else:
-        curs.execute(
-            "DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(
-                g.user['id'], vf_id
-            )
-        )
-    db.commit()
-    close_db()
-    return 'ok'
 
 # -------------------------------------------------------------------
 # web app - ajax for search engine autocomplete
@@ -577,7 +623,8 @@ def autocomplete():
     query = request.form['query_engine']
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+    # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+    match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)
     if match_object:
         md_query = match_object.group(1)
         curs.execute(
@@ -620,7 +667,8 @@ def autocomplete():
 def autocomplete_var():
     query = request.form['query_engine']
     gene = request.form['gene']
-    match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+    # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+    match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)
     if match_object:
         md_query = match_object.group(1)
         db = get_db()

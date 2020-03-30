@@ -67,8 +67,6 @@ def test_intervar(client, app):
             possible = [b'athogenic', b'lassified', b'enign', b'ncertain']
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
             assert any(test in response.get_data() for test in possible)
-            # assert b'athogenic' in response.get_data() or b'lassified' in response.get_data() or b'enign' in \
-            # response.get_data() or b'ncertain' in response.get_data()
 
 # test lovd
 
@@ -84,7 +82,7 @@ def test_lovd(client, app):
         )
         res = curs.fetchall()
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name=values['c_name'])
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
             assert client.post('/lovd', data=data_dict).status_code == 200
 
 # test modif_class
@@ -205,6 +203,10 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
 @pytest.mark.parametrize(('new_variant', 'gene', 'acc_no', 'acc_version', 'message1', 'message2'), (
     ('c.1A>T', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
     ('', 'USH2A', 'NM_206933', '2', b'fill in the form', b'fill in the form'),
+    ('c.216_219del', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
+    ('c.-104_-99dup', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
+    ('c.*25_*26insATG', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
+    ('c.651+126_651+128del', 'USH2A', 'NM_206933', '2', b'already', b'successfully')
 ))
 def test_create(client, app, new_variant, gene, acc_no, acc_version, message1, message2):
     assert client.get('/create').status_code == 405
@@ -287,12 +289,15 @@ def test_autocomplete(client, app, query, return_value):
     ('c.100C>', 'USH2A', b'["c.100C>T"]', 200),
     ('USH2', 'USH2A', b'', 204),
     ('blabla', 'USH2A', b'', 204),
-    ('c.blabla', 'USH2A', b'[]', 200)
+    ('c.blabla', 'USH2A', b'', 204),
+    ('c.actg', 'USH2A', b'', 204),
+    ('c.ATCG', 'USH2A', b'[]', 200)
 ))
 def test_autocomplete_var(client, app, query, gene, return_value, http_code):
     assert client.get('/autocomplete_var').status_code == 405
     data_dict = dict(query_engine=query, gene=gene)
     response = client.post('/autocomplete_var', data=data_dict)
+    print(response.get_data)
     print(response.status_code)
     assert return_value == response.get_data()
     assert http_code == response.status_code

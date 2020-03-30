@@ -75,7 +75,7 @@ def about():
 def gene(gene_name=None):
     if gene_name is None:
         return render_template('unknown.html', query='No gene provided')
-    elif re.search(r'^[^\w+]$', gene_name):
+    elif re.search(r'[^\w]', gene_name):
         return render_template('unknown.html', query=gene_name)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -282,7 +282,7 @@ def genes():
 def vars(gene_name=None):
     if gene_name is None:
         return render_template('unknown.html', query='No gene provided')
-    elif re.search(r'^[^\w+]$', gene_name):
+    elif re.search(r'[^\w]', gene_name):
         return render_template('unknown.html', query=gene_name)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -322,6 +322,8 @@ def vars(gene_name=None):
 def variant(variant_id=None):
     if variant_id is None:
         return render_template('unknown.html', query='No variant provided')
+    elif re.search(r'[^\d]', str(variant_id)):
+        return render_template('unknown.html', query=variant_id)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # get all variant_features and gene info
@@ -818,11 +820,11 @@ def search_engine():
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
             pattern = match_object.group(2)
             # res_common = md_utilities.get_common_chr_name(db, )
-        elif re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM]):g\..+', query_engine):  # deal w/ genomic
+        elif re.search(rf'^[Cc][Hh][Rr]({md_utilities.nochr_captured_regexp}):g\..+', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
-            match_object = re.search(r'^[Cc][Hh][Rr](\d{1,2}|[XYM]):g\.(.+)', query_engine)
+            match_object = re.search(rf'^[Cc][Hh][Rr]({md_utilities.nochr_captured_regexp}):g\.(.+)', query_engine)
             chrom = match_object.group(1)
             pattern = match_object.group(2)
             # if re.search(r'>', pattern):
