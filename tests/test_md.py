@@ -1,4 +1,5 @@
 import pytest
+import urllib.parse
 from MobiDetailsApp.db import get_db
 
 
@@ -74,7 +75,7 @@ def test_variant_page(client):
 def test_search_engine(client, t_search, url):
     response = client.post(
         '/search_engine',
-        data={'search': t_search}
+        data={'search': urllib.parse.quote(t_search)}
     )
     print(response.headers['Location'] + 'http://localhost/{}'.format(url))
     assert 'http://localhost/{}'.format(url) == response.headers['Location']

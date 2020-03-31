@@ -34,6 +34,13 @@ function copy_text(copy_id) {
   /* Alert the copied text */
   //alert("Copied the text: " + copyText.value);
 }
+function encode_params(input_id) {
+    // function to encode params before forms submissions (e.g. because '>' are not encoded)
+		var inter = $('#' + input_id).val();
+		$('#' + input_id).val(encodeURIComponent(inter));
+		// alert($('#' + input_id).val());
+		return true;
+}
 $(document).ready(function(){
 	//reduce icon size on small screens
 	var wi = $(window).width();

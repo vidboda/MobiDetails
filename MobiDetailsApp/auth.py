@@ -4,6 +4,7 @@ import psycopg2
 import psycopg2.extras
 import functools
 import urllib3
+import urllib.parse
 import certifi
 import json
 import secrets
@@ -27,11 +28,11 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        country = request.form['country']
-        institute = request.form['institute']
-        email = request.form['email']
+        username = urllib.parse.unquote(request.form['username'])
+        password = urllib.parse.unquote(request.form['password'])
+        country = urllib.parse.unquote(request.form['country'])
+        institute = urllib.parse.unquote(request.form['institute'])
+        email = urllib.parse.unquote(request.form['email'])
 
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -143,8 +144,8 @@ def login():
             #         url_parse(request.referrer).host == 'mobidetails.iurc.montp.inserm.fr':
             referrer_page = request.referrer
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+        email = urllib.parse.unquote(request.form['email'])
+        password = urllib.parse.unquote(request.form['password'])
         try:
             referrer_page = request.form['referrer_page']
         except Exception:

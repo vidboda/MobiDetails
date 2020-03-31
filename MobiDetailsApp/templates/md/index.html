@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div align="center">		
-		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main">
+		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main" onsubmit="encode_params('main_engine');">
 			<div class="w3-margin-16 w3-container" style="width:50%">
 				<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
 				<br /><br /><input class="w3-button w3-blue" type="submit" value="Submit" />
@@ -37,12 +37,9 @@
 						dataType: 'json',
 						method: 'POST',
 						data: {
-							query_engine: request.term
+							query_engine: encodeURIComponent(request.term)
 						},
 						success: response
-						//success : function(data){
-						//	response(data);
-						//}
 					});
 				},
 				minLength: 2,
