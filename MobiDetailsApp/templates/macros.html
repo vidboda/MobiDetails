@@ -138,7 +138,7 @@
 											method: 'POST',
 											appendTo: '#new_variant',
 											data: {
-												query_engine: request.term,
+												query_engine: encodeURIComponent(request.term),
 												gene: '{{ gene }}'
 											},
 											success: response

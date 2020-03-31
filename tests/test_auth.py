@@ -1,4 +1,5 @@
 import pytest
+import psycopg2
 # from flask import g, session
 from MobiDetailsApp.db import get_db
 
@@ -56,6 +57,33 @@ def test_login_validate_input(client, email, password, message):
     )
     print(response.get_data())
     assert message in response.get_data()
+
+# test profile page
+
+
+@pytest.mark.parametrize(('mobiuser_id', 'message'), (
+    (0, b'API key'),
+    (9999,  b'unknown'),
+    (10,  b'Username'),
+))
+def test_profile(client, app, auth, mobiuser_id, message):
+    assert client.get('/auth/profile/{}'.format(mobiuser_id)).status_code == 302
+    with app.app_context():
+        response = client.get('/auth/profile/{}'.format(mobiuser_id), follow_redirects=True)
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        # following does not work - as if login does not work properly?
+        # db = get_db()
+        # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # curs.execute(
+        #     "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        # )
+        # res = curs.fetchone()
+        # auth.login('mobidetails.iurc@gmail.com', res['password'])
+        # response = client.get('/auth/profile/{}'.format(mobiuser_id))
+        # print(response.get_data())
+        # assert message in response.get_data()
+
+
 
 # test log out redirect to homepage
 

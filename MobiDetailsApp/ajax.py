@@ -111,6 +111,7 @@ def defgen():
 def intervar():
     if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
+            re.search(r'^\d+$', request.form['pos']) and \
             re.search(r'^[ATGC]+$', request.form['ref']) and \
             re.search(r'^[ATGC]+$', request.form['alt']):
         genome = request.form['genome']
@@ -265,7 +266,7 @@ def modif_class():
             re.search(r'^\d+$', request.form['acmg_select']):
         variant_id = request.form['variant_id']
         acmg_select = request.form['acmg_select']
-        acmg_comment = request.form['acmg_comment']
+        acmg_comment = urllib.parse.unquote(request.form['acmg_comment'])
         today = datetime.datetime.now()
         date = '{0}-{1}-{2}'.format(
             today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
@@ -384,14 +385,14 @@ def remove_class():
 def send_var_message():
     if re.search(r'^\d+$', request.form['receiver_id']):
         if request.form['message'] != '' and \
-                re.search(r'Query\svia\sMobiDetails\sfrom', request.form['message_object']):
+                re.search(r'Query\svia\sMobiDetails\sfrom', urllib.parse.unquote(request.form['message_object'])):
             # sender = {}
             receiver = {}
             # variant = request.form['variant_mes']
             # sender['id'] = request.form['sender_id']
             receiver['id'] = request.form['receiver_id']
-            message = request.form['message']
-            message_object = request.form['message_object']
+            message = urllib.parse.unquote(request.form['message'])
+            message_object = urllib.parse.unquote(request.form['message_object'])
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # get username and email
@@ -453,11 +454,11 @@ def create():
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
     if re.search(r'^\w+$', request.form['gene']) and \
             re.search(r'^NM_\d+$', request.form['acc_no']) and \
-            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['new_variant']) and \
+            re.search(rf'^c\.{md_utilities.variant_regexp}$', urllib.parse.unquote(request.form['new_variant'])) and \
             re.search(r'^\d+$', request.form['acc_version']):
         gene = request.form['gene']
         acc_no = request.form['acc_no']
-        new_variant = request.form['new_variant']
+        new_variant = urllib.parse.unquote(request.form['new_variant'])
         new_variant = new_variant.replace(" ", "")
         new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
@@ -620,7 +621,7 @@ def favourite():
 
 @bp.route('/autocomplete', methods=['POST'])
 def autocomplete():
-    query = request.form['query_engine']
+    query = urllib.parse.unquote(request.form['query_engine'])
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
@@ -665,7 +666,7 @@ def autocomplete():
 
 @bp.route('/autocomplete_var', methods=['POST'])
 def autocomplete_var():
-    query = request.form['query_engine']
+    query = urllib.parse.unquote(request.form['query_engine'])
     gene = request.form['gene']
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
     match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)

@@ -7,6 +7,7 @@ import psycopg2.extras
 import json
 import urllib3
 import certifi
+import urllib.parse
 from MobiDetailsApp.db import get_db, close_db
 from MobiDetailsApp import md_utilities
 
@@ -21,9 +22,11 @@ bp = Blueprint('api', __name__)
 def api_variant_exists(variant_ghgvs=None):
     if variant_ghgvs is None:
         return jsonify(mobidetails_error='No variant submitted')
-    elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', variant_ghgvs):  # strict HGVS genomic
+    match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', urllib.parse.unquote(variant_ghgvs))
+    if match_object:
+    # elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', variant_ghgvs):  # strict HGVS genomic
         db = get_db()
-        match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
+        # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
         # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
         chrom, genome_version = md_utilities.get_common_chr_name(db, match_object.group(1).upper())
         pattern = match_object.group(2)
@@ -65,8 +68,10 @@ def api_variant_create(variant_chgvs=None, api_key=None):
             g.user = res
     if variant_chgvs is None:
         return jsonify(mobidetails_error='No variant submitted')
-    elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):  # strict HGVS cdna
-        match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
+    match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', urllib.parse.unquote(variant_chgvs))
+    if match_object:
+    # elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):  # strict HGVS cdna
+        # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
         acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
         new_variant = new_variant.replace(" ", "")
         new_variant = new_variant.replace("\t", "")

@@ -767,7 +767,7 @@
 									<br />
 								</header>
 								<div class="w3-container w3-center">
-									<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form">
+									<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form" enctype="application/x-www-form-urlencoded">
 										 <!--action="{{ url_for('ajax.modif_class') }}"-->
 										<input type="hidden" name="variant_id" value="{{ variant_features.var_id }}" />
 										<input type="hidden" name="mobiuser_id" value="{{ g.user['id'] }}" />
@@ -814,7 +814,7 @@
 							<br />
 						</header>
 						<div class="w3-container w3-center">
-							<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="message_form">
+							<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="message_form" enctype="application/x-www-form-urlencoded">
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
 								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" />-->
