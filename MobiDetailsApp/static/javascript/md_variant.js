@@ -58,12 +58,27 @@ function litvar(litvar_url) {
 }
 function lovd(lovd_url) {
 	// ajax for LOVD
+	//var params = $.param(
+	//	{
+	//		genome: $('#genome_19').text(),
+	//		chrom: $('#chrom_19').text(),
+	//		pos: $('#pos_19').text(),
+	//		g_name: $('#hg19_g_name').text(),
+	//		c_name: $('#c_name').text()
+	//	}
+	//);
+	// alert(params);
+	var c_name_encoded = encodeURIComponent($('#c_name').text());
+	var g_name_encoded = encodeURIComponent($('#hg19_g_name').text());
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: encodeURIComponent($('#hg19_g_name').text()), c_name: encodeURIComponent($('#c_name').text())
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: g_name_encoded, c_name: c_name_encoded
 		}
+		/*data: {
+			params
+		}*/
 	})
 	.done(function(html) {
 		$("#lovd_data").replaceWith(html);
@@ -87,13 +102,14 @@ function intervar(intervar_url) {
 
 function modify_class(variant_id, mobiuser_id, modify_class_url) {
 	// ajax to modify variant class
-	html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
+	var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
+	html_comment = encodeURIComponent(html_comment);
 	var acmg = $("#acmg_select").val();
 	$.ajax({
 		type: "POST",
 		url: modify_class_url,
 		data: {
-			variant_id: variant_id, acmg_select: acmg, acmg_comment: encodeURIComponent(html_comment)
+			variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment
 		}
 	})
 	.done(function(tr_html) {
@@ -148,12 +164,14 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 
 function send_var_message(url) {
     // ajax to send email
-	html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
+	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
+	html_message = encodeURIComponent(html_message);
+	var object_txt = encodeURIComponent($("#message_object").text());
 	$.ajax({
 		type: "POST",
 		url: url,
 		data: {
-			receiver_id: $("#receiver_id").val(), message: encodeURIComponent(html_message), message_object: encodeURIComponent($("#message_object").text())
+			receiver_id: $("#receiver_id").val(), message: html_message, message_object: object_txt
 			// variant_mes: $("#variant_mes").val(), sender_id: $("#sender_id").val(), 
 		}
 	})

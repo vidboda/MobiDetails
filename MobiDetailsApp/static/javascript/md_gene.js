@@ -10,11 +10,12 @@ function create_var(create_url) {
 		$("#new_variant").focus();
 		return false;
 	}
+	var c_name_encoded = encodeURIComponent($("#new_variant").val());
 	$.ajax({
 		type: "POST",
 		url: create_url,
 		data: {
-			gene: $("#gene").val(), acc_no: $("#acc_no").val(), new_variant: encodeURIComponent($("#new_variant").val()), acc_version: $("#acc_version").val(), alt_iso: $("#alt_iso").val()
+			gene: $("#gene").val(), acc_no: $("#acc_no").val(), new_variant: c_name_encoded, acc_version: $("#acc_version").val(), alt_iso: $("#alt_iso").val()
 		}
 	})
 	.done(function(html) {
