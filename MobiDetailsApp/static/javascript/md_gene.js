@@ -10,7 +10,8 @@ function create_var(create_url) {
 		$("#new_variant").focus();
 		return false;
 	}
-	var c_name_encoded = encodeURIComponent($("#new_variant").val());
+	var c_name_encoded = $('#new_variant').val().replace(/>/g,"%3E");
+	// encodeURIComponent($("#new_variant").val());
 	$.ajax({
 		type: "POST",
 		url: create_url,
