@@ -37,6 +37,8 @@ function copy_text(copy_id) {
 function encode_params(input_id) {
     // function to encode params before forms submissions (e.g. because '>' are not encoded)
 		var inter = $('#' + input_id).val();
+		$('#' + input_id).hide();
+		$('html').css('cursor', 'progress');
 		$('#' + input_id).val(encodeURIComponent(inter));
 		// alert($('#' + input_id).val());
 		return true;
