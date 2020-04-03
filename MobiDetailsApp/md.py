@@ -288,8 +288,9 @@ def vars(gene_name=None):
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
-            "SELECT * FROM variant_feature a, variant b WHERE a.id = b.feature_id AND \
-             a.gene_name[1] = '{}' AND b.genome_version = 'hg38'".format(gene_name)
+            "SELECT *, a.id as vf_id FROM variant_feature a, variant b, mobiuser c WHERE a.id = b.feature_id AND \
+             a.creation_user = c.id AND a.gene_name[1] = '{}' AND \
+             b.genome_version = 'hg38'".format(gene_name)
         )
         variants = curs.fetchall()
         # if vars_type is not None:
