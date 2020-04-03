@@ -229,6 +229,26 @@
 		<p><span>{{ div_name }} variants recorded: </span>
 		<ul class="w3-ul w3-hoverable w3-center" style="width:50%">
 {%- endmacro %}
+{% macro vars_class_table(div_id, div_name) -%}
+	<div class="w3-container w3-animate-opacity w3-responsive" id="{{ div_id }}" style="display:none;">
+		<table class="w3-table w3-striped w3-bordered w3-centered" id="{{ div_id }}_table">
+			<caption>{{ div_name }} variants recorded: </caption>
+			<thead>
+				<tr>
+					<th class="w3-left-align">HGVS DNA</th>
+					<th class="w3-left-align">HGVS protein</th>
+					<th class="w3-left-align">Segment type</th>
+					<th class="w3-left-align">Segment number</th>
+					<th class="w3-left-align">Creation date</th>
+					<th class="w3-left-align">Creation user</th>
+				</tr>
+			</thead>
+			<tbody>
+{%- endmacro %}
+<!-- not used because is displayed before the table in vars-->
+{% macro vars_tr(variant) -%}
+	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
+{%- endmacro %}
 <!--create links for variants view-->
 {% macro link(link, text) -%}
 	<!-- for some reason jinja (2.10) urlencode filter does not encode this link and returns a wrong url-->
