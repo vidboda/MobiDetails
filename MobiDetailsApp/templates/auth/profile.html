@@ -51,7 +51,7 @@
 	</div>	
 	<div id="error_message"></div>
 	{% if view == 'own' -%}
-		{{ info('Please consider that the API key is personal and identifies your account, therefore you should not share it.') }}
+		{{ info("Please consider that the API key is personal and identifies your account, therefore you should not share it.<br />You can explore the swagger <a href='/MDAPI/'>API</a> for programmatic access and learn <a href='https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation'>how</a> to use the API with <a href='https://github.com/beboche/MDUtils'>MDUtils</a> scripts to remotely create your lists of variants.") }}
 		<br />
 		<hr />
 	{%- endif %}
