@@ -762,7 +762,7 @@ def variant(variant_id=None):
 
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
-    print("--{}--".format(request.form['search']))
+    # print("--{}--".format(request.form['search']))
     query_engine = urllib.parse.unquote(request.form['search'])
     # query_engine = query_engine.upper()
     error = None
