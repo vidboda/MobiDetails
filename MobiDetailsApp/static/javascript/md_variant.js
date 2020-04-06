@@ -68,8 +68,10 @@ function lovd(lovd_url) {
 	//	}
 	//);
 	// alert(params);
-	var c_name_encoded = encodeURIComponent($('#c_name').text());
-	var g_name_encoded = encodeURIComponent($('#hg19_g_name').text());
+	//var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
+	//var c_name_encoded = encodeURIComponent($('#c_name').text());
+	var c_name_encoded = $('#c_name').text().replace(/>/g,"%3E");
+	var g_name_encoded = $('#hg19_g_name').text().replace(/>/g,"%3E");
 	$.ajax({
 		type: "POST",
 		url: lovd_url,

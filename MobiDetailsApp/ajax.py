@@ -172,6 +172,7 @@ def intervar():
 @bp.route('/lovd', methods=['POST'])
 def lovd():
     genome = chrom = g_name = c_name = None
+    # print(request.form)
     if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(rf'^{md_utilities.variant_regexp}$', urllib.parse.unquote(request.form['g_name'])) and \
@@ -449,7 +450,7 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
-    print(request.form['new_variant'])
+    # print(request.form['new_variant'])
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
     if re.search(r'^\w+$', request.form['gene']) and \
