@@ -22,22 +22,24 @@
 		</div>
 	</div>
 	<div align="center">		
-		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main" onsubmit="encode_params('main_engine');">
+		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main" onsubmit="hide_params();encode_vars('main_engine');">
 			<div class="w3-margin-16 w3-container" style="width:50%">
 				<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
 				<br /><br /><input class="w3-button w3-blue" type="submit" value="Submit" />
 			</div>
 		</form>
 		<!--autocomplete-->
-		<script type="text/javascript">
+		<script type="text/javascript">			
 			$('#main_engine').autocomplete({
 				source: function(request, response){									
+					var req_encoded = request.term;
+					req_encoded = req_encoded.replace(/>/g,"%3E");
 					$.ajax({
 						url: '{{ url_for('ajax.autocomplete') }}',
 						dataType: 'json',
 						method: 'POST',
 						data: {
-							query_engine: encodeURIComponent(request.term)
+							query_engine: req_encoded
 						},
 						success: response
 					});

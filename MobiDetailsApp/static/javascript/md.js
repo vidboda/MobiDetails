@@ -41,6 +41,13 @@ function hide_params() {
 		$('html').css('cursor', 'progress');
 		return true;
 }
+function encode_vars(id) {
+    // function to specifically encode params before forms submissions ( because '>' are not encoded)
+		// and encodeURIComponent triggers mod_security mutliple encodings
+		var inter = $('#' + id).val();
+		$('#' + id).val(inter.replace(/>/g,"%3E"));
+		return true;
+}
 function encode_params(input_id) {
     // function to encode params before forms submissions (e.g. because '>' are not encoded)
 		var inter = $('#' + input_id).val();
