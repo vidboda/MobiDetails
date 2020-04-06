@@ -34,11 +34,18 @@ function copy_text(copy_id) {
   /* Alert the copied text */
   //alert("Copied the text: " + copyText.value);
 }
+function hide_params() {
+    // function to hide params when a form is sent (long response time e.g. register)
+		$('input').css('visibility', 'hidden');
+		$('select').css('visibility', 'hidden');
+		$('html').css('cursor', 'progress');
+		return true;
+}
 function encode_params(input_id) {
     // function to encode params before forms submissions (e.g. because '>' are not encoded)
 		var inter = $('#' + input_id).val();
-		$('#' + input_id).css('visibility', 'hidden');
-		$('html').css('cursor', 'progress');
+		//$('#' + input_id).css('visibility', 'hidden');
+		//$('html').css('cursor', 'progress');
 		$('#' + input_id).val(encodeURIComponent(inter));
 		// alert($('#' + input_id).val());
 		return true;

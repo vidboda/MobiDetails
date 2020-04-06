@@ -66,6 +66,8 @@ def test_intervar(client, app):
             assert response.status_code == 200
             possible = [b'athogenic', b'lassified', b'enign', b'ncertain']
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
+            print(res)
+            print(response.get_data())
             assert any(test in response.get_data() for test in possible)
 
 # test lovd

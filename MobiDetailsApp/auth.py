@@ -28,11 +28,16 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        username = urllib.parse.unquote(request.form['username'])
-        password = urllib.parse.unquote(request.form['password'])
-        country = urllib.parse.unquote(request.form['country'])
-        institute = urllib.parse.unquote(request.form['institute'])
-        email = urllib.parse.unquote(request.form['email'])
+        # username = urllib.parse.unquote(request.form['username'])
+        # password = urllib.parse.unquote(request.form['password'])
+        # country = urllib.parse.unquote(request.form['country'])
+        # institute = urllib.parse.unquote(request.form['institute'])
+        # email = urllib.parse.unquote(request.form['email'])
+        username = request.form['username']
+        password = request.form['password']
+        country = request.form['country']
+        institute = request.form['institute']
+        email = request.form['email']
 
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -71,8 +76,8 @@ def register():
                             if mv_json['is_high_risk'] == "True" or mv_json['is_suppressed'] == "True" or mv_json['is_catchall'] == "True":
                                 error = 'The email address is reported as risky or suppressed. \
                                         If this is not the case, please send us an email directly to \
-                                        &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;\
-                                        &#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.'
+                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;\
+                                        &#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.'
                             # else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
                     else:
                         md_utilities.send_error_email(
@@ -88,6 +93,64 @@ def register():
                             'MobiDetails email validation error',
                             '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1} with args: {2}</p>'.format(
                                 mv_json,
+                                os.path.basename(__file__),
+                                e.args
+                            )
+                        ),
+                        '[MobiDetails - Email Validation Error]'
+                    )
+                    pass
+            # 2nd check https://www.stopforumspam.com/
+            # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
+            sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(request.remote_addr, email, username)
+            print(sfs_url)
+            try:
+                sfs_json = json.loads(http.request('GET', sfs_url).data.decode('utf-8'))
+            except Exception:
+                sfs_json = None
+            if sfs_json is not None:
+                try:
+                    print(sfs_json)
+                    if sfs_json['success'] == 1:
+                        # sfs return a boolean for username, ip, email
+                        # if email or ip = 1 => rejected
+                        # username won't be rejected but a warning will be sent
+                        if sfs_json['ip']['appears'] == 1 or \
+                                sfs_json['email']['appears'] == 1:
+                            error = 'Sorry, your input data is reported as risky. \
+                                        If this is not the case, please send us an email directly to \
+                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.'
+                        elif sfs_json['username']['appears'] == 1:
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails stop forum spam username validation error',
+                                    '<p>Stop forum spam username validation failed (user created but to follow): \
+                                    <br/> {0} <br /> - from {1} with url: {2}</p>'.format(
+                                        sfs_json,
+                                        os.path.basename(__file__),
+                                        sfs_url
+                                    )
+                                ),
+                                '[MobiDetails - Email Validation Error]'
+                            )
+                    else:
+                        md_utilities.send_error_email(
+                            md_utilities.prepare_email_html(
+                                'MobiDetails stop forum spam validation error',
+                                '<p>Stop forum spam validation failed:<br/> {0} <br /> - from {1} with url: {2}</p>'.format(
+                                    sfs_json,
+                                    os.path.basename(__file__),
+                                    sfs_url
+                                )
+                            ),
+                            '[MobiDetails - Email Validation Error]'
+                        )
+                except Exception as e:
+                    md_utilities.send_error_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails stop forum spam validation error',
+                            '<p>Stop forum spam validation failed:<br/> {0} <br /> - from {1} with args: {2}</p>'.format(
+                                sfs_json,
                                 os.path.basename(__file__),
                                 e.args
                             )

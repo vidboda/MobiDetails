@@ -33,7 +33,8 @@ def test_register(client, app):
     ('davidbaux', 'ss9kghgf', 'kevin@inserm.fr', b'is already registered.'),
     ('1', 's', 'v', b'Username should be at least 5 characters.'),
     ('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
-    ('djsdlm', 'ss9kghgf', 'kevin@inserm.f', b'The email address does not look valid.')
+    ('djsdlm', 'ss9kghgf', 'kevin@inserm.f', b'The email address does not look valid.'),
+    ('alinar', 'ss9kghgf', 'testing@xrumer.ru', b'Sorry, your input data is reported as risky.')
 ))
 def test_register_validate_input(client, username, password, email, message):
     response = client.post(

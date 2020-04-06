@@ -12,7 +12,8 @@
 	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
 	<br />
 	<div align = "center">
-		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form"  enctype="application/x-www-form-urlencoded" onsubmit="encode_params('username');encode_params('password');encode_params('country');encode_params('institute');encode_params('email');">
+		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form"  enctype="application/x-www-form-urlencoded" onsubmit="$('#onsubmitinfo').html('<p>Please wait while your data is being checked.</p>');hide_params();">
+       <!--onsubmit="encode_params('username');encode_params('password');encode_params('country');encode_params('institute');encode_params('email');"-->
 			<span class="w3-xlarge">Please register using your academic email address:</span><br/>
 			<div class="w3-row w3-section">
 				{{ fa('user') }}
@@ -291,6 +292,8 @@
 			</p>
 		</form>
 	</div>
-  <br /><br /><br /><br />
+  <br /><br />
+  <div id="onsubmitinfo" class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container"></div>
+  <br /><br />
    <!--onclick="return check_register_form();"-->
 {% endblock %}
