@@ -171,7 +171,7 @@ def intervar():
 @bp.route('/lovd', methods=['POST'])
 def lovd():
     genome = chrom = g_name = c_name = None
-    # print(request.form)
+    print(request.form)
     if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(rf'^{md_utilities.variant_regexp}$', request.form['g_name']) and \
