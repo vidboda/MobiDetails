@@ -449,7 +449,7 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
-    print(request.form['new_variant'])
+    # print(request.form['new_variant'])
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
     if re.search(r'^\w+$', request.form['gene']) and \
