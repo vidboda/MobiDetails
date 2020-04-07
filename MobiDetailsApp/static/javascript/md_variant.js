@@ -70,13 +70,13 @@ function lovd(lovd_url) {
 	// alert(params);
 	//var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
 	//var c_name_encoded = encodeURIComponent($('#c_name').text());
-	var c_name_encoded = $('#c_name').text().replace(/>/g,"%3E");
-	var g_name_encoded = $('#hg19_g_name').text().replace(/>/g,"%3E");
+	// var c_name_encoded = $('#c_name').text().replace(/>/g,"%3E");
+	// var g_name_encoded = $('#hg19_g_name').text().replace(/>/g,"%3E");
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: g_name_encoded, c_name: c_name_encoded
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
 		}
 		/*data: {
 			params
@@ -105,7 +105,7 @@ function intervar(intervar_url) {
 function modify_class(variant_id, mobiuser_id, modify_class_url) {
 	// ajax to modify variant class
 	var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
-	html_comment = encodeURIComponent(html_comment);
+	// html_comment = encodeURIComponent(html_comment);
 	var acmg = $("#acmg_select").val();
 	$.ajax({
 		type: "POST",
@@ -167,13 +167,13 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 function send_var_message(url) {
     // ajax to send email
 	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
-	html_message = encodeURIComponent(html_message);
-	var object_txt = encodeURIComponent($("#message_object").text());
+	// html_message = encodeURIComponent(html_message);
+	//var object_txt = encodeURIComponent($("#message_object").text());
 	$.ajax({
 		type: "POST",
 		url: url,
 		data: {
-			receiver_id: $("#receiver_id").val(), message: html_message, message_object: object_txt
+			receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
 			// variant_mes: $("#variant_mes").val(), sender_id: $("#sender_id").val(), 
 		}
 	})

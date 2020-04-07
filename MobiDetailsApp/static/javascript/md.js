@@ -44,12 +44,14 @@ function hide_params() {
 function encode_vars(id) {
     // function to specifically encode params before forms submissions ( because '>' are not encoded)
 		// and encodeURIComponent triggers mod_security mutliple encodings
+		// DEPRECATED 04/2020
 		var inter = $('#' + id).val();
 		$('#' + id).val(inter.replace(/>/g,"%3E"));
 		return true;
 }
 function encode_params(input_id) {
     // function to encode params before forms submissions (e.g. because '>' are not encoded)
+		// DEPRECATED 04/2020
 		var inter = $('#' + input_id).val();
 		//$('#' + input_id).css('visibility', 'hidden');
 		//$('html').css('cursor', 'progress');

@@ -9,7 +9,6 @@ from flask import (
 # from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
-import urllib.parse
 # import tabix
 
 # from MobiDetailsApp.auth import login_required
@@ -763,7 +762,7 @@ def variant(variant_id=None):
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
     # print("--{}--".format(request.form['search']))
-    query_engine = urllib.parse.unquote(request.form['search'])
+    query_engine = request.form['search']
     # query_engine = query_engine.upper()
     error = None
     

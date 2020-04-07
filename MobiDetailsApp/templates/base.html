@@ -128,7 +128,7 @@
 			<div class="w3-bottom" style="z-index:1112">
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
 					<!--search engine-->					
-					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="hide_params();encode_vars('engine');">
+					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').attr('disabled', 'disabled');">
 						<div class="w3-row-padding">
 							<div class="w3-half w3-right-align">
 								<input autofocus="autofocus" class="w3-input w3-border w3-large w3-mobile" id="engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:200px;display:inline;" type="text"/>
