@@ -130,6 +130,7 @@
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
 					<!--search engine-->					
 					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').attr('disabled', 'disabled');">
+						<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 						<div class="w3-row-padding">
 							<div class="w3-half w3-right-align">
 								<input autofocus="autofocus" class="w3-input w3-border w3-large w3-mobile" id="engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:200px;display:inline;" type="text"/>
@@ -145,6 +146,15 @@
 							source: function(request, response){
 								// var req_encoded = request.term;
 								// req_encoded = req_encoded.replace(/>/g,"%3E");
+								//send header for flask-wtf crsf security	
+								var csrf_token = "{{ csrf_token() }}";
+								$.ajaxSetup({
+									beforeSend: function(xhr, settings) {
+										if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+											xhr.setRequestHeader("X-CSRFToken", csrf_token);
+										}
+									}
+								});
 								$.ajax({
 									url: '{{ url_for('ajax.autocomplete') }}',
 									dataType: 'json',

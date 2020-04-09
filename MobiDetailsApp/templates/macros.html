@@ -111,6 +111,7 @@
 				</div>
 				<div class="w3-container">
 					<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
+						<!--<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>-->
 						<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
 						<input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" />
 						<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
@@ -131,7 +132,16 @@
 							</style>
 							<script type="text/javascript">
 								$('#new_variant').autocomplete({
-									source : function(request, response){									
+									source : function(request, response){
+										//send header for flask-wtf crsf security	
+										var csrf_token = "{{ csrf_token() }}";
+										$.ajaxSetup({
+											beforeSend: function(xhr, settings) {
+												if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+													xhr.setRequestHeader("X-CSRFToken", csrf_token);
+												}
+											}
+										});
 										$.ajax({
 											url : '{{ url_for('ajax.autocomplete_var') }}',
 											dataType : 'json',
@@ -174,7 +184,7 @@
 							<p>Variant creation usually takes up to 30 seconds for variants located in genes with many isoforms</p>
 						</div>
 						<div class="w3-panel w3-large w3-center">
-							<input type="button" id="submit_btn" name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}');$('#submit_btn').attr('disabled', 'disabled');" class="w3-btn w3-blue" for="creation_form"/>
+							<input type="button" id="submit_btn" name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}', '{{ csrf_token() }}');$('#submit_btn').attr('disabled', 'disabled');" class="w3-btn w3-blue" for="creation_form"/>
 						</div>
 					</form>
 				</div>

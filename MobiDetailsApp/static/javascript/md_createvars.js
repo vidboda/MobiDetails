@@ -1,4 +1,4 @@
-function create_var(create_url) {
+function create_var(create_url, csrf_token) {
 	$("#error_name").empty();
 	$('html').css('cursor', 'progress');
 	$('.w3-btn').css('cursor', 'progress');
@@ -12,6 +12,14 @@ function create_var(create_url) {
 	}
 	// var c_name_encoded = $('#new_variant').val().replace(/>/g,"%3E");
 	// encodeURIComponent($("#new_variant").val());
+	//send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: create_url,

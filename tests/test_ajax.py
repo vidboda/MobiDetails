@@ -143,7 +143,7 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
         response = client.post('/remove_class',
                            data=dict(
                                 variant_id=vf_id,
-                                acmg_select=acmg,
+                                acmg_select=acmg
                             ), follow_redirects=True
                            )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
@@ -157,7 +157,7 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
         response = client.post('/remove_class',
                                 data=dict(
                                     variant_id=vf_id,
-                                    acmg_select=acmg,
+                                    acmg_select=acmg
                                  ), follow_redirects=True
                                 )
         assert response.status_code == status_code
@@ -210,7 +210,7 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
     ('c.*25_*26insATG', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
     ('c.651+126_651+128del', 'USH2A', 'NM_206933', '2', b'already', b'successfully')
 ))
-def test_create(client, app, new_variant, gene, acc_no, acc_version, message1, message2):
+def test_create(client, new_variant, gene, acc_no, acc_version, message1, message2):
     assert client.get('/create').status_code == 405
     data_dict = dict(new_variant=new_variant, gene=gene, acc_no=acc_no, acc_version=acc_version)
     response = client.post('/create', data=data_dict)
@@ -280,6 +280,7 @@ def test_favourite(client, app, auth, vf_id, status_code):
 ))
 def test_autocomplete(client, app, query, return_value):
     assert client.get('/autocomplete').status_code == 405
+    #with app.app_context():
     response = client.post('/autocomplete', data=dict(query_engine=query))
     print(response.get_data())
     assert return_value == response.get_data()
@@ -295,7 +296,7 @@ def test_autocomplete(client, app, query, return_value):
     ('c.actg', 'USH2A', b'', 204),
     ('c.ATCG', 'USH2A', b'[]', 200)
 ))
-def test_autocomplete_var(client, app, query, gene, return_value, http_code):
+def test_autocomplete_var(client, query, gene, return_value, http_code):
     assert client.get('/autocomplete_var').status_code == 405
     data_dict = dict(query_engine=query, gene=gene)
     response = client.post('/autocomplete_var', data=data_dict)

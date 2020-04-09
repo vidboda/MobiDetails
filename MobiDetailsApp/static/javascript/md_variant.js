@@ -1,5 +1,13 @@
 
-function defgen_export(genome, vf_id, defgen_url) {
+function defgen_export(genome, vf_id, defgen_url, csrf_token) {
+	// send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: defgen_url,
@@ -12,35 +20,54 @@ function defgen_export(genome, vf_id, defgen_url) {
 		$('#defgen_modal_' + genome).show();
 	});
 }
-function favourite(vf_id, marker, fav_url) {
+function favourite(vf_id, fav_url, csrf_token) {
+	// send header for flask-wtf crsf security
+	// alert($('#favour_span').attr('name'));
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: fav_url,
 		data: {
-			vf_id: vf_id, marker: marker
+			vf_id: vf_id, marker: $('#favour_span').attr('name')
 		}
 	})
 	.done(function() {
-		if (marker === 'mark') {
+		if ($('#favour_span').attr('name') === 'mark') {
 			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
 			$('#favour').toggleClass('fa-star fa-star-o');
 			$('#favour_span').attr('title', 'Unmark the variant');
-			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
+			$('#favour_span').attr('name', 'unmark');
+			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
 			$('#favour_star').show();
 		}
 		else {
 			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
 			$('#favour').toggleClass('fa-star-o fa-star');
 			$('#favour_span').attr('title', 'Mark the variant');
-			$('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
+			$('#favour_span').attr('name', 'mark');
+			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
 			$('#favour_star').hide();
 		}
 		
 	});
 }
-function litvar(litvar_url) {
+function litvar(litvar_url, csrf_token) {
 	//ajax for litvar
 	if ($('#dbsnp_id').text() !== '') {
+		// send header for flask-wtf crsf security	
+		$.ajaxSetup({
+			beforeSend: function(xhr, settings) {
+				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrf_token);
+				}
+			}
+		});
 		$.ajax({
 			type: "POST",
 			url: litvar_url,
@@ -56,7 +83,7 @@ function litvar(litvar_url) {
 		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
 	}
 }
-function lovd(lovd_url) {
+function lovd(lovd_url, csrf_token) {
 	// ajax for LOVD
 	//var params = $.param(
 	//	{
@@ -72,6 +99,14 @@ function lovd(lovd_url) {
 	//var c_name_encoded = encodeURIComponent($('#c_name').text());
 	// var c_name_encoded = $('#c_name').text().replace(/>/g,"%3E");
 	// var g_name_encoded = $('#hg19_g_name').text().replace(/>/g,"%3E");
+	//send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
@@ -86,9 +121,17 @@ function lovd(lovd_url) {
 		$("#lovd_data").replaceWith(html);
 	});
 }
-function intervar(intervar_url) {
+function intervar(intervar_url, csrf_token) {
 	// ajax for intervar
 	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {
+		// send header for flask-wtf crsf security	
+		$.ajaxSetup({
+			beforeSend: function(xhr, settings) {
+				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrf_token);
+				}
+			}
+		});
 		$.ajax({
 			type: "POST",
 			url: intervar_url,
@@ -102,11 +145,19 @@ function intervar(intervar_url) {
 	}
 }
 
-function modify_class(variant_id, mobiuser_id, modify_class_url) {
+function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	// ajax to modify variant class
 	var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
 	// html_comment = encodeURIComponent(html_comment);
 	var acmg = $("#acmg_select").val();
+	// send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });	
 	$.ajax({
 		type: "POST",
 		url: modify_class_url,
@@ -144,8 +195,16 @@ function modify_class(variant_id, mobiuser_id, modify_class_url) {
 }
 
 
-function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
-	// ajax to remove variant class
+function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csrf_token) {
+	// ajax to remove variant class	
+	// send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: remove_class_url,
@@ -164,11 +223,19 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url) {
 }
 
 
-function send_var_message(url) {
+function send_var_message(url, csrf_token) {
     // ajax to send email
 	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
 	// html_message = encodeURIComponent(html_message);
-	//var object_txt = encodeURIComponent($("#message_object").text());
+	// var object_txt = encodeURIComponent($("#message_object").text());
+	// send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
 	$.ajax({
 		type: "POST",
 		url: url,

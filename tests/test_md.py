@@ -72,7 +72,7 @@ def test_variant_page(client):
     ('C12orf65', 'gene/C12orf65'),
     ('%2299', 'variant/18')
     ))
-def test_search_engine(client, t_search, url):
+def test_search_engine(client, app, t_search, url):
     response = client.post(
         '/search_engine',
         data={'search': t_search}

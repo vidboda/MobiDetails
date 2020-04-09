@@ -1,6 +1,14 @@
-function toggle_email_service(email_perf_url) {
+function toggle_email_service(email_perf_url, csrf_token) {
     // ajax to modify prefs for email contacts
     $('html').css('cursor', 'progress');
+    // send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
     $.ajax({
 		type: "POST",
 		url: email_perf_url,

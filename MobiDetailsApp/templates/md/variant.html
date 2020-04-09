@@ -65,10 +65,10 @@
 		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
 		{% if g.user %}
 			{% if favourite != True %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'mark', '{{ url_for('ajax.favourite') }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ variant_features.var_id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
 			{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" onclick="favourite('{{ variant_features.var_id }}', 'unmark', '{{ url_for('ajax.favourite') }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ variant_features.var_id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 </span>
 			{% endif %}
 		{% endif %}
@@ -271,12 +271,12 @@
 					</span>
 				</div>
 				<div class="w3-col m4" id="defgen_hg19">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}');">Export to DEFGEN (hg19)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19"></div>
 					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
 				<div class="w3-col m4" id="defgen_hg38">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}');">Export to DEFGEN (hg38)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38"></div>
 				</div>
 			</div>
@@ -743,7 +743,7 @@
 									</span>
 									{% if classif.username == g.user['username'] %}
 										<span class="w3-container w3-right-align w3-cell">
-											<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}')"></i>
+											<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
 										</span>
 									{% endif %}
 								</div>
@@ -769,6 +769,7 @@
 								<div class="w3-container w3-center">
 									<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form" enctype="application/x-www-form-urlencoded">
 										 <!--action="{{ url_for('ajax.modif_class') }}"-->
+										<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 										<input type="hidden" name="variant_id" value="{{ variant_features.var_id }}" />
 										<input type="hidden" name="mobiuser_id" value="{{ g.user['id'] }}" />
 										<h3>This will be visible to all users:</h3><br />
@@ -795,7 +796,7 @@
 											</div>
 										</div>
 										<span class="w3-center">
-											<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}');" value="submit"/>
+											<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}', '{{ csrf_token() }}');" value="submit"/>
 											<!--<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="$('#html').css('cursor', 'progress');$('#acmg_form').css('cursor', 'progress');" value="submit"/>-->
 										</span>
 									</form>
@@ -815,6 +816,7 @@
 						</header>
 						<div class="w3-container w3-center">
 							<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="message_form" enctype="application/x-www-form-urlencoded">
+								<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
 								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" />-->
@@ -829,7 +831,7 @@
 									</div>
 								</div>
 								<span class="w3-center">
-									<input type="button" id = "sub_message" class="w3-button w3-section w3-blue w3-ripple"  onclick="send_var_message('{{ url_for("ajax.send_var_message") }}');" value="submit"/>
+									<input type="button" id = "sub_message" class="w3-button w3-section w3-blue w3-ripple"  onclick="send_var_message('{{ url_for("ajax.send_var_message") }}', '{{ csrf_token() }}');" value="submit"/>
 								</span>
 							</form>
 						</div>
@@ -906,9 +908,9 @@
 	</div>
 	<script>
 		$(document).ready(function() {
-			litvar('{{ url_for('ajax.litvar') }}');
-			lovd('{{ url_for('ajax.lovd') }}');
-			intervar('{{ url_for('ajax.intervar') }}');
+			litvar('{{ url_for('ajax.litvar') }}', '{{ csrf_token() }}');
+			lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}');
+			intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
 		});
 	</script>
 {% endblock %}
