@@ -1,11 +1,13 @@
 import os
 from . import config
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 from flask_mail import Mail
 from flask_cors import CORS
 from logging.handlers import RotatingFileHandler
 # https://flask-wtf.readthedocs.io/en/stable/csrf.html
 from flask_wtf.csrf import CSRFProtect
+# https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
+from flask_paranoid import Paranoid
 import logging
 
 mail = Mail()
@@ -32,6 +34,8 @@ def create_app(test_config=None):
 
     mail.init_app(app)
     csrf.init_app(app)
+    paranoid = Paranoid(app)
+    paranoid.redirect_view = '/MD/auth/login'
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
