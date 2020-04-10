@@ -29,7 +29,9 @@ def create_app(test_config=None):
         MAIL_USE_TLS = params['mail_use_tls'],
         MAIL_USERNAME = params['mail_username'],
         MAIL_PASSWORD = params['mail_password'],
-        MAIL_DEFAULT_SENDER = params['mail_default_sender']
+        MAIL_DEFAULT_SENDER = params['mail_default_sender'],
+        # CSRF tkens config
+        WTF_CSRF_TIME_LIMIT = None
     )
 
     mail.init_app(app)
