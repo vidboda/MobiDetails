@@ -45,7 +45,6 @@ def litvar():
                 ),
                 '[MobiDetails - API Error]'
             )
-            pass
         if litvar_data is not None:
             # if len(litvar_data) == 0: or re.search(r'mandatory', litvar_data[0])
             if len(litvar_data) == 0:
@@ -200,7 +199,6 @@ def lovd():
                 ),
                 '[MobiDetails - API Error]'
             )
-            pass
         # print(lovd_url)
         if lovd_data is not None:
             if len(lovd_data) == 1:

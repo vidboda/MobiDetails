@@ -118,7 +118,6 @@ def gene(gene_name=None):
                             ),
                             '[MobiDetails - API Error]'
                         )
-                        pass
                 break
 
         # we check if data exist at metadome
@@ -151,7 +150,6 @@ def gene(gene_name=None):
                         ),
                         '[MobiDetails - API Error]'
                     )
-                    pass
                 if metad_data is not None:
                     if metad_data['status'] == 'PENDING':
                         # get transcript_ids ?? coz of the version number
@@ -187,7 +185,6 @@ def gene(gene_name=None):
                                 ),
                                 '[MobiDetails - API Error]'
                             )
-                            pass
                             # print('Error with metadome submission for {}'.format(enst))
                     elif metad_data['status'] == 'SUCCESS':
                         # get_request = None
@@ -221,7 +218,6 @@ def gene(gene_name=None):
                                 ),
                                 '[MobiDetails - API Error]'
                             )
-                            pass
                             # print('error saving metadome json file for {}'.format(enst))
         if result_all is not None:
             # get annotations

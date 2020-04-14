@@ -94,7 +94,6 @@ def register():
                         ),
                         '[MobiDetails - Email Validation Error]'
                     )
-                    pass
             # 2nd check https://www.stopforumspam.com/
             # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
             sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(request.remote_addr, email, username)
@@ -152,7 +151,6 @@ def register():
                         ),
                         '[MobiDetails - Email Validation Error]'
                     )
-                    pass
         if error is None:
             curs.execute(
                 "SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
