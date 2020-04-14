@@ -528,8 +528,8 @@ $(document).ready(function() {
 			var h = addZero(d.getHours());
 			var m = addZero(d.getMinutes());
 			var s = addZero(d.getSeconds());
-			js_date = "MobiDetails accessed " + d.toLocaleDateString();
-			js_time = " - " + h + ":" + m + ":" + s;
+			var js_date = "MobiDetails accessed " + d.toLocaleDateString();
+			var js_time = " - " + h + ":" + m + ":" + s;
 			return js_date + js_time;// + "-" h + ":" + m + ":" + s;
 		} 
 		
