@@ -673,7 +673,22 @@ def variant(variant_id=None):
                 if isinstance(record, str):
                     annot['gnomad_genome_all'] = record
                 else:
-                    annot['gnomad_genome_all'] = record[5]
+                    annot['gnomad_genome_all'] = record[5]                
+                # clinpred
+                if variant_features['prot_type'] == 'missense':
+                    record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred'][0], var)
+                    if isinstance(record, str):
+                        annot['clinpred_score'] = record
+                    else:
+                        annot['clinpred_score'] = record[4]
+                    annot['clinpred_color'] = "#000000"
+                    annot['clinpred_pred'] = 'no prediction'
+                    if re.search(r'^[\d\.]+$', annot['clinpred_score']):
+                        annot['clinpred_score'] = format(float(annot['clinpred_score']), '.2f')
+                        annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
+                        annot['clinpred_pred'] = 'Tolerated'
+                        if float(annot['clinpred_score']) > md_utilities.predictor_thresholds['clinpred']:
+                            annot['clinpred_pred'] = 'Damaging'
                 if variant_features['dna_type'] == 'substitution':
                     # dbscSNV
                     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv'][0], var)
@@ -705,12 +720,12 @@ def variant(variant_id=None):
                         except Exception:
                             # "score" is '.'
                             annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
-                        dbscsnv_mpa_threshold = 0.8
+                        # dbscsnv_mpa_threshold = 0.8
                         if 'mpa_score' not in annot or annot['mpa_score'] < 10:
                             if (isinstance(annot['dbscsnv_ada'], float) and
-                                float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold) or \
+                                float(annot['dbscsnv_ada']) > md_utilities.predictor_thresholds['dbscsnv']) or \
                                 (isinstance(annot['dbscsnv_rf'], float) and
-                                 float(annot['dbscsnv_ada']) > dbscsnv_mpa_threshold):
+                                 float(annot['dbscsnv_ada']) > md_utilities.predictor_thresholds['dbscsnv']):
                                 annot['mpa_score'] = 10
                                 annot['mpa_impact'] = 'high splice'
         # get classification info

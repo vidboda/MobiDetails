@@ -15,24 +15,29 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
-    # config flaskmail
-    params = config.mdconfig(section='email_auth')
-    flask_params = config.mdconfig(section='flask')
-    # print(flask_params['session_cookie_secure'])
-    app.config.update(
-        # FLASK SETTINGS        
-        DEBUG = flask_params['debug'],
-        # SESSION_COOKIE_SECURE = flask_params['session_cookie_secure'],
-        # EMAIL SETTINGS
-        MAIL_SERVER = params['mail_server'],
-        MAIL_PORT = params['mail_port'],
-        MAIL_USE_TLS = params['mail_use_tls'],
-        MAIL_USERNAME = params['mail_username'],
-        MAIL_PASSWORD = params['mail_password'],
-        MAIL_DEFAULT_SENDER = params['mail_default_sender'],
-        # CSRF tkens config
-        WTF_CSRF_TIME_LIMIT = None
-    )
+    
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
+    # # config flaskmail
+    # params = config.mdconfig(section='email_auth')
+    # flask_params = config.mdconfig(section='flask')
+    # app.config.update(
+    #     # FLASK SETTINGS        
+    #     DEBUG = flask_params['debug'],
+    #     # EMAIL SETTINGS
+    #     MAIL_SERVER = params['mail_server'],
+    #     MAIL_PORT = params['mail_port'],
+    #     MAIL_USE_TLS = params['mail_use_tls'],
+    #     MAIL_USERNAME = params['mail_username'],
+    #     MAIL_PASSWORD = params['mail_password'],
+    #     MAIL_DEFAULT_SENDER = params['mail_default_sender'],
+    #     # CSRF tokens config
+    #     WTF_CSRF_TIME_LIMIT = None
+    # )
 
     mail.init_app(app)
     csrf.init_app(app)
@@ -49,13 +54,12 @@ def create_app(test_config=None):
     app.register_error_handler(405, not_allowed_error)
     # define custom jinja filters
     app.jinja_env.filters['match'] = config.match
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-        # app.config.from_object(os.environ['APP_SETTINGS'])
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+    # if test_config is None:
+    #     # load the instance config, if it exists, when not testing
+    #     app.config.from_pyfile('config.py', silent=True)
+    # else:
+    #     # load the test config if passed in
+    #     app.config.from_mapping(test_config)
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

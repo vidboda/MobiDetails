@@ -46,7 +46,25 @@ three2one = {
 }
 url_ncbi = 'https://www.ncbi.nlm.nih.gov/'
 urls = {
-    'uniprot_id': 'http://www.uniprot.org/uniprot/',
+    'cadd': 'https://cadd.gs.washington.edu/',
+    'clinpred': 'https://sites.google.com/site/clinpred/home',
+    'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
+    'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
+    'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t=',
+    'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome',
+    'fathmm': 'http://fathmm.biocompute.org.uk/',
+    'gnomad': 'http://gnomad.broadinstitute.org/',
+    'hgvs': 'http://varnomen.hgvs.org/',
+    'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
+    'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
+    'lovd': 'http://www.lovd.nl/',
+    'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v=',
+    'marrvel': 'http://marrvel.org/search/gene/',
+    'metadome': 'https://stuart.radboudumc.nl/metadome/',
+    'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
+    'mp': 'https://github.com/mobidic/MPA',
+    'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
+    'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',    
     'ncbi_nuccore':  '{}nuccore/'.format(url_ncbi),
     'ncbi_prot': '{}protein/'.format(url_ncbi),
     'ncbi_dbsnp': '{}snp/'.format(url_ncbi),
@@ -56,15 +74,10 @@ urls = {
     'ncbi_pubmed': '{}pubmed/'.format(url_ncbi),
     'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='.format(url_ncbi),
     # 'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
-    'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
-    'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',
-    'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
-    # uncomment below to use VV web API
-    'variant_validator_api': 'https://rest.variantvalidator.org/',
-    # 'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
-    'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
-    # 'variant_validator_api': 'http://0.0.0.0:8000/',
-    # 'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
+    'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
+    'revel': 'https://sites.google.com/site/revelgenomics/',
+    'spliceai': 'https://github.com/Illumina/SpliceAI',
+    'sift': 'https://sift.bii.a-star.edu.sg/',
     'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default\
                   &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
     'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
@@ -72,88 +85,76 @@ urls = {
                   &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
     'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF',
     'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html',
-    'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v=',
-    'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome',
-    'gnomad': 'http://gnomad.broadinstitute.org/',
-    'hgvs': 'http://varnomen.hgvs.org/',
-    'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t=',
-    'marrvel': 'http://marrvel.org/search/gene/',
-    'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
-    'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
-    'spliceai': 'https://github.com/Illumina/SpliceAI',
-    'sift': 'https://sift.bii.a-star.edu.sg/',
-    'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
-    'fathmm': 'http://fathmm.biocompute.org.uk/',
-    'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
-    'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
-    'lovd': 'http://www.lovd.nl/',
-    'cadd': 'https://cadd.gs.washington.edu/',
-    'mp': 'https://github.com/mobidic/MPA',
-    'metadome': 'https://stuart.radboudumc.nl/metadome/',
-    'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
-    'revel': 'https://sites.google.com/site/revelgenomics/',
+    'uniprot_id': 'http://www.uniprot.org/uniprot/',
+    'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
+    # uncomment below to use VV web API
+    'variant_validator_api': 'https://rest.variantvalidator.org/',
+    #'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
+    # 'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
+    'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
+    # 'variant_validator_api': 'http://0.0.0.0:8000/',
+    # 'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
 }
 # clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
 local_files = {
-    # id :[local path, version, name, short desc, urls Xref]
+    # id :[local path, version, name, short desc, short name 4 urls xref]    
+    'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
+             'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
+    'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
+                    'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
+    'clinpred': ['{}/static/resources/clinpred/clinpred.txt.gz'.format(app_path), '2018_hg19', 'ClinPred', 'pre-computed ClinPred scores for all possible human missense variant', 'clinpred'],
     'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
                      'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+    'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
+               'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
+    'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
+                'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
+    'dbsnp': ['{}/static/resources/dbsnp/hg38/GCF_000001405.38.gz'.format(app_path),
+              'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
     'gnomad_exome': ['{}/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'.format(app_path),
                      'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
     'gnomad_genome': ['{}/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'.format(app_path),
                       'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
     'gnomad_3': ['{}/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'.format(app_path),
                  'v3', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-    'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
-                'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
-    # 'spliceai': [app_path + '/static/resources/spliceai/hg19/exome_spliceai_scores.vcf.gz',
-    # 'v1.2.1', 'spliceAI', 'Dataset of splicing predictions', 'spliceai'],
+    'human_genome_hg38': ['{}/static/resources/genome/hg38.2bit'.format(app_path),
+                          'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+    'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
+                          'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+    'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
+                 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
     'spliceai_snvs': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'.format(app_path),
                       'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
     'spliceai_indels': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'.format(app_path),
                         'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
-    'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
-               'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-    'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
-             'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
-                    'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'dbsnp': ['{}/static/resources/dbsnp/hg38/GCF_000001405.38.gz'.format(app_path),
-              'v153', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
-    'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
-                 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
-    'human_genome_hg38': ['{}/static/resources/genome/hg38.2bit'.format(app_path),
-                          'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-    'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
-                          'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit']
-    # 'dbNSFP_base': [app_path + '/static/resources/dbNSFP/v4_0/dbNSFP4.0a_variant.chr', '4.0a', 'dbNSFP', 'Dataset of predictions for missense'],
 }
 predictor_thresholds = {
-    'spliceai_min': 0.2,
-    'spliceai_mid': 0.5,
-    'spliceai_max': 0.8,
+    'clinpred': 0.5,
     'dbscsnv': 0.8,
-    'sift': 0.95,  # SIFT is reversed
-    'pph2_hdiv_max': 0.957,
-    'pph2_hdiv_mid': 0.454,
-    'pph2_hvar_max': 0.909,
-    'pph2_hvar_mid': 0.447,
     'fathmm': -1.5,
     'fathmm-mkl': -1.5,
-    'meta-lr': 0.5,
     'lrt': 0.5,  # must be precised - which is not solely determined by the score. => take pred directly into account?
-    'meta-svm': 0,
-    'provean': -2.5,
-    'mpa_max': 8,
-    'mpa_mid': 6,
     'metadome_hintolerant': 0.175,
     'metadome_intolerant': 0.52,
     'metadome_sintolerant': 0.7,
     'metadome_neutral': 0.875,
     'metadome_stolerant': 1.025,
     'metadome_tolerant': 1.375,
+    'meta-lr': 0.5,    
+    'meta-svm': 0,
+    'mpa_max': 8,
+    'mpa_mid': 6,
+    'pph2_hdiv_max': 0.957,
+    'pph2_hdiv_mid': 0.454,
+    'pph2_hvar_max': 0.909,
+    'pph2_hvar_mid': 0.447,
+    'provean': -2.5,
     'revel_min': 0.2,
     'revel_max': 0.5,
+    'sift': 0.95,  # SIFT is reversed
+    'spliceai_min': 0.2,
+    'spliceai_mid': 0.5,
+    'spliceai_max': 0.8,
 }
 predictor_colors = {
     'min': '#00A020',
@@ -310,7 +311,7 @@ def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):  # com
         "SELECT segment_start, segment_end FROM segment WHERE genome_version = '{0}'\
         AND gene_name = '{{\"{1}\",\"{2}\"}}' AND type = '{3}' AND number = '{4}'".format(
             genome, gene[0], gene[1],
-            seg_type, seg_num, genome
+            seg_type, seg_num
         )
     )
     positions = curs.fetchone()
@@ -367,7 +368,7 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         return 'Match failed in {}'.format(text)
 
     i = 3
-    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV)', tabix_file):
+    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred)', tabix_file):
         i -= 1
     for record in records:
         if record[i] == var['pos_ref'] and \
@@ -1078,7 +1079,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 ),
                 '[MobiDetails - Code Error]'
             )
-            pass
         # return intervar_data
         if intervar_json is not None:
             curs.execute(

@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-pytest --cov=MobiDetailsApp --cov-report xml:coverage.xml --cov-report term
+/usr/bin/python3.6 -m pytest --cov=MobiDetailsApp --cov-report xml:coverage.xml --cov-report term

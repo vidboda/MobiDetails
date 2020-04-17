@@ -32,7 +32,7 @@ function copy_text(copy_id) {
   /* Copy the text inside the text field */
   document.execCommand("copy");
   /* Alert the copied text */
-  //alert("Copied the text: " + copyText.value);
+  // alert("Copied the text: " + copyText.value);
 }
 function hide_params() {
     // function to hide params when a form is sent (long response time e.g. register)
@@ -60,9 +60,9 @@ function encode_params(input_id) {
 		return true;
 }
 $(document).ready(function(){
-	//reduce icon size on small screens
+	// reduce icon size on small screens
 	var wi = $(window).width();
-	//alert(wi);
+	// alert(wi);
 	if (wi < 400) {
 		$('i').removeClass('w3-xxlarge').addClass('w3-small');
 		$('span.w3-xxlarge').removeClass('w3-xxlarge').addClass('w3-medium');
@@ -76,7 +76,7 @@ $(document).ready(function(){
 		if ($('#variant_name').length) {$('#variant_name').hide();}
 		if ($('#about_menu').length) {$('#about_menu').hide();}
 		if ($('#login_name').length) {$('#login_name').hide();}
-		//if ($('#modify_class').length) {}
+		// if ($('#modify_class').length) {}
 		if ($('#class_table').length) {$('#modify_class').hide();$('.fa-envelope-o').hide();}
 		if ($('#login_form').length) {$('#login_form').css('width', '90%');}
 		if ($('#register_form').length) {$('#register_form').css('width', '90%');}

@@ -190,7 +190,7 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
-    # print(request.base_url)
+    #print(request.method)
     referrer_page = None
     if request.method == 'GET':
         # print(request.referrer)
@@ -331,6 +331,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
+    flash('you have successfully been logged out.')
     if request.referrer is not None and \
             url_parse(request.referrer).host == url_parse(request.base_url).host:
         return redirect(request.referrer)
