@@ -2,6 +2,7 @@ function create_var(create_url, csrf_token) {
 	$("#error_name").empty();
 	$('html').css('cursor', 'progress');
 	$('.w3-btn').css('cursor', 'progress');
+	$('#submit_btn').prop('disabled', true);
 	//alert($("#new_variant").val());
 	var new_variant = $('#new_variant').val().replace(/\s/g, "");
 	if (new_variant == '' || new_variant == 'c.') {

@@ -221,6 +221,7 @@ def login():
 
         if error is None:
             session.clear()
+            flash('You have successfully been logged in as {}.'.format(user["username"]))
             session['user_id'] = user['id']
             if referrer_page is None or \
                     (url_parse(referrer_page).host != url_parse(request.base_url).host or
@@ -331,7 +332,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
-    flash('you have successfully been logged out.')
+    flash('You have successfully been logged out.')
     if request.referrer is not None and \
             url_parse(request.referrer).host == url_parse(request.base_url).host:
         return redirect(request.referrer)

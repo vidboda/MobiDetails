@@ -226,8 +226,12 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csr
 function send_var_message(url, csrf_token) {
     // ajax to send email
 	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
-	// html_message = encodeURIComponent(html_message);
-	// var object_txt = encodeURIComponent($("#message_object").text());
+    html_message = html_message.replace(/'/g,"\'");
+    html_message = html_message.replace(/"/g,'\"');
+    $('html').css('cursor', 'progress');
+	$('.w3-button').css('cursor', 'progress');
+    $('.w3-modal').css('cursor', 'progress');
+    $('#sub_message').prop('disabled', true);
 	// send header for flask-wtf crsf security	
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
@@ -241,17 +245,15 @@ function send_var_message(url, csrf_token) {
 		url: url,
 		data: {
 			receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
-			// variant_mes: $("#variant_mes").val(), sender_id: $("#sender_id").val(), 
 		}
 	})
 	.done(function(return_code) {
-//		if (return_code == 'ok') {
-//            $("#message_return").html("The message has successfully been sent.");
-//        }
-//		else {
 		$("#message_return").html(return_code);
-		// }
+        $('html').css('cursor', 'default');
+        $('.w3-button').css('cursor', 'default');
+        $('.w3-modal').css('cursor', 'default');
 		$("#message_modal").hide();
+        $('#sub_message').prop('disabled', false);
 	});
 }
 

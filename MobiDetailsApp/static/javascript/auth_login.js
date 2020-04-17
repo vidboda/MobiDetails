@@ -3,7 +3,7 @@ function check_login_form() {
 		//alert($("#email").val());
 		$('html').css('cursor', 'progress');
 		$('#sub').css('cursor', 'progress');
-		$('#sub').attr('disabled', 'disabled');
+		$('#sub').prop('disabled', true);
 		return true;
 	}
 	else {

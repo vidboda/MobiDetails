@@ -122,14 +122,14 @@
 		{% endfor %}
 		<br />
 		{#{{ danger("IMPORTANT NOTICE:<br /> MobiDetails is currently facing a technical issue which can slow down your interpretation or even prevent it. <br />Apologies for any inconvenience. We are working on it. Some complete service interruptions may occur in the coming days.") }}#}
-		{{ danger("IMPORTANT NOTICE:<br /> Another important security improvement has been applied on the web server (2020/04/09). If you see an error page mentioning 'tokens', please close all MobiDetails tabs then just empty your <a href='https://www.wikihow.com/Clear-Your-Browser%27s-Cache#' target='_blank'>browser's cache</a> and come back to the site. The configuration should now be stable. Sorry for the inconvenience.") }}
+		{#{{ danger("IMPORTANT NOTICE:<br /> Another important security improvement has been applied on the web server (2020/04/09). If you see an error page mentioning 'tokens', please close all MobiDetails tabs then just empty your <a href='https://www.wikihow.com/Clear-Your-Browser%27s-Cache#' target='_blank'>browser's cache</a> and come back to the site. The configuration should now be stable. Sorry for the inconvenience.") }}#}
 		<div id="content">{% block content %}{% endblock %}</div>
 		<!--footer-->
 		<div id="footer">
 			<div class="w3-bottom" style="z-index:1112">
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
 					<!--search engine-->					
-					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').attr('disabled', 'disabled');">
+					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').prop('disabled', true);">
 						<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 						<div class="w3-row-padding">
 							<div class="w3-half w3-right-align">

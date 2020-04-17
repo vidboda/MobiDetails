@@ -18,6 +18,18 @@
 	</div>
 	{% endautoescape %}
 {%- endmacro %}
+<!--success panel -->
+{% macro success() -%}
+	{% autoescape false %}
+	<div class="w3-margin w3-panel w3-teal w3-leftbar">
+		<p>
+			{% for text in varargs %}
+				<span>{{ text }}</span><br />
+			{% endfor %}
+		</p>
+	</div>
+	{% endautoescape %}
+{%- endmacro %}
 <!--danger panel -->
 {% macro danger() -%}
 	{% autoescape false %}
@@ -152,9 +164,6 @@
 												gene: '{{ gene }}'
 											},
 											success: response
-											//success : function(data){
-											//	response(data);
-											//}
 										});
 									},
 									minLength: 4
@@ -184,7 +193,7 @@
 							<p>Variant creation usually takes up to 30 seconds for variants located in genes with many isoforms</p>
 						</div>
 						<div class="w3-panel w3-large w3-center">
-							<input type="button" id="submit_btn" name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}', '{{ csrf_token() }}');$('#submit_btn').attr('disabled', 'disabled');" class="w3-btn w3-blue" for="creation_form"/>
+							<input type="button" id="submit_btn" name="submit" value="Create variant" onclick="create_var('{{ url_for('ajax.create') }}', '{{ csrf_token() }}');" class="w3-btn w3-blue" for="creation_form"/>
 						</div>
 					</form>
 				</div>

@@ -543,7 +543,7 @@ def danger_panel(var, warning):  # to be used in create_var_vv
                 <p><span><strong>{0}{1}<br/>{2}</strong></span><br /></p></div>'.format(begin_txt, var, warning)
 
 
-def info_panel(text, var='', id_var=''):
+def info_panel(text, var='', id_var='', color_class='w3-sand'):
     # to print general info do not send var neither id_var
     # Newly created variant:
     c = 'c.'
@@ -553,10 +553,10 @@ def info_panel(text, var='', id_var=''):
     if var != '':
         link = '<a href="{0}" target="_blank" title="Go to the variant page">\
                 {1}{2}</a>'.format(url_for('md.variant', variant_id=id_var), c, var)
-    return '<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">\
+    return '<div class="w3-margin w3-panel {0} w3-leftbar w3-display-container">\
                 <span class="w3-button w3-ripple w3-display-topright w3-large" \
                 onclick="this.parentElement.style.display=\'none\'">X</span>\
-                <p><span><strong>{0}{1}<br/></strong></span><br /></p></div>'.format(text, link)
+                <p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'.format(color_class, text, link)
 
 
 def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
@@ -1191,9 +1191,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
     db.commit()
     if remapper is True and caller == 'webApp':
-        return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id)
+        return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':
-        return info_panel("Successfully created variant", vf_d['c_name'], vf_id)
+        return info_panel("Successfully created variant", vf_d['c_name'], vf_id, 'w3-pale-green')
     if caller == 'api':
         return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
             request.host_url[:-1], url_for('md.variant', variant_id=vf_id)
