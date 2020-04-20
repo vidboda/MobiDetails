@@ -11,7 +11,7 @@ parser.read(dir_path + '/sql/database.ini')
 if parser.has_section('flask'):
     params = parser.items('flask')
     for param in params:
-        if param[0] == 'secretkey':
+        if param[0] == 'secret_key':
             SECRET_KEY = param[1]
         if param[0] == 'debug':
             if param[1] == 'False':
