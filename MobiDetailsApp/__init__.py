@@ -44,11 +44,10 @@ def create_app(test_config=None):
     #     # CSRF tokens config
     #     WTF_CSRF_TIME_LIMIT = None
     # )
-
     mail.init_app(app)
     csrf.init_app(app)
-    #paranoid = Paranoid(app)
-    #paranoid.redirect_view = '/MD/auth/login'
+    paranoid = Paranoid(app)
+    paranoid.redirect_view = '/MD/auth/login'
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
@@ -105,7 +104,8 @@ def create_app(test_config=None):
 
         app.logger.setLevel(logging.INFO)
         app.logger.info('Mobidetails startup')
-
+    else:
+        print(app.config)
     return app
 
 

@@ -17,7 +17,10 @@ if parser.has_section('flask'):
         if param[0] == 'debug':
             DEBUG = param[1]
         elif param[0] == 'session_cookie_secure':
-            SESSION_COOKIE_SECURE = param[1]
+            if param[1] == 'False':
+                SESSION_COOKIE_SECURE = False
+            else:
+                SESSION_COOKIE_SECURE = True
         elif param[0] == 'session_cookie_name':
             SESSION_COOKIE_NAME = param[1]
         elif param[0] == 'wtf_csrf_time_limit':
