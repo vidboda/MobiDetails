@@ -2,11 +2,10 @@ import os
 import re
 from configparser import ConfigParser
 
-# get secret key from config file
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 parser = ConfigParser()
-#SESSION_COOKIE_SECURE = False
-WTF_CSRF_TIME_LIMIT = None
+# WTF_CSRF_TIME_LIMIT = None
 # read config file
 parser.read(dir_path + '/sql/database.ini')
 if parser.has_section('flask'):
@@ -24,9 +23,13 @@ if parser.has_section('flask'):
         elif param[0] == 'session_cookie_name':
             SESSION_COOKIE_NAME = param[1]
         elif param[0] == 'wtf_csrf_enabled':
-            WTF_CSRF_ENABLED = param[1]
+             if param[1] == 'False':
+                WTF_CSRF_ENABLED = False                
         elif param[0] == 'wtf_csrf_time_limit':
-            WTF_CSRF_TIME_LIMIT = param[1]
+            if param[1] == 'None':
+                WTF_CSRF_ENABLED = None     
+            else:
+                WTF_CSRF_TIME_LIMIT = param[1]
 else:
     raise Exception('Section {0} not found in the {1} file'.format(
         'flask',
