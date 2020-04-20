@@ -24,10 +24,10 @@ if parser.has_section('flask'):
             SESSION_COOKIE_NAME = param[1]
         elif param[0] == 'wtf_csrf_enabled':
              if param[1] == 'False':
-                WTF_CSRF_ENABLED = False                
+                WTF_CSRF_ENABLED = False
         elif param[0] == 'wtf_csrf_time_limit':
             if param[1] == 'None':
-                WTF_CSRF_ENABLED = None     
+                WTF_CSRF_TIME_LIMIT = None
             else:
                 WTF_CSRF_TIME_LIMIT = param[1]
 else:
