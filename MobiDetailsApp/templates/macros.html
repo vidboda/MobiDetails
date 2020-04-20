@@ -123,7 +123,6 @@
 				</div>
 				<div class="w3-container">
 					<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
-						<!--<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>-->
 						<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
 						<input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" />
 						<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />

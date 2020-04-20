@@ -5,15 +5,15 @@ from configparser import ConfigParser
 # get secret key from config file
 dir_path = os.path.dirname(os.path.realpath(__file__))
 parser = ConfigParser()
-#generate secret key
-SECRET_KEY = os.urandom(24)
-SESSION_COOKIE_SECURE = False
+#SESSION_COOKIE_SECURE = False
 WTF_CSRF_TIME_LIMIT = None
 # read config file
 parser.read(dir_path + '/sql/database.ini')
 if parser.has_section('flask'):
     params = parser.items('flask')
     for param in params:
+        if param[0] == 'secretkey':
+            SECRET_KEY = param[1]
         if param[0] == 'debug':
             DEBUG = param[1]
         elif param[0] == 'session_cookie_secure':
@@ -74,4 +74,3 @@ def mdconfig(filename=dir_path + '/sql/database.ini', section='postgresql'):
 
 def match(value, regexp):
     return re.match(regexp, value)
-

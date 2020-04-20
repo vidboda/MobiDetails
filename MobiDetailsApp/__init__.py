@@ -19,6 +19,11 @@ def create_app(test_config=None):
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
+        # app.config.update(
+        #     SECRET_KEY = os.urandom(24),
+        #     SESSION_COOKIE_SECURE = False,
+        #     WTF_CSRF_TIME_LIMIT = None
+        # )
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
@@ -28,6 +33,7 @@ def create_app(test_config=None):
     # app.config.update(
     #     # FLASK SETTINGS        
     #     DEBUG = flask_params['debug'],
+        
     #     # EMAIL SETTINGS
     #     MAIL_SERVER = params['mail_server'],
     #     MAIL_PORT = params['mail_port'],
@@ -41,8 +47,8 @@ def create_app(test_config=None):
 
     mail.init_app(app)
     csrf.init_app(app)
-    paranoid = Paranoid(app)
-    paranoid.redirect_view = '/MD/auth/login'
+    #paranoid = Paranoid(app)
+    #paranoid.redirect_view = '/MD/auth/login'
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
