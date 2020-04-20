@@ -35,6 +35,9 @@ if parser.has_section('flask'):
                 WTF_CSRF_TIME_LIMIT = None
             else:
                 WTF_CSRF_TIME_LIMIT = param[1]
+        elif param[0] == 'use_x_sendfile':
+            if param[1] == 'True':
+                USE_X_SENDFILE = True
 else:
     raise Exception('Section {0} not found in the {1} file'.format(
         'flask',
