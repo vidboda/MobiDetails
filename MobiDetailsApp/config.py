@@ -71,9 +71,8 @@ from configparser import ConfigParser
 #     )
 
 # from http://www.postgresqltutorial.com/postgresql-python/connect/
-
-init_file = '/sql/database.ini'
 dir_path = os.path.dirname(os.path.realpath(__file__))
+init_file = '/sql/database.ini'
 
 def mdconfig(filename=dir_path + init_file, section='postgresql'):
     # create a parser

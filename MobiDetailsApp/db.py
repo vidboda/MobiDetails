@@ -19,11 +19,12 @@ def get_db():
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
                     '<p>DB connection issue {0}<br /> - from {1}</p>'.format(
-                        psycopg2.DatabaseError,
+                        error,
                         os.path.basename(__file__)
                     )
                 ),
-                '[MobiDetails - DB Error]')
+                '[MobiDetails - DB Error]'
+            )
             print(error)
         return g.db
 
