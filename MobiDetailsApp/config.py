@@ -3,11 +3,13 @@ import re
 from configparser import ConfigParser
 
 
+# read a config file hidden somewhere
+init_file = '/sql/md.ini'
 dir_path = os.path.dirname(os.path.realpath(__file__))
 parser = ConfigParser()
 # WTF_CSRF_TIME_LIMIT = None
 # read config file
-parser.read(dir_path + '/sql/database.ini')
+parser.read(dir_path + init_file)
 if parser.has_section('flask'):
     params = parser.items('flask')
     for param in params:
@@ -41,7 +43,7 @@ if parser.has_section('flask'):
 else:
     raise Exception('Section {0} not found in the {1} file'.format(
         'flask',
-        dir_path + '/sql/database.ini'
+        dir_path + init_file
         )
     )
 
@@ -65,14 +67,14 @@ if parser.has_section('email_auth'):
 else:
     raise Exception('Section {0} not found in the {1} file'.format(
         'email_auth',
-        dir_path + '/sql/database.ini'
+        dir_path + init_file
         )
     )
 
 # from http://www.postgresqltutorial.com/postgresql-python/connect/
 
 
-def mdconfig(filename=dir_path + '/sql/database.ini', section='postgresql'):
+def mdconfig(filename=dir_path + init_file, section='postgresql'):
     # create a parser
     parser = ConfigParser()
     # read config file
@@ -90,3 +92,4 @@ def mdconfig(filename=dir_path + '/sql/database.ini', section='postgresql'):
 
 def match(value, regexp):
     return re.match(regexp, value)
+

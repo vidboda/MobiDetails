@@ -19,6 +19,7 @@ def create_app(test_config=None):
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
+        # app.config.from_object('config.Config')
         # app.config.update(
         #     SECRET_KEY = os.urandom(24),
         #     SESSION_COOKIE_SECURE = False,
@@ -51,7 +52,7 @@ def create_app(test_config=None):
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
-    cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     # errors
     app.register_error_handler(403, forbidden_error)
     app.register_error_handler(404, not_found_error)

@@ -484,7 +484,7 @@ def create():
             http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             vv_alive = None
             try:
-                vv_alive = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
+                json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
             except Exception as e:
                 md_utilities.send_error_email(
                     md_utilities.prepare_email_html(
