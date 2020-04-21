@@ -9,7 +9,7 @@ import certifi
 import json
 import twobitreader
 from flask import (
-    url_for, request, render_template
+    url_for, request, render_template, current_app as app
 )
 from flask_mail import Message
 from . import config
@@ -1227,10 +1227,11 @@ def prepare_email_html(title, message, send_url=True):
 
 
 def send_email(message, mail_object, receiver):
-    params = config.mdconfig(section='email_auth')
+    # params = config.mdconfig(section='email_auth')
     msg = Message(
         mail_object,
-        sender=params['mail_username'],
+        # sender=params['mail_username'],
+        sender=app.config["MAIL_USERNAME"],
         recipients=receiver
     )
     msg.html = message
@@ -1238,10 +1239,11 @@ def send_email(message, mail_object, receiver):
 
 
 def send_error_email(message, mail_object):
-    params = config.mdconfig(section='email_auth')
+    # params = config.mdconfig(section='email_auth')
     msg = Message(
         mail_object,
-        sender=params['mail_username'],
+        # sender=params['mail_username'],
+        sender=app.config["MAIL_USERNAME"],
         recipients=[params['mail_error_recipient']]
     )
     msg.html = message
