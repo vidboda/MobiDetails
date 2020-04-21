@@ -1244,7 +1244,8 @@ def send_error_email(message, mail_object):
         mail_object,
         # sender=params['mail_username'],
         sender=app.config["MAIL_USERNAME"],
-        recipients=[params['mail_error_recipient']]
+        # recipients=[params['mail_error_recipient']]
+        recipients=app.config["MAIL_ERROR_RECIPIENT"]
     )
     msg.html = message
     mail.send(msg)
