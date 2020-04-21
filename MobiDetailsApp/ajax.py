@@ -336,7 +336,7 @@ def modif_class():
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
-            # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.')
+            # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
         return tr_html
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
     return tr_html
@@ -588,7 +588,7 @@ def favourite():
     if re.search(r'^\d+$', request.form['vf_id']):
         vf_id = request.form['vf_id']
         if vf_id is None:
-            flash('Cannot mark a variant without id! Please contact us.')
+            flash('Cannot mark a variant without id! Please contact us.', 'w3-pale-red')
             return 'notok'
         # print(vf_id)
         # g.user['id']
@@ -610,7 +610,7 @@ def favourite():
         close_db()
         return 'ok'
     else:
-        flash('Cannot mark a variant without id! Please contact us.')
+        flash('Cannot mark a variant without id! Please contact us.', 'w3-pale-red')
         return 'notok'
 
 # -------------------------------------------------------------------

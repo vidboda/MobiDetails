@@ -34,7 +34,7 @@ def index():
     res = curs.fetchone()
     if res is None:
         error = "There is a problem with the number of genes."
-        flash(error)
+        flash(error, 'w3-pale-red')
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails PostGreSQL error',
@@ -932,5 +932,5 @@ def search_engine():
                         return render_template('md/variant_multiple.html', variants=result)
     else:
         error = 'Please type something for the search engine to work.'
-    flash(error)
+    flash(error, 'w3-pale-red')
     return render_template('md/unknown.html')

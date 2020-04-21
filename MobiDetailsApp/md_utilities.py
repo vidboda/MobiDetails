@@ -1206,7 +1206,7 @@ def get_genomic_values(genome, vv_data, vv_key_var):
         chr_obj = re.search(r'chr([\dXYM]{1,2})$', vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['chr'])
         if len(vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref']) > 49 or \
                 len(vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']) > 49:
-            # flash('MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions')
+            # flash('MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions', 'w3-pale-red')
             # flash is only useful if we return a new page which is not the case here
             return {'mobidetails_error': 'MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions)'}
         return {

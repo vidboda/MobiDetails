@@ -167,7 +167,7 @@ def register():
             db.commit()
             return redirect(url_for('auth.login'))
 
-        flash(error)
+        flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
             message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li>\
                            <li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
@@ -221,7 +221,7 @@ def login():
 
         if error is None:
             session.clear()
-            flash('You have successfully been logged in as {}.'.format(user["username"]))
+            flash('You have successfully been logged in as {}.'.format(user["username"]), 'w3-pale-green')
             session['user_id'] = user['id']
             if referrer_page is None or \
                     (url_parse(referrer_page).host != url_parse(request.base_url).host or
@@ -231,7 +231,7 @@ def login():
             else:
                 return redirect(referrer_page)
 
-        flash(error)
+        flash(error, 'w3-pale-red')
 
     return render_template('auth/login.html', referrer_page=referrer_page)
 
@@ -300,10 +300,10 @@ def profile(mobiuser_id=0):
             # other profile view
             return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None, num_var_fav=None, variants=None, variants_favourite=None)
     
-        flash(error)
+        flash(error, 'w3-pale-red')
         return render_template('md/index.html')
     else:
-        flash('Invalid user ID!!')
+        flash('Invalid user ID!!', 'w3-pale-red')
         return render_template('md/index.html')
 
 # -------------------------------------------------------------------
@@ -332,7 +332,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
-    flash('You have successfully been logged out.')
+    flash('You have successfully been logged out.', 'w3-pale-green')
     if request.referrer is not None and \
             url_parse(request.referrer).host == url_parse(request.base_url).host:
         return redirect(request.referrer)
