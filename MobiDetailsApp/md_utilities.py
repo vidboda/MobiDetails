@@ -12,7 +12,7 @@ from flask import (
     url_for, request, render_template, current_app as app
 )
 from flask_mail import Message
-from . import config
+#from . import config
 from MobiDetailsApp import mail
 
 
