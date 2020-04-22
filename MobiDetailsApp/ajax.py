@@ -450,7 +450,7 @@ def create():
     # print(request.form['new_variant'])
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
-    if re.search(r'^\w+$', request.form['gene']) and \
+    if re.search(r'^[\w-]+$', request.form['gene']) and \
             re.search(r'^NM_\d+$', request.form['acc_no']) and \
             re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['new_variant']) and \
             re.search(r'^\d+$', request.form['acc_version']):
