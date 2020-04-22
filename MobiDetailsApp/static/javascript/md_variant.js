@@ -228,7 +228,7 @@ function send_var_message(url, csrf_token) {
 	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
     // html_message = html_message.replace(/'/g,"\'");
     // html_message = html_message.replace(/"/g,'\"');
-    alert(html_message);
+    // alert(html_message);
     $('html').css('cursor', 'progress');
 	$('.w3-button').css('cursor', 'progress');
     $('.w3-modal').css('cursor', 'progress');
