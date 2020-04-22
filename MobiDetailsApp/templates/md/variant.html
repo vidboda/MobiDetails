@@ -557,7 +557,7 @@
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}{{ annot.pph2_hvar_star }}</td>
 							<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Probably damaging and Damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging</em></td>
 						</tr>
 						<tr><!--REVEL-->
 							<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
@@ -616,7 +616,7 @@
 					</div>
 				</div>
 				{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
+				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, clinpred=annot.clinpred_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
 				{% if annot.sift_pred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 				{% endif %}
@@ -628,6 +628,9 @@
 				{% endif %}
 				{% if annot.revel_pred == 'no prediction' %}
 					{% set missense_pred.revel = 0 %}
+				{% endif %}
+				{% if annot.clinpred == 'no prediction' %}
+					{% set missense_pred.clinpred = 0 %}
 				{% endif %}
 				{% if annot.fathmm_pred == 'no prediction' %}
 					{% set missense_pred.fathmm = 10.64 %}
@@ -655,10 +658,10 @@
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
-							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'FATHMM', 'MetaSVM', 'MetaLR'],
+							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', 'FATHMM', 'MetaSVM', 'MetaLR'],
 							datasets: [{
 								label:'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}],
+								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}],
 								fill: true,
 								backgroundColor:'rgb(255, 99, 132, 0.2)',
 								borderColor:'rgb(255, 99, 132)',
