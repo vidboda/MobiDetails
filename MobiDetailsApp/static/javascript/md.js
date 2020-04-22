@@ -73,11 +73,11 @@ $(document).ready(function(){
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
-		if ($('#variant_name').length) {$('#variant_name').hide();}
-		if ($('#about_menu').length) {$('#about_menu').hide();}
-		if ($('#login_name').length) {$('#login_name').hide();}
+		if ($('#variant_name').length) {$('#variant_name').remove();}
+		if ($('#about_menu').length) {$('#about_menu').remove();}
+		if ($('#login_name').length) {$('#login_name').remove();}
 		// if ($('#modify_class').length) {}
-		if ($('#class_table').length) {$('#modify_class').hide();$('.fa-envelope-o').hide();}
+		if ($('#class_table').length) {$('#modify_class').remove();$('.fa-envelope-o').remove();}
 		if ($('#login_form').length) {$('#login_form').css('width', '90%');}
 		if ($('#register_form').length) {$('#register_form').css('width', '90%');}
 	}
@@ -91,10 +91,10 @@ $(document).ready(function(){
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
-		if ($('#modify_class').length) {$('#modify_class').hide();}
-		if ($('#variant_name').length) {$('#variant_name').hide();}
-		if ($('#login_name').length) {$('#login_name').hide();}
-		if ($('#about_menu').length) {$('#about_menu').hide();}
+		if ($('#modify_class').length) {$('#modify_class').remove();}
+		if ($('#variant_name').length) {$('#variant_name').remove();}
+		if ($('#login_name').length) {$('#login_name').remove();}
+		if ($('#about_menu').length) {$('#about_menu').remove();}
 		if ($('#login_form').length) {$('#login_form').css('width', '80%');}
 		if ($('#register_form').length) {$('#register_form').css('width', '80%');}
 		//if ($('#smart_menu').length) {
@@ -102,16 +102,15 @@ $(document).ready(function(){
 		//}
 	}
 	else if (wi <= 900) {
-		$('i').toggleClass('w3-xxlarge w3-xlarge');
+		$('i').toggleClass('w3-xxlarge w3-large');
 		$('span.w3-xxlarge').removeClass('w3-xxlarge').addClass('w3-xlarge');
 		if ($('#login_form').length) {$('#login_form').css('width', '70%');}
 		if ($('#register_form').length) {$('#register_form').css('width', '70%');}
 		if ($('#variant_name').length) {
 			$('#variant_name').removeClass('w3-xlarge').addClass('w3-large');
 		}
-		if ($('#login_name').length) {
-			$('#login_name').removeClass('w3-xlarge').addClass('w3-large');
-		}
+		if ($('#login_name').length) {$('#login_name').remove();}
+		if ($('#page_menu').length) {$('#page_menu').remove();}
 	}
 	// scroll nav-bar
 	document.addEventListener('scroll', function(){

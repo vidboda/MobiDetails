@@ -300,17 +300,20 @@ $(document).ready(function() {
 	// hide sidebar on small screen
 	// if ($('#smart_menu').length) {		
 	if ($(window).width() < 600) {
-		$('#smart_menu').hide();
+		$('#smart_menu').remove();
 		$('#openNav').css('visibility', 'visible');
-		$('#page_menu').hide();
+		$('#page_menu').remove();
 		$('#global_content').animate({marginLeft: '0%'});
 		$('#mobile_var_name').show();
-		$('#defgen_hg19').hide();
-		$('#defgen_hg38').hide();
+		$('#defgen_hg19').remove();
+		$('#defgen_hg38').remove();
 		//hide left menu items
 		myAccFunc('hg19_acc', 'hg19_icon');
 		myAccFunc('hg38_acc', 'hg38_icon');
 	}
+    else if($(window).width() < 1300) {
+        if ($('#login_name').length) {$('#login_name').remove();}
+    }
 	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {

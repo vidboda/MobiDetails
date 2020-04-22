@@ -112,6 +112,7 @@
 		<header align="center">
 			{% block header %}{% endblock %}
 		</header>
+		<br/>
 		{% for category, message in get_flashed_messages(with_categories=true) %}
 			{% autoescape false %}
 				<div class="w3-margin w3-panel w3-leftbar w3-display-container {{ category }}">
