@@ -1,4 +1,15 @@
 $(document).ready(function(){
+	// submit using the enter key in keyboard
+	$('#new_variant').keydown(function (e) {
+		//alert(e.which);
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {			
+			$('#submit_btn').click();
+			return false;
+		} else {
+			return true;
+		}
+	});
+	
 	$('.w3-table').DataTable({
 		responsive: true,
 		lengthMenu: [ [50, 100, 200, -1], [50, 100, 200, "All"] ],

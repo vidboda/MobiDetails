@@ -35,6 +35,7 @@ function new_isoform() {
 }
 
 $(document).ready(function(){
+	// submit using the enter key in keyboard
 	$('#new_variant').keydown(function (e) {
 		//alert(e.which);
 		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {			
