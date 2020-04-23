@@ -25,7 +25,7 @@
 	</head>
 	<body>
 		<div class="w3-medium" id="header">
-			<div class="w3-top" style="z-index:1112">
+			<div class="w3-top" style="z-index:1112;">
 				<!--scrollbar-->
 				<div class="w3-white" id="scroll">
 					<div class="w3-blue" id="scroll-bar" style="height:4px;width:0%">
@@ -35,19 +35,20 @@
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBar">
 					<!--home, about-->
 					<div class="w3-dropdown-hover">
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-black" onclick="window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
+						<span class="w3-button w3-ripple w3-xlarge w3-black" onclick="window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
 							<i class="fa fa-home w3-xxlarge"></i>
 						</span>
-						<!--<div class="w3-dropdown-content w3-bar-block w3-card-4">
-							<span class="w3-bar-item w3-button w3-ripple w3-large" onclick="window.location='{{ url_for('md.about') }}';">About</span>
-						</div>-->
+						<div class="w3-dropdown-content w3-bar-block w3-card-4">
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.location='{{ url_for('md.about') }}';">About</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.location='{{ url_for('md.changelog') }}';">Change log</span>
+						</div>
 					</div>					
 					<!--about-->
-					<div class="w3-dropdown-hover">
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="window.location='{{ url_for('md.about') }}';" title="About Mobidetails">
-							<i class="fa fa-sticky-note-o w3-xxlarge"></i>
-						</span>
-					</div>
+					<!--<div class="w3-dropdown-hover">-->
+					<!--	<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="window.location='{{ url_for('md.about') }}';" title="About Mobidetails">-->
+					<!--		<i class="fa fa-sticky-note-o w3-xxlarge"></i>-->
+					<!--	</span>-->
+					<!--</div>-->
 					<!--all genes-->
 					<div class="w3-dropdown-hover">
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="window.location='{{ url_for('md.genes') }}';" title="Show all genes">
@@ -134,10 +135,11 @@
 						<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 						<div class="w3-row-padding">
 							<div class="w3-half w3-right-align">
-								<input autofocus="autofocus" class="w3-input w3-border w3-large w3-mobile" id="engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:200px;display:inline;" type="text"/>
+								<input autofocus="autofocus" class="w3-input w3-border w3-xlarge w3-mobile" id="engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:250px;display:inline;" type="text"/>
 							</div>
 							<div class="w3-quarter">
-								<input class="w3-button w3-white w3-large w3-border w3-mobile" id="submit_a" type="submit" value="Submit" />
+								<span onclick="$('#search_form').submit();" class="w3-button w3-bar-item w3-large"><i class="fa fa-search w3-xxlarge"></i></span>
+								<!--<input class="w3-button w3-white w3-large w3-border w3-mobile" id="submit_a" type="submit" value="Submit" />-->
 							</div>
 						</div>
 					</form>

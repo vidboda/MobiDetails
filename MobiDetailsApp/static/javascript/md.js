@@ -60,6 +60,22 @@ function encode_params(input_id) {
 		return true;
 }
 $(document).ready(function(){
+	// change z-index for menus
+	$('#mdNavBar').mouseenter(
+		function () {
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 1111);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 1111);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 1111);}
+    }
+	);
+	$('#mdNavBar').mouseleave(
+		function () {
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 1300);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 1300);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 1300);}
+    }
+	);
+	
 	// reduce icon size on small screens
 	var wi = $(window).width();
 	// alert(wi);
@@ -69,7 +85,7 @@ $(document).ready(function(){
 		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-medium');
 		$('li.w3-xlarge').removeClass('w3-xlarge').addClass('w3-medium');
 		$('.w3-modal').addClass('w3-small');
-		$('#engine').removeClass('w3-large').addClass('w3-small');
+		$('#engine').removeClass('w3-xlarge').addClass('w3-small');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
@@ -87,7 +103,8 @@ $(document).ready(function(){
 		$('span.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
 		$('li.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
 		$('.w3-modal').addClass('w3-medium');
-		$('#engine').removeClass('w3-large').addClass('w3-small');
+		$('#engine').removeClass('w3-xlarge').addClass('w3-small');
+		$('#engine').css('width', '150px');
 		$('#submit_a').removeClass('w3-large').addClass('w3-small');
 		$('#logout').removeClass('w3-right');
 		$('#myprofile').removeClass('w3-right');
@@ -104,6 +121,8 @@ $(document).ready(function(){
 	else if (wi <= 900) {
 		$('i').toggleClass('w3-xxlarge w3-large');
 		$('span.w3-xxlarge').removeClass('w3-xxlarge').addClass('w3-xlarge');
+		$('input.w3-xlarge').removeClass('w3-xlarge').addClass('w3-large');
+		$('#engine').css('width', '150px');
 		if ($('#login_form').length) {$('#login_form').css('width', '70%');}
 		if ($('#register_form').length) {$('#register_form').css('width', '70%');}
 		if ($('#variant_name').length) {

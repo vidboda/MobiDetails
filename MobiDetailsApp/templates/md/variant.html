@@ -180,7 +180,7 @@
 				</div>
 				<!--VariantValidator-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.' + encodeURIComponent('{{ variant_features.c_name }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
 				</div>
 				<!--HGVS-->
 				<div class="w3-col m4">
@@ -650,7 +650,7 @@
 						Chart.defaults.global.defaultFontSize=12;
 						point_font_size = 12;
 					}
-	
+
 					function normalizeData(val, my_array) {
 						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 						return new_val;

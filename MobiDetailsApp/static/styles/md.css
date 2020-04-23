@@ -7,11 +7,11 @@ a:hover {
 	/*font-style:italic;*/
 }
 .txt {
-	font-family: monospace;
-	font-size: 1.2em;
+	font-family:monospace;
+	font-size:1.2em;
 }
 .var_li:hover {
-	cursor: pointer;
+	cursor:pointer;
 }
 .star_fav {
 	color:yellow;

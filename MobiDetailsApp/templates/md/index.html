@@ -86,6 +86,9 @@
 		</p>
 	</div>-->
 	{{ info("<strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li><li>gene symbol, e.g. 'USH2A'</li><li>RefSeq NM accession number, e.g. 'NM_206932'</li></ul>") }}
+	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+		Links for: <ul><li><a href="{{ url_for('md.about') }}">About page</a></li><li><a href="{{ url_for('md.changelog') }}">Change log</a></li></ul>
+	</div>
 	<br /><br />
 	<div class="w3-row w3-padding-64 w3-margin">
 		<div class="w3-third w3-center">

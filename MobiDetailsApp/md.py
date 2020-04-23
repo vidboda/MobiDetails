@@ -54,6 +54,13 @@ def index():
 def about():
     return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files)
 
+# -------------------------------------------------------------------
+# web app - changelog
+
+
+@bp.route('/changelog')
+def changelog():
+    return render_template('md/changelog.html')
 
 # -------------------------------------------------------------------
 # web app - gene
