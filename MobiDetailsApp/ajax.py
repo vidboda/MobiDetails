@@ -259,7 +259,7 @@ def lovd():
 @bp.route('/modif_class', methods=['POST'])
 @login_required
 def modif_class():
-    tr_html = 'notok'
+    # tr_html = 'notok'
     if re.search(r'^\d+$', request.form['variant_id']) and \
             re.search(r'^\d+$', request.form['acmg_select']):
         variant_id = request.form['variant_id']
@@ -286,7 +286,7 @@ def modif_class():
                     # print(("{0}-{1}").format(res['class_date'], date))
                     tr_html = "<tr id='already_classified'><td colspan='4'>\
                               You already classified this variant with the same class today.\
-                              If you just want to modify comments, reload the page then remove the classification and start from scratch.\
+                              If you just want to modify comments, the previous classification and start from scratch.\
                               </td></tr>"
                     return tr_html
                 curs.execute(
@@ -327,19 +327,33 @@ def modif_class():
                     acmg_details['acmg_translation'],
                     acmg_comment
                 )
+            return tr_html
         except Exception as e:
             # pass
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Variant class modification failed for {0} with args: {1}</p>'.format(variant_id, e.args)
+                    '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
+            return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
-        return tr_html
+        
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
-    return tr_html
+    else:
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails error',
+                '<p>Variant class modification failed for variant {0} with args: wrong parameter {1}-{2}</p>'.format(
+                    variant_id,
+                    request.form['variant_id'],
+                    request.form['acmg_select']
+                )
+            ),
+            '[MobiDetails - MD variant class Error]'
+        )
+        return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
     # return redirect(url_for('md.index'))
 
 

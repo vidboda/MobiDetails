@@ -747,11 +747,13 @@
 							<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
 							<td>
 								<div class="w3-cell-row">
-									<span class="w3-container w3-left-align w3-cell">
-										{% autoescape false %}
-											{{ classif.comment }}
-										{% endautoescape %}
+									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}">										
 									</span>
+									{% autoescape false %}
+										<script type="application/x-javascript">
+											$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}").html(unescape('{{ classif.comment }}'));
+                                        </script>
+									{% endautoescape %}
 									{% if classif.username == g.user['username'] %}
 										<span class="w3-container w3-right-align w3-cell">
 											<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>

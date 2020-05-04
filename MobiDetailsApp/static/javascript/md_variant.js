@@ -147,9 +147,16 @@ function intervar(intervar_url, csrf_token) {
 
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	// ajax to modify variant class
-	var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
+    $('html').css('cursor', 'progress');
+    $('.w3-button').css('cursor', 'progress');
+    $('.w3-modal').css('cursor', 'progress');
+    $('#sub').prop('disabled', true);
+    var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
+    html_comment = escape(html_comment);
+    // html_comment = html_comment.replace(/'/g,"\'");
+    // alert(html_comment);
 	// html_comment = encodeURIComponent(html_comment);
-	var acmg = $("#acmg_select").val();
+    var acmg = $("#acmg_select").val();
 	// send header for flask-wtf crsf security	
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
@@ -166,9 +173,10 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 		}
 	})
 	.done(function(tr_html) {
-		if (tr_html !== 'notok') {
+        var reg = /something went wrong with the addition of this annotation/;
+        if (!reg.test(tr_html)) {
+		//if (tr_html !== 'notok') {
 			var re = /already_classified/;
-			// alert(re.test(tr_html));
 			if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id).length > 0 ) {
 				if (!re.test(tr_html)) {
 					$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).hide();
@@ -180,17 +188,21 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 			if ($("#already_classified").length > 0) {
                 $("#already_classified").remove();
             }
-            $("#class_table>tbody:last").append(tr_html);
+            $("#class_table>tbody:last").append(unescape(tr_html));
 			$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
-			$("#modify_class_modal").hide();
 			$("#acmg_comment").val('');
 			if ($("#no_class").length > 0) {
                 $("#no_class").hide();
             }
         }
 		else {
-			$("#message_return").html("Sorry, something went wrong with the addition of this annotation. An admin has been warned.");
+			$("#message_return").html(tr_html);
 		}
+        $('html').css('cursor', 'default');
+        $('.w3-button').css('cursor', 'default');
+        $('.w3-modal').css('cursor', 'default');
+        $('#sub').prop('disabled', false);
+        $("#modify_class_modal").hide();
 	});
 }
 
