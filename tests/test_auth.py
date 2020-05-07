@@ -49,7 +49,8 @@ def test_register_validate_input(client, username, password, email, message):
 
 @pytest.mark.parametrize(('email', 'password', 'message'), (
     ('1', 's', b'Unknown email.'),
-    ('david.baux@inserm.fr', 'r', b'Incorrect password.')
+    ('david.baux@inserm.fr', 'r', b'Incorrect password.'),
+    ('david.baux@umontpellier.fr', 'fakepasswordfortesting', b'This account is not activated.')
 ))
 def test_login_validate_input(client, email, password, message):
     response = client.post(

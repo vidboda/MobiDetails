@@ -1227,20 +1227,18 @@ def prepare_email_html(title, message, send_url=True):
 
 
 def send_email(message, mail_object, receiver):
-    # params = config.mdconfig(section='email_auth')
     if "MAIL_USERNAME" in app.config:
         msg = Message(
             mail_object,
-            # sender=params['mail_username'],
             sender=app.config["MAIL_USERNAME"],
             recipients=receiver
         )
         msg.html = message
         mail.send(msg)
+        
 
 
 def send_error_email(message, mail_object):
-    # params = config.mdconfig(section='email_auth')
     if "MAIL_USERNAME" in app.config:
         msg = Message(
             mail_object,

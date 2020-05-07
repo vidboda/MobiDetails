@@ -12,7 +12,7 @@
 	{{ info("Registering currently is useful to keep track of the variants you created. It also allows you to mark some variants as favourites. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
 	<br />
 	<div align = "center">
-		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form"  enctype="application/x-www-form-urlencoded" onsubmit="$('#onsubmitinfo').html('<p>Please wait while your data is being checked.</p>');$('#sub').attr('disabled', 'disabled');">
+		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form"  enctype="application/x-www-form-urlencoded" onsubmit="$('#onsubmitinfo').html('<p>Please wait while your data is being checked.</p>');$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
        <!--onsubmit="encode_params('username');encode_params('password');encode_params('country');encode_params('institute');encode_params('email');"-->
 			<span class="w3-xlarge">Please register using your academic email address:</span><br/>

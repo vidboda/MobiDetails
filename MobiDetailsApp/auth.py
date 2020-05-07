@@ -152,20 +152,48 @@ def register():
                         '[MobiDetails - Email Validation Error]'
                     )
         if error is None:
+            # curs.execute(
+            #     "SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
+            # )
             curs.execute(
-                "SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
+                "SELECT id FROM mobiuser WHERE username = %s OR email = %s",
+                (username, email)
             )
             if curs.fetchone() is not None:
                 error = 'User {0} or email address {1} is already registered.'.format(username, email)
 
         if error is None:
             key = secrets.token_urlsafe(32)
+            # curs.execute(
+            #     "INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', 'f') RETURNING id"
+            #     .format(username, generate_password_hash(password), country, institute, email, key)
+            # )
             curs.execute(
-                "INSERT INTO mobiuser (username, password, country, institute, email, api_key) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')"
-                .format(username, generate_password_hash(password), country, institute, email, key)
+                "INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated) VALUES (%s, %s, %s, %s, %s, %s, 'f') RETURNING id",
+                (username, generate_password_hash(password), country, institute, email, key)
             )
+            user_id = curs.fetchone()[0]
             db.commit()
-            return redirect(url_for('auth.login'))
+            md_utilities.send_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails - Account activation',
+                    'Dear {0},\
+                    <p>thank you for registering in MobiDetails. We hope you will find this website useful.</p>\
+                    <p>Please follow the link below to activate your MobiDetails account:</p>\
+                    <p><a href="{1}{2}" title="Activate your MD account">Activate your MD account</a></p>\
+                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    '.format(
+                        username,
+                        request.url_root.rstrip('/'),
+                        url_for('auth.activate', mobiuser_id=user_id, api_key=key)                    
+                    ),
+                    False
+                ),
+                '[MobiDetails - Account activation]',
+                [email]
+            )
+            flash('<br /><p>Your account has been created but requires an activation step. An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
+            return redirect(url_for('md.index'))
 
         flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
@@ -210,14 +238,37 @@ def login():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
+        # curs.execute(
+        #     "SELECT * FROM mobiuser WHERE email = '{}'".format(email)
+        # )
         curs.execute(
-            "SELECT * FROM mobiuser WHERE email = '{}'".format(email)
+            "SELECT * FROM mobiuser WHERE email = %s",
+            (email,)
         )
         user = curs.fetchone()
         if user is None:
             error = 'Unknown email.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
+        elif user['activated'] is False:
+            error = 'This account is not activated. An email to activate your account has been sent to {}'.format(user['email'])
+            # message, mail_object, receiver
+            md_utilities.send_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails - Account activation',
+                    'Dear {0},<p>please follow the link below to activate your MobiDetails account:</p>\
+                    <p><a href="{1}{2}" title="Activate your MD account">Activate your MD account</a></p>\
+                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    '.format(
+                        user['username'],
+                        request.url_root.rstrip('/'),
+                        url_for('auth.activate', mobiuser_id=user['id'], api_key=user['api_key'])                    
+                    ),
+                    False
+                ),
+                '[MobiDetails - Account activation]',
+                [email]
+            )
 
         if error is None:
             session.clear()
@@ -234,6 +285,48 @@ def login():
         flash(error, 'w3-pale-red')
 
     return render_template('auth/login.html', referrer_page=referrer_page)
+
+# -------------------------------------------------------------------
+# profile
+
+
+@bp.route('/activate/<int:mobiuser_id>/<string:api_key>', methods=['GET'])
+def activate(mobiuser_id, api_key):
+    if isinstance(mobiuser_id, int) and \
+            isinstance(api_key, str):
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT id, api_key, activated FROM mobiuser WHERE id = %s AND api_key = %s",
+            (mobiuser_id, api_key)
+        )
+        user = curs.fetchone()
+        if user is None:
+            message_body = '<p>Account activation exception</p><p>Recived API key: {0} and\
+                       mobiuser_id: {1} from {2}'.format(
+                            api_key, mobiuser_id, request.remote_addr
+                        )
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    message_body
+                ),
+                '[MobiDetails - Activation Error]'
+            )
+            flash('API key and user id do not seem to fit. An admin has been warned', 'w3-pale-red')
+            return render_template('md/index.html')
+        else:
+            if user['activated'] is False and \
+                    user['api_key'] == api_key and \
+                    user['id'] == mobiuser_id:
+                curs.execute(
+                    "UPDATE mobiuser SET activated = 't' WHERE id = %s AND api_key = %s",
+                    (user['id'], user['api_key'])
+                )
+                db.commit()
+        flash('Your account has been activated, you may now log in using your email address.', 'w3-pale-green')
+        return render_template('auth/login.html')
+    return render_template('md/unknown.html')
 
 # -------------------------------------------------------------------
 # for views that require login
@@ -260,8 +353,12 @@ def profile(mobiuser_id=0):
             user_id = mobiuser_id
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # curs.execute(
+        #     "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
+        # )
         curs.execute(
-            "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
+            "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = %s",
+            (user_id,)
         )
         mobiuser = curs.fetchone()
         error = None
@@ -282,28 +379,31 @@ def profile(mobiuser_id=0):
         if mobiuser_id == 0:
             curs.execute(
                 "SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE\
-                creation_user = '{}' ORDER BY creation_date DESC".format(g.user['id'])
+                creation_user = %s ORDER BY creation_date DESC",
+                (g.user['id'],)
             )
             variants = curs.fetchall()
             num_var = curs.rowcount
     
             curs.execute(
                 "SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b \
-                WHERE  a.id = b.feature_id AND b.mobiuser_id = '{}' ORDER BY a.gene_name, a.ng_name".format(g.user['id'])
+                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s ORDER BY a.gene_name, a.ng_name",
+                (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
             if error is None:
-                num_var_fav = curs.rowcount
+                # num_var_fav = curs.rowcount
                 return render_template('auth/profile.html', mobiuser=mobiuser, view='own', num_var=num_var,
-                                       num_var_fav=num_var_fav, variants=variants, variants_favourite=variants_favourite)
+                                       num_var_fav=curs.rowcount, variants=variants, variants_favourite=variants_favourite)
         elif error is None:
             # other profile view
-            return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None, num_var_fav=None, variants=None, variants_favourite=None)
+            return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None,
+                                   num_var_fav=None, variants=None, variants_favourite=None)
     
         flash(error, 'w3-pale-red')
         return render_template('md/index.html')
     else:
-        flash('Invalid user ID!!', 'w3-pale-red')
+        0('Invalid user ID!!', 'w3-pale-red')
         return render_template('md/index.html')
 
 # -------------------------------------------------------------------
@@ -320,7 +420,8 @@ def load_logged_in_user():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT * FROM mobiuser WHERE id = '{}'".format(user_id,)
+            "SELECT * FROM mobiuser WHERE id = %s",
+            (user_id,)
         )
         g.user = curs.fetchone()
     close_db()
