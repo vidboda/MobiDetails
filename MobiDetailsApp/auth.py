@@ -324,8 +324,8 @@ def activate(mobiuser_id, api_key):
                     (user['id'], user['api_key'])
                 )
                 db.commit()
-        flash('Your account has been activated, you may now log in using your email address.', 'w3-pale-green')
-        return render_template('auth/login.html')
+                flash('Your account has been activated, you may now log in using your email address.', 'w3-pale-green')
+                return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
 # -------------------------------------------------------------------

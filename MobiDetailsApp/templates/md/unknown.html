@@ -4,5 +4,7 @@
 {% block content %}
 	{% if query is defined %}
 		{{ danger("MobiDetails does not understand your query:", query, transformed_query) }}
+	{% else %}
+		{{ danger("MobiDetails does not understand this query. ") }}
 	{% endif %}
 {% endblock %}
