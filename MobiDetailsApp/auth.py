@@ -184,7 +184,7 @@ def register():
                     <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         username,
-                        request.url_root.rstrip('/'),
+                        request.host_url.rstrip('/'),
                         url_for('auth.activate', mobiuser_id=user_id, api_key=key)                    
                     ),
                     False
@@ -261,7 +261,7 @@ def login():
                     <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
-                        request.url_root.rstrip('/'),
+                        request.host_url.rstrip('/'),
                         url_for('auth.activate', mobiuser_id=user['id'], api_key=user['api_key'])                    
                     ),
                     False
