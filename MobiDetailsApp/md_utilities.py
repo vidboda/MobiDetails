@@ -253,7 +253,8 @@ def get_ncbi_chr_name(db, chr_name, genome):  # get NCBI chr names for common na
         short_chr = get_short_chr_name(chr_name)
         if short_chr is not None:
             curs.execute(
-                "SELECT ncbi_name FROM chromosomes WHERE genome_version = '{0}' AND name = '{1}'".format(genome, short_chr)
+                "SELECT ncbi_name FROM chromosomes WHERE genome_version = %s AND name = %s",
+                (genome, short_chr)
             )
             ncbi_name = curs.fetchone()
             # print(ncbi_name)
@@ -265,7 +266,8 @@ def get_common_chr_name(db, ncbi_name):  # get common chr names for NCBI names
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if is_valid_ncbi_chr(ncbi_name):
         curs.execute(
-            "SELECT name, genome_version FROM chromosomes WHERE ncbi_name = '{}'".format(ncbi_name)
+            "SELECT name, genome_version FROM chromosomes WHERE ncbi_name = %s",
+            (ncbi_name,)
         )
         res = curs.fetchone()
         if res is not None:
@@ -307,12 +309,17 @@ def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
 def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):  # compute position relative to nearest splice site
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform?
+    # curs.execute(
+    #     "SELECT segment_start, segment_end FROM segment WHERE genome_version = '{0}'\
+    #     AND gene_name = '{{\"{1}\",\"{2}\"}}' AND type = '{3}' AND number = '{4}'".format(
+    #         genome, gene[0], gene[1],
+    #         seg_type, seg_num
+    #     )
+    # )
     curs.execute(
-        "SELECT segment_start, segment_end FROM segment WHERE genome_version = '{0}'\
-        AND gene_name = '{{\"{1}\",\"{2}\"}}' AND type = '{3}' AND number = '{4}'".format(
-            genome, gene[0], gene[1],
-            seg_type, seg_num
-        )
+        "SELECT segment_start, segment_end FROM segment WHERE genome_version = %s\
+        AND gene_name[1] = %s and gene_name[2] = %s AND type = %s AND number = %s",
+        (genome, gene[0], gene[1], seg_type, seg_num)
     )
     positions = curs.fetchone()
     if positions is not None:
@@ -606,7 +613,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform?
     curs.execute(
-        "SELECT canonical FROM gene WHERE name[2] = '{0}'".format(acc_no)
+        "SELECT canonical FROM gene WHERE name[2] = %s",
+        (acc_no,)
     )
     res_main = curs.fetchone()
     remapper = False
@@ -614,7 +622,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         # check if canonical in vv_data
         # we want variants in priority in canonical isoforms
         curs.execute(
-            "SELECT name, nm_version FROM gene WHERE name[1] = '{0}' and canonical = 't'".format(gene)
+            "SELECT name, nm_version FROM gene WHERE name[1] = %s and canonical = 't'",
+            (gene,)
         )
         res_can = curs.fetchone()
         # main_key_reg = "{0}\.{1}".format(res_can['name'][1], res_can['nm_version'])
@@ -783,7 +792,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 
     # check again if variant exist
     curs.execute(
-        "SELECT feature_id FROM variant WHERE genome_version = '{0}' AND g_name = '{1}'".format(genome, hg38_d['g_name'])
+        "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s",
+        (genome, hg38_d['g_name'])
     )
     res = curs.fetchone()
     if res is not None:
@@ -848,8 +858,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
 
     # we need strand later
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # curs.execute(
+    #     "SELECT strand FROM gene WHERE name = '{{\"{0}\",\"{1}\"}}'".format(gene, acc_no)
+    # )
     curs.execute(
-        "SELECT strand FROM gene WHERE name = '{{\"{0}\",\"{1}\"}}'".format(gene, acc_no)
+        "SELECT strand FROM gene WHERE name[1] = %s AND name[2] = %s",
+        (gene, acc_no)
     )
     res_strand = curs.fetchone()
     if res_strand is None:
@@ -899,12 +913,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     # exons pos, etc - based on hg38
 
     if positions[0] != positions[1]:
+        # curs.execute(
+        #     "SELECT number, type FROM segment WHERE genome_version = '{0}' AND \
+        #     gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start \
+        #     AND segment_end AND {4} BETWEEN SYMMETRIC segment_start AND segment_end".format(
+        #         genome, gene, acc_no, positions[0], positions[1]
+        #     )
+        # )
         curs.execute(
-            "SELECT number, type FROM segment WHERE genome_version = '{0}' AND \
-            gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' BETWEEN SYMMETRIC segment_start \
-            AND segment_end AND {4} BETWEEN SYMMETRIC segment_start AND segment_end".format(
-                genome, gene, acc_no, positions[0], positions[1]
-            )
+            "SELECT number, type FROM segment WHERE genome_version = %s AND \
+            gene_name[1] = %s AND gene_name[2] = %s AND %s BETWEEN SYMMETRIC segment_start \
+            AND segment_end AND %s BETWEEN SYMMETRIC segment_start AND segment_end",
+            (genome, gene, acc_no, positions[0], positions[1])
         )
         res_seg = curs.fetchone()
         if res_seg is not None:
@@ -915,19 +935,17 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             vf_d['end_segment_number'] = res_seg['number']
         else:
             curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = '{0}' \
-                AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' \
-                BETWEEN SYMMETRIC segment_start AND segment_end ".format(
-                    genome, gene, acc_no, positions[0]
-                )
+                "SELECT number, type FROM segment WHERE genome_version = %s \
+                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+                BETWEEN SYMMETRIC segment_start AND segment_end ",
+                (genome, gene, acc_no, positions[0])
             )
             res_seg1 = curs.fetchone()
             curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = '{0}' \
-                AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' \
-                BETWEEN SYMMETRIC segment_start AND segment_end ".format(
-                    genome, gene, acc_no, positions[1]
-                )
+                "SELECT number, type FROM segment WHERE genome_version = %s \
+                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+                BETWEEN SYMMETRIC segment_start AND segment_end ",
+                (genome, gene, acc_no, positions[1])
             )
             res_seg2 = curs.fetchone()
             if res_strand['strand'] == '+':
@@ -967,11 +985,10 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         # print("SELECT number, type FROM segment WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}'\
         # AND '{3}' BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0]))
         curs.execute(
-            "SELECT number, type FROM segment WHERE genome_version = '{0}' \
-            AND gene_name = '{{\"{1}\",\"{2}\"}}' AND '{3}' \
-            BETWEEN SYMMETRIC segment_start AND segment_end ".format(
-                genome, gene, acc_no, positions[0]
-            )
+            "SELECT number, type FROM segment WHERE genome_version = %s \
+            AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+            BETWEEN SYMMETRIC segment_start AND segment_end ",
+            (genome, gene, acc_no, positions[0])
         )
         res_seg = curs.fetchone()
         vf_d['start_segment_type'] = res_seg['type']
@@ -1082,9 +1099,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         # return intervar_data
         if intervar_json is not None:
             curs.execute(
-                "SELECT acmg_class FROM valid_class WHERE acmg_translation = '{}'".format(
-                    intervar_json['Intervar'].lower()
-                )
+                "SELECT acmg_class FROM valid_class WHERE acmg_translation = %s",
+                (intervar_json['Intervar'].lower(),)
             )
             res_acmg = curs.fetchone()
             if res_acmg is not None:
@@ -1099,7 +1115,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         if g.user is not None:
             mobiuser = g.user['username']
         curs.execute(
-            "SELECT id FROM mobiuser WHERE username = '{}'".format(mobiuser)
+            "SELECT id FROM mobiuser WHERE username = %s",
+            (mobiuser,)
         )
         vf_d['creation_user'] = curs.fetchone()['id']
     elif caller == 'api':
@@ -1110,12 +1127,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
     )
 
-    s = ", "
+    # s = ", "
     # attributes =
-    t = "', '"
+    # t = "', '"
     insert_variant_feature = "INSERT INTO variant_feature (gene_name, {0}) VALUES ('{{\"{1}\",\"{2}\"}}', '{3}') RETURNING id".format(
-        s.join(vf_d.keys()), gene, acc_no,
-        t.join(map(str, vf_d.values()))
+        ", ".join(vf_d.keys()), gene, acc_no,
+        "', '".join(map(str, vf_d.values()))
     ).replace("'NULL'", "NULL")
     # insert_query = "INSERT INTO variant_features (c_name, gene_name, ng_name, ivs_name, p_name, \
     # wt_seq, mt_seq, dna_type, rna_type, prot_type, acmg_class, start_segment_type, start_segment_number, \

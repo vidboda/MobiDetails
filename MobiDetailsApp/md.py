@@ -77,12 +77,14 @@ def gene(gene_name=None):
     # main isoform? now canonical is stored in db
     # "SELECT * FROM gene WHERE name[1] = '{0}' AND number_of_exons = (SELECT MAX(number_of_exons) FROM gene WHERE name[1] = '{0}')".format(gene_name)
     curs.execute(
-        "SELECT * FROM gene WHERE name[1] = '{0}' AND canonical = 't'".format(gene_name)
+        "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
+        (gene_name,)
     )
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT * FROM gene WHERE name[1] = '{}' ORDER BY number_of_exons DESC".format(gene_name)
+            "SELECT * FROM gene WHERE name[1] = %s ORDER BY number_of_exons DESC",
+            (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
@@ -229,7 +231,8 @@ def gene(gene_name=None):
         if result_all is not None:
             # get annotations
             curs.execute(
-                "SELECT * FROM gene_annotation WHERE gene_name[1] = '{}'".format(gene_name)
+                "SELECT * FROM gene_annotation WHERE gene_name[1] = %s",
+                (gene_name,)
             )
             annot = curs.fetchone()
             if annot is None:
@@ -280,19 +283,22 @@ def vars(gene_name=None):
     # error = None
     # main isoform?
     curs.execute(
-        "SELECT * FROM gene WHERE name[1] = '{0}' AND canonical = 't'".format(gene_name)
+        "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
+        (gene_name,)
     )
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT name, nm_version FROM gene WHERE name[1] = '{}'".format(gene_name)
+            "SELECT name, nm_version FROM gene WHERE name[1] = %s",
+            (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
             "SELECT *, a.id as vf_id FROM variant_feature a, variant b, mobiuser c WHERE a.id = b.feature_id AND \
-             a.creation_user = c.id AND a.gene_name[1] = '{}' AND \
-             b.genome_version = 'hg38'".format(gene_name)
+             a.creation_user = c.id AND a.gene_name[1] = %s AND \
+             b.genome_version = 'hg38'",
+            (gene_name,)
         )
         variants = curs.fetchall()
         # if vars_type is not None:
@@ -321,13 +327,15 @@ def variant(variant_id=None):
     # get all variant_features and gene info
     curs.execute(
         "SELECT *, a.id as var_id, c.id as mobiuser_id FROM variant_feature a, gene b, mobiuser c \
-        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = '{0}'".format(variant_id)
+        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = %s",
+        (variant_id,)
     )
     variant_features = curs.fetchone()
     if variant_features is not None:
         # get variant info
         curs.execute(
-            "SELECT * FROM variant WHERE feature_id = '{0}'".format(variant_id)
+            "SELECT * FROM variant WHERE feature_id = %s",
+            (variant_id,)
         )
         variant = curs.fetchall()
 
@@ -345,7 +353,8 @@ def variant(variant_id=None):
         domain = None
         # favourite var?
         curs.execute(
-            "SELECT mobiuser_id FROM mobiuser_favourite WHERE feature_id = '{0}'".format(variant_id)
+            "SELECT mobiuser_id FROM mobiuser_favourite WHERE feature_id = %s",
+            (variant_id,)
         )
         favourite = curs.fetchone()
         if favourite is not None:
@@ -356,7 +365,8 @@ def variant(variant_id=None):
             if var['genome_version'] == 'hg38':
                 # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
                 curs.execute(
-                    "SELECT ncbi_name, genome_version FROM chromosomes WHERE name = '{0}'".format(var['chr'])
+                    "SELECT ncbi_name, genome_version FROM chromosomes WHERE name = %s",
+                    (var['chr'],)
                 )
                 res_chr = curs.fetchall()
                 for res in res_chr:
@@ -739,7 +749,8 @@ def variant(variant_id=None):
         curs.execute(
             "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, c.html_code, c.acmg_translation \
                 FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
-                AND a.variant_feature_id = '{0}' ORDER BY a.class_date ASC".format(variant_id)
+                AND a.variant_feature_id = %s ORDER BY a.class_date ASC",
+            (variant_id,)
         )
         class_history = curs.fetchall()
         if len(class_history) == 0:

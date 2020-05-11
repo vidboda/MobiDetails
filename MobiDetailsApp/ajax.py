@@ -277,8 +277,9 @@ def modif_class():
         try:
             curs.execute(
                 "SELECT class_date FROM class_history WHERE \
-                    variant_feature_id = '{0}' AND acmg_class = '{1}' \
-                    AND mobiuser_id = '{2}';".format(variant_id, acmg_select, g.user['id'])
+                    variant_feature_id = %s AND acmg_class = %s \
+                    AND mobiuser_id = %s",
+                (variant_id, acmg_select, g.user['id'])
             )
             res = curs.fetchone()
             if res is not None:
@@ -290,14 +291,16 @@ def modif_class():
                               </td></tr>"
                     return tr_html
                 curs.execute(
-                    "UPDATE class_history SET class_date  = '{0}', comment = '{1}' WHERE \
-                        variant_feature_id = '{2}' AND acmg_class = '{3}' \
-                        AND mobiuser_id = '{4}';".format(date, acmg_comment, variant_id, acmg_select, g.user['id'])
+                    "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
+                        variant_feature_id = %s AND acmg_class = %s \
+                        AND mobiuser_id = %s",
+                    (date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
                 curs.execute(
                     "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
-                        ('{0}', '{1}', '{2}', '{3}', '{4}' )".format(variant_id, acmg_select, g.user['id'], date, acmg_comment)
+                        (%s, %s, %s, %s, %s )",
+                    (variant_id, acmg_select, g.user['id'], date, acmg_comment)
                 )
             db.commit()
             # curs.execute(
@@ -305,7 +308,8 @@ def modif_class():
             # )
             # mobiuser_name = curs.fetchone()
             curs.execute(
-                "SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = '{}'".format(acmg_select)
+                "SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = %s",
+                (acmg_select,)
             )
             acmg_details = curs.fetchone()
             tr_html = "<tr id='{0}-{1}-{2}'> \
@@ -373,8 +377,9 @@ def remove_class():
         try:
             curs.execute(
                 "DELETE FROM class_history WHERE \
-                    variant_feature_id = '{0}' AND acmg_class = '{1}' \
-                    AND mobiuser_id = '{2}';".format(variant_id, acmg_class, g.user['id'])
+                    variant_feature_id = %s AND acmg_class = %s \
+                    AND mobiuser_id = %s",
+                (variant_id, acmg_class, g.user['id'])
             )
             db.commit()
             return 'ok'
@@ -415,9 +420,8 @@ def send_var_message():
             #         )
             # )
             curs.execute(
-                "SELECT id, username, email FROM mobiuser WHERE id = '{}'".format(
-                        receiver['id']
-                    )
+                "SELECT id, username, email FROM mobiuser WHERE id = %s",
+                (receiver['id'])
             )
             # res = curs.fetchall()
             receiver = curs.fetchone()
@@ -486,7 +490,8 @@ def create():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         var_db = new_variant.replace("c.", "")
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(var_db, acc_no)
+            "SELECT id FROM variant_feature WHERE c_name = %s AND gene_name[2] = %s",
+            (var_db, acc_no)
         )
         res = curs.fetchone()
         if res is not None:
@@ -571,10 +576,8 @@ def toggle_email_prefs():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "UPDATE mobiuser SET email_pref = '{0}' WHERE id = '{1}'".format(
-                email_prefs,
-                g.user['id']
-            )
+            "UPDATE mobiuser SET email_pref = %s WHERE id = %s",
+            (email_prefs, g.user['id'])
         )
         db.commit()
         return 'ok'
@@ -610,15 +613,13 @@ def favourite():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.form['marker'] == 'mark':
             curs.execute(
-                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES ('{0}', '{1}')".format(
-                    g.user['id'], vf_id
-                )
+                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES (%s, %s)",
+                (g.user['id'], vf_id)
             )
         else:
             curs.execute(
-                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = '{0}' AND feature_id = '{1}'".format(
-                    g.user['id'], vf_id
-                )
+                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s AND feature_id = %s",
+                (g.user['id'], vf_id )
             )
         db.commit()
         close_db()

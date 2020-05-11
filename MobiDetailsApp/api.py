@@ -32,9 +32,8 @@ def api_variant_exists(variant_ghgvs=None):
         pattern = match_object.group(2)
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT feature_id FROM variant WHERE chr = '{0}' AND g_name = '{1}' AND genome_version = '{2}'".format(
-                chrom, pattern, genome_version
-             )
+            "SELECT feature_id FROM variant WHERE chr = %s AND g_name = %s AND genome_version = %s",
+            (chrom, pattern, genome_version)
         )
         res = curs.fetchone()
         if res is not None:
@@ -59,7 +58,8 @@ def api_variant_create(variant_chgvs=None, api_key=None):
         return jsonify(mobidetails_error='Invalid API key')
     else:
         curs.execute(
-            "SELECT * FROM mobiuser WHERE api_key = '{}'".format(api_key)
+            "SELECT * FROM mobiuser WHERE api_key = %s",
+            (api_key,)
         )
         res = curs.fetchone()
         if res is None:
@@ -77,9 +77,8 @@ def api_variant_create(variant_chgvs=None, api_key=None):
         new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name = '{0}' AND gene_name[2] = '{1}'".format(
-                new_variant, acc_no
-            )
+            "SELECT id FROM variant_feature WHERE c_name = %s AND gene_name[2] = %s",
+            (new_variant, acc_no)
         )
         res = curs.fetchone()
         if res is not None:
@@ -94,7 +93,8 @@ def api_variant_create(variant_chgvs=None, api_key=None):
             # creation
             # get gene
             curs.execute(
-                "SELECT name[1] as gene FROM gene WHERE name[2] = '{0}'".format(acc_no)
+                "SELECT name[1] as gene FROM gene WHERE name[2] = %s",
+                (acc_no,)
             )
             res_gene = curs.fetchone()
             if res_gene is None:
@@ -148,7 +148,8 @@ def api_gene(gene_hgnc=None):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT * FROM gene WHERE name[{0}] = '{1}'".format(search_id, research)
+        "SELECT * FROM gene WHERE name[%s] = %s",
+        (search_id, research)
     )
     res = curs.fetchall()
     d_gene = {}
