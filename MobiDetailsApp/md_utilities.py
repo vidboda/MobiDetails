@@ -1127,12 +1127,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
     )
 
-    # s = ", "
+    s = ", "
     # attributes =
-    # t = "', '"
+    t = "', '"
     insert_variant_feature = "INSERT INTO variant_feature (gene_name, {0}) VALUES ('{{\"{1}\",\"{2}\"}}', '{3}') RETURNING id".format(
-        ", ".join(vf_d.keys()), gene, acc_no,
-        "', '".join(map(str, vf_d.values()))
+        s.join(vf_d.keys()), gene, acc_no,
+        t.join(map(str, vf_d.values()))
     ).replace("'NULL'", "NULL")
     # insert_query = "INSERT INTO variant_features (c_name, gene_name, ng_name, ivs_name, p_name, \
     # wt_seq, mt_seq, dna_type, rna_type, prot_type, acmg_class, start_segment_type, start_segment_number, \
