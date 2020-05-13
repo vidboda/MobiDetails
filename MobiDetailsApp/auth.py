@@ -190,8 +190,18 @@ def register():
                     False
                 ),
                 '[MobiDetails - Account activation]',
-                [email]
+                [email],
+                [app.config["MAIL_ERROR_RECIPIENT"]]
             )
+            # md_utilities.send_error_email(
+            #     md_utilities.prepare_email_html(
+            #         'MobiDetails Info',
+            #         'A new registration has been made:<br /><ul><li>Email:{0}</li><li>Institute:{1}</li><li>Country:{2}</li></ul>'.format(
+            #             email, institute, country
+            #         )
+            #     ),
+            #     '[MobiDetails - New Registration]'
+            # )
             flash('<br /><p>Your account has been created but requires an activation step. An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
             return redirect(url_for('md.index'))
 

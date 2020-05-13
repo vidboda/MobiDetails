@@ -1243,12 +1243,13 @@ def prepare_email_html(title, message, send_url=True):
         return render_template('md/email.html', title=title, message=message, url=request.base_url)
 
 
-def send_email(message, mail_object, receiver):
+def send_email(message, mail_object, receiver, bcc_receiver = None):
     if "MAIL_USERNAME" in app.config:
         msg = Message(
             mail_object,
             sender=app.config["MAIL_USERNAME"],
-            recipients=receiver
+            recipients=receiver,
+            bcc=bcc_receiver
         )
         msg.html = message
         mail.send(msg)
