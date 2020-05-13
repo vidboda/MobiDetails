@@ -443,7 +443,7 @@ def send_var_message():
                 message_object,
                 [receiver['email']]
             )
-            return md_utilities.info_panel('Your email has just been sent.')
+            return md_utilities.info_panel('Your email has just been sent.', '', '', 'w3-pale-green')
         else:
             return md_utilities.danger_panel('', 'Please complete the message part of the form.')
     md_utilities.send_error_email(
