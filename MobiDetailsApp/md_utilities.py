@@ -22,6 +22,8 @@ genome_regexp = 'hg[13][98]'
 nochr_chrom_regexp = '[\dXYM]{1,2}'
 nochr_captured_regexp = '\d{1,2}|[XYM]'
 
+lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
+
 def get_clinvar_current_version(clinvar_dir):
     files = os.listdir(clinvar_dir)
     dates = []
@@ -128,6 +130,7 @@ local_files = {
     'spliceai_indels': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'.format(app_path),
                         'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
 }
+
 predictor_thresholds = {
     'clinpred': 0.5,
     'dbscsnv': 0.8,

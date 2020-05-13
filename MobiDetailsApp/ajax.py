@@ -3,7 +3,7 @@ import re
 from flask import (
     Blueprint, flash, g, render_template, request
 )
-# from werkzeug.exceptions import abort
+from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db, close_db
 from . import md_utilities
@@ -218,15 +218,32 @@ def lovd():
                         lovd_urls.append(fields[5])
             if len(lovd_urls) > 0:
                 for url in lovd_urls:
+                    lovd_name = None
                     url = url.replace('"', '')
-                    if re.search('databases.lovd.nl/shared/', url):
-                        html_list.append("<a href='{0}' target='_blank'>GVLOVDShared</a>".format(url))
+                    lovd_base_url = '{0}://{1}{2}'.format(url_parse(url).scheme, url_parse(url).host, url_parse(url).path)
+                    match_obj = re.search(r'^(.+\/)variants\.php$', lovd_base_url)
+                    if match_obj:
+                        lovd_base_url = match_obj.group(1)
+                        try:                       
+                            lovd_fh = open(md_utilities.lovd_ref_file)
+                            for line in lovd_fh:
+                                if re.search(r'{}'.format(lovd_base_url), line):
+                                    lovd_name = line.split('\t')[0]
+                        except Exception:
+                            pass
+                    html_li = '<li>'
+                    html_li_end = '</li>'
+                    if len(lovd_urls) == 1:
+                        html_li = ''
+                        html_li_end = ''
+                    if lovd_name is not None:
+                        html_list.append("{0}<a href='{1}' target='_blank'>{2}</a>{3}".format(html_li, url, lovd_name, html_li_end))
                     else:
-                        html_list.append("<a href='{0}' target='_blank'>Link {1}</a>".format(url, i))
+                        html_list.append("{0}<a href='{1}' target='_blank'>Link {2}</a>{3}".format(html_li, url, i, html_li_end))
                     i += 1
             else:
                 return 'No match in LOVD public instances'
-            html = ' - '.join(html_list)
+            html = '<ul>{}</ul>'.format(''.join(html_list))
             return html
         else:
             md_utilities.send_error_email(

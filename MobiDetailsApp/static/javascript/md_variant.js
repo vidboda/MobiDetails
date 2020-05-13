@@ -119,6 +119,8 @@ function lovd(lovd_url, csrf_token) {
 	})
 	.done(function(html) {
 		$("#lovd_data").replaceWith(html);
+        $("#lovd_feature").css("vertical-align", "middle");
+        $("#lovd_description").css("vertical-align", "middle");
 	});
 }
 function intervar(intervar_url, csrf_token) {
