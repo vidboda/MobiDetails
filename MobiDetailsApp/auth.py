@@ -413,7 +413,7 @@ def profile(mobiuser_id=0):
         flash(error, 'w3-pale-red')
         return render_template('md/index.html')
     else:
-        0('Invalid user ID!!', 'w3-pale-red')
+        ('Invalid user ID!!', 'w3-pale-red')
         return render_template('md/index.html')
 
 # -------------------------------------------------------------------

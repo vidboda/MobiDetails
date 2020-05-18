@@ -352,6 +352,8 @@ $(document).ready(function() {
 		if ($('#splicing_table').length > 0) {
 			tables.push("splicing_table");
 		}
+		tables.push("maxent5ss_table");
+		tables.push("maxent3ss_table");
 		if ($('#missense_table').length > 0) {
 			tables.push("missense_table");
 		}
@@ -462,6 +464,22 @@ $(document).ready(function() {
 					},
 					layout: 'noBorders'
 				},
+                "Data for " + tables[7],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[7]]
+					},
+					layout: 'noBorders'
+				},
+                "Data for " + tables[8],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[8]]
+					},
+					layout: 'noBorders'
+				},
 			//images: [],			
 			//	" ",
 			//	"Data for " + tables[5],
@@ -513,11 +531,11 @@ $(document).ready(function() {
 		if ($('#splicing_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[7],
+				"Data for " + tables[9],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[7]]
+						body: tablesConverted[tables[9]]
 					},
 					layout: 'noBorders'
 				}
@@ -526,11 +544,11 @@ $(document).ready(function() {
 		if ($('#missense_table').length > 0) {
 			doc['content'].push(
 				" ",
-				"Data for " + tables[8],
+				"Data for " + tables[10],
 				" ", {
 					table: {
 						headerRows: 1,
-						body: tablesConverted[tables[8]]
+						body: tablesConverted[tables[10]]
 					},
 					layout: 'noBorders'
 				}

@@ -332,6 +332,7 @@ def variant(variant_id=None):
     )
     variant_features = curs.fetchone()
     if variant_features is not None:
+              
         # get variant info
         curs.execute(
             "SELECT * FROM variant WHERE feature_id = %s",
@@ -755,6 +756,62 @@ def variant(variant_id=None):
         class_history = curs.fetchall()
         if len(class_history) == 0:
             class_history = None
+        # MaxEntScan
+        # we need to iterize through the wt and mt sequences to get
+        # stretches of 23 nts for score3 and of 9 nts for score 5
+        # then we create 2 NamedTemporaryFile to store the data
+        # then run the perl scripts as subprocesses like this:
+        # import subprocess
+        # result = subprocess.run(['perl', 'score5.pl', 'test5'], stdout=subprocess.PIPE)
+        # result.stdout
+        # result is like
+        # b'CAAATTCTG\t-17.88\nAAATTCTGC\t-13.03\nAATTCTGCA\t-35.61\nATTCTGCAA\t-22.21\nTTCTGCAAT\t-31.16\nTCTGCAATC\t-13.69\nCTGCAATCC\t-14.15\nTGCAATCCT\t-37.49\nGCAATCCTC\t-30.00\n'
+        
+        # iterate through scores and get the most likely to disrupt splicing
+        # from Houdayer Humut 2012
+        # "In every case, we recommend first‐line analysis with MES using a 15% cutoff."
+        signif_scores5 = signif_scores3 = None
+        # print(pos_splice_site )
+        try:
+            scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
+            scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+            # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+            signif_scores5 = md_utilities.select_mes_scores(
+                re.split('\n', scores5wt),
+                seq5wt_html,
+                re.split('\n', scores5mt),
+                seq5mt_html,
+                0.15,
+                3
+            )
+            if signif_scores5 == {}:
+                signif_scores5 = None
+            # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
+            print(signif_scores5)
+            # ex
+            # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n', '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
+            if variant_features['start_segment_type'] != 'exon' or \
+                    (pos_splice_site[0] == 'acceptor' and \
+                    pos_splice_site[1] < 10):
+                # exonic variants not near 3' ss don't require predictions for 3'ss
+                seq3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
+                seq3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
+                signif_scores3 = md_utilities.select_mes_scores(
+                    re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
+                    seq3wt_html,
+                    re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
+                    seq3mt_html,
+                    0.15,
+                    3
+                )
+                if signif_scores3 == {}:
+                    signif_scores3 = None
+                print(signif_scores3)
+            else:
+                signif_scores3 = 'Not performed'
+        except Exception:
+            pass
+        
     else:
         close_db()
         return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
@@ -781,7 +838,7 @@ def variant(variant_id=None):
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
         urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
         variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain,
-        class_history=class_history, annot=annot
+        class_history=class_history, annot=annot, mes5=signif_scores5, mes3=signif_scores3
     )
 
 # -------------------------------------------------------------------

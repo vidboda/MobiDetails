@@ -413,11 +413,11 @@
 			</table><br/><br/>
 		</div>
 		<!--fifth section-->
-		{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
-			<hr />
-			{{ section_title('splicing', 'Splicing predictions') }}
-			<div class="w3-responsive w3-container">
-				<!--dbscSNV-->
+		<hr />
+		{{ section_title('splicing', 'Splicing predictions') }}
+		<div class="w3-responsive w3-container">
+			<!--dbscSNV / spliceAI-->
+			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
 						<tr>
@@ -522,8 +522,82 @@
 						{% endautoescape %}
 					</script>
 				{% endif %}
-			</div>
-		{% endif %}
+			{% endif %}			
+			<!-- MaxEntScan 5'ss -->
+			{% if mes5 != None or mes3 != None %}
+				<br /><div>{{ info('MaxEntScan scores are presented in the tables below. Selected scores are those that have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by MaxEntScan (putative introns are shown as lower case and exons as upper case).') }}</div>
+			{% endif %}
+			<br />
+			<table class="w3-table w3-centered display compact" style="width:90%;" id="maxent5ss_table">
+				<caption>MaxEntScan 5'ss scores</caption>
+				<thead>
+					<tr>
+						<th class="w3-left-align">Wild-type sequence</th>
+						<th class="w3-left-align">Score</th>
+						<th class="w3-left-align">Mutant sequence</th>
+						<th class="w3-left-align">Score</th>
+						<th class="w3-left-align">Variation(%)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if mes5 != None %}
+						{% autoescape false %}
+							{% for score in mes5 %}
+								<tr>
+									<td>... {{ mes5[score][5] }}...<br />... {{ mes5[score][6] }} ...</td>
+									<td style="vertical-align:middle;">{{ mes5[score][1] }}</td>
+									<td>... {{ mes5[score][7] }}...<br />... {{ mes5[score][8] }} ...</td>
+									<td style="vertical-align:middle;">{{ mes5[score][3] }}</td>
+									{% if mes5[score][4] > 0 %}
+										<td style="vertical-align:middle;">+{{ mes5[score][4] }}</td>
+									{% else %}
+										<td style="vertical-align:middle;">{{ mes5[score][4] }}</td>
+									{% endif %}
+								</tr>
+							{% endfor %}
+						{% endautoescape %}
+					{% else %}
+						<tr><td></td><td></td><td>No significant MaxEnt 5'ss scores found.</td><td></td><td></td></tr>
+					{% endif %}
+				</tbody>
+			</table><br/><br/>
+			<!-- MaxEntScan 3'ss -->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="maxent3ss_table">
+				<caption>MaxEntScan 3'ss scores</caption>
+				<thead>
+					<tr>
+						<th class="w3-left-align">Wild-type sequence</th>
+						<th class="w3-left-align">Score</th>
+						<th class="w3-left-align">Mutant sequence</th>
+						<th class="w3-left-align">Score</th>
+						<th class="w3-left-align">Variation(%)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if mes3 != None and mes3 != 'Not performed' %}
+						{% autoescape false %}
+							{% for score in mes3 %}
+								<tr>
+									<td>... {{ mes3[score][5] }}...<br />... {{ mes3[score][6] }} ...</td>
+									<td style="vertical-align:middle;">{{ mes3[score][1] }}</td>
+									<td>... {{ mes3[score][7] }}...<br />... {{ mes3[score][8] }} ...</td>
+									<td style="vertical-align:middle;">{{ mes3[score][3] }}</td>
+									{% if mes3[score][4] > 0 %}
+										<td style="vertical-align:middle;">+{{ mes3[score][4] }}</td>
+									{% else %}
+										<td style="vertical-align:middle;">{{ mes3[score][4] }}</td>
+									{% endif %}
+								</tr>
+							{% endfor %}
+						{% endautoescape %}
+					{% elif mes3 == 'Not performed' %}
+						<tr><td></td><td></td><td>No MaxEnt 3'ss score performed (exonic variant far form 3'ss).</td><td></td><td></td></tr>
+					{% else %}
+						<tr><td></td><td></td><td>No significant MaxEnt 3'ss scores found.</td><td></td><td></td></tr>
+					{% endif %}
+				</tbody>
+			</table><br/><br/>
+		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--sixth section-->
 		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}

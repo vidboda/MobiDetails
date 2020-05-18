@@ -8,6 +8,8 @@ import urllib3
 import certifi
 import json
 import twobitreader
+import tempfile
+import subprocess
 from flask import (
     url_for, request, render_template, current_app as app
 )
@@ -23,6 +25,11 @@ nochr_chrom_regexp = '[\dXYM]{1,2}'
 nochr_captured_regexp = '\d{1,2}|[XYM]'
 
 lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
+
+ext_exe = {
+    'maxentscan5': '{}/static/resources/maxentscan/score5.pl'.format(app_path),
+    'maxentscan3': '{}/static/resources/maxentscan/score3.pl'.format(app_path)
+}
 
 def get_clinvar_current_version(clinvar_dir):
     files = os.listdir(clinvar_dir)
@@ -123,6 +130,7 @@ local_files = {
                           'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
     'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
                           'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+    'maxentscan': ['{}/static/resources/maxentscan/', '2004', 'MaxEntScan', 'Human splice site prediction', 'maxentscan'],
     'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
                  'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
     'spliceai_snvs': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'.format(app_path),
@@ -1270,3 +1278,88 @@ def send_error_email(message, mail_object):
         )
         msg.html = message
         mail.send(msg)
+
+
+def maxentscan(w, y, seq, scantype, a=0, x=26):
+    # takes a sequence and positions as input
+    # returns a list of sequences
+    # a = window slider
+    # x = pos 1st nt / mutation (26)
+    # y = len(var)
+    # z = len(resulting seq) must be = 9|23
+    # w = len(seq required) = 9|23
+    # print('{0}-{1}-{2}-{3}'.format(w, y, seq, scantype))
+    z = w
+    seq = seq.replace(' ', '')
+    seq = seq.replace('-', '')
+    # html_seq = '{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(seq[:25], seq[25:25+y], seq[25+y:])
+    # y = variant_features['variant_size']
+    pos1 = pos2 = 0
+    seqs = []
+    seqs_html = []
+    while z == w and \
+            a < y + w -1 and \
+            pos2 < len(seq):
+        pos1 = x - (w - y) + a
+        pos2 = x + (a + y - 1)
+        z = (pos2 - pos1 + 1)
+        # print('{0}-{1}'.format(pos1-1, pos2))
+        # get substring
+        # seqs.append('>{0}{1}\n{2}\n'.format(seqtype, a, seq[pos1-1:pos2]))
+        interest_seq = '{}\n'.format(seq[pos1-1:pos2])
+        seqs.append(interest_seq)
+        # we need to html highlight the mutant sequence so to retrieve it here
+        # r is the beginning of the subseq and defined as "((len(seq required 4 maxent; 9 or 23) - window position - 1) - (len(var) -1)))
+        # s is the end of the substring being r + len(var)
+        # limitation for delins => the size is the size of the deleted sequence
+        r = (w - a - 1) - (y - 1)
+        s = r + y
+        #we need to remap r and s if < 0
+        if (r < 0):
+            r = 0
+            s = s + abs(r)
+            if s < 0:
+                s = 0
+        # print('r: {0};s: {1}'.format(r, s))
+        # print('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))
+        seqs_html.append('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))        
+        a += 1
+    # create temp file and launch maxentscan
+    tf = tempfile.NamedTemporaryFile()
+    # print(tf.name)
+    tf.write(bytes(''.join(seqs), encoding = 'utf-8'))
+    tf.seek(0)
+    # cannot figure out why the above line is mandatory but without it the file is empty
+    # print(tf.read())
+    result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
+    # print(result)
+    # print(str(result.stdout))
+    return [str(result.stdout, 'utf-8'), seqs_html]
+
+
+def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
+    # get 2 lists of wt and mt scores, returns only those
+    # which have a 15% variation
+    signif_scores = {}
+    for i in range(len(scoreswt)):
+        # a score is
+        # CAAATTCTG\t-17.88
+        if i < len(scoresmt):
+            wt = re.split('\s+', scoreswt[i])
+            mt = re.split('\s+', scoresmt[i])
+            if len(wt) == 2 and \
+                    len(mt) == 2:
+                variation = (float(mt[1]) - float(wt[1])) / abs(float(wt[1]))
+                if abs(variation) >= float(cutoff) and (float(mt[1]) > threshold or float(wt[1]) > threshold):
+                    # get span with exon/intron depending on score5 or score 3
+                    html_seqwt = html_seqmt = ''
+                    if len(wt[0]) == 9:
+                        #score 5
+                        html_seqwt = '<strong>{0}</strong>{1}'.format(wt[0][:3], wt[0][3:].lower())
+                        html_seqmt = '<strong>{0}</strong>{1}'.format(mt[0][:3], mt[0][3:].lower())
+                    else:
+                        html_seqwt = '{0}<strong>{1}</strong>'.format(wt[0][:20].lower(), wt[0][20:])
+                        html_seqmt = '{0}<strong>{1}</strong>'.format(mt[0][:20].lower(), mt[0][20:])
+                    signif_scores[i] = [wt[0], wt[1], mt[0], mt[1], round(variation*100, 2), html_wt[i], html_seqwt, html_mt[i], html_seqmt]
+    return signif_scores
+    
