@@ -308,41 +308,16 @@ def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
         return True
     return False
 
-# def acmg_translation(acmg_code):
-#     if isinstance(acmg_code, int) and \
-#         acmg_code > 0 and \
-#         acmg_code < 6:
-#         return acmg_class[int(acmg_code)]
-#     else:
-#         return []
 
-
-def get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome='hg38'):  # compute position relative to nearest splice site
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # main isoform?
-    # curs.execute(
-    #     "SELECT segment_start, segment_end FROM segment WHERE genome_version = '{0}'\
-    #     AND gene_name = '{{\"{1}\",\"{2}\"}}' AND type = '{3}' AND number = '{4}'".format(
-    #         genome, gene[0], gene[1],
-    #         seg_type, seg_num
-    #     )
-    # )
-    curs.execute(
-        "SELECT segment_start, segment_end FROM segment WHERE genome_version = %s\
-        AND gene_name[1] = %s and gene_name[2] = %s AND type = %s AND number = %s",
-        (genome, gene[0], gene[1], seg_type, seg_num)
-    )
-    positions = curs.fetchone()
+def get_pos_splice_site(pos, positions):  # compute position relative to nearest splice site
     if positions is not None:
         # print("{0}-{1}-{2}".format(positions['segment_start'],pos,positions['segment_end']))
         if abs(int(positions['segment_end'])-int(pos)+1) <= abs(int(positions['segment_start'])-int(pos)+1):
-            # n ear from segment_end
-            # if seg_type == 'exon':
+            # near from segment_end
             # always exons!!!!
             return ['donor', abs(int(positions['segment_end'])-int(pos))+1]
         else:
             # near from segment_start
-            # if seg_type == 'exon':
             return ['acceptor', abs(int(positions['segment_start'])-int(pos))+1]
 
 
@@ -353,6 +328,38 @@ def get_pos_splice_site_intron(name):  # get position of intronic variant to the
     match_obj = re.search(r'\d+[\+-](\d+)_\d+[\+-](\d+)[^\d_]', name)
     if match_obj:
         return min(match_obj.group(1), match_obj.group(2))
+
+
+def get_pos_exon_canvas(pos, positions):  # compute relative position in exon for canvas drawing
+    if positions is not None:
+        pos_from_beginning = abs(int(positions['segment_start'])-int(pos))+1
+        # rel_pos = pos_from_beginning / positions['segment_size']
+        # rel_pos_canvas = rel_pos * 200
+        return [200 + int(round((pos_from_beginning / positions['segment_size'])*200)), positions['segment_size']]
+
+
+def get_exon_neighbours(db, positions):  # get introns names, numbers surrounding an exon
+    prec_type = prec_number = fol_type = fol_number = None
+    if positions['number'] == 1:
+        prec_type = "5'"
+        prec_number = "UTR"
+    else:
+        prec_type = "intron"
+        prec_number = positions['number'] - 1
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    curs.execute(
+        "SELECT type FROM segment WHERE gene_name[2] = %s AND number = %s and type <> 'exon'",
+        (positions['gene_name'][1], positions['number'] + 1)
+    )
+    following_seg = curs.fetchone()
+    if following_seg is not None:
+        if following_seg['type'] == '3UTR':
+            fol_type = "3'"
+            fol_number = "UTR"
+        else:
+            fol_type = "intron"
+            fol_number = positions['number']
+    return [prec_type, prec_number, fol_type, fol_number]
 
 
 def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
@@ -1362,4 +1369,42 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
                         html_seqmt = '{0}<strong>{1}</strong>'.format(mt[0][:20].lower(), mt[0][20:])
                     signif_scores[i] = [wt[0], wt[1], mt[0], mt[1], round(variation*100, 2), html_wt[i], html_seqwt, html_mt[i], html_seqmt]
     return signif_scores
-    
+
+
+def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
+    # 1st we need the sequences and therefore determine start and end of interest
+    x = y = None
+    if scantype == 3:
+        if strand == '+':
+            x = positions['segment_start']-21
+            y = positions['segment_start']+2
+        else:
+            x = positions['segment_start']-3
+            y = positions['segment_start']+20
+
+    else:
+        if strand == '+':
+            x = positions['segment_end']-3
+            y = positions['segment_end']+6
+        else:
+            x = positions['segment_end']-7
+            y = positions['segment_end']+2
+
+    genome = twobitreader.TwoBitFile(local_files['human_genome_hg38'][0])
+    current_chrom = genome['chr{}'.format(chrom)]
+    seq_slice = current_chrom[x:y].upper()
+    if strand == '-':
+        seq_slice = reverse_complement(seq_slice).upper()
+    # create temp file and launch maxentscan
+    tf = tempfile.NamedTemporaryFile()
+    # print(tf.name)
+    tf.write(bytes(seq_slice, encoding = 'utf-8'))
+    tf.seek(0)
+    if scantype == 3:
+        formatted_seq = '{0}{1}'.format(seq_slice[:20].lower(), seq_slice[20:])
+    else:
+        formatted_seq = '{0}{1}'.format(seq_slice[:3], seq_slice[3:].lower())
+    # cannot figure out why the above line is mandatory but without it the file is empty
+    # print(tf.read())
+    result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
+    return [float(re.split('\n', re.split('\t', str(result.stdout, 'utf-8'))[1])[0]), formatted_seq]

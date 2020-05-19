@@ -21,3 +21,10 @@ a:hover {
 	color:#F70F00;
     text-decoration:none;
 }*/
+.exonic_canvas {
+	border:1px dotted;
+	position:relative;
+	left:0px;
+    /*width: 100%;*/
+	/*background-color:#F8FBEF;*/
+}

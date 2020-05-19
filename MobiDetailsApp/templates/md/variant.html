@@ -215,7 +215,7 @@
 						{% if pos_splice is not none %}
 							<tr>
 								<td class="w3-left-align">Position / splice site</td>
-								<td class="w3-left-align">{{ pos_splice[1] }} bp from {{ pos_splice[0] }}</td>
+								<td class="w3-left-align">{{ annot.nearest_site_dist }} bp from {{ annot.nearest_site_type }}</td>
 								<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
 							</tr>
 						{% endif %}
@@ -416,117 +416,45 @@
 		<hr />
 		{{ section_title('splicing', 'Splicing predictions') }}
 		<div class="w3-responsive w3-container">
-			<!--dbscSNV / spliceAI-->
-			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
-				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
-					<thead>
-						<tr>
-							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align" width="40%">Values</th>
-							<th class="w3-left-align">Descriptions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% if variant_features.dna_type == 'substitution' %}
-							<tr><!--dbscSNV ADA-->
-								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
-								<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
-							</tr>
-							<tr><!--dbscSNV RF-->
-								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
-								<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_rf_color) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
-							</tr>
-						{% endif %}
-						{% if annot.spliceai_DS_AG is defined %}
-							<tr><!--spliceAI AG-->
-								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
-								<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
-								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-							</tr>
-							<tr><!--spliceAI AL-->
-								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
-								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-							</tr>
-							<tr><!--spliceAI DG-->
-								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
-								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-							</tr>
-							<tr><!--spliceAI DL-->
-								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
-								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-							</tr>
-						{% elif annot.spliceai is defined %}
-							<tr><!--spliceAI DL-->
-								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
-								<td class="w3-left-align">{{ annot.spliceai  }}</td>
-								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-							</tr>
-						{% endif %}
-					</tbody>
-				</table><br/><br/>
-				{% if annot.spliceai_DS_AG is defined %}
-					<div class="w3-row-padding">
-						<!--Splicing radar chart-->
-						<div class="w3-col m4">
-							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
-						</div>
-					</div>
-					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
-						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
-							<header class="w3-container w3-blue">
-								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
-								<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
-								<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
-							</header>
-							<div class="w3-container">
-								<div class="chart-container" style="position: relative;">
-									<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
-								</div>
-							</div>
-						</div>
-					</div>
-					<script>
-						Chart.defaults.global.defaultFontSize=16;
-						var point_font_size = 16
-						var wi = $(window).width();
-						if (wi < 400) {
-							Chart.defaults.global.defaultFontSize=12;
-							point_font_size = 12;
-						}
-						{% autoescape false %}
-							var myRadarChart = new Chart($("#splicing_radar"), {
-								type: 'radar',
-								data: {
-									//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
-									labels: {{ splicing_radar_labels }},
-									datasets: [{
-										label:'Splicing predictors',
-										data: {{ splicing_radar_values }},
-										fill: true,
-										backgroundColor:'rgb(255, 99, 132, 0.2)',
-										borderColor:'rgb(255, 99, 132)',
-										pointBackgroundColor:'rgb(255, 99, 132)',
-										pointBorderColor:'#fff',
-										pointHoverBackgroundColor:'#fff',
-										pointHoverBorderColor:'rgb(255, 99, 132)'
-									}]
-								},
-								options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
-							});
-						{% endautoescape %}
-					</script>
-				{% endif %}
-			{% endif %}			
-			<!-- MaxEntScan 5'ss -->
-			{% if mes5 != None or mes3 != None %}
-				<br /><div>{{ info('MaxEntScan scores are presented in the tables below. Selected scores are those that have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by MaxEntScan (putative introns are shown as lower case and exons as upper case).') }}</div>
+			{% if variant_features.start_segment_type == 'exon' and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
+				<!-- Exonic Splicing context -->
+				<br /><div>{{ info("The exonic splicing context of the variant is summarized in the graph below:") }}</div>
+				<div class="w3-container w3-center">
+					<canvas class="exonic_canvas" width="600" height="150" id="segment_drawing">Your web browser does not understand HTML5. In order to display the small graph, you must use a more recent one.</canvas>
+				</div>
+				<script type="text/javascript">
+					var canvas = document.getElementById("segment_drawing");
+					var context = canvas.getContext("2d");
+					context.fillStyle = "#000000";
+					context.font = "bold 14px sans-serif";
+					context.strokeStyle = "#2196F3";
+					context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
+					context.fillText("c.{% autoescape false %}{{ variant_features.c_name }}{% endautoescape %}", {{ annot.pos_exon_canvas }}, 20);
+					context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
+					context.fillText("3'ss MaxEnt: {{ annot.nat3ss_score }}", 150, 125);
+					context.fillText("{{ annot.nat3ss_seq }}", 50, 140);
+					context.fillText("5'ss MaxEnt: {{ annot.nat5ss_score }}", 400, 125);
+					context.fillText("{{ annot.nat5ss_seq }}", 400, 140);
+					context.moveTo(100,75);
+					context.lineTo(200,75);
+					context.stroke();
+					context.moveTo({{ annot.pos_exon_canvas }},20);
+					context.lineTo({{ annot.pos_exon_canvas }},20+30);
+					context.stroke();
+					context.fillStyle = "#fdf5e6"
+					context.fillRect(200,50,200,50);
+					context.strokeRect(200,50,200,50);
+					context.fillStyle = "#000000";
+					context.fillText("{{ variant_features.start_segment_type }} {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
+					context.moveTo(400,75);
+					context.lineTo(500,75);
+					context.stroke();
+				</script>
 			{% endif %}
+			<!-- MaxEntScan 5'ss -->
+			{# {% if mes5 != None or (mes3 != None and mes3 != 'Not performed') %} #}
+				<div>{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}</div>
+			{#{% endif %}#}
 			<br />
 			<table class="w3-table w3-centered display compact" style="width:90%;" id="maxent5ss_table">
 				<caption>MaxEntScan 5'ss scores</caption>
@@ -597,6 +525,114 @@
 					{% endif %}
 				</tbody>
 			</table><br/><br/>
+			<!--dbscSNV / spliceAI-->
+			<div>{{ info('This last table present dbscSNV and spliceAi scores, when available.') }}</div>
+			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
+				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align">Descriptions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if variant_features.dna_type == 'substitution' %}
+							<tr><!--dbscSNV ADA-->
+								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
+								<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+							</tr>
+							<tr><!--dbscSNV RF-->
+								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
+								<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_rf_color) }}</td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+							</tr>
+						{% endif %}
+						{% if annot.spliceai_DS_AG is defined %}
+							<tr><!--spliceAI AG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
+								<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
+								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr><!--spliceAI AL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr><!--spliceAI DG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr><!--spliceAI DL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
+								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+						{% elif annot.spliceai is defined %}
+							<tr>
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
+								<td class="w3-left-align">{{ annot.spliceai }}</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+						{% endif %}
+					</tbody>
+				</table><br/><br/>
+				{% if annot.spliceai_DS_AG is defined %}
+					<div class="w3-row-padding">
+						<!--Splicing radar chart-->
+						<div class="w3-col m4">
+							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+						</div>
+					</div>
+					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+							<header class="w3-container w3-blue">
+								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
+								<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
+								<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+							</header>
+							<div class="w3-container">
+								<div class="chart-container" style="position: relative;">
+									<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+					<script>
+						Chart.defaults.global.defaultFontSize=16;
+						var point_font_size = 16
+						var wi = $(window).width();
+						if (wi < 400) {
+							Chart.defaults.global.defaultFontSize=12;
+							point_font_size = 12;
+						}
+						{% autoescape false %}
+							var myRadarChart = new Chart($("#splicing_radar"), {
+								type: 'radar',
+								data: {
+									//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
+									labels: {{ splicing_radar_labels }},
+									datasets: [{
+										label:'Splicing predictors',
+										data: {{ splicing_radar_values }},
+										fill: true,
+										backgroundColor:'rgb(255, 99, 132, 0.2)',
+										borderColor:'rgb(255, 99, 132)',
+										pointBackgroundColor:'rgb(255, 99, 132)',
+										pointBorderColor:'#fff',
+										pointHoverBackgroundColor:'#fff',
+										pointHoverBorderColor:'rgb(255, 99, 132)'
+									}]
+								},
+								options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
+							});
+						{% endautoescape %}
+					</script>
+				{% endif %}
+			{% endif %}
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--sixth section-->

@@ -132,39 +132,17 @@ def test_is_valid_ncbi_chr(client, chr_name, valid):
     valid_test = md_utilities.is_valid_ncbi_chr(chr_name)
     assert valid_test == valid
 
-
-# @pytest.mark.parametrize(('code', 'class_table'), (
-#     (1, ['Neutral', '#00A020']),
-#     (2, ['Likely Neutral', '#0404B4']),
-#     (5, ['Pathogenic', '#FF0000']),
-#     (17, []),
-#     ('17', []),
-#     ('nimp', [])
-# ))
-# def test_acmg_translation(client, code, class_table):
-#     valid_test = md_utilities.acmg_translation(code)
-#     assert valid_test == class_table
-
-
 # pytest tests/test_md_utilities.py::test_get_pos_splice_site
 
 
-@pytest.mark.parametrize(('pos', 'seg_type', 'seg_num', 'gene', 'genome', 'result'), (
-    (216595579, 'exon', 2, ['USH2A', 'NM_206933'], 'hg19', ['acceptor', 304]),
-    (216422237, 'exon', 2, ['USH2A', 'NM_206933'], 'hg38', ['acceptor', 304]),
-    (53321423, 'exon', 1, ['AAAS', 'NM_015665'], 'hg38', ['donor', 81]),
-    (53715207, 'exon', 1, ['AAAS', 'NM_015665'], 'hg19', ['donor', 81]),
-    (34007971, 'exon', 1, ['AMACR', 'NM_014324'], 'hg19', ['donor', 94]),
-    (34007866, 'exon', 1, ['AMACR', 'NM_014324'], 'hg38', ['donor', 94]),
-    (76912640, 'exon', 36, ['MYO7A', 'NM_000260'], 'hg19', ['donor', 44]),
-    (77201595, 'exon', 36, ['MYO7A', 'NM_000260'], 'hg38', ['donor', 44]),
-    (76894138, 'exon', 26, ['MYO7A', 'NM_000260'], 'hg19', ['acceptor', 26]),
-    (77183093, 'exon', 26, ['MYO7A', 'NM_000260'], 'hg38', ['acceptor', 26])
+@pytest.mark.parametrize(('pos', 'positions', 'result'), (
+    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, ['acceptor', 304]),
+    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, ['donor', 94]),
+    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, ['donor', 44]),
+    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, ['acceptor', 26])
 ))
-def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, result):
-    with app.app_context():
-        db = get_db()
-        dist = md_utilities.get_pos_splice_site(db, pos, seg_type, seg_num, gene, genome)
+def test_get_pos_splice_site(pos, positions, result):
+    dist = md_utilities.get_pos_splice_site(pos, positions)
     assert dist == result
 
 
@@ -176,6 +154,28 @@ def test_get_pos_splice_site(client, app, pos, seg_type, seg_num, gene, genome, 
 def test_get_pos_splice_site_intron(client, app, name, return_value):
     dist = md_utilities.get_pos_splice_site_intron(name)
     assert dist == return_value
+
+@pytest.mark.parametrize(('pos', 'positions', 'result'), (
+    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, (288, 689)),
+    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, (333, 278)),
+    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, (355, 191)),
+    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, (258, 90))
+))
+def test_get_pos_exon_canvas(pos, positions, result):
+    canvas = md_utilities.get_pos_exon_canvas(pos, positions)
+    assert canvas == result
+
+@pytest.mark.parametrize(('positions', 'result'), (
+    ({'gene_name':['AMACR', 'NM_001167595'], 'number':1}, ["5'", "UTR", "intron", 1]),
+    ({'gene_name':['USH2A', 'NM_206933'], 'number':13}, ["intron", 12, "intron", 13]),
+    ({'gene_name':['MYO7A', 'NM_000260'], 'number':49}, ["intron", 48, "3'", "UTR"]),
+    ({'gene_name':['GJB2', 'NM_004004'], 'number':2}, ["intron", 1, "3'", "UTR"])
+))
+def test_get_exon_neighbours(app, positions, result):
+    with app.app_context():
+        db = get_db()
+        neighbours = md_utilities.get_exon_neighbours(db, positions)
+        assert neighbours == result
 
 
 @pytest.mark.parametrize(('variant_in', 'aa_pos'), (
@@ -446,6 +446,17 @@ def test_maxentscan(w, y, seq, scan_type, result):
     score = md_utilities.maxentscan(w, y, seq, scan_type)
     assert score[0] == result
 
+@pytest.mark.parametrize(('chrom', 'strand', 'scan_type', 'positions', 'result'), (
+    (11, '+', 3, {'segment_start': 77201448,'segment_end': 77201638}, [5.40, 'cactcacctctgctctacagCAG']),
+    (11, '+', 5, {'segment_start': 77201448,'segment_end': 77201638}, [7.64, 'GTGgtatgt']),
+    (1, '-', 3, {'segment_start': 216247226,'segment_end': 216246585}, [8.95, 'taaatatattttatctttagGGC']),
+    (1, '-', 5, {'segment_start': 216247226,'segment_end': 216246585}, [10.77, 'CAGgtaaga']),
+    (5, '-', 3, {'segment_start': 34005899,'segment_end': 34005756}, [7.95, 'atcgttacttttctcttaagGTG']),
+    (5, '-', 5, {'segment_start': 34005899,'segment_end': 34005756}, [9.80, 'CAGgtatgt'])
+))
+def test_get_maxent_natural_sites_scores(chrom, strand, scan_type, positions, result):
+    maxent_natural = md_utilities.get_maxent_natural_sites_scores(chrom, strand, scan_type, positions)
+    assert maxent_natural == result
 # scoreswt = ['GGTGGTCTCCAGCCTTTTACAGG\t-8.62', 'GTGGTCTCCAGCCTTTTACAGGT\t-15.00', 'TGGTCTCCAGCCTTTTACAGGTA\t5.22', 'GGTCTCCAGCCTTTTACAGGTAA\t-10.77', 'GTCTCCAGCCTTTTACAGGTAAT\t-26.67', 'TCTCCAGCCTTTTACAGGTAATG\t-27.62', 'CTCCAGCCTTTTACAGGTAATGT\t-11.72', 'TCCAGCCTTTTACAGGTAATGTG\t-11.21', 'CCAGCCTTTTACAGGTAATGTGG\t-15.62', 'CAGCCTTTTACAGGTAATGTGGA\t-22.41', 'AGCCTTTTACAGGTAATGTGGAG\t-25.73', 'GCCTTTTACAGGTAATGTGGAGG\t-12.15', 'CCTTTTACAGGTAATGTGGAGGT\t-27.04', 'CTTTTACAGGTAATGTGGAGGTC\t-10.80', 'TTTTACAGGTAATGTGGAGGTCC\t-13.64', 'TTTACAGGTAATGTGGAGGTCCT\t-24.18', 'TTACAGGTAATGTGGAGGTCCTC\t-35.55', 'TACAGGTAATGTGGAGGTCCTCT\t-23.70', 'ACAGGTAATGTGGAGGTCCTCTA\t-22.70', 'CAGGTAATGTGGAGGTCCTCTAA\t-25.09', 'AGGTAATGTGGAGGTCCTCTAAA\t-23.02', 'GGTAATGTGGAGGTCCTCTAAAT\t-20.93', 'GTAATGTGGAGGTCCTCTAAATT\t-10.23', '']
 # scoresmt = ['GGTGGTCTCCAGCCTTTTACAGA\t-8.20', 'GTGGTCTCCAGCCTTTTACAGAT\t-14.75', 'TGGTCTCCAGCCTTTTACAGATA\t4.51', 'GGTCTCCAGCCTTTTACAGATAA\t-19.52', 'GTCTCCAGCCTTTTACAGATAAT\t-18.71', 'TCTCCAGCCTTTTACAGATAATG\t-19.24', 'CTCCAGCCTTTTACAGATAATGT\t-11.20', 'TCCAGCCTTTTACAGATAATGTG\t-11.13', 'CCAGCCTTTTACAGATAATGTGG\t-15.36', 'CAGCCTTTTACAGATAATGTGGA\t-21.98', 'AGCCTTTTACAGATAATGTGGAG\t-25.75', 'GCCTTTTACAGATAATGTGGAGG\t-11.23', 'CCTTTTACAGATAATGTGGAGGT\t-26.14', 'CTTTTACAGATAATGTGGAGGTC\t-10.16', 'TTTTACAGATAATGTGGAGGTCC\t-12.89', 'TTTACAGATAATGTGGAGGTCCT\t-25.08', 'TTACAGATAATGTGGAGGTCCTC\t-35.69', 'TACAGATAATGTGGAGGTCCTCT\t-23.45', 'ACAGATAATGTGGAGGTCCTCTA\t-22.62', 'CAGATAATGTGGAGGTCCTCTAA\t-24.86', 'AGATAATGTGGAGGTCCTCTAAA\t-22.87', 'GATAATGTGGAGGTCCTCTAAAT\t-19.36', 'ATAATGTGGAGGTCCTCTAAATT\t-9.76', '']
 # 

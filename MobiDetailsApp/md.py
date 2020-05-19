@@ -382,11 +382,31 @@ def variant(variant_id=None):
                         variant_features['start_segment_number'] == variant_features['end_segment_number'] and \
                         not re.search(r'\*', variant_features['c_name']) and \
                         not re.search(r'^-', variant_features['c_name']):
-                    # get a tuple ['site_type', 'dist(bp)']
-                    pos_splice_site = md_utilities.get_pos_splice_site(
-                        db, var['pos'], variant_features['start_segment_type'],
-                        variant_features['start_segment_number'], variant_features['gene_name']
+                    
+                    curs.execute(
+                        "SELECT * FROM segment WHERE genome_version = %s\
+                        AND gene_name[1] = %s and gene_name[2] = %s AND type = %s AND number = %s",
+                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1],
+                         variant_features['start_segment_type'], variant_features['start_segment_number'])
                     )
+                    positions = curs.fetchone()
+                    # get a tuple ['site_type', 'dist(bp)']
+                    (annot['nearest_site_type'], annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(
+                        var['pos'], positions
+                    )
+                    # relative position in exon for canvas drawing
+                    # get a tuple ['relative position in exon canvas', 'segment_size']
+                    (annot['pos_exon_canvas'], annot['segment_size']) = md_utilities.get_pos_exon_canvas(
+                        var['pos'], positions
+                    )
+                    # get neighbours type, number
+                    (annot['preceeding_segment_type'], annot['preceeding_segment_number'],
+                    annot['following_segment_type'], annot['following_segment_number']) = md_utilities.get_exon_neighbours(db, positions)
+                    # get natural ss maxent scores
+                    if annot['preceeding_segment_number'] != 'UTR':
+                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions)
+                    if annot['following_segment_number'] != 'UTR':
+                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 5, positions)
                     # variants beginning in exon and finishing in intron
                     # we don't treat them as this is obvious
                     # if variant_features['start_segment_type'] != variant_features['end_segment_type'] or \
@@ -837,7 +857,7 @@ def variant(variant_id=None):
         'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
         urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
-        variant_features=variant_features, variant=variant, pos_splice=pos_splice_site, protein_domain=domain,
+        variant_features=variant_features, variant=variant, protein_domain=domain,
         class_history=class_history, annot=annot, mes5=signif_scores5, mes3=signif_scores3
     )
 
