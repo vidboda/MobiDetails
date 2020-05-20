@@ -1355,11 +1355,15 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         # a score is
         # CAAATTCTG\t-17.88
         if i < len(scoresmt):
+            print(scoreswt[i])
             wt = re.split('\s+', scoreswt[i])
             mt = re.split('\s+', scoresmt[i])
             if len(wt) == 2 and \
                     len(mt) == 2:
-                variation = (float(mt[1]) - float(wt[1])) / abs(float(wt[1]))
+                if float(wt[1]) !=0:
+                    variation = (float(mt[1]) - float(wt[1])) / abs(float(wt[1]))
+                else:
+                    variation = float(wt[1])
                 if abs(variation) >= float(cutoff) and (float(mt[1]) > threshold or float(wt[1]) > threshold):
                     # get span with exon/intron depending on score5 or score 3
                     html_seqwt = html_seqmt = ''

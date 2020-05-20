@@ -92,4 +92,5 @@ def test_variant_page(client, app):
         )
         res = curs.fetchall()
         for variant_id in res:
+            print(variant_id)
             assert client.get('/variant/{}'.format(variant_id[0])).status_code == 200

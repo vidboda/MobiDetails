@@ -841,7 +841,7 @@ def variant(variant_id=None):
         if signif_scores5 == {}:
             signif_scores5 = None
         # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
-        print(signif_scores5)
+        # print(signif_scores5)
         # ex
         # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n', '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
         if (variant_features['start_segment_type'] != 'exon') or \
@@ -860,7 +860,7 @@ def variant(variant_id=None):
             )
             if signif_scores3 == {}:
                 signif_scores3 = None
-            print(signif_scores3)
+            # print(signif_scores3)
         else:
             signif_scores3 = 'Not performed'
         #except Exception:
