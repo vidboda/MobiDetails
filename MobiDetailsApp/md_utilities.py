@@ -322,13 +322,13 @@ def get_pos_splice_site(pos, positions):  # compute position relative to nearest
 
 
 def get_pos_splice_site_intron(name):  # get position of intronic variant to the nearest ss
-    match_obj = re.search(r'^\d+([\+-])(\d+)[^\d_]', name)
+    match_obj = re.search(r'^[\*-]?\d+([\+-])(\d+)[^\d_]', name)
     if match_obj:
         return [int(match_obj.group(2)), match_obj.group(1)]
-    match_obj = re.search(r'\d+([\+-])(\d+)_\d+[\+-](\d+)[^\d_]', name)
+    match_obj = re.search(r'[\*-]?\d+([\+-])(\d+)_\d+[\+-](\d+)[^\d_]', name)
     if match_obj:
         return [min(int(match_obj.group(2)), int(match_obj.group(3))), match_obj.group(1)]
-    if re.search(r'\d+[-]\d+_\d+[^\d_]', name):
+    if re.search(r'[\*-]?\d+[-]\d+_\d+[^\d_]', name):
         # overlapping variant
         return [1, '-']
 

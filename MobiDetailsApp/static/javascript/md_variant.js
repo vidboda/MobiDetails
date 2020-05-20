@@ -360,13 +360,13 @@ $(document).ready(function() {
 		tables.push("class_table");
 		tables.push("admin_table");
 		tables.push("resource_table");
-		//var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
+		// var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
 		var tablesConverted = {};
 		for (var k = 0; k < tables.length; k++) {
 			var dt = $('#' + tables[k]).DataTable();
 			var data = dt.buttons.exportData(config.exportOptions);
 			var info = dt.buttons.exportInfo(config);
-			//alert(tables[k]);
+			// alert(tables[k]);
 			var rows = [];
 			if (config.header) {
 				rows.push($.map(data.header, function(d) {
@@ -396,7 +396,7 @@ $(document).ready(function() {
 			}
 	
 			tablesConverted[tables[k]] = rows;
-		}
+        }
 	
 	
 		var doc = {
@@ -590,6 +590,22 @@ $(document).ready(function() {
 		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
 		//	//info.radarImg = canvasImg
 		//}
+//        if ($('#segment_drawing').length) {
+//			//attempt to transform exon/intron canvas into pdf
+//            info.messageBottom = $('#missense_radar').toDataURL();
+//		//	var canvas = document.querySelector('#missense_radar');
+//		//	//doc.content.push({
+//		//	//	image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
+//		//	//});
+//		//	//creates image
+//		//	//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
+//		//	//creates PDF from img
+//		//	//var doc_chart = new jsPDF('landscape');
+//		//	//doc.setFontSize(20);
+//		//	//doc.text(15, 15, "Cool Chart");
+//		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
+//		//	//info.radarImg = canvasImg
+//		}
 		
 		if (info.messageTop) {
 			doc.content.unshift({
