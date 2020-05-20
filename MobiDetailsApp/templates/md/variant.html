@@ -416,7 +416,7 @@
 		<hr />
 		{{ section_title('splicing', 'Splicing predictions') }}
 		<div class="w3-responsive w3-container">
-			{% if variant_features.start_segment_type == 'exon' and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
+			{% if (variant_features.start_segment_type == 'exon' or (variant_features.start_segment_type == 'intron' and annot.dist_from_exon < 101)) and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
 				<!-- Exonic Splicing context -->
 				<br /><div>{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}</div>
 				<div class="w3-container w3-center">
@@ -429,29 +429,45 @@
 						context.fillStyle = "#000000";
 						context.font = "bold 14px sans-serif";
 						context.strokeStyle = "#2196F3";
-						context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
-						context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
-						context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_exon_canvas }}, 20);
-						context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
-						{% if annot.preceeding_segment_number != 'UTR'%}
+						{% if annot.preceeding_segment_type != None %}
+							context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
+						{% endif %}
+						{% if annot.pos_exon_canvas != None %}
+							context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_exon_canvas }}, 20);
+						{% else %}
+							context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_intron_canvas }}, 45);
+						{% endif %}
+						{% if annot.following_segment_type != None %}
+							context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
+						{% endif %}
+						{% if annot.preceeding_segment_number != 'UTR' and annot.preceeding_segment_number != None %}
 							context.fillText("3'ss MaxEnt: {{ annot.nat3ss_score }}", 150, 125);
 							context.fillText("{{ annot.nat3ss_seq }}", 100, 140);
 						{% endif %}
-						{% if annot.following_segment_number != 'UTR'%}
+						{% if annot.following_segment_number != 'UTR' and annot.following_segment_number != None %}
 							context.fillText("5'ss MaxEnt: {{ annot.nat5ss_score }}", 400, 125);
 							context.fillText("{{ annot.nat5ss_seq }}", 400, 140);
 						{% endif %}
 						context.moveTo(100,75);
 						context.lineTo(200,75);
 						context.stroke();
-						context.moveTo({{ annot.pos_exon_canvas }},20);
-						context.lineTo({{ annot.pos_exon_canvas }},20+30);
+						{% if annot.pos_exon_canvas != None %}
+							context.moveTo({{ annot.pos_exon_canvas }},20);
+							context.lineTo({{ annot.pos_exon_canvas }},20+30);
+						{% else %}
+							context.moveTo({{ annot.pos_intron_canvas }},45);
+							context.lineTo({{ annot.pos_intron_canvas }},45+30);
+						{% endif %}
 						context.stroke();
 						context.fillStyle = "#fdf5e6"
 						context.fillRect(200,50,200,50);
 						context.strokeRect(200,50,200,50);
 						context.fillStyle = "#000000";
-						context.fillText("{{ variant_features.start_segment_type }} {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
+						{% if variant_features.start_segment_type == 'exon' %}
+							context.fillText("Exon {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
+						{% else %}
+							context.fillText("Exon {{ annot.neighb_exon_number }}", 250, 75);
+						{% endif %}
 						context.moveTo(400,75);
 						context.lineTo(500,75);
 						context.stroke();

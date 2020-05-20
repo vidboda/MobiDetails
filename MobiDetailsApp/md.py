@@ -385,9 +385,8 @@ def variant(variant_id=None):
                     
                     curs.execute(
                         "SELECT * FROM segment WHERE genome_version = %s\
-                        AND gene_name[1] = %s and gene_name[2] = %s AND type = %s AND number = %s",
-                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1],
-                         variant_features['start_segment_type'], variant_features['start_segment_number'])
+                        AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
+                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], variant_features['start_segment_number'])
                     )
                     positions = curs.fetchone()
                     # if not re.search(r'\*', variant_features['c_name']) and \
@@ -445,16 +444,48 @@ def variant(variant_id=None):
                                             if 'sw_dn_ds' in pos:
                                                 annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
                                                 [annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
-
+                if variant_features['start_segment_type'] == 'intron':
+                    annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
                 # MPA indel splice
                 elif variant_features['start_segment_type'] == 'intron' and \
-                        variant_features['dna_type'] == 'indel' and \
+                        (variant_features['dna_type'] == 'indel' or \
+                        variant_features['dna_type'] == 'deletion' or \
+                        variant_features['dna_type'] == 'duplication') and \
                         variant_features['variant_size'] < 50:
-                    # pos_splice = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
-                    if int(md_utilities.get_pos_splice_site_intron(variant_features['c_name'])) <= 20 and \
+                    if  annot['dist_from_exon'] <= 20 and \
                             ('mpa_score' not in annot or annot['mpa_score'] < 6):
                         annot['mpa_score'] = 6
                         annot['mpa_impact'] = 'splice indel'
+                # intronic variant canvas
+                if variant_features['start_segment_type'] == 'intron' and \
+                        annot['dist_from_exon'] <= 100 and \
+                        variant_features['variant_size'] < 50:
+                    annot['pos_intron_canvas'] = 200 - annot['dist_from_exon'] # relative position inside canvas fomr exon beginning
+                    annot['neighb_exon_number'] = variant_features['start_segment_number'] + 1
+                    if sign == '+':
+                        annot['neighb_exon_number'] = variant_features['start_segment_number']
+                        annot['pos_intron_canvas'] = 400 + annot['dist_from_exon']  # relative position inside canvas from exon end
+                    
+                    annot['pos_exon_canvas'] = None
+                    # get info from neighboring exon
+                    curs.execute(
+                        "SELECT * FROM segment WHERE genome_version = %s\
+                        AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
+                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], annot['neighb_exon_number'])
+                    )
+                    positions_neighb_exon = curs.fetchone()
+                    if sign == '+':
+                        annot['preceeding_segment_type'] = None
+                        annot['preceeding_segment_number'] = None
+                        annot['following_segment_type'] = 'intron'
+                        annot['following_segment_number'] = variant_features['start_segment_number']
+                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 5, positions_neighb_exon)
+                    else:
+                        annot['preceeding_segment_type'] = 'intron'
+                        annot['preceeding_segment_number'] = variant_features['start_segment_number']
+                        annot['following_segment_type'] = None
+                        annot['following_segment_number'] = None
+                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions_neighb_exon)
                 # clinvar
                 record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
                 if isinstance(record, str):

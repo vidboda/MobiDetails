@@ -80,16 +80,15 @@ def test_search_engine(client, app, t_search, url):
     print(response.headers['Location'] + 'http://localhost/{}'.format(url))
     assert 'http://localhost/{}'.format(url) == response.headers['Location']
 
+# test all variants in dev db except c.1A>T (too numerous as used to test variant creation)
 
-# test missense
 
-
-def test_missense_page(client, app):
+def test_variant_page(client, app):
     with app.app_context():
         db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT id FROM variant_feature WHERE prot_type = 'missense'",  # LIMIT 50
+            "SELECT id FROM variant_feature where name <> 'c.1A>T'" # WHERE prot_type = 'missense'",  # LIMIT 50
         )
         res = curs.fetchall()
         for variant_id in res:

@@ -147,9 +147,10 @@ def test_get_pos_splice_site(pos, positions, result):
 
 
 @pytest.mark.parametrize(('name', 'return_value'), (
-    ('1524+37C>T', '37'),
-    ('1258+59_1258+61del', '59'),
-    ('1258-589_1258-587del', '587')
+    ('1524+37C>T', [37, '+']),
+    ('1258+59_1258+61del', [59, '+']),
+    ('1258-589_1258-587del', [587, '-']),
+    ('51437-4_51444del', [1, '-'])
 ))
 def test_get_pos_splice_site_intron(client, app, name, return_value):
     dist = md_utilities.get_pos_splice_site_intron(name)
@@ -164,6 +165,7 @@ def test_get_pos_splice_site_intron(client, app, name, return_value):
 def test_get_pos_exon_canvas(pos, positions, result):
     canvas = md_utilities.get_pos_exon_canvas(pos, positions)
     assert canvas == result
+
 
 @pytest.mark.parametrize(('positions', 'result'), (
     ({'gene_name':['AMACR', 'NM_001167595'], 'number':1}, ["5'", "UTR", "intron", 1]),

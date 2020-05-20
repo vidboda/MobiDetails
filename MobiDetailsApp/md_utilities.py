@@ -154,7 +154,7 @@ predictor_thresholds = {
     'meta-lr': 0.5,    
     'meta-svm': 0,
     'mpa_max': 8,
-    'mpa_mid': 6,
+    'mpa_mid': 5,
     'pph2_hdiv_max': 0.957,
     'pph2_hdiv_mid': 0.454,
     'pph2_hvar_max': 0.909,
@@ -322,12 +322,15 @@ def get_pos_splice_site(pos, positions):  # compute position relative to nearest
 
 
 def get_pos_splice_site_intron(name):  # get position of intronic variant to the nearest ss
-    match_obj = re.search(r'^\d+[\+-](\d+)[^\d_]', name)
+    match_obj = re.search(r'^\d+([\+-])(\d+)[^\d_]', name)
     if match_obj:
-        return match_obj.group(1)
-    match_obj = re.search(r'\d+[\+-](\d+)_\d+[\+-](\d+)[^\d_]', name)
+        return [int(match_obj.group(2)), match_obj.group(1)]
+    match_obj = re.search(r'\d+([\+-])(\d+)_\d+[\+-](\d+)[^\d_]', name)
     if match_obj:
-        return min(match_obj.group(1), match_obj.group(2))
+        return [min(int(match_obj.group(2)), int(match_obj.group(3))), match_obj.group(1)]
+    if re.search(r'\d+[-]\d+_\d+[^\d_]', name):
+        # overlapping variant
+        return [1, '-']
 
 
 def get_pos_exon_canvas(pos, positions):  # compute relative position in exon for canvas drawing
