@@ -590,22 +590,22 @@ $(document).ready(function() {
 		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
 		//	//info.radarImg = canvasImg
 		//}
-        if ($('#segment_drawing').length) {
-//			//attempt to transform exon/intron canvas into pdf
-            //info.messageBottom = $('#segment_drawing').toDataURL();
-			var canvas = document.querySelector('#segment_drawing');
-			doc.content.push({
-				image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
-			});
-//		//	//creates image
-//		//	//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
-//		//	//creates PDF from img
-//		//	//var doc_chart = new jsPDF('landscape');
-//		//	//doc.setFontSize(20);
-//		//	//doc.text(15, 15, "Cool Chart");
-//		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
-//		//	//info.radarImg = canvasImg
-		}
+//        if ($('#segment_drawing').length) {
+////			//attempt to transform exon/intron canvas into pdf
+//            //info.messageBottom = $('#segment_drawing').toDataURL();
+//			var canvas = document.querySelector('#segment_drawing');
+//			doc.content.push({
+//				image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
+//			});
+////		//	//creates image
+////		//	//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
+////		//	//creates PDF from img
+////		//	//var doc_chart = new jsPDF('landscape');
+////		//	//doc.setFontSize(20);
+////		//	//doc.text(15, 15, "Cool Chart");
+////		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
+////		//	//info.radarImg = canvasImg
+//		}
 		
 		if (info.messageTop) {
 			doc.content.unshift({
