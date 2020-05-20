@@ -350,7 +350,7 @@ def variant(variant_id=None):
         # dict for annotations
         annot = {}
         aa_pos = None
-        pos_splice_site = None
+        # pos_splice_site = None
         domain = None
         # favourite var?
         curs.execute(
@@ -379,9 +379,9 @@ def variant(variant_id=None):
                 if variant_features['variant_size'] < 50 and \
                         variant_features['start_segment_type'] == 'exon' and \
                         variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
-                        variant_features['start_segment_number'] == variant_features['end_segment_number'] and \
-                        not re.search(r'\*', variant_features['c_name']) and \
-                        not re.search(r'^-', variant_features['c_name']):
+                        variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
+                        #not re.search(r'\*', variant_features['c_name']) and \
+                        #not re.search(r'^-', variant_features['c_name']):
                     
                     curs.execute(
                         "SELECT * FROM segment WHERE genome_version = %s\
@@ -390,6 +390,9 @@ def variant(variant_id=None):
                          variant_features['start_segment_type'], variant_features['start_segment_number'])
                     )
                     positions = curs.fetchone()
+                    # if not re.search(r'\*', variant_features['c_name']) and \
+                    #        not re.search(r'^-', variant_features['c_name']):
+                    # if not re.search(r'^[\*-]', variant_features['c_name']):
                     # get a tuple ['site_type', 'dist(bp)']
                     (annot['nearest_site_type'], annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(
                         var['pos'], positions
@@ -792,45 +795,45 @@ def variant(variant_id=None):
         # "In every case, we recommend first‐line analysis with MES using a 15% cutoff."
         signif_scores5 = signif_scores3 = None
         # print(pos_splice_site )
-        try:
-            scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
-            scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
-            # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
-            signif_scores5 = md_utilities.select_mes_scores(
-                re.split('\n', scores5wt),
-                seq5wt_html,
-                re.split('\n', scores5mt),
-                seq5mt_html,
+        #try:
+        scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
+        scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+        # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+        signif_scores5 = md_utilities.select_mes_scores(
+            re.split('\n', scores5wt),
+            seq5wt_html,
+            re.split('\n', scores5mt),
+            seq5mt_html,
+            0.15,
+            3
+        )
+        if signif_scores5 == {}:
+            signif_scores5 = None
+        # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
+        print(signif_scores5)
+        # ex
+        # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n', '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
+        if (variant_features['start_segment_type'] != 'exon') or \
+                (annot['nearest_site_type'] == 'acceptor' and \
+                annot['nearest_site_dist'] < 10):
+                # exonic variants not near 3' ss don't require predictions for 3'ss
+            seq3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
+            seq3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
+            signif_scores3 = md_utilities.select_mes_scores(
+                re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
+                seq3wt_html,
+                re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
+                seq3mt_html,
                 0.15,
                 3
             )
-            if signif_scores5 == {}:
-                signif_scores5 = None
-            # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
-            print(signif_scores5)
-            # ex
-            # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n', '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
-            if variant_features['start_segment_type'] != 'exon' or \
-                    (pos_splice_site[0] == 'acceptor' and \
-                    pos_splice_site[1] < 10):
-                # exonic variants not near 3' ss don't require predictions for 3'ss
-                seq3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
-                seq3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
-                signif_scores3 = md_utilities.select_mes_scores(
-                    re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
-                    seq3wt_html,
-                    re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
-                    seq3mt_html,
-                    0.15,
-                    3
-                )
-                if signif_scores3 == {}:
-                    signif_scores3 = None
-                print(signif_scores3)
-            else:
-                signif_scores3 = 'Not performed'
-        except Exception:
-            pass
+            if signif_scores3 == {}:
+                signif_scores3 = None
+            print(signif_scores3)
+        else:
+            signif_scores3 = 'Not performed'
+        #except Exception:
+        #    pass
         
     else:
         close_db()
@@ -842,7 +845,7 @@ def variant(variant_id=None):
     else:
         annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
 
-    # get VV API version - not needed anymore - vv just returns a heelo world
+    # get VV API version - not needed anymore - vv just returns a hello world
     # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
     # vv_data = None
     # try:

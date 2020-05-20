@@ -156,10 +156,10 @@ def test_get_pos_splice_site_intron(client, app, name, return_value):
     assert dist == return_value
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
-    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, (288, 689)),
-    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, (333, 278)),
-    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, (355, 191)),
-    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, (258, 90))
+    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, [288, 689]),
+    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, [333, 278]),
+    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, [355, 191]),
+    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, [258, 90])
 ))
 def test_get_pos_exon_canvas(pos, positions, result):
     canvas = md_utilities.get_pos_exon_canvas(pos, positions)

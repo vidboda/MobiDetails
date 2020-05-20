@@ -210,8 +210,8 @@
 							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }} - {{ variant_features.end_segment_type|capitalize }} {{ variant_features.end_segment_number }}</td>
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
-					</tr><!--position in exon-->
-					{% if variant_features.start_segment_type == 'exon' and variant_features.c_name|match('[^\*]')  and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
+					</tr><!--position in exon  and variant_features.c_name|match('^[^\*-]')-->
+					{% if variant_features.start_segment_type == 'exon' and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
 						{% if pos_splice is not none %}
 							<tr>
 								<td class="w3-left-align">Position / splice site</td>
@@ -418,38 +418,45 @@
 		<div class="w3-responsive w3-container">
 			{% if variant_features.start_segment_type == 'exon' and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
 				<!-- Exonic Splicing context -->
-				<br /><div>{{ info("The exonic splicing context of the variant is summarized in the graph below:") }}</div>
+				<br /><div>{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}</div>
 				<div class="w3-container w3-center">
 					<canvas class="exonic_canvas" width="600" height="150" id="segment_drawing">Your web browser does not understand HTML5. In order to display the small graph, you must use a more recent one.</canvas>
 				</div>
-				<script type="text/javascript">
-					var canvas = document.getElementById("segment_drawing");
-					var context = canvas.getContext("2d");
-					context.fillStyle = "#000000";
-					context.font = "bold 14px sans-serif";
-					context.strokeStyle = "#2196F3";
-					context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
-					context.fillText("c.{% autoescape false %}{{ variant_features.c_name }}{% endautoescape %}", {{ annot.pos_exon_canvas }}, 20);
-					context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
-					context.fillText("3'ss MaxEnt: {{ annot.nat3ss_score }}", 150, 125);
-					context.fillText("{{ annot.nat3ss_seq }}", 50, 140);
-					context.fillText("5'ss MaxEnt: {{ annot.nat5ss_score }}", 400, 125);
-					context.fillText("{{ annot.nat5ss_seq }}", 400, 140);
-					context.moveTo(100,75);
-					context.lineTo(200,75);
-					context.stroke();
-					context.moveTo({{ annot.pos_exon_canvas }},20);
-					context.lineTo({{ annot.pos_exon_canvas }},20+30);
-					context.stroke();
-					context.fillStyle = "#fdf5e6"
-					context.fillRect(200,50,200,50);
-					context.strokeRect(200,50,200,50);
-					context.fillStyle = "#000000";
-					context.fillText("{{ variant_features.start_segment_type }} {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
-					context.moveTo(400,75);
-					context.lineTo(500,75);
-					context.stroke();
-				</script>
+				{% autoescape false %}
+					<script type="text/javascript">
+						var canvas = document.getElementById("segment_drawing");
+						var context = canvas.getContext("2d");
+						context.fillStyle = "#000000";
+						context.font = "bold 14px sans-serif";
+						context.strokeStyle = "#2196F3";
+						context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
+						context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
+						context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_exon_canvas }}, 20);
+						context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
+						{% if annot.preceeding_segment_number != 'UTR'%}
+							context.fillText("3'ss MaxEnt: {{ annot.nat3ss_score }}", 150, 125);
+							context.fillText("{{ annot.nat3ss_seq }}", 100, 140);
+						{% endif %}
+						{% if annot.following_segment_number != 'UTR'%}
+							context.fillText("5'ss MaxEnt: {{ annot.nat5ss_score }}", 400, 125);
+							context.fillText("{{ annot.nat5ss_seq }}", 400, 140);
+						{% endif %}
+						context.moveTo(100,75);
+						context.lineTo(200,75);
+						context.stroke();
+						context.moveTo({{ annot.pos_exon_canvas }},20);
+						context.lineTo({{ annot.pos_exon_canvas }},20+30);
+						context.stroke();
+						context.fillStyle = "#fdf5e6"
+						context.fillRect(200,50,200,50);
+						context.strokeRect(200,50,200,50);
+						context.fillStyle = "#000000";
+						context.fillText("{{ variant_features.start_segment_type }} {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
+						context.moveTo(400,75);
+						context.lineTo(500,75);
+						context.stroke();
+					</script>
+				{% endautoescape %}
 			{% endif %}
 			<!-- MaxEntScan 5'ss -->
 			{# {% if mes5 != None or (mes3 != None and mes3 != 'Not performed') %} #}
