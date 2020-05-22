@@ -342,6 +342,7 @@ def get_pos_exon_canvas(pos, positions):  # compute relative position in exon fo
 
 
 def get_exon_neighbours(db, positions):  # get introns names, numbers surrounding an exon
+    print(positions)
     prec_type = prec_number = fol_type = fol_number = None
     if positions['number'] == 1:
         prec_type = "5'"
@@ -351,7 +352,7 @@ def get_exon_neighbours(db, positions):  # get introns names, numbers surroundin
         prec_number = positions['number'] - 1
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT type FROM segment WHERE gene_name[2] = %s AND number = %s and type <> 'exon'",
+        "SELECT type FROM segment WHERE gene_name[2] = %s AND number = %s AND genome_version = 'hg38'",
         (positions['gene_name'][1], positions['number'] + 1)
     )
     following_seg = curs.fetchone()
@@ -359,7 +360,8 @@ def get_exon_neighbours(db, positions):  # get introns names, numbers surroundin
         if following_seg['type'] == '3UTR':
             fol_type = "3'"
             fol_number = "UTR"
-        else:
+        elif following_seg['type'] == 'intron' or \
+                following_seg['type'] == 'exon':
             fol_type = "intron"
             fol_number = positions['number']
     return [prec_type, prec_number, fol_type, fol_number]
@@ -1355,7 +1357,6 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         # a score is
         # CAAATTCTG\t-17.88
         if i < len(scoresmt):
-            print(scoreswt[i])
             wt = re.split('\s+', scoreswt[i])
             mt = re.split('\s+', scoresmt[i])
             if len(wt) == 2 and \

@@ -171,7 +171,8 @@ def test_get_pos_exon_canvas(pos, positions, result):
     ({'gene_name':['AMACR', 'NM_001167595'], 'number':1}, ["5'", "UTR", "intron", 1]),
     ({'gene_name':['USH2A', 'NM_206933'], 'number':13}, ["intron", 12, "intron", 13]),
     ({'gene_name':['MYO7A', 'NM_000260'], 'number':49}, ["intron", 48, "3'", "UTR"]),
-    ({'gene_name':['GJB2', 'NM_004004'], 'number':2}, ["intron", 1, "3'", "UTR"])
+    ({'gene_name':['GJB2', 'NM_004004'], 'number':2}, ["intron", 1, "3'", "UTR"]),
+    ({'gene_name':['CDH23', 'NM_022124'], 'number':69}, ["intron", 68, "intron", 69])    
 ))
 def test_get_exon_neighbours(app, positions, result):
     with app.app_context():

@@ -377,11 +377,11 @@ def variant(variant_id=None):
                         annot['ncbi_chr_hg38'] = res['ncbi_name']
                 # compute position / splice sites
                 if variant_features['variant_size'] < 50 and \
-                        variant_features['start_segment_type'] == 'exon' and \
-                        variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
-                        variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
-                        #not re.search(r'\*', variant_features['c_name']) and \
-                        #not re.search(r'^-', variant_features['c_name']):
+                        variant_features['start_segment_type'] == 'exon':  # and \
+                        # variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
+                        # variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
+                        # not re.search(r'\*', variant_features['c_name']) and \
+                        # not re.search(r'^-', variant_features['c_name']):
                     
                     curs.execute(
                         "SELECT * FROM segment WHERE genome_version = %s\
@@ -404,6 +404,7 @@ def variant(variant_id=None):
                     # get neighbours type, number
                     (annot['preceeding_segment_type'], annot['preceeding_segment_number'],
                     annot['following_segment_type'], annot['following_segment_number']) = md_utilities.get_exon_neighbours(db, positions)
+                    print('preceeding: {0}{1};following: {2}{3}'.format(annot['preceeding_segment_type'], annot['preceeding_segment_number'], annot['following_segment_type'], annot['following_segment_number']))
                     # get natural ss maxent scores
                     if annot['preceeding_segment_number'] != 'UTR':
                         (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions)
