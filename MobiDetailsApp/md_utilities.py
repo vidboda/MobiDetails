@@ -342,7 +342,6 @@ def get_pos_exon_canvas(pos, positions):  # compute relative position in exon fo
 
 
 def get_exon_neighbours(db, positions):  # get introns names, numbers surrounding an exon
-    print(positions)
     prec_type = prec_number = fol_type = fol_number = None
     if positions['number'] == 1:
         prec_type = "5'"
