@@ -256,13 +256,13 @@
 					{% endif %}
 					<tr>
 						<td class="w3-left-align">Wild type sequence</td>
-						<td class="w3-left-align txt">{{ variant_features.wt_seq }}</td>
-						<td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp</em></td>
+						<td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ variant_features.wt_seq }}</textarea></td>
+						<td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('wt_seq');" title="copy wild type sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
 					</tr>
 					<tr>
 						<td class="w3-left-align">Mutant sequence</td>
-						<td class="w3-left-align txt">{{ variant_features.mt_seq }}</td>
-						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp</em></td>
+						<td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ variant_features.mt_seq }}</textarea></td>
+						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>

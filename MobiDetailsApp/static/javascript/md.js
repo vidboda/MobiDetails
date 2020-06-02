@@ -24,6 +24,7 @@ function w3_close() {
 	$('#openNav').css('visibility', 'visible');
 }
 function copy_text(copy_id) {
+	// adpated from https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
 	/* Get the text field */
   var copyText = document.getElementById(copy_id);
   /* Select the text field */
@@ -32,7 +33,7 @@ function copy_text(copy_id) {
   /* Copy the text inside the text field */
   document.execCommand("copy");
   /* Alert the copied text */
-  // alert("Copied the text: " + copyText.value);
+  //alert("Copied the text: " + copyText.value);
 }
 function hide_params() {
     // function to hide params when a form is sent (long response time e.g. register)

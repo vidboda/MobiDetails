@@ -301,7 +301,7 @@ function beforePrintHandler () {
 
 
 $(document).ready(function() {
-	// transform all tables as datatables
+    // transform all tables as datatables
 	$('.w3-table').DataTable({
 		responsive: true,
 		dom: 't',
