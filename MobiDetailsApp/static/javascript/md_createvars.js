@@ -37,3 +37,11 @@ function create_var(create_url, csrf_token) {
 		$('#var_modal').hide();
 	});
 }
+
+function new_isoform() {
+	$('#iso_form').fadeToggle(function (){
+		if ($('#iso_form').css('display') == 'none') {
+			$('#alt_iso option[value=""]').prop('selected', true);
+		}
+	});
+}

@@ -26,13 +26,13 @@
 //		$('#var_modal').hide();
 //	});
 //}
-function new_isoform() {
-	$('#iso_form').fadeToggle(function (){
-		if ($('#iso_form').css('display') == 'none') {
-			$('#alt_iso option[value=""]').prop('selected', true);
-		}
-	});
-}
+//function new_isoform() {
+//	$('#iso_form').fadeToggle(function (){
+//		if ($('#iso_form').css('display') == 'none') {
+//			$('#alt_iso option[value=""]').prop('selected', true);
+//		}
+//	});
+//}
 
 $(document).ready(function(){
 	// submit using the enter key in keyboard

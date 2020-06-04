@@ -9,7 +9,9 @@ $(document).ready(function(){
 			return true;
 		}
 	});
-	
+	if ($('#iso_form').length) {
+		$('#alt_iso option[value=""]').prop('selected', true);
+	}
 	$('.w3-table').DataTable({
 		responsive: true,
 		lengthMenu: [ [50, 100, 200, -1], [50, 100, 200, "All"] ],

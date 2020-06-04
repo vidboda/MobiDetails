@@ -199,7 +199,8 @@ def lovd():
                 ),
                 '[MobiDetails - API Error]'
             )
-        # print(lovd_url)
+        print(lovd_url)
+        print(http.request('GET', lovd_url).data.decode('utf-8'))
         if lovd_data is not None:
             if len(lovd_data) == 1:
                 return 'No match in LOVD public instances'
@@ -211,7 +212,7 @@ def lovd():
             for candidate in lovd_data:
                 fields = re.split('\t', candidate)
                 # check if the variant is the same than ours
-                # print(fields)
+                print(fields)
                 if len(fields) > 1:
                     fields[4] = fields[4].replace('"', '')
                     if fields[4] == c_name or re.match(c_name, fields[4]):
