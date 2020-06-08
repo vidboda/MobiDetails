@@ -811,7 +811,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             return {'mobidetails_error':  'Transcript {0} for gene {1} does not seem to map correctly to hg38. \
                     Currently, MobiDetails requires proper mapping on hg38 and hg19. \
                     It is therefore impossible to create a variant.'.format(acc_no, gene)}
-
     # check again if variant exist
     curs.execute(
         "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s",
@@ -879,7 +878,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             vf_d['variant_size'] = int(positions[1]) - int(positions[0]) + 1
 
     # we need strand later
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # curs.execute(
     #     "SELECT strand FROM gene WHERE name = '{{\"{0}\",\"{1}\"}}'".format(gene, acc_no)
     # )
@@ -1090,47 +1089,49 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             vf_d['mt_seq'] = "{0} {1}{1} {2}".format(begin, middle, end)
         # return "-{0}-{1}-{2}-{3}-{4}-{5}-{6}-{7}".format(seq_slice, begin, middle, end, vf_d['wt_seq'], vf_d['mt_seq'], x, y)
     # get intervar automated class
-    if vf_d['variant_size'] > 1:
-        vf_d['acmg_class'] = 3
-    elif (vf_d['dna_type'] == 'substitution' and
-            vf_d['start_segment_type'] == 'exon' and
-            re.search(r'^[^\*-]', vf_d['c_name']) and
-            vf_d['p_name'] != 'Met1?' and
-            hg19_d['pos_ref'] != hg19_d['pos_alt']):
-        # intervar api returns empty results with hg38 09/2019
-        http = urllib3.PoolManager()
-        intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
-            urls['intervar_api'], 'hg19', hg19_d['chr'],
-            hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt']
-        )
-        intervar_json = None
-        try:
-            intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
-        except Exception as e:
-            send_error_email(
-                prepare_email_html(
-                    'MobiDetails error',
-                    '<p>Intervar API call failed in {0} for {1} with args: {2}</p>'.format(
-                        os.path.basename(__file__),
-                        intervar_url,
-                        e.args
-                    )
-                ),
-                '[MobiDetails - Code Error]'
-            )
-        # return intervar_data
-        if intervar_json is not None:
-            curs.execute(
-                "SELECT acmg_class FROM valid_class WHERE acmg_translation = %s",
-                (intervar_json['Intervar'].lower(),)
-            )
-            res_acmg = curs.fetchone()
-            if res_acmg is not None:
-                vf_d['acmg_class'] = res_acmg['acmg_class']
-        else:
-            vf_d['acmg_class'] = 3
-    else:
-        vf_d['acmg_class'] = 3
+    # too long
+    # vf_d['acmg_class'] = 3
+    # if vf_d['variant_size'] > 1:
+    #     vf_d['acmg_class'] = 3
+    # elif (vf_d['dna_type'] == 'substitution' and
+    #         vf_d['start_segment_type'] == 'exon' and
+    #         re.search(r'^[^\*-]', vf_d['c_name']) and
+    #         vf_d['p_name'] != 'Met1?' and
+    #         hg19_d['pos_ref'] != hg19_d['pos_alt']):
+    #     # intervar api returns empty results with hg38 09/2019
+    #     http = urllib3.PoolManager()
+    #     intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
+    #         urls['intervar_api'], 'hg19', hg19_d['chr'],
+    #         hg19_d['pos'], hg19_d['pos_ref'], hg19_d['pos_alt']
+    #     )
+    #     intervar_json = None
+    #     try:
+    #         intervar_json = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+    #     except Exception as e:
+    #         send_error_email(
+    #             prepare_email_html(
+    #                 'MobiDetails error',
+    #                 '<p>Intervar API call failed in {0} for {1} with args: {2}</p>'.format(
+    #                     os.path.basename(__file__),
+    #                     intervar_url,
+    #                     e.args
+    #                 )
+    #             ),
+    #             '[MobiDetails - Code Error]'
+    #         )
+    #     # return intervar_data
+    #     if intervar_json is not None:
+    #         curs.execute(
+    #             "SELECT acmg_class FROM valid_class WHERE acmg_translation = %s",
+    #             (intervar_json['Intervar'].lower(),)
+    #         )
+    #         res_acmg = curs.fetchone()
+    #         if res_acmg is not None:
+    #             vf_d['acmg_class'] = res_acmg['acmg_class']
+    #     else:
+    #         vf_d['acmg_class'] = 3
+    # else:
+    #     vf_d['acmg_class'] = 3
     # date, user
     mobiuser = 'mobidetails'
     if caller == 'webApp':

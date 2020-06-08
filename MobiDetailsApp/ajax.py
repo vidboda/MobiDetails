@@ -570,7 +570,7 @@ def create():
         else:
             close_db()
             return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
-        print(vv_key_var)        
+        # print(vv_key_var)        
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
             original_variant, acc_version, vv_data,
