@@ -91,43 +91,44 @@ def gene(gene_name=None):
         # get metadome json?
         enst_ver = {}
         # if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
-        for gene in result_all:
-            # print('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst']))
-            if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst'])):
-                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-                if gene['enst'] not in enst_ver:
-                    # get enst versions in a dict
-                    metad_ts = None
-                    try:
-                        # print('{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0]))
-                        metad_ts = json.loads(
-                                    http.request(
-                                        'GET',
-                                        '{0}get_transcripts/{1}'.format(
-                                            md_utilities.urls['metadome_api'], gene['name'][0]
-                                        )
-                                    ).data.decode('utf-8')
-                        )
-                        if metad_ts is not None and \
-                                'trancript_ids' in metad_ts:
-                            for ts in metad_ts['trancript_ids']:
-                                if ts['has_protein_data']:
-                                    match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
-                                    enst_ver[match_obj.group(1)] = ts['gencode_id']
-                    except Exception as e:
-                        md_utilities.send_error_email(
-                            md_utilities.prepare_email_html(
-                                'MobiDetails API error',
-                                '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
-                                    gene_name,
-                                    gene['enst'],
-                                    os.path.basename(__file__),
-                                    e.args
-                                )
-                            ),
-                            '[MobiDetails - API Error]'
-                        )
-                break
+        # if we have the main => next step
+        if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], main['enst'])):
+            for gene in result_all:
+                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst'])):
+                    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                    if gene['enst'] not in enst_ver:
+                        # get enst versions in a dict
+                        metad_ts = None
+                        try:
+                            # print('{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0]))
+                            metad_ts = json.loads(
+                                        http.request(
+                                            'GET',
+                                            '{0}get_transcripts/{1}'.format(
+                                                md_utilities.urls['metadome_api'], gene['name'][0]
+                                            )
+                                        ).data.decode('utf-8')
+                            )
+                            if metad_ts is not None and \
+                                    'trancript_ids' in metad_ts:
+                                for ts in metad_ts['trancript_ids']:
+                                    if ts['has_protein_data']:
+                                        match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
+                                        enst_ver[match_obj.group(1)] = ts['gencode_id']
+                        except Exception as e:
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails API error',
+                                    '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                        gene_name,
+                                        gene['enst'],
+                                        os.path.basename(__file__),
+                                        e.args
+                                    )
+                                ),
+                                '[MobiDetails - API Error]'
+                            )
+                    break
 
         # we check if data exist at metadome
         # we have a set of metadome transcripts
