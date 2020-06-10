@@ -96,13 +96,26 @@ urls = {
     'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html',
     'uniprot_id': 'http://www.uniprot.org/uniprot/',
     'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
-    # uncomment below to use VV web API
-    'variant_validator_api': 'https://rest.variantvalidator.org/',
-    #'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
-    # 'variant_validator_api_info': 'https://rest.variantvalidator.org/webservices/variantvalidator/_/resource_list.json',
-    'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
-    # 'variant_validator_api': 'http://0.0.0.0:8000/',
-    # 'variant_validator_api_info': 'http://0.0.0.0:8000/webservices/variantvalidator/_/resource_list.json',
+    # uncomment below to use genuine VV web API
+    # 'variant_validator_api': 'https://rest.variantvalidator.org/',
+    # uncomment below to use VV on monster
+    # 'variant_validator_api': 'https://194.167.35.245:8000/',
+    # uncomment below to use VV on beast
+    'variant_validator_api': 'https://194.167.35.207:8000/',
+    # uncomment below to use VV on medium
+    # 'variant_validator_api': 'https://10.34.20.79:8000/',
+    # uncomment below to use VV on genuine VV dev
+    # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
+    # hello on genuine VV
+    # 'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
+    # hello on monster VV
+    # 'variant_validator_api_hello': 'https://194.167.35.245:8000/hello/?content-type=application/json',
+    # hello on beast VV
+    'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json',
+    # hello on medium VV
+    # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json',
+    # hello on genuine VV dev
+    # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json',
 }
 # clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
 local_files = {
