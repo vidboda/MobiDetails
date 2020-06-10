@@ -15,6 +15,7 @@ import psycopg2.extras
 from MobiDetailsApp.db import get_db, close_db
 from . import md_utilities
 
+
 bp = Blueprint('md', __name__)
 # to be modified when in prod - modify pythonpath and use venv with mod_wsgi
 # https://stackoverflow.com/questions/10342114/how-to-set-pythonpath-on-web-server

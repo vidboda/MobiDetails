@@ -601,7 +601,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
                 <p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'.format(color_class, text, link)
 
 
-def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
+def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, start_time, vv_data, caller, db, g):
     vf_d = {}
     # deal with various warnings
     # docker up?
@@ -1243,6 +1243,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
     db.commit()
+    print("--- %s seconds ---" % (time.time() - start_time))
     if remapper is True and caller == 'webApp':
         return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':

@@ -18,6 +18,7 @@ import datetime
 bp = Blueprint('ajax', __name__)
 
 
+import time
 
 
 
@@ -483,6 +484,7 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
+    start_time = time.time()
     # print(request.form['new_variant'])
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
@@ -572,8 +574,8 @@ def create():
             return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
-            original_variant, acc_version, vv_data,
-            'webApp', db, g
+            original_variant, acc_version, start_time,
+            vv_data, 'webApp', db, g
         )
     else:
         close_db()
