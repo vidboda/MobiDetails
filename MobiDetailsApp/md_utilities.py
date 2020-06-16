@@ -97,21 +97,21 @@ urls = {
     'uniprot_id': 'http://www.uniprot.org/uniprot/',
     'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
     # uncomment below to use genuine VV web API
-    # 'variant_validator_api': 'https://rest.variantvalidator.org/',
+    'variant_validator_api': 'https://rest.variantvalidator.org/',
     # uncomment below to use VV on monster
     # 'variant_validator_api': 'https://194.167.35.245:8000/',
     # uncomment below to use VV on beast
-    'variant_validator_api': 'https://194.167.35.207:8000/',
+    # 'variant_validator_api': 'https://194.167.35.207:8000/',
     # uncomment below to use VV on medium
     # 'variant_validator_api': 'https://10.34.20.79:8000/',
     # uncomment below to use VV on genuine VV dev
     # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
     # hello on genuine VV
-    # 'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
+    'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
     # hello on monster VV
     # 'variant_validator_api_hello': 'https://194.167.35.245:8000/hello/?content-type=application/json',
     # hello on beast VV
-    'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json',
+    # 'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json',
     # hello on medium VV
     # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json',
     # hello on genuine VV dev
@@ -601,7 +601,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
                 <p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'.format(color_class, text, link)
 
 
-def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, start_time, vv_data, caller, db, g):
+def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
     vf_d = {}
     # deal with various warnings
     # docker up?
@@ -1243,7 +1243,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
     db.commit()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # print("--- %s seconds ---" % (time.time() - start_time))
     if remapper is True and caller == 'webApp':
         return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':

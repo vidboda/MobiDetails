@@ -574,7 +574,7 @@ def create():
             return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
-            original_variant, acc_version, start_time,
+            original_variant, acc_version,
             vv_data, 'webApp', db, g
         )
     else:
