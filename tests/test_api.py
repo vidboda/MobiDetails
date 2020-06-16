@@ -59,3 +59,31 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
             assert json_response[return_key] == message
         else:
             assert message in json_response[return_key]
+
+# test variant acmg class update
+
+
+@pytest.mark.parametrize(('variant_id', 'acmg_class', 'api_key', 'return_key', 'message'), (
+    (1, 0, 'test', 'mobidetails_error', 'Invalid API key'),
+    (1, 1, '', 'mobidetails_error', 'Invalid variant id submitted'),
+    (8, 0, '', 'mobidetails_error', 'Invalid ACMG class submitted'),
+    (8, 3, '', 'mobidetails_error', 'ACMG class already submitted by this user for this variant'),
+))
+def test_api_update_acmg(client, app, variant_id, acmg_class, api_key, return_key, message):
+    with app.app_context():
+        if api_key == '':
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT api_key FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+            )
+            res = curs.fetchone()
+            if res is not None:
+                api_key = res['api_key']
+        print('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key))
+        json_response = json.loads(client.get('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key)).data.decode('utf8'))
+
+        if isinstance(json_response[return_key], int):
+            assert json_response[return_key] == message
+        else:
+            assert message in json_response[return_key]

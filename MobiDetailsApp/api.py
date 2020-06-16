@@ -8,6 +8,7 @@ import json
 import urllib3
 import certifi
 import urllib.parse
+import datetime
 from MobiDetailsApp.db import get_db, close_db
 from MobiDetailsApp import md_utilities
 
@@ -182,3 +183,68 @@ def api_gene(gene_hgnc=None):
         return jsonify(d_gene)
     else:
         return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))
+    
+# -------------------------------------------------------------------
+# api - update class
+
+
+@bp.route('/api/variant/update_acmg/<int:variant_id>/<int:acmg_id>/<string:api_key>')
+def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # mobiuser_id = None
+    if api_key is None or \
+            len(api_key) != 43:
+        return jsonify(mobidetails_error='Invalid API key')
+    else:
+        curs.execute(
+            "SELECT * FROM mobiuser WHERE api_key = %s",
+            (api_key,)
+        )
+        res = curs.fetchone()
+        if res is None:
+            return jsonify(mobidetails_error='Unknown API key')
+        else:
+            g.user = res
+    if (variant_id is None or
+            not isinstance(variant_id, int)):
+        return jsonify(mobidetails_error='No or invalid variant id submitted')
+    if (acmg_id is None or
+            not isinstance(acmg_id, int)):
+        return jsonify(mobidetails_error='No or invalid ACMG class submitted')
+    if acmg_id > 0 and acmg_id < 7:
+        # variant exists?
+        curs.execute(
+            "SELECT id FROM variant_feature WHERE id = %s",
+            (variant_id,)
+        )
+        res = curs.fetchone()
+        if res:
+            # variant has already this class w/ this user?
+            curs.execute(
+                "SELECT variant_feature_id FROM class_history WHERE variant_feature_id = %s AND mobiuser_id = %s AND acmg_class = %s",
+                (variant_id, g.user['id'], acmg_id)
+            )
+            res = curs.fetchone()
+            if res:
+                 return jsonify(mobidetails_error='ACMG class already submitted by this user for this variant')
+            today = datetime.datetime.now()
+            date = '{0}-{1}-{2}'.format(
+                today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
+            )
+            curs.execute(
+                "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date) VALUES (%s, %s, %s, %s)",
+                (variant_id, acmg_id, g.user['id'], date)
+            )
+            db.commit()
+            d_update = {
+                'variant_id': variant_id,
+                'new_acmg_class': acmg_id,
+                'mobiuser_id': g.user['id'],
+                'date': date
+            }
+            return jsonify(d_update)
+        else:
+            return jsonify(mobidetails_error='Invalid variant id submitted')
+    else:
+        return jsonify(mobidetails_error='Invalid ACMG class submitted')
