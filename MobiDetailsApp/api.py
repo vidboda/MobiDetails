@@ -1,6 +1,6 @@
 import re
 from flask import (
-    Blueprint, g, request, url_for, jsonify
+    Blueprint, g, request, url_for, jsonify, redirect
 )
 import psycopg2
 import psycopg2.extras
@@ -38,7 +38,10 @@ def api_variant_exists(variant_ghgvs=None):
         )
         res = curs.fetchone()
         if res is not None:
-            return jsonify(mobidetails_id=res['feature_id'])
+            return jsonify(mobidetails_id=res['feature_id'], url='{0}{1}'.format(
+                request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id'])
+            ))
+            # return jsonify(mobidetails_id=res['feature_id'])
         else:
             # return jsonify("SELECT feature_id FROM variant WHERE g_name = 'chr{0}:g.{1}' AND genome_version = '{2}'".format(chrom, pattern, genome_version))
             return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
@@ -128,6 +131,118 @@ def api_variant_create(variant_chgvs=None, api_key=None):
             return jsonify(creation_dict)
     else:
         return jsonify(mobidetails_error='malformed query {}'.format(variant_chgvs))
+
+# -------------------------------------------------------------------
+# api - variant create from genomic HGVS eg NC_000001.11:g.40817273T>G and gene name (HGNC)
+
+
+@bp.route('/api/variant/create_g/<string:variant_ghgvs>/<string:gene>/<string:caller>/<string:api_key>', methods=['GET', 'POST'])
+def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=None):
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # mobiuser_id = None
+    if api_key is None or \
+            len(api_key) != 43:
+        return jsonify(mobidetails_error='Invalid API key')
+    else:
+        curs.execute(
+            "SELECT * FROM mobiuser WHERE api_key = %s",
+            (api_key,)
+        )
+        res = curs.fetchone()
+        if res is None:
+            return jsonify(mobidetails_error='Unknown API key')
+        else:
+            g.user = res
+    if variant_ghgvs is None:
+        return jsonify(mobidetails_error='No variant submitted')
+    if gene is None:
+        return jsonify(mobidetails_error='No gene submitted')
+    if caller is None or \
+            (caller != 'browser' and
+            caller != 'cli'):
+        return jsonify(mobidetails_error='Invalid caller submitted')
+    # check gene exists
+    curs.execute(
+        "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 't'",
+        (gene,)
+    )
+    res_gene = curs.fetchone()
+    if res_gene is not None:
+        match_object = re.search(r'^([Nn][Cc]_\d+\.\d{1,2}):g\.([\dATGCagctdelinsup_>]+)', urllib.parse.unquote(variant_ghgvs))
+        if match_object:
+            ncbi_chr, g_var = match_object.group(1), match_object.group(2)
+            # 1st check hg38
+            curs.execute(
+                "SELECT * FROM chromosomes WHERE ncbi_name = %s",
+                (ncbi_chr,)
+            )
+            res = curs.fetchone()
+            if res is not None and \
+                    res['genome_version'] == 'hg38':
+                genome_version, chrom = res['genome_version'], res['name']
+                # check if variant exists
+                curs.execute(
+                    "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s AND chr = %s",
+                    (genome_version, g_var, chrom)
+                )
+                res = curs.fetchone()
+                if res is not None:
+                    if caller == 'cli':
+                        return jsonify(
+                            mobidetails_id=res['feature_id'],
+                            url='{0}{1}'.format(
+                                request.host_url[:-1],
+                                url_for('md.variant', variant_id=res['feature_id'])
+                            )
+                        )
+                    else:
+                        return redirect(url_for('md.variant', variant_id=res['feature_id']))
+                else:                    
+                    # creation
+                    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                    vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
+                        md_utilities.urls['variant_validator_api'], variant_ghgvs
+                    )
+                    print(vv_url)
+                    # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
+        
+                    try:
+                        vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                    except Exception:
+                        close_db()
+                        return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(variant_ghgvs))
+                    # look forg ene acc #
+                    print(vv_data)
+                    new_variant = None
+                    vv_key_var = None
+                    for key in vv_data.keys():
+                        match_obj = re.search('^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', key)
+                        if match_obj:
+                            new_variant = match_obj.group(3)
+                            print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
+                            if match_obj.group(1) == res_gene['name'][1] and \
+                                    str(match_obj.group(2)) == str(res_gene['nm_version']):
+                                vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
+                    if vv_key_var is not None:
+                        print(vv_key_var)
+                        creation_dict = md_utilities.create_var_vv(
+                            vv_key_var, res_gene['name'][0], res_gene['name'][1],
+                            'c.{}'.format(new_variant), new_variant,
+                            res_gene['nm_version'], vv_data, 'api', db, g
+                        )
+                        if caller == 'cli':
+                            return jsonify(creation_dict)
+                        else:
+                            return redirect(url_for('md.variant', creation_dict=res['mobidetails_id']))
+                    else:
+                        return jsonify(mobidetails_error='Could not create variant {}'.format(variant_ghgvs))
+            else:
+                return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
+        else:
+            return jsonify(mobidetails_error='malformed query {}'.format(variant_ghgvs))
+    else:
+        return jsonify(mobidetails_error='Unknown gene {} submitted'.format(gene))
 
 # -------------------------------------------------------------------
 # api - gene

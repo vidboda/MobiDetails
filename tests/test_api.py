@@ -60,6 +60,38 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
         else:
             assert message in json_response[return_key]
 
+# test variant_g creation
+
+
+@pytest.mark.parametrize(('variant_ghgvs', 'api_key', 'gene', 'caller', 'return_key', 'message'), (
+    ('NC_000001.11:g.40817273T>G', 'random', 'KCNQ4', 'cli', 'mobidetails_error', 'Invalid API key'),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
+    ('NC_000001.11:g.40817273T>G', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'KCNQ4', 'browser', 'mobidetails_error', 'Unknown API key'),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
+    ('NC_000001.10:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
+    ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
+    ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'malformed query'),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'Unknown gene'),
+))
+def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller, return_key, message):
+    with app.app_context():
+        if api_key == '':
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT api_key FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+            )
+            res = curs.fetchone()
+            if res is not None:
+                api_key = res['api_key']
+        print('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key))
+        json_response = json.loads(client.get('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key)).data.decode('utf8'))
+
+        if isinstance(json_response[return_key], int):
+            assert json_response[return_key] == message
+        else:
+            assert message in json_response[return_key]
+
 # test variant acmg class update
 
 
