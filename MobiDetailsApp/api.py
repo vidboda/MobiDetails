@@ -204,7 +204,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
                         md_utilities.urls['variant_validator_api'], variant_ghgvs
                     )
-                    print(vv_url)
+                    # print(vv_url)
                     # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
         
                     try:
@@ -213,19 +213,19 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         close_db()
                         return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(variant_ghgvs))
                     # look forg ene acc #
-                    print(vv_data)
+                    # print(vv_data)
                     new_variant = None
                     vv_key_var = None
                     for key in vv_data.keys():
                         match_obj = re.search('^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', key)
                         if match_obj:
                             new_variant = match_obj.group(3)
-                            print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
+                            # print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
                             if match_obj.group(1) == res_gene['name'][1] and \
                                     str(match_obj.group(2)) == str(res_gene['nm_version']):
                                 vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
                     if vv_key_var is not None:
-                        print(vv_key_var)
+                        # print(vv_key_var)
                         creation_dict = md_utilities.create_var_vv(
                             vv_key_var, res_gene['name'][0], res_gene['name'][1],
                             'c.{}'.format(new_variant), new_variant,
@@ -234,9 +234,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         if caller == 'cli':
                             return jsonify(creation_dict)
                         else:
-                            return redirect(url_for('md.variant', creation_dict=res['mobidetails_id']))
+                            return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
                     else:
-                        return jsonify(mobidetails_error='Could not create variant {}'.format(variant_ghgvs))
+                        return jsonify(mobidetails_error='Could not create variant {}.'.format(variant_ghgvs), variant_validator_output=vv_data)
             else:
                 return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
         else:
