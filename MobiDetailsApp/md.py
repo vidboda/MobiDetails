@@ -93,9 +93,9 @@ def gene(gene_name=None):
         enst_ver = {}
         # if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
         # if we have the main => next step
-        if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], main['enst'])):
+        if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], main['enst'])):
             for gene in result_all:
-                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], gene['enst'])):
+                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):
                     http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                     if gene['enst'] not in enst_ver:
                         # get enst versions in a dict
@@ -137,7 +137,7 @@ def gene(gene_name=None):
             # print('enst: {}'.format(enst_ver[enst]))
             # print('--{}--'.format(app.debug))
             # print(json.dumps({'transcript_id': enst_ver[enst]}))
-            if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst)):
+            if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], enst)):
                 metad_data = None
                 try:
                     metad_data = json.loads(
@@ -210,7 +210,7 @@ def gene(gene_name=None):
                                             ).data.decode('utf-8')
                                         )
                             # copy in file system
-                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], enst), "w", encoding='utf-8') as metad_file:
+                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], enst), "w", encoding='utf-8') as metad_file:
                                 json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
                             if not app.debug:
                                 app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
@@ -437,9 +437,9 @@ def variant(variant_id=None):
                         domain = curs.fetchall()
                         # metadome data?
                         if variant_features['dna_type'] == 'substitution' and \
-                                os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst'])) is True:
+                                os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
                             # get value in json file
-                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome'][0], variant_features['enst']), "r") as metad_file:
+                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst']), "r") as metad_file:
                                 metad_json = json.load(metad_file)
                                 if 'positional_annotation' in metad_json:
                                     for pos in metad_json['positional_annotation']:
@@ -490,9 +490,9 @@ def variant(variant_id=None):
                         annot['following_segment_number'] = None
                         (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions_neighb_exon)
                 # clinvar
-                record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
+                record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
                 if isinstance(record, str):
-                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.local_files['clinvar_hg38'][1])
+                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.local_files['clinvar_hg38']['version'])
                 else:
                     annot['clinvar_id'] = record[2]
                     match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
@@ -519,9 +519,8 @@ def variant(variant_id=None):
                         annot['mpa_score'] = 10
                         annot['mpa_impact'] = variant_features['prot_type']
                 # gnomadv3
-                record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3'][0], var)
+                record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var)
                 if isinstance(record, str):
-                    # annot['gnomadv3'] = "{0} {1}".format(record, md_utilities.local_files['gnomad_3'][1])
                     annot['gnomadv3'] = record
                 else:
                     match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
@@ -529,9 +528,9 @@ def variant(variant_id=None):
                         annot['gnomadv3'] = match_obj.group(1)
                 # dbNSFP
                 if variant_features['prot_type'] == 'missense':
-                    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.local_files['dbnsfp'][1])
+                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.local_files['dbnsfp']['version'])
                     else:
                         # first: get enst we're dealing with
                         i = 0
@@ -679,16 +678,16 @@ def variant(variant_id=None):
 
                 # CADD
                 if variant_features['dna_type'] == 'substitution':
-                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd'][1])
+                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd']['version'])
                     else:
                         annot['cadd_raw'] = record[4]
                         annot['cadd_phred'] = record[5]
                 else:
-                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels'][1])
+                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels']['version'])
                     else:
                         annot['cadd_raw'] = record[4]
                         annot['cadd_phred'] = record[5]
@@ -698,18 +697,18 @@ def variant(variant_id=None):
                 # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
                 spliceai_res = False
                 if variant_features['dna_type'] == 'substitution':
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var)
                     spliceai_res = True
                 elif ((variant_features['dna_type'] == 'insertion' or
                         variant_features['dna_type'] == 'duplication') and
                         variant_features['variant_size'] == 1) or \
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4):
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var)
                     spliceai_res = True
                 if spliceai_res is True:
                     if isinstance(record, str):
-                        annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai_indels'][1])
+                        annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai_indels']['version'])
                     else:
                         spliceais = re.split(r'\|', record[7])
                         # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
@@ -738,20 +737,20 @@ def variant(variant_id=None):
 
             elif var['genome_version'] == 'hg19':
                 # gnomad ex
-                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome'][0], var)
+                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var)
                 if isinstance(record, str):
                     annot['gnomad_exome_all'] = record
                 else:
                     annot['gnomad_exome_all'] = record[5]
                 # gnomad ge
-                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome'][0], var)
+                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var)
                 if isinstance(record, str):
                     annot['gnomad_genome_all'] = record
                 else:
                     annot['gnomad_genome_all'] = record[5]                
                 # clinpred
                 if variant_features['prot_type'] == 'missense':
-                    record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)
                     if isinstance(record, str):
                         annot['clinpred_score'] = record
                     else:
@@ -766,10 +765,10 @@ def variant(variant_id=None):
                             annot['clinpred_pred'] = 'Damaging'
                 if variant_features['dna_type'] == 'substitution':
                     # dbscSNV
-                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv'][0], var)
+                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
-                        annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv'][1])
+                        annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv']['version'])
+                        annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv']['version'])
                         if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
                             splicing_radar_labels.append('dbscSNV ADA')
                             splicing_radar_values.append(annot['dbscsnv_ada'])
@@ -785,7 +784,7 @@ def variant(variant_id=None):
                                 splicing_radar_values.append(annot['dbscsnv_ada'])
                         except Exception:
                             # "score" is '.'
-                            annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv'][1])
+                            annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv']['version'])
                         try:
                             annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
                             annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
@@ -794,7 +793,7 @@ def variant(variant_id=None):
                                 splicing_radar_values.append(annot['dbscsnv_rf'])
                         except Exception:
                             # "score" is '.'
-                            annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv'][1])
+                            annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv']['version'])
                         # dbscsnv_mpa_threshold = 0.8
                         if 'mpa_score' not in annot or annot['mpa_score'] < 10:
                             if (isinstance(annot['dbscsnv_ada'], float) and

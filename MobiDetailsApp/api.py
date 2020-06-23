@@ -217,7 +217,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     new_variant = None
                     vv_key_var = None
                     for key in vv_data.keys():
-                        match_obj = re.search('^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', key)
+                        match_obj = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', key)
                         if match_obj:
                             new_variant = match_obj.group(3)
                             # print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))

@@ -7,6 +7,7 @@ import tabix
 import urllib3
 import certifi
 import json
+import yaml
 import twobitreader
 import tempfile
 import subprocess
@@ -17,19 +18,27 @@ from flask_mail import Message
 #from . import config
 from MobiDetailsApp import mail
 
-
 app_path = os.path.dirname(os.path.realpath(__file__))
-variant_regexp = '[\dACGTdienulps_>+\*-]+'
-genome_regexp = 'hg[13][98]'
-nochr_chrom_regexp = '[\dXYM]{1,2}'
-nochr_captured_regexp = '\d{1,2}|[XYM]'
+# get config file with paths, etc
+resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
-lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
-
-ext_exe = {
-    'maxentscan5': '{}/static/resources/maxentscan/score5.pl'.format(app_path),
-    'maxentscan3': '{}/static/resources/maxentscan/score3.pl'.format(app_path)
-}
+variant_regexp = resources['variant_regexp']
+genome_regexp = resources['genome_regexp']
+nochr_chrom_regexp = resources['nochr_chrom_regexp']
+nochr_captured_regexp = resources['nochr_captured_regexp']
+# variant_regexp = '[\dACGTdienulps_>+\*-]+'
+# genome_regexp = 'hg[13][98]'
+# nochr_chrom_regexp = '[\dXYM]{1,2}'
+# nochr_captured_regexp = '\d{1,2}|[XYM]'
+lovd_ref_file = '{0}{1}'.format(app_path, resources['lovd_ref_file_rel_path'])
+#lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
+ext_exe = resources['ext_exe']
+ext_exe['maxentscan5'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan5'])
+ext_exe['maxentscan3'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan3'])
+# ext_exe = {
+#     'maxentscan5': '{}/static/resources/maxentscan/score5.pl'.format(app_path),
+#     'maxentscan3': '{}/static/resources/maxentscan/score3.pl'.format(app_path)
+# }
 
 def get_clinvar_current_version(clinvar_dir):
     files = os.listdir(clinvar_dir)
@@ -41,187 +50,50 @@ def get_clinvar_current_version(clinvar_dir):
             dates.append(match_obj.group(1))
     return max(dates)
 
-one2three = {
-    'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',
-    'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn', 'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
-    'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr', 'del': 'del', 'X': 'Ter', '*': 'Ter', '=': '=',
-    'Ter': 'Ter'
-}
-three2one = {
-    'Ala': 'A', 'Cys': 'C', 'Asp': 'D', 'Glu': 'E', 'Phe': 'F', 'Gly': 'G', 'His': 'H', 'Ile': 'I',
-    'Lys': 'K', 'Leu': 'L', 'Met': 'M', 'Asn': 'N', 'Pro': 'P', 'Gln': 'Q', 'Arg': 'R', 'Ser': 'S',
-    'Thr': 'T', 'Val': 'V', 'Trp': 'W', 'Tyr': 'Y', 'Del': 'del', 'X': 'Ter', '*': 'Ter', '=': '=',
-    'Ter': 'Ter'
-}
-url_ncbi = 'https://www.ncbi.nlm.nih.gov/'
-urls = {
-    'cadd': 'https://cadd.gs.washington.edu/',
-    'clinpred': 'https://sites.google.com/site/clinpred/home',
-    'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
-    'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
-    'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t=',
-    'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome',
-    'fathmm': 'http://fathmm.biocompute.org.uk/',
-    'gnomad': 'http://gnomad.broadinstitute.org/',
-    'hgvs': 'http://varnomen.hgvs.org/',
-    'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
-    'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
-    'lovd': 'http://www.lovd.nl/',
-    'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v=',
-    'marrvel': 'http://marrvel.org/search/gene/',
-    'metadome': 'https://stuart.radboudumc.nl/metadome/',
-    'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
-    'mp': 'https://github.com/mobidic/MPA',
-    'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
-    'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',    
-    'ncbi_nuccore':  '{}nuccore/'.format(url_ncbi),
-    'ncbi_prot': '{}protein/'.format(url_ncbi),
-    'ncbi_dbsnp': '{}snp/'.format(url_ncbi),
-    'ncbi_clinvar': '{}clinvar'.format(url_ncbi),
-    'ncbi_1000g': '{}variation/tools/1000genomes/?'.format(url_ncbi),
-    'ncbi_gene': '{}gene/?term='.format(url_ncbi),
-    'ncbi_pubmed': '{}pubmed/'.format(url_ncbi),
-    'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='.format(url_ncbi),
-    # 'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
-    'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
-    'revel': 'https://sites.google.com/site/revelgenomics/',
-    'spliceai': 'https://github.com/Illumina/SpliceAI',
-    'sift': 'https://sift.bii.a-star.edu.sg/',
-    'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default\
-                  &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
-    'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
-    'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default\
-                  &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
-    'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF',
-    'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html',
-    'uniprot_id': 'http://www.uniprot.org/uniprot/',
-    'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
-    # uncomment below to use genuine VV web API
-    'variant_validator_api': 'https://rest.variantvalidator.org/',
-    # uncomment below to use VV on monster
-    # 'variant_validator_api': 'https://194.167.35.245:8000/',
-    # uncomment below to use VV on beast
-    # 'variant_validator_api': 'https://194.167.35.207:8000/',
-    # uncomment below to use VV on medium
-    # 'variant_validator_api': 'https://10.34.20.79:8000/',
-    # uncomment below to use VV on genuine VV dev
-    # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
-    # hello on genuine VV
-    'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
-    # hello on monster VV
-    # 'variant_validator_api_hello': 'https://194.167.35.245:8000/hello/?content-type=application/json',
-    # hello on beast VV
-    # 'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json',
-    # hello on medium VV
-    # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json',
-    # hello on genuine VV dev
-    # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json',
-}
-# clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
-local_files = {
-    # id :[local path, version, name, short desc, short name 4 urls xref]    
-    'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
-             'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
-                    'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-    'clinpred': ['{}/static/resources/clinpred/clinpred.txt.gz'.format(app_path), '2018_hg19', 'ClinPred', 'pre-computed ClinPred scores for all possible human missense variant', 'clinpred'],
-    'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
-                     'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
-    'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
-               'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
-    'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
-                'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
-    'dbsnp': ['{}/static/resources/dbsnp/hg38/v154/GCF_000001405.38.gz'.format(app_path),
-              'v154', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
-    'gnomad_exome': ['{}/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'.format(app_path),
-                     'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
-    'gnomad_genome': ['{}/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'.format(app_path),
-                      'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-    'gnomad_3': ['{}/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'.format(app_path),
-                 'v3', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
-    'human_genome_hg38': ['{}/static/resources/genome/hg38.2bit'.format(app_path),
-                          'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-    'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
-                          'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
-    'maxentscan': ['{}/static/resources/maxentscan/', '2004', 'MaxEntScan', 'Human splice site prediction', 'maxentscan'],
-    'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
-                 'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
-    'spliceai_snvs': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'.format(app_path),
-                      'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
-    'spliceai_indels': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'.format(app_path),
-                        'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
-}
 
-predictor_thresholds = {
-    'clinpred': 0.5,
-    'dbscsnv': 0.8,
-    'fathmm': -1.5,
-    'fathmm-mkl': -1.5,
-    'lrt': 0.5,  # must be precised - which is not solely determined by the score. => take pred directly into account?
-    'metadome_hintolerant': 0.175,
-    'metadome_intolerant': 0.52,
-    'metadome_sintolerant': 0.7,
-    'metadome_neutral': 0.875,
-    'metadome_stolerant': 1.025,
-    'metadome_tolerant': 1.375,
-    'meta-lr': 0.5,    
-    'meta-svm': 0,
-    'mpa_max': 8,
-    'mpa_mid': 5,
-    'pph2_hdiv_max': 0.957,
-    'pph2_hdiv_mid': 0.454,
-    'pph2_hvar_max': 0.909,
-    'pph2_hvar_mid': 0.447,
-    'provean': -2.5,
-    'revel_min': 0.2,
-    'revel_max': 0.5,
-    'sift': 0.95,  # SIFT is reversed
-    'spliceai_min': 0.2,
-    'spliceai_mid': 0.5,
-    'spliceai_max': 0.8,
-}
-predictor_colors = {
-    'min': '#00A020',
-    'highly_tolerant': '#0404B4',
-    'tolerant': '#2E64FE',
-    'slightly_tolerant': '#00CCBC',
-    'no_effect': '#000000',
-    'neutral': '#F9D057',
-    'small_effect': '#FFA020',
-    'mid_effect': '#FF6020',
-    'max': '#FF0000',
-    'highly_intolerant': '#D7191C',
-}
-predictors_translations = {
-    'basic': {
-        'D': 'Damaging',
-        'T': 'Tolerated',
-        '.': 'no prediction',
-        'N': 'Neutral',
-        'U': 'Unknown'
-    },
-    'pph2': {
-        'D': 'Probably Damaging',
-        'P': 'Possibly Damaging',
-        'B': 'Benign',
-        '.': 'no prediction'
-    },
-    'mt': {
-        'A': 'Disease causing automatic',
-        'D': 'Disease causing',
-        'N': 'polymorphism',
-        'P': 'polymorphism automatic',
-        '.': 'no prediction'
-    },  # mutation taster
-    'revel': {
-        'D': 'Damaging',
-        'U': 'Uncertain',
-        'B': 'Benign',
-        '.': 'no prediction'
-    }
-}
+one2three = resources['one2three']
+three2one = resources['three2one']
+url_ncbi = resources['url_ncbi']
 
-complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+
+urls = resources['urls']
+local_files = resources['local_files']
+local_files['cadd']['abs_path'] = '{0}{1}'.format(app_path, local_files['cadd']['rel_path'])
+local_files['cadd_indels']['abs_path'] = '{0}{1}'.format(app_path, local_files['cadd_indels']['rel_path'])
+local_files['clinpred']['abs_path'] = '{0}{1}'.format(app_path, local_files['clinpred']['rel_path'])
+local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
+    app_path,
+    local_files['clinvar_hg38']['rel_path'],
+    get_clinvar_current_version('{0}{1}'.format(
+        app_path,
+        local_files['clinvar_hg38']['rel_path'])
+    )
+)
+local_files['clinvar_hg38']['version'] = 'v{}'.format(
+    get_clinvar_current_version('{0}{1}'.format(
+        app_path,
+        local_files['clinvar_hg38']['rel_path']
+        )
+    )
+)
+local_files['dbnsfp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbnsfp']['rel_path'])
+local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbscsnv']['rel_path'])
+local_files['dbsnp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbsnp']['rel_path'])
+local_files['gnomad_exome']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_exome']['rel_path'])
+local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_genome']['rel_path'])
+local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_3']['rel_path'])
+local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg38']['rel_path'])
+local_files['human_genome_hg19']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg19']['rel_path'])
+local_files['maxentscan']['abs_path'] = '{0}{1}'.format(app_path, local_files['maxentscan']['rel_path'])
+local_files['metadome']['abs_path'] = '{0}{1}'.format(app_path, local_files['metadome']['rel_path'])
+local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(app_path, local_files['spliceai_snvs']['rel_path'])
+local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(app_path, local_files['spliceai_indels']['rel_path'])
+
+predictor_thresholds = resources['predictor_thresholds']
+predictor_colors = resources['predictor_colors']
+predictors_translations = resources['predictors_translations']
+complement = resources['complement']
+
 
 
 def reverse_complement(seq):
@@ -1039,7 +911,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         vf_d['ivs_name'] = 'NULL'
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
     hg38_d['chr'] = ncbi_chr[0]
-    record = get_value_from_tabix_file('dbsnp', local_files['dbsnp'][0], hg38_d)
+    record = get_value_from_tabix_file('dbsnp', local_files['dbsnp']['abs_path'], hg38_d)
     reg_chr = get_common_chr_name(db, ncbi_chr[0])
     hg38_d['chr'] = reg_chr[0]
     if isinstance(record, str):
@@ -1054,7 +926,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if vf_d['variant_size'] < 50:
         x = int(positions[0])-26
         y = int(positions[1])+25
-        genome = twobitreader.TwoBitFile(local_files['human_genome_hg38'][0])
+        genome = twobitreader.TwoBitFile(local_files['human_genome_hg38']['abs_path'])
         current_chrom = genome['chr{}'.format(hg38_d['chr'])]
         seq_slice = current_chrom[x:y].upper()
         # seq2 = current_chrom[int(positions[0])+1:int(positions[0])+2]
@@ -1412,7 +1284,7 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
             x = positions['segment_end']-7
             y = positions['segment_end']+2
 
-    genome = twobitreader.TwoBitFile(local_files['human_genome_hg38'][0])
+    genome = twobitreader.TwoBitFile(local_files['human_genome_hg38']['abs_path'])
     current_chrom = genome['chr{}'.format(chrom)]
     seq_slice = current_chrom[x:y].upper()
     if strand == '-':
@@ -1430,3 +1302,193 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     # print(tf.read())
     result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
     return [float(re.split('\n', re.split('\t', str(result.stdout, 'utf-8'))[1])[0]), formatted_seq]
+
+
+
+
+
+# one2three = {
+#     'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',
+#     'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn', 'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
+#     'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr', 'del': 'del', 'X': 'Ter', '*': 'Ter', '=': '=',
+#     'Ter': 'Ter'
+# }
+# url_ncbi = 'https://www.ncbi.nlm.nih.gov/'
+# three2one = {
+#     'Ala': 'A', 'Cys': 'C', 'Asp': 'D', 'Glu': 'E', 'Phe': 'F', 'Gly': 'G', 'His': 'H', 'Ile': 'I',
+#     'Lys': 'K', 'Leu': 'L', 'Met': 'M', 'Asn': 'N', 'Pro': 'P', 'Gln': 'Q', 'Arg': 'R', 'Ser': 'S',
+#     'Thr': 'T', 'Val': 'V', 'Trp': 'W', 'Tyr': 'Y', 'Del': 'del', 'X': 'Ter', '*': 'Ter', '=': '=',
+#     'Ter': 'Ter'
+# }
+
+# urls = {
+#     'cadd': 'https://cadd.gs.washington.edu/',
+#     'clinpred': 'https://sites.google.com/site/clinpred/home',
+#     'dbscsnv': 'http://www.liulab.science/dbscsnv.html',
+#     'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP',
+#     'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t=',
+#     'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome',
+#     'fathmm': 'http://fathmm.biocompute.org.uk/',
+#     'gnomad': 'http://gnomad.broadinstitute.org/',
+#     'hgvs': 'http://varnomen.hgvs.org/',
+#     'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build=',
+#     'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build=',
+#     'lovd': 'http://www.lovd.nl/',
+#     'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v=',
+#     'marrvel': 'http://marrvel.org/search/gene/',
+#     'metadome': 'https://stuart.radboudumc.nl/metadome/',
+#     'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/',
+#     'mp': 'https://github.com/mobidic/MPA',
+#     'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description=',
+#     'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias=',
+#     'ncbi_nuccore':  '{}nuccore/'.format(url_ncbi),
+#     'ncbi_prot': '{}protein/'.format(url_ncbi),
+#     'ncbi_dbsnp': '{}snp/'.format(url_ncbi),
+#     'ncbi_clinvar': '{}clinvar'.format(url_ncbi),
+#     'ncbi_1000g': '{}variation/tools/1000genomes/?'.format(url_ncbi),
+#     'ncbi_gene': '{}gene/?term='.format(url_ncbi),
+#     'ncbi_pubmed': '{}pubmed/'.format(url_ncbi),
+#     'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='.format(url_ncbi),
+#     # 'ncbi_litvar_api': '{}research/bionlp/litvar/api/v1/public/pmids?query=%7B%22variant%22%3A%5B%22litvar%40'.format(url_ncbi),
+#     'pph2': 'http://genetics.bwh.harvard.edu/pph2/',
+#     'revel': 'https://sites.google.com/site/revelgenomics/',
+#     'spliceai': 'https://github.com/Illumina/SpliceAI',
+#     'sift': 'https://sift.bii.a-star.edu.sg/',
+#     'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default\
+#                   &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
+#     'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn',
+#     'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default\
+#                   &lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=',
+#     'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF',
+#     'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html',
+#     'uniprot_id': 'http://www.uniprot.org/uniprot/',
+#     'variant_validator': ' https://variantvalidator.org/service/validate/?variant=',
+#     # uncomment below to use genuine VV web API
+#     'variant_validator_api': 'https://rest.variantvalidator.org/',
+#     # uncomment below to use VV on monster
+#     # 'variant_validator_api': 'https://194.167.35.245:8000/',
+#     # uncomment below to use VV on beast
+#     # 'variant_validator_api': 'https://194.167.35.207:8000/',
+#     # uncomment below to use VV on medium
+#     # 'variant_validator_api': 'https://10.34.20.79:8000/',
+#     # uncomment below to use VV on genuine VV dev
+#     # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/',
+#     # hello on genuine VV
+#     'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json',
+#     # hello on monster VV
+#     # 'variant_validator_api_hello': 'https://194.167.35.245:8000/hello/?content-type=application/json',
+#     # hello on beast VV
+#     # 'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json',
+#     # hello on medium VV
+#     # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json',
+#     # hello on genuine VV dev
+#     # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json',
+# }
+# clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
+
+# local_files = {
+#     # id :[local path, version, name, short desc, short name 4 urls xref]    
+#     'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
+#              'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
+#     'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
+#                     'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
+#     'clinpred': ['{}/static/resources/clinpred/clinpred.txt.gz'.format(app_path), '2018_hg19', 'ClinPred', 'pre-computed ClinPred scores for all possible human missense variant', 'clinpred'],
+#     'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
+#                      'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+#     'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
+#                'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
+#     'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
+#                 'v1.1', 'dbscSNV', 'Dataset of splicing predictions', 'dbscsnv'],
+#     'dbsnp': ['{}/static/resources/dbsnp/hg38/v154/GCF_000001405.38.gz'.format(app_path),
+#               'v154', 'dbSNP', 'Database of human genetic variations', 'ncbi_dbsnp'],
+#     'gnomad_exome': ['{}/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'.format(app_path),
+#                      'v2.0.1', 'gnomAD exome', 'large dataset of variants population frequencies', 'gnomad'],
+#     'gnomad_genome': ['{}/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'.format(app_path),
+#                       'v2.0.1', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
+#     'gnomad_3': ['{}/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'.format(app_path),
+#                  'v3', 'gnomAD genome', 'large dataset of variants population frequencies', 'gnomad'],
+#     'human_genome_hg38': ['{}/static/resources/genome/hg38.2bit'.format(app_path),
+#                           'hg38', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+#     'human_genome_hg19': ['{}/static/resources/genome/hg19.2bit'.format(app_path),
+#                           'hg19', 'Human genome sequence', 'Human genome sequence chr by chr (2bit format)', 'ucsc_2bit'],
+#     'maxentscan': ['{}/static/resources/maxentscan/', '2004', 'MaxEntScan', 'Human splice site prediction', 'maxentscan'],
+#     'metadome': ['{}/static/resources/metadome/v1/'.format(app_path),
+#                  'v1.0.1', 'metadome scores', 'mutation tolerance at each position in a human protein', 'metadome'],
+#     'spliceai_snvs': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'.format(app_path),
+#                       'v1.3', 'spliceAI SNVs', 'Dataset of splicing predictions', 'spliceai'],
+#     'spliceai_indels': ['{}/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'.format(app_path),
+#                         'v1.3', 'spliceAI Indels', 'Dataset of splicing predictions', 'spliceai'],
+# }
+
+# predictor_thresholds = {
+#     'clinpred': 0.5,
+#     'dbscsnv': 0.8,
+#     'fathmm': -1.5,
+#     'fathmm-mkl': -1.5,
+#     'lrt': 0.5,  # must be precised - which is not solely determined by the score. => take pred directly into account?
+#     'metadome_hintolerant': 0.175,
+#     'metadome_intolerant': 0.52,
+#     'metadome_sintolerant': 0.7,
+#     'metadome_neutral': 0.875,
+#     'metadome_stolerant': 1.025,
+#     'metadome_tolerant': 1.375,
+#     'meta-lr': 0.5,    
+#     'meta-svm': 0,
+#     'mpa_max': 8,
+#     'mpa_mid': 5,
+#     'pph2_hdiv_max': 0.957,
+#     'pph2_hdiv_mid': 0.454,
+#     'pph2_hvar_max': 0.909,
+#     'pph2_hvar_mid': 0.447,
+#     'provean': -2.5,
+#     'revel_min': 0.2,
+#     'revel_max': 0.5,
+#     'sift': 0.95,  # SIFT is reversed
+#     'spliceai_min': 0.2,
+#     'spliceai_mid': 0.5,
+#     'spliceai_max': 0.8,
+# }
+
+# predictor_colors = {
+#     'min': '#00A020',
+#     'highly_tolerant': '#0404B4',
+#     'tolerant': '#2E64FE',
+#     'slightly_tolerant': '#00CCBC',
+#     'no_effect': '#000000',
+#     'neutral': '#F9D057',
+#     'small_effect': '#FFA020',
+#     'mid_effect': '#FF6020',
+#     'max': '#FF0000',
+#     'highly_intolerant': '#D7191C',
+# }
+
+# predictors_translations = {
+#     'basic': {
+#         'D': 'Damaging',
+#         'T': 'Tolerated',
+#         '.': 'no prediction',
+#         'N': 'Neutral',
+#         'U': 'Unknown'
+#     },
+#     'pph2': {
+#         'D': 'Probably Damaging',
+#         'P': 'Possibly Damaging',
+#         'B': 'Benign',
+#         '.': 'no prediction'
+#     },
+#     'mt': {
+#         'A': 'Disease causing automatic',
+#         'D': 'Disease causing',
+#         'N': 'polymorphism',
+#         'P': 'polymorphism automatic',
+#         '.': 'no prediction'
+#     },  # mutation taster
+#     'revel': {
+#         'D': 'Damaging',
+#         'U': 'Uncertain',
+#         'B': 'Benign',
+#         '.': 'no prediction'
+#     }
+# }
+
+#complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}

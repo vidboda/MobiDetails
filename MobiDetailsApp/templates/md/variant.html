@@ -1033,12 +1033,12 @@
 				</thead>
 				<tbody>
 					{% for resource in local_files %}
-						{% if local_files[resource][2] != 'Human genome sequence' %}
+						{% if local_files[resource]['name'] != 'Human genome sequence' %}
 							<tr>
 								<td class="w3-left-align">
-									<a href="{{ urls[local_files[resource][4]] }}" target="_blank" title="Visit {{ local_files[resource][2] }}">{{ local_files[resource][2] }}</a>
+									<a href="{{ urls[local_files[resource]['short_name']] }}" target="_blank" title="Visit {{ local_files[resource]['name'] }}">{{ local_files[resource]['name'] }}</a>
 								</td>
-								<td class="w3-left-align">{{ local_files[resource][1] }}</td>
+								<td class="w3-left-align">{{ local_files[resource]['version'] }}</td>
 							</tr>
 						{% endif %}
 					{% endfor %}

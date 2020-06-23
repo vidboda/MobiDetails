@@ -205,13 +205,13 @@ var = {
 
 
 def test_get_value_from_tabix_file():
-    record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38'][0], var)
+    record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
     assert re.search('Pathogenic', record[7])
     assert re.search('2356', record[2])
 
 
 def test_getdbNSFP_results():
-    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp'][0], var)
+    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
     score, pred, star = md_utilities.getdbNSFP_results(0, 36, 38, ';', 'basic', 1.1, 'lt', record)
     assert score == '0.0'
     assert pred == 'Damaging'
