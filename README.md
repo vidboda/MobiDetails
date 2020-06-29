@@ -10,6 +10,6 @@ It consists in a website where users can easily create variants and retrieve man
 
 It also includes an API for programmatic access.
 
-It is currently under intense development, the beta version is accessible at:
+It is currently under intense development, and is available at:
 
 https://mobidetails.iurc.montp.inserm.fr/MD/
