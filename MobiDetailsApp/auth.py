@@ -499,7 +499,7 @@ def forgot_pass():
                 '[MobiDetails - Password reset]',
                 [email]
             )
-            flash('Please check your e-mail inbox. You should have receive a message with a link to reset your password', 'w3-pale-green')
+            flash('Please check your e-mail inbox. You should have received a message with a link to reset your password', 'w3-pale-green')
             return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
 
