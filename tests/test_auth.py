@@ -1,5 +1,6 @@
 import pytest
 import psycopg2
+from datetime import datetime
 # from flask import g, session
 from MobiDetailsApp.db import get_db
 
@@ -110,3 +111,43 @@ def test_logout(client):
     print(response.headers['Location'])
     assert 'http://localhost/' == response.headers['Location']
     # assert b'Homepage' in response.get_data()
+
+# test forgot my password form
+
+
+@pytest.mark.parametrize(('mobiuser_email', 'message'), (
+    ('david.bauxinserm.fr', b'The email address does not look valid.'),
+    ('david@insermfr', b'The email address does not look valid.'),
+    ('david@inserm.fr', b'seems to be unknown by the system.'),
+    ('david.baux@inserm.fr', b'Please check your e-mail inbox'),
+))
+def test_forgot_pass(client, mobiuser_email, message):
+    response = client.post(
+        '/auth/forgot_pass',
+        data={'email': mobiuser_email}
+    )
+    # print(response.get_data())
+    assert message in response.get_data()
+
+# test reset password
+
+
+@pytest.mark.parametrize(('mobiuser_id', 'api_key', 'timestamp', 'message'), (
+    (2, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'API key and user id do not seem to fit.'),
+    ('test', 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'Some parameters are not legal'),
+    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'Please fill in the form to reset your password with a new one.'),
+    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', '593612854.360794', b'This link is outdated.'),
+    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', '2593612854.360794', b'This link is outdated.'),
+))
+def test_reset_password(client, mobiuser_id, api_key, timestamp, message):
+    if timestamp is None:
+        timestamp = datetime.timestamp(datetime.now())
+    response = client.get(
+        '/auth/reset_password?mobiuser_id={0}&api_key={1}&ts={2}'.format(
+            mobiuser_id,
+            api_key,
+            timestamp
+        )
+    )
+    # print(response.get_data())
+    assert message in response.get_data()

@@ -4,9 +4,9 @@
 {% block header %}
   <h1 align="center" class="w3-text-blue">{% block title %}Log In{% endblock %}</h1>
 {% endblock %}
-{% block more_head %}
+{#{% block more_head %}
 	<script src="{{ url_for('static', filename='javascript/auth_login.js') }}" type="text/javascript"></script>	
-{% endblock %}
+{% endblock %}#}
 {% block content %}
 	{{ info("Please Log in if already registered and if you want to trace your variants. An account is also mandatory to use the API to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in.") }}
 	<br />
@@ -29,6 +29,9 @@
 		<p class="w3-center">
 			<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
 		</p>
+    <p class="w3-center">
+      <a href="{{ url_for('auth.forgot_pass') }}">Forgot my password</a>
+    </p>
 	</form>
   </div>
   <br /><br />

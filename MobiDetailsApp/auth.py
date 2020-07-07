@@ -15,7 +15,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
-
+from datetime import datetime
 from MobiDetailsApp.db import get_db, close_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -449,3 +449,132 @@ def logout():
         return redirect(request.referrer)
     else:
         return redirect(url_for('index'))
+
+# -------------------------------------------------------------------
+# forgot password
+
+
+@bp.route('/forgot_pass', methods=('GET', 'POST'))
+def forgot_pass():
+    if request.method == 'GET':
+        return render_template('auth/forgot_pass.html')
+    elif request.method == 'POST':
+        error = None
+        email = request.form['email']
+        if not re.search(r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            error = 'The email address does not look valid.'
+            flash(error, 'w3-pale-red')
+            return render_template('auth/forgot_pass.html')
+        else:
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT * FROM mobiuser WHERE email = %s",
+                (email,)
+            )
+            user = curs.fetchone()
+            if user is None:
+                error = 'Your email address {} seems to be unknown by the system.'.format(email)
+                flash(error, 'w3-pale-red')
+                return render_template('auth/forgot_pass.html')
+            # message, mail_object, receiver
+            md_utilities.send_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails - Reset your password',
+                    'Dear {0},<p>please follow the link below to reset your MobiDetails password:</p>\
+                    <p><a href="{1}{2}" title="Reset your MD password">Reset your MD password</a></p>\
+                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    '.format(
+                        user['username'],
+                        request.host_url.rstrip('/'),
+                        url_for(
+                            'auth.reset_password',
+                            mobiuser_id=user['id'],
+                            api_key=user['api_key'],
+                            ts=datetime.timestamp(datetime.now())
+                        )
+                    ),
+                    False
+                ),
+                '[MobiDetails - Password reset]',
+                [email]
+            )
+            flash('Please check your e-mail inbox. You should have receive a message with a link to reset your password', 'w3-pale-green')
+            return render_template('auth/forgot_pass.html')
+    return render_template('md/unknown.html')
+
+# -------------------------------------------------------------------
+# reset password
+
+
+@bp.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'GET':
+        if re.search(r'^\d+$', request.args.get('mobiuser_id')) and \
+                re.search(r'^[\d\.]+$', request.args.get('ts')):
+            mobiuser_id = request.args.get('mobiuser_id')
+            api_key = request.args.get('api_key')
+            original_timestamp = request.args.get('ts')
+            # we will keep the link alive for 30 minutes i.e. 1800 s
+            if float(float(datetime.timestamp(datetime.now())) - float(original_timestamp)) > 1800 or \
+               float(float(datetime.timestamp(datetime.now())) - float(original_timestamp)) < 0:
+                flash('This link is outdated. Please try again the procedure.', 'w3-pale-red')
+                return render_template('auth/login.html')
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT id, api_key, activated FROM mobiuser WHERE id = %s AND api_key = %s",
+                (mobiuser_id, api_key)
+            )
+            user = curs.fetchone()
+            if user is None:
+                message_body = '<p>Password reset exception</p><p>Received API key: {0} and\
+                           mobiuser_id: {1} from {2}'.format(
+                                api_key, mobiuser_id, request.remote_addr
+                            )
+                md_utilities.send_error_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails error',
+                        message_body
+                    ),
+                    '[MobiDetails - Password reset Error]'
+                )
+                flash('API key and user id do not seem to fit. An admin has been warned', 'w3-pale-red')
+                return render_template('auth/forgot_pass.html')
+            else:
+                return render_template('auth/reset_pass.html', mobiuser_id=mobiuser_id, api_key=api_key)
+        else:
+            message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and\
+                        mobiuser_id: {1} from {2}'.format(
+                             request.args.get('ts'), request.args.get('mobiuser_id'), request.remote_addr
+                         )
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    message_body
+                ),
+                '[MobiDetails - Password reset Error]'
+            )
+            flash('Some parameters are not legal. An admin has been warned', 'w3-pale-red')
+            return render_template('auth/forgot_pass.html')
+    elif request.method == 'POST':
+        mobiuser_id = request.form['mobiuser_id']
+        api_key = request.form['api_key']
+        password = request.form['password']
+        error = None
+        if len(password) < 8 or not re.match('[a-zA-Z0-9]+', password):
+            error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
+        else:
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "UPDATE mobiuser SET password= %s WHERE id = %s AND api_key = %s",
+                (generate_password_hash(password), mobiuser_id, api_key)
+            )
+            db.commit()
+            flash('Your password has just been reset.', 'w3-pale-green')
+            return render_template('auth/login.html')
+        if error is not None:
+            flash(error, 'w3-pale-red')
+            return render_template('auth/reset_pass.html', mobiuser_id=mobiuser_id, api_key=api_key)
+    return render_template('md/unknown.html')

@@ -1245,9 +1245,13 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         if i < len(scoresmt):
             wt = re.split('\s+', scoreswt[i])
             mt = re.split('\s+', scoresmt[i])
+            print(wt)
+            print(mt)
             if len(wt) == 2 and \
-                    len(mt) == 2:
-                if float(wt[1]) !=0:
+                    len(mt) == 2 and \
+                    wt[1] != '' and \
+                    mt[1] != '':
+                if float(wt[1]) != 0:
                     variation = (float(mt[1]) - float(wt[1])) / abs(float(wt[1]))
                 else:
                     variation = float(wt[1])
