@@ -1245,8 +1245,8 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         if i < len(scoresmt):
             wt = re.split('\s+', scoreswt[i])
             mt = re.split('\s+', scoresmt[i])
-            print(wt)
-            print(mt)
+            # print(wt)
+            # print(mt)
             if len(wt) == 2 and \
                     len(mt) == 2 and \
                     wt[1] != '' and \
