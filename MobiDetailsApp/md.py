@@ -492,7 +492,7 @@ def variant(variant_id=None):
                 # clinvar
                 record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
                 if isinstance(record, str):
-                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.external_resources['ClinVar']['version'])
+                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.external_tools['ClinVar']['version'])
                 else:
                     annot['clinvar_id'] = record[2]
                     match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
@@ -530,7 +530,7 @@ def variant(variant_id=None):
                 if variant_features['prot_type'] == 'missense':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_resources['dbNSFP']['version'])
+                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
                     else:
                         # first: get enst we're dealing with
                         i = 0

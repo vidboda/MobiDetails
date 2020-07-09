@@ -40,6 +40,9 @@
 					{{ link("%srs%s"|format(urls.ncbi_dbsnp, variant_features.dbsnp_id), "dbSNP")}}
 					{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
 					{{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }}
+					{% if variant_features.dbsnp_id != None %}
+						{{ link("%srs%s"|format(urls.regulomedb_hg19_search, variant_features.dbsnp_id), "RegulomeDB") }}
+					{% endif %}
 				{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "VarSome") }}#}
 				</div>
 			{% elif vari.genome_version == 'hg38' %}
@@ -318,7 +321,7 @@
 							{% if variant_features.dbsnp_id != None %}
 								<a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a>
 							{% else %}
-								No match in dbSNP
+								No match in dbSNP {{ external_tools['dbSNP']['version'] }}
 							{% endif %}						
 						</td>
 						<td class="w3-left-align"><em class="w3-small">Identifier for NCBI dbSNP</em></td>
