@@ -69,13 +69,13 @@ local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
         local_files['clinvar_hg38']['rel_path'])
     )
 )
-local_files['clinvar_hg38']['version'] = 'v{}'.format(
-    get_clinvar_current_version('{0}{1}'.format(
-        app_path,
-        local_files['clinvar_hg38']['rel_path']
-        )
-    )
-)
+# local_files['clinvar_hg38']['version'] = 'v{}'.format(
+#     get_clinvar_current_version('{0}{1}'.format(
+#         app_path,
+#         local_files['clinvar_hg38']['rel_path']
+#         )
+#     )
+# )
 local_files['dbnsfp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbnsfp']['rel_path'])
 local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbscsnv']['rel_path'])
 local_files['dbsnp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbsnp']['rel_path'])
@@ -93,9 +93,18 @@ predictor_thresholds = resources['predictor_thresholds']
 predictor_colors = resources['predictor_colors']
 predictors_translations = resources['predictors_translations']
 complement = resources['complement']
-
-
-
+external_tools = resources['external_tools']
+for tool in external_tools:
+    if re.search(r'^\d+$', external_tools[tool]['paper']):
+        external_tools[tool]['paper'] = '{0}{1}'.format(urls['ncbi_pubmed'], external_tools[tool]['paper'])
+#external_tools['ClinVar']['version'] = local_files['clinvar_hg38']['version']
+external_tools['ClinVar']['version'] = 'v{}'.format(
+    get_clinvar_current_version('{0}{1}'.format(
+        app_path,
+        local_files['clinvar_hg38']['rel_path']
+        )
+    )
+)
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))
 

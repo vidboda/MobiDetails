@@ -53,7 +53,7 @@ def index():
 
 @bp.route('/about')
 def about():
-    return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files)
+    return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files, external_tools=md_utilities.external_tools)
 
 # -------------------------------------------------------------------
 # web app - changelog
@@ -492,7 +492,7 @@ def variant(variant_id=None):
                 # clinvar
                 record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
                 if isinstance(record, str):
-                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.local_files['clinvar_hg38']['version'])
+                    annot['clinsig'] = "{0} {1}".format(record, md_utilities.external_resources['ClinVar']['version'])
                 else:
                     annot['clinvar_id'] = record[2]
                     match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
@@ -530,7 +530,7 @@ def variant(variant_id=None):
                 if variant_features['prot_type'] == 'missense':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.local_files['dbnsfp']['version'])
+                        annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_resources['dbNSFP']['version'])
                     else:
                         # first: get enst we're dealing with
                         i = 0
@@ -680,14 +680,14 @@ def variant(variant_id=None):
                 if variant_features['dna_type'] == 'substitution':
                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd']['version'])
+                        annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                     else:
                         annot['cadd_raw'] = record[4]
                         annot['cadd_phred'] = record[5]
                 else:
                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['cadd'] = "{0} {1}".format(record, md_utilities.local_files['cadd_indels']['version'])
+                        annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                     else:
                         annot['cadd_raw'] = record[4]
                         annot['cadd_phred'] = record[5]
@@ -708,7 +708,7 @@ def variant(variant_id=None):
                     spliceai_res = True
                 if spliceai_res is True:
                     if isinstance(record, str):
-                        annot['spliceai'] = "{0} {1}".format(record, md_utilities.local_files['spliceai_indels']['version'])
+                        annot['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
                     else:
                         spliceais = re.split(r'\|', record[7])
                         # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
@@ -767,8 +767,8 @@ def variant(variant_id=None):
                     # dbscSNV
                     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var)
                     if isinstance(record, str):
-                        annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv']['version'])
-                        annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.local_files['dbscsnv']['version'])
+                        annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                        annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
                         if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
                             splicing_radar_labels.append('dbscSNV ADA')
                             splicing_radar_values.append(annot['dbscsnv_ada'])
@@ -784,7 +784,7 @@ def variant(variant_id=None):
                                 splicing_radar_values.append(annot['dbscsnv_ada'])
                         except Exception:
                             # "score" is '.'
-                            annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.local_files['dbscsnv']['version'])
+                            annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
                         try:
                             annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
                             annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
@@ -793,7 +793,7 @@ def variant(variant_id=None):
                                 splicing_radar_values.append(annot['dbscsnv_rf'])
                         except Exception:
                             # "score" is '.'
-                            annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.local_files['dbscsnv']['version'])
+                            annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
                         # dbscsnv_mpa_threshold = 0.8
                         if 'mpa_score' not in annot or annot['mpa_score'] < 10:
                             if (isinstance(annot['dbscsnv_ada'], float) and
@@ -877,22 +877,10 @@ def variant(variant_id=None):
         annot['mpa_impact'] = 'unknown'
     else:
         annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
-
-    # get VV API version - not needed anymore - vv just returns a hello world
-    # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-    # vv_data = None
-    # try:
-    #     vv_data = json.loads(http.request('GET', md_utilities.urls['variant_validator_api_info']).data.decode('utf-8'))
-    # except:
-    #     md_utilities.send_error_email(md_utilities.prepare_email_html(
-    # 'MobiDetails VariantValidator error', '<p>VariantValidator looks down!!<br /> - from {}</p>'
-    # .format(os.path.basename(__file__))), '[MobiDetails - VariantValidator Error]')
-    #     vv_data = {'status': 'Service Unavailable'}
-
     return render_template(
         'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
-        urls=md_utilities.urls, thresholds=md_utilities.predictor_thresholds, local_files=md_utilities.local_files,
+        urls=md_utilities.urls, external_tools=md_utilities.external_tools, thresholds=md_utilities.predictor_thresholds, 
         variant_features=variant_features, variant=variant, protein_domain=domain,
         class_history=class_history, annot=annot, mes5=signif_scores5, mes3=signif_scores3
     )

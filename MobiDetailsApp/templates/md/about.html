@@ -8,6 +8,7 @@
 {% block title %}About{% endblock %}
 {% block content %}
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="about_menu">
+		<a href="#references" class="w3-bar-item w3-button w3-mobile">References</a>
 		<a href="#disclaimer" class="w3-bar-item w3-button w3-mobile">Disclaimer</a>
 		<a href="#contact" class="w3-bar-item w3-button w3-mobile">Contact</a>
 		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
@@ -43,22 +44,37 @@
 		<p>You can also create an account (top right of all pages, icon <i class='fa fa fa-user-plus'></i>), which will allow you to quickly retrieve all the variants you created and all your favourite variants.<br /> You can mark a variant as favourite in the variant page when you're logged in (<i class='fa fa fa-user'></i>) by cliking on the star <i class='fa fa-star'></i> at the bottom of the left menu. You can retrieve your variants using the 'identity card' <i class='fa fa-id-card-o'></i> on the top right menu when you're logged in.<br />Registered users can in addition add an ACMG class to the variants and also contact each others via the application.</p>") }}
 		{{ info("<strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li><li>gene symbol, e.g. 'USH2A'</li></ul>") }}
 	</div>
-	<!--<div class="w3-button w3-block w3-blue" onclick="accord('video1');" title="toggle section">-->
-	<!--	<h1>Check out the general video tutorial</h1>-->
-	<!--</div><br/>-->
-	<!--<div class="w3-container w3-padding-64 w3-center" id="video1" style="display:none">-->
-	<!--	<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD1.mp4'></video>-->
-	<!--</div>-->
-	<!--<div class="w3-button w3-block w3-blue" onclick="accord('video2');" title="toggle section">-->
-	<!--	<h1>How to find relevant publications</h1>-->
-	<!--</div><br/>-->
-	<!--<div class="w3-container w3-padding-64 w3-center" id="video2" style="display:none">-->
-	<!--	<video controls = 'controls' width = '60%' name = 'MD tutorial' src = '/static/videos/MD_pubmed.mp4'></video>-->
-	<!--</div>-->
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
 		<span class="w3-xxlarge">External Resources Used by MobiDetails</span>
 	</div><br/>
-	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
+	<h3 id="references">References:</h3>
+		{{ info('You will find below a list of references and versions of all tools included in MobiDetails:') }}
+		<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
+			<div class="w3-responsive w3-container">
+				<table class="w3-table w3-centered display compact" style="width:90%" id="reference_table">
+					<caption>References and versions of all resources used in MD:</caption>
+					<thead>
+						<tr>
+							<th class="w3-left-align">Resource</th>
+							<th class="w3-left-align">Version</th>
+							<th class="w3-left-align">Reference</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for tool in external_tools %}
+							<tr>
+								<td class="w3-left-align">
+									<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
+								</td>
+								<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
+								<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+<!--	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
 		<div class="w3-responsive w3-container">
 			<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
 				<caption>Links and versions of external resources used in MD:</caption>
@@ -79,18 +95,18 @@
 							</tr>
 						{% endif %}
 					{% endfor %}
-					<!--<tr>
+					<tr>
 						<td class="w3-left-align">
 							<a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a>
 						</td>
 						<td class="w3-left-align">{#{{ vv_data.apiVersion }}#}</td>
-					</tr>-->
+					</tr>
 				</tbody>
 			</table>
 		</div>
-	</div>
+	</div>-->
 	<div class="w3-container w3-padding-64" style="display:block">
-		<h3 id= "disclaimer">Disclaimer:</h3>
+		<h3 id="disclaimer">Disclaimer:</h3>
 		{{ info("<strong>This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free for academic use service on an 'as-is' basis, without any warranty for accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.</strong>") }}
 		<h3 id= "contact">Contact:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
@@ -102,13 +118,16 @@
 			//]]>
 			</script>.</p>
 		</div>
-		<h3 id= "group">Group's websites:</h3>
+		<h3 id="group">Group's websites:</h3>
 		{{ info('<a href="https://neuro-2.iurc.montp.inserm.fr/group/diag_en.html" target="_blank">Deafness and blindness group</a> at Laboratory of molecular genetics, Montpellier University Hospital</a><br /><br /><a hef="https://neuro-2.iurc.montp.inserm.fr/mobidic/" target="_blank">MoBiDiC</a>, bioinformaticians at Montpellier University Hospital') }}
-		<h3 id= "source_code">Source code:</h3>
+		<h3 id="source_code">Source code:</h3>
 		{{ info('Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a>') }}
-		<h3 id= "credits">Credits:</h3>
+		<h3 id="credits">Credits:</h3>
 		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> (<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) to create the variants.<br/>Logos made using <a href="https://my.logomakr.com" target="_blank">Logomakr</a>.<br />MobiDetails uses several APIs to maintain its data integrity, including:<ul><li>NCBI <a href="https://www.ncbi.nlm.nih.gov/books/NBK25500/" target="_blank">eutils</a></li><li><a href="https://www.uniprot.org/help/programmatic_access" target="_blank">UNIPROT</a></li><li><a href="https://rest.variantvalidator.org" target="_blank">VariantValidator</a></li></ul>And some others to provide you the most up to date data:<ul><li><a href="https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query=" target="_blank">LitVar</a></li><li><a href="https://www.lovd.nl/" target="_blank">LOVD</a></li><li><a href="http://wintervar.wglab.org/" target="_blank">wInterVar</a></li></ul>') }}
-		<h3 id='private_life'>Private life:</h3>
+		
+		
+		
+		<h3 id="private_life">Private life:</h3>
 		{{ info('MobiDetails does not require an account, you can create and analyse variants as a public user.<br/>Authentication allows a greater experience (and more functionalities will be added). Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data. These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.') }}
 	</div>
 	<br /><br />
