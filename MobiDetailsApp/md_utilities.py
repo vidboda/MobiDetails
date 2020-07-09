@@ -1204,22 +1204,25 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     pos1 = pos2 = 0
     seqs = []
     seqs_html = []
+    #            a < y + w -1 and \
     while z == w and \
-            a < y + w -1 and \
             pos2 < len(seq):
-        pos1 = x - (w - y) + a
-        pos2 = x + (a + y - 1)
+        # pos1 = x - (w - y) + a
+        # pos2 = x + (a + y - 1)
+        pos1 = x - w + a
+        pos2 = pos1 + w - 1
         z = (pos2 - pos1 + 1)
         # print('{0}-{1}'.format(pos1-1, pos2))
         # get substring
         # seqs.append('>{0}{1}\n{2}\n'.format(seqtype, a, seq[pos1-1:pos2]))
         interest_seq = '{}\n'.format(seq[pos1-1:pos2])
         seqs.append(interest_seq)
+        # print(interest_seq)
         # we need to html highlight the mutant sequence so to retrieve it here
-        # r is the beginning of the subseq and defined as "((len(seq required 4 maxent; 9 or 23) - window position - 1) - (len(var) -1)))
+        # r is the beginning of the subseq and defined as "((len(seq required 4 maxent; 9 or 23) - window position - 1) - (len(var) -2)))
         # s is the end of the substring being r + len(var)
         # limitation for delins => the size is the size of the deleted sequence
-        r = (w - a - 1) - (y - 1)
+        r = (w - a - 1) - (y - 2)
         s = r + y
         #we need to remap r and s if < 0
         if (r < 0):
@@ -1240,7 +1243,7 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     # print(tf.read())
     result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
     # print(result)
-    # print(str(result.stdout))
+    print(str(result.stdout))
     return [str(result.stdout, 'utf-8'), seqs_html]
 
 
