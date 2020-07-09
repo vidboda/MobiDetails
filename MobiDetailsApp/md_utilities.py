@@ -1243,7 +1243,7 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     # print(tf.read())
     result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
     # print(result)
-    print(str(result.stdout))
+    # print(str(result.stdout))
     return [str(result.stdout, 'utf-8'), seqs_html]
 
 
