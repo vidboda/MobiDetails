@@ -1126,9 +1126,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     db.commit()
     # print("--- %s seconds ---" % (time.time() - start_time))
     if remapper is True and caller == 'webApp':
-        return info_panel("Successfully created variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
+        return info_panel("Successfully annotated variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':
-        return info_panel("Successfully created variant", vf_d['c_name'], vf_id, 'w3-pale-green')
+        return info_panel("Successfully annotated variant", vf_d['c_name'], vf_id, 'w3-pale-green')
     if caller == 'api':
         return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
             request.host_url[:-1], url_for('md.variant', variant_id=vf_id)
