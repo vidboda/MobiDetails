@@ -30,7 +30,7 @@ a:hover {
 }
 #smart_menu {
     /*display:block;*/
-    /*z-index:2001;*/
+    z-index:2001;
     width:15%;
     /*overflow-y:scroll;*/
     /*position:fixed;*/

@@ -13,6 +13,12 @@ function w3_open() {
 		$('#global_content').animate({marginLeft: '35%'});
 		$('#smart_menu').width('35%');
 	}
+	else if (wi < 600) {
+		$('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+	}
 	else {
 		$('#global_content').animate({marginLeft: '15%'});
 	}
