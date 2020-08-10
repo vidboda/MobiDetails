@@ -3,7 +3,7 @@ function accord(id) {
 }
 function w3_open() {
 	$('#smart_menu').width('15%');
-	$('#smart_menu').show();	
+	$('#smart_menu').show();
 	var wi = $(window).width();
 	if (wi < 600) {
 		$('#smart_menu').find('a').removeClass('w3-large').addClass('w3-small');
