@@ -385,15 +385,16 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
                 g.user = res
         # if not isinstance(variant_id, int):
         # request.form data are str
-        if not re.search(r'^\d+$', variant_id):
-            return jsonify(mobidetails_error='No or invalid variant id submitted')
-        else:
-            variant_id = int(variant_id)
-        # if not isinstance(acmg_id, int):
-        if not re.search(r'^\d+$', acmg_id):
-            return jsonify(mobidetails_error='No or invalid ACMG class submitted')
-        else:
-            acmg_id = int(acmg_id)
+        if not isinstance(variant_id, int):
+            if not re.search(r'^\d+$', variant_id):
+                return jsonify(mobidetails_error='No or invalid variant id submitted')
+            else:
+                variant_id = int(variant_id)
+            # if not isinstance(acmg_id, int):
+            if not re.search(r'^\d+$', acmg_id):
+                return jsonify(mobidetails_error='No or invalid ACMG class submitted')
+            else:
+                acmg_id = int(acmg_id)
         if acmg_id > 0 and acmg_id < 7:
             # variant exists?
             curs.execute(
