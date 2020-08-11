@@ -301,10 +301,10 @@ function beforePrintHandler () {
 
 
 $(document).ready(function() {
-    // hide sidebar on small screen
-	// if ($('#smart_menu').length) {		
+    $('#third_br').remove();
 	if ($(window).width() < 600) {
-		$('#page_menu').remove();
+		$('#page_menu').remove();        
+        $('#second_br').remove();
         // hide left menu items
 		myAccFunc('hg19_acc', 'hg19_icon');
 		myAccFunc('hg38_acc', 'hg38_icon');
@@ -316,7 +316,20 @@ $(document).ready(function() {
 		$('#defgen_hg38').remove();
 		
 	}
+    else if ($(window).width() < 900) {
+        $('#second_br').remove();
+        $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+        $('#global_content').animate({marginLeft: '25%'});
+		$('#smart_menu').width('25%');
+    }
     else if($(window).width() < 1300) {
+        $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
         if ($('#login_name').length) {$('#login_name').remove();}
     }
     

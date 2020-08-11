@@ -10,7 +10,7 @@
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
-	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu">
+	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="max-height:86%;height:auto;">
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
 		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
