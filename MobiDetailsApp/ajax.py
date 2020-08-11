@@ -432,26 +432,12 @@ def send_var_message():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # get username and email
-            # curs.execute(
-            #     "SELECT id, username, email FROM mobiuser WHERE id IN ('{0}', '{1}')".format(
-            #             sender['id'],
-            #             receiver['id']
-            #         )
-            # )
             curs.execute(
                 "SELECT id, username, email FROM mobiuser WHERE id = %s",
                 (receiver['id'])
             )
             # res = curs.fetchall()
             receiver = curs.fetchone()
-            # for user in res:
-            #     # print(user)
-            #     if int(user['id']) == int(sender['id']):
-            #         sender['username'] = user['username']
-            #         sender['email'] = user['email']
-            #     elif int(user['id']) == int(receiver['id']):
-            #         receiver['username'] = user['username']
-            #         receiver['email'] = user['email']
             message.replace("\n", "<br />")
             message += "<br /><br /><p>You can contact user {0} directly at {1}</p>".format(
                     g.user['username'],

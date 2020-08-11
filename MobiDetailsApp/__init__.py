@@ -80,6 +80,7 @@ def create_app(test_config=None):
     from . import ajax
     app.register_blueprint(ajax.bp)
     from . import api
+    csrf.exempt(api.bp)
     app.register_blueprint(api.bp)
     from . import static_route
     app.register_blueprint(static_route.bp)

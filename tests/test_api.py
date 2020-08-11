@@ -12,7 +12,7 @@ from MobiDetailsApp.db import get_db
     ('nc_000001.11:g.216422237G>A', 'mobidetails_id', '5'),
     ('NC_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
     ('nc_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
-    ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'malformed query')
+    ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'Malformed query')
 ))
 def test_api_variant_exists(client, app, variant, key, response):
     json_response = json.loads(client.get('/api/variant/exists/{}'.format(variant)).data.decode('utf8'))
@@ -39,7 +39,7 @@ def test_api_gene(client, app, gene, key, response):
     ('NM_206933.2:c.100C>T', 'random', 'mobidetails_error', 'Invalid API key'),
     ('NM_206933.2:c.100C>T', '', 'mobidetails_id', 5),
     ('NM_206933.2:c.100C>T', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
-    ('M_206933.2:c.100C>T', '', 'mobidetails_error', 'malformed query'),
+    ('M_206933.2:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
 ))
 def test_api_create(client, app, new_variant, api_key, return_key, message):
     with app.app_context():
@@ -52,8 +52,13 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
             res = curs.fetchone()
             if res is not None:
                 api_key = res['api_key']
-        print('/api/variant/create/{0}/{1}'.format(new_variant, api_key))
-        json_response = json.loads(client.get('/api/variant/create/{0}/{1}'.format(new_variant, api_key)).data.decode('utf8'))
+        # print('/api/variant/create/{0}/{1}'.format(new_variant, api_key))
+        data = {
+            'variant_chgvs': new_variant,
+            'api_key': api_key
+        }
+        json_response = json.loads(client.post('/api/variant/create', data=data).data.decode('utf8'))
+        # json_response = json.loads(client.get('/api/variant/create/{0}/{1}'.format(new_variant, api_key)).data.decode('utf8'))
 
         if isinstance(json_response[return_key], int):
             assert json_response[return_key] == message
@@ -70,7 +75,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('NC_000001.10:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
     ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
-    ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'malformed query'),
+    ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Malformed query'),
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'Unknown gene'),
 ))
 def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller, return_key, message):
@@ -84,8 +89,15 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
             res = curs.fetchone()
             if res is not None:
                 api_key = res['api_key']
-        print('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key))
-        json_response = json.loads(client.get('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key)).data.decode('utf8'))
+        # print('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key))
+        data = {
+            'variant_ghgvs': variant_ghgvs,
+            'gene_hgnc': gene,
+            'caller': caller,
+            'api_key': api_key
+        }
+        json_response = json.loads(client.post('/api/variant/create_g', data=data).data.decode('utf8'))
+        #json_response = json.loads(client.get('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key)).data.decode('utf8'))
 
         if isinstance(json_response[return_key], int):
             assert json_response[return_key] == message
@@ -112,8 +124,14 @@ def test_api_update_acmg(client, app, variant_id, acmg_class, api_key, return_ke
             res = curs.fetchone()
             if res is not None:
                 api_key = res['api_key']
-        print('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key))
-        json_response = json.loads(client.get('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key)).data.decode('utf8'))
+        data = {
+            'variant_id': variant_id,
+            'acmg_id': acmg_class,
+            'api_key': api_key
+        }
+        # print('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key))
+        json_response = json.loads(client.post('/api/variant/update_acmg', data=data).data.decode('utf8'))
+        # json_response = json.loads(client.get('/api/variant/update_acmg/{0}/{1}/{2}'.format(variant_id, acmg_class, api_key)).data.decode('utf8'))
 
         if isinstance(json_response[return_key], int):
             assert json_response[return_key] == message
