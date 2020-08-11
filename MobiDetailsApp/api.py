@@ -1,6 +1,6 @@
 import re
 from flask import (
-    Blueprint, g, request, url_for, jsonify, redirect
+    Blueprint, g, request, url_for, jsonify, redirect, flash
 )
 import psycopg2
 import psycopg2.extras
@@ -278,15 +278,39 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             else:
                                 return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
                         else:
-                            return jsonify(mobidetails_error='Could not create variant {}.'.format(variant_ghgvs), variant_validator_output=vv_data)
+                            if caller == 'cli':
+                                return jsonify(mobidetails_error='Could not create variant {}.'.format(variant_ghgvs), variant_validator_output=vv_data)
+                            else:
+                                try:
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']))
+                                except Exception:
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. Sorry for the inconvenience. You may want to try directly in mobiDetails.')
+                                return redirect(url_for('md.index'))
+
                 else:
-                    return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
+                    if caller == 'cli':
+                        return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
+                    else:
+                        flash('There submitted chromosome or genome version looks corrupted (hg38 only).')
+                        return redirect(url_for('md.index'))
             else:
-                return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
+                if caller == 'cli':
+                    return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
+                else:
+                    flash('The query seems to be malformed: {}.'.format(variant_ghgvs))
+                    return redirect(url_for('md.index'))
         else:
-            return jsonify(mobidetails_error='Unknown gene {} submitted'.format(gene))
+            if caller == 'cli':
+                return jsonify(mobidetails_error='Unknown gene {} submitted'.format(gene))
+            else:
+                flash('Unknown gene {} submitted'.format(gene))
+                return redirect(url_for('md.index'))
     else:
-        return jsonify(mobidetails_error='Invalid parameters')
+        if caller == 'cli':
+            return jsonify(mobidetails_error='Invalid parameters')
+        else:
+            flash('The submitted parameters looks invalid!!!')
+            return redirect(url_for('md.index'))
 # -------------------------------------------------------------------
 # api - gene
 
