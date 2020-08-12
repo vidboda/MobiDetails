@@ -1,3 +1,20 @@
+// https://www.w3schools.com/howto/howto_css_loader.asp
+function show_loader() {
+	$('#loader').show();
+	$('#content').hide();
+	if ($('header').length) {$('header').hide();}
+}
+
+document.onreadystatechange = function() { 
+  if (document.readyState !== "complete") { 
+		$('#loader').show();
+		$('#content').hide();
+  } else { 
+		$('#loader').hide();
+		$('#content').show();
+  } 
+}; 
+
 function accord(id) {
 	$('#'+id).fadeToggle("slow");
 }
@@ -76,6 +93,8 @@ function encode_params(input_id) {
 		return true;
 }
 $(document).ready(function(){
+	// $('#loader').hide();
+	// $('#content').show();
 	// change z-index for menus
 	$('#mdNavBar').mouseenter(
 		function () {

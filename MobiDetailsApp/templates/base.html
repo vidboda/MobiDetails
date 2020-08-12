@@ -23,7 +23,9 @@
 			{% endif %}		
 		{% endblock %} - MobiDetails</title>
 	</head>
+	<!--<body onload="show_loader();">-->
 	<body>
+		<div id="loader"></div>
 		<div class="w3-medium" id="header">
 			<div class="w3-top" style="z-index:1112;">
 				<!--scrollbar-->
@@ -35,13 +37,13 @@
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBar">
 					<!--home, about-->
 					<div class="w3-dropdown-hover">
-						<span class="w3-button w3-ripple w3-xlarge w3-black" onclick="window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
+						<span class="w3-button w3-ripple w3-xlarge w3-black" onclick="show_loader();window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
 							<i class="fa fa-home w3-xxlarge"></i>
 						</span>
 						<div class="w3-dropdown-content w3-bar-block w3-card-4">
-							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.location='{{ url_for('md.about') }}';">About</span>
-							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.location='{{ url_for('md.changelog') }}';">Change log</span>
-							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.location='/MDAPI/';">Swagger API</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('md.about') }}';">About</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('md.changelog') }}';">Change log</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='/MDAPI/';">Swagger API</span>
 						</div>
 					</div>					
 					<!--about-->
@@ -52,7 +54,7 @@
 					<!--</div>-->
 					<!--all genes-->
 					<div class="w3-dropdown-hover">
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="window.location='{{ url_for('md.genes') }}';" title="Show all genes">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="$('#loader').show();$('#content').hide();window.location='{{ url_for('md.genes') }}';" title="Show all genes">
 							<i class="fa fa-ioxhost w3-xxlarge"></i>
 						</span>
 					</div>
@@ -91,18 +93,18 @@
 					<div>
 					{% if g.user %}
 						<!--profile-->
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="window.location='{{ url_for('auth.logout') }}';" title="Log out">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="show_loader();window.location='{{ url_for('auth.logout') }}';" title="Log out">
 							<i class="fa fa-user-times w3-xxlarge"></i>
 						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="show_loader();window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
 						</span>						
 						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
 					{% else %}
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('auth.register') }}';" title="Register">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
 							<i class="fa fa fa-user-plus w3-xxlarge"></i>
 						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="window.location='{{ url_for('auth.login') }}';" title="Log in">
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.login') }}';" title="Log in">
 							<i class="fa fa fa-user w3-xxlarge"></i>
 						</span>
 					{% endif %}
@@ -132,7 +134,7 @@
 			<div class="w3-bottom" style="z-index:1112">
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
 					<!--search engine-->					
-					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').prop('disabled', true);">
+					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').prop('disabled', true);show_loader();">
 						<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 						<div class="w3-row-padding">
 							<div class="w3-half w3-right-align">

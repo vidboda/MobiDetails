@@ -20,8 +20,8 @@
 	<div class="w3-container">
 		<br />
 		<div class="w3-row">
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="window.open({{ url_for('md.vars', gene_name=gene) }}, '_self');">Get variants</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="gene_loader();window.open({{ url_for('md.vars', gene_name=gene) }}, '_self');">Get variants</span>
 		</div>
 	</div>
 	<div class="tab_content w3-padding" style="display:block;" />
@@ -35,112 +35,113 @@
 			{{ gene_redirection(gene, urls) }}
 			{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		</p><br />		
-	</div>
-	<div id="created_var"></div>
-	{# requires jinja > 2.10 #}
-	{# 2 namespaces for couting variant classes and store div content #}
-	{# TODO: this part should be placed in md.py which could send a count dict #}
-	{% set count = namespace(missense=0, ptc=0, silent=0, intronic=0, inframe_indels=0, all=0) %}
-	{% autoescape false %}
-	{#{% set div_content = namespace(missense=var_class_div('missense', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}#}
-	{% set div_content = namespace(missense=vars_class_table('missense', 'Missense'), ptc=vars_class_table('ptc', 'PTCs'), silent=vars_class_table('silent', 'Silent'), intronic=vars_class_table('intronic', 'Intronic'), inframe_indels=vars_class_table('inframe', 'In frame indels'), all=vars_class_table('all_vars', 'All')) %}
-	{% for variant in variants|sort(attribute='pos') %}
-		{% set count.all = count.all + 1 %}
-		{#{% set div_content.all = div_content.all + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
-		{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
-		{#{% set div_content.all = div_content.all + "<li><a href='' target='_blank'>" + {{ gene_info.name[1] }} + ":c." + {{ variant.c_name }} + "</a><span> - " + {{ variant.p_name }} + " - (exon X)</span></li>" %}#}
-		{% if variant.ivs_name == None %}
-			{% if variant.prot_type == 'nonsense' or variant.prot_type == 'frameshift' %}
-				{% set count.ptc = count.ptc + 1 %}
-				{#{% set div_content.ptc = div_content.ptc + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
-				{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
-			{% elif variant.prot_type == 'missense' %}
-				{% set count.missense = count.missense + 1 %}
-				{#{% set div_content.missense = div_content.missense + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
-				{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
-			{% elif variant.prot_type == 'silent' %}
-				{% set count.silent = count.silent + 1 %}
-				{#{% set div_content.silent = div_content.silent + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
-				{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
-			{# match is a custom filter for regexp - see md_utilities.py, and loaded in __init__.py #}
-			{% elif variant.prot_type|match('inframe') %}
-				{% set count.inframe_indels = count.inframe_indels + 1 %}
-				{#{% set div_content.inframe_indels = div_content.inframe_indels + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
-				{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+	<!--</div>-->
+		<div id="created_var"></div>
+		{# requires jinja > 2.10 #}
+		{# 2 namespaces for couting variant classes and store div content #}
+		{# TODO: this part should be placed in md.py which could send a count dict #}
+		{% set count = namespace(missense=0, ptc=0, silent=0, intronic=0, inframe_indels=0, all=0) %}
+		{% autoescape false %}
+		{#{% set div_content = namespace(missense=var_class_div('missense', 'Missense'), ptc=var_class_div('ptc', 'PTCs'), silent=var_class_div('silent', 'Silent'), intronic=var_class_div('intronic', 'Intronic'), inframe_indels=var_class_div('inframe', 'In frame indels'), all=var_class_div('all_vars', 'All')) %}#}
+		{% set div_content = namespace(missense=vars_class_table('missense', 'Missense'), ptc=vars_class_table('ptc', 'PTCs'), silent=vars_class_table('silent', 'Silent'), intronic=vars_class_table('intronic', 'Intronic'), inframe_indels=vars_class_table('inframe', 'In frame indels'), all=vars_class_table('all_vars', 'All')) %}
+		{% for variant in variants|sort(attribute='pos') %}
+			{% set count.all = count.all + 1 %}
+			{#{% set div_content.all = div_content.all + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
+			{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+			{#{% set div_content.all = div_content.all + "<li><a href='' target='_blank'>" + {{ gene_info.name[1] }} + ":c." + {{ variant.c_name }} + "</a><span> - " + {{ variant.p_name }} + " - (exon X)</span></li>" %}#}
+			{% if variant.ivs_name == None %}
+				{% if variant.prot_type == 'nonsense' or variant.prot_type == 'frameshift' %}
+					{% set count.ptc = count.ptc + 1 %}
+					{#{% set div_content.ptc = div_content.ptc + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
+					{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{% elif variant.prot_type == 'missense' %}
+					{% set count.missense = count.missense + 1 %}
+					{#{% set div_content.missense = div_content.missense + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
+					{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{% elif variant.prot_type == 'silent' %}
+					{% set count.silent = count.silent + 1 %}
+					{#{% set div_content.silent = div_content.silent + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
+					{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{# match is a custom filter for regexp - see md_utilities.py, and loaded in __init__.py #}
+				{% elif variant.prot_type|match('inframe') %}
+					{% set count.inframe_indels = count.inframe_indels + 1 %}
+					{#{% set div_content.inframe_indels = div_content.inframe_indels + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - p.(%s) - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number) %}#}
+					{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{% endif %}
+			{% elif variant.ivs_name != None %}
+				{% set count.intronic = count.intronic + 1 %}
+				{#{% set div_content.intronic = div_content.intronic + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - %s - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.ivs_name, variant.start_segment_type, variant.start_segment_number) %}#}
+				{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 			{% endif %}
-		{% elif variant.ivs_name != None %}
-			{% set count.intronic = count.intronic + 1 %}
-			{#{% set div_content.intronic = div_content.intronic + "<li class='w3-hover-sand'><a href='%s' target='_blank'>%s:c.%s</a><span> - %s - (%s %s)</span></li>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.ivs_name, variant.start_segment_type, variant.start_segment_number) %}#}
-			{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.vf_id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+		{% endfor %}
+		{#{% set div_content.all = div_content.all + "</ul></div>" %}#}	
+		<script>
+			function hide_all() {
+				$('#all_vars').hide();
+				$('#silent').hide();
+				$('#intronic').hide();
+				$('#ptc').hide();
+				$('#inframe').hide();
+				$('#missense').hide();
+			}
+		</script>	
+		<div id="created_variant"></div>
+		<div class="w3-row-padding w3-center" />
+			<div class="w3-col m4" />
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#missense').show();$('#missense_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Missense ({{ count.missense }})</strong>
+			</div>
+			<div class="w3-col m4" />
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#silent').show();$('#silent_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Silent* ({{ count.silent }})</strong>
+			</div>
+			<div class="w3-col m4" />
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#intronic').show();$('#intronic_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Intronic ({{ count.intronic }})</strong>
+			</div>
+		</div><br/>
+		<div class="w3-row-padding" />
+			<div class="w3-col m4" /><!--$($.fn.dataTable.tables(true)).DataTable().columns.adjust());-->
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#ptc').show();$('#ptc_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">PTC** ({{ count.ptc }})</strong>
+			</div>
+			<div class="w3-col m4" />
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#inframe').show();$('#inframe_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">In frame Indels ({{ count.inframe_indels }})</strong>
+			</div>
+			<div class="w3-col m4" />
+				<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#all_vars').show();$('#all_vars_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">All ({{ count.all }})</strong>
+			</div>
+		</div>
+		<br /><br />
+		{% if count.all == 0 %}
+			{% set div_content.all = div_content.all + "No variants recorded yet" %}
 		{% endif %}
-	{% endfor %}
-	{#{% set div_content.all = div_content.all + "</ul></div>" %}#}	
-	<script>
-		function hide_all() {
-			$('#all_vars').hide();
-			$('#silent').hide();
-			$('#intronic').hide();
-			$('#ptc').hide();
-			$('#inframe').hide();
-			$('#missense').hide();
-		}
-	</script>	
-	<div id="created_variant"></div>
-	<div class="w3-row-padding w3-center" />
-		<div class="w3-col m4" />
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#missense').show();$('#missense_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Missense ({{ count.missense }})</strong>
-		</div>
-		<div class="w3-col m4" />
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#silent').show();$('#silent_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Silent* ({{ count.silent }})</strong>
-		</div>
-		<div class="w3-col m4" />
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#intronic').show();$('#intronic_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">Intronic ({{ count.intronic }})</strong>
-		</div>
-	</div><br/>
-	<div class="w3-row-padding" />
-		<div class="w3-col m4" /><!--$($.fn.dataTable.tables(true)).DataTable().columns.adjust());-->
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#ptc').show();$('#ptc_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">PTC** ({{ count.ptc }})</strong>
-		</div>
-		<div class="w3-col m4" />
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#inframe').show();$('#inframe_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">In frame Indels ({{ count.inframe_indels }})</strong>
-		</div>
-		<div class="w3-col m4" />
-			<strong class="w3-button w3-indigo w3-ripple w3-hover-light-blue w3-padding-32 w3-xlarge" onclick="hide_all();$('#all_vars').show();$('#all_vars_table').DataTable().columns.adjust().responsive.recalc();" style="width:100%">All ({{ count.all }})</strong>
-		</div>
+		{% if count.ptc == 0 %}
+			{% set div_content.ptc = div_content.ptc + "No PTC recorded yet" %}
+		{% endif %}
+		{% if count.silent == 0 %}
+			{% set div_content.silent = div_content.silent + "No Silent variants recorded yet" %}
+		{% endif %}
+		{% if count.missense == 0 %}
+			{% set div_content.missense = div_content.missense + "No missense recorded yet" %}
+		{% endif %}
+		{% if count.inframe_indels == 0 %}
+			{% set div_content.inframe_indels = div_content.inframe_indels + "No in frame variant recorded yet" %}
+		{% endif %}
+		{% if count.intronic == 0 %}
+			{% set div_content.intronic = div_content.intronic + "No intronic variant recorded yet" %}
+		{% endif %}
+		{#{{ div_content.all }}</ul></div>
+		{{ div_content.ptc }}</ul></div>
+		{{ div_content.silent }}</ul></div>
+		{{ div_content.missense }}</ul></div>
+		{{ div_content.inframe_indels }}</ul></div>
+		{{ div_content.intronic }}</ul></div>#}
+		{{ div_content.all }}</tbody></table></div>
+		{{ div_content.ptc }}</tbody></table></div>
+		{{ div_content.silent }}</tbody></table></div>
+		{{ div_content.missense }}</tbody></table></div>
+		{{ div_content.inframe_indels }}</tbody></table></div>
+		{{ div_content.intronic }}</tbody></table></div>
+		{% endautoescape %}
+		<br /><br />
+		{{ info("* shortcut for variants not predicted by the genetic code to alter the protein sequence - does not consider splicing at all", "**Premature Termination Codons, including nonsense variants and frameshifts") }}
+		<br/ ><br />
 	</div>
-	<br /><br />
-	{% if count.all == 0 %}
-		{% set div_content.all = div_content.all + "No variants recorded yet" %}
-	{% endif %}
-	{% if count.ptc == 0 %}
-		{% set div_content.ptc = div_content.ptc + "No PTC recorded yet" %}
-	{% endif %}
-	{% if count.silent == 0 %}
-		{% set div_content.silent = div_content.silent + "No Silent variants recorded yet" %}
-	{% endif %}
-	{% if count.missense == 0 %}
-		{% set div_content.missense = div_content.missense + "No missense recorded yet" %}
-	{% endif %}
-	{% if count.inframe_indels == 0 %}
-		{% set div_content.inframe_indels = div_content.inframe_indels + "No in frame variant recorded yet" %}
-	{% endif %}
-	{% if count.intronic == 0 %}
-		{% set div_content.intronic = div_content.intronic + "No intronic variant recorded yet" %}
-	{% endif %}
-	{#{{ div_content.all }}</ul></div>
-	{{ div_content.ptc }}</ul></div>
-	{{ div_content.silent }}</ul></div>
-	{{ div_content.missense }}</ul></div>
-	{{ div_content.inframe_indels }}</ul></div>
-	{{ div_content.intronic }}</ul></div>#}
-	{{ div_content.all }}</tbody></table></div>
-	{{ div_content.ptc }}</tbody></table></div>
-	{{ div_content.silent }}</tbody></table></div>
-	{{ div_content.missense }}</tbody></table></div>
-	{{ div_content.inframe_indels }}</tbody></table></div>
-	{{ div_content.intronic }}</tbody></table></div>
-	{% endautoescape %}
-	<br /><br />
-	{{ info("* shortcut for variants not predicted by the genetic code to alter the protein sequence - does not consider splicing at all", "**Premature Termination Codons, including nonsense variants and frameshifts") }}
-	<br/ ><br />
 {% endblock %}

@@ -20,8 +20,8 @@
 	<div class="w3-container">
 		<br />
 		<div class="w3-row">
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="window.open('{{ url_for('md.vars', gene_name=gene) }}', '_self');">Get variants</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.vars', gene_name=gene) }}', '_self');">Get variants</span>
 		</div>
 	</div>
 	<div class="tab_content w3-padding" style="display:block;" />

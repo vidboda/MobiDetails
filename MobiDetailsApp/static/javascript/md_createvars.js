@@ -45,3 +45,9 @@ function new_isoform() {
 		}
 	});
 }
+
+// https://www.w3schools.com/howto/howto_css_loader.asp
+function gene_loader() {
+	$('#loader').show();
+	$('.tab_content').hide();
+}

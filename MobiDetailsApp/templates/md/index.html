@@ -22,7 +22,7 @@
 		</div>
 	</div>
 	<div align="center">		
-		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main" onsubmit="$('#submit_index').prop('disabled', true);">
+		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="main" onsubmit="$('#submit_index').prop('disabled', true);show_loader();">
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 			<div class="w3-margin-16 w3-container" style="width:50%">
 				<input class="w3-input w3-light-grey w3-animate-input" id="main_engine" maxlength="40" name="search" placeholder=" Ask MobiDetails:" size="50" style="width:30%" type="text" />
