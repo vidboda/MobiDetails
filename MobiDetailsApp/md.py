@@ -1042,7 +1042,7 @@ def search_engine():
                 result = curs.fetchall()
                 close_db()
                 if len(result) == 0:
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}). \
+                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
                             You can create it by first going to the corresponding gene page'.format(query_engine)
                 else:
                     if len(result) == 1:
