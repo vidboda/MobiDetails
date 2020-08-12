@@ -31,7 +31,7 @@
 	<div class="w3-button w3-block w3-blue" onclick="accord('howto');" title="toggle section">
 		<span class="w3-xxlarge">How to use it</span>
 	</div><br/>
-	<div class="w3-container w3-padding-64" id="howto" style="display:none">
+	<div class="w3-container w3-padding-64" id="howto" style="display:none;">
 		{{ info("<span>MobiDetails is an annotation platform for DNA variants. Users submit the variants they wish to annotate, the variant being linked to a gene. <br/>To annotate a variant:</span>
 		<ul>
 			<li>go to your gene page e.g. using the search engine at the bottom of each page (HGNC names),</li>
@@ -45,35 +45,35 @@
 		{{ info("<strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li><li>gene symbol, e.g. 'USH2A'</li></ul>") }}
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
-		<span class="w3-xxlarge">External Resources Used by MobiDetails</span>
-	</div><br/>
-	<h3 id="references">References:</h3>
+		<span class="w3-xxlarge">References</span>
+	</div><br/>	
+	<div class="w3-container w3-padding-64" id="res_versions" style="display:block">
+		<h3 id="references">References:</h3>
 		{{ info('You will find below a list of references and versions of all tools included in MobiDetails:') }}
-		<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
-			<div class="w3-responsive w3-container">
-				<table class="w3-table w3-centered display compact" style="width:90%" id="reference_table">
-					<caption>References and versions of all resources used in MD:</caption>
-					<thead>
+		<div class="w3-responsive w3-container w3-center">
+			<table class="w3-table w3-centered display compact" style="width:90%" id="reference_table">
+				<caption>References and versions of all resources used in MD:</caption>
+				<thead>
+					<tr>
+						<th class="w3-left-align">Resource</th>
+						<th class="w3-left-align">Version</th>
+						<th class="w3-left-align">Reference</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for tool in external_tools %}
 						<tr>
-							<th class="w3-left-align">Resource</th>
-							<th class="w3-left-align">Version</th>
-							<th class="w3-left-align">Reference</th>
+							<td class="w3-left-align">
+								<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
+							</td>
+							<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
+							<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
 						</tr>
-					</thead>
-					<tbody>
-						{% for tool in external_tools %}
-							<tr>
-								<td class="w3-left-align">
-									<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
-								</td>
-								<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
-								<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</div>
+					{% endfor %}
+				</tbody>
+			</table>
 		</div>
+	</div>
 <!--	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
 		<div class="w3-responsive w3-container">
 			<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
