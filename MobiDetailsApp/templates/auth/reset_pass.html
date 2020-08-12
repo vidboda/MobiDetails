@@ -11,7 +11,7 @@
 	{{ info("Please fill in the form to reset your password with a new one. Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.") }}
 	<br />
 	<div align = "center">
-	<form method="post" action="{{ url_for('auth.reset_password') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="password_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');check_password_length();">
+	<form method="post" action="{{ url_for('auth.reset_password') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="password_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');check_password_length();show_loader();">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="mobiuser_id" value="{{ mobiuser_id }}"/>
     <input type="hidden" name="api_key" value="{{ api_key }}"/>
