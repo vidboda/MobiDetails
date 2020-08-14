@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200814" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -108,6 +108,7 @@
 				</thead>
 				<tbody>
 					<!--HGVS DNA on transcript-->
+					<span style="display:none;" id="gene_name">{{ variant_features.gene_name[0] }}</span>
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
 						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>

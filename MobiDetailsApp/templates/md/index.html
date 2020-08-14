@@ -9,6 +9,13 @@
 	{% if g.user['username'] %}
 		{{ g.user['username'] }}
 	{% else %}
+		<form name="apiTest" action="http://10.34.20.79:5001/api/variant/create_g" method="post">
+			<input type="hidden" name="variant_ghgvs" value="NC_000001.11:g.40817273delG"/>
+			<input type="hidden" name="gene_hgnc" value="KCNQ192"/>
+			<input type="hidden" name="caller" value="cli"/>
+			<input type="hidden" name="api_key" value="xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s"/>
+			<input type="submit" name="submit" value="submit"/>
+		</form>
 		Public user
 	{% endif %}
 	, welcome to MobiDetails: You can
@@ -18,7 +25,7 @@
 	 investigate variants in
 		</p>
 		<div>
-			<span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}'" title="see all genes">{{ nb_genes }}</span><span> genes and </span><span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}'" title="see all genes">{{ nb_isoforms }}</span><span> isoforms </span>
+			<span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}';show_loader();" title="see all genes">{{ nb_genes }}</span><span> genes and </span><span class="w3-button w3-badge w3-jumbo w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}';show_loader();" title="see all genes">{{ nb_isoforms }}</span><span> isoforms </span>
 		</div>
 	</div>
 	<div align="center">		

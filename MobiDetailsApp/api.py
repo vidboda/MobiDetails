@@ -282,34 +282,34 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return jsonify(mobidetails_error='Could not create variant {}.'.format(variant_ghgvs), variant_validator_output=vv_data)
                             else:
                                 try:
-                                    flash('There has been a issue with the annotation of the variant via VariantValidator. The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']))
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
                                 except Exception:
-                                    flash('There has been a issue with the annotation of the variant via VariantValidator. Sorry for the inconvenience. You may want to try directly in mobiDetails.')
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. Sorry for the inconvenience. You may want to try directly in mobiDetails.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
 
                 else:
                     if caller == 'cli':
                         return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
                     else:
-                        flash('There submitted chromosome or genome version looks corrupted (hg38 only).')
+                        flash('The submitted chromosome or genome version looks corrupted (hg38 only).', 'w3-pale-red')
                         return redirect(url_for('md.index'))
             else:
                 if caller == 'cli':
                     return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
                 else:
-                    flash('The query seems to be malformed: {}.'.format(variant_ghgvs))
+                    flash('The query seems to be malformed: {}.'.format(variant_ghgvs), 'w3-pale-red')
                     return redirect(url_for('md.index'))
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='Unknown gene {} submitted'.format(gene))
             else:
-                flash('Unknown gene {} submitted'.format(gene))
+                flash('Unknown gene {} submitted'.format(gene), 'w3-pale-red')
                 return redirect(url_for('md.index'))
     else:
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameters')
         else:
-            flash('The submitted parameters looks invalid!!!')
+            flash('The submitted parameters looks invalid!!!', 'w3-pale-red')
             return redirect(url_for('md.index'))
 # -------------------------------------------------------------------
 # api - gene

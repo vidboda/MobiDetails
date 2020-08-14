@@ -170,18 +170,23 @@ def intervar():
 
 @bp.route('/lovd', methods=['POST'])
 def lovd():
-    genome = chrom = g_name = c_name = None
+    genome = chrom = g_name = c_name = gene = pos_19 = None
     # print(request.form)
     if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(rf'^{md_utilities.variant_regexp}$', request.form['g_name']) and \
-            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['c_name']):
+            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['c_name']) and \
+            'gene' in request.form and \
+            'pos' in request.form :
         genome = request.form['genome']
         chrom = request.form['chrom']
         g_name = request.form['g_name']
         c_name = request.form['c_name']
+        gene = request.form['gene']
+        pos_19 = request.form['pos']
         if re.search(r'=', g_name):
-            return 'hg19 reference is equal to variant: no LOVD query'
+            return md_utilities.lovd_error_html("hg19 reference is equal to variant: no LOVD query")
+            # return 'hg19 reference is equal to variant: no LOVD query'
         positions = md_utilities.compute_start_end_pos(g_name)
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         # http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
@@ -203,8 +208,10 @@ def lovd():
         # print(lovd_url)
         # print(http.request('GET', lovd_url).data.decode('utf-8'))
         if lovd_data is not None:
+            lovd_effect_count = None
             if len(lovd_data) == 1:
-                return 'No match in LOVD public instances'
+                return md_utilities.lovd_error_html("No match in LOVD public instances")
+                # return 'No match in LOVD public instances'
             lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t"nm_accession"\t"DNA"\t"url"')
             lovd_urls = []
             i = 1
@@ -243,9 +250,57 @@ def lovd():
                     else:
                         html_list.append("{0}<a href='{1}' target='_blank'>Link {2}</a>{3}".format(html_li, url, i, html_li_end))
                     i += 1
+                # get LOVD effects e.g.
+                # https://databases.lovd.nl/shared/api/rest/variants/USH2A?search_position=g.216420460&show_variant_effect=1&format=application/json
+                lovd_api_url = '{0}{1}?search_position=g.{2}&show_variant_effect=1&format=application/json'.format(md_utilities.urls['lovd_api_variants'], gene, pos_19)
+                lovd_effect = None
+                try:
+                    lovd_effect = json.loads(http.request('GET', lovd_api_url).data.decode('utf-8'))
+                except Exception:
+                    pass
+                if lovd_effect is not None:
+                    lovd_effect_count = {
+                        'effect_reported': {},
+                        'effect_concluded': {}
+                    }
+                    for var in lovd_effect:
+                        if var['effect_reported'][0] not in lovd_effect_count['effect_reported']:
+                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
+                        else:
+                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1                        
+                        if var['effect_concluded'][0] not in lovd_effect_count['effect_concluded']:
+                            lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
+                        else:
+                            lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] += 1
+                # print(lovd_effect_count)
+                
             else:
-                return 'No match in LOVD public instances'
-            html = '<ul>{}</ul>'.format(''.join(html_list))
+                return md_utilities.lovd_error_html("No match in LOVD public instances")
+                # return 'No match in LOVD public instances'
+            html = '<tr><td class="w3-left-align" id="lovd_feature" style="vertical-align:middle;">LOVD Matches:</td> \
+                   <td class="w3-left-align"><ul>{}</ul></td> \
+                   <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"><em class="w3-small">LOVD match in public instances</em></td> \
+                   </tr>'.format(''.join(html_list))
+            if lovd_effect_count is not None:
+                reported_effect_list = []
+                concluded_effect_list = []
+                for feat in lovd_effect_count:
+                    # print(feat)
+                    for effect in lovd_effect_count[feat]:
+                        # print(effect)
+                        if feat == 'effect_reported':
+                            reported_effect_list.append('<li>{0}: {1}</li>'.format(effect, lovd_effect_count[feat][effect]))
+                        else:
+                            concluded_effect_list.append('<li>{0}: {1}</li>'.format(effect, lovd_effect_count[feat][effect]))
+                html += ',<tr> \
+                   <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">LOVD Effect Reported:</td> \
+                   <td class="w3-left-align"><ul>{0}</ul></td> \
+                   <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;"><em class="w3-small">Effects reported by LOVD submitters</em></td> \
+                   </tr>,<tr> \
+                   <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">LOVD Effect Concluded:</td> \
+                   <td class="w3-left-align"><ul>{1}</ul></td> \
+                   <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;"><em class="w3-small">Effects concluded by LOVD curators</em></td> \
+                   </tr>'.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
             return html
         else:
             md_utilities.send_error_email(
@@ -257,7 +312,7 @@ def lovd():
                 ),
                 '[MobiDetails - API Error]'
             )
-            return "LOVD service looks down"
+            return md_utilities.lovd_error_html("LOVD service looks down")
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
@@ -268,7 +323,7 @@ def lovd():
             ),
             '[MobiDetails - API Error]'
         )
-        return "LOVD query malformed"
+        return md_utilities.lovd_error_html("LOVD query malformed")
     # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
 # -------------------------------------------------------------------

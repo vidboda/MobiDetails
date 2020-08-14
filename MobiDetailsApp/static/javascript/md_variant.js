@@ -85,20 +85,6 @@ function litvar(litvar_url, csrf_token) {
 }
 function lovd(lovd_url, csrf_token) {
 	// ajax for LOVD
-	//var params = $.param(
-	//	{
-	//		genome: $('#genome_19').text(),
-	//		chrom: $('#chrom_19').text(),
-	//		pos: $('#pos_19').text(),
-	//		g_name: $('#hg19_g_name').text(),
-	//		c_name: $('#c_name').text()
-	//	}
-	//);
-	// alert(params);
-	//var html_comment = $("#acmg_comment").val().replace(/\r\n|\r|\n/g,"<br />");
-	//var c_name_encoded = encodeURIComponent($('#c_name').text());
-	// var c_name_encoded = $('#c_name').text().replace(/>/g,"%3E");
-	// var g_name_encoded = $('#hg19_g_name').text().replace(/>/g,"%3E");
 	//send header for flask-wtf crsf security	
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
@@ -111,16 +97,36 @@ function lovd(lovd_url, csrf_token) {
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text()
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_name').text()
 		}
-		/*data: {
-			params
-		}*/
 	})
 	.done(function(html) {
-		$("#lovd_data").replaceWith(html);
-        $("#lovd_feature").css("vertical-align", "middle");
-        $("#lovd_description").css("vertical-align", "middle");
+        // selector for datatable
+        var population_table = $('#population_table').DataTable();
+        // prepare js table from flask html tr
+        var new_rows = html.split(",");
+        // remove old tr and destroy datatable
+        population_table
+            .row($("#lovd_feature").parents('tr'))
+            .remove()
+            .draw()
+            .destroy();
+        // add new tr and rebuilt datatable
+        $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
+        datatable = $('#population_table').DataTable({
+            responsive: true,
+            dom: 't',
+            "order": [],
+            //scrollY: 600,
+            buttons: [
+                    'copy', 'excel', 'pdf'
+            ]
+        });
+
+        //$("#lovd_data").replaceWith(html);
+        //$("#lovd_feature").css("vertical-align", "middle");
+        //$("#lovd_description").css("vertical-align", "middle");
+
 	});
 }
 function intervar(intervar_url, csrf_token) {

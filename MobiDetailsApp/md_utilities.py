@@ -1320,7 +1320,11 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     return [float(re.split('\n', re.split('\t', str(result.stdout, 'utf-8'))[1])[0]), formatted_seq]
 
 
-
+def lovd_error_html(text):
+    return '<tr><td class="w3-left-align" id="lovd_feature" style="vertical-align:middle;">LOVD Matches:</td> \
+            <td class="w3-left-align">{}</td> \
+            <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"><em class="w3-small">LOVD match in public instances</em></td> \
+            </tr>'.format(text)
 
 
 # one2three = {
