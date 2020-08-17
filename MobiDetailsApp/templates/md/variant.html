@@ -278,12 +278,12 @@
 				</div>
 				<div class="w3-col m4" id="defgen_hg19">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
-					<div class="w3-modal" id="defgen_modal_hg19"></div>
+					<div class="w3-modal" id="defgen_modal_hg19" style="z-index:2002;"></div>
 					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
 				<div class="w3-col m4" id="defgen_hg38">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
-					<div class="w3-modal" id="defgen_modal_hg38"></div>
+					<div class="w3-modal" id="defgen_modal_hg38" style="z-index:2002;"></div>
 				</div>
 			</div>
 		</div>
@@ -614,7 +614,7 @@
 							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
 						</div>
 					</div>
-					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;z-index:2002;">
 						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 							<header class="w3-container w3-blue">
 								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
@@ -738,7 +738,7 @@
 						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
 					</div>
 				</div>
-				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;">
+				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;z-index:2002;">
 					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 						<header class="w3-container w3-blue">
 							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>
