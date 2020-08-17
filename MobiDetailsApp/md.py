@@ -1011,7 +1011,12 @@ def search_engine():
                         re.search('>', pattern):
                     # upper for the end of the variant, lower for genomic chr
                     var_match = re.search(r'^(.*)(\d+)([ACTGactg]>[ACTGactg])$', pattern)
-                    pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
+                    if var_match:
+                        pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
+                    else:
+                        error = 'You submitted a forbidden character in '{}'.'.format(pattern)
+                        flash(error, 'w3-pale-red')
+                        return render_template('md/unknown.html')
                     # print(pattern)
                 if pattern == 'g_name':
                     curs.execute(
