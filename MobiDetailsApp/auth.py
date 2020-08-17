@@ -113,7 +113,9 @@ def register():
                                 sfs_json['email']['appears'] == 1:
                             error = 'Sorry, your input data is reported as risky. \
                                         If this is not the case, please send us an email directly to \
-                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.'
+                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;\
+                                        &#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;\
+                                        &#046;&#099;&#111;&#109;.'
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
@@ -164,10 +166,6 @@ def register():
 
         if error is None:
             key = secrets.token_urlsafe(32)
-            # curs.execute(
-            #     "INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', 'f') RETURNING id"
-            #     .format(username, generate_password_hash(password), country, institute, email, key)
-            # )
             curs.execute(
                 "INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated) VALUES (%s, %s, %s, %s, %s, %s, 'f') RETURNING id",
                 (username, generate_password_hash(password), country, institute, email, key)
@@ -185,7 +183,7 @@ def register():
                     '.format(
                         username,
                         request.host_url.rstrip('/'),
-                        url_for('auth.activate', mobiuser_id=user_id, api_key=key)                    
+                        url_for('auth.activate', mobiuser_id=user_id, api_key=key)
                     ),
                     False
                 ),
@@ -202,7 +200,8 @@ def register():
             #     ),
             #     '[MobiDetails - New Registration]'
             # )
-            flash('<br /><p>Your account has been created but requires an activation step. An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
+            flash('<br /><p>Your account has been created but requires an activation step. \
+                  An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
             return redirect(url_for('md.index'))
 
         flash(error, 'w3-pale-red')
@@ -228,7 +227,6 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
-    #print(request.method)
     referrer_page = None
     if request.method == 'GET':
         # print(request.referrer)
@@ -272,7 +270,7 @@ def login():
                     '.format(
                         user['username'],
                         request.host_url.rstrip('/'),
-                        url_for('auth.activate', mobiuser_id=user['id'], api_key=user['api_key'])                    
+                        url_for('auth.activate', mobiuser_id=user['id'], api_key=user['api_key'])
                     ),
                     False
                 ),
@@ -394,7 +392,7 @@ def profile(mobiuser_id=0):
             )
             variants = curs.fetchall()
             num_var = curs.rowcount
-    
+
             curs.execute(
                 "SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b \
                 WHERE  a.id = b.feature_id AND b.mobiuser_id = %s ORDER BY a.gene_name, a.ng_name",
@@ -409,7 +407,7 @@ def profile(mobiuser_id=0):
             # other profile view
             return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None,
                                    num_var_fav=None, variants=None, variants_favourite=None)
-    
+
         flash(error, 'w3-pale-red')
         return render_template('md/index.html')
     else:

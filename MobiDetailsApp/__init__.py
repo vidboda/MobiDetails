@@ -1,21 +1,22 @@
 import os
 from . import config
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template
 from flask_mail import Mail
 from flask_cors import CORS
-from logging.handlers import RotatingFileHandler
+# from logging.handlers import RotatingFileHandler
 # https://flask-wtf.readthedocs.io/en/stable/csrf.html
 from flask_wtf.csrf import CSRFProtect
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
-import logging
+# import logging
 
 mail = Mail()
 csrf = CSRFProtect()
 
+
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
-    
+
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('sql/md.cfg', silent=False)
@@ -32,9 +33,9 @@ def create_app(test_config=None):
     # params = config.mdconfig(section='email_auth')
     # flask_params = config.mdconfig(section='flask')
     # app.config.update(
-    #     # FLASK SETTINGS        
+    #     # FLASK SETTINGS
     #     DEBUG = flask_params['debug'],
-        
+
     #     # EMAIL SETTINGS
     #     MAIL_SERVER = params['mail_server'],
     #     MAIL_PORT = params['mail_port'],
@@ -102,7 +103,6 @@ def create_app(test_config=None):
     #         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
     #     file_handler.setLevel(logging.INFO)
     #     app.logger.addHandler(file_handler)
-    # 
     #     app.logger.setLevel(logging.INFO)
     #     app.logger.info('Mobidetails startup')
     if app.debug:

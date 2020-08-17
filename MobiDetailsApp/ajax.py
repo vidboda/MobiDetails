@@ -126,9 +126,8 @@ def intervar():
             pos, ref, alt
         )
         try:
-            
             intervar_data = [json.loads(http.request('GET', intervar_url).data.decode('utf-8'))]
-        except Exception as e:
+        except Exception:
             try:
                 # intervar can return mutliple json objects, e.g.:
                 # {"Intervar":"Uncertain significance","Chromosome":1,"Position_hg19":151141512,"Ref_allele":"T","Alt_allele":"A","Gene":"SCNM1","PVS1":0,"PS1":0,"PS2":0,"PS3":0,"PS4":0,"PM1":1,"PM2":1,"PM3":0,"PM4":0,"PM5":0,"PM6":0,"PP1":0,"PP2":0,"PP3":0,"PP4":0,"PP5":0,"BA1":0,"BP1":0,"BP2":0,"BP3":0,"BP4":0,"BP5":0,"BP6":0,"BP7":0,"BS1":0,"BS2":0,"BS3":0,"BS4":0}{"Intervar":"Uncertain significance","Chromosome":1,"Position_hg19":151141512,"Ref_allele":"T","Alt_allele":"A","Gene":"TNFAIP8L2-SCNM1","PVS1":0,"PS1":0,"PS2":0,"PS3":0,"PS4":0,"PM1":1,"PM2":1,"PM3":0,"PM4":0,"PM5":0,"PM6":0,"PP1":0,"PP2":0,"PP3":0,"PP4":0,"PP5":0,"BA1":0,"BP1":0,"BP2":0,"BP3":0,"BP4":0,"BP5":0,"BP6":0,"BP7":0,"BS1":0,"BS2":0,"BS3":0,"BS4":0}
@@ -170,7 +169,7 @@ def intervar():
                 # intervar likely returns several json objects
                 if intervar_dict['Gene'] == gene:
                     intervar_acmg = intervar_dict['Intervar']
-        if intervar_acmg is not None: 
+        if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -266,7 +265,7 @@ def lovd():
                     match_obj = re.search(r'^(.+\/)variants\.php$', lovd_base_url)
                     if match_obj:
                         lovd_base_url = match_obj.group(1)
-                        try:                       
+                        try:
                             lovd_fh = open(md_utilities.lovd_ref_file)
                             for line in lovd_fh:
                                 if re.search(r'{}'.format(lovd_base_url), line):
@@ -285,13 +284,17 @@ def lovd():
                     i += 1
                 # get LOVD effects e.g.
                 # https://databases.lovd.nl/shared/api/rest/variants/USH2A?search_position=g.216420460&show_variant_effect=1&format=application/json
-                lovd_api_url = '{0}{1}?search_position=g.{2}&show_variant_effect=1&format=application/json'.format(md_utilities.urls['lovd_api_variants'], gene, pos_19)
+                lovd_api_url = '{0}{1}?search_position=g.{2}&show_variant_effect=1&format=application/json'.format(
+                    md_utilities.urls['lovd_api_variants'], gene, positions[0]
+                )
                 lovd_effect = None
                 try:
                     lovd_effect = json.loads(http.request('GET', lovd_api_url).data.decode('utf-8'))
                 except Exception:
                     pass
-                if lovd_effect is not None:
+                if lovd_effect is not None and \
+                        len(lovd_effect) != 0:
+                    # print(lovd_effect)
                     lovd_effect_count = {
                         'effect_reported': {},
                         'effect_concluded': {}
@@ -300,19 +303,20 @@ def lovd():
                         if var['effect_reported'][0] not in lovd_effect_count['effect_reported']:
                             lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
                         else:
-                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1                        
+                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1
                         if var['effect_concluded'][0] not in lovd_effect_count['effect_concluded']:
                             lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
                         else:
                             lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] += 1
                 # print(lovd_effect_count)
-                
+
             else:
                 return md_utilities.lovd_error_html("No match in LOVD public instances")
                 # return 'No match in LOVD public instances'
             html = '<tr><td class="w3-left-align" id="lovd_feature" style="vertical-align:middle;">LOVD Matches:</td> \
                    <td class="w3-left-align"><ul>{}</ul></td> \
-                   <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"><em class="w3-small">LOVD match in public instances</em></td> \
+                   <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"> \
+                   <em class="w3-small">LOVD match in public instances</em></td> \
                    </tr>'.format(''.join(html_list))
             if lovd_effect_count is not None:
                 reported_effect_list = []
@@ -328,11 +332,13 @@ def lovd():
                 html += ',<tr> \
                    <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">LOVD Effect Reported:</td> \
                    <td class="w3-left-align"><ul>{0}</ul></td> \
-                   <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;"><em class="w3-small">Effects reported by LOVD submitters</em></td> \
+                   <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;"> \
+                   <em class="w3-small">Effects reported by LOVD submitters</em></td> \
                    </tr>,<tr> \
                    <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">LOVD Effect Concluded:</td> \
                    <td class="w3-left-align"><ul>{1}</ul></td> \
-                   <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;"><em class="w3-small">Effects concluded by LOVD curators</em></td> \
+                   <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;"> \
+                   <em class="w3-small">Effects concluded by LOVD curators</em></td> \
                    </tr>'.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
             return html
         else:
@@ -450,7 +456,7 @@ def modif_class():
             )
             return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
-        
+
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
     else:
         md_utilities.send_error_email(
@@ -591,7 +597,7 @@ def create():
         if res is not None:
             close_db()
             return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
-    
+
         if re.search(r'c\..+', new_variant):
             # is vv alive?
             http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -614,7 +620,7 @@ def create():
                 return md_utilities.danger_panel(
                     new_variant, 'Variant Validator did not answer our call, status: {}. \
                     I have been informed by email. Please retry later.'.format(vv_alive['status']))
-    
+
             # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             if alt_nm is None or acc_no == request.form['acc_no']:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
@@ -713,7 +719,7 @@ def favourite():
         else:
             curs.execute(
                 "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s AND feature_id = %s",
-                (g.user['id'], vf_id )
+                (g.user['id'], vf_id)
             )
         db.commit()
         close_db()

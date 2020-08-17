@@ -335,7 +335,6 @@ def variant(variant_id=None):
     )
     variant_features = curs.fetchone()
     if variant_features is not None:
-              
         # get variant info
         curs.execute(
             "SELECT * FROM variant WHERE feature_id = %s",
@@ -381,11 +380,10 @@ def variant(variant_id=None):
                 # compute position / splice sites
                 if variant_features['variant_size'] < 50 and \
                         variant_features['start_segment_type'] == 'exon':  # and \
-                        # variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
-                        # variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
-                        # not re.search(r'\*', variant_features['c_name']) and \
-                        # not re.search(r'^-', variant_features['c_name']):
-                    
+                    # variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
+                    # variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
+                    # not re.search(r'\*', variant_features['c_name']) and \
+                    # not re.search(r'^-', variant_features['c_name']):
                     curs.execute(
                         "SELECT * FROM segment WHERE genome_version = %s\
                         AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
@@ -406,13 +404,20 @@ def variant(variant_id=None):
                     )
                     # get neighbours type, number
                     (annot['preceeding_segment_type'], annot['preceeding_segment_number'],
-                    annot['following_segment_type'], annot['following_segment_number']) = md_utilities.get_exon_neighbours(db, positions)
-                    # print('preceeding: {0}{1};following: {2}{3}'.format(annot['preceeding_segment_type'], annot['preceeding_segment_number'], annot['following_segment_type'], annot['following_segment_number']))
+                        annot['following_segment_type'], annot['following_segment_number']) = md_utilities.get_exon_neighbours(db, positions)
+                    # print('preceeding: {0}{1};following: {2}{3}'.format(
+                    #    annot['preceeding_segment_type'], annot['preceeding_segment_number'],
+                    #    annot['following_segment_type'], annot['following_segment_number'])
+                    # )
                     # get natural ss maxent scores
                     if annot['preceeding_segment_number'] != 'UTR':
-                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions)
+                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 3, positions
+                        )
                     if annot['following_segment_number'] != 'UTR':
-                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 5, positions)
+                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 5, positions
+                        )
                     # variants beginning in exon and finishing in intron
                     # we don't treat them as this is obvious
                     # if variant_features['start_segment_type'] != variant_features['end_segment_type'] or \
@@ -452,11 +457,11 @@ def variant(variant_id=None):
                     annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
                 # MPA indel splice
                 elif variant_features['start_segment_type'] == 'intron' and \
-                        (variant_features['dna_type'] == 'indel' or \
-                        variant_features['dna_type'] == 'deletion' or \
-                        variant_features['dna_type'] == 'duplication') and \
+                        (variant_features['dna_type'] == 'indel' or
+                            variant_features['dna_type'] == 'deletion' or
+                            variant_features['dna_type'] == 'duplication') and \
                         variant_features['variant_size'] < 50:
-                    if  annot['dist_from_exon'] <= 20 and \
+                    if annot['dist_from_exon'] <= 20 and \
                             ('mpa_score' not in annot or annot['mpa_score'] < 6):
                         annot['mpa_score'] = 6
                         annot['mpa_impact'] = 'splice indel'
@@ -464,12 +469,12 @@ def variant(variant_id=None):
                 if variant_features['start_segment_type'] == 'intron' and \
                         annot['dist_from_exon'] <= 100 and \
                         variant_features['variant_size'] < 50:
-                    annot['pos_intron_canvas'] = 200 - annot['dist_from_exon'] # relative position inside canvas fomr exon beginning
+                    annot['pos_intron_canvas'] = 200 - annot['dist_from_exon']  # relative position inside canvas fomr exon beginning
                     annot['neighb_exon_number'] = variant_features['start_segment_number'] + 1
                     if sign == '+':
                         annot['neighb_exon_number'] = variant_features['start_segment_number']
                         annot['pos_intron_canvas'] = 400 + annot['dist_from_exon']  # relative position inside canvas from exon end
-                    
+
                     annot['pos_exon_canvas'] = None
                     # get info from neighboring exon
                     curs.execute(
@@ -483,13 +488,17 @@ def variant(variant_id=None):
                         annot['preceeding_segment_number'] = None
                         annot['following_segment_type'] = 'intron'
                         annot['following_segment_number'] = variant_features['start_segment_number']
-                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 5, positions_neighb_exon)
+                        (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 5, positions_neighb_exon
+                        )
                     else:
                         annot['preceeding_segment_type'] = 'intron'
                         annot['preceeding_segment_number'] = variant_features['start_segment_number']
                         annot['following_segment_type'] = None
                         annot['following_segment_number'] = None
-                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(var['chr'], variant_features['strand'], 3, positions_neighb_exon)
+                        (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 3, positions_neighb_exon
+                        )
                 # clinvar
                 record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
                 if isinstance(record, str):
@@ -748,7 +757,7 @@ def variant(variant_id=None):
                 if isinstance(record, str):
                     annot['gnomad_genome_all'] = record
                 else:
-                    annot['gnomad_genome_all'] = record[5]                
+                    annot['gnomad_genome_all'] = record[5]
                 # clinpred
                 if variant_features['prot_type'] == 'missense':
                     record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)
@@ -823,13 +832,12 @@ def variant(variant_id=None):
         # result.stdout
         # result is like
         # b'CAAATTCTG\t-17.88\nAAATTCTGC\t-13.03\nAATTCTGCA\t-35.61\nATTCTGCAA\t-22.21\nTTCTGCAAT\t-31.16\nTCTGCAATC\t-13.69\nCTGCAATCC\t-14.15\nTGCAATCCT\t-37.49\nGCAATCCTC\t-30.00\n'
-        
+
         # iterate through scores and get the most likely to disrupt splicing
         # from Houdayer Humut 2012
         # "In every case, we recommend first‐line analysis with MES using a 15% cutoff."
         signif_scores5 = signif_scores3 = None
         # print(pos_splice_site )
-        #try:
         scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
         scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
         # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
@@ -846,11 +854,12 @@ def variant(variant_id=None):
         # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
         # print(signif_scores5)
         # ex
-        # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n', '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
+        # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n',\
+        # '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
         if (variant_features['start_segment_type'] != 'exon') or \
-                (annot['nearest_site_type'] == 'acceptor' and \
-                annot['nearest_site_dist'] < 10):
-                # exonic variants not near 3' ss don't require predictions for 3'ss
+                (annot['nearest_site_type'] == 'acceptor' and
+                    annot['nearest_site_dist'] < 10):
+            # exonic variants not near 3' ss don't require predictions for 3'ss
             seq3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
             seq3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
             signif_scores3 = md_utilities.select_mes_scores(
@@ -866,9 +875,6 @@ def variant(variant_id=None):
             # print(signif_scores3)
         else:
             signif_scores3 = 'Not performed'
-        #except Exception:
-        #    pass
-        
     else:
         close_db()
         return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
@@ -881,7 +887,7 @@ def variant(variant_id=None):
     return render_template(
         'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
-        urls=md_utilities.urls, external_tools=md_utilities.external_tools, thresholds=md_utilities.predictor_thresholds, 
+        urls=md_utilities.urls, external_tools=md_utilities.external_tools, thresholds=md_utilities.predictor_thresholds,
         variant_features=variant_features, variant=variant, protein_domain=domain,
         class_history=class_history, annot=annot, mes5=signif_scores5, mes3=signif_scores3
     )
@@ -896,7 +902,7 @@ def search_engine():
     query_engine = request.form['search']
     # query_engine = query_engine.upper()
     error = None
-    
+
     if query_engine is not None and \
             query_engine != '':
         pattern = ''

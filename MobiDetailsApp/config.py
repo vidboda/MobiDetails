@@ -45,7 +45,6 @@ from configparser import ConfigParser
 #         dir_path + init_file
 #         )
 #     )
-# 
 # if parser.has_section('email_auth'):
 #     params = parser.items('email_auth')
 #     for param in params:
@@ -73,6 +72,7 @@ from configparser import ConfigParser
 # from http://www.postgresqltutorial.com/postgresql-python/connect/
 dir_path = os.path.dirname(os.path.realpath(__file__))
 init_file = '/sql/database.ini'
+
 
 def mdconfig(filename=dir_path + init_file, section='postgresql'):
     # create a parser

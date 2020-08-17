@@ -191,10 +191,9 @@ def test_get_exon_neighbours(app, positions, result):
     ('His3417_Gly3425dup', ('3417', '3425')),
     ('Arg34=', ('34', '34'))
 ))
-def test_get_aa_position(client, variant_in, aa_pos):
+def test_get_aa_position(variant_in, aa_pos):
     aa = md_utilities.get_aa_position(variant_in)
     assert aa == aa_pos
-
 
 var = {
     'chr': '1',

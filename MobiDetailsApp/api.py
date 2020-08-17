@@ -23,7 +23,6 @@ def api_variant_exists(variant_ghgvs=None):
         return jsonify(mobidetails_error='No variant submitted')
     match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', urllib.parse.unquote(variant_ghgvs))
     if match_object:
-    # elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', variant_ghgvs):  # strict HGVS genomic
         db = get_db()
         # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
         # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
@@ -92,7 +91,6 @@ def api_variant_create(variant_chgvs=None, api_key=None):
         #     return jsonify(mobidetails_error='No variant submitted')
         match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', urllib.parse.unquote(variant_chgvs))
         if match_object:
-        # elif re.search(r'^[Nn][Mm]_\d+\.\d{1,2}:c\..+', variant_chgvs):  # strict HGVS cdna
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
             acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
             new_variant = new_variant.replace(" ", "").replace("\t", "")
@@ -126,7 +124,7 @@ def api_variant_create(variant_chgvs=None, api_key=None):
                     md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
                 )
                 vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-    
+
                 try:
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
@@ -240,7 +238,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             )
                         else:
                             return redirect(url_for('md.variant', variant_id=res['feature_id']))
-                    else:                    
+                    else:
                         # creation
                         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
@@ -248,7 +246,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-            
+
                         try:
                             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                         except Exception:
@@ -282,9 +280,11 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return jsonify(mobidetails_error='Could not create variant {}.'.format(variant_ghgvs), variant_validator_output=vv_data)
                             else:
                                 try:
-                                    flash('There has been a issue with the annotation of the variant via VariantValidator. The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. \
+                                          The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
                                 except Exception:
-                                    flash('There has been a issue with the annotation of the variant via VariantValidator. Sorry for the inconvenience. You may want to try directly in mobiDetails.', 'w3-pale-red')
+                                    flash('There has been a issue with the annotation of the variant via VariantValidator. \
+                                          Sorry for the inconvenience. You may want to try directly in MobiDetails.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
 
                 else:
@@ -365,7 +365,7 @@ def api_gene(gene_hgnc=None):
         return jsonify(d_gene)
     else:
         return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))
-    
+
 # -------------------------------------------------------------------
 # api - update class
 
@@ -434,7 +434,7 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
                 )
                 res = curs.fetchone()
                 if res:
-                     return jsonify(mobidetails_error='ACMG class already submitted by this user for this variant')
+                    return jsonify(mobidetails_error='ACMG class already submitted by this user for this variant')
                 today = datetime.datetime.now()
                 date = '{0}-{1}-{2}'.format(
                     today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")

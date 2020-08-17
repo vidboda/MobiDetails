@@ -15,7 +15,7 @@ from flask import (
     url_for, request, render_template, current_app as app
 )
 from flask_mail import Message
-#from . import config
+# from . import config
 from MobiDetailsApp import mail
 
 app_path = os.path.dirname(os.path.realpath(__file__))
@@ -31,7 +31,7 @@ nochr_captured_regexp = resources['nochr_captured_regexp']
 # nochr_chrom_regexp = '[\dXYM]{1,2}'
 # nochr_captured_regexp = '\d{1,2}|[XYM]'
 lovd_ref_file = '{0}{1}'.format(app_path, resources['lovd_ref_file_rel_path'])
-#lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
+# lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
 ext_exe = resources['ext_exe']
 ext_exe['maxentscan5'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan5'])
 ext_exe['maxentscan3'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan3'])
@@ -39,6 +39,7 @@ ext_exe['maxentscan3'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxents
 #     'maxentscan5': '{}/static/resources/maxentscan/score5.pl'.format(app_path),
 #     'maxentscan3': '{}/static/resources/maxentscan/score3.pl'.format(app_path)
 # }
+
 
 def get_clinvar_current_version(clinvar_dir):
     files = os.listdir(clinvar_dir)
@@ -97,7 +98,7 @@ external_tools = resources['external_tools']
 for tool in external_tools:
     if re.search(r'^\d+$', external_tools[tool]['paper']):
         external_tools[tool]['paper'] = '{0}{1}'.format(urls['ncbi_pubmed'], external_tools[tool]['paper'])
-#external_tools['ClinVar']['version'] = local_files['clinvar_hg38']['version']
+# external_tools['ClinVar']['version'] = local_files['clinvar_hg38']['version']
 external_tools['ClinVar']['version'] = 'v{}'.format(
     get_clinvar_current_version('{0}{1}'.format(
         app_path,
@@ -105,6 +106,8 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
         )
     )
 )
+
+
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))
 
@@ -1161,7 +1164,7 @@ def prepare_email_html(title, message, send_url=True):
         return render_template('md/email.html', title=title, message=message, url=request.base_url)
 
 
-def send_email(message, mail_object, receiver, bcc_receiver = None):
+def send_email(message, mail_object, receiver, bcc_receiver=None):
     if "MAIL_USERNAME" in app.config:
         msg = Message(
             mail_object,
@@ -1171,7 +1174,6 @@ def send_email(message, mail_object, receiver, bcc_receiver = None):
         )
         msg.html = message
         mail.send(msg)
-        
 
 
 def send_error_email(message, mail_object):
@@ -1224,7 +1226,7 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
         # limitation for delins => the size is the size of the deleted sequence
         r = (w - a - 1) - (y - 2)
         s = r + y
-        #we need to remap r and s if < 0
+        # we need to remap r and s if < 0
         if (r < 0):
             r = 0
             s = s + abs(r)
@@ -1232,12 +1234,12 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
                 s = 0
         # print('r: {0};s: {1}'.format(r, s))
         # print('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))
-        seqs_html.append('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))        
+        seqs_html.append('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))
         a += 1
     # create temp file and launch maxentscan
     tf = tempfile.NamedTemporaryFile()
     # print(tf.name)
-    tf.write(bytes(''.join(seqs), encoding = 'utf-8'))
+    tf.write(bytes(''.join(seqs), encoding='utf-8'))
     tf.seek(0)
     # cannot figure out why the above line is mandatory but without it the file is empty
     # print(tf.read())
@@ -1255,8 +1257,10 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         # a score is
         # CAAATTCTG\t-17.88
         if i < len(scoresmt):
-            wt = re.split('\s+', scoreswt[i])
-            mt = re.split('\s+', scoresmt[i])
+            # wt = re.split('\s+', scoreswt[i])
+            # mt = re.split('\s+', scoresmt[i])
+            wt = scoreswt[i].split()
+            mt = scoresmt[i].split()
             # print(wt)
             # print(mt)
             if len(wt) == 2 and \
@@ -1271,7 +1275,7 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
                     # get span with exon/intron depending on score5 or score 3
                     html_seqwt = html_seqmt = ''
                     if len(wt[0]) == 9:
-                        #score 5
+                        # score 5
                         html_seqwt = '<strong>{0}</strong>{1}'.format(wt[0][:3], wt[0][3:].lower())
                         html_seqmt = '<strong>{0}</strong>{1}'.format(mt[0][:3], mt[0][3:].lower())
                     else:
@@ -1308,7 +1312,7 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     # create temp file and launch maxentscan
     tf = tempfile.NamedTemporaryFile()
     # print(tf.name)
-    tf.write(bytes(seq_slice, encoding = 'utf-8'))
+    tf.write(bytes(seq_slice, encoding='utf-8'))
     tf.seek(0)
     if scantype == 3:
         formatted_seq = '{0}{1}'.format(seq_slice[:20].lower(), seq_slice[20:])
@@ -1407,14 +1411,17 @@ def lovd_error_html(text):
 # clinvar_date = get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))
 
 # local_files = {
-#     # id :[local path, version, name, short desc, short name 4 urls xref]    
+#     # id :[local path, version, name, short desc, short name 4 urls xref]
 #     'cadd': ['{}/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'.format(app_path),
 #              'v1.5', 'CADD SNVs', 'Prediction of deleterious effect for all variant types', 'cadd'],
 #     'cadd_indels': ['{}/static/resources/CADD/hg38/InDels.tsv.gz'.format(app_path),
 #                     'v1.5', 'CADD indels', 'Prediction of deleterious effect for all variant types', 'cadd'],
-#     'clinpred': ['{}/static/resources/clinpred/clinpred.txt.gz'.format(app_path), '2018_hg19', 'ClinPred', 'pre-computed ClinPred scores for all possible human missense variant', 'clinpred'],
-#     'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
-#                      'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar', 'database of variants, clinically assessed', 'ncbi_clinvar'],
+#     'clinpred': ['{}/static/resources/clinpred/clinpred.txt.gz'.format(app_path),
+#                '2018_hg19', 'ClinPred', 'pre-computed ClinPred scores for all possible human missense variant', 'clinpred'],
+#     'clinvar_hg38': ['{0}/static/resources/clinvar/hg38/clinvar_{1}.vcf.gz'.format(
+#                   app_path, get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))),
+#                   'v{}'.format(get_clinvar_current_version('{}/static/resources/clinvar/hg38/'.format(app_path))), 'ClinVar',
+#                   'database of variants, clinically assessed', 'ncbi_clinvar'],
 #     'dbnsfp': ['{}/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'.format(app_path),
 #                'v4.0a', 'dbNSFP', 'Dataset of predictions for missense', 'dbnsfp'],
 #     'dbscsnv': ['{}/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'.format(app_path),
@@ -1452,7 +1459,7 @@ def lovd_error_html(text):
 #     'metadome_neutral': 0.875,
 #     'metadome_stolerant': 1.025,
 #     'metadome_tolerant': 1.375,
-#     'meta-lr': 0.5,    
+#     'meta-lr': 0.5,
 #     'meta-svm': 0,
 #     'mpa_max': 8,
 #     'mpa_mid': 5,
@@ -1511,4 +1518,4 @@ def lovd_error_html(text):
 #     }
 # }
 
-#complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+# complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
