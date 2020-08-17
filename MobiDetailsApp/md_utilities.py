@@ -1197,8 +1197,8 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     # w = len(seq required) = 9|23
     # print('{0}-{1}-{2}-{3}'.format(w, y, seq, scantype))
     z = w
-    seq = seq.replace(' ', '')
-    seq = seq.replace('-', '')
+    seq = seq.replace(' ', '').replace('-', '')
+    # seq = seq.replace('-', '')
     # html_seq = '{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'.format(seq[:25], seq[25:25+y], seq[25+y:])
     # y = variant_features['variant_size']
     pos1 = pos2 = 0

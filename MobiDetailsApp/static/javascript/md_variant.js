@@ -144,7 +144,7 @@ function intervar(intervar_url, csrf_token) {
 			type: "POST",
 			url: intervar_url,
 			data: {
-				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text()
+				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_name').text()
 			}
 		})
 		.done(function(html) {
@@ -349,11 +349,11 @@ $(document).ready(function() {
 				'copy', 'excel', 'pdf'
 		]
 	});
-	
+
 	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {
-	
+
 		var config = {
 			className: "buttons-pdf buttons-html5",
 			customize: null,

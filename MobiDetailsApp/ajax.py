@@ -18,10 +18,6 @@ import datetime
 bp = Blueprint('ajax', __name__)
 
 
-# import time
-
-
-
 ######################################################################
 # web app - ajax for litvar
 
@@ -112,12 +108,14 @@ def intervar():
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(r'^\d+$', request.form['pos']) and \
             re.search(r'^[ATGC]+$', request.form['ref']) and \
-            re.search(r'^[ATGC]+$', request.form['alt']):
+            re.search(r'^[ATGC]+$', request.form['alt']) and \
+            'gene' in request.form:
         genome = request.form['genome']
         chrom = request.form['chrom']
         pos = request.form['pos']
         ref = request.form['ref']
         alt = request.form['alt']
+        gene = request.form['gene']
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
         if ref == alt:
@@ -128,36 +126,71 @@ def intervar():
             pos, ref, alt
         )
         try:
-            intervar_data = json.loads(http.request('GET', intervar_url).data.decode('utf-8'))
+            
+            intervar_data = [json.loads(http.request('GET', intervar_url).data.decode('utf-8'))]
         except Exception as e:
-            md_utilities.send_error_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails API error',
-                    '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: {6}</p>'.format(
-                        genome, chrom, pos, ref,
-                        alt, os.path.basename(__file__), e.args
-                    )
-                ),
-                '[MobiDetails - API Error]'
+            try:
+                # intervar can return mutliple json objects, e.g.:
+                # {"Intervar":"Uncertain significance","Chromosome":1,"Position_hg19":151141512,"Ref_allele":"T","Alt_allele":"A","Gene":"SCNM1","PVS1":0,"PS1":0,"PS2":0,"PS3":0,"PS4":0,"PM1":1,"PM2":1,"PM3":0,"PM4":0,"PM5":0,"PM6":0,"PP1":0,"PP2":0,"PP3":0,"PP4":0,"PP5":0,"BA1":0,"BP1":0,"BP2":0,"BP3":0,"BP4":0,"BP5":0,"BP6":0,"BP7":0,"BS1":0,"BS2":0,"BS3":0,"BS4":0}{"Intervar":"Uncertain significance","Chromosome":1,"Position_hg19":151141512,"Ref_allele":"T","Alt_allele":"A","Gene":"TNFAIP8L2-SCNM1","PVS1":0,"PS1":0,"PS2":0,"PS3":0,"PS4":0,"PM1":1,"PM2":1,"PM3":0,"PM4":0,"PM5":0,"PM6":0,"PP1":0,"PP2":0,"PP3":0,"PP4":0,"PP5":0,"BA1":0,"BP1":0,"BP2":0,"BP3":0,"BP4":0,"BP5":0,"BP6":0,"BP7":0,"BS1":0,"BS2":0,"BS3":0,"BS4":0}
+                intervar_list = re.split('}{', http.request('GET', intervar_url).data.decode('utf-8'))
+                i = 0
+                for obj in intervar_list:
+                    # some housekeeping to get proper strings
+                    obj = obj.replace('{', '').replace('}', '')
+                    obj = '{{{}}}'.format(obj)
+                    intervar_list[i] = obj
+                    i += 1
+                #     if i == 0:
+                #         intervar_list[i] = '{0}}}'.format(obj)
+                #     else:
+                #         intervar_list[i] = '{{{0}'.format(obj)
+                # if i > 2:
+                #     intervar_list[i-1] = '{0}}}'.format(intervar_list[i-1])
+                intervar_data = []
+                for obj in intervar_list:
+                    # print(obj)
+                    intervar_data.append(json.loads(obj))
+            except Exception as e:
+                md_utilities.send_error_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails API error',
+                        '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4} - url: {5} <br /> - from {6} with args: {7}</p>'.format(
+                            genome, chrom, pos, ref, alt,
+                            intervar_url, os.path.basename(__file__), e.args
+                        )
+                    ),
+                    '[MobiDetails - API Error]'
+                )
+                return "<span>No wintervar class</span>"
+        intervar_acmg = None
+        if len(intervar_data) == 1:
+            intervar_acmg = intervar_data[0]['Intervar']
+        else:
+            for intervar_dict in intervar_data:
+                # intervar likely returns several json objects
+                if intervar_dict['Gene'] == gene:
+                    intervar_acmg = intervar_dict['Intervar']
+        if intervar_acmg is not None: 
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(
+                    intervar_acmg.lower()
+                )
             )
+            res = curs.fetchone()
+            close_db()
+            return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_acmg)
+        else:
             return "<span>No wintervar class</span>"
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        curs.execute(
-            "SELECT html_code FROM valid_class WHERE acmg_translation = '{}'".format(
-                intervar_data['Intervar'].lower()
-            )
-        )
-        res = curs.fetchone()
-        close_db()
-        return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_data['Intervar'])
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
                 '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: A mandatory argument is missing</p>'.format(
-                    genome, chrom, pos, ref,
-                    alt, os.path.basename(__file__)
+                    request.form['genome'], request.form['chrom'],
+                    request.form['pos'], request.form['ref'],
+                    request.form['alt'], os.path.basename(__file__)
                 )
             ),
             '[MobiDetails - API Error]'
@@ -177,7 +210,7 @@ def lovd():
             re.search(rf'^{md_utilities.variant_regexp}$', request.form['g_name']) and \
             re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['c_name']) and \
             'gene' in request.form and \
-            'pos' in request.form :
+            'pos' in request.form:
         genome = request.form['genome']
         chrom = request.form['chrom']
         g_name = request.form['g_name']
@@ -536,8 +569,8 @@ def create():
         gene = request.form['gene']
         acc_no = request.form['acc_no']
         new_variant = request.form['new_variant']
-        new_variant = new_variant.replace(" ", "")
-        new_variant = new_variant.replace("\t", "")
+        new_variant = new_variant.replace(" ", "").replace("\t", "")
+        # new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
         acc_version = request.form['acc_version']
         alt_nm = None
