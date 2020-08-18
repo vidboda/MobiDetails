@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200817" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200818" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -86,6 +86,9 @@
 		{% endif %}
 		{% if variant_features.prot_type == 'missense' %}
 			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
+		{% endif %}
+		{% if variant_features.dna_type == 'substitution' and annot.miranda_cat is defined %}
+			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
@@ -392,7 +395,7 @@
 						{% else %}
 							<td class="w3-left-align">{{ annot.cadd }}</td>
 						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">The higher the less likely to be observed</em></td>
+						<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
 					</tr>
 					<tr><!--CADD phred-->
 						<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
@@ -403,10 +406,28 @@
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 					</tr>
+					<tr><!--Eigen raw-->
+						<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
+						{% if annot.eigen is not defined %}
+							<td class="w3-left-align">{{ annot.eigen_raw }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ annot.eigen }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em class="w3-small">[-3.33;6.84] The higher the less likely to be observed</em></td>
+					</tr>
+					<tr><!--Eigen phred-->
+						<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> phred:</td>
+						{% if annot.eigen is not defined %}
+							<td class="w3-left-align">{{ annot.eigen_phred }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ annot.eigen }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
+					</tr>
 					<tr><!--MPA score-->
 						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> score:</td>
 							<td class="w3-left-align">{{ span_color(annot.mpa_score, annot.mpa_color) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Raw score (0-10), 10: high impact</em></td>
+						<td class="w3-left-align"><em class="w3-small">Raw score [0;10], 10: high impact</em></td>
 					</tr>
 					<tr><!--MPA impact-->
 						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> impact:</td>
@@ -662,6 +683,81 @@
 			{% endif %}
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
+		<!--alt sixth section-->
+		{% if variant_features.dna_type == 'substitution' and annot.dbmts is not defined and annot.miranda_cat is defined%}
+			<hr />
+			{{ section_title('dbmts', 'miRNA target sites predictions') }}
+			<div class="w3-responsive w3-container">
+				<!--dbMTS-->
+				 {{ info("The table below comes form <a href='www.liulab.science/dbmts.html' target='_blank'>dbMTS{}</a>. It focuses on miRNA binding capabilities of the wild-type and mutant sequences and on the differences observed using 3 different algorithms, namely <a href='http://www.microrna.org/microrna/getGeneForm.do' target='_blank'>miRanda</a>, <a href='http://www.rnaiweb.com/cgi-bin/web/jump.cgi?ID=56' target='_blank'>TargetScan</a> and <a href='https://bibiserv.cebitec.uni-bielefeld.de/rnahybrid/' target='_blank'>RNAHybrid</a>. Each predictor may define three categories of functional change (see Descriptions). To correctly assess the Max Diff column, one needs to know the theoretical max differences for each tool: miRanda (216), TargetScan (11.07), RNAHybrid (60.8). Concerning best scores, for miRanda and RNAhybrid, the best score is the miRNA-target pair that has the highest prediction score. For TargetScan, the best score is the miRNA-target pair that has the largest negative prediction score.".format(external_tools['dbMTS']['version'])) }}
+				<table class="w3-table w3-centered display compact" style="width:90%" id="dbmts_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align">miRanda</th>
+							<th class="w3-left-align">TargetScan v7.0</th>
+							<th class="w3-left-align">RNAhybrid</th>
+							<th class="w3-left-align">Descriptions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><!--category-->
+							<td class="w3-left-align">Category:</td>
+							<td class="w3-left-align">{{ annot.miranda_cat }}</td>
+							<td class="w3-left-align">{{ annot.targetscan_cat }}</td>
+							<td class="w3-left-align">{{ annot.rnahybrid_cat }}</td>
+							<td class="w3-left-align"><em class="w3-small">Predicted functional category of this variant according to each predictor. 'S': substitution of regulating miRNAs. 'L': loss of all miRNAs. 'G' gain.</em></td>
+						</tr>
+						<tr><!--rankscore-->
+							<td class="w3-left-align">Rank Score:</td>
+							<td class="w3-left-align">{{ annot.miranda_rankscore }}</td>
+							<td class="w3-left-align">{{ annot.targetscan_rankscore }}</td>
+							<td class="w3-left-align">{{ annot.rnahybrid_rankscore }}</td>
+							<td class="w3-left-align"><em class="w3-small">Rank of the max_dif score among all max_dif scores within the same category [0;1]. The closer to 1 the more likely to highlight a significant change.</em></td>
+						</tr>
+						<tr><!--maxdiff-->
+							<td class="w3-left-align">Max Diff:</td>
+							<td class="w3-left-align">{{ annot.miranda_maxdiff }}</td>
+							<td class="w3-left-align">{{ annot.targetscan_maxdiff }}</td>
+							<td class="w3-left-align">{{ annot.rnahybrid_maxdiff }}</td>
+							<td class="w3-left-align"><em class="w3-small">The absolute value of the maximum potential difference between all the scores (ref and alt).</em></td>
+						</tr>
+						{% autoescape false %}
+							<tr><!--refbestmir-->
+								<td class="w3-left-align">Ref Best Mir:</td>
+								<td class="w3-left-align">{{ annot.miranda_refbestmir }}</td>
+								<td class="w3-left-align">{{ annot.targetscan_refbestmir }}</td>
+								<td class="w3-left-align">{{ annot.rnahybrid_refbestmir }}</td>
+								<td class="w3-left-align"><em class="w3-small">miRNA corresponding to the best score of the reference (wild-type) sequence.</em></td>
+							</tr>
+							<tr><!--refbestscore-->
+								<td class="w3-left-align">Ref Best Score:</td>
+								<td class="w3-left-align">{{ annot.miranda_refbestscore }}</td>
+								<td class="w3-left-align">{{ annot.targetscan_refbestscore }}</td>
+								<td class="w3-left-align">{{ annot.rnahybrid_refbestscore }}</td>
+								<td class="w3-left-align"><em class="w3-small">Best score for the reference sequence for each predictor.</em></td>
+							</tr>
+							<tr><!--altbestmir-->
+								<td class="w3-left-align">Alt Best Mir:</td>
+								<td class="w3-left-align">{{ annot.miranda_altbestmir }}</td>
+								<td class="w3-left-align">{{ annot.targetscan_altbestmir }}</td>
+								<td class="w3-left-align">{{ annot.rnahybrid_altbestmir }}</td>
+								<td class="w3-left-align"><em class="w3-small">miRNA corresponding to the best score of the alternative (mutant) sequence.</em></td>
+							</tr>
+							<tr><!--altbestscore-->
+								<td class="w3-left-align">Alt Best Score:</td>
+								<td class="w3-left-align">{{ annot.miranda_altbestscore }}</td>
+								<td class="w3-left-align">{{ annot.targetscan_altbestscore }}</td>
+								<td class="w3-left-align">{{ annot.rnahybrid_altbestscore }}</td>
+								<td class="w3-left-align"><em class="w3-small">Best score for the alternative sequence for each predictor.</em></td>
+							</tr>
+						{% endautoescape %}
+					</tbody>
+				</table>
+			</div>
+		{% elif annot.dbmts is defined %}
+			{{ info(annot.dbmts) }}
+		{% endif %}
 		<!--sixth section-->
 		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
 			<hr />

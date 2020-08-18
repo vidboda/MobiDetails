@@ -77,6 +77,7 @@ local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
 #         )
 #     )
 # )
+local_files['dbmts']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbmts']['rel_path'])
 local_files['dbnsfp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbnsfp']['rel_path'])
 local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbscsnv']['rel_path'])
 local_files['dbsnp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbsnp']['rel_path'])
@@ -278,7 +279,6 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     if text == 'gnomADv3':
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    # print(query)
     try:
         records = tb.querys(query)
     except Exception as e:
@@ -294,7 +294,7 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         return 'Match failed in {}'.format(text)
 
     i = 3
-    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred)', tabix_file):
+    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred|dbMTS)', tabix_file):
         i -= 1
     for record in records:
         if record[i] == var['pos_ref'] and \
@@ -1330,6 +1330,22 @@ def lovd_error_html(text):
             <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"><em class="w3-small">LOVD match in public instances</em></td> \
             </tr>'.format(text)
 
+
+def format_mirs(record):
+    mir_html = ''
+    mir_list = []  # to remove multiple occurences
+    for mir in re.split(';', record):
+        if mir != '.':
+            mir_small = mir
+            if mir not in mir_list:
+                mir_list.append(mir)
+                match_obj = re.search('^hsa-(.+)$', mir)
+                if match_obj:
+                    mir_small = match_obj.group(1)
+                mir_html = "{0}<a href='{1}{2}' target='_blank' title='Link to miRBase'>{3}</a><br />".format(mir_html, urls['mirbase'], mir, mir_small)
+        else:
+            mir_html = mir
+    return mir_html
 
 # one2three = {
 #     'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu', 'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',

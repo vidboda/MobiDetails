@@ -61,7 +61,7 @@ def about():
 
 @bp.route('/changelog')
 def changelog():
-    return render_template('md/changelog.html')
+    return render_template('md/changelog.html', urls=md_utilities.urls)
 
 # -------------------------------------------------------------------
 # web app - gene
@@ -537,8 +537,25 @@ def variant(variant_id=None):
                     if match_obj:
                         annot['gnomadv3'] = match_obj.group(1)
                 # dbNSFP
-                if variant_features['prot_type'] == 'missense':
+                # Eigen from dbNSFP for coding variants                
+                if variant_features['dna_type'] == 'substitution' and \
+                        re.search('^[^\*-]', variant_features['c_name']):
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    #try:
+                    #annot['eigen_raw'] = re.split('{}'.format(';'), record[113])[transcript_index]
+                    #annot['eigen_phred'] = re.split('{}'.format(';'), record[115])[transcript_index]
+                    # except Exception:
+                    try:
+                        annot['eigen_raw'] = record[113]
+                        annot['eigen_phred'] = record[115]
+                    except Exception:
+                        annot['eigen'] = 'No match in dbNSFP for Eigen'
+                    if 'eigen_raw' in annot and \
+                            annot['eigen_raw'] == '.':
+                        annot['eigen'] = 'No score in dbNSFP for Eigen'
+                if variant_features['prot_type'] == 'missense':
+                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    # record comes from Eigen section above
                     if isinstance(record, str):
                         annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
                     else:
@@ -685,7 +702,62 @@ def variant(variant_id=None):
                                 annot['mpa_impact'] = 'moderate missense'
                             else:
                                 annot['mpa_impact'] = 'low missense'
-
+                # dbMTS
+                if variant_features['dna_type'] == 'substitution' and \
+                        re.search('^\*', variant_features['c_name']):
+                    record = md_utilities.get_value_from_tabix_file('dbmts', md_utilities.local_files['dbmts']['abs_path'], var)
+                    if isinstance(record, str):
+                        annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+                    else:
+                        # first: get enst we're dealing with
+                        # i = 0
+                        # transcript_index = 0
+                        # enst_list = re.split(';', record[14])
+                        # if len(enst_list) > 1:
+                        #     for enst in enst_list:
+                        #         if variant_features['enst'] == enst:
+                        #             transcript_index = i
+                        #         i += 1
+                        # print(transcript_index)
+                        # then iterate for each score of interest, e.g.  sift..
+                        # Eigen from dbMTS for 3'UTR variants 
+                        try:
+                            annot['eigen_raw'] = record[127]
+                            annot['eigen_phred'] = record[128]
+                        except Exception:
+                            annot['eigen'] = 'No match in dbMTS for Eigen'
+                        if 'eigen_raw' in annot and \
+                                annot['eigen_raw'] == '.':
+                            annot['eigen'] = 'No score in dbMTS for Eigen'
+                        try:
+                            # Miranda
+                            annot['miranda_cat'] = record[160]
+                            annot['miranda_rankscore'] = record[158]
+                            annot['miranda_maxdiff'] = record[157]
+                            annot['miranda_refbestmir'] = md_utilities.format_mirs(record[139])
+                            # annot['miranda_refbestmir'] = record[139].replace(';', '<br />')
+                            annot['miranda_refbestscore'] = record[138]
+                            annot['miranda_altbestmir'] = md_utilities.format_mirs(record[152])
+                            annot['miranda_altbestscore'] = record[151]
+                            # TargetScan
+                            annot['targetscan_cat'] = record[190]
+                            annot['targetscan_rankscore'] = record[188]
+                            annot['targetscan_maxdiff'] = record[187]
+                            annot['targetscan_refbestmir'] = md_utilities.format_mirs(record[169])
+                            annot['targetscan_refbestscore'] = record[168]
+                            annot['targetscan_altbestmir'] = md_utilities.format_mirs(record[182])
+                            annot['targetscan_altbestscore'] = record[181]
+                            # RNAHybrid
+                            annot['rnahybrid_cat'] = record[220]
+                            annot['rnahybrid_rankscore'] = record[218]
+                            annot['rnahybrid_maxdiff'] = record[217]
+                            annot['rnahybrid_refbestmir'] = md_utilities.format_mirs(record[199])
+                            annot['rnahybrid_refbestscore'] = record[198]
+                            annot['rnahybrid_altbestmir'] = md_utilities.format_mirs(record[212])
+                            annot['rnahybrid_altbestscore'] = record[211]
+                        except Exception:
+                            annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+                        
                 # CADD
                 if variant_features['dna_type'] == 'substitution':
                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)

@@ -20,10 +20,12 @@ def test_litvar(client, app):
             response = client.post('/litVar', data=dict(rsid=values['dbsnp_id']))
             assert response.status_code == 200
             possible = [
-                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>',
+                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">No match in Pubmed using LitVar API</div>',
                 b'PubMed IDs of articles citing this variant'
             ]
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
+            print(values['dbsnp_id'])
+            print(response.get_data())
             assert any(test in response.get_data() for test in possible)
             # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
             # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()

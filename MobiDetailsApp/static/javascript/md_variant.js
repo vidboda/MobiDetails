@@ -379,6 +379,9 @@ $(document).ready(function() {
 		if ($('#missense_table').length > 0) {
 			tables.push("missense_table");
 		}
+        else if ($('#dbmts_table').length > 0) {
+			tables.push("dbmts_table");
+		}
 		tables.push("class_table");
 		tables.push("admin_table");
 		tables.push("resource_table");
@@ -563,7 +566,7 @@ $(document).ready(function() {
 				}
 			);
 		}
-		if ($('#missense_table').length > 0) {
+		if ($('#missense_table').length > 0 || $('#dbmts_table').length > 0) {
 			doc['content'].push(
 				" ",
 				"Data for " + tables[10],
