@@ -406,24 +406,26 @@
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 					</tr>
-					<tr><!--Eigen raw-->
-						<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
-						{% if annot.eigen is not defined %}
-							<td class="w3-left-align">{{ annot.eigen_raw }}</td>
-						{% else %}
-							<td class="w3-left-align">{{ annot.eigen }}</td>
-						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">[-3.33;6.84] The higher the less likely to be observed</em></td>
-					</tr>
-					<tr><!--Eigen phred-->
-						<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> phred:</td>
-						{% if annot.eigen is not defined %}
-							<td class="w3-left-align">{{ annot.eigen_phred }}</td>
-						{% else %}
-							<td class="w3-left-align">{{ annot.eigen }}</td>
-						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
-					</tr>
+					{% if annot.eigen is defined %}
+						<tr><!--Eigen raw-->
+							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
+							{% if annot.eigen is not defined %}
+								<td class="w3-left-align">{{ annot.eigen_raw }}</td>
+							{% else %}
+								<td class="w3-left-align">{{ annot.eigen }}</td>
+							{% endif %}
+							<td class="w3-left-align"><em class="w3-small">[-3.33;6.84] The higher the less likely to be observed</em></td>
+						</tr>
+						<tr><!--Eigen phred-->
+							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> phred:</td>
+							{% if annot.eigen is not defined %}
+								<td class="w3-left-align">{{ annot.eigen_phred }}</td>
+							{% else %}
+								<td class="w3-left-align">{{ annot.eigen }}</td>
+							{% endif %}
+							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
+						</tr>
+					{% endif %}
 					<tr><!--MPA score-->
 						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> score:</td>
 							<td class="w3-left-align">{{ span_color(annot.mpa_score, annot.mpa_color) }}</td>

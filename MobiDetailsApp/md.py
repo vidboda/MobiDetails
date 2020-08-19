@@ -539,7 +539,8 @@ def variant(variant_id=None):
                 # dbNSFP
                 # Eigen from dbNSFP for coding variants                
                 if variant_features['dna_type'] == 'substitution' and \
-                        re.search('^[^\*-]', variant_features['c_name']):
+                        re.search('^[^\*-]', variant_features['c_name']) and \
+                        variant_features['start_segment_type'] == 'exon':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     #try:
                     #annot['eigen_raw'] = re.split('{}'.format(';'), record[113])[transcript_index]
@@ -709,17 +710,6 @@ def variant(variant_id=None):
                     if isinstance(record, str):
                         annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
                     else:
-                        # first: get enst we're dealing with
-                        # i = 0
-                        # transcript_index = 0
-                        # enst_list = re.split(';', record[14])
-                        # if len(enst_list) > 1:
-                        #     for enst in enst_list:
-                        #         if variant_features['enst'] == enst:
-                        #             transcript_index = i
-                        #         i += 1
-                        # print(transcript_index)
-                        # then iterate for each score of interest, e.g.  sift..
                         # Eigen from dbMTS for 3'UTR variants 
                         try:
                             annot['eigen_raw'] = record[127]

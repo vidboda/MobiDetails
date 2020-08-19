@@ -87,7 +87,7 @@ def test_variant_page(client, app):
         db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT id FROM variant_feature where c_name <> 'c.1A>T' ORDER BY random() LIMIT 500" # WHERE prot_type = 'missense'",  # LIMIT 50
+            "SELECT id FROM variant_feature where c_name <> 'c.1A>T' ORDER BY random() LIMIT 50"  # WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
         for variant_id in res:
