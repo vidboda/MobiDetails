@@ -738,6 +738,20 @@ def autocomplete():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+    match_obj = re.search(rf'^rs(\d+)$', query)
+    if match_obj:
+        md_query = match_obj.group(1)
+        curs.execute(
+            "SELECT dbsnp_id FROM variant_feature WHERE dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
+        )
+        res = curs.fetchall()
+        result = []
+        for var in res:
+            result.append('rs{}'.format(var[0]))
+        if result is not None:
+            return json.dumps(result)
+        else:
+            return ('', 204)
     match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)
     if match_object:
         md_query = match_object.group(1)

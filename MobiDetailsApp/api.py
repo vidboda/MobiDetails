@@ -319,7 +319,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
 def api_gene(gene_hgnc=None):
     if gene_hgnc is None:
         return jsonify(mobidetails_error='No gene submitted')
-    if re.search(r'[^\w\.]', gene_hgnc):
+    if re.search(r'[^\w\.-]', gene_hgnc):
         return jsonify(mobidetails_error='Invalid gene submitted ({})'.format(gene_hgnc))
     research = gene_hgnc
     search_id = 1

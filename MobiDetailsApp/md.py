@@ -974,10 +974,15 @@ def search_engine():
         semaph_query = 0
         # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
+        
         match_object = re.search(r'^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine)  # e.g. R34X
         if match_object:
             query_type = 'p_name'
             pattern = md_utilities.one2three_fct(query_engine)
+        elif re.search(r'^rs\d+$', query_engine):
+            query_type = 'dbsnp_id'
+            match_object = re.search(r'^rs(\d+)$', query_engine)
+            pattern = match_object.group(1)
         elif re.search(r'^p\..+', query_engine):
             query_type = 'p_name'
             var = md_utilities.clean_var_name(query_engine)
