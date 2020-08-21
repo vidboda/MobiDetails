@@ -542,10 +542,6 @@ def variant(variant_id=None):
                         re.search('^[^\*-]', variant_features['c_name']) and \
                         variant_features['start_segment_type'] == 'exon':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
-                    #try:
-                    #annot['eigen_raw'] = re.split('{}'.format(';'), record[113])[transcript_index]
-                    #annot['eigen_phred'] = re.split('{}'.format(';'), record[115])[transcript_index]
-                    # except Exception:
                     try:
                         annot['eigen_raw'] = record[113]
                         annot['eigen_phred'] = record[115]

@@ -406,7 +406,7 @@
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 					</tr>
-					{% if annot.eigen is defined %}
+					{% if annot.eigen is defined or annot.eigen_raw is defined %}
 						<tr><!--Eigen raw-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
 							{% if annot.eigen is not defined %}
