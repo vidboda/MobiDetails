@@ -113,7 +113,7 @@ def file_upload():
                             result.append({'variant': line, 'error': 'Unknown NCBI NM accession number'})
                         continue
                     # genomic format
-                     match_obj_g = re.search(rf'^(NC_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
+                    match_obj_g = re.search(rf'^(NC_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
                     if match_obj_g:
                         # check NM number and version
                         curs.execute(
