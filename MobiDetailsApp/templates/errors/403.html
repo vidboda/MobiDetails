@@ -6,6 +6,7 @@
         <p>You cannot acces this resource until logged in... Go back <a href="{{ url_for('index') }}" onclick="show_loader();">home</a></p>
     </div>
 	<div class="w3-container w3-padding-64 w3-center">
-        <img class="w3-image" alt="403" src="{{ url_for('static', filename='img/LogoMakr_403.png') }}"
+        <p class="w3-text-blue w3-xxlarge">403... Sorry</p>
+        <img class="w3-image" alt="403 HTTP error" src="{{ url_for('static', filename='img/LogoMakr_whale_error.png') }}"
     </div>
 {% endblock %}

@@ -59,6 +59,7 @@ def create_app(test_config=None):
     app.register_error_handler(404, not_found_error)
     app.register_error_handler(500, internal_error)
     app.register_error_handler(405, not_allowed_error)
+    app.register_error_handler(413, reques_entity_too_large_error)
     # define custom jinja filters
     app.jinja_env.filters['match'] = config.match
     # if test_config is None:
@@ -85,6 +86,8 @@ def create_app(test_config=None):
     app.register_blueprint(api.bp)
     from . import static_route
     app.register_blueprint(static_route.bp)
+    from . import upload
+    app.register_blueprint(upload.bp)
     # from . import error
     # app.register_blueprint(error.bp)
     app.add_url_rule('/', endpoint='index')
@@ -125,3 +128,7 @@ def forbidden_error(error):
 
 def not_allowed_error(error):
     return render_template('errors/405.html'), 405
+
+
+def reques_entity_too_large_error(error):
+    return render_template('errors/413.html'), 413

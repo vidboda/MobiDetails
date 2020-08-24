@@ -5,12 +5,28 @@
 	<h1 align="center" class="w3-text-blue">Query results:</h1>
 {% endblock %}
 {% block content %}
-{{ info("Your query returned multiple results:") }}
-<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
-	<ul  class="w3-ul">
-	{% for var in variants %}
-		 <li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span></li>
-	{% endfor %}
-	</ul>
-</div>
+{% if variants is defined %}
+	{{ info("Your query returned multiple results:") }}
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
+		<ul  class="w3-ul">
+		{% for var in variants %}
+			 <li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span></li>
+		{% endfor %}
+		</ul>
+	</div>
+{% else %}
+	{{ info("Your batch file submission returned the following results:") }}
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
+		<ul  class="w3-ul">
+		{% for var in upload %}
+			{% if var.id is defined %}
+			 <li class="w3-padding-large w3-large w3-pale-green w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.variant }}</em></span></li>
+			{% else %}
+				<li class="w3-padding-large w3-large w3-pale-red w3-hover-blue"><span>{{ var.variant }}: returned an error: '{{ var.error }}'</span></li>
+			{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+{% endif %}
+<br /><br />
 {% endblock %}
