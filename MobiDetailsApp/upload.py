@@ -83,12 +83,12 @@ def file_upload():
                     # print('-{}-'.format(line))
                     # cDNA format
                     md_response = []
-                    match_obj = re.search(rf'^(NM_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
-                    if match_obj:
+                    match_obj_c = re.search(rf'^(NM_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)                   
+                    if match_obj_c:
                         # check NM number and version
                         curs.execute(
                             "SELECT nm_version FROM gene WHERE name[2] = %s",
-                            (match_obj.group(1),)
+                            (match_obj_c.group(1),)
                         )
                         res_nm = curs.fetchone()
                         if res_nm:
@@ -97,7 +97,7 @@ def file_upload():
                             # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
                             # print(md_api_url)
                             data = {
-                                'variant_chgvs': urllib.parse.quote('{0}.{1}:{2}'.format(match_obj.group(1), match_obj.group(2), match_obj.group(3))),
+                                'variant_chgvs': urllib.parse.quote('{0}.{1}:{2}'.format(match_obj_c.group(1), match_obj_c.group(2), match_obj_c.group(3))),
                                 'api_key': api_key
                             }            
                             try:
@@ -109,16 +109,16 @@ def file_upload():
                                     result.append({'variant': line, 'error': md_response['mobidetails_error']})
                                 else:
                                     result.append({'variant': line, 'error': 'MDAPI call failed'})
-                                continue
                         else:
                             result.append({'variant': line, 'error': 'Unknown NCBI NM accession number'})
+                        continue
                     # genomic format
-                    match_obj = re.search(rf'^(NC_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
-                    if match_obj:
+                     match_obj_g = re.search(rf'^(NC_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
+                    if match_obj_g:
                         # check NM number and version
                         curs.execute(
                             "SELECT nm_version FROM gene WHERE name[1] = %s",
-                            (match_obj.group(2),)
+                            (match_obj_g.group(2),)
                         )
                         res_nm = curs.fetchone()
                         if res_nm:
@@ -126,8 +126,8 @@ def file_upload():
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                             # print(md_api_url)
                             data = {
-                                'variant_ghgvs': urllib.parse.quote(match_obj.group(1)),
-                                'gene_hgnc': match_obj.group(2),
+                                'variant_ghgvs': urllib.parse.quote(match_obj_g.group(1)),
+                                'gene_hgnc': match_obj_g.group(2),
                                 'caller': 'cli',
                                 'api_key': api_key
                             }            
@@ -142,13 +142,13 @@ def file_upload():
                                     result.append({'variant': line, 'error': md_response['variant_validator_output']['validation_warning_1']['validation_warnings'][0]})
                                 elif 'mobidetails_error' in md_response:
                                     result.append({'variant': line, 'error': md_response['mobidetails_error']})
+                                    v
                                 else:
                                     result.append({'variant': line, 'error': 'MDAPI call failed'})
-                                continue
                         else:
                             result.append({'variant': line, 'error': 'Unknown gene'})
-                    else:
-                        result.append({'variant': line, 'error': 'Bad format'})
+                        continue
+                    result.append({'variant': line, 'error': 'Bad format'})
                 flash('File correctly uploaded', 'w3-pale-green')
                 return render_template('md/variant_multiple.html', upload=result)
             else:
