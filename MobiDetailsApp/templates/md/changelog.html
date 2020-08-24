@@ -9,6 +9,7 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2020-08-24] - New function: Added a <a href='{}'>page</a> to upload a text file for batch variant annotation.".format(url_for('upload.file_upload'))) }}
 		{{ info("[2020-08-18] - New predictors: <ul><li>Scores for miRNA binding predictors miRanda, TargetScan and RNAHybrid from <a href='{0}' target='_blank'>dbMTS</a> have been added for 3'UTR variants.</li><li><a href='{1}' target='_blank'>Eigen</a> scores have been added, either from  <a href='{2}' target='_blank'>dbNSFP</a> for coding variants, or from  <a href='{0}' target='_blank'>dbMTS</a> for 3' UTR variants.".format(urls.dbmts, urls.eigen, urls.dbnsfp)) }}
 		{{ info("[2020-08-14] - Feature update: LOVD effects are now reported when available. LOVD and Intervar results now appear in pdf reports.") }}
 		{{ info("[2020-08-12] - Minor: added CSS loader to most pages to increase the browsing comfort.") }}
