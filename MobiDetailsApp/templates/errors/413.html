@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %} 413 Error {% endblock %}
+{% block content %}
+    <div class="w3-container w3-padding-64">
+        <h1>Request Entity Too Large</h1>
+        <p>... Go back to <a href="{{ url_for('upload.file_upload') }}" onclick="show_loader();"> the upload page</a></p>
+    </div>
+	<div class="w3-container w3-padding-64 w3-center">
+        <p class="w3-text-blue w3-xxlarge">413... Your file is too big</p>
+        <img class="w3-image" alt="413 HTTP error" src="{{ url_for('static', filename='img/LogoMakr_whale_error.png') }}"
+    </div>
+{% endblock %}
