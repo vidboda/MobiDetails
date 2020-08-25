@@ -77,7 +77,10 @@ def file_upload():
                     # print('-{}-'.format(line))
                     # cDNA format
                     md_response = []
-                    match_obj_c = re.search(rf'^(NM_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)                   
+                    if re.search(r'^#', line) or \
+                            line == '':
+                        continue
+                    match_obj_c = re.search(rf'^(NM_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
