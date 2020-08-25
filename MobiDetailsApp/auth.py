@@ -295,7 +295,7 @@ def login():
     return render_template('auth/login.html', referrer_page=referrer_page)
 
 # -------------------------------------------------------------------
-# profile
+# profile activation
 
 
 @bp.route('/activate/<int:mobiuser_id>/<string:api_key>', methods=['GET'])

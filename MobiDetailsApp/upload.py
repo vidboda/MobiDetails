@@ -61,13 +61,7 @@ def file_upload():
                 result = []
                 api_key = None
                 if g.user:                    
-                    curs.execute(
-                        "SELECT api_key FROM mobiuser WHERE id = %s",
-                        (g.user['id'],)
-                    )
-                    res_key = curs.fetchone()
-                    if res_key:
-                        api_key = res_key['api_key']
+                    api_key = g.user['api_key']
                 else:
                     curs.execute(
                         "SELECT api_key FROM mobiuser WHERE username = 'mobidetails'"
@@ -150,6 +144,27 @@ def file_upload():
                         continue
                     result.append({'variant': line, 'error': 'Bad format'})
                 flash('File correctly uploaded', 'w3-pale-green')
+                if g.user:
+                    # send an email
+                    # print(g.user)
+                    result_list = ''
+                    for resul in result:
+                        result_list = '{0}<li>{1}'.format(result_list, resul['variant'])
+                        if 'error' in resul:
+                            result_list = '{0} - {1}</li>'.format(result_list, resul['error'])
+                        else:
+                            result_list = '{0} - <a href="{1}{2}">success</a></li>'.format(result_list, request.host_url[:-1], url_for('md.variant', variant_id=resul['id']))
+                    
+                    message = 'Dear {0},<br /><p>Your batch job returned the following results:</p><ul>{1}</ul><p>You can have a direct acces to the successfully annotated variants at your <a href="{2}{3}">profile page</a>.'.format(g.user['username'], result_list, request.host_url[:-1], url_for('auth.profile', mobiuser_id=0))
+                    md_utilities.send_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails - Batch job',
+                            message,
+                            False
+                        ),
+                        '[MobiDetails - Batch job]',
+                        [g.user['email']]
+                    )
                 return render_template('md/variant_multiple.html', upload=result)
             else:
                 flash('That file extension is not allowed', 'w3-pale-red')
