@@ -197,7 +197,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
             if caller == 'cli':
                 return jsonify(res_check_api_key)
             else:
-                flash('there is an issue validating the API key.', 'w3-pale-red')
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
                 return redirect(url_for('md.index'))
         else:
             g.user = res_check_api_key['mobiuser']
@@ -379,7 +379,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         if caller == 'cli':
             return jsonify(res_check_api_key)
         else:
-            flash('there is an issue validating the API key.', 'w3-pale-red')
+            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
             return redirect(url_for('md.index'))
     else:
         g.user = res_check_api_key['mobiuser']
