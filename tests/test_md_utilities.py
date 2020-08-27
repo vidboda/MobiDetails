@@ -1,6 +1,8 @@
 import re
 import pytest
-# from flask import g, session
+import psycopg2
+import json
+from flask import g
 from MobiDetailsApp import md_utilities
 from MobiDetailsApp.db import get_db
 
@@ -473,6 +475,48 @@ def test_format_mirs(record, result):
     totest = md_utilities.format_mirs(record)
     assert result == totest
 
+
+@pytest.mark.parametrize(('api_key', 'result'), (
+    ('random', 'Invalid API key'),
+    ('ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'Unknown API key'),
+    ('', 'mobidetails'),
+))
+def test_check_api_key(app, api_key, result):
+    with app.app_context():
+        db = get_db()
+        if api_key == '':
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT api_key FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+            )
+            res = curs.fetchone()
+            if res is not None:
+                api_key = res['api_key']
+        check = md_utilities.check_api_key(db, api_key)
+        if 'mobidetails_error' in check:
+            assert result == check['mobidetails_error']
+        else:
+            print(check['mobiuser'])
+            assert result == check['mobiuser'][4]
+
+
+@pytest.mark.parametrize(('caller', 'result'), (
+    ('random', 'Invalid caller submitted'),
+    ('', 'Invalid caller submitted'),
+    (None, 'Invalid caller submitted'),
+    ('browser', 'Valid caller'),
+    ('cli', 'Valid caller')
+))
+def test_check_caller(caller, result):
+        assert md_utilities.check_caller(caller) == result
+
+
+def test_get_api_key(app):
+    with app.app_context():
+        db = get_db()
+        curs =  db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        g.user = None
+        assert md_utilities.get_api_key(g, curs) is not None
 # scoreswt = ['GGTGGTCTCCAGCCTTTTACAGG\t-8.62', 'GTGGTCTCCAGCCTTTTACAGGT\t-15.00', 'TGGTCTCCAGCCTTTTACAGGTA\t5.22', 'GGTCTCCAGCCTTTTACAGGTAA\t-10.77', 'GTCTCCAGCCTTTTACAGGTAAT\t-26.67', 'TCTCCAGCCTTTTACAGGTAATG\t-27.62', 'CTCCAGCCTTTTACAGGTAATGT\t-11.72', 'TCCAGCCTTTTACAGGTAATGTG\t-11.21', 'CCAGCCTTTTACAGGTAATGTGG\t-15.62', 'CAGCCTTTTACAGGTAATGTGGA\t-22.41', 'AGCCTTTTACAGGTAATGTGGAG\t-25.73', 'GCCTTTTACAGGTAATGTGGAGG\t-12.15', 'CCTTTTACAGGTAATGTGGAGGT\t-27.04', 'CTTTTACAGGTAATGTGGAGGTC\t-10.80', 'TTTTACAGGTAATGTGGAGGTCC\t-13.64', 'TTTACAGGTAATGTGGAGGTCCT\t-24.18', 'TTACAGGTAATGTGGAGGTCCTC\t-35.55', 'TACAGGTAATGTGGAGGTCCTCT\t-23.70', 'ACAGGTAATGTGGAGGTCCTCTA\t-22.70', 'CAGGTAATGTGGAGGTCCTCTAA\t-25.09', 'AGGTAATGTGGAGGTCCTCTAAA\t-23.02', 'GGTAATGTGGAGGTCCTCTAAAT\t-20.93', 'GTAATGTGGAGGTCCTCTAAATT\t-10.23', '']
 # scoresmt = ['GGTGGTCTCCAGCCTTTTACAGA\t-8.20', 'GTGGTCTCCAGCCTTTTACAGAT\t-14.75', 'TGGTCTCCAGCCTTTTACAGATA\t4.51', 'GGTCTCCAGCCTTTTACAGATAA\t-19.52', 'GTCTCCAGCCTTTTACAGATAAT\t-18.71', 'TCTCCAGCCTTTTACAGATAATG\t-19.24', 'CTCCAGCCTTTTACAGATAATGT\t-11.20', 'TCCAGCCTTTTACAGATAATGTG\t-11.13', 'CCAGCCTTTTACAGATAATGTGG\t-15.36', 'CAGCCTTTTACAGATAATGTGGA\t-21.98', 'AGCCTTTTACAGATAATGTGGAG\t-25.75', 'GCCTTTTACAGATAATGTGGAGG\t-11.23', 'CCTTTTACAGATAATGTGGAGGT\t-26.14', 'CTTTTACAGATAATGTGGAGGTC\t-10.16', 'TTTTACAGATAATGTGGAGGTCC\t-12.89', 'TTTACAGATAATGTGGAGGTCCT\t-25.08', 'TTACAGATAATGTGGAGGTCCTC\t-35.69', 'TACAGATAATGTGGAGGTCCTCT\t-23.45', 'ACAGATAATGTGGAGGTCCTCTA\t-22.62', 'CAGATAATGTGGAGGTCCTCTAA\t-24.86', 'AGATAATGTGGAGGTCCTCTAAA\t-22.87', 'GATAATGTGGAGGTCCTCTAAAT\t-19.36', 'ATAATGTGGAGGTCCTCTAAATT\t-9.76', '']
 # 

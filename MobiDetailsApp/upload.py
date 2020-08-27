@@ -54,21 +54,22 @@ def file_upload():
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 #headers
-                header = {
-                    'Accept': 'application/json',
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36',
-                }
+                # header = {
+                #     'Accept': 'application/json',
+                #     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36',
+                # }
+                header = md_utilities.api_fake_agent
                 result = []
-                api_key = None
-                if g.user:                    
-                    api_key = g.user['api_key']
-                else:
-                    curs.execute(
-                        "SELECT api_key FROM mobiuser WHERE username = 'mobidetails'"
-                    )
-                    res_key = curs.fetchone()
-                    if res_key:
-                        api_key = res_key['api_key']
+                api_key = md_utilities.get_api_key(g, curs)
+                # if g.user:                    
+                #     api_key = g.user['api_key']
+                # else:
+                #     curs.execute(
+                #         "SELECT api_key FROM mobiuser WHERE username = 'mobidetails'"
+                #     )
+                #     res_key = curs.fetchone()
+                #     if res_key:
+                #         api_key = res_key['api_key']
                 if api_key is None:
                     flash('There is an issue in obtaining an API key')
                     return redirect(request.url)
@@ -80,7 +81,7 @@ def file_upload():
                     if re.search(r'^#', line) or \
                             line == '':
                         continue
-                    match_obj_c = re.search(rf'^(NM_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
+                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
@@ -110,7 +111,7 @@ def file_upload():
                             result.append({'variant': line, 'error': 'Unknown NCBI NM accession number'})
                         continue
                     # genomic format
-                    match_obj_g = re.search(rf'^(NC_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
+                    match_obj_g = re.search(rf'^([Nn][Cc]_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
                     if match_obj_g:
                         # check NM number and version
                         curs.execute(

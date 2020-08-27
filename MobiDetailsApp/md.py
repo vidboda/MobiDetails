@@ -4,7 +4,7 @@ import urllib3
 import certifi
 import json
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for, current_app as app
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
 )
 # from werkzeug.exceptions import abort
 import psycopg2
@@ -1000,7 +1000,7 @@ def search_engine():
             col_names = 'name'
             match_object = re.search(r'^([Nn][Mm]_\d+)\.?\d?', query_engine)
             pattern = match_object.group(1)
-        elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\..+', query_engine):  # strict HGVS genomic
+        elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\.[^;]+$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
@@ -1010,6 +1010,15 @@ def search_engine():
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
             pattern = match_object.group(2)
             # res_common = md_utilities.get_common_chr_name(db, )
+        elif re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}:g\.[^;]+;[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
+            # API call
+            if 'db' not in locals():
+                db = get_db()
+                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            api_key = md_utilities.get_api_key(g, curs)
+            match_obj = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}:g\.[^;]+);([\w-]+)', query_engine)
+            if api_key is not None:
+                return redirect(url_for('api.api_variant_g_create', variant_ghgvs=match_obj.group(1), gene_hgnc=match_obj.group(2), caller='browser', api_key=api_key), code=307)
         elif re.search(rf'^[Cc][Hh][Rr]({md_utilities.nochr_captured_regexp}):g\..+', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -1059,7 +1068,7 @@ def search_engine():
                 pattern = re.sub(r'F', 'f', pattern)
                 pattern = pattern.capitalize()
         else:
-            error = 'Sorry I did not understood this query ({}).'.format(query_engine)
+            error = 'Sorry I did not understand this query ({}).'.format(query_engine)
             # return render_template('md/unknown.html', query=query_engine, transformed_query=pattern)
         if error is None:
             # print(semaph_query)
@@ -1104,10 +1113,9 @@ def search_engine():
                         )
                     )
                     result = curs.fetchone()
-                    if result is None:
+                    if result is None:                        
                         close_db()
-                        error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
-                            If you are looking for a variant, you can create at the corresponding gene page'.format(query_engine)
+                        error = 'Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).'.format(query_engine)
                     else:
                         return redirect(url_for('md.gene', gene_name=result[col_names][0]))
                 else:
@@ -1116,8 +1124,13 @@ def search_engine():
                 result = curs.fetchall()
                 close_db()
                 if len(result) == 0:
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD ({}).<br /> \
-                            You can create it by first going to the corresponding gene page'.format(query_engine)
+                    if query_type == 'dbsnp_id':
+                        # api call to create variant from rs id
+                        api_key = md_utilities.get_api_key(g, curs)
+                        if api_key is not None:
+                            return redirect(url_for('api.api_variant_create_rs', rs_id='rs{}'.format(pattern), caller='browser', api_key=api_key), code=307)
+                    error = 'Sorry the variant or gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).<br /> \
+                            You can annotate it directly at the corresponding gene page.'.format(query_engine)
                 else:
                     if len(result) == 1:
                         # print(result[0][0])

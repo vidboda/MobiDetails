@@ -12,7 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 from flask import (
-    url_for, request, render_template, current_app as app
+    url_for, request, render_template, jsonify, flash, redirect, current_app as app
 )
 from flask_mail import Message
 # from . import config
@@ -26,6 +26,7 @@ variant_regexp = resources['variant_regexp']
 genome_regexp = resources['genome_regexp']
 nochr_chrom_regexp = resources['nochr_chrom_regexp']
 nochr_captured_regexp = resources['nochr_captured_regexp']
+api_fake_agent = resources['api_fake_agent']
 # variant_regexp = '[\dACGTdienulps_>+\*-]+'
 # genome_regexp = 'hg[13][98]'
 # nochr_chrom_regexp = '[\dXYM]{1,2}'
@@ -1347,3 +1348,54 @@ def format_mirs(record):
             mir_html = mir
     return mir_html
 
+
+def check_api_key(db, api_key):  # in api
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if len(api_key) != 43:
+        return {'mobidetails_error': 'Invalid API key'}
+    else:
+        curs.execute(
+            "SELECT * FROM mobiuser WHERE api_key = %s",
+            (api_key,)
+        )
+        res = curs.fetchone()
+        if res is None:
+            return {'mobidetails_error': 'Unknown API key'}
+        else:
+            return {'mobiuser': res}
+
+
+def check_caller(caller):  # in api
+    if caller != 'browser' and \
+            caller != 'cli':
+        return 'Invalid caller submitted'
+    return 'Valid caller'
+
+
+def get_api_key(g, curs):
+    # when we need an API key just to trigger an API action e.g. in upload.py
+    api_key = None
+    if g.user:                    
+        api_key = g.user['api_key']
+    else:
+        curs.execute(
+            "SELECT api_key FROM mobiuser WHERE username = 'mobidetails'"
+        )
+        res_key = curs.fetchone()
+        if res_key:
+            api_key = res_key['api_key']
+    return api_key
+
+# 
+# def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):
+#     if return_obj:
+#         if caller == 'cli':
+#             return jsonify(return_obj)
+#         else:
+#             return redirect(url)
+#     if message:
+#         if caller == 'cli':
+#             return jsonify(mobidetails_error=message)
+#         else:
+#             flash(message, 'w3-pale-red')
+#             return redirect(url_for('md.index'))

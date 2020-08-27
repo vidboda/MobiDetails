@@ -52,6 +52,7 @@ def test_variant_page(client):
     ('chr1:g.216422237G>A', 'variant/5'),
     ('chr1:g.216422237g>A', 'variant/5'),
     ('NC_000001.11:g.216422237G>A', 'variant/5'),
+    ('NC_000004.12:g.76311072A>C;STBD1', 'api/variant/create_g?variant_ghgvs=NC_000004.12%3Ag.76311072A%3EC&gene_hgnc=STBD1&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs'),
     ('USH2A', 'gene/USH2A'),
     ('c.2447_2461delGAGGGAGGGGAAGTA', 'variant/71'),
     ('c.2447_2461del', 'variant/71'),
