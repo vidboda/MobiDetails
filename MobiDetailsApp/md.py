@@ -994,6 +994,15 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
+        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{md_utilities.variant_regexp}$', query_engine):  # NM acc no variant
+            # API call
+            if 'db' not in locals():
+                db = get_db()
+                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            api_key = md_utilities.get_api_key(g, curs)
+            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+:c\.{md_utilities.variant_regexp})$', query_engine)
+            if api_key is not None:
+                return redirect(url_for('api.api_variant_create', variant_chgvs=match_obj.group(1), caller='browser', api_key=api_key), code=307)
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc no
             sql_table = 'gene'
             query_type = 'name[2]'
@@ -1123,7 +1132,7 @@ def search_engine():
             else:
                 result = curs.fetchall()
                 close_db()
-                if len(result) == 0:
+                if not result:
                     if query_type == 'dbsnp_id':
                         # api call to create variant from rs id
                         api_key = md_utilities.get_api_key(g, curs)
@@ -1133,7 +1142,6 @@ def search_engine():
                             You can annotate it directly at the corresponding gene page.'.format(query_engine)
                 else:
                     if len(result) == 1:
-                        # print(result[0][0])
                         return redirect(url_for('md.variant', variant_id=result[0][0]))
                     else:
                         return render_template('md/variant_multiple.html', variants=result)

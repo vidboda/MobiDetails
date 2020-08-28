@@ -60,6 +60,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
         # print('/api/variant/create/{0}/{1}'.format(new_variant, api_key))
         data = {
             'variant_chgvs': new_variant,
+            'caller': 'cli',
             'api_key': api_key
         }
         json_response = json.loads(client.post('/api/variant/create', data=data).data.decode('utf8'))
@@ -115,7 +116,7 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
 
 @pytest.mark.parametrize(('rs_id', 'api_key', 'caller', 'return_key', 'message'), (
     ('rs10012946', 'random', 'cli', 'mobidetails_error', 'Invalid API key'),
-    ('rs10012946', '', 'cli', 'mobidetails_id', 1672),
+    ('rs10012946', '', 'cli', 'NM_006005.3:c.631+256T>C', 1672),
     # ('rs10012946', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'browser', 'mobidetails_error', 'Invalid API key'),
     # ('rs10012946', '', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('sdgg5456', '', 'cli', 'mobidetails_error', 'Invalid rs id provided'),
@@ -132,8 +133,10 @@ def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, 
         }
         try:
             json_response = json.loads(client.post('/api/variant/create_rs', data=data).data.decode('utf8'))
-            if isinstance(json_response[return_key], int):
-                assert json_response[return_key] == message
+            print(json_response)
+            if 'mobidetails_id' in json_response[return_key] and \
+                    isinstance(json_response[return_key]['mobidetails_id'], int):
+                assert json_response[return_key]['mobidetails_id'] == message
             else:
                 assert message in json_response[return_key]
         except Exception:

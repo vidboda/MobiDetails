@@ -14,7 +14,7 @@
 		{% endfor %}
 		</ul>
 	</div>
-{% else %}
+{% elif upload is defined %}
 	{{ info("Your batch file submission returned the following results:") }}
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
 		<ul  class="w3-ul">
@@ -23,6 +23,19 @@
 			 <li class="w3-padding-large w3-large w3-pale-green w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.variant }}</em></span></li>
 			{% else %}
 				<li class="w3-padding-large w3-large w3-pale-red w3-hover-blue"><span>{{ var.variant }}: returned an error: '{{ var.error }}'</span></li>
+			{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+{% else %}
+	{{ info("Your rs id submission returned multiple results:") }}
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
+		<ul  class="w3-ul">
+		{% for var in vars_rs %}
+			{% if vars_rs[var].mobidetails_id is defined %}
+			 <li class="w3-padding-large w3-large w3-pale-green w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=vars_rs[var].mobidetails_id) }}')" title="Visit the variant page"><span></span><em>{{ var }}</em></span></li>
+			{% else %}
+				<li class="w3-padding-large w3-large w3-pale-red w3-hover-blue"><span>{{ var }}: returned an error: '{{ vars_rs[var].mobidetails_error }}'</span></li>
 			{% endif %}
 		{% endfor %}
 		</ul>
