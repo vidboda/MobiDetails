@@ -54,22 +54,9 @@ def file_upload():
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 #headers
-                # header = {
-                #     'Accept': 'application/json',
-                #     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36',
-                # }
                 header = md_utilities.api_fake_agent
                 result = []
                 api_key = md_utilities.get_api_key(g, curs)
-                # if g.user:                    
-                #     api_key = g.user['api_key']
-                # else:
-                #     curs.execute(
-                #         "SELECT api_key FROM mobiuser WHERE username = 'mobidetails'"
-                #     )
-                #     res_key = curs.fetchone()
-                #     if res_key:
-                #         api_key = res_key['api_key']
                 if api_key is None:
                     flash('There is an issue in obtaining an API key')
                     return redirect(request.url)
@@ -81,6 +68,7 @@ def file_upload():
                     if re.search(r'^#', line) or \
                             line == '':
                         continue
+                    line = line.replace(' ', '')
                     match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
@@ -96,11 +84,12 @@ def file_upload():
                             # print(md_api_url)
                             data = {
                                 'variant_chgvs': urllib.parse.quote('{0}.{1}:{2}'.format(match_obj_c.group(1), match_obj_c.group(2), match_obj_c.group(3))),
+                                'caller': 'cli',
                                 'api_key': api_key
                             }            
                             try:
                                 md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
-                                print(md_response)
+                                # print(md_response)
                                 result.append({'variant': line, 'id': md_response['mobidetails_id'], 'url': md_response['url']})
                             except Exception:
                                 if 'mobidetails_error' in md_response:
@@ -145,6 +134,27 @@ def file_upload():
                                     result.append({'variant': line, 'error': 'MDAPI call failed'})
                         else:
                             result.append({'variant': line, 'error': 'Unknown gene'})
+                        continue
+                    if re.search(rf'^rs\d+$', line):
+                        md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create_rs'))
+                        # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
+                        # print(md_api_url)
+                        data = {
+                            'rs_id': line,
+                            'caller': 'cli',
+                            'api_key': api_key
+                        }            
+                        try:
+                            md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
+                            print(md_response)
+                            for var in md_response:
+                                if 'mobidetails_error' in md_response[var]:
+                                    result.append({'variant': '{0} - {1}'.format(line, var), 'error': md_response[var]['mobidetails_error']})
+                                else:
+                                    result.append({'variant': '{0} - {1}'.format(line, var), 'id': md_response[var]['mobidetails_id'], 'url': md_response[var]['url']})
+
+                        except Exception:
+                            result.append({'variant': line, 'error': 'MDAPI call failed'})
                         continue
                     result.append({'variant': line, 'error': 'Bad format'})
                 flash('File correctly uploaded', 'w3-pale-green')

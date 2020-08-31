@@ -88,18 +88,35 @@
 	//]]>
 	</script>.</strong></p>
 	</div>
-<!--	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-		<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
-		<p><strong>NEWS:</strong>
-			<ul>
-				<li>2019-09-26: Release of the first complete &alpha; version (github commit 0954177)</li>
-				<li>2019-09-26: MobiDetails runs using <a href = 'https://flask.palletsprojects.com/en/1.1.x/', target = '_blank'>Flask</a>, <a href = 'https://jinja.palletsprojects.com/en/2.10.x/', target = '_blank'>Jinja</a> <a href = 'https://www.python.org/', target = '_blank'>python</a> and <a href = 'https://www.postgresql.org/', target = '_blank'>postgreSQL</a></li>
-			</ul>
-		</p>
-	</div>-->
-	{{ info("<p>The search engine is meant to quickly retrieve pre-existing annotations - not to add new ones. To add new annotations, you have to first go to the gene page of interest and then click on the 'Run a new variant!' button.</p><strong>Search engine usage:</strong><ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li><li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li><li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li><li>gene symbol, e.g. 'USH2A'</li><li>RefSeq NM accession number, e.g. 'NM_206932'</li><li>dbSNP rs identifier, e.g. 'rs863225293'</li></ul>") }}
+	{{ info("<p><strong>Search engine:</strong><br /> \
+		The search engine has two main functions:</p> \
+		<ul> \
+			<li>Retrieve pre-existing annotations - already added by users.\
+				<ul> \
+					<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
+					<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
+					a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
+					<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li> \
+					<li>gene symbol, e.g. 'USH2A'</li> \
+					<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
+				</ul> \
+			</li> \
+			<li>Annotate new variants using the following formats: \
+				<ul> \
+					<li>NC_000001.10:g.216595579G>A;USH2A - e.g. strict HGVS geneomic ';' HGNC gene name</li> \
+					<li>NM_206933.2:c.100C>T</li> \
+					<li>rs772808534</li> \
+				</ul> \
+			</li> \
+		</ul>") }}
 	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-		Links for: <ul><li><a href="{{ url_for('md.about') }}" onclick="show_loader();">About page</a></li><li><a href="{{ url_for('md.changelog') }}" onclick="show_loader();">Change log</a></li></ul>
+		Links for:
+		<ul>
+			<li><a href="{{ url_for('md.about') }}" onclick="show_loader();">About page</a></li>
+			<li><a href="{{ url_for('upload.file_upload') }}" onclick="show_loader();">Batch variant annotation</a></li>
+			<li><a href="{{ url_for('md.changelog') }}" onclick="show_loader();">Change log</a></li>
+			<li><a <a href='/MDAPI/' target='_blank'>Swagger API</a></li>
+		</ul>
 	</div>
 	<br /><br />
 	<div class="w3-row w3-padding-64 w3-margin">
