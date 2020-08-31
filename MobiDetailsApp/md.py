@@ -1131,16 +1131,17 @@ def search_engine():
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:
                 result = curs.fetchall()
-                close_db()
                 if not result:
                     if query_type == 'dbsnp_id':
                         # api call to create variant from rs id
                         api_key = md_utilities.get_api_key(g, curs)
                         if api_key is not None:
+                            close_db()
                             return redirect(url_for('api.api_variant_create_rs', rs_id='rs{}'.format(pattern), caller='browser', api_key=api_key), code=307)
                     error = 'Sorry the variant or gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).<br /> \
                             You can annotate it directly at the corresponding gene page.'.format(query_engine)
                 else:
+                    close_db()
                     if len(result) == 1:
                         return redirect(url_for('md.variant', variant_id=result[0][0]))
                     else:
