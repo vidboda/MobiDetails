@@ -48,7 +48,7 @@
 		{{ info("<p><strong>Search engine:</strong><br /> \
 		The search engine has two main functions:</p> \
 		<ul> \
-			<li>Retrieve pre-existing annotations - already added by users.\
+			<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
 				<ul> \
 					<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
 					<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
@@ -58,9 +58,9 @@
 					<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
 				</ul> \
 			</li> \
-			<li>Annotate new variants using the following formats: \
+			<li><strong>Annotate new variants</strong> using the following formats: \
 				<ul> \
-					<li>NC_000001.10:g.216595579G>A;USH2A</li> \
+					<li>NC_000001.10:g.216595579G>A;USH2A - e.g. strict HGVS genomic (hg38 only) + ';' + HGNC gene name</li> \
 					<li>NM_206933.2:c.100C>T</li> \
 					<li>rs772808534</li> \
 				</ul> \
@@ -151,7 +151,7 @@
 		
 		
 		<h3 id="private_life">Private life:</h3>
-		{{ info('MobiDetails does not require an account, you can create and analyse variants as a public user.<br/>Authentication allows a greater experience (and more functionalities will be added). Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data. These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.') }}
+		{{ info('MobiDetails does not require an account, you can annotate and analyse variants as a public user.<br/>Authentication allows a greater experience and involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data. These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.') }}
 	</div>
 	<br /><br />
 {% endblock %}
