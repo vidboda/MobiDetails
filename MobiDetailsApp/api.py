@@ -435,12 +435,14 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             flash('Invalid caller submitted to the API.', 'w3-pale-red')
             return redirect(url_for('md.index'))
     # check rs_id
+    trunc_rs_id = None
     match_obj = re.search(r'^rs(\d+)$', rs_id)
     if match_obj:
+        trunc_rs_id = match_obj.group(1)
         # check if rsid exists
         curs.execute(
             "SELECT a.c_name, a.id, b.name[2] as nm, b.nm_version FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.dbsnp_id = %s",
-            (match_obj.group(1),)
+            (trunc_rs_id,)
         )
         res_rs = curs.fetchall()
         if res_rs:
@@ -479,32 +481,57 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 return redirect(url_for('md.index'))
         # print(mutalyzer_data)
         md_response = {}
+        # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
+        md_nm = []
         for hgvs in mutalyzer_data:
             match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({md_utilities.variant_regexp})$', hgvs)
             if match_nm:
-                # get gene and MD current NM version
-                curs.execute(
-                    "SELECT nm_version FROM gene WHERE name[2] = %s",
-                    (match_nm.group(1),)
-                )
-                res_nm = curs.fetchone()
-                if res_nm:
-                    md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
-                    variant_chgvs = '{0}.{1}:c.{2}'.format(match_nm.group(1), res_nm['nm_version'], match_nm.group(2))
-                    data = {
-                        'variant_chgvs': urllib.parse.quote(variant_chgvs),
-                        'caller': 'cli',
-                        'api_key': api_key
-                    }
-                    try:
-                        # md_response_tmp = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
-                        # print(md_response.values())
-                        # if md_response_tmp['mobidetails_id'] not in md_response.values():
-                        md_response[variant_chgvs] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
-                    except Exception:
-                        md_response[variant_chgvs] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, variant_chgvs)}
+                current_nm = match_nm.group(1)
+                # get list of NM recorded in MD
+                if not md_nm:
+                    curs.execute(
+                        "SELECT name[2] as nm FROM gene WHERE name[1] = (SELECT name[1] FROM gene WHERE name[2] = %s)",
+                        (current_nm,)
+                    )
+                    res_nm_all = curs.fetchall()
+                    if res_nm_all:
+                        for nm in res_nm_all:
+                            md_nm.append(nm[0])
+                        # print(md_nm)
+                if current_nm in md_nm:
+                    # check if variant with same name already recorded => at least we do not query multiple times for these
+                    curs.execute(
+                        "SELECT id FROM variant_feature WHERE dbsnp_id = %s AND c_name = %s",
+                        (trunc_rs_id, match_nm.group(2),)
+                    )
+                    res_known = curs.fetchall()
+                    if not res_known:
+                        # get gene and MD current NM version
+                        curs.execute(
+                            "SELECT nm_version FROM gene WHERE name[2] = %s",
+                            (current_nm,)
+                        )
+                        res_nm = curs.fetchone()
+                        if res_nm:
+                            md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
+                            variant_chgvs = '{0}.{1}:c.{2}'.format(current_nm, res_nm['nm_version'], match_nm.group(2))
+                            data = {
+                                'variant_chgvs': urllib.parse.quote(variant_chgvs),
+                                'caller': 'cli',
+                                'api_key': api_key
+                            }
+                            try:
+                                md_response[variant_chgvs] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
+                            except Exception:
+                                md_response[variant_chgvs] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, variant_chgvs)}
+                        else:
+                            continue
+                    else:
+                        continue
                 else:
                     continue
+            else:
+                continue
         if md_response:
             if caller == 'cli':
                 return jsonify(md_response)
