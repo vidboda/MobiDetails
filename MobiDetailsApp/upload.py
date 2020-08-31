@@ -146,10 +146,12 @@ def file_upload():
                         }            
                         try:
                             md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
-                            print(md_response)
                             for var in md_response:
+                                print(md_response[var])
                                 if 'mobidetails_error' in md_response[var]:
                                     result.append({'variant': '{0} - {1}'.format(line, var), 'error': md_response[var]['mobidetails_error']})
+                                elif var == 'mobidetails_error':
+                                    result.append({'variant': line, 'error': md_response[var]})
                                 else:
                                     result.append({'variant': '{0} - {1}'.format(line, var), 'id': md_response[var]['mobidetails_id'], 'url': md_response[var]['url']})
 
