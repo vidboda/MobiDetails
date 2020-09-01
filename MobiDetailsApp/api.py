@@ -551,7 +551,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         if caller == 'cli':
             return jsonify(mobidetails_error='Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id))
         else:
-            flash('Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id), 'w3-pale-red')
+            flash('Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id={0}", target="_blank">Mutalyzer</a>, we did not find any suitable variant corresponding to your request {0}'.format(rs_id), 'w3-pale-red')
             return redirect(url_for('md.index'))
     else:
         if caller == 'cli':
