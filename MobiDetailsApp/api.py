@@ -482,8 +482,9 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         # print(mutalyzer_data)
         md_response = {}
         # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
-        md_nm = []
-        for hgvs in mutalyzer_data:
+        md_nm = hgvs_nc = []
+        gene_name = can_nm = None
+        for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
             match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({md_utilities.variant_regexp})$', hgvs)
             if match_nm:
                 current_nm = match_nm.group(1)
@@ -530,19 +531,62 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         continue
                 else:
                     continue
+            # intronic variant?
+            # we need HGVS genomic to launch the API but also the gene - got from NG
+            match_nc = re.search(r'^(NC_0000\d{2}\.\d{1,2}):g\..+', hgvs)
+            if match_nc:
+                # if hg38, we keep it in a variable that can be useful later
+                curs.execute(
+                    "SELECT genome_version FROM chromosomes WHERE ncbi_name = %s",
+                    (match_nc.group(1),)
+                )
+                res_chr = curs.fetchone()
+                if res_chr and \
+                        res_chr['genome_version'] == 'hg38':
+                    hgvs_nc.append(hgvs)
+            match_ng = re.search(rf'^(NG_\d+)\.\d+:g\.{md_utilities.variant_regexp}$', hgvs)
+            if match_ng and \
+                    not gene_name:
+                # we need to get the gene name that ccan be useful later
+                curs.execute(
+                    "SELECT name[1] as hgnc FROM gene WHERE ng LIKE %s AND canonical = 't'",
+                    ('{}%'.format(match_ng.group(1)),)
+                )
+                res_gene = curs.fetchone()
+                if res_gene:
+                    gene_name = res_gene['hgnc']
             else:
                 continue
+        # do we have an intronic variant?
+        if hgvs_nc and \
+                gene_name:
+            md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
+            for var_hgvs_nc in hgvs_nc:
+                data = {
+                    'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
+                    'gene_hgnc': gene_name,
+                    'caller': 'cli',
+                    'api_key': api_key
+                }
+                try:
+                    md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
+                except Exception:
+                    md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
+            
         if md_response:
             if caller == 'cli':
                 return jsonify(md_response)
             else:
                 if len(md_response) == 1:
                     for var in md_response:
+                        if 'mobidetails_error' in md_response[var]:
+                            flash(md_response[var]['mobidetails_error'], 'w3-pale-red')
+                            return redirect(url_for('md.index'))
                         return redirect(url_for('md.variant', variant_id=md_response[var]['mobidetails_id']))
-                else:                    
+                else:
+                    
                     return render_template('md/variant_multiple.html', vars_rs=md_response)
-            
-        
+
         # md_utilities.api_end_according_to_caller(
         #     caller=caller,
         #     message='Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id),
