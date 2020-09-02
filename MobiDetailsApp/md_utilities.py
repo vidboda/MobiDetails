@@ -23,6 +23,7 @@ app_path = os.path.dirname(os.path.realpath(__file__))
 resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 variant_regexp = resources['variant_regexp']
+variant_regexp_flexible = resources['variant_regexp_flexible']
 genome_regexp = resources['genome_regexp']
 nochr_chrom_regexp = resources['nochr_chrom_regexp']
 nochr_captured_regexp = resources['nochr_captured_regexp']
@@ -910,6 +911,25 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             (genome, gene, acc_no, positions[0])
         )
         res_seg = curs.fetchone()
+        if not res_seg:
+            failed_query = "SELECT number, type FROM segment WHERE genome_version = '{0}' \
+            AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
+            BETWEEN SYMMETRIC segment_start AND segment_end ".format(genome, gene, acc_no, positions[0])
+            # print(failed_query)
+            if caller == 'webApp':
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        '<p>Insertion failed for variant features for {0} with args {1}</p>'.format(vv_key_var, failed_query)
+                    ),
+                    '[MobiDetails - MD variant creation Error]'
+                )
+                return danger_panel(
+                    'MobiDetails error {}'.format(vv_key_var),
+                    'Sorry, an issue occured with the variant position and intron/exon definition. An admin has been warned'
+                )
+            elif caller == 'api':
+                return {'mobidetails_error': 'Sorry, an issue occured with the variant position and intron/exon definition for {}'.format(vv_key_var)}
         vf_d['start_segment_type'] = res_seg['type']
         vf_d['start_segment_number'] = res_seg['number']
         vf_d['end_segment_type'] = res_seg['type']
