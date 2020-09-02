@@ -113,7 +113,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
         #         g.user = res
         # if variant_chgvs is None:
         #     return jsonify(mobidetails_error='No variant submitted')
-        match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', urllib.parse.unquote(variant_chgvs))
+        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({md_utilities.variant_regexp})', urllib.parse.unquote(variant_chgvs))
         if match_object:
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
             acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
@@ -245,40 +245,22 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                 return redirect(url_for('md.index'))
         else:
             g.user = res_check_api_key['mobiuser']
-        # if len(api_key) != 43:
-        #     return jsonify(mobidetails_error='Invalid API key')
-        # else:
-        #     curs.execute(
-        #         "SELECT * FROM mobiuser WHERE api_key = %s",
-        #         (api_key,)
-        #     )
-        #     res = curs.fetchone()
-        #     if res is None:
-        #         return jsonify(mobidetails_error='Unknown API key')
-        #     else:
-        #         g.user = res
-        # if variant_ghgvs is None:
-        #     return jsonify(mobidetails_error='No variant submitted')
-        # if gene is None:
-        #     return jsonify(mobidetails_error='No gene submitted')
+
         if md_utilities.check_caller(caller) == 'Invalid caller submitted':
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
                 flash('Invalid caller submitted to API.', 'w3-pale-red')
                 return redirect(url_for('md.index'))
-            
-        # if caller != 'browser' and \
-        #         caller != 'cli':
-        #     return jsonify(mobidetails_error='Invalid caller submitted')
+
         # check gene exists
         curs.execute(
             "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 't'",
             (gene,)
         )
         res_gene = curs.fetchone()
-        if res_gene is not None:
-            match_object = re.search(r'^([Nn][Cc]_\d+\.\d{1,2}):g\.([\dATGCagctdelinsup_>]+)', urllib.parse.unquote(variant_ghgvs))
+        if res_gene:
+            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({md_utilities.variant_regexp})', urllib.parse.unquote(variant_ghgvs))
             if match_object:
                 ncbi_chr, g_var = match_object.group(1), match_object.group(2)
                 # 1st check hg38
@@ -287,7 +269,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     (ncbi_chr,)
                 )
                 res = curs.fetchone()
-                if res is not None and \
+                if res and \
                         res['genome_version'] == 'hg38':
                     genome_version, chrom = res['genome_version'], res['name']
                     # check if variant exists
@@ -296,8 +278,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         (genome_version, g_var, chrom)
                     )
                     res = curs.fetchone()
-                    if res is not None:
-                        if caller == 'cli':
+                    if res:
+                        if caller == 'cli':                            
                             return jsonify(
                                 mobidetails_id=res['feature_id'],
                                 url='{0}{1}'.format(
@@ -330,12 +312,21 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
                                           Sorry for the inconvenience. You may want to try directly in MobiDetails.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
-                        # look forg ene acc #
+                        # look for gene acc #
                         # print(vv_data)
                         new_variant = None
                         vv_key_var = None
+                        res_gene_non_can_list = []
+                        # we still need a list of non canonical NM for the gene of interest
+                        curs.execute(
+                            "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 'f'",
+                            (gene,)
+                        )
+                        res_gene_non_can = curs.fetchall()
+                        for transcript in res_gene_non_can:
+                            res_gene_non_can_list.append('{0}.{1}'.format(transcript['name'], transcript['nm_version']))
                         for key in vv_data.keys():
-                            match_obj = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', key)
+                            match_obj = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({md_utilities.variant_regexp})', key)
                             if match_obj:
                                 new_variant = match_obj.group(3)
                                 # print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
@@ -345,7 +336,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                     vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
                                     break
                                 elif not vv_key_var:
-                                    vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
+                                    if '{0}.{1}'.format(match_obj.group(1), match_obj.group(2)) in res_gene_non_can_list:
+                                        vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
                         if vv_key_var:
                             # print(vv_key_var)
                             creation_dict = md_utilities.create_var_vv(
@@ -487,7 +479,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
         # md_nm = []
         hgvs_nc = []
-        gene_name = None
+        gene_names = []
         # can_nm = None
         for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
             # match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({md_utilities.variant_regexp})$', hgvs)
@@ -538,6 +530,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # intronic variant?
             # we need HGVS genomic to launch the API but also the gene - got from NG
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
+            # https://www.python.org/dev/peps/pep-0498/
             match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({md_utilities.variant_regexp})$', hgvs)
             if match_nc and \
                     not md_response:
@@ -552,14 +545,16 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     hgvs_nc.append(hgvs)
                     # look for gene name
                     positions = md_utilities.compute_start_end_pos(match_nc.group(2))
-                    curs.execute(
-                        "SELECT a.name[1] as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
-                        (res_chr['name'], positions[0])
-                    )
-                    res_gene = curs.fetchone()
-                    if res_gene:
-                        print(res_gene['hgnc'])
-                        gene_name = res_gene['hgnc']
+                    # print("SELECT a.name[1] as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = {0} AND {1} BETWEEN SYMMETRIC # b.segment_start AND b.segment_end".format(res_chr['name'], positions[0]))
+                    if not gene_names:
+                        curs.execute(
+                            "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
+                            (res_chr['name'], positions[0])
+                        )
+                        res_gene = curs.fetchall()
+                        if res_gene:
+                            for hgnc_name in res_gene:
+                                gene_names.append(hgnc_name[0])
             # match_ng = re.search(rf'^(NG_\d+)\.\d+:g\.{md_utilities.variant_regexp}$', hgvs)
             # if match_ng and \
             #         not gene_name and \
@@ -576,20 +571,22 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 continue
         # do we have an intronic variant?
         if hgvs_nc and \
-                gene_name:  # and \
+                gene_names:  # and \
                 # not md_response:
             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
             for var_hgvs_nc in hgvs_nc:
-                data = {
-                    'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
-                    'gene_hgnc': gene_name,
-                    'caller': 'cli',
-                    'api_key': api_key
-                }
-                try:
-                    md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
-                except Exception:
-                    md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
+                for gene_hgnc in gene_names:
+                    data = {
+                        'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
+                        'gene_hgnc': gene_hgnc,
+                        'caller': 'cli',
+                        'api_key': api_key
+                    }
+                    try:
+                        print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
+                        md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
+                    except Exception:
+                        md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
         if md_response:
             if caller == 'cli':
                 return jsonify(md_response)

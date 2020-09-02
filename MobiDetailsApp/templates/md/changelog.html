@@ -9,21 +9,48 @@
 		-New dataset
 	#}
 	<div class="w3-container">
-		{{ info("[2020-08-] - New function: Possibility to annotate variants using dbSNP rs ids (API). The search engine can now be used to annotate variants not only to retrieve existing ones, using the following formats:<ul><li>NM_206933.2:c.100C>T</li><li>NC_000001.11:g.216422237G>A;USH2A (hg38 only)</li><li>rs772808534</li></ul>") }}
-		{{ info("[2020-08-26] - New function: Added a <a href='{}'>page</a> to upload a text file for batch variant annotation.".format(url_for('upload.file_upload'))) }}
-		{{ info("[2020-08-18] - New predictors: <ul><li>Scores for miRNA binding predictors miRanda, TargetScan and RNAHybrid from <a href='{0}' target='_blank'>dbMTS</a> have been added for 3'UTR variants.</li><li><a href='{1}' target='_blank'>Eigen</a> scores have been added, either from  <a href='{2}' target='_blank'>dbNSFP</a> for coding variants, or from  <a href='{0}' target='_blank'>dbMTS</a> for 3' UTR variants.".format(urls.dbmts, urls.eigen, urls.dbnsfp)) }}
-		{{ info("[2020-08-14] - Feature update: LOVD effects are now reported when available. LOVD and Intervar results now appear in pdf reports.") }}
-		{{ info("[2020-08-12] - Minor: added CSS loader to most pages to increase the browsing comfort.") }}
-		{{ info("[2020-08-11] - API changes : 3 methods passed from GET to POST - also update create_vars_batch script in <a href='https://github.com/beboche/MDUtils' target='_blank'>MDUtils</a> package.") }}
-		{{ info("[2020-08-11] - Minor : improvements to JS/CSS to make MD more responsive (for small screens)") }}
-		{{ info("[2020-07-09] - Minor : <ul><li>Adapted MaxEntScan for indels > 9bp</li><li>Added link to RegulomeDB when possible</li><li>New reference/tool version table in about page and pdf export</li>") }}
-		{{ info("[2020-07-06] - New admin function : added an 'Forgot my password function' and bug fix with MaxEntScan which could lead to a 500 error.") }}
-		{{ info("[2020-06-24] - New API functions : ablility to create variants from genomic coordinates and a HGNC gene name. Ability to update a variant's ACMG class.") }}
+		{{ info("[2020-09-] - New function : \
+			Possibility to annotate variants using dbSNP rs ids (API). \
+			The search engine can now be used to annotate variants not only to retrieve existing ones, using the following formats: \
+			<ul> \
+				<li>NM_206933.2:c.100C>T</li> \
+				<li>NC_000001.11:g.216422237G>A;USH2A (hg38 only)</li> \
+				<li>rs772808534</li> \
+			</ul>") }}
+		{{ info("[2020-08-26] - New function : \
+			Added a <a href='{}'>page</a> to upload a text file for batch variant annotation.".format(url_for('upload.file_upload'))) }}
+		{{ info("[2020-08-18] - New predictors : \
+			<ul> \
+				<li>Scores for miRNA binding predictors miRanda, TargetScan and RNAHybrid from <a href='{0}' target='_blank'>dbMTS</a> have been added for 3'UTR variants.</li> \
+				<li><a href='{1}' target='_blank'>Eigen</a> scores have been added, either from  <a href='{2}' target='_blank'>dbNSFP</a> for coding variants, or from  <a href='{0}' target='_blank'>dbMTS</a> for 3' UTR variants.</li> \
+			</ul>".format(urls.dbmts, urls.eigen, urls.dbnsfp)) }}
+		{{ info("[2020-08-14] - Feature update : \
+			LOVD effects are now reported when available. LOVD and Intervar results now appear in pdf reports.") }}
+		{{ info("[2020-08-12] - Minor: \
+			added CSS loader to most pages to increase the browsing comfort.") }}
+		{{ info("[2020-08-11] - API changes:  \
+			3 methods passed from GET to POST - also update create_vars_batch script in <a href='https://github.com/beboche/MDUtils' target='_blank'>MDUtils</a> package.") }}
+		{{ info("[2020-08-11] - Minor : \
+			improvements to JS/CSS to make MD more responsive (for small screens)") }}
+		{{ info("[2020-07-09] - Minor : \
+			<ul> \
+				<li>Adapted MaxEntScan for indels > 9bp</li> \
+				<li>Added link to RegulomeDB when possible</li> \
+				<li>New reference/tool version table in about page and pdf export</li>\
+			</ul>") }}
+		{{ info("[2020-07-06] - New admin function : \
+			added an 'Forgot my password function' and bug fix with MaxEntScan which could lead to a 500 error.") }}
+		{{ info("[2020-06-24] - New API functions : \
+			ablility to create variants from genomic coordinates and a HGNC gene name. Ability to update a variant's ACMG class.") }}
 		{{ info("[2020-06-20] - <a href='https://cftr.iurc.montp.inserm.fr/cftr/' target='_blank'>CFTR-France</a> and MobiDetails are now working together: All variants in CFTR-France have been integrated into MobiDetails!") }}
-		{{ info("[2020-05-25] - New predictor : MaxEntScan is now available as a splicing predictor.") }}
-		{{ info("[2020-05-13] - Minor : LOVD instances are now identified by their names when available.") }}
-		{{ info("[2020-05-07] - Minor : Registering now requires an email activation.") }}
-		{{ info("[2020-04-23] - New predictor : <ul><li>Added <a href='https://sites.google.com/site/clinpred/' target='_blank'>ClinPred</a> as a new missense predictor (<a href='https://www.ncbi.nlm.nih.gov/pubmed/?term=30220433' target='_blank'>paper</a>).</li><li>Some minor style changes</li></ul>") }}
+		{{ info("[2020-05-25] - New predictor : \
+			MaxEntScan is now available as a splicing predictor.") }}
+		{{ info("[2020-05-13] - Minor : \
+			LOVD instances are now identified by their names when available.") }}
+		{{ info("[2020-05-07] - Minor : \
+			Registering now requires an email activation.") }}
+		{{ info("[2020-04-23] - New predictor : \
+			<ul><li>Added <a href='https://sites.google.com/site/clinpred/' target='_blank'>ClinPred</a> as a new missense predictor (<a href='https://www.ncbi.nlm.nih.gov/pubmed/?term=30220433' target='_blank'>paper</a>).</li><li>Some minor style changes</li></ul>") }}
 	</div>
 	<br /><br /><br />
 {% endblock %}
