@@ -620,7 +620,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         else:
             flash('Invalid rs id provided', 'w3-pale-red')
             return redirect(url_for('md.index'))
-        return jsonify(mobidetails_error='Invalid rs id provided')
+            # return jsonify(mobidetails_error='Invalid rs id provided')
 
 
 # -------------------------------------------------------------------

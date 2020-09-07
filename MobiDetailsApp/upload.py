@@ -1,4 +1,3 @@
-import os
 import re
 import urllib3
 import certifi
@@ -10,7 +9,7 @@ from flask import Blueprint, request, redirect, current_app, render_template, fl
 from werkzeug.utils import secure_filename
 from MobiDetailsApp.db import get_db, close_db
 from . import (
-    config, md_utilities
+    md_utilities
 )
 
 bp = Blueprint('upload', __name__)
@@ -45,7 +44,7 @@ def file_upload():
                 flash('No filename.', 'w3-pale-red')
                 return redirect(request.url)
             if allowed_file(uploaded_file.filename):
-                filename = secure_filename(uploaded_file.filename)
+                # filename = secure_filename(uploaded_file.filename)
                 lines = uploaded_file.read().decode().replace('\r\n', '\n').replace('\r', '\n').split('\n')
                 # print(lines)
                 # ok we've got the file
@@ -159,6 +158,7 @@ def file_upload():
                             result.append({'variant': line, 'error': 'MDAPI call failed'})
                         continue
                     result.append({'variant': line, 'error': 'Bad format'})
+                close_db()
                 flash('File correctly uploaded', 'w3-pale-green')
                 if g.user:
                     # send an email

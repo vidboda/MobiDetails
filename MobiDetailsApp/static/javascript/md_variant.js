@@ -97,8 +97,9 @@ function lovd(lovd_url, csrf_token) {
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_name').text()
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_name').text()
 		}
+        // pos: $('#pos_19').text(), 
 	})
 	.done(function(html) {
         // selector for datatable

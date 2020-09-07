@@ -202,20 +202,21 @@ def intervar():
 
 @bp.route('/lovd', methods=['POST'])
 def lovd():
-    genome = chrom = g_name = c_name = gene = pos_19 = None
+    genome = chrom = g_name = c_name = gene = None
     # print(request.form)
     if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
             re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(rf'^{md_utilities.variant_regexp}$', request.form['g_name']) and \
             re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['c_name']) and \
-            'gene' in request.form and \
-            'pos' in request.form:
+            'gene' in request.form:
+        # and \
+        #    'pos' in request.form:
         genome = request.form['genome']
         chrom = request.form['chrom']
         g_name = request.form['g_name']
         c_name = request.form['c_name']
         gene = request.form['gene']
-        pos_19 = request.form['pos']
+        # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
             return md_utilities.lovd_error_html("hg19 reference is equal to variant: no LOVD query")
             # return 'hg19 reference is equal to variant: no LOVD query'
