@@ -27,6 +27,7 @@ variant_regexp_flexible = resources['variant_regexp_flexible']
 genome_regexp = resources['genome_regexp']
 nochr_chrom_regexp = resources['nochr_chrom_regexp']
 nochr_captured_regexp = resources['nochr_captured_regexp']
+amino_acid_regexp = resources['amino_acid_regexp']
 api_fake_agent = resources['api_fake_agent']
 # variant_regexp = '[\dACGTdienulps_>+\*-]+'
 # genome_regexp = 'hg[13][98]'

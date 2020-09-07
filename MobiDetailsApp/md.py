@@ -971,10 +971,18 @@ def search_engine():
         # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
         
-        match_object = re.search(r'^([a-zA-Z]{1})(\d+)([a-zA-Z\*]{1})$', query_engine)  # e.g. R34X
+        match_object = re.search(rf'^([{md_utilities.amino_acid_regexp}]{{1}})(\d+)([{md_utilities.amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
-            query_type = 'p_name'
-            pattern = md_utilities.one2three_fct(query_engine)
+            confusing_genes = ['C1R', 'C8G', 'S100G', 'F11R', 'C1S', 'A2M', 'C1D', 'S100P', 'F2R', 'C8A', 'C4A']
+            # list of genes that looks like the query
+            if query_engine.upper() in confusing_genes:
+                sql_table = 'gene'
+                query_type = 'name[1]'
+                col_names = 'name'
+                pattern = query_engine.upper()
+            else:
+                query_type = 'p_name'
+                pattern = md_utilities.one2three_fct(query_engine)
         elif re.search(r'^rs\d+$', query_engine):
             query_type = 'dbsnp_id'
             match_object = re.search(r'^rs(\d+)$', query_engine)

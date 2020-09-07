@@ -303,7 +303,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         except Exception:
                             close_db()
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(variant_ghgvs))
+                                return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(urllib.parse.unquote(variant_ghgvs)))
                             else:
                                 try:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
@@ -324,7 +324,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         )
                         res_gene_non_can = curs.fetchall()
                         for transcript in res_gene_non_can:
-                            res_gene_non_can_list.append('{0}.{1}'.format(transcript['name'], transcript['nm_version']))
+                            res_gene_non_can_list.append('{0}.{1}'.format(transcript['name'][1], transcript['nm_version']))
                         for key in vv_data.keys():
                             match_obj = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({md_utilities.variant_regexp})', key)
                             if match_obj:
@@ -336,6 +336,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                     vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
                                     break
                                 elif not vv_key_var:
+                                    # take into account non canonical isoforms
+                                    # print('{0}.{1}'.format(match_obj.group(1), match_obj.group(2)))
+                                    # print(res_gene_non_can_list)
                                     if '{0}.{1}'.format(match_obj.group(1), match_obj.group(2)) in res_gene_non_can_list:
                                         vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
                         if vv_key_var:
@@ -583,7 +586,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         'api_key': api_key
                     }
                     try:
-                        print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
+                        # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                         md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
                     except Exception:
                         md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
