@@ -354,7 +354,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
                         else:
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Could not create variant {}.'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
+                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
                             else:
                                 try:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
