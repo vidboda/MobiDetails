@@ -6,7 +6,7 @@ import psycopg2
 import psycopg2.extras
 import json
 from flask import Blueprint, request, redirect, current_app, render_template, flash, g, url_for
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 from MobiDetailsApp.db import get_db, close_db
 from . import (
     md_utilities
