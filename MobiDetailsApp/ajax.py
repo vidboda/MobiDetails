@@ -397,100 +397,98 @@ def modif_class():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # get all variant_features and gene info
-        #try:
-        curs.execute(
-            "SELECT class_date FROM class_history WHERE \
-                variant_feature_id = %s AND acmg_class = %s \
-                AND mobiuser_id = %s",
-            (variant_id, acmg_select, g.user['id'])
-        )
-        res = curs.fetchone()
-        if res is not None:
-            if str(res['class_date']) == str(date):
-                # print(("{0}-{1}").format(res['class_date'], date))
-                tr_html = "<tr id='already_classified'><td colspan='4'>\
-                          You already classified this variant with the same class today.\
-                          If you just want to modify comments, the previous classification and start from scratch.\
-                          </td></tr>"
-                return tr_html
+        try:
             curs.execute(
-                "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
+                "SELECT class_date FROM class_history WHERE \
                     variant_feature_id = %s AND acmg_class = %s \
                     AND mobiuser_id = %s",
-                (date, acmg_comment, variant_id, acmg_select, g.user['id'])
+                (variant_id, acmg_select, g.user['id'])
             )
-        else:
+            res = curs.fetchone()
+            if res is not None:
+                if str(res['class_date']) == str(date):
+                    # print(("{0}-{1}").format(res['class_date'], date))
+                    tr_html = "<tr id='already_classified'><td colspan='4'>\
+                              You already classified this variant with the same class today.\
+                              If you just want to modify comments, the previous classification and start from scratch.\
+                              </td></tr>"
+                    return tr_html
+                curs.execute(
+                    "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
+                        variant_feature_id = %s AND acmg_class = %s \
+                        AND mobiuser_id = %s",
+                    (date, acmg_comment, variant_id, acmg_select, g.user['id'])
+                )
+            else:
+                curs.execute(
+                    "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
+                        (%s, %s, %s, %s, %s )",
+                    (variant_id, acmg_select, g.user['id'], date, acmg_comment)
+                )
+            db.commit()
+            # curs.execute(
+            #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
+            # )
+            # mobiuser_name = curs.fetchone()
             curs.execute(
-                "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
-                    (%s, %s, %s, %s, %s )",
-                (variant_id, acmg_select, g.user['id'], date, acmg_comment)
+                "SELECT html_code, acmg_translation, lovd_translation FROM valid_class WHERE acmg_class = %s",
+                (acmg_select,)
             )
-        db.commit()
-        # curs.execute(
-        #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
-        # )
-        # mobiuser_name = curs.fetchone()
-        curs.execute(
-            "SELECT html_code, acmg_translation, lovd_translation FROM valid_class WHERE acmg_class = %s",
-            (acmg_select,)
-        )
-        acmg_details = curs.fetchone()
-        tr_html = "<tr id='{0}-{1}-{2}'> \
-                <td class='w3-left-align'>{3}</td> \
-                <td class='w3-left-align'>{4}</td> \
-                <td class='w3-left-align'> \
-                    <span style='color:{5};'>Class {1} ({6})</span>\
-                </td> \
-                <td> \
-                    <div class='w3-cell-row'> \
-                        <span class='w3-container w3-left-align w3-cell'>{7}</span>\
-            </tr>".format(
-                g.user['id'],
-                acmg_select,
-                variant_id,
-                g.user['username'],
-                date,
-                acmg_details['html_code'],
-                acmg_details['acmg_translation'],
-                acmg_comment
-            )
-        # Send data to LOVD if relevant
-        if g.user['lovd_export'] is True and \
-                url_parse(request.referrer).host == md_utilities.host['dev']:
-            with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
-                lovd_json = json.load(json_file)
-            # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
-            genome_version = 'hg38'
-            curs.execute(
-                "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
-                a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
-                (variant_id, genome_version)
-            )
-            res_var = curs.fetchone()
-            lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
-            lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
-            lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-            if res_var['dbsnp_id']:
-                lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
-            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
-            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
-            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
-            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
-            
+            acmg_details = curs.fetchone()
+            tr_html = "<tr id='{0}-{1}-{2}'> \
+                    <td class='w3-left-align'>{3}</td> \
+                    <td class='w3-left-align'>{4}</td> \
+                    <td class='w3-left-align'> \
+                        <span style='color:{5};'>Class {1} ({6})</span>\
+                    </td> \
+                    <td> \
+                        <div class='w3-cell-row'> \
+                            <span class='w3-container w3-left-align w3-cell'>{7}</span>\
+                </tr>".format(
+                    g.user['id'],
+                    acmg_select,
+                    variant_id,
+                    g.user['username'],
+                    date,
+                    acmg_details['html_code'],
+                    acmg_details['acmg_translation'],
+                    acmg_comment
+                )
+            # Send data to LOVD if relevant
+            if g.user['lovd_export'] is True and \
+                    url_parse(request.referrer).host == md_utilities.host['dev']:
+                with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
+                    lovd_json = json.load(json_file)
+                # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
+                genome_version = 'hg38'
+                curs.execute(
+                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
+                    a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
+                    (variant_id, genome_version)
+                )
+                res_var = curs.fetchone()
+                lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
+                lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
+                lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
+                if res_var['dbsnp_id']:
+                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
+                
             print(lovd_json)
-                # print(lovd_json)
-
             return tr_html
-        # except Exception as e:
-        #     # pass
-        #     md_utilities.send_error_email(
-        #         md_utilities.prepare_email_html(
-        #             'MobiDetails error',
-        #             '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
-        #         ),
-        #         '[MobiDetails - MD variant class Error]'
-        #     )
-        #     return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
+        except Exception as e:
+            # pass
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
+                ),
+                '[MobiDetails - MD variant class Error]'
+            )
+            return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
         
 
             
