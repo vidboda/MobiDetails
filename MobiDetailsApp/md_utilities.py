@@ -22,18 +22,21 @@ app_path = os.path.dirname(os.path.realpath(__file__))
 # get config file with paths, etc
 resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
-variant_regexp = resources['variant_regexp']
-variant_regexp_flexible = resources['variant_regexp_flexible']
-genome_regexp = resources['genome_regexp']
-nochr_chrom_regexp = resources['nochr_chrom_regexp']
-nochr_captured_regexp = resources['nochr_captured_regexp']
-amino_acid_regexp = resources['amino_acid_regexp']
+host = resources['host']
+regexp = resources['regexp']
+# variant_regexp = resources['variant_regexp']
+# variant_regexp_flexible = resources['variant_regexp_flexible']
+# genome_regexp = resources['genome_regexp']
+# nochr_chrom_regexp = resources['nochr_chrom_regexp']
+# nochr_captured_regexp = resources['nochr_captured_regexp']
+# amino_acid_regexp = resources['amino_acid_regexp']
 api_fake_agent = resources['api_fake_agent']
 # variant_regexp = '[\dACGTdienulps_>+\*-]+'
 # genome_regexp = 'hg[13][98]'
 # nochr_chrom_regexp = '[\dXYM]{1,2}'
 # nochr_captured_regexp = '\d{1,2}|[XYM]'
-lovd_ref_file = '{0}{1}'.format(app_path, resources['lovd_ref_file_rel_path'])
+# lovd_ref_file = '{0}{1}'.format(app_path, resources['lovd_ref_file_rel_path'])
+# lovd_api_json_file = '{0}{1}'.format(app_path, resources['lovd_api_json_file_rel_path'])
 # lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
 ext_exe = resources['ext_exe']
 ext_exe['maxentscan5'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan5'])
@@ -57,7 +60,7 @@ def get_clinvar_current_version(clinvar_dir):
 
 one2three = resources['one2three']
 three2one = resources['three2one']
-url_ncbi = resources['url_ncbi']
+# url_ncbi = resources['url_ncbi']
 
 
 urls = resources['urls']
@@ -89,6 +92,8 @@ local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(app_path, local_files
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_3']['rel_path'])
 local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg38']['rel_path'])
 local_files['human_genome_hg19']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg19']['rel_path'])
+local_files['lovd_ref']['abs_path'] = '{0}{1}'.format(app_path, local_files['lovd_ref']['rel_path'])
+local_files['lovd_api_json']['abs_path'] = '{0}{1}'.format(app_path, local_files['lovd_api_json']['rel_path'])
 local_files['maxentscan']['abs_path'] = '{0}{1}'.format(app_path, local_files['maxentscan']['rel_path'])
 local_files['metadome']['abs_path'] = '{0}{1}'.format(app_path, local_files['metadome']['rel_path'])
 local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(app_path, local_files['spliceai_snvs']['rel_path'])
@@ -187,18 +192,21 @@ def get_common_chr_name(db, ncbi_name):  # get common chr names for NCBI names
 
 
 def is_valid_full_chr(chr_name):  # chr name is valid?
+    nochr_captured_regexp = regexp['nochr_captured']
     if re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name):
         return True
     return False
 
 
 def get_short_chr_name(chr_name):  # get small chr name
+    nochr_captured_regexp = regexp['nochr_captured']
     match_obj = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name)
     if match_obj is not None:
         return match_obj.group(1)
 
 
 def is_valid_chr(chr_name):  # chr name is valid?
+    nochr_captured_regexp = regexp['nochr_captured']
     if re.search(rf'^({nochr_captured_regexp})$', chr_name):
         return True
     return False

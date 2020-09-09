@@ -58,8 +58,9 @@ def litvar():
 
 @bp.route('/defgen', methods=['POST'])
 def defgen():
+    genome_regexp = md_utilities.regexp['genome']
     if re.search(r'^\d+$', request.form['vfid']) and \
-            re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']):
+            re.search(rf'^{genome_regexp}$', request.form['genome']):
         variant_id = request.form['vfid']
         genome = request.form['genome']
         db = get_db()
@@ -104,8 +105,10 @@ def defgen():
 
 @bp.route('/intervar', methods=['POST'])
 def intervar():
-    if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
+    genome_regexp = md_utilities.regexp['genome']
+    nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
+            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
             re.search(r'^\d+$', request.form['pos']) and \
             re.search(r'^[ATGC]+$', request.form['ref']) and \
             re.search(r'^[ATGC]+$', request.form['alt']) and \
@@ -203,11 +206,14 @@ def intervar():
 @bp.route('/lovd', methods=['POST'])
 def lovd():
     genome = chrom = g_name = c_name = gene = None
+    genome_regexp = md_utilities.regexp['genome']
+    nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    variant_regexp = md_utilities.regexp['variant']
     # print(request.form)
-    if re.search(rf'^{md_utilities.genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{md_utilities.nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(rf'^{md_utilities.variant_regexp}$', request.form['g_name']) and \
-            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['c_name']) and \
+    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
+            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
+            re.search(rf'^{variant_regexp}$', request.form['g_name']) and \
+            re.search(rf'^c\.{variant_regexp}$', request.form['c_name']) and \
             'gene' in request.form:
         # and \
         #    'pos' in request.form:
@@ -267,12 +273,12 @@ def lovd():
                     if match_obj:
                         lovd_base_url = match_obj.group(1)
                         try:
-                            lovd_fh = open(md_utilities.lovd_ref_file)
+                            lovd_fh = open(md_utilities.local_files['lovd_ref']['abs_path'])
                             for line in lovd_fh:
                                 if re.search(r'{}'.format(lovd_base_url), line):
                                     lovd_name = line.split('\t')[0]
                         except Exception:
-                            pass
+                           pass
                     html_li = '<li>'
                     html_li_end = '</li>'
                     if len(lovd_urls) == 1:
@@ -374,8 +380,11 @@ def lovd():
 @login_required
 def modif_class():
     # tr_html = 'notok'
-    if re.search(r'^\d+$', request.form['variant_id']) and \
-            re.search(r'^\d+$', request.form['acmg_select']):
+    if 'variant_id' in request.form and \
+            re.search(r'^\d+$', request.form['variant_id']) and \
+            'acmg_select' in request.form and \
+            re.search(r'^\d+$', request.form['acmg_select']) and \
+            'acmg_comment' in request.form:
         variant_id = request.form['variant_id']
         acmg_select = request.form['acmg_select']
         acmg_comment = request.form['acmg_comment']
@@ -388,74 +397,103 @@ def modif_class():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
         # get all variant_features and gene info
-        try:
+        #try:
+        curs.execute(
+            "SELECT class_date FROM class_history WHERE \
+                variant_feature_id = %s AND acmg_class = %s \
+                AND mobiuser_id = %s",
+            (variant_id, acmg_select, g.user['id'])
+        )
+        res = curs.fetchone()
+        if res is not None:
+            if str(res['class_date']) == str(date):
+                # print(("{0}-{1}").format(res['class_date'], date))
+                tr_html = "<tr id='already_classified'><td colspan='4'>\
+                          You already classified this variant with the same class today.\
+                          If you just want to modify comments, the previous classification and start from scratch.\
+                          </td></tr>"
+                return tr_html
             curs.execute(
-                "SELECT class_date FROM class_history WHERE \
+                "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
                     variant_feature_id = %s AND acmg_class = %s \
                     AND mobiuser_id = %s",
-                (variant_id, acmg_select, g.user['id'])
+                (date, acmg_comment, variant_id, acmg_select, g.user['id'])
             )
-            res = curs.fetchone()
-            if res is not None:
-                if str(res['class_date']) == str(date):
-                    # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td colspan='4'>\
-                              You already classified this variant with the same class today.\
-                              If you just want to modify comments, the previous classification and start from scratch.\
-                              </td></tr>"
-                    return tr_html
-                curs.execute(
-                    "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
-                        variant_feature_id = %s AND acmg_class = %s \
-                        AND mobiuser_id = %s",
-                    (date, acmg_comment, variant_id, acmg_select, g.user['id'])
-                )
-            else:
-                curs.execute(
-                    "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
-                        (%s, %s, %s, %s, %s )",
-                    (variant_id, acmg_select, g.user['id'], date, acmg_comment)
-                )
-            db.commit()
-            # curs.execute(
-            #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
-            # )
-            # mobiuser_name = curs.fetchone()
+        else:
             curs.execute(
-                "SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = %s",
-                (acmg_select,)
+                "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
+                    (%s, %s, %s, %s, %s )",
+                (variant_id, acmg_select, g.user['id'], date, acmg_comment)
             )
-            acmg_details = curs.fetchone()
-            tr_html = "<tr id='{0}-{1}-{2}'> \
-                    <td class='w3-left-align'>{3}</td> \
-                    <td class='w3-left-align'>{4}</td> \
-                    <td class='w3-left-align'> \
-                        <span style='color:{5};'>Class {1} ({6})</span>\
-                    </td> \
-                    <td> \
-                        <div class='w3-cell-row'> \
-                            <span class='w3-container w3-left-align w3-cell'>{7}</span>\
-                </tr>".format(
-                    g.user['id'],
-                    acmg_select,
-                    variant_id,
-                    g.user['username'],
-                    date,
-                    acmg_details['html_code'],
-                    acmg_details['acmg_translation'],
-                    acmg_comment
-                )
+        db.commit()
+        # curs.execute(
+        #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
+        # )
+        # mobiuser_name = curs.fetchone()
+        curs.execute(
+            "SELECT html_code, acmg_translation, lovd_translation FROM valid_class WHERE acmg_class = %s",
+            (acmg_select,)
+        )
+        acmg_details = curs.fetchone()
+        tr_html = "<tr id='{0}-{1}-{2}'> \
+                <td class='w3-left-align'>{3}</td> \
+                <td class='w3-left-align'>{4}</td> \
+                <td class='w3-left-align'> \
+                    <span style='color:{5};'>Class {1} ({6})</span>\
+                </td> \
+                <td> \
+                    <div class='w3-cell-row'> \
+                        <span class='w3-container w3-left-align w3-cell'>{7}</span>\
+            </tr>".format(
+                g.user['id'],
+                acmg_select,
+                variant_id,
+                g.user['username'],
+                date,
+                acmg_details['html_code'],
+                acmg_details['acmg_translation'],
+                acmg_comment
+            )
+        # Send data to LOVD if relevant
+        if g.user['lovd_export'] is True and \
+                url_parse(request.referrer).host == md_utilities.host['dev']:
+            with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
+                lovd_json = json.load(json_file)
+            # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
+            genome_version = 'hg38'
+            curs.execute(
+                "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
+                a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
+                (variant_id, genome_version)
+            )
+            res_var = curs.fetchone()
+            lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
+            lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
+            lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
+            if res_var['dbsnp_id']:
+                lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
+            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
+            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
+            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
+            lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
+            
+            print(lovd_json)
+                # print(lovd_json)
+
             return tr_html
-        except Exception as e:
-            # pass
-            md_utilities.send_error_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails error',
-                    '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
-                ),
-                '[MobiDetails - MD variant class Error]'
-            )
-            return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
+        # except Exception as e:
+        #     # pass
+        #     md_utilities.send_error_email(
+        #         md_utilities.prepare_email_html(
+        #             'MobiDetails error',
+        #             '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
+        #         ),
+        #         '[MobiDetails - MD variant class Error]'
+        #     )
+        #     return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
+        
+
+            
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
 
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
@@ -567,11 +605,12 @@ def send_var_message():
 def create():
     # start_time = time.time()
     # print(request.form['new_variant'])
+    variant_regexp = md_utilities.regexp['variant']
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
     if re.search(r'^[\w-]+$', request.form['gene']) and \
             re.search(r'^NM_\d+$', request.form['acc_no']) and \
-            re.search(rf'^c\.{md_utilities.variant_regexp}$', request.form['new_variant']) and \
+            re.search(rf'^c\.{variant_regexp}$', request.form['new_variant']) and \
             re.search(r'^\d+$', request.form['acc_version']):
         gene = request.form['gene']
         acc_no = request.form['acc_no']
@@ -666,19 +705,20 @@ def create():
 # web app - ajax to modify email prefs for logged users
 
 
-@bp.route('/toggle_email_prefs', methods=['POST'])
+@bp.route('/toggle_prefs', methods=['POST'])
 @login_required
-def toggle_email_prefs():
+def toggle_prefs():
     # if re.search(r'^\d+$', request.form['user_id']) and \
     #        re.search(r'^[ft]$', request.form['pref_value']):
-    if re.search(r'^[ft]$', request.form['pref_value']):
+    if re.search(r'^[ft]$', request.form['pref_value']) and \
+            re.search(r'^(email_pref|lovd_export)$', request.form['field']):
         # mobiuser_id = request.form['user_id']
-        email_prefs = request.form['pref_value']
+        pref = request.form['pref_value']
+        field = request.form['field']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "UPDATE mobiuser SET email_pref = %s WHERE id = %s",
-            (email_prefs, g.user['id'])
+            "UPDATE mobiuser SET {0} = '{1}' WHERE id = '{2}'".format(field, pref, g.user['id'])
         )
         db.commit()
         return 'ok'
@@ -686,15 +726,17 @@ def toggle_email_prefs():
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
             'MobiDetails error',
-            '<p>MD failed to modify a user email prefs. User id: {0} to {1}</p>'.format(
+            '<p>MD failed to modify a user prefs for {0}. User id: {1} to {2}</p>'.format(
+                request.form['field'],
                 g.user['id'],
                 request.form['pref_value']
             )
         ),
-        '[MobiDetails - Email prefs Error]'
+        '[MobiDetails - User prefs Error]'
     )
     return md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your preferences.\
                                               An admin has been warned. Please try again later.')
+
 
 # -------------------------------------------------------------------
 # web app - ajax to mark/unmark variants as favourite for logged users
@@ -753,7 +795,8 @@ def autocomplete():
             return json.dumps(result)
         else:
             return ('', 204)
-    match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)
+    variant_regexp = md_utilities.regexp['variant']
+    match_object = re.search(rf'^c\.({variant_regexp})', query)
     if match_object:
         md_query = match_object.group(1)
         curs.execute(
@@ -797,7 +840,8 @@ def autocomplete_var():
     query = request.form['query_engine']
     gene = request.form['gene']
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
-    match_object = re.search(rf'^c\.({md_utilities.variant_regexp})', query)
+    variant_regexp = md_utilities.regexp['variant']
+    match_object = re.search(rf'^c\.({variant_regexp})', query)
     if match_object:
         md_query = match_object.group(1)
         db = get_db()

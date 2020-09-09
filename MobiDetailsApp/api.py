@@ -113,7 +113,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
         #         g.user = res
         # if variant_chgvs is None:
         #     return jsonify(mobidetails_error='No variant submitted')
-        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({md_utilities.variant_regexp})', urllib.parse.unquote(variant_chgvs))
+        variant_regexp = md_utilities.regexp['variant']
+        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
         if match_object:
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
             acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
@@ -260,7 +261,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
         )
         res_gene = curs.fetchone()
         if res_gene:
-            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({md_utilities.variant_regexp})', urllib.parse.unquote(variant_ghgvs))
+            variant_regexp = md_utilities.regexp['variant']
+            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
             if match_object:
                 ncbi_chr, g_var = match_object.group(1), match_object.group(2)
                 # 1st check hg38
@@ -326,7 +328,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         for transcript in res_gene_non_can:
                             res_gene_non_can_list.append('{0}.{1}'.format(transcript['name'][1], transcript['nm_version']))
                         for key in vv_data.keys():
-                            match_obj = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({md_utilities.variant_regexp})', key)
+                            variant_regexp = md_utilities.regexp['variant']
+                            match_obj = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', key)
                             if match_obj:
                                 new_variant = match_obj.group(3)
                                 # print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
@@ -485,7 +488,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         gene_names = []
         # can_nm = None
         for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
-            # match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({md_utilities.variant_regexp})$', hgvs)
+            variant_regexp = md_utilities.regexp['variant']
+            # match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({variant_regexp})$', hgvs)
             # if match_nm:
             #     current_nm = match_nm.group(1)
             #     # get list of NM recorded in MD
@@ -534,7 +538,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # we need HGVS genomic to launch the API but also the gene - got from NG
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # https://www.python.org/dev/peps/pep-0498/
-            match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({md_utilities.variant_regexp})$', hgvs)
+            match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', hgvs)
             if match_nc and \
                     not md_response:
                 # if hg38, we keep it in a variable that can be useful later
@@ -558,7 +562,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         if res_gene:
                             for hgnc_name in res_gene:
                                 gene_names.append(hgnc_name[0])
-            # match_ng = re.search(rf'^(NG_\d+)\.\d+:g\.{md_utilities.variant_regexp}$', hgvs)
+            # match_ng = re.search(rf'^(NG_\d+)\.\d+:g\.{variant_regexp}$', hgvs)
             # if match_ng and \
             #         not gene_name and \
             #         not md_response:

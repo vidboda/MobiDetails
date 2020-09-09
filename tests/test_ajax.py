@@ -225,13 +225,16 @@ def test_create(client, new_variant, gene, acc_no, acc_version, message1, messag
 # test toggle_email_prefs
 
 
-@pytest.mark.parametrize(('pref','status_code'), (
-    ('t', 200),
-    (None, 200),
-    ('f', 200)
+@pytest.mark.parametrize(('caller', 'pref','status_code'), (
+    ('lovd_export', 't', 200),
+    ('lovd_export', None, 200),
+    ('lovd_export', 'f', 200),
+    ('email_pref', 't', 200),
+    ('email_pref', None, 200),
+    ('email_pref', 'f', 200)
 ))
-def test_toggle_email_prefs(client, app, auth, pref, status_code):
-    assert client.get('/toggle_email_prefs').status_code == 405
+def test_toggle_prefs(client, app, auth, caller, pref, status_code):
+    assert client.get('/toggle_prefs').status_code == 405
     with app.app_context():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -239,11 +242,11 @@ def test_toggle_email_prefs(client, app, auth, pref, status_code):
             "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
         )
         res = curs.fetchone()
-        response = client.post('/toggle_email_prefs', data=dict(pref_value=pref), follow_redirects=True)
+        response = client.post('/toggle_prefs', data=dict(pref_value=pref, field=caller), follow_redirects=True)
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login('mobidetails.iurc@gmail.com', res['password'])
-        assert client.post('/toggle_email_prefs', data=dict(pref_value=pref), follow_redirects=True).status_code == status_code
+        assert client.post('/toggle_prefs', data=dict(pref_value=pref, field=caller), follow_redirects=True).status_code == status_code
 
 
 # test favourite

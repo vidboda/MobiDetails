@@ -960,6 +960,10 @@ def search_engine():
     query_engine = request.form['search']
     # query_engine = query_engine.upper()
     error = None
+    variant_regexp = md_utilities.regexp['variant']
+    variant_regexp_flexible = md_utilities.regexp['variant_flexible']
+    amino_acid_regexp = md_utilities.regexp['amino_acid']
+    nochr_captured_regexp = md_utilities.regexp['nochr_captured']
 
     if query_engine is not None and \
             query_engine != '':
@@ -971,7 +975,7 @@ def search_engine():
         # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
         
-        match_object = re.search(rf'^([{md_utilities.amino_acid_regexp}]{{1}})(\d+)([{md_utilities.amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
+        match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
             confusing_genes = ['C1R', 'C8G', 'S100G', 'F11R', 'C1S', 'A2M', 'C1D', 'S100P', 'F2R', 'C8A', 'C4A']
             # list of genes that looks like the query
@@ -1002,14 +1006,14 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{md_utilities.variant_regexp}$', query_engine):  # NM acc no variant
+        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{variant_regexp}$', query_engine):  # NM acc no variant
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # API call
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+:c\.{md_utilities.variant_regexp})$', query_engine)
+            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+:c\.{variant_regexp})$', query_engine)
             if api_key is not None:
                 return redirect(url_for('api.api_variant_create', variant_chgvs=match_obj.group(1), caller='browser', api_key=api_key), code=307)
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc no
@@ -1018,30 +1022,30 @@ def search_engine():
             col_names = 'name'
             match_object = re.search(r'^([Nn][Mm]_\d+)\.?\d?', query_engine)
             pattern = match_object.group(1)
-        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{md_utilities.variant_regexp}$', query_engine):  # strict HGVS genomic
+        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
             db = get_db()
-            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({md_utilities.variant_regexp})$', query_engine)
+            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', query_engine)
             # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
             pattern = match_object.group(2)
             # res_common = md_utilities.get_common_chr_name(db, )
-        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{md_utilities.variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
+        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
             # API call
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{md_utilities.variant_regexp});([\w-]+)$', query_engine)
+            match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
             if api_key is not None:
                 return redirect(url_for('api.api_variant_g_create', variant_ghgvs=match_obj.group(1), gene_hgnc=match_obj.group(2), caller='browser', api_key=api_key), code=307)
-        elif re.search(rf'^[Cc][Hh][Rr]({md_utilities.nochr_captured_regexp}):g\.{md_utilities.variant_regexp_flexible}$', query_engine):  # deal w/ genomic
+        elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
-            match_object = re.search(rf'^[Cc][Hh][Rr]({md_utilities.nochr_captured_regexp}):g\.({md_utilities.variant_regexp_flexible})$', query_engine)
+            match_object = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.({variant_regexp_flexible})$', query_engine)
             chrom = match_object.group(1)
             pattern = match_object.group(2)
             # if re.search(r'>', pattern):

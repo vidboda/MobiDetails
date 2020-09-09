@@ -232,8 +232,6 @@ def login():
         # print(request.referrer)
         if request.referrer is not None and \
                 url_parse(request.referrer).host == url_parse(request.base_url).host:
-            # if url_parse(request.referrer).host == '10.34.20.79' or \
-            #         url_parse(request.referrer).host == 'mobidetails.iurc.montp.inserm.fr':
             referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
@@ -365,7 +363,7 @@ def profile(mobiuser_id=0):
         #     "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
         # )
         curs.execute(
-            "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = %s",
+            "SELECT id, username, email, institute, country, api_key, email_pref, lovd_export FROM mobiuser  WHERE id = %s",
             (user_id,)
         )
         mobiuser = curs.fetchone()

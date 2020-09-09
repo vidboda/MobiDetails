@@ -68,7 +68,8 @@ def file_upload():
                             line == '':
                         continue
                     line = line.replace(' ', '')
-                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+):(c\.{md_utilities.variant_regexp})$', line)
+                    variant_regexp = md_utilities.regexp['variant']
+                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+):(c\.{variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
@@ -99,7 +100,7 @@ def file_upload():
                             result.append({'variant': line, 'error': 'Unknown NCBI NM accession number'})
                         continue
                     # genomic format
-                    match_obj_g = re.search(rf'^([Nn][Cc]_\d+\.\d+:g\.{md_utilities.variant_regexp});([\w-]+)$', line)
+                    match_obj_g = re.search(rf'^([Nn][Cc]_\d+\.\d+:g\.{variant_regexp});([\w-]+)$', line)
                     if match_obj_g:
                         # check NM number and version
                         curs.execute(

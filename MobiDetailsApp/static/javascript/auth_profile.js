@@ -1,4 +1,4 @@
-function toggle_email_service(email_perf_url, csrf_token) {
+function toggle_service(pref_url, csrf_token, caller) {
     // ajax to modify prefs for email contacts
     $('html').css('cursor', 'progress');
     // send header for flask-wtf crsf security	
@@ -9,11 +9,12 @@ function toggle_email_service(email_perf_url, csrf_token) {
             }
         }
     });
+    var value_id = $("#value_to_send_" + caller).html();
     $.ajax({
 		type: "POST",
-		url: email_perf_url,
+		url: pref_url,
 		data: {
-			pref_value: $("#value_to_send").html()
+			pref_value: value_id, field: caller
 		}
 	})
 	.done(function(return_value, html_error) {
@@ -21,22 +22,28 @@ function toggle_email_service(email_perf_url, csrf_token) {
             var txt = 'enabled';
             var label = 'Disable it';
             var value_to_send = 'f';
-            if ($("#value_to_send").html() == 'f') {
+            if (value_id == 'f') {
                 txt = 'disabled';
                 label = 'Enable it';
                 value_to_send = 't';
             }
-            $("#value_to_send").html(value_to_send);
-            $('#contact_btn').html(label);
+            $("#value_to_send_" + caller).html(value_to_send);
+            $("#btn_" + caller).html(label);
             //$("#contact_box").prop( "checked", false);
-            $('#contact_value').html(txt);
+            if ($("#value_" + caller).attr('class') == 'w3-text-red') {
+                $("#value_" + caller).attr('class', 'w3-text-green');
+            }
+            else if($("#value_" + caller).attr('class') == 'w3-text-green') {
+                $("#value_" + caller).attr('class', 'w3-text-red');
+            }
+            $("#value_" + caller).html(txt);
             //$('#contact_box_label').html(label);
-            $('html').css('cursor', 'default');
+            $("html").css('cursor', 'default');
         }
         else{
             //$("#contact_box").prop( "checked", false);
-            $('#error_messages').html(html_error);
-            $('html').css('cursor', 'default');
+            $("#error_messages").html(html_error);
+            $("html").css('cursor', 'default');
         }
         
 	});
