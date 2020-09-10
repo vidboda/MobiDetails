@@ -1,0 +1,442 @@
+'host':
+  'dev': '10.34.20.79'
+  'prod': 'mobidetails.iurc.montp.inserm.fr'
+'regexp':
+  'variant': '[\dACGTdienulps_>\+\*-]+'
+  'variant_flexible': '[\dACGTacgtdienulps_>\+\*-]+'
+  'genome': 'hg[13][98]'
+  'nochr_chrom': '[\dXYM]{1,2}'
+  'nochr_captured': '\d{1,2}|[XYM]'
+  'amino_acid': 'ACDEFGHIKLMNPQRSTVXWYacdefghiklmnpqrstvwyx'
+'ext_exe':
+  'maxentscan5': '/static/resources/maxentscan/score5.pl'
+  'maxentscan3': '/static/resources/maxentscan/score3.pl'
+'api_fake_agent':
+  'Accept': 'application/json'
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+'complement':
+  'A': 'T'
+  'C': 'G'
+  'G': 'C'
+  'T': 'A'
+'one2three':
+  'A': 'Ala'
+  'C': 'Cys'
+  'D': 'Asp'
+  'E': 'Glu'
+  'F': 'Phe'
+  'G': 'Gly'
+  'H': 'His'
+  'I': 'Ile'
+  'K': 'Lys'
+  'L': 'Leu'
+  'M': 'Met'
+  'N': 'Asn'
+  'P': 'Pro'
+  'Q': 'Gln'
+  'R': 'Arg'
+  'S': 'Ser'
+  'T': 'Thr'
+  'V': 'Val'
+  'W': 'Trp'
+  'Y': 'Tyr'
+  'del': 'del'
+  'X': 'Ter'
+  '*': 'Ter'
+  '=': '='
+  'Ter': 'Ter'
+'three2one':
+  'Ala': 'A'
+  'Cys': 'C'
+  'Asp': 'D'
+  'Glu': 'E'
+  'Phe': 'F'
+  'Gly': 'G'
+  'His': 'H'
+  'Ile': 'I'
+  'Lys': 'K'
+  'Leu': 'L'
+  'Met': 'M'
+  'Asn': 'N'
+  'Pro': 'P'
+  'Gln': 'Q'
+  'Arg': 'R'
+  'Ser': 'S'
+  'Thr': 'T'
+  'Val': 'V'
+  'Trp': 'W'
+  'Tyr': 'Y'
+  'Del': 'del'
+  'X': 'Ter'
+  '*': 'Ter'
+  '=': '='
+  'Ter': 'Ter'
+# urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
+'urls':
+  'cadd': 'https://cadd.gs.washington.edu/'
+  'clinpred': 'https://sites.google.com/site/clinpred/home'
+  'dbmts': 'http://www.liulab.science/dbmts.html'
+  'dbscsnv': 'http://www.liulab.science/dbscsnv.html'
+  'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP'
+  'eigen': 'http://www.columbia.edu/~ii2135/eigen.html'
+  'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t='
+  'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome'
+  'fathmm': 'http://fathmm.biocompute.org.uk/'
+  'gnomad': 'http://gnomad.broadinstitute.org/'
+  'hgvs': 'http://varnomen.hgvs.org/'
+  'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build='
+  'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build='
+  'lovd': 'http://www.lovd.nl/'
+  'lovd_api_variants': 'https://databases.lovd.nl/shared/api/rest/variants/'
+  'lovd_api_submissions': 'https://databases.lovd.nl/shared/api/rest/submissions'
+  'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v='
+  'marrvel': 'http://marrvel.org/search/gene/'
+  'maxentscan': 'http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html'
+  'metadome': 'https://stuart.radboudumc.nl/metadome/'
+  'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/'
+  'mirbase': 'http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc='
+  'mpa': 'https://github.com/mobidic/MPA'
+  'mutalyzer': 'https://mutalyzer.nl'
+  'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description='
+  'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
+  'mutalyzer_api_json': 'https://mutalyzer.nl/json/'
+  'ncbi': 'https://www.ncbi.nlm.nih.gov/'
+  'ncbi_nuccore':  'https://www.ncbi.nlm.nih.gov/nuccore/'
+  'ncbi_prot': 'https://www.ncbi.nlm.nih.gov/protein/'
+  'ncbi_dbsnp': 'https://www.ncbi.nlm.nih.gov/snp/'
+  'ncbi_clinvar': 'https://www.ncbi.nlm.nih.gov/clinvar'
+  'ncbi_1000g': 'https://www.ncbi.nlm.nih.gov/variation/tools/1000genomes/?'
+  'ncbi_gene': 'https://www.ncbi.nlm.nih.gov/gene/?term='
+  'ncbi_pubmed': 'https://pubmed.ncbi.nlm.nih.gov/'
+  'ncbi_litvar': 'https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query='
+  'ncbi_litvar_api': 'https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='
+  'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
+  'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
+  'revel': 'https://sites.google.com/site/revelgenomics/'
+  'spliceai': 'https://github.com/Illumina/SpliceAI'
+  'sift': 'https://sift.bii.a-star.edu.sg/'
+  'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position='
+  'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn'
+  'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position='
+  'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF'
+  'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html'
+  'uniprot_id': 'http://www.uniprot.org/uniprot/'
+  'variant_validator': ' https://variantvalidator.org/service/validate/?variant='
+  # uncomment below to use genuine VV web API
+  'variant_validator_api': 'https://rest.variantvalidator.org/'
+  # uncomment below to use VV on monster
+  # 'variant_validator_api': 'https://194.167.35.245:8000/'
+  # uncomment below to use VV on beast
+  # 'variant_validator_api': 'https://194.167.35.207:8000/'
+  # uncomment below to use VV on medium
+  # 'variant_validator_api': 'https://10.34.20.79:8000/'
+  # uncomment below to use VV on genuine VV dev
+  # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/'
+  # hello on genuine VV
+  'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
+  # hello on monster VV
+  # 'variant_validator_api_hello': 'https://194.167.35.245:8000/hello/?content-type=application/json'
+  # hello on beast VV
+  # 'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json'
+  # hello on medium VV
+  # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json'
+  # hello on genuine VV dev
+  # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json'
+'local_files':
+  # id :local path, version name, short desc, short name 4 urls xref    
+  'cadd':
+    'rel_path': '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'
+    'name': 'CADD SNVs'
+    'description': 'Prediction of deleterious effect for all variant types'
+    'short_name': 'cadd'
+  'cadd_indels':
+    'rel_path': '/static/resources/CADD/hg38/InDels.tsv.gz'
+    'name': 'CADD indels'
+    'description': 'Prediction of deleterious effect for all variant types'
+    'short_name': 'cadd'
+  'clinpred':
+    'rel_path': '/static/resources/clinpred/clinpred.txt.gz'
+    'name': 'ClinPred'
+    'description': 'Pre-computed ClinPred scores for all possible human missense variant'
+    'short_name': 'clinpred'
+  'clinvar_hg38':
+    'rel_path': '/static/resources/clinvar/hg38/'
+    'name': 'ClinVar'
+    'description': 'Database of variants clinically assessed'
+    'short_name': 'ncbi_clinvar'
+  'dbmts':
+    'rel_path': '/static/resources/dbMTS/v1.0/dbMTS1.0.txt.gz'
+    'name': 'dbMTS'
+    'description': 'Dataset of predictions for 3 UTR substitutions'
+    'short_name': 'dbmts'
+  'dbnsfp':
+    'rel_path': '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'
+    'name': 'dbNSFP'
+    'description': 'Dataset of predictions for missense'
+    'short_name': 'dbnsfp'
+  'dbscsnv':
+    'rel_path': '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'
+    'name': 'dbscSNV'
+    'description': 'Dataset of splicing predictions'
+    'short_name': 'dbscsnv'
+  'dbsnp':
+    'rel_path': '/static/resources/dbsnp/hg38/v154/GCF_000001405.38.gz'
+    'name': 'dbSNP'
+    'description': 'Database of human genetic variations'
+    'short_name': 'ncbi_dbsnp'
+  'gnomad_exome':
+    'rel_path': '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'
+    'name': 'gnomAD exome'
+    'description': 'Large dataset of variants population frequencies'
+    'short_name': 'gnomad'
+  'gnomad_genome':
+    'rel_path': '/static/resources/gnomad/hg19_gnomad_genome_sorted.txt.gz'
+    'name': 'gnomAD genome'
+    'description': 'Large dataset of variants population frequencies'
+    'short_name': 'gnomad'
+  'gnomad_3':
+    'rel_path': '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'
+    'name': 'gnomAD genome'
+    'description': 'Large dataset of variants population frequencies'
+    'short_name': 'gnomad'
+  'human_genome_hg38':
+    'rel_path': '/static/resources/genome/hg38.2bit'
+    'name': 'Human genome sequence'
+    'description': 'Human genome sequence chr by chr (2bit format)'
+    'short_name': 'ucsc_2bit'
+  'human_genome_hg19':
+    'rel_path': '/static/resources/genome/hg19.2bit'
+    'name': 'Human genome sequence'
+    'description': 'Human genome sequence chr by chr (2bit format)'
+    'short_name': 'ucsc_2bit'
+  'lovd_ref':
+    'rel_path': '/static/resources/lovd/lovd_instances.txt'
+    'name': 'LOVD reference file'
+    'description': 'Text file describing different LOVD instances'
+    'short_name': 'lovd_ref'
+  'lovd_api_json':
+    'rel_path': '/static/resources/lovd/lovd_api_compliant.json'
+    'name': 'LOVD JSON file'
+    'description': 'LOVD JSON file for API calls and variant submission'
+    'short_name': 'lovd_api_json'
+  'maxentscan':
+    'rel_path': '/static/resources/maxentscan/'
+    'name': 'MaxEntScan'
+    'description': 'Human splice site prediction'
+    'short_name': 'maxentscan'
+  'metadome':
+    'rel_path': '/static/resources/metadome/v1/'
+    'name': 'metadome scores'
+    'description': 'Mutation tolerance at each position in a human protein'
+    'short_name': 'metadome'
+  'spliceai_snvs':
+    'rel_path': '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'
+    'name': 'spliceAI SNVs'
+    'description': 'Dataset of splicing predictions'
+    'short_name': 'spliceai'
+  'spliceai_indels':
+    'rel_path': '/static/resources/spliceai/hg38/spliceai_scores.raw.indel.hg38.vcf.gz'
+    'name': 'spliceAI Indels'
+    'description': 'Dataset of splicing predictions'
+    'short_name': 'spliceai'
+'external_tools':
+  'CADD':
+    'firstauthor': 'Rentzsch'
+    'year': '2019'
+    'paper': '30371827'
+    'version': 'v1.5'
+    'short_name': 'cadd'
+  'ClinPred':
+    'firstauthor': 'Alirezaie'
+    'year': '2018'
+    'paper': '30220433'
+    'version': '2018_hg19'
+    'short_name': 'clinpred'
+  'ClinVar':
+    'firstauthor': 'Landrum'
+    'year': '2016'
+    'paper': '26582918'
+    'version': 'v'
+    'short_name': 'ncbi_clinvar'
+  'dbMTS':
+    'firstauthor': 'Chang'
+    'year': '2020'
+    'paper': '32227657'
+    'version': 'v1.0'
+    'short_name': 'dbmts'
+  'dbNSFP':
+    'firstauthor': 'Liu'
+    'year': '2016'
+    'paper': '26555599'
+    'version': 'v4.0a'
+    'short_name': 'dbnsfp'
+  'dbscSNV':
+    'firstauthor': 'Jian'
+    'year': '2014'
+    'paper': '25416802'
+    'version': 'v1.1'
+    'short_name': 'dbscsnv'
+  'dbSNP':
+    'firstauthor': 'Sherry'
+    'year': '2001'
+    'paper': '11125122'
+    'version': 'v154'
+    'short_name': 'ncbi_dbsnp'
+  'Eigen':
+    'firstauthor': 'Ionita-Laza'
+    'year': '2016'
+    'paper': '26727659'
+    'version': 'v1.1'
+    'short_name': 'eigen'
+  'FatHMM':
+    'firstauthor': 'Shihab'
+    'year': '2013'
+    'paper': '23033316'
+    'version': 'from dbNSFP'
+    'short_name': 'fathmm'
+  'gnomAD':
+    'firstauthor': 'Karczewski'
+    'year': '2020'
+    'paper': '32461654'
+    'version': 'v2.0.1;v3'
+    'short_name': 'gnomad'
+  'InterVar':
+    'firstauthor': 'Li'
+    'year': '2017'
+    'paper': '28132688'
+    'version': 'API'
+    'short_name': 'intervar'
+  'LitVar':
+    'firstauthor': 'Allot'
+    'year': '2018'
+    'paper': '29762787'
+    'version': 'API'
+    'short_name': 'ncbi_litvar'
+  'LOVD':
+    'firstauthor': 'Fokkema'
+    'year': '2011'
+    'paper': '21520333'
+    'version': 'API'
+    'short_name': 'lovd'
+  'MaxEntScan':
+    'firstauthor': 'Yeo'
+    'year': '2004'
+    'paper': '15285897'
+    'version': '2004'
+    'short_name': 'maxentscan'
+  'metadome':
+    'firstauthor': 'Wiel'
+    'year': '2019'
+    'paper': ' 31116477'
+    'version': 'v1.0.1'
+    'short_name': 'metadome'
+  'MetaSVM-LR':
+    'firstauthor': 'Dong'
+    'year': '2015'
+    'paper': '25552646'
+    'version': 'from dbNSFP'
+    'short_name': 'dbnsfp'
+  'MPA':
+    'firstauthor': 'Yauy'
+    'year': '2018'
+    'paper': '29689380'
+    'version': '1.1'
+    'short_name': 'mpa'
+  'Mutalyzer':
+    'firstauthor': 'Wildeman'
+    'year': '2008'
+    'paper': '18000842'
+    'version': 'API'
+    'short_name': 'mutalyzer'
+  'Polyphen 2':
+    'firstauthor': 'Adzhubei'
+    'year': '2010'
+    'paper': '20354512'
+    'version': 'from dbNSFP'
+    'short_name': 'pph2'
+  'REVEL':
+    'firstauthor': 'Ioannidis'
+    'year': '2016'
+    'paper': '27666373'
+    'version': 'from dbNSFP'
+    'short_name': 'revel'
+  'SIFT':
+    'firstauthor': 'Ng'
+    'year': '2003'
+    'paper': '16824020'
+    'version': 'from dbNSFP'
+    'short_name': 'sift'
+  'spliceAI':
+    'firstauthor': 'Jaganathan'
+    'year': '2019'
+    'paper': '30661751'
+    'version': 'v1.3'
+    'short_name': 'spliceai'
+  'VariantValidator':
+    'firstauthor': 'Freeman'
+    'year': '2018'
+    'paper': '28967166'
+    'version': 'API'
+    'short_name': 'variant_validator'
+'predictor_thresholds':
+  'clinpred': 0.5
+  'dbscsnv': 0.8
+  'fathmm': -1.5
+  'fathmm-mkl': -1.5
+  'lrt': 0.5
+  'metadome_hintolerant': 0.175
+  'metadome_intolerant': 0.52
+  'metadome_sintolerant': 0.7
+  'metadome_neutral': 0.875
+  'metadome_stolerant': 1.025
+  'metadome_tolerant': 1.375
+  'meta-lr': 0.5    
+  'meta-svm': 0
+  'mpa_max': 8
+  'mpa_mid': 5
+  'pph2_hdiv_max': 0.957
+  'pph2_hdiv_mid': 0.454
+  'pph2_hvar_max': 0.909
+  'pph2_hvar_mid': 0.447
+  'provean': -2.5
+  'revel_min': 0.2
+  'revel_max': 0.5
+  'sift': 0.95
+  'spliceai_min': 0.2
+  'spliceai_mid': 0.5
+  'spliceai_max': 0.8
+'predictor_colors':
+  'min': '#00A020'
+  'highly_tolerant': '#0404B4'
+  'tolerant': '#2E64FE'
+  'slightly_tolerant': '#00CCBC'
+  'no_effect': '#000000'
+  'neutral': '#F9D057'
+  'small_effect': '#FFA020'
+  'mid_effect': '#FF6020'
+  'max': '#FF0000'
+  'highly_intolerant': '#D7191C'
+'predictors_translations':
+  'basic':
+    'D': 'Damaging'
+    'T': 'Tolerated'
+    '.': 'no prediction'
+    'N': 'Neutral'
+    'U': 'Unknown'
+  'pph2':
+    'D': 'Probably Damaging'
+    'P': 'Possibly Damaging'
+    'B': 'Benign'
+    '.': 'no prediction'
+  'mt':
+    'A': 'Disease causing automatic'
+    'D': 'Disease causing'
+    'N': 'polymorphism'
+    'P': 'polymorphism automatic'
+    '.': 'no prediction'
+  'revel':
+    'D': 'Damaging'
+    'U': 'Uncertain'
+    'B': 'Benign'
+    '.': 'no prediction'
+'countries': ['Afghanistan', 'Åland Islands', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Caribbean Netherlands ', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo', 'Cook Islands', 'Costa Rica', 'Côte d''Ivoire', 'Croatia', 'Cuba', 'Curaçao', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Falkland Islands', 'Faroe Islands', 'Fiji', 'Finland', 'France', 'French Guiana', 'French Polynesia', 'French Southern Territories', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Gibraltar', 'Greece', 'Greenland', 'Grenada', 'Guadeloupe', 'Guam', 'Guatemala', 'Guernsey', 'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Heard and McDonald Islands', 'Honduras', 'Hong Kong', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Jamaica', 'Japan', 'Jersey', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan', 'Lao People''s Democratic Republic', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Macau', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Martinique', 'Mauritania', 'Mauritius', 'Mayotte', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Montserrat', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'New Caledonia', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'Niue', 'Norfolk Island', 'North Korea', 'Northern Mariana Islands', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Pitcairn', 'Poland', 'Portugal', 'Puerto Rico', 'Qatar', 'Réunion', 'Romania', 'Russian Federation', 'Rwanda', 'Saint Barthélemy', 'Saint Helena', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Saint-Martin (France)', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Georgia and the South Sandwich Islands', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'St. Pierre and Miquelon', 'Sudan', 'Suriname', 'Svalbard and Jan Mayen Islands', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'The Netherlands', 'Timor-Leste', 'Togo', 'Tokelau', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Turks and Caicos Islands', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'United States Minor Outlying Islands', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican', 'Venezuela', 'Vietnam', 'Virgin Islands (British)', 'Virgin Islands (U.S.)', 'Wallis and Futuna Islands', 'Western Sahara', 'Yemen', 'Zambia', 'Zimbabwe']
