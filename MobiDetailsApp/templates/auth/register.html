@@ -28,7 +28,10 @@
 				{{ fa('globe') }}
 				<div class="w3-rest"><select class="w3-select w3-border" name="country" id="country">
 					<option value="--">--</option>
-					<option value="Andorra">Andorra</option>
+          {% for country in countries %}
+            <option value="{{ country }}">{{ country }}</option>
+          {% endfor %}
+					<!--<option value="Andorra">Andorra</option>
 					<option value="United Arab Emirates">United Arab Emirates</option>
 					<option value="Afghanistan">Afghanistan</option>
 					<option value="Antigua and Barbuda">Antigua and Barbuda</option>
@@ -210,7 +213,7 @@
 					<option value="St. Pierre and Miquelon">St. Pierre and Miquelon</option>
 					<option value="Pitcairn">Pitcairn</option>
 					<option value="Puerto Rico">Puerto Rico</option>
-					<option value=""Palestine">"Palestine</option>
+					<option value="Palestine">Palestine</option>
 					<option value="Portugal">Portugal</option>
 					<option value="Palau">Palau</option>
 					<option value="Paraguay">Paraguay</option>
@@ -276,7 +279,7 @@
 					<option value="Mayotte">Mayotte</option>
 					<option value="South Africa">South Africa</option>
 					<option value="Zambia">Zambia</option>
-					<option value="Zimbabwe">Zimbabwe</option>
+					<option value="Zimbabwe">Zimbabwe</option>-->
 				</select></div>			
 				<!--<div class="w3-rest">{{ input('country') }}</div>-->
 			</div>

@@ -115,7 +115,7 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
         )
     )
 )
-
+countries = resources['countries']
 
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))

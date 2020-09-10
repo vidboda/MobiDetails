@@ -169,13 +169,16 @@ def gene(gene_name=None):
                         # find out how to get app object
                         try:
                             # enst_metadome = {transcript_id: enst_ver[enst]}
+                            header = md_utilities.api_fake_agent
+                            header['Content-Type'] = 'application/json'
                             vis_request = json.loads(
                                             http.request(
                                                 'POST',
                                                 '{0}submit_visualization/'.format(
                                                     md_utilities.urls['metadome_api']
                                                 ),
-                                                headers={'Content-Type': 'application/json'},
+                                                # headers={'Content-Type': 'application/json'},
+                                                headers=header,
                                                 body=json.dumps({'transcript_id': enst_ver[enst]})
                                             ).data.decode('utf-8')
                             )

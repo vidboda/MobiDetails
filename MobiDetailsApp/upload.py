@@ -52,7 +52,7 @@ def file_upload():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-                #headers
+                # headers
                 header = md_utilities.api_fake_agent
                 result = []
                 api_key = md_utilities.get_api_key(g, curs)

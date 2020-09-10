@@ -476,8 +476,14 @@ def modif_class():
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
-                
-            print(lovd_json)
+
+                # send request to LOVD API
+                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                # headers
+                header = md_utilities.api_fake_agent
+                header['Content-Type'] = 'application/json'
+                lovd_respnse = json.loads(http.request('POST', md_api_url, headers=header, fields=json.dumps(lovd_json)).data.decode('utf-8'))
+                print(lovd_response)
             return tr_html
         except Exception as e:
             # pass

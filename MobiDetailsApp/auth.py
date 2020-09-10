@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
 from datetime import datetime
 from MobiDetailsApp.db import get_db, close_db
+from . import md_utilities
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -217,9 +218,9 @@ def register():
                 ),
                 '[MobiDetails - Registering Error]'
             )
-        return render_template('auth/register.html', prev_username=username, prev_institute=institute, prev_email=email)
+        return render_template('auth/register.html', countries=md_utilities.countries, prev_username=username, prev_institute=institute, prev_email=email)
 
-    return render_template('auth/register.html')
+    return render_template('auth/register.html', countries=md_utilities.countries)
 
 # -------------------------------------------------------------------
 # login
