@@ -24,27 +24,12 @@ resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 host = resources['host']
 regexp = resources['regexp']
-# variant_regexp = resources['variant_regexp']
-# variant_regexp_flexible = resources['variant_regexp_flexible']
-# genome_regexp = resources['genome_regexp']
-# nochr_chrom_regexp = resources['nochr_chrom_regexp']
-# nochr_captured_regexp = resources['nochr_captured_regexp']
-# amino_acid_regexp = resources['amino_acid_regexp']
-api_fake_agent = resources['api_fake_agent']
-# variant_regexp = '[\dACGTdienulps_>+\*-]+'
-# genome_regexp = 'hg[13][98]'
-# nochr_chrom_regexp = '[\dXYM]{1,2}'
-# nochr_captured_regexp = '\d{1,2}|[XYM]'
-# lovd_ref_file = '{0}{1}'.format(app_path, resources['lovd_ref_file_rel_path'])
-# lovd_api_json_file = '{0}{1}'.format(app_path, resources['lovd_api_json_file_rel_path'])
-# lovd_ref_file = '{}/static/resources/lovd/lovd_instances.txt'.format(app_path)
+
+api_agent = resources['api_agent']
+
 ext_exe = resources['ext_exe']
 ext_exe['maxentscan5'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan5'])
 ext_exe['maxentscan3'] = '{0}{1}'.format(app_path, resources['ext_exe']['maxentscan3'])
-# ext_exe = {
-#     'maxentscan5': '{}/static/resources/maxentscan/score5.pl'.format(app_path),
-#     'maxentscan3': '{}/static/resources/maxentscan/score3.pl'.format(app_path)
-# }
 
 
 def get_clinvar_current_version(clinvar_dir):
@@ -60,9 +45,6 @@ def get_clinvar_current_version(clinvar_dir):
 
 one2three = resources['one2three']
 three2one = resources['three2one']
-# url_ncbi = resources['url_ncbi']
-
-
 urls = resources['urls']
 local_files = resources['local_files']
 local_files['cadd']['abs_path'] = '{0}{1}'.format(app_path, local_files['cadd']['rel_path'])
@@ -76,13 +58,7 @@ local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
         local_files['clinvar_hg38']['rel_path'])
     )
 )
-# local_files['clinvar_hg38']['version'] = 'v{}'.format(
-#     get_clinvar_current_version('{0}{1}'.format(
-#         app_path,
-#         local_files['clinvar_hg38']['rel_path']
-#         )
-#     )
-# )
+
 local_files['dbmts']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbmts']['rel_path'])
 local_files['dbnsfp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbnsfp']['rel_path'])
 local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbscsnv']['rel_path'])
@@ -107,7 +83,6 @@ external_tools = resources['external_tools']
 for tool in external_tools:
     if re.search(r'^\d+$', external_tools[tool]['paper']):
         external_tools[tool]['paper'] = '{0}{1}'.format(urls['ncbi_pubmed'], external_tools[tool]['paper'])
-# external_tools['ClinVar']['version'] = local_files['clinvar_hg38']['version']
 external_tools['ClinVar']['version'] = 'v{}'.format(
     get_clinvar_current_version('{0}{1}'.format(
         app_path,

@@ -525,7 +525,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             #                     'api_key': api_key
             #                 }
             #                 try:
-            #                     md_response[variant_chgvs] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
+            #                     md_response[variant_chgvs] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
             #                 except Exception:
             #                     md_response[variant_chgvs] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, variant_chgvs)}
             #             else:
@@ -591,7 +591,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     }
                     try:
                         # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
-                        md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_fake_agent, fields=data).data.decode('utf-8'))
+                        md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
                     except Exception:
                         md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
         if md_response:

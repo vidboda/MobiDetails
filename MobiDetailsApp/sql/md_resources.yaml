@@ -11,9 +11,9 @@
 'ext_exe':
   'maxentscan5': '/static/resources/maxentscan/score5.pl'
   'maxentscan3': '/static/resources/maxentscan/score3.pl'
-'api_fake_agent':
+'api_agent':
   'Accept': 'application/json'
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+  'User-Agent': 'python-requests/2.22.0 Python/3.6.8'
 'complement':
   'A': 'T'
   'C': 'G'

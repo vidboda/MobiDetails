@@ -426,10 +426,6 @@ def modif_class():
                     (variant_id, acmg_select, g.user['id'], date, acmg_comment)
                 )
             db.commit()
-            # curs.execute(
-            #     "SELECT username FROM mobiuser WHERE id = '{}'".format(g.user['id'])
-            # )
-            # mobiuser_name = curs.fetchone()
             curs.execute(
                 "SELECT html_code, acmg_translation, lovd_translation FROM valid_class WHERE acmg_class = %s",
                 (acmg_select,)
@@ -455,6 +451,7 @@ def modif_class():
                     acmg_comment
                 )
             # Send data to LOVD if relevant
+            ########### REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] WHEN LOVD FEATURE IS READY ###########
             if g.user['lovd_export'] is True and \
                     url_parse(request.referrer).host == md_utilities.host['dev']:
                 with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
@@ -476,14 +473,15 @@ def modif_class():
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
-
+    
                 # send request to LOVD API
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
-                header = md_utilities.api_fake_agent
+                header = md_utilities.api_agent
                 header['Content-Type'] = 'application/json'
-                lovd_respnse = json.loads(http.request('POST', md_api_url, headers=header, fields=json.dumps(lovd_json)).data.decode('utf-8'))
-                print(lovd_response)
+                ########### UNCOMMENT WHEN LOVD FEATURE IS READY ###########
+                # lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], headers=header, body=json.dumps(lovd_json)).data.decode('utf-8')
+                # print(lovd_response)
             return tr_html
         except Exception as e:
             # pass
