@@ -260,6 +260,18 @@ def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
         return match_object.group(1), match_object.group(1)
 
 
+def get_user_id(username, db):
+    if username:
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT id FROM mobiuser WHERE username = %s",
+            (username,)
+        )
+        res_user = curs.fetchone()
+        if res_user:
+            return res_user['id']
+    return None
+
 def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -1039,11 +1051,12 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if caller == 'webApp':
         if g.user is not None:
             mobiuser = g.user['username']
-        curs.execute(
-            "SELECT id FROM mobiuser WHERE username = %s",
-            (mobiuser,)
-        )
-        vf_d['creation_user'] = curs.fetchone()['id']
+        # curs.execute(
+        #     "SELECT id FROM mobiuser WHERE username = %s",
+        #     (mobiuser,)
+        # )
+        # vf_d['creation_user'] = curs.fetchone()['id']
+        vf_d['creation_user'] = get_user_id(mobiuser)
     elif caller == 'api':
         vf_d['creation_user'] = g.user['id']
 

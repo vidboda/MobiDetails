@@ -203,6 +203,9 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 			if ($("#no_class").length > 0) {
                 $("#no_class").hide();
             }
+            if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
+                $("#owner_username").text($("#current_user").text());
+            }
         }
 		else {
 			$("#message_return").html(tr_html);

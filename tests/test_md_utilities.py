@@ -197,6 +197,18 @@ def test_get_aa_position(variant_in, aa_pos):
     aa = md_utilities.get_aa_position(variant_in)
     assert aa == aa_pos
 
+@pytest.mark.parametrize(('username', 'user_id'), (
+    ('mobidetails', 10),
+    ('davidbaux', 1),
+    ('fake_username', None),
+))
+def test_get_user_id(app, username, user_id):
+    with app.app_context():
+        db = get_db()
+        test_user_id = md_utilities.get_user_id(username, db)
+        print(test_user_id)
+        assert test_user_id == user_id
+
 var = {
     'chr': '1',
     'pos': '216247118',

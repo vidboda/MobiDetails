@@ -136,7 +136,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         )
                     )
                 else:
-                    return redirect(url_for('md.variant', variant_id=res['feature_id']))
+                    return redirect(url_for('md.variant', variant_id=res['id']))
                 
             else:
                 # creation

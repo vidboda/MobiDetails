@@ -405,7 +405,7 @@ def modif_class():
                 (variant_id, acmg_select, g.user['id'])
             )
             res = curs.fetchone()
-            if res is not None:
+            if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
                     tr_html = "<tr id='already_classified'><td colspan='4'>\
@@ -420,6 +420,29 @@ def modif_class():
                     (date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
+                # if first classification and current owner == mobidetails => user become owner
+                curs.execute(
+                    "SELECT acmg_class FROM class_history WHERE \
+                        variant_feature_id = %s",
+                    (variant_id,)
+                )
+                res_acmg = curs.fetchone()
+                # print("res_amcg: {}".format(res_acmg))
+                if not res_acmg:
+                    curs.execute(
+                        "SELECT creation_user FROM variant_feature WHERE id = %s",
+                        (variant_id,)
+                    )
+                    res_user = curs.fetchone()
+                    # print("res_user_id: {}".format(res_user['creation_user']))
+                    # get mobidetails user id
+                    mobidetails_id = md_utilities.get_user_id('mobidetails', db)
+                    if res_user and \
+                            res_user['creation_user'] == mobidetails_id:
+                        curs.execute(
+                            "UPDATE variant_feature SET creation_user = %s WHERE id = %s",
+                            (g.user['id'], variant_id)
+                        )
                 curs.execute(
                     "INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment) VALUES \
                         (%s, %s, %s, %s, %s )",

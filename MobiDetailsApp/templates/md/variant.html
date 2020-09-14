@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200818" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200914" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -1124,9 +1124,9 @@
 					<tr><!--creation user-->
 						<td class="w3-left-align">Creation user:</td>
 						{% if variant_features.username != 'mobidetails' and g.user %}
-							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=variant_features.mobiuser_id) }}" target="_blank" title="Click to see {{ variant_features.username }} profile">{{ variant_features.username }}</a></td>
+							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=variant_features.mobiuser_id) }}" target="_blank" title="Click to see {{ variant_features.username }} profile"><span id="owner_username">{{ variant_features.username }}</span></a></td>
 						{% else %}
-							<td class="w3-left-align">{{ variant_features.username }}</td>
+							<td class="w3-left-align"><span id="owner_username">{{ variant_features.username }}</span></td>
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">User who created the variant</em></td>
 					</tr>
@@ -1137,6 +1137,11 @@
 					</tr>
 				</tbody>
 			</table><br /><br />
+			{% if g.user %}
+				<span id="current_user" style="display:none;">{{ g.user['username'] }}</span>
+			{% else %}
+				<span id="current_user" style="display:none;">mobidetails</span>
+			{% endif %}
 		</div>
 		<br/><br/>
 <!--		<div class="w3-responsive w3-container" id="res_versions" style="display:none">
