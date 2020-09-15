@@ -1056,7 +1056,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         #     (mobiuser,)
         # )
         # vf_d['creation_user'] = curs.fetchone()['id']
-        vf_d['creation_user'] = get_user_id(mobiuser)
+        vf_d['creation_user'] = get_user_id(mobiuser, db)
     elif caller == 'api':
         vf_d['creation_user'] = g.user['id']
 
