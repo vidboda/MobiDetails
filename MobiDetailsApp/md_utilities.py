@@ -317,7 +317,7 @@ def define_lovd_class(acmg_classes, db):
                         pass
                     else:
                         lovd_class = acmg2lovd(acmg_class['acmg_class'], db)
-                        print('current acmg:{0} - current lovd: {1}'.format(acmg_class['acmg_class'], lovd_class))
+                        # print('current acmg:{0} - current lovd: {1}'.format(acmg_class['acmg_class'], lovd_class))
     return lovd_class
 
 

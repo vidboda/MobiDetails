@@ -523,7 +523,7 @@ def modif_class():
                 header['Content-Type'] = 'application/json'
                 ########### UNCOMMENT WHEN LOVD FEATURE IS READY ###########
                 # lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], headers=header, body=json.dumps(lovd_json)).data.decode('utf-8')
-                print(lovd_json)
+                # print(lovd_json)
             return tr_html
         except Exception as e:
             # pass
