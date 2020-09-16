@@ -69,8 +69,7 @@ def test_three2one_fct(client, variant_in, variant_out):
 ))
 def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        db = get_db()
-        ncbi_test = md_utilities.get_ncbi_chr_name(db, chr_name, genome)
+        ncbi_test = md_utilities.get_ncbi_chr_name(get_db(), chr_name, genome)
         assert ncbi_test[0] == ncbi_name
 
 
@@ -82,8 +81,7 @@ def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
 ))
 def test_get_common_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        db = get_db()
-        res_test = md_utilities.get_common_chr_name(db, ncbi_name)
+        res_test = md_utilities.get_common_chr_name(get_db(), ncbi_name)
         assert res_test == [chr_name, genome]
 
 
@@ -178,8 +176,7 @@ def test_get_pos_exon_canvas(pos, positions, result):
 ))
 def test_get_exon_neighbours(app, positions, result):
     with app.app_context():
-        db = get_db()
-        neighbours = md_utilities.get_exon_neighbours(db, positions)
+        neighbours = md_utilities.get_exon_neighbours(get_db(), positions)
         assert neighbours == result
 
 
@@ -204,10 +201,58 @@ def test_get_aa_position(variant_in, aa_pos):
 ))
 def test_get_user_id(app, username, user_id):
     with app.app_context():
-        db = get_db()
-        test_user_id = md_utilities.get_user_id(username, db)
+        test_user_id = md_utilities.get_user_id(username, get_db())
         print(test_user_id)
         assert test_user_id == user_id
+
+test_acmg_classes = [
+    {'acmg_class': 1},
+    {'acmg_class': 2}
+]
+
+
+@pytest.mark.parametrize(('acmg_classes', 'lovd_class'), (
+    ([{'acmg_class': 1},{'acmg_class': 2}], 'Probably Not Pathogenic'),
+    ([{'acmg_class': 2},{'acmg_class': 1}], 'Probably Not Pathogenic'),
+    ([{'acmg_class': 1},{'acmg_class': 2},{'acmg_class': 3}], 'Not Known'),
+    ([{'acmg_class': 1},{'acmg_class': 5},{'acmg_class': 3}], 'Not Known'),
+    ([{'acmg_class': 4},{'acmg_class': 5}], 'Probably Pathogenic'),
+    ([{'acmg_class': 5},{'acmg_class': 4}], 'Probably Pathogenic'),
+    ([{'acmg_class': 4},{'acmg_class': 3},{'acmg_class': 5}], 'Not Known'),
+    ([{'acmg_class': 4},{'acmg_class': 1}], 'Conflicting'),
+    ([{'acmg_class': 1},{'acmg_class': 4}], 'Conflicting'),
+    ([{'acmg_class': 4},{'acmg_class': 1},{'acmg_class': 2},{'acmg_class': 5}], 'Conflicting'),
+    ([{'acmg_class': 2},{'acmg_class': 5},{'acmg_class': 4}], 'Conflicting'),
+    ([{'acmg_class': 2},{'acmg_class': 5},{'acmg_class': 4},{'acmg_class': 3}], 'Not Known'),
+    ([{'acmg_class': 1}], 'Non-pathogenic'),
+    ([{'acmg_class': 2}], 'Probably Not Pathogenic'),
+    ([{'acmg_class': 3}], 'Not Known'),
+    ([{'acmg_class': 4}], 'Probably Pathogenic'),
+    ([{'acmg_class': 5}], 'Pathogenic'),
+    ([{'acmg_class': 8}], None),
+    ([{'acmg_class': 'ldhe'}], None),
+    ([{'acmg_classe': 'ldhe'}], None),
+    ([1], None),
+    (1, None)
+))
+def test_define_lovd_class(app, acmg_classes, lovd_class):
+     with app.app_context():
+        assert md_utilities.define_lovd_class(acmg_classes, get_db()) == lovd_class
+
+@pytest.mark.parametrize(('acmg_class', 'lovd_class'), (
+    (1, 'Non-pathogenic'),
+    (2, 'Probably Not Pathogenic'),
+    (3, 'Not Known'),
+    (4, 'Probably Pathogenic'),
+    (5, 'Pathogenic'),
+    (6, None),
+    ('ae', None),
+    (None, None),
+    (0, None),
+))
+def test_acmg2lovd(app, acmg_class, lovd_class):
+    with app.app_context():
+        assert lovd_class == md_utilities.acmg2lovd(acmg_class, get_db())
 
 var = {
     'chr': '1',
@@ -411,12 +456,11 @@ class fake_g_obj:
 
 def test_create_var_vv(client, app):
     with app.app_context():
-        db = get_db()
         g = fake_g_obj()
         error_dict = md_utilities.create_var_vv(
             'NM_206933.2:c.100_101delinsA', 'USH2A', 'NM_206933',
             'c.100_101delinsA', 'c.100_101delinsA', '2', vv_dict,
-            'test', db, g
+            'test', get_db(), g
         )
         assert isinstance(error_dict['mobidetails_id'], int)
         # {'mobidetails_error': 'Impossible to insert variant_features for {}'.format(vv_key_var)}

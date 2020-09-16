@@ -272,6 +272,67 @@ def get_user_id(username, db):
             return res_user['id']
     return None
 
+
+def define_lovd_class(acmg_classes, db):
+    lovd_class = None    
+    if isinstance(acmg_classes, list):
+        for acmg_class in acmg_classes:
+            if (isinstance(acmg_class, list) or
+                    isinstance(acmg_class, dict)) and \
+                    'acmg_class' in acmg_class:
+                # list => true DictRow from psycopg2
+                # dict for pytest
+                print(acmg_classes)
+                # print(acmg_class['acmg_class'])
+                # 1st iteration
+                if not lovd_class:
+                    lovd_class = acmg2lovd(acmg_class['acmg_class'], db)
+                # VUS => VUS
+                if acmg_class['acmg_class'] == 3:
+                    lovd_class = 'Not Known'
+                    break            
+                elif lovd_class != 'Conflicting':
+                    # do sthg
+                    if (acmg_class['acmg_class'] == 1 or
+                            acmg_class['acmg_class'] == 2) and \
+                            (lovd_class == 'Probably Pathogenic' or
+                            lovd_class == 'Pathogenic'):
+                        lovd_class = 'Conflicting'
+                    elif (acmg_class['acmg_class'] == 4 or
+                            acmg_class['acmg_class'] == 5) and \
+                            (lovd_class == 'Probably Not Pathogenic' or
+                            lovd_class == 'Non-pathogenic'):
+                        lovd_class = 'Conflicting'
+                    elif (lovd_class == 'Benign' and
+                            acmg_class['acmg_class'] == 2):
+                        lovd_class = 'Probably Not Pathogenic'
+                    elif (lovd_class == 'Probably Not Pathogenic' and
+                            acmg_class['acmg_class'] == 1):
+                        pass
+                    elif (lovd_class == 'Pathogenic' and
+                            acmg_class['acmg_class'] == 4):
+                        lovd_class = 'Probably Pathogenic'
+                    elif (lovd_class == 'Probably Pathogenic' and
+                            acmg_class['acmg_class'] == 5):
+                        pass
+                    else:
+                        lovd_class = acmg2lovd(acmg_class['acmg_class'], db)
+                        print('current acmg:{0} - current lovd: {1}'.format(acmg_class['acmg_class'], lovd_class))
+    return lovd_class
+
+
+def acmg2lovd(acmg_class, db):
+    if isinstance(acmg_class, int):
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT lovd_translation FROM valid_class WHERE acmg_class = %s",
+            (acmg_class,)
+        )
+        res_lovd_acmg = curs.fetchone()
+        if res_lovd_acmg:
+            return res_lovd_acmg[0]
+    return None
+
 def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])

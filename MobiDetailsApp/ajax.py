@@ -395,7 +395,8 @@ def modif_class():
 
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
+        # semaphore to know whether it is a first time submission or not
+        semaph = 0
         # get all variant_features and gene info
         try:
             curs.execute(
@@ -429,6 +430,7 @@ def modif_class():
                 res_acmg = curs.fetchone()
                 # print("res_amcg: {}".format(res_acmg))
                 if not res_acmg:
+                    semaph = 1
                     curs.execute(
                         "SELECT creation_user FROM variant_feature WHERE id = %s",
                         (variant_id,)
@@ -489,14 +491,31 @@ def modif_class():
                 res_var = curs.fetchone()
                 lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
-                lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
+
                 if res_var['dbsnp_id']:
                     lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
-    
+                if semaph == 1:
+                    # first time submission
+                    lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
+                else:                
+                    # build ACMG class for LOVD update
+                    curs.execute(
+                        "SELECT acmg_class FROM class_history WHERE \
+                            variant_feature_id = %s",
+                        (variant_id,)
+                    )
+                    res_acmg = curs.fetchall()
+                    # print(res_acmg)
+                    if res_acmg:
+                        lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = md_utilities.define_lovd_class(res_acmg, db)
+                    else:
+                        # we should never get in there
+                        lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
+                
                 # send request to LOVD API
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
@@ -504,7 +523,7 @@ def modif_class():
                 header['Content-Type'] = 'application/json'
                 ########### UNCOMMENT WHEN LOVD FEATURE IS READY ###########
                 # lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], headers=header, body=json.dumps(lovd_json)).data.decode('utf-8')
-                # print(lovd_response)
+                print(lovd_json)
             return tr_html
         except Exception as e:
             # pass
