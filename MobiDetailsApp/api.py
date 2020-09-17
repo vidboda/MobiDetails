@@ -592,8 +592,20 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     try:
                         # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                         md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
-                    except Exception:
+                    except Exception as e:
                         md_response[var_hgvs_nc] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
+                        md_utilities.send_error_email(
+                            md_utilities.prepare_email_html(
+                                'MobiDetails API error',
+                                '<p>Error with MDAPI file writing for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    rs_id,
+                                    var_hgvs_nc,
+                                    os.path.basename(__file__),
+                                    e.args
+                                )
+                            ),
+                            '[MobiDetails - MDAPI Error]'
+                        )
         if md_response:
             if caller == 'cli':
                 return jsonify(md_response)

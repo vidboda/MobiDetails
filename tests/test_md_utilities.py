@@ -205,29 +205,24 @@ def test_get_user_id(app, username, user_id):
         print(test_user_id)
         assert test_user_id == user_id
 
-test_acmg_classes = [
-    {'acmg_class': 1},
-    {'acmg_class': 2}
-]
-
 
 @pytest.mark.parametrize(('acmg_classes', 'lovd_class'), (
-    ([{'acmg_class': 1},{'acmg_class': 2}], 'Probably Not Pathogenic'),
-    ([{'acmg_class': 2},{'acmg_class': 1}], 'Probably Not Pathogenic'),
-    ([{'acmg_class': 1},{'acmg_class': 2},{'acmg_class': 3}], 'Not Known'),
-    ([{'acmg_class': 1},{'acmg_class': 5},{'acmg_class': 3}], 'Not Known'),
-    ([{'acmg_class': 4},{'acmg_class': 5}], 'Probably Pathogenic'),
-    ([{'acmg_class': 5},{'acmg_class': 4}], 'Probably Pathogenic'),
-    ([{'acmg_class': 4},{'acmg_class': 3},{'acmg_class': 5}], 'Not Known'),
+    ([{'acmg_class': 1},{'acmg_class': 2}], 'Likely benign'),
+    ([{'acmg_class': 2},{'acmg_class': 1}], 'Likely benign'),
+    ([{'acmg_class': 1},{'acmg_class': 2},{'acmg_class': 3}], 'VUS'),
+    ([{'acmg_class': 1},{'acmg_class': 5},{'acmg_class': 3}], 'VUS'),
+    ([{'acmg_class': 4},{'acmg_class': 5}], 'Likely Pathogenic'),
+    ([{'acmg_class': 5},{'acmg_class': 4}], 'Likely Pathogenic'),
+    ([{'acmg_class': 4},{'acmg_class': 3},{'acmg_class': 5}], 'VUS'),
     ([{'acmg_class': 4},{'acmg_class': 1}], 'Conflicting'),
     ([{'acmg_class': 1},{'acmg_class': 4}], 'Conflicting'),
     ([{'acmg_class': 4},{'acmg_class': 1},{'acmg_class': 2},{'acmg_class': 5}], 'Conflicting'),
     ([{'acmg_class': 2},{'acmg_class': 5},{'acmg_class': 4}], 'Conflicting'),
-    ([{'acmg_class': 2},{'acmg_class': 5},{'acmg_class': 4},{'acmg_class': 3}], 'Not Known'),
-    ([{'acmg_class': 1}], 'Non-pathogenic'),
-    ([{'acmg_class': 2}], 'Probably Not Pathogenic'),
-    ([{'acmg_class': 3}], 'Not Known'),
-    ([{'acmg_class': 4}], 'Probably Pathogenic'),
+    ([{'acmg_class': 2},{'acmg_class': 5},{'acmg_class': 4},{'acmg_class': 3}], 'VUS'),
+    ([{'acmg_class': 1}], 'Benign'),
+    ([{'acmg_class': 2}], 'Likely benign'),
+    ([{'acmg_class': 3}], 'VUS'),
+    ([{'acmg_class': 4}], 'Likely Pathogenic'),
     ([{'acmg_class': 5}], 'Pathogenic'),
     ([{'acmg_class': 8}], None),
     ([{'acmg_class': 'ldhe'}], None),
@@ -240,12 +235,12 @@ def test_define_lovd_class(app, acmg_classes, lovd_class):
         assert md_utilities.define_lovd_class(acmg_classes, get_db()) == lovd_class
 
 @pytest.mark.parametrize(('acmg_class', 'lovd_class'), (
-    (1, 'Non-pathogenic'),
-    (2, 'Probably Not Pathogenic'),
-    (3, 'Not Known'),
-    (4, 'Probably Pathogenic'),
+    (1, 'Benign'),
+    (2, 'Likely benign'),
+    (3, 'VUS'),
+    (4, 'Likely Pathogenic'),
     (5, 'Pathogenic'),
-    (6, None),
+    (6, 'Unknown'),
     ('ae', None),
     (None, None),
     (0, None),

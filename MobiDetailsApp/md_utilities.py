@@ -289,30 +289,30 @@ def define_lovd_class(acmg_classes, db):
                     lovd_class = acmg2lovd(acmg_class['acmg_class'], db)
                 # VUS => VUS
                 if acmg_class['acmg_class'] == 3:
-                    lovd_class = 'Not Known'
+                    lovd_class = 'VUS'
                     break            
                 elif lovd_class != 'Conflicting':
                     # do sthg
                     if (acmg_class['acmg_class'] == 1 or
                             acmg_class['acmg_class'] == 2) and \
-                            (lovd_class == 'Probably Pathogenic' or
+                            (lovd_class == 'Likely Pathogenic' or
                             lovd_class == 'Pathogenic'):
                         lovd_class = 'Conflicting'
                     elif (acmg_class['acmg_class'] == 4 or
                             acmg_class['acmg_class'] == 5) and \
-                            (lovd_class == 'Probably Not Pathogenic' or
-                            lovd_class == 'Non-pathogenic'):
+                            (lovd_class == 'Likely benign' or
+                            lovd_class == 'Benign'):
                         lovd_class = 'Conflicting'
                     elif (lovd_class == 'Benign' and
                             acmg_class['acmg_class'] == 2):
-                        lovd_class = 'Probably Not Pathogenic'
-                    elif (lovd_class == 'Probably Not Pathogenic' and
+                        lovd_class = 'Likely benign'
+                    elif (lovd_class == 'Likely benign' and
                             acmg_class['acmg_class'] == 1):
                         pass
                     elif (lovd_class == 'Pathogenic' and
                             acmg_class['acmg_class'] == 4):
-                        lovd_class = 'Probably Pathogenic'
-                    elif (lovd_class == 'Probably Pathogenic' and
+                        lovd_class = 'Likely Pathogenic'
+                    elif (lovd_class == 'Likely Pathogenic' and
                             acmg_class['acmg_class'] == 5):
                         pass
                     else:
