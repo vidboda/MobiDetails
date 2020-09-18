@@ -282,7 +282,7 @@ def define_lovd_class(acmg_classes, db):
                     'acmg_class' in acmg_class:
                 # list => true DictRow from psycopg2
                 # dict for pytest
-                print(acmg_classes)
+                # print(acmg_classes)
                 # print(acmg_class['acmg_class'])
                 # 1st iteration
                 if not lovd_class:

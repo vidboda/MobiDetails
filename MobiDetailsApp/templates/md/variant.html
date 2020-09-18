@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200914" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?200918" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -763,7 +763,7 @@
 		<!--sixth section-->
 		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
 			<hr />
-			{{ section_title('missense', 'Missense predictions') }}
+			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(variant_features.p_name)) }}
 			<div class="w3-responsive w3-container">
 				<!--dbscSNV-->
 				<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">

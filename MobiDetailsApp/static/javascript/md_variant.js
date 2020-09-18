@@ -150,6 +150,16 @@ function intervar(intervar_url, csrf_token) {
 		})
 		.done(function(html) {
 			$("#intervar_data").replaceWith(html);
+            $('#population_table').DataTable().destroy();
+            datatable = $('#population_table').DataTable({
+                responsive: true,
+                dom: 't',
+                "order": [],
+                //scrollY: 600,
+                buttons: [
+                        'copy', 'excel', 'pdf'
+                ]
+            });
 		});
 	}
 }
@@ -197,15 +207,30 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 			if ($("#already_classified").length > 0) {
                 $("#already_classified").remove();
             }
+            var table_class = $('#class_table').DataTable();
+            table_class.destroy();
             $("#class_table>tbody:last").append(unescape(tr_html));
 			$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
 			$("#acmg_comment").val('');
 			if ($("#no_class").length > 0) {
-                $("#no_class").hide();
+                // $("#no_class").hide();
+                table_class
+                    .row($('#no_class'))
+                    .remove()
+                    .draw();
             }
             if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
                 $("#owner_username").text($("#current_user").text());
             }
+            datatable = $('#class_table').DataTable({
+                responsive: true,
+                dom: 't',
+                "order": [],
+                //scrollY: 600,
+                buttons: [
+                        'copy', 'excel', 'pdf'
+                ]
+            });
         }
 		else {
 			$("#message_return").html(tr_html);
@@ -238,7 +263,11 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csr
 	})
 	.done(function(return_code) {
 		if (return_code == 'ok') {
-            $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
+            $('#class_table').DataTable()
+                .row($("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id))
+                .remove()
+                .draw();
+            // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
         }
 		else {
 			$("#message_return").html(return_code);
