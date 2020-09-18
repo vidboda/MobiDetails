@@ -844,7 +844,7 @@ def autocomplete():
     if match_object:
         md_query = match_object.group(1)
         curs.execute(
-            "SELECT c_name FROM variant_feature WHERE c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
+            "SELECT DISTINCT(c_name) FROM variant_feature WHERE c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
         )
         res = curs.fetchall()
         result = []

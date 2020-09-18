@@ -207,17 +207,18 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 			if ($("#already_classified").length > 0) {
                 $("#already_classified").remove();
             }
-            var table_class = $('#class_table').DataTable();
-            table_class.destroy();
+            // var table_class = $('#class_table').DataTable();
+            $('#class_table').DataTable().destroy();
             $("#class_table>tbody:last").append(unescape(tr_html));
 			$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
 			$("#acmg_comment").val('');
 			if ($("#no_class").length > 0) {
                 // $("#no_class").hide();
-                table_class
+                $('#class_table').DataTable()
                     .row($('#no_class'))
                     .remove()
-                    .draw();
+                    .draw()
+                    .destroy();
             }
             if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
                 $("#owner_username").text($("#current_user").text());
