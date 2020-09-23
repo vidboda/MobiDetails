@@ -3,12 +3,14 @@
 {% block title %}Change log{% endblock %}
 {% block content %}
 	{# Different categories:
-		-Minor: style canges, minor js, minor functionality (small impact on user)
+		-Minor: style changes, minor js, minor functionality (small impact on user)
 		-Major: new page or functionality
 		-New predictor: predictor added
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2020-08-23] - New function : \
+			Variants for which an ACMG class is defined are automatically submitted to <a href='http://www.lovd.nl'>LOVD</a>. <a href='{}#data_sharing'>Read more</a>.".format(url_for('md.about'))) }}
 		{{ info("[2020-09-07] - New function : \
 			Possibility to annotate variants using dbSNP rs ids (API). \
 			The search engine can now be used to annotate variants not only to retrieve existing ones, using the following formats: \
