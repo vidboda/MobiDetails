@@ -834,6 +834,20 @@ def variant(variant_id=None):
                         annot['clinpred_pred'] = 'Tolerated'
                         if float(annot['clinpred_score']) > md_utilities.predictor_thresholds['clinpred']:
                             annot['clinpred_pred'] = 'Damaging'
+                    # mistic
+                    record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var)
+                    if isinstance(record, str):
+                        annot['mistic_score'] = record
+                    else:
+                        annot['mistic_score'] = record[4]
+                    annot['mistic_color'] = "#000000"
+                    annot['mistic_pred'] = 'no prediction'
+                    if re.search(r'^[\d\.]+$', annot['mistic_score']):
+                        annot['mistic_score'] = format(float(annot['mistic_score']), '.2f')
+                        annot['mistic_color'] = md_utilities.get_preditor_single_threshold_color(annot['mistic_score'], 'mistic')
+                        annot['mistic_pred'] = 'Tolerated'
+                        if float(annot['mistic_score']) > md_utilities.predictor_thresholds['mistic']:
+                            annot['mistic_pred'] = 'Damaging'
                 if variant_features['dna_type'] == 'substitution':
                     # dbscSNV
                     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var)

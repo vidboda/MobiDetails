@@ -72,6 +72,7 @@ local_files['lovd_ref']['abs_path'] = '{0}{1}'.format(app_path, local_files['lov
 local_files['lovd_api_json']['abs_path'] = '{0}{1}'.format(app_path, local_files['lovd_api_json']['rel_path'])
 local_files['maxentscan']['abs_path'] = '{0}{1}'.format(app_path, local_files['maxentscan']['rel_path'])
 local_files['metadome']['abs_path'] = '{0}{1}'.format(app_path, local_files['metadome']['rel_path'])
+local_files['mistic']['abs_path'] = '{0}{1}'.format(app_path, local_files['mistic']['rel_path'])
 local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(app_path, local_files['spliceai_snvs']['rel_path'])
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(app_path, local_files['spliceai_indels']['rel_path'])
 
@@ -353,7 +354,7 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         return 'Match failed in {}'.format(text)
 
     i = 3
-    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred|dbMTS)', tabix_file):
+    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred|dbMTS|MISTIC)', tabix_file):
         i -= 1
     for record in records:
         if record[i] == var['pos_ref'] and \

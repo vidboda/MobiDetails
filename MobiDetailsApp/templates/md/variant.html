@@ -824,6 +824,12 @@
 							<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
+						<tr><!--Mistic-->
+							<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic">Mistic</a>:</td>
+							<td class="w3-left-align">{{ span_color(annot.mistic_score, annot.mistic_color) }}</td>
+							<td class="w3-left-align">{{ span_color(annot.mistic_pred, annot.mistic_color) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging</em></td>
+						</tr>
 					</tbody>
 				</table>
 				{% if annot.sift_star == '*' or annot.pph2_hdiv_star == '*' or annot.pph2_hvar_star == '*' or annot.fathmm_star == '*' %}
@@ -851,7 +857,7 @@
 					</div>
 				</div>
 				{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, clinpred=annot.clinpred_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score) %}
+				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, clinpred=annot.clinpred_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score, mistic=annot.mistic_score) %}
 				{% if annot.sift_pred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 				{% endif %}
@@ -876,6 +882,9 @@
 				{% if annot.mlr_pred == 'no prediction' %}
 					{% set missense_pred.metalr = 0 %}
 				{% endif %}
+				{% if annot.mistic == 'no prediction' %}
+					{% set missense_pred.mistic = 0 %}
+				{% endif %}
 				<script>
 					//var ctx = document.getElementById("missense_radar").getContext('2d')
 					Chart.defaults.global.defaultFontSize=16;
@@ -893,10 +902,10 @@
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
-							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', 'FATHMM', 'MetaSVM', 'MetaLR'],
+							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', 'FATHMM', 'MetaSVM', 'MetaLR', 'Mistic'],
 							datasets: [{
 								label:'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}],
+								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
 								fill: true,
 								backgroundColor:'rgb(255, 99, 132, 0.2)',
 								borderColor:'rgb(255, 99, 132)',
