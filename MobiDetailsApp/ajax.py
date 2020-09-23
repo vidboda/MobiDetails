@@ -527,7 +527,7 @@ def modif_class():
                 header['Content-Type'] = 'application/json'
                 try:
                     lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], body=json.dumps(lovd_json).encode('utf-8'), headers=header).data.decode('utf-8')
-                    print(lovd_response)
+                    print('LOVD submission for {0}:g.{1} : {2}'.format(res_var['ncbi_name'], res_var['g_name'], lovd_response))
                 except Exception:
                     pass                
             return tr_html
