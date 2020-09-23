@@ -15,6 +15,8 @@ import urllib3
 import certifi
 import datetime
 
+import requests
+
 bp = Blueprint('ajax', __name__)
 
 
@@ -478,11 +480,11 @@ def modif_class():
             # Send data to LOVD if relevant
             ########### REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] WHEN LOVD FEATURE IS READY ###########
             if g.user['lovd_export'] is True and \
-                    url_parse(request.referrer).host == md_utilities.host['dev']:
+                    url_parse(request.referrer).host == md_utilities.host['prod']:
                 with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
                     lovd_json = json.load(json_file)
                 # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
-                genome_version = 'hg38'
+                genome_version = 'hg19'
                 curs.execute(
                     "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
                     a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
@@ -493,7 +495,9 @@ def modif_class():
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 
                 if res_var['dbsnp_id']:
-                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
+                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])                    
+                else:
+                    lovd_json['lsdb']['variant'][0].pop('db_xref', None)
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
@@ -521,9 +525,11 @@ def modif_class():
                 # headers
                 header = md_utilities.api_agent
                 header['Content-Type'] = 'application/json'
-                ########### UNCOMMENT WHEN LOVD FEATURE IS READY ###########
-                # lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], headers=header, body=json.dumps(lovd_json)).data.decode('utf-8')
-                # print(json.dumps(lovd_json))
+                try:
+                    lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], body=json.dumps(lovd_json).encode('utf-8'), headers=header).data.decode('utf-8')
+                    print(lovd_response)
+                except Exception:
+                    pass                
             return tr_html
         except Exception as e:
             # pass

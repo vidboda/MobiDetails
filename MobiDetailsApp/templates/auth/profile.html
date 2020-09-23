@@ -42,19 +42,19 @@
 							<span id="value_to_send_email_pref" style="display:none;">t</span>
 						{% endif %}
 					</li>
-					<!--<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">-->
-					<!--	{% if mobiuser.lovd_export == true %}-->
-					<!--		<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-green">enabled</strong>-->
-					<!--		&nbsp;&nbsp;--&nbsp;&nbsp;</span>-->
-					<!--		<button id="btn_lovd_export" name="lovd" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Disable it</button>-->
-					<!--		<span id="value_to_send_lovd_export" style="display:none;">f</span>-->
-					<!--	{% else %}-->
-					<!--		<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong>-->
-					<!--		&nbsp;&nbsp;--&nbsp;&nbsp;</span>-->
-					<!--		<button id="btn_lovd_export" name="contact"onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Enable it</button>-->
-					<!--		<span id="value_to_send_lovd_export" style="display:none;">t</span>-->
-					<!--	{% endif %}-->
-					<!--</li>-->
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+						{% if mobiuser.lovd_export == true %}
+							<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-green">enabled</strong>
+							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+							<button id="btn_lovd_export" name="lovd" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Disable it</button>
+							<span id="value_to_send_lovd_export" style="display:none;">f</span>
+						{% else %}
+							<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong>
+							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+							<button id="btn_lovd_export" name="contact"onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Enable it</button>
+							<span id="value_to_send_lovd_export" style="display:none;">t</span>
+						{% endif %}
+					</li>
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>

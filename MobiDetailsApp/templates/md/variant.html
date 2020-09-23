@@ -942,17 +942,17 @@
 		{{ section_title('class', 'Classification History') }}
 		<div class="w3-responsive w3-container">
 			{% if g.user %}
-				<!--<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">-->
-				<!--	<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ variant_features.name[0] }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>-->
-				<!--	<p>-->
-				<!--		{% if g.user['lovd_export'] == true %}-->
-				<!--			Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.-->
-				<!--		{% else %}-->
-				<!--			Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.-->
-				<!--		{% endif %}-->
-				<!--		<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.-->
-				<!--	</p>-->
-				<!--</div>-->
+				<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+					<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ variant_features.name[0] }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
+					<p>
+						{% if g.user['lovd_export'] == true %}
+							Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
+						{% else %}
+							Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.
+						{% endif %}
+						<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.
+					</p>
+				</div>
 			{% endif %}
 			<!--ACMG Classifications-->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="class_table">

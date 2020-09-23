@@ -88,7 +88,7 @@
   'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build='
   'lovd': 'http://www.lovd.nl/'
   'lovd_api_variants': 'https://databases.lovd.nl/shared/api/rest/variants/'
-  'lovd_api_submissions': 'https://databases.lovd.nl/shared/api/rest/submissions'
+  'lovd_api_submissions': 'https://databases.lovd.nl/shared/api/submissions'
   'map2pdb': 'http://www.rcsb.org/pdb/chromosome.do?v='
   'marrvel': 'http://marrvel.org/search/gene/'
   'maxentscan': 'http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html'
