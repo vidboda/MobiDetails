@@ -15,8 +15,6 @@ import urllib3
 import certifi
 import datetime
 
-import requests
-
 bp = Blueprint('ajax', __name__)
 
 
