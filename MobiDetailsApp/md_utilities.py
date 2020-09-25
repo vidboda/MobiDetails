@@ -337,7 +337,9 @@ def acmg2lovd(acmg_class, db):
 def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    if text == 'gnomADv3':
+    if text == 'gnomADv3' or \
+             (re.search('MISTIC', tabix_file) and
+              var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     try:
         records = tb.querys(query)
