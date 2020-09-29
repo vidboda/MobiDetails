@@ -546,8 +546,8 @@ def variant(variant_id=None):
                         variant_features['start_segment_type'] == 'exon':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     try:
-                        annot['eigen_raw'] = record[113]
-                        annot['eigen_phred'] = record[115]
+                        annot['eigen_raw'] = format(float(record[113]), '.2f')
+                        annot['eigen_phred'] = format(float(record[115]), '.2f')
                     except Exception:
                         annot['eigen'] = 'No match in dbNSFP for Eigen'
                     if 'eigen_raw' in annot and \
