@@ -556,9 +556,9 @@ def get_vv_api_url():
             return urls['variant_validator_api']
         else:
             raise Exception
-    except Exception as e:
+    except Exception:
         try:
-            print('VV looks down - tyring to switch on rescue docker {}'.format(urls['variant_validator_api_hello']))
+            print('VV looks down - trying to switch on rescue docker {}'.format(urls['variant_validator_api_hello']))
             hello = json.loads(http.request('GET', urls['variant_validator_api_hello_backup']).data.decode('utf-8'))
             # send_error_email(
             #     prepare_email_html(
@@ -574,12 +574,12 @@ def get_vv_api_url():
             else:
                 raise Exception
             # return urls['variant_validator_api_backup']
-        except Exception as e:
+        except Exception:
             send_error_email(
                 prepare_email_html(
                     'MobiDetails VariantValidator error',
-                    '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
-                        os.path.basename(__file__), e.args
+                    '<p>VariantValidator looks down!!<br /> - from {0}</p>'.format(
+                        os.path.basename(__file__)
                     )
                 ),
                 '[MobiDetails - VariantValidator Error]'
