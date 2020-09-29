@@ -445,6 +445,10 @@ def test_get_genomic_values(genome, var, test_d, vv_dict):
     assert var_dict == test_d
 
 
+def test_get_vv_api_url():
+    api_url = md_utilities.get_vv_api_url()
+    assert 'http' in api_url
+
 class fake_g_obj:
     user = dict(username='mobidetails')
 

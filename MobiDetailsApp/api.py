@@ -148,13 +148,22 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 res_gene = curs.fetchone()
                 if res_gene is None:
                     return jsonify(mobidetails_error='The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no))
-                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+               
+                vv_base_url = md_utilities.get_vv_api_url()
+                if not vv_base_url:
+                    close_db()
+                    if caller == 'cli':
+                        return jsonify(mobidetails_error='Variant Validator looks down!.')
+                    else:
+                        flash('TVariant Validator looks down!.', 'w3-pale-red')
+                        return redirect(url_for('md.index'))
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                    md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+                    vv_base_url, acc_no, acc_version, new_variant
                 )
                 vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
 
                 try:
+                    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
                     close_db()
@@ -293,14 +302,23 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             return redirect(url_for('md.variant', variant_id=res['feature_id']))
                     else:
                         # creation
-                        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                        vv_base_url = md_utilities.get_vv_api_url()
+                        if not vv_base_url:
+                            close_db()
+                            if caller == 'cli':
+                                return jsonify(mobidetails_error='Variant Validator looks down!.')
+                            else:
+                                flash('Variant Validator looks down!.', 'w3-pale-red')
+                                return redirect(url_for('md.index'))
+                        
                         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
-                            md_utilities.urls['variant_validator_api'], variant_ghgvs
+                            vv_base_url, variant_ghgvs
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
 
                         try:
+                            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                         except Exception:
                             close_db()

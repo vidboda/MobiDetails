@@ -702,44 +702,51 @@ def create():
             (var_db, acc_no)
         )
         res = curs.fetchone()
-        if res is not None:
+        if res:
             close_db()
             return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
 
         if re.search(r'c\..+', new_variant):
             # is vv alive?
-            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-            vv_alive = None
-            try:
-                json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
-            except Exception as e:
-                md_utilities.send_error_email(
-                    md_utilities.prepare_email_html(
-                        'MobiDetails VariantValidator error',
-                        '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
-                            os.path.basename(__file__), e.args
-                        )
-                    ),
-                    '[MobiDetails - VariantValidator Error]'
-                )
-                # vv_data = {'apiVersion': 'Service Unavailable'}
-                vv_alive = {'status': 'Service Unavailable'}
+            
+            # vv_alive = None
+            vv_base_url = md_utilities.get_vv_api_url()
+            # try:
+            #     json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
+            # except Exception as e:
+            #     try:
+            #         json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello_backup']).data.decode('utf-8'))
+            #         vv_base_url = md_utilities.urls['variant_validator_api_backup']
+            #     except Exception as e:
+            #         md_utilities.send_error_email(
+            #             md_utilities.prepare_email_html(
+            #                 'MobiDetails VariantValidator error',
+            #                 '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
+            #                     os.path.basename(__file__), e.args
+            #                 )
+            #             ),
+            #             '[MobiDetails - VariantValidator Error]'
+            #         )
+            #         # vv_data = {'apiVersion': 'Service Unavailable'}
+            #         # vv_alive = {'status': 'Service Unavailable'}
+            if not vv_base_url:
                 close_db()
                 return md_utilities.danger_panel(
-                    new_variant, 'Variant Validator did not answer our call, status: {}. \
-                    I have been informed by email. Please retry later.'.format(vv_alive['status']))
+                        new_variant, 'Variant Validator did not answer our call, status: Service Unavailable. \
+                        I have been informed by email. Please retry later.')
 
             # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-            if alt_nm is None or acc_no == request.form['acc_no']:
+            if not alt_nm or acc_no == request.form['acc_no']:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
-                    md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+                    vv_base_url, acc_no, acc_version, new_variant
                 )
             else:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                    md_utilities.urls['variant_validator_api'], acc_no, acc_version, new_variant
+                    vv_base_url, acc_no, acc_version, new_variant
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
             try:
+                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
             except Exception:
                 close_db()
@@ -755,7 +762,7 @@ def create():
                         vv_key_var = key
                         # print(key)
                         var_obj = re.search(r':(c\..+)$', key)
-                        if var_obj is not None:
+                        if var_obj:
                             new_variant = var_obj.group(1)
         else:
             close_db()

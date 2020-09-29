@@ -547,6 +547,45 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
                 <p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'.format(color_class, text, link)
 
 
+def get_vv_api_url():
+    # try remote VV rest api and if not functional, switch on local
+    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+    try:
+        hello = json.loads(http.request('GET', urls['variant_validator_api_hello']).data.decode('utf-8'))
+        if hello['status'] == "hello_world":
+            return urls['variant_validator_api']
+        else:
+            raise Exception
+    except Exception as e:
+        try:
+            print('VV looks down - tyring to switch on rescue docker {}'.format(urls['variant_validator_api_hello']))
+            hello = json.loads(http.request('GET', urls['variant_validator_api_hello_backup']).data.decode('utf-8'))
+            # send_error_email(
+            #     prepare_email_html(
+            #         'MobiDetails VariantValidator error',
+            #         '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p> Trying to switch to backup.'.format(
+            #             os.path.basename(__file__), e.args
+            #         )
+            #     ),
+            #     '[MobiDetails - VariantValidator Error]'
+            # )
+            if hello['status'] == "hello_world":
+                return urls['variant_validator_api_backup']
+            else:
+                raise Exception
+            # return urls['variant_validator_api_backup']
+        except Exception as e:
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails VariantValidator error',
+                    '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
+                        os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - VariantValidator Error]'
+            )
+    return None
+
 def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_version, vv_data, caller, db, g):
     vf_d = {}
     # deal with various warnings
@@ -646,10 +685,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                         '[MobiDetails API - Mapping issue]'
                     )
                     return {'mobidetails_error': '{}: mapping issue'.format(vv_key_var)}
-
+        
+        vv_base_url = get_vv_api_url()
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
-            urls['variant_validator_api'], hg38_d['chr'], hg38_d['pos'],
+            vv_base_url, hg38_d['chr'], hg38_d['pos'],
             hg38_d['pos_ref'], hg38_d['pos_alt']
         )
         try:
