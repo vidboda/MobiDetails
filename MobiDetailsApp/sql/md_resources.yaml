@@ -116,6 +116,7 @@
   'revel': 'https://sites.google.com/site/revelgenomics/'
   'spliceai': 'https://github.com/Illumina/SpliceAI'
   'sift': 'https://sift.bii.a-star.edu.sg/'
+  'togows': 'http://togows.org'
   'ucsc_hg19': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position='
   'ucsc_hg19_session': '757149165_H4Gy8jWA4BwCuA6WW1M8UxC37MFn'
   'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position='
@@ -384,6 +385,12 @@
     'paper': '30661751'
     'version': 'v1.3'
     'short_name': 'spliceai'
+  'togows':
+    'firstauthor': 'Katayama'
+    'year': '2010'
+    'paper': '20472643'
+    'version': 'API'
+    'short_name': 'togows'
   'VariantValidator':
     'firstauthor': 'Freeman'
     'year': '2018'

@@ -46,7 +46,27 @@ def litvar():
             # if len(litvar_data) == 0: or re.search(r'mandatory', litvar_data[0])
             if len(litvar_data) == 0:
                 return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">No match in Pubmed using LitVar API</div>'
-            return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data[0]['pmids'])
+            pubmed_info = {}
+            togows_url = '{0}/entry/ncbi-pubmed/'.format(md_utilities.urls['togows'])
+            for pubmed_id in litvar_data[0]['pmids']:
+                togows_url = '{0}{1},'.format(togows_url, pubmed_id)
+            togows_url = '{0}.json'.format(togows_url[:-1])
+            # print(togows_url)
+            try:
+                pubmeds = json.loads(http.request('GET', togows_url).data.decode('utf-8'))
+                for article in pubmeds:
+                    # print(article)
+                    pubmed_info[article['pmid']] = {}
+                    pubmed_info[article['pmid']]['title'] = article['title']
+                    pubmed_info[article['pmid']]['journal'] = article['journal']
+                    pubmed_info[article['pmid']]['year'] = article['year']
+                    pubmed_info[article['pmid']]['author'] = article['authors'][0]
+            except Exception:
+                for pubmed_id in litvar_data[0]['pmids']:
+                    pubmed_info[pubmed_id] = {}
+                    pubmed_info[pubmed_id]['title'] = ''
+            return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=pubmed_info)
+            # return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data[0]['pmids'])
         else:
             return '<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">No match in Pubmed using LitVar API</div>'
     else:
@@ -87,7 +107,7 @@ def defgen():
         return render_template('ajax/defgen.html', variant="{0}.{1}:c.{2}".format(
             vf['gene_name'][1], vf['nm_version'], vf['c_name']), defgen_file=file_loc, genome=genome)
     else:
-        close_db()
+        # close_db()
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails Ajax error',

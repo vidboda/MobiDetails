@@ -1,16 +1,23 @@
 
 {% from 'macros.html' import modal_js %}
-<span onclick="$('#pubmed').show();" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%;" id="litvar_data">show Pubmed IDs</span>
+<span onclick="$('#pubmed').show();" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%;" id="litvar_data">show Pubmed links</span>
 <div class="w3-modal" id="pubmed" style="z-index:2002;">
 	<div class="w3-modal-content w3-display-middle w3-animate-opacity w3-mobile" style="max-height:80%;overflow:auto;">
 		<header class="w3-container w3-blue">
 			<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#pubmed').hide();">X</span>
-			<br /><span class="w3-xlarge">PubMed IDs of articles citing this variant:</span><br />
+			<br /><span class="w3-xlarge">PubMed links of articles citing this variant:</span><br />
 		</header>
 		<div class="w3-container">
 			<ul>
-				{% for pubmedid in pmids %}
+				{# {% for pubmedid in pmids %}
 						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" rel="noopener noreferrer">{{ pubmedid }}</a></li>
+				{% endfor %} #}
+				{% for pubmedid in pmids|sort %}
+					{% if pmids[pubmedid]['title'] %}
+						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" title="{{ pmids[pubmedid]['title'] }}" rel="noopener noreferrer">{{ pmids[pubmedid]['author'] }} et al., {{ pmids[pubmedid]['year'] }} ({{ pmids[pubmedid]['journal'] }})</a></li>
+					{% else %}
+						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" rel="noopener noreferrer">{{ pubmedid }}</a></li>
+					{% endif %}
 				{% endfor %}
 			</ul>
 		<br><br></div>

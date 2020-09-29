@@ -80,7 +80,7 @@ function litvar(litvar_url, csrf_token) {
 		});
 	}
 	else {
-		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed IDs requires a dbSNP identifier</div>');
+		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed requires a dbSNP identifier</div>');
 	}
 }
 function lovd(lovd_url, csrf_token) {
