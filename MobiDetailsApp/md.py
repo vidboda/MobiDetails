@@ -711,8 +711,8 @@ def variant(variant_id=None):
                     else:
                         # Eigen from dbMTS for 3'UTR variants 
                         try:
-                            annot['eigen_raw'] = record[127]
-                            annot['eigen_phred'] = record[128]
+                            annot['eigen_raw'] = format(float(record[127]), '.2f')
+                            annot['eigen_phred'] = format(float(record[128]), '.2f')
                         except Exception:
                             annot['eigen'] = 'No match in dbMTS for Eigen'
                         if 'eigen_raw' in annot and \
