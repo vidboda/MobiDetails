@@ -125,7 +125,7 @@
   'uniprot_id': 'http://www.uniprot.org/uniprot/'
   'variant_validator': ' https://variantvalidator.org/service/validate/?variant='
   # uncomment below to use genuine VV web API
-  'variant_validator_api': 'https://res.variantvalidator.org/'
+  'variant_validator_api': 'https://rest.variantvalidator.org/'
   # uncomment below to use VV on monster
   'variant_validator_api_backup': 'http://194.167.35.245:8000/'
   # uncomment below to use VV on beast
