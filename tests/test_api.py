@@ -3,6 +3,24 @@ import psycopg2
 import json
 from MobiDetailsApp.db import get_db
 
+# test api key
+
+
+@pytest.mark.parametrize(('api_key', 'api_key_pass_check', 'api_key_status'), (
+    ('', True, 'active'),
+    ('xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFsPXrMrE6s', False, 'irrelevant'),
+    (1234, False, 'irrelevant'),
+    (None, False, 'irrelevant'),
+    ('nxLeeX6_tD3flHnI__Rc4P1PqkpR2Sm8aFs8PXrMrE6s', False, 'irrelevant'),
+))
+def test_check_api_key(client, app, api_key, api_key_pass_check, api_key_status):
+    with app.app_context():
+        if api_key == '':
+            api_key = get_generic_api_key()
+    json_response = json.loads(client.post('/api/service/check_api_key', data={'api_key':api_key}).data.decode('utf8'))
+    print(json_response)
+    assert api_key_pass_check == json_response['api_key_pass_check']
+    assert api_key_status == json_response['api_key_status']
 # test variant exists
 
 
@@ -14,7 +32,7 @@ from MobiDetailsApp.db import get_db
     ('nc_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
     ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'Malformed query')
 ))
-def test_api_variant_exists(client, app, variant, key, response):
+def test_api_variant_exists(client, variant, key, response):
     json_response = json.loads(client.get('/api/variant/exists/{}'.format(variant)).data.decode('utf8'))
     assert response in str(json_response[key])
 
@@ -26,7 +44,7 @@ def test_api_variant_exists(client, app, variant, key, response):
     ('USH2', 'mobidetails_warning', 'Unknown gene'),
     ('--%USH2A', 'mobidetails_error', 'Invalid gene submitted')
 ))
-def test_api_gene(client, app, gene, key, response):
+def test_api_gene(client, gene, key, response):
     json_response = json.loads(client.get('/api/gene/{}'.format(gene)).data.decode('utf8'))
     print(json_response)
     assert response in str(json_response[key])

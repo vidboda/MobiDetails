@@ -14,6 +14,27 @@ from MobiDetailsApp import md_utilities
 
 bp = Blueprint('api', __name__)
 # -------------------------------------------------------------------
+# api - check APi key
+
+
+@bp.route('/api/service/check_api_key', methods=['POST'])
+def check_api_key(api_key=None):
+    if request.args.get('api_key'):
+        api_key = request.args.get('api_key', type=str)
+    elif 'api_key' in request.form:
+        api_key = request.form['api_key']
+    else:
+        return jsonify(mobidetails_error='I cannot fetch the right parameters', api_key_pass_check=False, api_key_status='irrelevant')
+    db = get_db()
+    response = md_utilities.check_api_key(db, api_key)
+    if 'mobiuser' in response:
+        if response['mobiuser']['activated'] is True:
+            return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='active')
+        return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='inactive')
+    return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')            
+    # return jsonify(mobidetails_error='I cannot fetch the right parameters', api_key_pass_check=False, api_key_status='irrelevant')
+
+# -------------------------------------------------------------------
 # api - variant exists?
 
 
