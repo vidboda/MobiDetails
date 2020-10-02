@@ -97,6 +97,9 @@
 									{% if iso.canonical == 1 %}
 										(canonical)
 									{% endif %}
+									{% if iso.variant_creation != 'ok' %}
+										(disabled - {{ iso.variant_creation|replace('_', ' ') }})
+									{% endif %}
 								</span></strong>
 							</td>
 							<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">

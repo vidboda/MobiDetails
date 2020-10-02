@@ -184,7 +184,7 @@
 												{% if iso.variant_creation == 'ok' %}
 													<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}</option>
 												{% else %}
-													<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}" disabled="disabled">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }} - disabled ({{ iso.variant_creation }})</option>
+													<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}" disabled="disabled">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
 												{% endif %}
 											{% endif %}
 										{% endfor %}
