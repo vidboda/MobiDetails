@@ -278,7 +278,7 @@ def test_favourite(client, app, auth, vf_id, status_code):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["c.100C>G", "c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'[]')

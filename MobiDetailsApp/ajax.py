@@ -875,12 +875,12 @@ def autocomplete():
     if match_object:
         md_query = match_object.group(1)
         curs.execute(
-            "SELECT DISTINCT(c_name) FROM variant_feature WHERE c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
+            "SELECT DISTINCT(a.c_name) as name, a.gene_name[2] as gene_name, b.nm_version FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
         )
         res = curs.fetchall()
         result = []
         for var in res:
-            result.append('c.{}'.format(var[0]))
+            result.append('{0}.{1}:c.{2}'.format(var['gene_name'], var['nm_version'], var['name']))
         # print(json.dumps(result))
         # print("SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query))
         if result is not None:
