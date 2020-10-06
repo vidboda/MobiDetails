@@ -91,7 +91,11 @@
 				</thead>
 				<tbody>
 					{% for iso in res %}
-						<tr>
+						{% if iso.variant_creation != 'ok' %}
+							<tr style="opacity:0.2;">
+						{% else %}
+							<tr>
+						{% endif %}						
 							<td class="w3-button w3-hover-sand">
 								<strong><span  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">{{ iso.name[1] }}.{{ iso.nm_version }}
 									{% if iso.canonical == 1 %}
