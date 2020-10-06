@@ -120,25 +120,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
             else:
                 flash('Invalid caller submitted to API.', 'w3-pale-red')
                 return redirect(url_for('md.index'))
-        # if len(api_key) != 43:
-        #     return jsonify(mobidetails_error='Invalid API key')
-        # else:
-        #     curs.execute(
-        #         "SELECT * FROM mobiuser WHERE api_key = %s",
-        #         (api_key,)
-        #     )
-        #     res = curs.fetchone()
-        #     if res is None:
-        #         return jsonify(mobidetails_error='Unknown API key')
-        #     else:
-        #         g.user = res
-        # if variant_chgvs is None:
-        #     return jsonify(mobidetails_error='No variant submitted')
+
         variant_regexp = md_utilities.regexp['variant']
-        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
+        match_object = re.search(rf'^([Nn][Mm]_\d+)\.\d{{1,2}}:c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
         if match_object:
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
-            acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
+            acc_no, new_variant = match_object.group(1), match_object.group(2)
+            # acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
             new_variant = new_variant.replace(" ", "").replace("\t", "")
             # new_variant = new_variant.replace("\t", "")
             original_variant = new_variant
@@ -163,13 +151,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 # creation
                 # get gene
                 curs.execute(
-                    "SELECT name[1] as gene FROM gene WHERE name[2] = %s",
+                    "SELECT name[1] as gene, nm_version FROM gene WHERE name[2] = %s",
                     (acc_no,)
                 )
                 res_gene = curs.fetchone()
                 if res_gene is None:
                     return jsonify(mobidetails_error='The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no))
-               
+                acc_version = res_gene['nm_version']
                 vv_base_url = md_utilities.get_vv_api_url()
                 if not vv_base_url:
                     close_db()
