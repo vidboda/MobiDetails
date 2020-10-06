@@ -289,8 +289,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     (ncbi_chr,)
                 )
                 res = curs.fetchone()
-                if res and \
-                        res['genome_version'] == 'hg38':
+                if res: #   and \
+                    #    res['genome_version'] == 'hg38':
                     genome_version, chrom = res['genome_version'], res['name']
                     # check if variant exists
                     curs.execute(
@@ -320,8 +320,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 flash('Variant Validator looks down!.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
                         
-                        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
-                            vv_base_url, variant_ghgvs
+                        vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
+                            vv_base_url, genome_version, variant_ghgvs
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
