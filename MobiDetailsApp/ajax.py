@@ -56,11 +56,12 @@ def litvar():
                 pubmeds = json.loads(http.request('GET', togows_url).data.decode('utf-8'))
                 for article in pubmeds:
                     # print(article)
-                    pubmed_info[article['pmid']] = {}
-                    pubmed_info[article['pmid']]['title'] = article['title']
-                    pubmed_info[article['pmid']]['journal'] = article['journal']
-                    pubmed_info[article['pmid']]['year'] = article['year']
-                    pubmed_info[article['pmid']]['author'] = article['authors'][0]
+                    if article['authors'][0]:
+                        pubmed_info[article['pmid']] = {}
+                        pubmed_info[article['pmid']]['title'] = article['title']
+                        pubmed_info[article['pmid']]['journal'] = article['journal']
+                        pubmed_info[article['pmid']]['year'] = article['year']
+                        pubmed_info[article['pmid']]['author'] = article['authors'][0]
             except Exception:
                 for pubmed_id in litvar_data[0]['pmids']:
                     pubmed_info[pubmed_id] = {}
