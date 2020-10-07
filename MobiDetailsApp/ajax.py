@@ -57,15 +57,17 @@ def litvar():
                 for article in pubmeds:
                     # print(article)
                     if article['authors'][0]:
-                        pubmed_info[article['pmid']] = {}
-                        pubmed_info[article['pmid']]['title'] = article['title']
-                        pubmed_info[article['pmid']]['journal'] = article['journal']
-                        pubmed_info[article['pmid']]['year'] = article['year']
-                        pubmed_info[article['pmid']]['author'] = article['authors'][0]
+                        pmid = int(article['pmid'])
+                        pubmed_info[pmid] = {}
+                        pubmed_info[pmid]['title'] = article['title']
+                        pubmed_info[pmid]['journal'] = article['journal']
+                        pubmed_info[pmid]['year'] = article['year']
+                        pubmed_info[pmid]['author'] = article['authors'][0]
             except Exception:
                 for pubmed_id in litvar_data[0]['pmids']:
-                    pubmed_info[pubmed_id] = {}
-                    pubmed_info[pubmed_id]['title'] = ''
+                    pmid = int(pubmed_id)
+                    pubmed_info[pmid] = {}
+                    pubmed_info[pmid]['title'] = ''
             return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=pubmed_info)
             # return render_template('ajax/litvar.html', urls=md_utilities.urls, pmids=litvar_data[0]['pmids'])
         else:
