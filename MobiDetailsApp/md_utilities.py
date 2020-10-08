@@ -12,7 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 from flask import (
-    url_for, request, render_template, current_app as app
+    url_for, request, render_template, current_app as app, jsonify, redirect
 )
 from flask_mail import Message
 # from . import config
@@ -1506,6 +1506,19 @@ def get_api_key(g, curs):
         if res_key:
             api_key = res_key['api_key']
     return api_key
+
+
+def get_post_param(request, param):
+    # swagger/curl sends request.args e.g.
+    # curl -X POST "http://10.34.20.79:5001/api/variant/create?variant_chgvs=NM_005422.2%3Ac.5040G%3ET&api_key=XXX" -H  "accept: application/json"
+    # while
+    # urllib3 request from create_vars_batch.py sends request.form
+    if param:
+        if request.args.get('{}'.format(param)):
+            return request.args.get('{}'.format(param))
+        elif '{}'.format(param) in request.form:
+            return request.form['{}'.format(param)]
+    return None
 
 # 
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):

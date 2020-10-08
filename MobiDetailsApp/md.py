@@ -1146,17 +1146,18 @@ def search_engine():
                 result = curs.fetchone()
                 if result is None:
                     query_type = 'second_name'
+                    # https://www.postgresql.org/docs/9.3/functions-matching.html#POSIX-ESCAPE-SEQUENCES
                     curs.execute(
-                        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(
+                        "SELECT {0} FROM {1} WHERE {2} ~* '\m[;,]?{3}[;,]?\M'".format(
                             col_names, sql_table, query_type, pattern
                         )
                     )
-                    result = curs.fetchone()
-                    if result is None:                        
+                    result_second = curs.fetchone()
+                    if result_second is None:
                         close_db()
                         error = 'Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).'.format(query_engine)
                     else:
-                        return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+                        return redirect(url_for('md.gene', gene_name=result_second[col_names][0]))
                 else:
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:

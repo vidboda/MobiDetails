@@ -40,7 +40,8 @@ def test_api_variant_exists(client, variant, key, response):
 
 
 @pytest.mark.parametrize(('gene', 'key', 'response'), (
-    ('USH2A', 'HGNC', 'USH2A'),
+    ('USH2A', 'HGNC Name', 'USH2A'),
+    (12601, 'HGNC Name', 'USH2A'),
     ('USH2', 'mobidetails_warning', 'Unknown gene'),
     ('--%USH2A', 'mobidetails_error', 'Invalid gene submitted')
 ))
@@ -95,6 +96,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
 @pytest.mark.parametrize(('variant_ghgvs', 'api_key', 'gene', 'caller', 'return_key', 'message'), (
     ('NC_000001.11:g.40817273T>G', 'random', 'KCNQ4', 'cli', 'mobidetails_error', 'Invalid API key'),
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
+    ('NC_000001.11:g.40817273T>G', '', 6298, 'cli', 'mobidetails_id', 117),
     # ('NC_000001.11:g.40817273T>G', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'KCNQ4', 'browser', 'mobidetails_error', 'Unknown API key'),
     # ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
