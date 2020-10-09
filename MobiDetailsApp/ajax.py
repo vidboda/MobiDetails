@@ -507,7 +507,7 @@ def modif_class():
                 # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
                 genome_version = 'hg19'
                 curs.execute(
-                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, b.hgnc_id, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
+                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
                     a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name \
                     AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
                     (variant_id, genome_version)
