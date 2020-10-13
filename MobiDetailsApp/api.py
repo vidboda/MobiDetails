@@ -149,12 +149,16 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 # creation
                 # get gene
                 curs.execute(
-                    "SELECT name[1] as gene, nm_version FROM gene WHERE name[2] = %s",
+                    "SELECT name[1] as gene, nm_version FROM gene WHERE name[2] = %s and variant_creation = 'ok'",
                     (acc_no,)
                 )
                 res_gene = curs.fetchone()
                 if res_gene is None:
-                    return jsonify(mobidetails_error='The gene corresponding to {} is not yet present in MobiDetails'.format(acc_no))
+                    if caller == 'cli':
+                        return jsonify(mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no))
+                    else:
+                        flash('The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no), 'w3-pale-red')
+                        return redirect(url_for('md.index'))
                 acc_version = res_gene['nm_version']
                 vv_base_url = md_utilities.get_vv_api_url()
                 if not vv_base_url:
@@ -162,7 +166,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     if caller == 'cli':
                         return jsonify(mobidetails_error='Variant Validator looks down!.')
                     else:
-                        flash('TVariant Validator looks down!.', 'w3-pale-red')
+                        flash('Variant Validator looks down!.', 'w3-pale-red')
                         return redirect(url_for('md.index'))
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
                     vv_base_url, acc_no, acc_version, new_variant
@@ -291,13 +295,13 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
         if re.search(r'^\d+$', gene):
             # HGNC id submitted
              curs.execute(
-                "SELECT name, nm_version FROM gene WHERE hgnc_id = %s AND canonical = 't'",
+                "SELECT name, nm_version FROM gene WHERE hgnc_id = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
             )
         else:
             # search for gene name
             curs.execute(
-                "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 't'",
+                "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
             )
         res_gene = curs.fetchone()
@@ -431,9 +435,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     return redirect(url_for('md.index'))
         else:
             if caller == 'cli':
-                return jsonify(mobidetails_error='Unknown gene {} submitted'.format(gene))
+                return jsonify(mobidetails_error='The gene {} is currently not available in MobiDetails for variant annotation'.format(gene))
             else:
-                flash('Unknown gene {} submitted'.format(gene), 'w3-pale-red')
+                flash('The gene {} is currently not available for variant annotation in MobiDetails'.format(gene), 'w3-pale-red')
                 return redirect(url_for('md.index'))
     else:
         if caller == 'cli':
