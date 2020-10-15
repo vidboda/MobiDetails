@@ -435,7 +435,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     return redirect(url_for('md.index'))
         else:
             if caller == 'cli':
-                return jsonify(mobidetails_error='The gene {} is currently not available in MobiDetails for variant annotation'.format(gene))
+                return jsonify(mobidetails_error='The gene {} is currently not available for variant annotation in MobiDetails'.format(gene))
             else:
                 flash('The gene {} is currently not available for variant annotation in MobiDetails'.format(gene), 'w3-pale-red')
                 return redirect(url_for('md.index'))

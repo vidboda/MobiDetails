@@ -102,7 +102,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
     ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
     ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
     ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Malformed query'),
-    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'Unknown gene'),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'is currently not available for variant annotation in MobiDetails'),
 ))
 def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller, return_key, message):
     with app.app_context():
