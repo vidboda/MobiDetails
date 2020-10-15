@@ -22,7 +22,7 @@ def test_litvar(client, app):
             possible = [
                 b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">No match in Pubmed using LitVar API</div>',
                 b'PubMed links of articles citing this variant',
-                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">The Litvar query failed.</div>'
+                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">The Litvar query failed</div>'
             ]
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
             print(values['dbsnp_id'])
