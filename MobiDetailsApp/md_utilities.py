@@ -12,7 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 from flask import (
-    url_for, request, render_template, current_app as app, redirect
+    url_for, request, render_template, current_app as app
 )
 from flask_mail import Message
 # from . import config
