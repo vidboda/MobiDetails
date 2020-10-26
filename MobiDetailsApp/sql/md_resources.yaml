@@ -331,7 +331,7 @@
     'paper': '15285897'
     'version': '2004'
     'short_name': 'maxentscan'
-  'metadome':
+  'MetaDome':
     'firstauthor': 'Wiel'
     'year': '2019'
     'paper': ' 31116477'
@@ -361,7 +361,7 @@
     'paper': '18000842'
     'version': 'API'
     'short_name': 'mutalyzer'
-  'Polyphen 2':
+  'Polyphen-2':
     'firstauthor': 'Adzhubei'
     'year': '2010'
     'paper': '20354512'
