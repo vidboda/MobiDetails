@@ -67,7 +67,7 @@ def test_intervar(client, app):
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene'])
             response = client.post('/intervar', data=data_dict)
             assert response.status_code == 200
-            possible = [b'athogenic', b'lassified', b'enign', b'ncertain']
+            possible = [b'athogenic', b'lassified', b'enign', b'ncertain',b'wintervar looks down']
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
             print(res)
             print(response.get_data())

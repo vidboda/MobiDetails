@@ -71,6 +71,7 @@ def get_generic_api_key():
     ('NM_206933.2:c.100C>T', '', 'mobidetails_id', 5),
     ('NM_206933.10:c.100C>T', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
     ('M_206933.2:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
+    ('NM_206933.3:c.10000C>T', '', 'mobidetails_error', 'The RefSeq accession number submitted'),
 ))
 def test_api_create(client, app, new_variant, api_key, return_key, message):
     with app.app_context():
@@ -84,7 +85,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
         }
         json_response = json.loads(client.post('/api/variant/create', data=data).data.decode('utf8'))
         # json_response = json.loads(client.get('/api/variant/create/{0}/{1}'.format(new_variant, api_key)).data.decode('utf8'))
-
+        print(json_response)
         if isinstance(json_response[return_key], int):
             assert json_response[return_key] == message
         else:

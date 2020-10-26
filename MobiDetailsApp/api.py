@@ -79,24 +79,6 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     caller = md_utilities.get_post_param(request, 'caller')
     variant_chgvs = md_utilities.get_post_param(request, 'variant_chgvs')
     api_key = md_utilities.get_post_param(request, 'api_key')
-    # if request.args.get('variant_chgvs') and \
-    #         request.args.get('caller') and \
-    #         request.args.get('api_key'):
-    #     variant_chgvs = request.args.get('variant_chgvs', type=str)
-    #     caller = request.args.get('caller', type=str)
-    #     api_key = request.args.get('api_key', type=str)
-    # elif 'variant_chgvs' in request.form and \
-    #         'caller' in request.form and \
-    #         'api_key' in request.form:
-    #     variant_chgvs = request.form['variant_chgvs']
-    #     caller = request.form['caller']
-    #     api_key = request.form['api_key']
-    # else:
-    #     if caller == 'cli':
-    #         return jsonify(mobidetails_error='I cannot fetch the right parameters')
-    #     else:
-    #         flash('I cannot fetch the right parameters', 'w3-pale-red')
-    #         return redirect(url_for('md.index'))
     if variant_chgvs and \
             caller and \
             api_key:
@@ -120,10 +102,10 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 return redirect(url_for('md.index'))
 
         variant_regexp = md_utilities.regexp['variant']
-        match_object = re.search(rf'^([Nn][Mm]_\d+)\.\d{{1,2}}:c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
+        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
         if match_object:
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
-            acc_no, new_variant = match_object.group(1), match_object.group(2)
+            acc_no, submitted_nm_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
             # acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
             new_variant = new_variant.replace(" ", "").replace("\t", "")
             # new_variant = new_variant.replace("\t", "")
@@ -158,6 +140,12 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return jsonify(mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no))
                     else:
                         flash('The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no), 'w3-pale-red')
+                        return redirect(url_for('md.index'))
+                if res_gene['nm_version'] != submitted_nm_version:
+                    if caller == 'cli':
+                        return jsonify(mobidetails_error='The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']))
+                    else:
+                        flash('The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']), 'w3-pale-red')
                         return redirect(url_for('md.index'))
                 acc_version = res_gene['nm_version']
                 vv_base_url = md_utilities.get_vv_api_url()
@@ -233,40 +221,6 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
     variant_ghgvs = md_utilities.get_post_param(request, 'variant_ghgvs')
     gene = md_utilities.get_post_param(request, 'gene_hgnc')
     api_key = md_utilities.get_post_param(request, 'api_key')
-    # if request.args.get('variant_ghgvs'):
-    #     variant_ghgvs = request.args.get('variant_ghgvs', type=str)
-    # elif 'variant_ghgvs' in request.form:
-    #     variant_ghgvs = request.form['variant_ghgvs']
-    # else:
-    #     if caller == 'cli':
-    #         return jsonify(mobidetails_error='variant_ghgvs parameter lacking')
-    #     else:
-    #         flash('variant_ghgvs parameter lacking', 'w3-pale-red')
-    #         return redirect(url_for('md.index'))
-    # 
-    # if request.args.get('variant_ghgvs') and \
-    #         request.args.get('gene_hgnc') and \
-    #         request.args.get('caller') and \
-    #         request.args.get('api_key'):
-    #     variant_ghgvs = request.args.get('variant_ghgvs', type=str)
-    #     gene = request.args.get('gene_hgnc')
-    #     caller = request.args.get('caller', type=str)
-    #     api_key = request.args.get('api_key', type=str)
-    # elif 'variant_ghgvs' in request.form and \
-    #         'gene_hgnc' in request.form and \
-    #         'caller' in request.form and \
-    #         'api_key' in request.form:
-    #     variant_ghgvs = request.form['variant_ghgvs']
-    #     gene = request.form['gene_hgnc']
-    #     caller = request.form['caller']
-    #     api_key = request.form['api_key']
-    # else:
-    #     print(caller)
-    #     if caller == 'cli':
-    #         return jsonify(mobidetails_error='I cannot fetch the right parameters')
-    #     else:
-    #         flash('I cannot fetch the right parameters', 'w3-pale-red')
-    #         return redirect(url_for('md.index'))
     if variant_ghgvs and \
             gene and \
             caller and \
@@ -455,24 +409,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
     caller = md_utilities.get_post_param(request, 'caller')
     rs_id = md_utilities.get_post_param(request, 'rs_id')
     api_key = md_utilities.get_post_param(request, 'api_key')
-    # if request.args.get('rs_id') and \
-    #         request.args.get('caller') and \
-    #         request.args.get('api_key'):
-    #     rs_id = request.args.get('rs_id', type=str)
-    #     caller = request.args.get('caller', type=str)
-    #     api_key = request.args.get('api_key', type=str)
-    # elif 'rs_id' in request.form and \
-    #         'caller' in request.form and \
-    #         'api_key' in request.form:
-    #     rs_id = request.form['rs_id']
-    #     caller = request.form['caller']
-    #     api_key = request.form['api_key']
-    # else:
-    #     if caller == 'cli':
-    #         return jsonify(mobidetails_error='I cannot fetch the right parameters')
-    #     else:
-    #         flash('I cannot fetch the right parameters for MD API.', 'w3-pale-red')
-    #         return redirect(url_for('md.index'))
     if rs_id and \
             caller and \
             api_key:
@@ -549,51 +485,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # can_nm = None
             for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
                 variant_regexp = md_utilities.regexp['variant']
-                # match_nm = re.search(rf'^(NM_\d+)\.\d+:c\.({variant_regexp})$', hgvs)
-                # if match_nm:
-                #     current_nm = match_nm.group(1)
-                #     # get list of NM recorded in MD
-                #     if not md_nm:
-                #         curs.execute(
-                #             "SELECT name[2] as nm FROM gene WHERE name[1] = (SELECT name[1] FROM gene WHERE name[2] = %s)",
-                #             (current_nm,)
-                #         )
-                #         res_nm_all = curs.fetchall()
-                #         if res_nm_all:
-                #             for nm in res_nm_all:
-                #                 md_nm.append(nm[0])
-                #     if current_nm in md_nm:
-                #         # check if variant with same name already recorded => at least we do not query multiple times for these
-                #         curs.execute(
-                #             "SELECT id FROM variant_feature WHERE dbsnp_id = %s AND c_name = %s",
-                #             (trunc_rs_id, match_nm.group(2),)
-                #         )
-                #         res_known = curs.fetchall()
-                #         if not res_known:
-                #             # get gene and MD current NM version
-                #             curs.execute(
-                #                 "SELECT nm_version FROM gene WHERE name[2] = %s",
-                #                 (current_nm,)
-                #             )
-                #             res_nm = curs.fetchone()
-                #             if res_nm:
-                #                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
-                #                 variant_chgvs = '{0}.{1}:c.{2}'.format(current_nm, res_nm['nm_version'], match_nm.group(2))
-                #                 data = {
-                #                     'variant_chgvs': urllib.parse.quote(variant_chgvs),
-                #                     'caller': 'cli',
-                #                     'api_key': api_key
-                #                 }
-                #                 try:
-                #                     md_response[variant_chgvs] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
-                #                 except Exception:
-                #                     md_response[variant_chgvs] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, variant_chgvs)}
-                #             else:
-                #                 continue
-                #         else:
-                #             continue
-                #     else:
-                #         continue
                 # intronic variant?
                 # we need HGVS genomic to launch the API but also the gene - got from NG
                 # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
@@ -622,18 +513,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             if res_gene:
                                 for hgnc_name in res_gene:
                                     gene_names.append(hgnc_name[0])
-                # match_ng = re.search(rf'^(NG_\d+)\.\d+:g\.{variant_regexp}$', hgvs)
-                # if match_ng and \
-                #         not gene_name and \
-                #         not md_response:
-                #     # we need to get the gene name that can be useful later
-                #     curs.execute(
-                #         "SELECT name[1] as hgnc FROM gene WHERE ng LIKE %s AND canonical = 't'",
-                #         ('{}%'.format(match_ng.group(1)),)
-                #     )
-                #     res_gene = curs.fetchone()
-                #     if res_gene:
-                #         gene_name = res_gene['hgnc']
                 else:
                     continue
             # do we have an intronic variant?

@@ -152,6 +152,7 @@ def intervar():
             md_utilities.urls['intervar_api'], genome, chrom,
             pos, ref, alt
         )
+        # print(intervar_url)
         try:
             intervar_data = [json.loads(http.request('GET', intervar_url).data.decode('utf-8'))]
         except Exception:
@@ -166,12 +167,6 @@ def intervar():
                     obj = '{{{}}}'.format(obj)
                     intervar_list[i] = obj
                     i += 1
-                #     if i == 0:
-                #         intervar_list[i] = '{0}}}'.format(obj)
-                #     else:
-                #         intervar_list[i] = '{{{0}'.format(obj)
-                # if i > 2:
-                #     intervar_list[i-1] = '{0}}}'.format(intervar_list[i-1])
                 intervar_data = []
                 for obj in intervar_list:
                     # print(obj)
@@ -190,7 +185,21 @@ def intervar():
                 return "<span>No wintervar class</span>"
         intervar_acmg = None
         if len(intervar_data) == 1:
-            intervar_acmg = intervar_data[0]['Intervar']
+            try:
+                intervar_acmg = intervar_data[0]['Intervar']
+            except Exception:
+                # md_utilities.send_error_email(
+                #     md_utilities.prepare_email_html(
+                #         'MobiDetails API error',
+                #         '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> - from {5} with args: A mandatory argument is missing</p>'.format(
+                #             request.form['genome'], request.form['chrom'],
+                #             request.form['pos'], request.form['ref'],
+                #             request.form['alt'], os.path.basename(__file__)
+                #         )
+                #     ),
+                #     '[MobiDetails - API Error]'
+                # )
+                return "<span>wintervar looks down</span>"            
         else:
             for intervar_dict in intervar_data:
                 # intervar likely returns several json objects
@@ -221,7 +230,7 @@ def intervar():
             ),
             '[MobiDetails - API Error]'
         )
-        return "<span>No wintervar class</span>"
+        return "<span>Bad request</span>"
 
 # -------------------------------------------------------------------
 # web app - ajax for LOVD API
