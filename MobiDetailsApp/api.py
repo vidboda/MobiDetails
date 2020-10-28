@@ -141,7 +141,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash('The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no), 'w3-pale-red')
                         return redirect(url_for('md.index'))
-                if res_gene['nm_version'] != submitted_nm_version:
+                if int(res_gene['nm_version']) != int(submitted_nm_version):
                     if caller == 'cli':
                         return jsonify(mobidetails_error='The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']))
                     else:
