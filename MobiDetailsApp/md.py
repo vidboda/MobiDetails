@@ -1023,17 +1023,18 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{variant_regexp}$', query_engine):  # NM acc no variant
+        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{variant_regexp}$', query_engine) or \
+                re.search(rf'^[Nn][Mm]_\d+\.\d+\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # API call
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+:c\.{variant_regexp})$', query_engine)
+            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+)\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
             if api_key is not None:
-                return redirect(url_for('api.api_variant_create', variant_chgvs=match_obj.group(1), caller='browser', api_key=api_key), code=307)
-        elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc no
+                return redirect(url_for('api.api_variant_create', variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)), caller='browser', api_key=api_key), code=307)
+        elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
             query_type = 'name[2]'
             col_names = 'name'

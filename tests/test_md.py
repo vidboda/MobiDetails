@@ -60,6 +60,8 @@ def test_variant_page(client):
     ('p.G816_E820del', 'variant/71'),
     ('p.Leu1278del', 'variant/68208'),
     ('p.L1278del', 'variant/68208'),
+    ('NM_206933.2:c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs')),
+    ('NM_206933.2(USH2A):c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs')),
     ('MYO7A', 'gene/MYO7A'),
     ('myo7a', 'gene/MYO7A'),
     ('mYo7A', 'gene/MYO7A'),

@@ -69,7 +69,7 @@ def file_upload():
                         continue
                     line = line.replace(' ', '')
                     variant_regexp = md_utilities.regexp['variant']
-                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+):(c\.{variant_regexp})$', line)
+                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+)\(*[A-Za-z0-9-]*\)*:(c\.{variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
