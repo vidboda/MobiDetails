@@ -572,6 +572,21 @@ def test_get_api_key(app):
         curs =  db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         g.user = None
         assert md_utilities.get_api_key(g, curs) is not None
+
+@pytest.mark.parametrize(('criterion', 'color'), (
+    ('PVS1', 'w3-red'),
+    ('PS5', 'w3-red'),
+    ('PM2', 'w3-deep-orange'),
+    ('PP2', 'w3-orange'),
+    ('BS1', 'w3-teal'),
+    ('BP4', 'w3-green'),
+    (1, None),
+    ('BBR', None)
+))
+def test_get_acmg_criterion_color(criterion, color):
+        assert md_utilities.get_acmg_criterion_color(criterion) == color
+
+
 # 
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

@@ -352,12 +352,12 @@
 						</td>
 					</tr>
 					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
-						<tr><!--intervar-->
+						<tr id="intervar_tr" onmouseout="$('#acmg_info').text('');"><!--intervar-->
 							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
 							<td class="w3-left-align">
 								<span  id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 							</td>
-							<td class="w3-left-align"><em class="w3-small">Semi-automated ACMG classification - click on the intervar link to adjust<br />Passing the mouse over a criterion will display the definition</em>
+							<td class="w3-left-align"><em class="w3-small">Semi-automated ACMG classification - click on the intervar link to adjust<br /> - passing the mouse over a criterion will display the definition</em>
 							</td>
 						</tr>
 					{% endif %}

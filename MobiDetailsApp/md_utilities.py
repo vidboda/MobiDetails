@@ -1521,6 +1521,22 @@ def get_post_param(request, param):
             return request.form['{}'.format(param)]
     return None
 
+def get_acmg_criterion_color(criterion):
+    criterion = str(criterion)
+    if re.search(r'^PS', criterion) or \
+            re.search(r'^PVS', criterion):
+        return 'w3-red'
+    elif re.search(r'^PM', criterion):
+        return 'w3-deep-orange'
+    elif re.search(r'^PP', criterion):
+        return 'w3-orange'
+    elif re.search(r'^BS', criterion):
+        return 'w3-teal'
+    elif re.search(r'^BP', criterion):
+        return 'w3-green'
+    else:
+        return None
+
 # 
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):
 #     if return_obj:

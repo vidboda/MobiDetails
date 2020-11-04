@@ -192,8 +192,9 @@ def intervar():
                 for key in intervar_data[0]:
                     if key != 'Chromosome' and \
                             intervar_data[0][key] == 1:
-                        #intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
-                        intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');">{0}<span id="{0}acmg_info" style="display:none" >: {1}</span></li>'.format(key, md_utilities.acmg_criteria[key])
+                        # intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
+                        # intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');"><span class="{1}">{0}</span><span id="{0}acmg_info" style="display:none" >: {2}</span></li>'.format(key, md_utilities.get_acmg_criterion_color(key), md_utilities.acmg_criteria[key])
+                        intervar_criteria = str(intervar_criteria) + '&nbsp;<div class="w3-card w3-col {0} w3-opacity-min" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
             except Exception:
                 # md_utilities.send_error_email(
                 #     md_utilities.prepare_email_html(
@@ -215,7 +216,9 @@ def intervar():
                     for key in intervar_dict:
                         if key != 'Chromosome' and \
                                 intervar_dict[key] == 1:
-                            intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
+                            # intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
+                            # intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');"><span class="{1}">{0}</span><span id="{0}acmg_info" style="display:none" >: {2}</span></li>'.format(key, md_utilities.get_acmg_criterion_color(key), md_utilities.acmg_criteria[key])
+                            intervar_criteria = str(intervar_criteria) + '&nbsp;<div class="w3-card w3-col {0} w3-opacity-min" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
         if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -226,7 +229,7 @@ def intervar():
             )
             res = curs.fetchone()
             close_db()
-            return "<span style='color:{0};'>{1}</span><span> with the following criteria:</span><ul>{2}</ul>".format(res['html_code'], intervar_acmg, intervar_criteria)
+            return "<span style='color:{0};'>{1}</span><span> with the following criteria:</span><br /><br /><div class='w3-row-padding w3-center'>{2}</div><br /><div id='acmg_info'></div>".format(res['html_code'], intervar_acmg, intervar_criteria)
         else:
             return "<span>No wintervar class</span>"
     else:
@@ -329,9 +332,9 @@ def lovd():
                         html_li = ''
                         html_li_end = ''
                     if lovd_name is not None:
-                        html_list.append("{0}<a href='{1}' target='_blank'>{2}</a>{3}".format(html_li, url, lovd_name, html_li_end))
+                        html_list.append("{0}<a href='{1}' target='_blank'>{2} </a>{3}".format(html_li, url, lovd_name, html_li_end))
                     else:
-                        html_list.append("{0}<a href='{1}' target='_blank'>Link {2}</a>{3}".format(html_li, url, i, html_li_end))
+                        html_list.append("{0}<a href='{1}' target='_blank'>Link {2} </a>{3}".format(html_li, url, i, html_li_end))
                     i += 1
                 # get LOVD effects e.g.
                 # https://databases.lovd.nl/shared/api/rest/variants/USH2A?search_position=g.216420460&show_variant_effect=1&format=application/json
@@ -377,9 +380,9 @@ def lovd():
                     for effect in lovd_effect_count[feat]:
                         # print(effect)
                         if feat == 'effect_reported':
-                            reported_effect_list.append('<li>{0}: {1}</li>'.format(effect, lovd_effect_count[feat][effect]))
+                            reported_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
                         else:
-                            concluded_effect_list.append('<li>{0}: {1}</li>'.format(effect, lovd_effect_count[feat][effect]))
+                            concluded_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
                 html += ',<tr> \
                    <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">LOVD Effect Reported:</td> \
                    <td class="w3-left-align"><ul>{0}</ul></td> \
