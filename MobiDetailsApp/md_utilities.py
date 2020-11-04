@@ -91,6 +91,7 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
         )
     )
 )
+acmg_criteria = resources['acmg']
 countries = resources['countries']
 
 def reverse_complement(seq):

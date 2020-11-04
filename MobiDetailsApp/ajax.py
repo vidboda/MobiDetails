@@ -184,9 +184,16 @@ def intervar():
                 )
                 return "<span>No wintervar class</span>"
         intervar_acmg = None
+        intervar_criteria = ''
+        # print(md_utilities.acmg_criteria['PVS1'])
         if len(intervar_data) == 1:
             try:
                 intervar_acmg = intervar_data[0]['Intervar']
+                for key in intervar_data[0]:
+                    if key != 'Chromosome' and \
+                            intervar_data[0][key] == 1:
+                        #intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
+                        intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');">{0}<span id="{0}acmg_info" style="display:none" >: {1}</span></li>'.format(key, md_utilities.acmg_criteria[key])
             except Exception:
                 # md_utilities.send_error_email(
                 #     md_utilities.prepare_email_html(
@@ -205,6 +212,10 @@ def intervar():
                 # intervar likely returns several json objects
                 if intervar_dict['Gene'] == gene:
                     intervar_acmg = intervar_dict['Intervar']
+                    for key in intervar_dict:
+                        if key != 'Chromosome' and \
+                                intervar_dict[key] == 1:
+                            intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
         if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -215,7 +226,7 @@ def intervar():
             )
             res = curs.fetchone()
             close_db()
-            return "<span style='color:{0};'>{1}</span>".format(res['html_code'], intervar_acmg)
+            return "<span style='color:{0};'>{1}</span><span> with the following criteria:</span><ul>{2}</ul>".format(res['html_code'], intervar_acmg, intervar_criteria)
         else:
             return "<span>No wintervar class</span>"
     else:
