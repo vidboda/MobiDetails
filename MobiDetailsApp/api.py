@@ -190,6 +190,12 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     'c.{}'.format(new_variant), original_variant,
                     acc_version, vv_data, 'api', db, g
                 )
+                if 'mobidetails_error' in creation_dict:
+                    if caller == 'cli':
+                        return jsonify(creation_dict)
+                    else:
+                        flash(creation_dict['mobidetails_error'], 'w3-pale-red')
+                        return redirect(url_for('md.index'))
                 if caller == 'cli':
                     return jsonify(creation_dict)
                 else:
