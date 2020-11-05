@@ -194,7 +194,7 @@ def intervar():
                             intervar_data[0][key] == 1:
                         # intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
                         # intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');"><span class="{1}">{0}</span><span id="{0}acmg_info" style="display:none" >: {2}</span></li>'.format(key, md_utilities.get_acmg_criterion_color(key), md_utilities.acmg_criteria[key])
-                        intervar_criteria = str(intervar_criteria) + '&nbsp;<div class="w3-card w3-col {0} w3-opacity-min" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
+                        intervar_criteria = str(intervar_criteria) + '&nbsp;<div class="w3-col {0} w3-opacity-min w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
             except Exception:
                 # md_utilities.send_error_email(
                 #     md_utilities.prepare_email_html(
@@ -218,7 +218,7 @@ def intervar():
                                 intervar_dict[key] == 1:
                             # intervar_criteria = str(intervar_criteria) + '<li>{0}: {1}</li>'.format(key, md_utilities.acmg_criteria[key])
                             # intervar_criteria = str(intervar_criteria) + '<li onmouseover="$(\'#{0}acmg_info\').css(\'display\', \'inline\');" onmouseout="$(\'#{0}acmg_info\').css(\'display\', \'none\');"><span class="{1}">{0}</span><span id="{0}acmg_info" style="display:none" >: {2}</span></li>'.format(key, md_utilities.get_acmg_criterion_color(key), md_utilities.acmg_criteria[key])
-                            intervar_criteria = str(intervar_criteria) + '&nbsp;<div class="w3-card w3-col {0} w3-opacity-min" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
+                            intervar_criteria = str(intervar_criteria) + '<div class="w3-col {0} w3-opacity-min w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\').text(\'{1}: {2}\');">{1}</div>'.format(md_utilities.get_acmg_criterion_color(key), key, md_utilities.acmg_criteria[key])
         if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -380,17 +380,19 @@ def lovd():
                     for effect in lovd_effect_count[feat]:
                         # print(effect)
                         if feat == 'effect_reported':
-                            reported_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
+                            reported_effect_list.append('<div class="w3-col w3-{0} w3-opacity-min w3-padding w3-margin-top w3-margin-left w3-hover-shadow" style="width:180px;">{1}: {2}  </div>'.format(md_utilities.lovd_effect[effect]['color'], md_utilities.lovd_effect[effect]['translation'], lovd_effect_count[feat][effect]))
+                            # reported_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
                         else:
-                            concluded_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
+                            concluded_effect_list.append('<div class="w3-col w3-{0} w3-opacity-min w3-padding w3-margin-top w3-margin-left w3-hover-shadow" style="width:180px;">{1}: {2}  </div>'.format(md_utilities.lovd_effect[effect]['color'], md_utilities.lovd_effect[effect]['translation'], lovd_effect_count[feat][effect]))
+                            # concluded_effect_list.append('<li>{0}: {1} </li>'.format(effect, lovd_effect_count[feat][effect]))
                 html += ',<tr> \
                    <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">LOVD Effect Reported:</td> \
-                   <td class="w3-left-align"><ul>{0}</ul></td> \
+                   <td class="w3-center" style="vertical-align:middle;"><div class="w3-row w3-center">{0}</div><br /></td> \
                    <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;"> \
                    <em class="w3-small">Effects reported by LOVD submitters</em></td> \
                    </tr>,<tr> \
                    <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">LOVD Effect Concluded:</td> \
-                   <td class="w3-left-align"><ul>{1}</ul></td> \
+                   <td class="w3-center" style="vertical-align:middle;"><div class="w3-row w3-center">{1}</div><br /></td>\
                    <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;"> \
                    <em class="w3-small">Effects concluded by LOVD curators</em></td> \
                    </tr>'.format(''.join(reported_effect_list), ''.join(concluded_effect_list))

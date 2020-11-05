@@ -578,8 +578,9 @@ def test_get_api_key(app):
     ('PS5', 'w3-red'),
     ('PM2', 'w3-deep-orange'),
     ('PP2', 'w3-orange'),
-    ('BS1', 'w3-teal'),
-    ('BP4', 'w3-green'),
+    ('BS1', 'w3-green'),
+    ('BA1', 'w3-green'),
+    ('BP4', 'w3-teal'),
     (1, None),
     ('BBR', None)
 ))

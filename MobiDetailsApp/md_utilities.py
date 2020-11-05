@@ -92,6 +92,7 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
     )
 )
 acmg_criteria = resources['acmg']
+lovd_effect = resources['lovd_effect']
 countries = resources['countries']
 
 def reverse_complement(seq):
@@ -1449,7 +1450,7 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
 
 def lovd_error_html(text):
     return '<tr><td class="w3-left-align" id="lovd_feature" style="vertical-align:middle;">LOVD Matches:</td> \
-            <td class="w3-left-align">{}</td> \
+            <td class="w3-left-align" style="vertical-align:middle;">{}</td> \
             <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;"><em class="w3-small">LOVD match in public instances</em></td> \
             </tr>'.format(text)
 
@@ -1530,9 +1531,9 @@ def get_acmg_criterion_color(criterion):
         return 'w3-deep-orange'
     elif re.search(r'^PP', criterion):
         return 'w3-orange'
-    elif re.search(r'^BS', criterion):
-        return 'w3-teal'
     elif re.search(r'^BP', criterion):
+        return 'w3-teal'
+    elif re.search(r'^B[SA]', criterion):
         return 'w3-green'
     else:
         return None
