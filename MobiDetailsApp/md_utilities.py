@@ -357,7 +357,7 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         return 'Match failed in {}'.format(text)
 
     i = 3
-    if re.search('(dbNSFP|Indels|whole_genome_SNVs|dbscSNV|clinpred|dbMTS|MISTIC)', tabix_file):
+    if re.search('(dbNSFP|Indels|indel|whole_genome_SNVs|dbscSNV|clinpred|dbMTS|MISTIC)', tabix_file):
         i -= 1
     for record in records:
         if record[i] == var['pos_ref'] and \

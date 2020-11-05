@@ -147,12 +147,12 @@
 'local_files':
   # id :local path, version name, short desc, short name 4 urls xref    
   'cadd':
-    'rel_path': '/static/resources/CADD/hg38/whole_genome_SNVs.tsv.gz'
+    'rel_path': '/static/resources/CADD/hg38/v1.6/whole_genome_SNVs.tsv.gz'
     'name': 'CADD SNVs'
     'description': 'Prediction of deleterious effect for all variant types'
     'short_name': 'cadd'
   'cadd_indels':
-    'rel_path': '/static/resources/CADD/hg38/InDels.tsv.gz'
+    'rel_path': '/static/resources/CADD/hg38/v1.6/gnomad.genomes.r3.0.indel.tsv.gz'
     'name': 'CADD indels'
     'description': 'Prediction of deleterious effect for all variant types'
     'short_name': 'cadd'
@@ -251,7 +251,7 @@
     'firstauthor': 'Rentzsch'
     'year': '2019'
     'paper': '30371827'
-    'version': 'v1.5'
+    'version': 'v1.6'
     'short_name': 'cadd'
   'ClinPred':
     'firstauthor': 'Alirezaie'

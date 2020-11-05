@@ -62,6 +62,9 @@
 					{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
 					{{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }}
 					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}
+					{% if variant_features.dna_type == 'substitution' %}
+						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
+					{% endif %}
 				</div>
 			{% endif %}
 		{% endfor %}
@@ -389,7 +392,12 @@
 				</thead>
 				<tbody>
 					<tr><!--CADD raw-->
-						<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
+						<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
+						{% if variant_features.dna_type == 'substitution' %}
+							<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> raw:</td>
+						{% else %}
+							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
+						{% endif %}
 						{% if annot.cadd is not defined %}
 							<td class="w3-left-align">{{ annot.cadd_raw }}</td>
 						{% else %}
@@ -398,7 +406,11 @@
 						<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
 					</tr>
 					<tr><!--CADD phred-->
-						<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
+						{% if variant_features.dna_type == 'substitution' %}
+							<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> phred:</td>
+						{% else %}
+							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
+						{% endif %}
 						{% if annot.cadd is not defined %}
 							<td class="w3-left-align">{{ annot.cadd_phred }}</td>
 						{% else %}
