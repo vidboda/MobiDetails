@@ -490,19 +490,19 @@
   'BP7': 'A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved'
 'lovd_effect':
   'functionAffected':
-    'translation': 'pathogenic'
+    'translation': 'function affected'
     'color': 'red'
   'functionProbablyAffected':
-    'translation': 'likely pathogenic'
+    'translation': 'function probably affected'
     'color': 'deep-orange'
   'unknown':
     'translation': 'unknown'
     'color': 'grey'
   'functionProbablyNotAffected':
-    'translation': 'likely benign'
+    'translation': 'function probably not affected'
     'color': 'teal'
   'functionNotAffected':
-    'translation': 'benign'
+    'translation': 'function not affected'
     'color': 'green'
   'notClassified':
     'translation': 'not classified'
