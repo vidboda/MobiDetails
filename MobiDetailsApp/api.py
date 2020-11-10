@@ -535,6 +535,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             'caller': 'cli',
                             'api_key': api_key
                         }
+                        print(data)
                         try:
                             # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                             md_response[var_hgvs_nc] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
