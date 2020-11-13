@@ -83,10 +83,13 @@ def litvar():
 @bp.route('/defgen', methods=['POST'])
 def defgen():
     genome_regexp = md_utilities.regexp['genome']
+    match_obj = re.search(rf'^({genome_regexp})$', request.form['genome'])
     if re.search(r'^\d+$', request.form['vfid']) and \
-            re.search(rf'^{genome_regexp}$', request.form['genome']):
+            match_obj:
+            # re.search(rf'^{genome_regexp}$', request.form['genome']):
         variant_id = request.form['vfid']
-        genome = request.form['genome']
+        # genome = request.form['genome']
+        genome = match_obj.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
