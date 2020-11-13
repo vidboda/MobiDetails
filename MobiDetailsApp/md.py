@@ -456,6 +456,8 @@ def variant(variant_id=None):
                                             if 'sw_dn_ds' in pos:
                                                 annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
                                                 [annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
+                                if 'transcript_id' in metad_json:
+                                    annot['metadome_transcript'] = metad_json['transcript_id']
                 if variant_features['start_segment_type'] == 'intron':
                     annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
                 # MPA indel splice

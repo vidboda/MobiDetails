@@ -260,7 +260,7 @@
 						{% endif %}
 						{% if annot.metadome_dn_ds is defined %}
 							<td class="w3-left-align">Position tolerance</td>
-							<td class="w3-left-align">{{ annot.metadome_dn_ds }} : {{ span_color(annot.metadome_effect, annot.metadome_color) }}</td>
+							<td class="w3-left-align">{{ annot.metadome_dn_ds }} : {{ span_color(annot.metadome_effect, annot.metadome_color) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ annot.metadome_transcript }}/" target="_blank">Transcript view</a></td>
 							<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
 						{% endif %}
 					{% endif %}
