@@ -513,8 +513,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         # print("SELECT a.name[1] as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = {0} AND {1} BETWEEN SYMMETRIC # b.segment_start AND b.segment_end".format(res_chr['name'], positions[0]))
                         if not gene_names:
                             curs.execute(
-                                "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
-                                (res_chr['name'], positions[0])
+                                "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND b.genome_version = %s AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
+                                (res_chr['genome_version'], res_chr['name'], positions[0])
                             )
                             res_gene = curs.fetchall()
                             if res_gene:
