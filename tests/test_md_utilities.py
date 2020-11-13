@@ -519,7 +519,7 @@ def test_get_maxent_natural_sites_scores(chrom, strand, scan_type, positions, re
 
 def test_lovd_error_html():
     html = md_utilities.lovd_error_html('test')
-    assert '<td class="w3-left-align">test</td>' in html
+    assert '<td class="w3-left-align" style="vertical-align:middle;">test</td>' in html
 
 @pytest.mark.parametrize(('record', 'result'), (
     ('hsa-miR-548j-3p;hsa-miR-548j-3p;hsa-miR-548x-3p;hsa-miR-548ah-3p;hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p</a><br />"),

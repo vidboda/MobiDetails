@@ -206,7 +206,7 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
 
 
 @pytest.mark.parametrize(('new_variant', 'gene', 'acc_no', 'acc_version', 'message1', 'message2'), (
-    ('c.1A>T', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
+    ('c.2276G>T', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
     ('', 'USH2A', 'NM_206933', '2', b'fill in the form', b'fill in the form'),
     ('c.216_219del', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
     ('c.-104_-99dup', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),

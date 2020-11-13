@@ -2,7 +2,7 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
-	{{ danger('There is currently a bug that prevent some dbSNP rs ids to annotate variants. <br/> We are actively working on it. Please use HGVS expressions instead if you encounter this bug.') }}
+	{# {{ danger('There is currently a bug that prevent some dbSNP rs ids to annotate variants. <br/> We are actively working on it. Please use HGVS expressions instead if you encounter this bug.') }} #}
 	<div class="w3-center w3-padding-16 w3-row w3-responsive">
 		<div class="w3-twothird">
 			<img alt="MobiDetails" style="max-height:180px" src="{{ url_for('static', filename='img/MobiDetails1.png') }}" /><br />
