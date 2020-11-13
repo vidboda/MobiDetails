@@ -391,7 +391,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if g.user['academic'] %}
+					{% if g.user['academic'] or not g.user %}
 						<tr><!--CADD raw-->
 							<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
 							{% if variant_features.dna_type == 'substitution' %}
@@ -796,7 +796,7 @@
 							<td class="w3-left-align">{{ span_color(annot.sift_pred, annot.sift_color) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging</em></td>
 						</tr>
-						{% if g.user['academic'] %}
+						{% if g.user['academic'] or not g.user %}
 							<tr><!--PH2 HDIV-->
 								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
 								<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}{{ annot.pph2_hdiv_star }}</td>
@@ -918,10 +918,10 @@
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
-							labels: ['SIFT', 'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', 'FATHMM', 'MetaSVM', 'MetaLR', 'Mistic'],
+							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'FATHMM', 'MetaSVM', 'MetaLR', 'Mistic'],
 							datasets: [{
 								label:'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %}1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
 								fill: true,
 								backgroundColor:'rgb(255, 99, 132, 0.2)',
 								borderColor:'rgb(255, 99, 132)',
