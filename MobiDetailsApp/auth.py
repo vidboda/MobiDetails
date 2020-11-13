@@ -364,7 +364,7 @@ def profile(mobiuser_id=0):
         #     "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
         # )
         curs.execute(
-            "SELECT id, username, email, institute, country, api_key, email_pref, lovd_export FROM mobiuser  WHERE id = %s",
+            "SELECT id, username, email, institute, country, api_key, email_pref, lovd_export, academic FROM mobiuser  WHERE id = %s",
             (user_id,)
         )
         mobiuser = curs.fetchone()

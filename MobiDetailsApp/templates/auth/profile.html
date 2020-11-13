@@ -55,6 +55,14 @@
 							<span id="value_to_send_lovd_export" style="display:none;">t</span>
 						{% endif %}
 					</li>
+					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">You are currently identified as 
+						{% if mobiuser.academic %}
+							an
+						{% else %}
+							a non
+						{% endif %}
+						academic user
+					</li>
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>

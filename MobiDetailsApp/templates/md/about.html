@@ -15,8 +15,9 @@
 		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
 		<a href="#source_code" class="w3-bar-item w3-button w3-mobile">Source code</a>
 		<a href="#credits" class="w3-bar-item w3-button w3-mobile">Credits</a>
-		<a href="#private_life" class="w3-bar-item w3-button w3-mobile">Private Life</a>
 		<a href="#data_sharing" class="w3-bar-item w3-button w3-mobile">Data Sharing</a>
+		<a href="#non_academic" class="w3-bar-item w3-button w3-mobile">Non academic access</a>
+		<a href="#private_life" class="w3-bar-item w3-button w3-mobile">Private Life</a>		
 	</div><br />
 	<div class="w3-button w3-block w3-blue w3-center" onclick="accord('whatyouwillget');" title="toggle section">
 		<span class="w3-xxlarge">What you will get with MobiDetails</span>
@@ -161,17 +162,21 @@
 					<li><a href="https://rest.variantvalidator.org" target="_blank">VariantValidator</a></li></ul>And some others to provide you the most up to date data:<ul><li><a href="https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query=" target="_blank">LitVar</a></li> \
 					<li><a href="https://www.lovd.nl/" target="_blank">LOVD</a></li> \
 					<li><a href="http://wintervar.wglab.org/" target="_blank">wInterVar</a></li> \
-				</ul>') }}
-		<h3 id="private_life">Private life:</h3>
-		{{ info('MobiDetails does not require an account, you can annotate and analyse variants as a public user.<br/> \
-				Authentication allows a greater experience and involves cookies, however, they are strictly functional cookies.<br /> \
-				By registering, you agree that MobiDetails will store some kind of personal data. \
-				These data will not be used for any commercial purpose neither be transmitted to any organism. \
-				Their usage is strictly restricted to MobiDetails internal operation.') }}
+				</ul>') }}		
 		<h3 id="data_sharing">Data sharing using <a href="http://www.lovd.nl" target="_blank">LOVD</a>:</h3>
 		{{ info('<strong>MobiDetails and <a href="http://www.lovd.nl" target="_blank">LOVD</a> are working together to ensure a persistent sharing of the variants and annotations.</strong><br /> \
 					When a MobiDetails user defines an ACMG class, this action triggers the submission of the variant to the <a href="https://databases.lovd.nl/shared/genes" target="_blank">Global Variome LOVD shared</a> database. As in MobiDetails the variants are not related to any patient or sample, this will also be the case with the LOVD submissions. Only the HGVS nomenclatures, definition of the variant and the ACMG class will be sent. The MobiDetails user will not be listed as "Submitter" in the LOVD instance (The submitter will be identified as "MobiDetails"). This behaviour can be modified in the profile page of the MobiDetails user.<br />\
 					This integration of the 2 system will ensure a larger diffusion of the useful data present in MobiDetails.') }}
+		<h3 id="non_academic">Non academic users:</h3>
+		{{ info('MobiDetails is free for use, but non-academic users must register and be identified as so.<br/> \
+				Their access to data will be slightly modified in order to comply with different tools terms of distribution. \
+				However, if you plan to make an extensive use of MobiDetails, contact <a href="%s#cite">us</a> in order to set up a proper plan for you.') | format(url_for("md.about")) }}
+		<h3 id="private_life">Private life:</h3>
+		{{ info('MobiDetails does not require an account, you can annotate and analyse variants as a public user (except for non-academic users, see above).<br/> \
+				Authentication allows a greater experience and involves cookies, however, they are strictly functional cookies.<br /> \
+				By registering, you agree that MobiDetails will store some kind of personal data. \
+				These data will not be used for any commercial purpose neither be transmitted to any organism. \
+				Their usage is strictly restricted to MobiDetails internal operation.') }}
 	</div>
 	<br /><br />
 {% endblock %}
