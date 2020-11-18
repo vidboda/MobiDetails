@@ -866,11 +866,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         vf_d['dna_type'] = 'insertion'
     elif re.search('del', vf_d['c_name']):
         vf_d['dna_type'] = 'deletion'
+    elif re.search('inv', vf_d['c_name']):
+        vf_d['dna_type'] = 'inversion'
     elif re.search('=', vf_d['c_name']):
         if caller == 'webApp':
             return danger_panel(vv_key_var, 'Reference should not be equal to alternative to define a variant.')
         elif caller == 'api':
             return {'mobidetails_error':  'Reference should not be equal to alternative to define a variant.'}
+    else:
+        if caller == 'webApp':
+            return danger_panel(vv_key_var, 'No proper DNA type found for the variant.')
+        elif caller == 'api':
+            return {'mobidetails_error':  'No proper DNA type found for the variant.'}
     if 'variant_size' not in vf_d:
         if not re.search('_', vf_d['c_name']):
             # one bp del or dup
@@ -1076,6 +1083,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
             mt_obj = re.search(r'>([ATGC])$', vf_d['c_name'])
             vf_d['mt_seq'] = "{0} {1} {2}".format(begin, mt_obj.group(1), end)
+        elif vf_d['dna_type'] == 'inversion':
+            vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
+            vf_d['mt_seq'] = "{0} {1} {2}".format(begin, reverse_complement(middle), end)
         elif vf_d['dna_type'] == 'indel':
             ins_obj = re.search(r'delins([ATGC]+)', vf_d['c_name'])
             exp_size = abs(len(middle)-len(ins_obj.group(1)))

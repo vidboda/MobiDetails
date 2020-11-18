@@ -2,8 +2,8 @@
   'dev': '10.34.20.79'
   'prod': 'mobidetails.iurc.montp.inserm.fr'
 'regexp':
-  'variant': '[\dACGTdienulps_>\+\*-]+'
-  'variant_flexible': '[\dACGTacgtdienulps_>\+\*-]+'
+  'variant': '[\dACGTdienulpsv_>\+\*-]+'
+  'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
   'genome': 'hg[13][98]'
   'nochr_chrom': '[\dXYM]{1,2}'
   'nochr_captured': '\d{1,2}|[XYM]'
