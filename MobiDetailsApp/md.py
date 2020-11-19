@@ -548,8 +548,10 @@ def variant(variant_id=None):
                         variant_features['start_segment_type'] == 'exon':
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     try:
-                        annot['eigen_raw'] = format(float(record[113]), '.2f')
-                        annot['eigen_phred'] = format(float(record[115]), '.2f')
+                        annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
+                        annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
+                        # annot['eigen_raw'] = format(float(record[113]), '.2f')
+                        # annot['eigen_phred'] = format(float(record[115]), '.2f')
                     except Exception:
                         annot['eigen'] = 'No match in dbNSFP for Eigen'
                     if 'eigen_raw' in annot and \
@@ -578,9 +580,12 @@ def variant(variant_id=None):
                         mpa_avail = 0
                         # sift
                         annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record
+                            transcript_index, int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), int(md_utilities.external_tools['SIFT']['dbNSFP_pred_col']), ';', 'basic', 1.1, 'lt', record
                         )
-
+                        # annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record
+                        # )
+                        
                         annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')
                         if annot['sift_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -588,8 +593,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # polyphen 2 hdiv
                         annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 42, 44, ';', 'pph2', -0.1, 'gt', record
+                            transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hdiv']), ';', 'pph2', -0.1, 'gt', record
                         )
+                        #  annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 42, 44, ';', 'pph2', -0.1, 'gt', record
+                        # )
 
                         annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
                         if re.search('Damaging', annot['pph2_hdiv_pred']):
@@ -598,8 +606,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # hvar
                         annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 45, 47, ';', 'pph2', -0.1, 'gt', record
+                            transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hvar']), ';', 'pph2', -0.1, 'gt', record
                         )
+                        # annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 45, 47, ';', 'pph2', -0.1, 'gt', record
+                        # )
 
                         annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
                         if re.search('Damaging', annot['pph2_hvar_pred']):
@@ -608,8 +619,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # fathmm
                         annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 60, 62, ';', 'basic', 20, 'lt', record
+                            transcript_index, int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
                         )
+                        # annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 60, 62, ';', 'basic', 20, 'lt', record
+                        # )
 
                         annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
                         if annot['fathmm_pred'] == 'Damaging':
@@ -618,8 +632,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # fathmm-mkl -- not displayed
                         annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 106, 108, ';', 'basic', 20, 'lt', record
+                            transcript_index, int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
                         )
+                        # annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 106, 108, ';', 'basic', 20, 'lt', record
+                        # )
 
                         annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_mkl_score'], 'fathmm-mkl')
                         if annot['fathmm_mkl_pred'] == 'Damaging':
@@ -628,8 +645,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # provean -- not displayed
                         annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 63, 65, ';', 'basic', 20, 'lt', record
+                            transcript_index, int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['Provean']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
                         )
+                        # annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 63, 65, ';', 'basic', 20, 'lt', record
+                        # )
 
                         annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
                         # print(re.split(';', record[65])[i])
@@ -639,8 +659,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # LRT -- not displayed
                         annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 48, 50, ';', 'basic', -1, 'gt', record
+                            transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
                         )
+                        # annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 48, 50, ';', 'basic', -1, 'gt', record
+                        # )
 
                         if annot['lrt_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -648,8 +671,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # MutationTaster -- not displayed
                         annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 52, 54, ';', 'mt', -1, 'gt', record
+                            transcript_index, int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_pred_col']), ';', 'mt', -1, 'gt', record
                         )
+                        # annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 52, 54, ';', 'mt', -1, 'gt', record
+                        # )
 
                         if re.search('Disease causing', annot['mt_pred']):
                             mpa_missense += 1
@@ -657,8 +683,11 @@ def variant(variant_id=None):
                             mpa_avail += 1
                         # REVEL
                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
-                            transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
+                            transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                         )
+                        # annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
+                        # )
                         # no REVEL pred in dbNSFP => custom
                         if annot['revel_score'] != '.' and \
                                 float(annot['revel_score']) < 0.2:
@@ -676,22 +705,27 @@ def variant(variant_id=None):
 
                         # meta SVM
                         # print(record[68])
-                        annot['msvm_score'] = record[68]
+                        # annot['msvm_score'] = record[68]
+                        annot['msvm_score'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
                         annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta-svm')
-                        annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
+                        annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_msvm'])]]
+                        # annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[70]]
                         if annot['msvm_pred'] == 'Damaging':
                             mpa_missense += 1
                         if annot['msvm_pred'] != 'no prediction':
                             mpa_avail += 1
                         # meta LR
-                        annot['mlr_score'] = record[71]
+                        # annot['mlr_score'] = record[71]
+                        annot['mlr_score'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr'])]
                         annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta-lr')
-                        annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
+                        annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_mlr'])]]
+                        # annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[73]]
                         if annot['mlr_pred'] == 'Damaging':
                             mpa_missense += 1
                         if annot['mlr_pred'] != 'no prediction':
                             mpa_avail += 1
-                        annot['m_rel'] = record[74]  # reliability index for meta score (1-10): the higher, the higher the reliability
+                        annot['m_rel'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mrel'])]  # reliability index for meta score (1-10): the higher, the higher the reliability
+                        # annot['m_rel'] = record[74]
                         # print('mpa_avail: {}'.format(mpa_avail))
                         if (('mpa_score' not in annot or
                                 annot['mpa_score'] < mpa_missense) and
@@ -713,8 +747,10 @@ def variant(variant_id=None):
                     else:
                         # Eigen from dbMTS for 3'UTR variants 
                         try:
-                            annot['eigen_raw'] = format(float(record[127]), '.2f')
-                            annot['eigen_phred'] = format(float(record[128]), '.2f')
+                            annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_value_col'])]), '.2f')
+                            annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_pred_col'])]), '.2f')
+                            # annot['eigen_raw'] = format(float(record[127]), '.2f')
+                            # annot['eigen_phred'] = format(float(record[128]), '.2f')
                         except Exception:
                             annot['eigen'] = 'No match in dbMTS for Eigen'
                         if 'eigen_raw' in annot and \
@@ -722,30 +758,55 @@ def variant(variant_id=None):
                             annot['eigen'] = 'No score in dbMTS for Eigen'
                         try:
                             # Miranda
-                            annot['miranda_cat'] = record[160]
-                            annot['miranda_rankscore'] = record[158]
-                            annot['miranda_maxdiff'] = record[157]
-                            annot['miranda_refbestmir'] = md_utilities.format_mirs(record[139])
+                            annot['miranda_cat'] = record[int(md_utilities.external_tools['dbMTS']['miranda_cat_col'])]
+                            annot['miranda_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col'])]
+                            annot['miranda_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['miranda_maxdiff_col'])]
+                            annot['miranda_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_refbestmir_col'])])
                             # annot['miranda_refbestmir'] = record[139].replace(';', '<br />')
-                            annot['miranda_refbestscore'] = record[138]
-                            annot['miranda_altbestmir'] = md_utilities.format_mirs(record[152])
-                            annot['miranda_altbestscore'] = record[151]
+                            annot['miranda_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_refbestscore_col'])]
+                            annot['miranda_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_altbestmir_col'])])
+                            annot['miranda_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_altbestscore_col'])]
                             # TargetScan
-                            annot['targetscan_cat'] = record[190]
-                            annot['targetscan_rankscore'] = record[188]
-                            annot['targetscan_maxdiff'] = record[187]
-                            annot['targetscan_refbestmir'] = md_utilities.format_mirs(record[169])
-                            annot['targetscan_refbestscore'] = record[168]
-                            annot['targetscan_altbestmir'] = md_utilities.format_mirs(record[182])
-                            annot['targetscan_altbestscore'] = record[181]
+                            annot['targetscan_cat'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_cat_col'])]
+                            annot['targetscan_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col'])]
+                            annot['targetscan_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_maxdiff_col'])]
+                            annot['targetscan_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestmir_col'])])
+                            annot['targetscan_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestscore_col'])]
+                            annot['targetscan_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestmir_col'])])
+                            annot['targetscan_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestscore_col'])]
                             # RNAHybrid
-                            annot['rnahybrid_cat'] = record[220]
-                            annot['rnahybrid_rankscore'] = record[218]
-                            annot['rnahybrid_maxdiff'] = record[217]
-                            annot['rnahybrid_refbestmir'] = md_utilities.format_mirs(record[199])
-                            annot['rnahybrid_refbestscore'] = record[198]
-                            annot['rnahybrid_altbestmir'] = md_utilities.format_mirs(record[212])
-                            annot['rnahybrid_altbestscore'] = record[211]
+                            annot['rnahybrid_cat'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_cat_col'])]
+                            annot['rnahybrid_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col'])]
+                            annot['rnahybrid_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_maxdiff_col'])]
+                            annot['rnahybrid_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestmir_col'])])
+                            annot['rnahybrid_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestscore_col'])]
+                            annot['rnahybrid_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestmir_col'])])
+                            annot['rnahybrid_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestscore_col'])]
+                            # # Miranda
+                            # annot['miranda_cat'] = record[160]
+                            # annot['miranda_rankscore'] = record[158]
+                            # annot['miranda_maxdiff'] = record[157]
+                            # annot['miranda_refbestmir'] = md_utilities.format_mirs(record[139])
+                            # # annot['miranda_refbestmir'] = record[139].replace(';', '<br />')
+                            # annot['miranda_refbestscore'] = record[138]
+                            # annot['miranda_altbestmir'] = md_utilities.format_mirs(record[152])
+                            # annot['miranda_altbestscore'] = record[151]
+                            # # TargetScan
+                            # annot['targetscan_cat'] = record[190]
+                            # annot['targetscan_rankscore'] = record[188]
+                            # annot['targetscan_maxdiff'] = record[187]
+                            # annot['targetscan_refbestmir'] = md_utilities.format_mirs(record[169])
+                            # annot['targetscan_refbestscore'] = record[168]
+                            # annot['targetscan_altbestmir'] = md_utilities.format_mirs(record[182])
+                            # annot['targetscan_altbestscore'] = record[181]
+                            # # RNAHybrid
+                            # annot['rnahybrid_cat'] = record[220]
+                            # annot['rnahybrid_rankscore'] = record[218]
+                            # annot['rnahybrid_maxdiff'] = record[217]
+                            # annot['rnahybrid_refbestmir'] = md_utilities.format_mirs(record[199])
+                            # annot['rnahybrid_refbestscore'] = record[198]
+                            # annot['rnahybrid_altbestmir'] = md_utilities.format_mirs(record[212])
+                            # annot['rnahybrid_altbestscore'] = record[211]
                         except Exception:
                             annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
                         
@@ -755,15 +816,19 @@ def variant(variant_id=None):
                     if isinstance(record, str):
                         annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                     else:
-                        annot['cadd_raw'] = record[4]
-                        annot['cadd_phred'] = record[5]
+                        annot['cadd_raw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
+                        annot['cadd_phred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+                        # annot['cadd_raw'] = record[4]
+                        # annot['cadd_phred'] = record[5]
                 else:
                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var)
                     if isinstance(record, str):
                         annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                     else:
-                        annot['cadd_raw'] = record[4]
-                        annot['cadd_phred'] = record[5]
+                        annot['cadd_raw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
+                        annot['cadd_phred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+                        # annot['cadd_raw'] = record[4]
+                        # annot['cadd_phred'] = record[5]
                 # spliceAI 1.3
                 # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
                 # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).

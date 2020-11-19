@@ -80,6 +80,7 @@ predictor_thresholds = resources['predictor_thresholds']
 predictor_colors = resources['predictor_colors']
 predictors_translations = resources['predictors_translations']
 complement = resources['complement']
+hidden_external_tools = resources['hidden_external_tools']
 external_tools = resources['external_tools']
 for tool in external_tools:
     if re.search(r'^\d+$', external_tools[tool]['paper']):
