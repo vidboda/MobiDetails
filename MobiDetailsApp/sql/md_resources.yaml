@@ -172,7 +172,7 @@
     'description': 'Dataset of predictions for 3 UTR substitutions'
     'short_name': 'dbmts'
   'dbnsfp':
-    'rel_path': '/static/resources/dbNSFP/v4_0/dbNSFP4.0a.txt.gz'
+    'rel_path': '/static/resources/dbNSFP/v4_1/dbNSFP4.1a.txt.gz'
     'name': 'dbNSFP'
     'description': 'Dataset of predictions for missense'
     'short_name': 'dbnsfp'
@@ -248,8 +248,8 @@
     'short_name': 'spliceai'
 'hidden_external_tools':
   'FatHMM-MKL':
-    'dbNSFP_value_col': '106'
-    'dbNSFP_pred_col': '108'
+    'dbNSFP_value_col': '121'
+    'dbNSFP_pred_col': '123'
   'Provean':
     'dbNSFP_value_col': '63'
     'dbNSFP_pred_col': '65'
@@ -311,7 +311,7 @@
     'firstauthor': 'Liu'
     'year': '2016'
     'paper': '26555599'
-    'version': 'v4.0a'
+    'version': 'v4.1a'
     'short_name': 'dbnsfp'
   'dbscSNV':
     'firstauthor': 'Jian'
@@ -331,8 +331,8 @@
     'paper': '26727659'
     'version': 'v1.1'
     'short_name': 'eigen'
-    'dbNSFP_value_col': '113'
-    'dbNSFP_pred_col': '115'
+    'dbNSFP_value_col': '128'
+    'dbNSFP_pred_col': '130'
     'dbMTS_value_col': '127'
     'dbMTS_pred_col': '128'
   'FatHMM':
