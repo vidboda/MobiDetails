@@ -542,11 +542,36 @@ def variant(variant_id=None):
                     if match_obj:
                         annot['gnomadv3'] = match_obj.group(1)
                 # dbNSFP
-                # Eigen from dbNSFP for coding variants                
-                if variant_features['dna_type'] == 'substitution' and \
-                        re.search(r'^[^\*-]', variant_features['c_name']) and \
-                        variant_features['start_segment_type'] == 'exon':
+                # # Eigen from dbNSFP for coding variants                
+                # if variant_features['dna_type'] == 'substitution' and \
+                #         re.search(r'^[^\*-]', variant_features['c_name']) and \
+                #         variant_features['start_segment_type'] == 'exon':
+                #     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                #     try:
+                #         annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
+                #         annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
+                #         # annot['eigen_raw'] = format(float(record[113]), '.2f')
+                #         # annot['eigen_phred'] = format(float(record[115]), '.2f')
+                #     except Exception:
+                #         annot['eigen'] = 'No match in dbNSFP for Eigen'
+                #     if 'eigen_raw' in annot and \
+                #             annot['eigen_raw'] == '.':
+                #         annot['eigen'] = 'No score in dbNSFP for Eigen'
+                if variant_features['prot_type'] == 'missense':
+                    # CADD
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    try:
+                        annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
+                        annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
+                        # annot['eigen_raw'] = format(float(record[113]), '.2f')
+                        # annot['eigen_phred'] = format(float(record[115]), '.2f')
+                    except Exception:
+                        annot['cadd'] = 'No match in dbNSFP for CADD'
+                    if 'cadd_raw' in annot and \
+                            annot['cadd_raw'] == '.':
+                        annot['cadd'] = 'No score in dbNSFP for CADD'
+                    # Eigen
+                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     try:
                         annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
                         annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
@@ -557,7 +582,6 @@ def variant(variant_id=None):
                     if 'eigen_raw' in annot and \
                             annot['eigen_raw'] == '.':
                         annot['eigen'] = 'No score in dbNSFP for Eigen'
-                if variant_features['prot_type'] == 'missense':
                     # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
                     # record comes from Eigen section above
                     if isinstance(record, str):
@@ -650,8 +674,7 @@ def variant(variant_id=None):
                         # annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 63, 65, ';', 'basic', 20, 'lt', record
                         # )
-
-                        annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
+                        # annot['provean_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['provean_score'], 'provean')
                         # print(re.split(';', record[65])[i])
                         if annot['provean_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -681,10 +704,23 @@ def variant(variant_id=None):
                             mpa_missense += 1
                         if annot['mt_pred'] != 'no prediction':
                             mpa_avail += 1
+                        # ClinPred
+                        annot['clinpred_score'], annot['clinpred_pred'], annot['clinpred_star'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), int(md_utilities.external_tools['ClinPred']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
+                        )
+                        # clinpred score in dbNSFP, contrary to other scores, presents with 9-10 numbers after '.'
+                        try:
+                            annot['clinpred_score'] = format(float(annot['clinpred_score']), '.3f')
+                        except Exception:
+                            pass
+                            
+                        annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
+                        
                         # REVEL
                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                             transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                         )
+                        
                         # annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
                         # )
@@ -812,14 +848,16 @@ def variant(variant_id=None):
                         
                 # CADD
                 if variant_features['dna_type'] == 'substitution':
-                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)
-                    if isinstance(record, str):
-                        annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
-                    else:
-                        annot['cadd_raw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
-                        annot['cadd_phred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
-                        # annot['cadd_raw'] = record[4]
-                        # annot['cadd_phred'] = record[5]
+                    if variant_features['prot_type'] != 'missense':
+                        # specific file for CADD
+                        record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)
+                        if isinstance(record, str):
+                            annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+                        else:
+                            annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['raw_col'])]), '.2f')
+                            annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['phred_col'])]), '.2f')
+                            # annot['cadd_raw'] = record[4]
+                            # annot['cadd_phred'] = record[5]
                 else:
                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var)
                     if isinstance(record, str):
@@ -888,19 +926,19 @@ def variant(variant_id=None):
                     annot['gnomad_genome_all'] = record[5]
                 # clinpred
                 if variant_features['prot_type'] == 'missense':
-                    record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)
-                    if isinstance(record, str):
-                        annot['clinpred_score'] = record
-                    else:
-                        annot['clinpred_score'] = record[4]
-                    annot['clinpred_color'] = "#000000"
-                    annot['clinpred_pred'] = 'no prediction'
-                    if re.search(r'^[\d\.]+$', annot['clinpred_score']):
-                        annot['clinpred_score'] = format(float(annot['clinpred_score']), '.2f')
-                        annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
-                        annot['clinpred_pred'] = 'Tolerated'
-                        if float(annot['clinpred_score']) > md_utilities.predictor_thresholds['clinpred']:
-                            annot['clinpred_pred'] = 'Damaging'
+                #     record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)
+                #     if isinstance(record, str):
+                #         annot['clinpred_score'] = record
+                #     else:
+                #         annot['clinpred_score'] = record[4]
+                #     annot['clinpred_color'] = "#000000"
+                #     annot['clinpred_pred'] = 'no prediction'
+                #     if re.search(r'^[\d\.]+$', annot['clinpred_score']):
+                #         annot['clinpred_score'] = format(float(annot['clinpred_score']), '.2f')
+                #         annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
+                #         annot['clinpred_pred'] = 'Tolerated'
+                #         if float(annot['clinpred_score']) > md_utilities.predictor_thresholds['clinpred']:
+                #             annot['clinpred_pred'] = 'Damaging'
                     # mistic
                     record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var)
                     if isinstance(record, str):

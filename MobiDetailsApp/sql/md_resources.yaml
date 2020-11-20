@@ -268,12 +268,16 @@
     'short_name': 'cadd'
     'raw_col': '4'
     'phred_col': '5'
+    'dbNSFP_value_col': '113'
+    'dbNSFP_phred_col': '115'
   'ClinPred':
     'firstauthor': 'Alirezaie'
     'year': '2018'
     'paper': '30220433'
     'version': '2018_hg19'
     'short_name': 'clinpred'
+    'dbNSFP_value_col': '101'
+    'dbNSFP_pred_col': '103'
   'ClinVar':
     'firstauthor': 'Landrum'
     'year': '2016'
