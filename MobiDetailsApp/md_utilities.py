@@ -670,6 +670,15 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 elif caller == 'api':
                     return {'mobidetails_error': vv_data['validation_warning_1']['validation_warnings']}
             else:
+                vv_warning = ''
+                for level1 in vv_data:
+                    if re.search(r'NM_\d+\.\d{1,2}:c.*', level1) and \
+                            'validation_warnings' in vv_data[level1]:
+                        vv_warning = 'Warning from VariantValidator for your submission ({0}): {1}'.format(vv_key_var, ' - '.join(vv_data[level1]['validation_warnings']))
+                        if caller == 'webApp':
+                            return danger_panel(vv_key_var, 'I have some troubles with the mapping of this variant. {0}'.format(vv_warning))
+                        elif caller == 'api':
+                            return {'mobidetails_error': '{0}: mapping issue. {1}'.format(vv_key_var, vv_warning)}
                 if caller == 'webApp':
                     send_error_email(
                         prepare_email_html(
@@ -678,7 +687,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                         ),
                         '[MobiDetails - Mapping issue]'
                     )
-                    return danger_panel(vv_key_var, 'I have some troubles with the mapping of this variant. ')
+                    return danger_panel(vv_key_var, 'I have some troubles with the mapping of this variant.')
                 elif caller == 'api':
                     send_error_email(
                         prepare_email_html(
@@ -687,7 +696,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                         ),
                         '[MobiDetails API - Mapping issue]'
                     )
-                    return {'mobidetails_error': '{}: mapping issue'.format(vv_key_var)}
+                    return {'mobidetails_error': '{0}: mapping issue.'.format(vv_key_var)}
         
         vv_base_url = get_vv_api_url()
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
