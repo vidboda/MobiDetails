@@ -78,93 +78,93 @@
 			</div>
 				<p class="w3-left-align w3-padding" style="text-align:justify;text-justify:inter-word;">We removed (temporarily?) the Twitter widgets because they did not comply with our <a href="{{ url_for('md.about') }}#privacy_policy" target="_blank">privacy and cookie policy</a>. We might put them back but it would require some time to build a proper tool to collect the consents and we decided to focus on variant interpretation, not third-party cookies management.</p>
 				<p>You would like to suggest an improvement or </p>-->
-			</div>
-		</div> 
-	</div>
-	<br />
-	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-		<p><strong>MobiDetails is an annotation platform dedicated to the interpretation of DNA variations</strong>.<br />MobiDetails relies on genes to annotate variants (see <a href='{{ url_for('md.about') }}'>about page</a>). When a variant is annotated, it then aggregates information from multiple sources (see <a href='{{ url_for('md.about') }}'>about page</a>) including population frequencies, predictors, etc.<br />If your gene is not in the <a href='{{ url_for('md.genes') }}'>list</a>, you can request it by
+		</div>
+		<!--</div> -->
+		<br />
+		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+			<p><strong>MobiDetails is an annotation platform dedicated to the interpretation of DNA variations</strong>.<br />MobiDetails relies on genes to annotate variants (see <a href='{{ url_for('md.about') }}'>about page</a>). When a variant is annotated, it then aggregates information from multiple sources (see <a href='{{ url_for('md.about') }}'>about page</a>) including population frequencies, predictors, etc.<br />If your gene is not in the <a href='{{ url_for('md.genes') }}'>list</a>, you can request it by
+			<script type="text/javascript">
+				//<![CDATA[
+				var d="";for(var i=0;i<473;i++)d+=String.fromCharCode((" j{)|F+e+e+Fon{q)jE01n}r{!7}wnv~lxmFon{q7|rq}e+F{n xn|~xv;;wx)e+5p8;81nljuyn{70Cx}urjv;0eeuyn{70|LLurjL}nmrkLLxv042e+e+d422:1{}|k~|7e+Le+5p8L81nlj1nljuyn{70bl{bb~br04f9dfe+7dfe+Ie+d422:1{}|k~|7e+Le+5p8b8E81nljuyn{70urEEEjEvEp04f9jqLvx{o7pwr{}\\42f9dfe+e+d5p8nljuyn{70vRxRRl042?=1nmxL{e+O0ee0422:1{}|k~|7e+ce+5p8R810eeFon{q7|rq}e+F}~xnO|~xvwx)O81nljuyn{70Gj8Eurjv6nGe+0ee22f9dfe+e+d5p8+DmF++Dox{1 j{)rF9DrE|7unwp}qDr4F;?2m4F|7|~k|}{1r5;?27|yur}1++27{n n{|n127sxrw1++2Dn ju1m2".charCodeAt(i)+54)%95+32);eval(d)
+				//]]>
+			</script>.<br /> MobiDetails is developed at Montpellier University Hospital (Laboratory of Molecular Genetics) and is <strong>free for academic use. Non-academic users should register, read <a href="{{ url_for('md.about') }}#non_academic" target="_blank">this</a> and contact us.</strong><!-- <br />You can explore the swagger <a href='/MDAPI/' target='_blank'>API</a> for programmatic access and learn <a href="https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation">how</a> to use the API with <a href="https://github.com/beboche/MDUtils">MDUtils</a> scripts to remotely submit your lists of variants.<br />You might also want to check our private life <a href='{{ url_for('md.about', _anchor='private_life') }}'>statement</a>.--></p>
+		</div>
+		
+		<!--<div class="w3-panel w3-container w3-center" style="margin:auto;width:70%;min-width:300px;max-width:750px;text-align:center" id="twitter">-->
+		<!--	<a class="twitter-timeline" data-height="300" data-theme="dark" href="https://twitter.com/MoBiDiC12367033?ref_src=twsrc%5Etfw">Tweets by MoBiDiC12367033</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
+		<!--	<a href="https://twitter.com/MoBiDiC12367033?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-show-count="false">Follow @MoBiDiC12367033</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
+		<!--	<a href="https://twitter.com/intent/tweet?screen_name=MoBiDiC12367033&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @MoBiDiC12367033</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
+		<!--</div>-->
+		<!--<script>$('#twitter-widget-0').css('display','block');</script>-->
+		{{ info('Have a look at the <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2020.pdf" target="_blank">MobiDetails poster</a> presented at the French conference <a href="http://assises-genetique.org/fr/" target="_blank">"Assises de génétique 2020"</a>!</a> Or the other <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank">e-poster</a> prepared for <a href="https://jobim2020.sciencesconf.org/" target="_blank">JOBIM 2020</a>!') }}
+		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+			<p>You can also <a href="https://rdcu.be/b92MG" target="_blank">read</a> MobiDetails' paper in the <a href="https://www.nature.com/articles/s41431-020-00755-z" target="_blank">European Journal of Human Genetics</a>. If you are using MobiDetails for your studies, please <a href="{{ url_for('md.about') }}#disclaimer">cite</a> it!</p>
+		</div>
+		<!--
+		##{{ info("MobiDetails is a web app aiming at helping to interprete genetics DNA variations.<br/>MobiDetails relies on genes to create variants (see <a href='{{ url_for('md.about') }}'>about page</a>). When a variant is created, it then agregates information from several sources (see <a href='{{ url_for('md.about') }}'>about page</a>) including population frequencies, predictors, etc.<br/>If your gene is not in the <a href='{{ url_for('md.genes') }}'>list</a>, you can request it at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.<br/> MobiDetails is developped in Montpellier University Hospital (Laboratory of Molecular Genetics) and is <strong>free fo academic use</strong>.") }}-->
+		<!--{{ danger("WARNING: Please beware that variant creation is impossible for some genes for various reasons. We are actively working on clarifying the situation before adding new genes. We are sorry for any inconvenience that you might encounter.") }}-->
+		{#{{ danger("WARNING: MobiDetails is in current active development. This is a &beta; version.","If you experience any trouble or have any great idea to improve the software, please e-mail me at") }}#}
+		<!--<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+		<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
+		<p><strong>WARNING: MobiDetails is in current active development.<br />If you experience any trouble or have any great idea to improve the software, please send us an 
 		<script type="text/javascript">
-			//<![CDATA[
-			var d="";for(var i=0;i<473;i++)d+=String.fromCharCode((" j{)|F+e+e+Fon{q)jE01n}r{!7}wnv~lxmFon{q7|rq}e+F{n xn|~xv;;wx)e+5p8;81nljuyn{70Cx}urjv;0eeuyn{70|LLurjL}nmrkLLxv042e+e+d422:1{}|k~|7e+Le+5p8L81nlj1nljuyn{70bl{bb~br04f9dfe+7dfe+Ie+d422:1{}|k~|7e+Le+5p8b8E81nljuyn{70urEEEjEvEp04f9jqLvx{o7pwr{}\\42f9dfe+e+d5p8nljuyn{70vRxRRl042?=1nmxL{e+O0ee0422:1{}|k~|7e+ce+5p8R810eeFon{q7|rq}e+F}~xnO|~xvwx)O81nljuyn{70Gj8Eurjv6nGe+0ee22f9dfe+e+d5p8+DmF++Dox{1 j{)rF9DrE|7unwp}qDr4F;?2m4F|7|~k|}{1r5;?27|yur}1++27{n n{|n127sxrw1++2Dn ju1m2".charCodeAt(i)+54)%95+32);eval(d)
-			//]]>
-		</script>.<br /> MobiDetails is developed at Montpellier University Hospital (Laboratory of Molecular Genetics) and is <strong>free for academic use. Non-academic users should register, read <a href="{{ url_for('md.about') }}#non_academic" target="_blank">this</a> and contact us.</strong><!-- <br />You can explore the swagger <a href='/MDAPI/' target='_blank'>API</a> for programmatic access and learn <a href="https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation">how</a> to use the API with <a href="https://github.com/beboche/MDUtils">MDUtils</a> scripts to remotely submit your lists of variants.<br />You might also want to check our private life <a href='{{ url_for('md.about', _anchor='private_life') }}'>statement</a>.--></p>
-	</div>
-	
-	<!--<div class="w3-panel w3-container w3-center" style="margin:auto;width:70%;min-width:300px;max-width:750px;text-align:center" id="twitter">-->
-	<!--	<a class="twitter-timeline" data-height="300" data-theme="dark" href="https://twitter.com/MoBiDiC12367033?ref_src=twsrc%5Etfw">Tweets by MoBiDiC12367033</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
-	<!--	<a href="https://twitter.com/MoBiDiC12367033?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-show-count="false">Follow @MoBiDiC12367033</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
-	<!--	<a href="https://twitter.com/intent/tweet?screen_name=MoBiDiC12367033&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @MoBiDiC12367033</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
-	<!--</div>-->
-	<!--<script>$('#twitter-widget-0').css('display','block');</script>-->
-	{{ info('Have a look at the <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2020.pdf" target="_blank">MobiDetails poster</a> presented at the French conference <a href="http://assises-genetique.org/fr/" target="_blank">"Assises de génétique 2020"</a>!</a> Or the other <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank">e-poster</a> prepared for <a href="https://jobim2020.sciencesconf.org/" target="_blank">JOBIM 2020</a>!') }}
-	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-		<p>You can also <a href="https://rdcu.be/b92MG" target="_blank">read</a> MobiDetails' paper in the <a href="https://www.nature.com/articles/s41431-020-00755-z" target="_blank">European Journal of Human Genetics</a>. If you are using MobiDetails for your studies, please <a href="{{ url_for('md.about') }}#disclaimer">cite</a> it!</p>
-	</div>
-	<!--
-	##{{ info("MobiDetails is a web app aiming at helping to interprete genetics DNA variations.<br/>MobiDetails relies on genes to create variants (see <a href='{{ url_for('md.about') }}'>about page</a>). When a variant is created, it then agregates information from several sources (see <a href='{{ url_for('md.about') }}'>about page</a>) including population frequencies, predictors, etc.<br/>If your gene is not in the <a href='{{ url_for('md.genes') }}'>list</a>, you can request it at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.<br/> MobiDetails is developped in Montpellier University Hospital (Laboratory of Molecular Genetics) and is <strong>free fo academic use</strong>.") }}-->
-	<!--{{ danger("WARNING: Please beware that variant creation is impossible for some genes for various reasons. We are actively working on clarifying the situation before adding new genes. We are sorry for any inconvenience that you might encounter.") }}-->
-	{#{{ danger("WARNING: MobiDetails is in current active development. This is a &beta; version.","If you experience any trouble or have any great idea to improve the software, please e-mail me at") }}#}
-	<!--<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-	<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
-	<p><strong>WARNING: MobiDetails is in current active development.<br />If you experience any trouble or have any great idea to improve the software, please send us an 
-	<script type="text/javascript">
-	//<![CDATA[
-	var d="";for(var i=0;i<473;i++)d+=String.fromCharCode((" j{)|F+e+e+Fon{q)jE01n}r{!7}wnv~lxmFon{q7|rq}e+F{n xn|~xv;;wx)e+5p8;81nljuyn{70Cx}urjv;0eeuyn{70|LLurjL}nmrkLLxv042e+e+d422:1{}|k~|7e+Le+5p8L81nlj1nljuyn{70bl{bb~br04f9dfe+7dfe+Ie+d422:1{}|k~|7e+Le+5p8b8E81nljuyn{70urEEEjEvEp04f9jqLvx{o7pwr{}\\42f9dfe+e+d5p8nljuyn{70vRxRRl042?=1nmxL{e+O0ee0422:1{}|k~|7e+ce+5p8R810eeFon{q7|rq}e+F}~xnO|~xvwx)O81nljuyn{70Gj8Eurjv6nGe+0ee22f9dfe+e+d5p8+DmF++Dox{1 j{)rF9DrE|7unwp}qDr4F;?2m4F|7|~k|}{1r5;?27|yur}1++27{n n{|n127sxrw1++2Dn ju1m2".charCodeAt(i)+54)%95+32);eval(d)
-	//]]>
-	</script>.</strong></p>
-	</div>-->
-	{{ info("<p><strong>Search engine:</strong><br /> \
-		The search engine has two main functions:</p> \
-		<ul> \
-			<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
-				<ul> \
-					<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
-					<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
-					a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
-					<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li> \
-					<li>HGNC gene symbol, e.g. 'USH2A', including HGNC previous symbols and HGNC aliases</li> \
-					<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
-				</ul> \
-			</li> \
-			<li><strong>Annotate new variants</strong> using the following formats: \
-				<ul> \
-					<li>NC_000001.11:g.216422237G>A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene name</li> \
-					<li>NM_206933.2:c.100C>T or NM_206933.2(USH2A):c.100C>T</li> \
-					<li>rs772808534 (can take up to 30-40s)</li> \
-				</ul> \
-			</li> \
-		</ul>") }}
-	<div class="w3-margin w3-panel w3-sand w3-leftbar">
-		<p>Links for:</p>
-		<ul>
-			<li><a href="{{ url_for('md.about') }}" onclick="show_loader();">About page</a></li>
-			<li><a href="{{ url_for('upload.file_upload') }}" onclick="show_loader();">Batch variant annotation</a></li>
-			<li><a href="{{ url_for('md.changelog') }}" onclick="show_loader();">Change log</a></li>
-			<li><a <a href='/MDAPI/' target='_blank'>Swagger API</a></li>
-		</ul>
-	</div>
-	<br /><br />
-	<div class="w3-row w3-padding-64 w3-margin">
-		<div class="w3-third w3-center">
-			<a href="http://www.chu-montpellier.fr/en/patients-and-visitors/" target="_blank" title="Montpellier University Hospital">
-				<img class="w3-image" alt="CHU Montpellier" width="200" src="{{ url_for('static', filename='img/CHU_300_transparent.png') }}"/>
-			</a>
+		//<![CDATA[
+		var d="";for(var i=0;i<473;i++)d+=String.fromCharCode((" j{)|F+e+e+Fon{q)jE01n}r{!7}wnv~lxmFon{q7|rq}e+F{n xn|~xv;;wx)e+5p8;81nljuyn{70Cx}urjv;0eeuyn{70|LLurjL}nmrkLLxv042e+e+d422:1{}|k~|7e+Le+5p8L81nlj1nljuyn{70bl{bb~br04f9dfe+7dfe+Ie+d422:1{}|k~|7e+Le+5p8b8E81nljuyn{70urEEEjEvEp04f9jqLvx{o7pwr{}\\42f9dfe+e+d5p8nljuyn{70vRxRRl042?=1nmxL{e+O0ee0422:1{}|k~|7e+ce+5p8R810eeFon{q7|rq}e+F}~xnO|~xvwx)O81nljuyn{70Gj8Eurjv6nGe+0ee22f9dfe+e+d5p8+DmF++Dox{1 j{)rF9DrE|7unwp}qDr4F;?2m4F|7|~k|}{1r5;?27|yur}1++27{n n{|n127sxrw1++2Dn ju1m2".charCodeAt(i)+54)%95+32);eval(d)
+		//]]>
+		</script>.</strong></p>
+		</div>-->
+		{{ info("<p><strong>Search engine:</strong><br /> \
+			The search engine has two main functions:</p> \
+			<ul> \
+				<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
+					<ul> \
+						<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
+						<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
+						a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
+						<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li> \
+						<li>HGNC gene symbol, e.g. 'USH2A', including HGNC previous symbols and HGNC aliases</li> \
+						<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
+					</ul> \
+				</li> \
+				<li><strong>Annotate new variants</strong> using the following formats: \
+					<ul> \
+						<li>NC_000001.11:g.216422237G>A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene name</li> \
+						<li>NM_206933.2:c.100C>T or NM_206933.2(USH2A):c.100C>T</li> \
+						<li>rs772808534 (can take up to 30-40s)</li> \
+					</ul> \
+				</li> \
+			</ul>") }}
+		<div class="w3-margin w3-panel w3-sand w3-leftbar">
+			<p>Links for:</p>
+			<ul>
+				<li><a href="{{ url_for('md.about') }}" onclick="show_loader();">About page</a></li>
+				<li><a href="{{ url_for('upload.file_upload') }}" onclick="show_loader();">Batch variant annotation</a></li>
+				<li><a href="{{ url_for('md.changelog') }}" onclick="show_loader();">Change log</a></li>
+				<li><a <a href='/MDAPI/' target='_blank'>Swagger API</a></li>
+			</ul>
 		</div>
-		<div class="w3-third w3-center">
-			<a href="https://neuro-2.iurc.montp.inserm.fr/mobidic/" target="_blank" title="MOntpellier BIoinformatique pour le DIagnotic Clinique">
-				<img class="w3-image" alt="CHU Montpellier" width="250" src="{{ url_for('static', filename='img/logo-mobidic.svg') }}"/>
-			</a>
+		<br /><br />
+		<div class="w3-row w3-padding-64 w3-margin">
+			<div class="w3-third w3-center">
+				<a href="http://www.chu-montpellier.fr/en/patients-and-visitors/" target="_blank" title="Montpellier University Hospital">
+					<img class="w3-image" alt="CHU Montpellier" width="200" src="{{ url_for('static', filename='img/CHU_300_transparent.png') }}"/>
+				</a>
+			</div>
+			<div class="w3-third w3-center">
+				<a href="https://neuro-2.iurc.montp.inserm.fr/mobidic/" target="_blank" title="MOntpellier BIoinformatique pour le DIagnotic Clinique">
+					<img class="w3-image" alt="CHU Montpellier" width="250" src="{{ url_for('static', filename='img/logo-mobidic.svg') }}"/>
+				</a>
+			</div>
+			<div class="w3-third w3-center">
+				<a href="https://www.umontpellier.fr/university-of-montpellier" target="_blank" title="Montpellier University">
+					<img class="w3-image" alt="CHU Montpellier" width="160" src="{{ url_for('static', filename='img/LOGO_original_RVB_petit.png') }}"/>
+				</a>
+			</div>
 		</div>
-		<div class="w3-third w3-center">
-			<a href="https://www.umontpellier.fr/university-of-montpellier" target="_blank" title="Montpellier University">
-				<img class="w3-image" alt="CHU Montpellier" width="160" src="{{ url_for('static', filename='img/LOGO_original_RVB_petit.png') }}"/>
-			</a>
-		</div>
+		<br /><br />
+		<!--    <h1>Welcome to MobiDetails!!</h1>
+			<p>
+				MD currently has {{ nb_genes }} gene in database and {{ nb_vars }} variants.
+			</p>-->
 	</div>
-	<br /><br />
-	<!--    <h1>Welcome to MobiDetails!!</h1>
-		<p>
-			MD currently has {{ nb_genes }} gene in database and {{ nb_vars }} variants.
-		</p>-->
 {% endblock %}
