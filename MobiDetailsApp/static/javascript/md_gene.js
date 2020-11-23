@@ -34,6 +34,28 @@
 //	});
 //}
 
+function panelapp(panelapp_url, gene_symbol, csrf_token) {
+	//ajax for PanelApp
+	// send header for flask-wtf crsf security	
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: panelapp_url,
+		data: {
+			gene_symbol: gene_symbol
+		}
+	})
+	.done(function(html) {
+		$("#panelapp").replaceWith(html);
+	});
+}
+
 $(document).ready(function(){
 	// submit using the enter key in keyboard
 	$('#new_variant').keydown(function (e) {

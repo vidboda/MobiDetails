@@ -310,3 +310,18 @@ def test_autocomplete_var(client, query, gene, return_value, http_code):
     print(response.status_code)
     assert return_value == response.get_data()
     assert http_code == response.status_code
+
+
+@pytest.mark.parametrize(('gene_symbol', 'return_value', 'http_code'), (
+    ('USH2A', b'panelapp.genomicsengland.co.uk', 200),
+    ('F91', b'No entry in panelApp for this gene', 200),
+    (91, b'No entry in panelApp for this gene', 200)
+))
+def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
+    assert client.get('/is_panelapp_entity').status_code == 405
+    data_dict = dict(gene_symbol=gene_symbol)
+    response = client.post('/is_panelapp_entity', data=data_dict)
+    print(response.get_data)
+    print(response.status_code)
+    assert return_value in response.get_data()
+    assert http_code == response.status_code

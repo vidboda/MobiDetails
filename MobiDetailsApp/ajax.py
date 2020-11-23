@@ -973,3 +973,34 @@ def autocomplete_var():
         else:
             return ('', 204)
     return ('', 204)
+
+# -------------------------------------------------------------------
+# web app - ajax to serahc for panelapp entry
+
+
+@bp.route('/is_panelapp_entity', methods=['POST'])
+def is_panelapp_entity():
+    if 'gene_symbol' in request.form:
+        gene_symbol = request.form['gene_symbol']
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        panelapp = json.loads(
+                        http.request(
+                            'GET',
+                            '{0}genes/{1}/'.format(
+                                md_utilities.urls['panelapp_api'],
+                                gene_symbol)
+                        ).data.decode('utf-8')
+                    )
+        # panelapp = None
+        md_utilities.urls['panel_app'] = None
+        if panelapp is not None and \
+                str(panelapp['count']) != '0':
+            # we can propose the link
+            # panelapp_entity_url = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
+            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format('{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], gene_symbol))
+        else:
+            return '<span class="w3-padding">No entry in panelApp for this gene</span>'
+    else:
+        return '<span class="w3-padding">Unable to perform the PanelApp query</span>'
+
+

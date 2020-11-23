@@ -70,7 +70,7 @@
 	{% endif %}
 {%- endmacro %}
 <!--gene external sites-->
-{% macro gene_redirection(gene_name, urls) -%}
+{% macro gene_redirection(gene_symbol, urls) -%}
 	<div class="w3-modal w3-animate-opacity" id="gene_modal" style="z-index:1000;">
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile" style="width:500px;">
 			<div class="w3-container w3-blue">
@@ -81,31 +81,39 @@
 				<ul class="w3-ul w3-padding-small w3-hoverable">
 					<li class="w3-padding-small">
 						<!--<span class="w3-button" onclick="window.open('{{ urls.gnomad }}awesome?query={{ gene_name }}', '_blank')">gnomAD browser</span>-->
-						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_name }}?dataset=gnomad_r2_1', '_blank')">gnomADv2</span> /
-						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_name }}?dataset=gnomad_r3', '_blank')">gnomADv3 browser</span>
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r2_1', '_blank')">gnomADv2</span> /
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r3', '_blank')">gnomADv3 browser</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.ncbi_gene }}{{ gene_name }}', '_blank')">NCBI gene</span>
+						<span class="w3-button" onclick="window.open('{{ urls.ncbi_gene }}{{ gene_symbol }}', '_blank')">NCBI gene</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('http://omim.org/search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_name }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank')">OMIM</span>
+						<span class="w3-button" onclick="window.open('http://omim.org/search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_symbol }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank')">OMIM</span>
 					</li>
 					<li class="w3-padding-small">
 						<!--<span class="w3-button" onclick="window.open('http://genome-euro.ucsc.edu/cgi-bin/hgTracks?clade=mammal&amp;org=Human&amp;db=hg19&amp;position={{ gene_name }}&amp;hgt.positionInput={{ gene_name }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC</span>-->
-						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_name }}&amp;hgt.positionInput={{ gene_name }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> / 
-						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_name }}&amp;hgt.positionInput={{ gene_name }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
+						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> / 
+						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
 					</li>
 					
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_name }}', '_blank')">MARRVEL</span>
+						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank')">MARRVEL</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_name=gene_name) }}', '_self')">MD Gene page</span>
+						<span class="w3-padding" id="panelapp">Searching for PanelApp entity... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 					</li>
+					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_name=gene_symbol) }}', '_self')">MD Gene page</span>
+					</li>					
 				</ul>
 			</div>
 		</div>
 	</div>
+	<script>
+		$(document).ready(function() {
+			panelapp('{{ url_for('ajax.is_panelapp_entity') }}', '{{ gene_symbol }}', '{{ csrf_token() }}');
+		});
+	</script>
 {%- endmacro %}
 <!--create variant-->
 {% macro create_variant(gene, main_iso, num_iso, res) -%}

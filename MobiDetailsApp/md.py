@@ -89,14 +89,32 @@ def gene(gene_name=None):
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
+        # in panelApp ?
+        # we check  if the gene is in panelApp, if it is, we propose a link
+        # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
+        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # panelapp = json.loads(
+        #                 http.request(
+        #                     'GET',
+        #                     '{0}genes/{1}/'.format(
+        #                         md_utilities.urls['panelapp_api'],
+        #                         main['name'][0])
+        #                 ).data.decode('utf-8')
+        #             )
+        # # panelapp = None
+        # md_utilities.urls['panel_app'] = None
+        # if panelapp is not None and \
+        #         str(panelapp['count']) != '0':
+        #     # we can propose the link
+        #     md_utilities.urls['panel_app'] = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
+
         # get metadome json?
         enst_ver = {}
         # if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
         # if we have the main => next step
         if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], main['enst'])):
             for gene in result_all:
-                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):
-                    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):                    
                     if gene['enst'] not in enst_ver:
                         # get enst versions in a dict
                         metad_ts = None

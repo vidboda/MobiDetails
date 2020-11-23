@@ -111,6 +111,8 @@
   'ncbi_pubmed': 'https://pubmed.ncbi.nlm.nih.gov/'
   'ncbi_litvar': 'https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query='
   'ncbi_litvar_api': 'https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='
+  'panelapp': 'https://panelapp.genomicsengland.co.uk/'
+  'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
   'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
   'revel': 'https://sites.google.com/site/revelgenomics/'
