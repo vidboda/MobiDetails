@@ -1071,7 +1071,11 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     else:
         match_object = re.search(r'RS=(\d+);', record[7])
         if match_object:
-            vf_d['dbsnp_id'] = match_object.group(1)
+            pos_ref_list = re.split(',', record[3])
+            pos_alt_list = re.split(',', record[4])
+            if hg38_d['pos_ref'] in pos_ref_list and \
+                    hg38_d['pos_alt'] in pos_alt_list:
+                vf_d['dbsnp_id'] = match_object.group(1)
         # print(record[7])
     # get wt sequence using twobitreader module
     # 0-based
