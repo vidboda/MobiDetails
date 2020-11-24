@@ -359,18 +359,23 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         return 'Match failed in {}'.format(text)
 
     i = 3
-    if re.search('(dbNSFP|Indels|indel|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC)', tabix_file):
+    if re.search('(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)', tabix_file):
         i -= 1
     for record in records:
-        if record[i] == var['pos_ref'] and \
-                record[i+1] == var['pos_alt']:
-            # print('{0}-{1}-{2}-{3}'.format(record[i], var['pos_ref'], record[i+1], var['pos_alt']))
+        ref_list = re.split(',', record[i])
+        alt_list = re.split(',', record[i+1])
+        if var['pos_ref'] in ref_list and \
+                var['pos_alt'] in alt_list:
             return record
-        elif record[i] == var['pos_ref'] and \
-                (re.search(r'{},'.format(var['pos_alt']), record[i+1]) or
-                 re.search(r',{}'.format(var['pos_alt']), record[i+1])):
-            # multiple alts
-            return record
+        # if record[i] == var['pos_ref'] and \
+        #         record[i+1] == var['pos_alt']:
+        #     # print('{0}-{1}-{2}-{3}'.format(record[i], var['pos_ref'], record[i+1], var['pos_alt']))
+        #     return record
+        # elif record[i] == var['pos_ref'] and \
+        #         (re.search(r'{},'.format(var['pos_alt']), record[i+1]) or
+        #          re.search(r',{}'.format(var['pos_alt']), record[i+1])):
+        #     # multiple alts
+        #     return record
     return 'No match in {}'.format(text)
 
 

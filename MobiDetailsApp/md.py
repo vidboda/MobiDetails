@@ -93,20 +93,6 @@ def gene(gene_name=None):
         # we check  if the gene is in panelApp, if it is, we propose a link
         # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
         http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-        # panelapp = json.loads(
-        #                 http.request(
-        #                     'GET',
-        #                     '{0}genes/{1}/'.format(
-        #                         md_utilities.urls['panelapp_api'],
-        #                         main['name'][0])
-        #                 ).data.decode('utf-8')
-        #             )
-        # # panelapp = None
-        # md_utilities.urls['panel_app'] = None
-        # if panelapp is not None and \
-        #         str(panelapp['count']) != '0':
-        #     # we can propose the link
-        #     md_utilities.urls['panel_app'] = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
 
         # get metadome json?
         enst_ver = {}
@@ -717,6 +703,7 @@ def variant(variant_id=None):
                         # annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 52, 54, ';', 'mt', -1, 'gt', record
                         # )
+                        # print('{}-{}-{}-{}'.format(annot['fathmm_mkl_score'], annot['provean_score'], annot['lrt_score'], annot['mt_score']))
 
                         if re.search('Disease causing', annot['mt_pred']):
                             mpa_missense += 1
@@ -899,6 +886,7 @@ def variant(variant_id=None):
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var)
+                    print(record)
                     spliceai_res = True
                 if spliceai_res is True:
                     if isinstance(record, str):

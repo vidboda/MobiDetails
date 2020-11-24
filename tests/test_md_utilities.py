@@ -255,12 +255,90 @@ var = {
     'pos_ref': 'C',
     'pos_alt': 'A'
 }
+var_hg19 = {
+    'chr': '1',
+    'pos': '216420460',
+    'pos_ref': 'C',
+    'pos_alt': 'A'
+}
+var_3utr1 = {
+    'chr': '1',
+    'pos': '215625629',
+    'pos_ref': 'A',
+    'pos_alt': 'T'
+}
+var_3utr2 = {
+    'chr': '7',
+    'pos': '117667155',
+    'pos_ref': 'G',
+    'pos_alt': 'T'
+}
+var_dup = {
+    'chr': '3',
+    'pos': '81761551',
+    'pos_ref': 'A',
+    'pos_alt': 'AG'
+}
+var_dup_hg19 = {
+    'chr': '3',
+    'pos': '81810702',
+    'pos_ref': 'A',
+    'pos_alt': 'AG'
+}
+var_ss_hg19 = {
+    'chr': '7',
+    'pos': '117120202',
+    'pos_ref': 'G',
+    'pos_alt': 'T'
+}
 
-
-def test_get_value_from_tabix_file():
-    record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
-    assert re.search('Pathogenic', record[7])
-    assert re.search('2356', record[2])
+@pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name'), (
+    ('Clinvar', var, 'Pathogenic', 7, 'clinvar_hg38'),
+    ('Clinvar', var, '2356', 2, 'clinvar_hg38'),
+    ('dbnsfp', var, '3.55', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '24.9', int(md_utilities.external_tools['CADD']['dbNSFP_phred_col']), 'dbnsfp'),
+    ('dbnsfp', var, '1.04', int(md_utilities.external_tools['Eigen']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '15.52', int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col']), 'dbnsfp'),
+    ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp'),
+    ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp'),
+    ('dbnsfp', var, '-3.4', int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp'),
+    ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp'),
+    ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp'),
+    ('dbmts', var_3utr1, '0.35', int(md_utilities.external_tools['Eigen']['dbMTS_value_col']), 'dbmts'),
+    ('dbmts', var_3utr1, '10.12', int(md_utilities.external_tools['Eigen']['dbMTS_pred_col']), 'dbmts'),
+    ('dbmts', var_3utr1, '0.511638467', int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col']), 'dbmts'),
+    ('dbmts', var_3utr1, '0.656990242', int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col']), 'dbmts'),
+    ('dbmts', var_3utr2, '0.102982936', int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col']), 'dbmts'),
+    ('CADD', var_3utr2, '0.069', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd'),
+    ('CADD', var_3utr2, '1.83', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd'),
+    ('CADD', var_dup, '1.793870', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd_indels'),
+    ('CADD', var_dup, '17.69', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels'),
+    ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs'),
+    ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels'),
+    ('gnomAD exome', var_hg19, '0.0009', 5, 'gnomad_exome'),
+    ('gnomAD exome', var_dup_hg19, '1.0', 5, 'gnomad_exome'),
+    ('gnomAD genome', var_hg19, '0.0009', 5, 'gnomad_genome'),
+    ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome'),
+    ('gnomADv3', var, '1.34030e-03', 7, 'gnomad_3'),
+    ('gnomADv3', var_dup, '9.99986e-01', 7, 'gnomad_3'),
+    ('Mistic', var_hg19, '0.876', 4, 'mistic'),
+    ('dbscSNV', var_ss_hg19, '0.9999', 14, 'dbscsnv'),
+    ('dbscSNV', var_ss_hg19, '0.928', 15, 'dbscsnv')
+))
+def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name):
+    record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var)
+    print(record)
+    assert re.search(expected, record[record_number])
+    # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
+    # assert re.search('Pathogenic', record[7])
+    # assert re.search('2356', record[2])
 
 
 def test_getdbNSFP_results():
