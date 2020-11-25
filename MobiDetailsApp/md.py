@@ -336,8 +336,8 @@ def variant(variant_id=None):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # get all variant_features and gene info
     curs.execute(
-        "SELECT *, a.id as var_id, c.id as mobiuser_id FROM variant_feature a, gene b, mobiuser c \
-        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id = %s",
+        "SELECT *, a.id as var_id, c.id as mobiuser_id, d.so_accession FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
+        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.prot_type = d.prot_type AND a.id = %s",
         (variant_id,)
     )
     variant_features = curs.fetchone()
