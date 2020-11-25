@@ -129,7 +129,6 @@ def file_upload():
                                     result.append({'variant': line, 'error': md_response['variant_validator_output']['validation_warning_1']['validation_warnings'][0]})
                                 elif 'mobidetails_error' in md_response:
                                     result.append({'variant': line, 'error': md_response['mobidetails_error']})
-                                    v
                                 else:
                                     result.append({'variant': line, 'error': 'MDAPI call failed'})
                         else:
