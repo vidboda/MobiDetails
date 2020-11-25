@@ -281,9 +281,13 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     #    res['genome_version'] == 'hg38':
                     genome_version, chrom = res['genome_version'], res['name']
                     # check if variant exists
+                    # curs.execute(
+                    #     "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s AND chr = %s",
+                    #     (genome_version, g_var, chrom)
+                    # )
                     curs.execute(
-                        "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s AND chr = %s",
-                        (genome_version, g_var, chrom)
+                        "SELECT b.feature_id FROM variant_feature a, variant b WHERE a.id = b.feature_id AND a.gene_name[1] = %s AND b.genome_version = %s AND b.g_name = %s AND b.chr = %s",
+                        (gene, genome_version, g_var, chrom)
                     )
                     res = curs.fetchone()
                     if res:
@@ -372,7 +376,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
                         else:
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
+                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
                             else:
                                 try:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
@@ -497,8 +501,9 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
                 # https://www.python.org/dev/peps/pep-0498/
                 match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', hgvs)
-                if match_nc and \
-                        not md_response:
+                if match_nc:
+                    # and \
+                    #     not md_response:
                     # if hg38, we keep it in a variable that can be useful later
                     curs.execute(
                         "SELECT name, genome_version FROM chromosomes WHERE ncbi_name = %s",
