@@ -886,7 +886,7 @@ def variant(variant_id=None):
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var)
-                    print(record)
+                    # print(record)
                     spliceai_res = True
                 if spliceai_res is True:
                     if isinstance(record, str):
