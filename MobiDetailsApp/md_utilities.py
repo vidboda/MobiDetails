@@ -67,7 +67,7 @@ local_files['gnomad_exome']['abs_path'] = '{0}{1}'.format(app_path, local_files[
 local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_genome']['rel_path'])
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_3']['rel_path'])
 local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg38']['rel_path'])
-local_files['human_genome_hg19']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg19']['rel_path'])
+# local_files['human_genome_hg19']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg19']['rel_path'])
 local_files['lovd_ref']['abs_path'] = '{0}{1}'.format(app_path, local_files['lovd_ref']['rel_path'])
 local_files['lovd_api_json']['abs_path'] = '{0}{1}'.format(app_path, local_files['lovd_api_json']['rel_path'])
 local_files['maxentscan']['abs_path'] = '{0}{1}'.format(app_path, local_files['maxentscan']['rel_path'])
@@ -94,6 +94,8 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
 )
 acmg_criteria = resources['acmg']
 lovd_effect = resources['lovd_effect']
+spip_headers = resources['spip_headers']
+spip_annotations = resources['spip_annotations']
 countries = resources['countries']
 
 def reverse_complement(seq):
@@ -1087,7 +1089,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if vf_d['variant_size'] < 50:
         x = int(positions[0])-26
         y = int(positions[1])+25
-        genome = twobitreader.TwoBitFile(local_files['human_genome_hg38']['abs_path'])
+        genome = twobitreader.TwoBitFile('{}.2bit'.format(local_files['human_genome_hg38']['abs_path']))
         current_chrom = genome['chr{}'.format(hg38_d['chr'])]
         seq_slice = current_chrom[x:y].upper()
         # seq2 = current_chrom[int(positions[0])+1:int(positions[0])+2]
@@ -1396,10 +1398,13 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     tf.seek(0)
     # cannot figure out why the above line is mandatory but without it the file is empty
     # print(tf.read())
-    result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
+    result = subprocess.run([ext_exe['perl'], '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
     # print(result)
     # print(str(result.stdout))
-    return [str(result.stdout, 'utf-8'), seqs_html]
+    if result.returncode == 0:
+        return [str(result.stdout, 'utf-8'), seqs_html]
+    else:
+        return ['There has been an error while processing MaxEntScan', '']
 
 
 def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
@@ -1457,7 +1462,7 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
             x = positions['segment_end']-7
             y = positions['segment_end']+2
 
-    genome = twobitreader.TwoBitFile(local_files['human_genome_hg38']['abs_path'])
+    genome = twobitreader.TwoBitFile('{}.2bit'.format(local_files['human_genome_hg38']['abs_path']))
     current_chrom = genome['chr{}'.format(chrom)]
     seq_slice = current_chrom[x:y].upper()
     if strand == '-':
@@ -1474,8 +1479,10 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     # cannot figure out why the above line is mandatory but without it the file is empty
     # print(tf.read())
     result = subprocess.run(['/usr/bin/perl', '{}'.format(ext_exe['maxentscan{}'.format(scantype)]), '{}'.format(tf.name)], stdout=subprocess.PIPE)
-    return [float(re.split('\n', re.split('\t', str(result.stdout, 'utf-8'))[1])[0]), formatted_seq]
-
+    if result.returncode == 0:
+        return [float(re.split('\n', re.split('\t', str(result.stdout, 'utf-8'))[1])[0]), formatted_seq]
+    else:
+        return ['There has been an error while processing MaxEntScan', '']
 
 def lovd_error_html(text):
     return '<tr><td class="w3-left-align" id="lovd_feature" style="vertical-align:middle;">LOVD Matches:</td> \
@@ -1566,6 +1573,26 @@ def get_acmg_criterion_color(criterion):
         return 'w3-green'
     else:
         return None
+
+
+def run_spip(gene_symbol, nm_acc, c_name):
+    tf = tempfile.NamedTemporaryFile(suffix='.txt')
+    tfout = tempfile.NamedTemporaryFile()
+    # print(tf.name)
+    tf.write(bytes('gene\tvarID\n{0}\t{1}:{2}'.format(gene_symbol, nm_acc, c_name), encoding='utf-8'))
+    # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
+    tf.seek(0)
+    # print(tf.read())
+    
+    result = subprocess.run([ext_exe['Rscript'], '{}'.format(ext_exe['spip']), '-I', '{}'.format(tf.name) , '-O', '{}'.format(tfout.name),  '-f', '{}.fa'.format(local_files['human_genome_hg38']['abs_path']), '-s', '{}'.format(ext_exe['samtools']), '-g', 'hg38'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    if result.returncode == 0:
+        tfout.seek(0)
+        result_file = str(tfout.read(), 'utf-8')
+        # print(result_file)
+        return result_file
+    else:
+        return 'There has been an error while processing SPiP'
+
 
 # 
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):

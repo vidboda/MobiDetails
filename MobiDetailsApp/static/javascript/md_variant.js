@@ -313,6 +313,41 @@ function send_var_message(url, csrf_token) {
 }
 
 
+function run_spip(url, csrf_token) {
+	// send header for flask-wtf crsf security	
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+	$.ajax({
+		type: "POST",
+		url: url,
+		data: {
+			gene_symbol: $('#gene_name').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text()
+		}
+	})
+	.done(function(spip_result) {
+		$("#spip").html(spip_result);
+        datatable = $('#spip_summary').DataTable({
+            responsive: true,
+            dom: 't',
+            "order": [],
+            buttons: [
+                   'copy', 'excel', 'pdf'
+            ]
+        });
+        datatable = $('#spip_full').DataTable({
+            responsive: true,
+            dom: 't',
+            "pageLength": 25,
+            "order": []
+        });
+	});
+}
+
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
 	// should be rewritten in jquery for consistency
@@ -407,6 +442,8 @@ $(document).ready(function() {
 		var tables = ["nomenclature_table", "position_table", "population_table",  "prediction_table"];
 		if ($('#splicing_table').length > 0) {
 			tables.push("splicing_table");
+            tables.push("spip_summary");
+            tables.push("spip_full");
 		}
 		tables.push("maxent5ss_table");
 		tables.push("maxent3ss_table");
@@ -599,15 +636,37 @@ $(document).ready(function() {
 					layout: 'noBorders'
 				}
 			);
-		}
-		if ($('#missense_table').length > 0 || $('#dbmts_table').length > 0) {
-			doc['content'].push(
+            doc['content'].push(
 				" ",
 				"Data for " + tables[10],
 				" ", {
 					table: {
 						headerRows: 1,
 						body: tablesConverted[tables[10]]
+					},
+					layout: 'noBorders'
+				}
+			);
+            doc['content'].push(
+				" ",
+				"Data for " + tables[11],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[11]]
+					},
+					layout: 'noBorders'
+				}
+			);
+		}
+		if ($('#missense_table').length > 0 || $('#dbmts_table').length > 0) {
+			doc['content'].push(
+				" ",
+				"Data for " + tables[12],
+				" ", {
+					table: {
+						headerRows: 1,
+						body: tablesConverted[tables[12]]
 					},
 					layout: 'noBorders'
 				}

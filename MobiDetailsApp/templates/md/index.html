@@ -1,6 +1,10 @@
 {% from 'macros.html' import danger, info %}
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
+{% block more_head %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/cookieconsent.min.css') }}">
+	<script src="{{ url_for('static', filename='javascript/cookieconsent.min.js') }}" type="text/javascript"></script>	
+{% endblock %}
 {% block content %}
 	{# {{ danger('There is currently a bug that prevent some dbSNP rs ids to annotate variants. <br/> We are actively working on it. Please use HGVS expressions instead if you encounter this bug.') }} #}
 	<div class="w3-center w3-padding-16 w3-row w3-responsive">
@@ -61,24 +65,19 @@
 				</script>-->
 			<!--</div>-->
 		</div>
-<!--	<div class="w3-third">
+	<div class="w3-third">
+		<!--https://developer.twitter.com/en/docs/twitter-for-websites/privacy-->
 			<div class="w3-panel w3-container w3-center" style="margin:auto" id="twitter">
-				<a class="twitter-timeline" data-height="350" data-theme="dark" href="https://twitter.com/MoBiDiC_BioInfo?ref_src=twsrc%5Etfw">Tweets by MoBiDiC_BioInfo</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-				<a href="https://twitter.com/MoBiDiC_BioInfo?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-show-count="false">Follow @MoBiDiC_BioInfo</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-				<a href="https://twitter.com/intent/tweet?screen_name=MoBiDiC_BioInfo&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @MoBiDiC_BioInfo</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+				<a class="twitter-timeline" data-height="350" data-theme="dark" href="https://twitter.com/MoBiDiC_BioInfo?ref_src=twsrc%5Etfw" data-dnt="true">Tweets by MoBiDiC_BioInfo</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+				<a href="https://twitter.com/MoBiDiC_BioInfo?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-show-count="false" data-dnt="true">Follow @MoBiDiC_BioInfo</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+				<!--<a href="https://twitter.com/intent/tweet?screen_name=MoBiDiC_BioInfo&ref_src=twsrc%5Etfw" class="twitter-mention-button" data-size="large" data-show-count="false">Tweet to @MoBiDiC_BioInfo</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>-->
+				{{ info('<strong>A bug to report? An improvement to suggest? Open an <a href="https://github.com/beboche/MobiDetails/issues?q=is%3Aissue" target="_blank">issue on GitHub!</strong><br /><i class="fa fa-github w3-xlarge"></i></a>') }}
 			</div>
-		</div>-->
-		<div class="w3-rest">
-			<div class="w3-margin w3-panel w3-sand w3-leftbar">
-					<p><a href="https://twitter.com/MoBiDiC_BioInfo" target="_blank">Check out our latest news on Twitter!<br /><i class="fa fa-twitter w3-jumbo"></i></a></p>
-					<p class="w3-padding" style="text-align:justify;text-justify:inter-word;">We removed (temporarily?) the Twitter widgets because they did not comply with our <a href="{{ url_for('md.about') }}#privacy_policy" target="_blank">privacy and cookie policy</a>. We might put them back but it would require some time to build a proper tool to collect the consents and we decided to focus on variant interpretation, not third-party cookies management.</p>
-			</div>
-			{{ info('<strong>You would like to suggest an improvement or report a bug? Open an <a href="https://github.com/beboche/MobiDetails/issues?q=is%3Aissue" target="_blank">issue on GitHub!</strong><br /><i class="fa fa-github w3-jumbo"></i></a>') }}
-	<!--			<p><a href="https://twitter.com/MoBiDiC_BioInfo" target="_blank">Check out our latest news on Twitter!</a></p>
-			</div>
-				<p class="w3-left-align w3-padding" style="text-align:justify;text-justify:inter-word;">We removed (temporarily?) the Twitter widgets because they did not comply with our <a href="{{ url_for('md.about') }}#privacy_policy" target="_blank">privacy and cookie policy</a>. We might put them back but it would require some time to build a proper tool to collect the consents and we decided to focus on variant interpretation, not third-party cookies management.</p>
-				<p>You would like to suggest an improvement or </p>-->
 		</div>
+		<!--<div class="w3-rest">
+			{{ info('<p><a href="https://twitter.com/MoBiDiC_BioInfo" target="_blank">Check out our latest news on Twitter!<br /><i class="fa fa-twitter w3-jumbo"></i></a></p><p class="w3-padding" style="text-align:justify;text-justify:inter-word;">We removed (temporarily?) the Twitter widgets because they did not comply with our <a href="%s#privacy_policy" target="_blank">privacy and cookie policy</a>. We might put them back but it would require some time to build a proper tool to collect the consents and we decided to focus on variant interpretation, not third-party cookies management.</p>') | format(url_for('md.about')) }}
+			{{ info('<strong>You would like to suggest an improvement or report a bug? Open an <a href="https://github.com/beboche/MobiDetails/issues?q=is%3Aissue" target="_blank">issue on GitHub!</strong><br /><i class="fa fa-github w3-jumbo"></i></a>') }}
+		</div>-->
 		<!--</div> -->
 		<br />
 	</div>
@@ -98,9 +97,10 @@
 	<!--</div>-->
 	<!--<script>$('#twitter-widget-0').css('display','block');</script>-->
 	{{ info('Have a look at the <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2020.pdf" target="_blank">MobiDetails poster</a> presented at the French conference <a href="http://assises-genetique.org/fr/" target="_blank">"Assises de génétique 2020"</a>!</a> Or the other <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank">e-poster</a> prepared for <a href="https://jobim2020.sciencesconf.org/" target="_blank">JOBIM 2020</a>!') }}
-	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+	{{ info('<p>You can also <a href="https://rdcu.be/b92MG" target="_blank">read</a> MobiDetails paper in the <a href="https://www.nature.com/articles/s41431-020-00755-z" target="_blank">European Journal of Human Genetics</a>. If you are using MobiDetails for your studies, please <a href="%s#disclaimer">cite</a> it!</p>') | format(url_for('md.about')) }}
+	<!-- <div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 		<p>You can also <a href="https://rdcu.be/b92MG" target="_blank">read</a> MobiDetails' paper in the <a href="https://www.nature.com/articles/s41431-020-00755-z" target="_blank">European Journal of Human Genetics</a>. If you are using MobiDetails for your studies, please <a href="{{ url_for('md.about') }}#disclaimer">cite</a> it!</p>
-	</div>
+	</div> -->
 	<!--
 	##{{ info("MobiDetails is a web app aiming at helping to interprete genetics DNA variations.<br/>MobiDetails relies on genes to create variants (see <a href='{{ url_for('md.about') }}'>about page</a>). When a variant is created, it then agregates information from several sources (see <a href='{{ url_for('md.about') }}'>about page</a>) including population frequencies, predictors, etc.<br/>If your gene is not in the <a href='{{ url_for('md.genes') }}'>list</a>, you can request it at &#100;&#097;&#118;&#105;&#100;&#046;&#098;&#097;&#117;&#120;&#064;&#105;&#110;&#115;&#101;&#114;&#109;&#046;&#102;&#114;.<br/> MobiDetails is developped in Montpellier University Hospital (Laboratory of Molecular Genetics) and is <strong>free fo academic use</strong>.") }}-->
 	<!--{{ danger("WARNING: Please beware that variant creation is impossible for some genes for various reasons. We are actively working on clarifying the situation before adding new genes. We are sorry for any inconvenience that you might encounter.") }}-->
@@ -167,4 +167,29 @@
 		<p>
 			MD currently has {{ nb_genes }} gene in database and {{ nb_vars }} variants.
 		</p>-->
+	<!--https://www.osano.com/cookieconsent/documentation/javascript-api/-->
+	<!--<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>-->
+	<script>
+		window.cookieconsent.initialise({
+		  "palette": {
+			"popup": {
+			  "background": "#edeff5",
+			  "text": "#838391"
+			},
+			"button": {
+			  "background": "#4b81e8"
+			}
+		  },
+		  cookie: {
+			name: "cookie_consent_md",
+			domain: "{{ request.path.split('/')[0] }}"
+		  },
+		  "theme": "classic",
+		  "position": "bottom-right",
+		  "content": {
+			"message": "This website uses cookies to ensure you the best experience. However, they are strictly functional cookies and those that may have come from Twitter have been disabled.",
+			"href": "{{ url_for('md.about') }}#privacy_policy"
+		  }
+		});
+	</script>
 {% endblock %}

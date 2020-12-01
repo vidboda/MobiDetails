@@ -666,6 +666,22 @@ def test_get_acmg_criterion_color(criterion, color):
         assert md_utilities.get_acmg_criterion_color(criterion) == color
 
 
+# @pytest.mark.parametrize(('gene_symbol', 'nm_acc', 'c_name', 'prediction'), (
+#     ('USH2A', 'NM_206933', 'c.2276G>T', 'NTR'),
+# ))
+def test_run_spip(app):
+    with app.app_context():
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT gene_name, c_name FROM variant_feature LIMIT 15"
+        )
+        res = curs.fetchall()
+        for var in res:
+            spip_results = md_utilities.run_spip(var['gene_name'][0], var['gene_name'][1], var['c_name'])
+            print(spip_results)
+            assert 'Interpretation' in spip_results
+
 # 
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),
