@@ -45,7 +45,10 @@ def register():
             error = 'Username should be at least 5 characters.'
         elif not password:
             error = 'Password is required.'
-        elif len(password) < 8 or not re.match('[a-zA-Z0-9]+', password):
+        elif len(password) < 8 or \
+                not re.search(r'[a-z]', password) or \
+                not re.search(r'[A-Z]', password) or \
+                not re.search(r'[0-9]', password):
             error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
         elif not country or re.match('--', country):
             error = 'Country is required.'
@@ -559,7 +562,10 @@ def reset_password():
         api_key = request.form['api_key']
         password = request.form['password']
         error = None
-        if len(password) < 8 or not re.match('[a-zA-Z0-9]+', password):
+        if len(password) < 8 or \
+                not re.search(r'[a-z]', password) or \
+                not re.search(r'[A-Z]', password) or \
+                not re.search(r'[0-9]', password):
             error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
         else:
             db = get_db()

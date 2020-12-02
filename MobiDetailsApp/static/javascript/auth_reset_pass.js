@@ -1,6 +1,6 @@
 function check_password_match() {
-    var password = $("#password").val();
-    var confirmPassword = $("#repassword").val();
+   var password = $("#password").val();
+   var confirmPassword = $("#repassword").val();
 
    if (password != confirmPassword) {
       $("#divCheckPasswordMatch").html("<span style='color:red;'>Passwords do not match!</span>");

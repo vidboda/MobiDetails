@@ -8,7 +8,7 @@
 	<script src="{{ url_for('static', filename='javascript/auth_register.js') }}" type="text/javascript"></script>	
 {% endblock %}#}
 {% block content %}
-	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />If you do not want any cookies at all, just do not register.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.") }}
+	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.") }}
 	{{ info("Registering currently is useful to keep track of the variants you annotated. It also allows you to mark some variants as favourites, add an ACMG class to variants, contact other users, be contacted if you agree... An account is also mandatory to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in (except if you are a <a href='%s#non_academic'>non-academic</a> user).") | format(url_for('md.about')) }}
 	<br />
 	<div align = "center">
