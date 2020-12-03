@@ -797,6 +797,15 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     re.search('Whitespace', warning):
                 next
             else:
+                print(warning)
+                if 'cannot be mapped directly to genome build' in warning:
+                    # test whether we still have mapping onto both genome versions
+                    ncbi_chrom_regexp = regexp['ncbi_chrom']
+                    if re.search(rf'{ncbi_chrom_regexp}:g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']) and \
+                            re.search(rf'{ncbi_chrom_regexp}:g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']):
+                        # we have a correct mapping
+                        print('going out')
+                        break
                 if caller == 'webApp':
                     if len(vv_data[first_level_key]['validation_warnings']) > 1:
                         return danger_panel(vv_key_var, ' '.join(vv_data[first_level_key]['validation_warnings']))

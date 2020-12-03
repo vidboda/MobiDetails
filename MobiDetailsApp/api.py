@@ -496,11 +496,13 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # can_nm = None
             for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
                 variant_regexp = md_utilities.regexp['variant']
+                ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
                 # intronic variant?
                 # we need HGVS genomic to launch the API but also the gene - got from NG
                 # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
                 # https://www.python.org/dev/peps/pep-0498/
-                match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', hgvs)
+                match_nc = re.search(rf'^({ncbi_chrom_regexp}):g\.({variant_regexp})$', hgvs)
+                # match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', hgvs)
                 if match_nc:
                     # and \
                     #     not md_response:
