@@ -768,6 +768,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error':  'An unknown error has been caught during variant creation with VariantValidator. \
                                             It is possible that it works if you try again: {0}-{1}'.format(acc_no, gene)}
+   
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
@@ -1078,11 +1079,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         vf_d['end_segment_number'] = res_seg['number']
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
-            print(vf_d)
-            # if ivs_obj:
-            vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(
-                vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2)
-            )
+            if ivs_obj:
+                vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(
+                    vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2)
+                )
+            else:
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        '<p>Issue with gene segments definition {0} in md_utilities create_var_vv</p>'.format(vv_key_var)
+                    ),
+                    '[MobiDetails - MD variant creation Error]'
+                )
     if 'ivs_name' not in vf_d:
         vf_d['ivs_name'] = 'NULL'
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
