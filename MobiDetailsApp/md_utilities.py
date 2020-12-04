@@ -1078,7 +1078,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         vf_d['end_segment_number'] = res_seg['number']
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
-            # print(vf_d['c_name'])
+            print(vf_d)
+            # if ivs_obj:
             vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(
                 vf_d['start_segment_number'], ivs_obj.group(1), ivs_obj.group(2)
             )
