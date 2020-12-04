@@ -121,7 +121,7 @@
 					<span style="display:none;" id="gene_name">{{ variant_features.gene_name[0] }}</span>
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
-						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}">{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>
+						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}"><span id="nm_acc">{{ variant_features.gene_name[1] }}</span>.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
 					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}">-->
@@ -385,7 +385,6 @@
 		<hr />
 		{{ section_title('predictions', 'Overall predictions') }}
 		<div class="w3-responsive w3-container">
-			<!--dbscSNV-->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="prediction_table">
 				<thead>
 					<tr>
@@ -463,7 +462,7 @@
 		<div class="w3-responsive w3-container">
 			{% if (variant_features.start_segment_type == 'exon' or (variant_features.start_segment_type == 'intron' and annot.dist_from_exon < 101)) and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
 				<!-- Exonic Splicing context -->
-				<br /><div>{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}</div>
+				<br />{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}
 				<div class="w3-container w3-center">
 					<canvas class="exonic_canvas" width="600" height="150" id="segment_drawing">Your web browser does not understand HTML5. In order to display the small graph, you must use a more recent one.</canvas>
 				</div>
@@ -521,7 +520,7 @@
 			{% endif %}
 			<!-- MaxEntScan 5'ss -->
 			{# {% if mes5 != None or (mes3 != None and mes3 != 'Not performed') %} #}
-				<div>{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}</div>
+				{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}
 			{#{% endif %}#}
 			<br />
 			<table class="w3-table w3-centered display compact" style="width:90%;" id="maxent5ss_table">
@@ -593,8 +592,11 @@
 					{% endif %}
 				</tbody>
 			</table><br/><br/>
+			<!-- SPiP -->
+			{{ info('<a href="%s" target="_blank">SPiP</a> results and predictions:' | format(urls.spip)) }}
+			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<!--dbscSNV / spliceAI-->
-			<div>{{ info('This last table present dbscSNV and spliceAi scores, when available.') }}</div>
+			{{ info('This last table present dbscSNV and spliceAi scores, when available.') }}
 			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
@@ -1227,6 +1229,7 @@
 			litvar('{{ url_for('ajax.litvar') }}', '{{ csrf_token() }}');
 			lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}');
 			intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
+			run_spip('{{ url_for('ajax.spip') }}', '{{ csrf_token() }}');
 		});
 	</script>
 {% endblock %}

@@ -975,7 +975,7 @@ def autocomplete_var():
     return ('', 204)
 
 # -------------------------------------------------------------------
-# web app - ajax to serahc for panelapp entry
+# web app - ajax to search for panelapp entry
 
 
 @bp.route('/is_panelapp_entity', methods=['POST'])
@@ -1004,3 +1004,61 @@ def is_panelapp_entity():
         return '<span class="w3-padding">Unable to perform the PanelApp query</span>'
 
 
+# -------------------------------------------------------------------
+# web app - ajax to run SPiP
+
+
+@bp.route('/spip', methods=['POST'])
+def spip():
+    #print(request.form)
+    variant_regexp = md_utilities.regexp['variant']
+    if 'gene_symbol' in request.form and \
+            'nm_acc' in request.form and \
+            'c_name' in request.form and \
+            re.search(rf'^c\.{variant_regexp}$', request.form['c_name']):
+        gene_symbol = request.form['gene_symbol']
+        nm_acc = request.form['nm_acc']
+        c_name = request.form['c_name']
+        result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name)
+        
+        spip_list = re.split('\n', result_spip)
+        # print(result_spip[0])
+        headers_spip = re.split('\t', spip_list[0])
+        scores_spip = re.split('\t', spip_list[1])
+        i = 0
+        dict_spip = {}
+        for header in headers_spip:
+            if re.search(r'(gene|varID|chr|strand|gNomen|varType|ntChange|ExonInfo|transcript|seqPhysio|seqMutated)', header):
+                i += 1
+                continue
+            if header == 'Interpretation':
+                if re.search('\+', scores_spip[i]):
+                    # we split intepretations with ' + ', then translate it and rejoin with the same separator
+                    splitted_int = re.split(' + ', scores_spip[i])
+                    formatted_list = ''
+                    for interpretation in splitted_int:
+                        formatted_list += ' + {}'.format(md_utilities.spip_annotations[interpretation])
+
+                    dict_spip[header] = [formatted_list, md_utilities.spip_headers[header]]
+                    i += 1
+                    continue
+                dict_spip[header] = [md_utilities.spip_annotations[scores_spip[i]], md_utilities.spip_headers[header]]
+                i += 1
+                continue
+            if header == 'InterConfident':
+                header = 'Confidence'
+            if header == 'mutInPBarea':
+                header = 'mutInBParea'
+            if scores_spip[i] == 'No available':
+                scores_spip[i] = 'Not available'
+            if scores_spip[i] == 'Outside SPiCE Interpretation':
+                scores_spip[i] = 'Out of SPiCE interpretation region'
+            # print('{0}-{1}'.format(header, scores_spip[i]))
+            dict_spip[header] = [scores_spip[i], md_utilities.spip_headers[header]]
+            i += 1
+        # print(dict_spip)
+        return render_template('ajax/spip.html', spip_results=dict_spip)
+    else:
+        return 'received bad parameters to run SPiP.'
+        
+        
