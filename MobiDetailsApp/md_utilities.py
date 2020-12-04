@@ -801,10 +801,17 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto both genome versions
                     ncbi_chrom_regexp = regexp['ncbi_chrom']
-                    if re.search(rf'{ncbi_chrom_regexp}:g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']) and \
+                    # print(vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description'])
+                    # print(vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description'])
+                    if 'primary_assembly_loci' in vv_data[vv_key_var] and \
+                            'hg19' in vv_data[vv_key_var]['primary_assembly_loci'] and \
+                            'hgvs_genomic_description' in vv_data[vv_key_var]['primary_assembly_loci']['hg19'] and \
+                            re.search(rf'{ncbi_chrom_regexp}:g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']) and \
+                            'hg38' in vv_data[vv_key_var]['primary_assembly_loci'] and \
+                            'hgvs_genomic_description' in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] and \
                             re.search(rf'{ncbi_chrom_regexp}:g\.(.+)$', vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']):
                         # we have a correct mapping
-                        print('going out')
+                        # print('going out')
                         break
                 if caller == 'webApp':
                     if len(vv_data[first_level_key]['validation_warnings']) > 1:
