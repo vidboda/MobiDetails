@@ -1034,7 +1034,7 @@ def spip():
             if header == 'Interpretation':
                 if re.search('\+', scores_spip[i]):
                     # we split intepretations with ' + ', then translate it and rejoin with the same separator
-                    splitted_int = re.split(' + ', scores_spip[i])
+                    splitted_int = re.split(' \+ ', scores_spip[i])
                     formatted_list = ''
                     for interpretation in splitted_int:
                         formatted_list += ' + {}'.format(md_utilities.spip_annotations[interpretation])

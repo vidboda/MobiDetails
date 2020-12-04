@@ -542,7 +542,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             'caller': 'cli',
                             'api_key': api_key
                         }
-                        # print(data)
                         try:
                             # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
@@ -570,8 +569,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                 flash(md_response[var]['mobidetails_error'], 'w3-pale-red')
                                 return redirect(url_for('md.index'))
                             return redirect(url_for('md.variant', variant_id=md_response[var]['mobidetails_id']))
-                    else:
-                        
+                    else:                        
                         return render_template('md/variant_multiple.html', vars_rs=md_response)
 
             if caller == 'cli':
