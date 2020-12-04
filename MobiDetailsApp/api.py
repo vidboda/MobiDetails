@@ -268,7 +268,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
         res_gene = curs.fetchone()
         if res_gene:
             variant_regexp = md_utilities.regexp['variant']
-            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
+            chrom_regexp = md_utilities.regexp['ncbi_chrom']
+            # match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
+            match_object = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
             if match_object:
                 ncbi_chr, g_var = match_object.group(1), match_object.group(2)
                 # 1st check hg38
