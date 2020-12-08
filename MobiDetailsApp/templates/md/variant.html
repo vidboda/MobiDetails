@@ -29,12 +29,17 @@
 				{% endif %}
 				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
 				<div class="w3-show" id="hg19_acc">
+					{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
+					{{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }}
 					{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
+					{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
 					{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v2")}}
+					{% if variant_features.dna_type == 'substitution' %}
+						{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
+					{% endif %}
 					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %}
 						{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
 					{% endif %}
-					{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
 					{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
 					{% if variant_features.so_accession != None %}
 						{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, vari.pos, vari.chr, variant_features.so_accession, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
@@ -42,8 +47,6 @@
 						{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, vari.pos, vari.chr, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
 					{% endif %}
 					{{ link("%srs%s"|format(urls.ncbi_dbsnp, variant_features.dbsnp_id), "dbSNP")}}
-					{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
-					{{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }}
 					{% if variant_features.dbsnp_id != None %}
 						{{ link("%srs%s"|format(urls.regulomedb_hg19_search, variant_features.dbsnp_id), "RegulomeDB") }}
 					{% endif %}
@@ -397,11 +400,11 @@
 					{% if g.user['academic'] or not g.user %}
 						<tr><!--CADD raw-->
 							<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
-							{% if variant_features.dna_type == 'substitution' %}
+							{# {% if variant_features.dna_type == 'substitution' %}
 								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> raw:</td>
-							{% else %}
+							{% else %} #}
 								<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
-							{% endif %}
+							{#{% endif %}#}
 							{% if annot.cadd is not defined %}
 								<td class="w3-left-align">{{ annot.cadd_raw }}</td>
 							{% else %}
