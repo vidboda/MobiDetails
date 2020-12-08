@@ -403,7 +403,7 @@
 							{# {% if variant_features.dna_type == 'substitution' %}
 								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> raw:</td>
 							{% else %} #}
-								<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
+							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
 							{#{% endif %}#}
 							{% if annot.cadd is not defined %}
 								<td class="w3-left-align">{{ annot.cadd_raw }}</td>
@@ -413,11 +413,11 @@
 							<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
 						</tr>					
 						<tr><!--CADD phred-->
-							{% if variant_features.dna_type == 'substitution' %}
+							{#{% if variant_features.dna_type == 'substitution' %}
 								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> phred:</td>
-							{% else %}
-								<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
-							{% endif %}
+							{% else %}#}
+							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
+							{#{% endif %}#}
 							{% if annot.cadd is not defined %}
 								<td class="w3-left-align">{{ annot.cadd_phred }}</td>
 							{% else %}
