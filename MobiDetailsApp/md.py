@@ -538,13 +538,20 @@ def variant(variant_id=None):
                         annot['mpa_score'] = 10
                         annot['mpa_impact'] = variant_features['prot_type']
                 # gnomadv3
+                # record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var)
+                # if isinstance(record, str):
+                #     annot['gnomadv3'] = record
+                # else:
+                #     match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
+                #     if match_obj:
+                #         annot['gnomadv3'] = match_obj.group(1)
+                # gnomadv3 annovar style
                 record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var)
                 if isinstance(record, str):
                     annot['gnomadv3'] = record
                 else:
-                    match_obj = re.search(r'AF=([\d\.e-]+);', record[7])
-                    if match_obj:
-                        annot['gnomadv3'] = match_obj.group(1)
+                    print(record)
+                    annot['gnomadv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP
                 # # Eigen from dbNSFP for coding variants                
                 # if variant_features['dna_type'] == 'substitution' and \
@@ -923,13 +930,13 @@ def variant(variant_id=None):
                 if isinstance(record, str):
                     annot['gnomad_exome_all'] = record
                 else:
-                    annot['gnomad_exome_all'] = record[5]
+                    annot['gnomad_exome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomad ge
                 record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var)
                 if isinstance(record, str):
                     annot['gnomad_genome_all'] = record
                 else:
-                    annot['gnomad_genome_all'] = record[5]
+                    annot['gnomad_genome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # clinpred
                 if variant_features['prot_type'] == 'missense':
                 #     record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)

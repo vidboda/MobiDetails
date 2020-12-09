@@ -205,8 +205,13 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
+  #'gnomad_3':
+  #  'rel_path': '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'
+  #  'name': 'gnomAD genome'
+  #  'description': 'Large dataset of variants population frequencies'
+  #  'short_name': 'gnomad'
   'gnomad_3':
-    'rel_path': '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'
+    'rel_path': '/static/resources/gnomad/hg38_gnomad30_genome_sorted.txt.gz'
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
@@ -362,6 +367,7 @@
     'paper': '32461654'
     'version': 'v2.0.1;v3'
     'short_name': 'gnomad'
+    'annovar_format_af_col': '5'
   'InterVar':
     'firstauthor': 'Li'
     'year': '2017'

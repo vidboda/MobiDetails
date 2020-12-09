@@ -324,6 +324,11 @@
 						<td class="w3-left-align">{{ annot.gnomad_genome_all }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.0.1 Genomes global MAF</em></td>
 					</tr>
+					<!--<tr>--><!--gnomAD v3-->
+						<!--<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, variant_features.chr, hg38_var.pos, hg38_var.ref, hg38_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
+						<td class="w3-left-align">{{ annot.gnomadv3 }}</td>
+						<td class="w3-left-align"><em class="w3-small"> v3 Genomes global MAF</em></td>-->
+					<!--</tr>-->
 					<tr><!--gnomAD v3-->
 						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, variant_features.chr, hg38_var.pos, hg38_var.ref, hg38_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
 						<td class="w3-left-align">{{ annot.gnomadv3 }}</td>

@@ -65,6 +65,7 @@ local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbsc
 local_files['dbsnp']['abs_path'] = '{0}{1}'.format(app_path, local_files['dbsnp']['rel_path'])
 local_files['gnomad_exome']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_exome']['rel_path'])
 local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_genome']['rel_path'])
+# local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_3']['rel_path'])
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(app_path, local_files['gnomad_3']['rel_path'])
 local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg38']['rel_path'])
 # local_files['human_genome_hg19']['abs_path'] = '{0}{1}'.format(app_path, local_files['human_genome_hg19']['rel_path'])
