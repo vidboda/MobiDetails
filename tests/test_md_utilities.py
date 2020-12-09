@@ -326,8 +326,8 @@ var_ss_hg19 = {
     ('gnomAD exome', var_dup_hg19, '1.0', 5, 'gnomad_exome'),
     ('gnomAD genome', var_hg19, '0.0009', 5, 'gnomad_genome'),
     ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome'),
-    ('gnomADv3', var, '0.0013', 7, 'gnomad_3'),
-    ('gnomADv3', var_dup, '1.0000', 7, 'gnomad_3'),
+    ('gnomADv3', var, '0.0013', 5, 'gnomad_3'),
+    ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3'),
     ('Mistic', var_hg19, '0.876', 4, 'mistic'),
     ('dbscSNV', var_ss_hg19, '0.9999', 14, 'dbscsnv'),
     ('dbscSNV', var_ss_hg19, '0.928', 15, 'dbscsnv')
