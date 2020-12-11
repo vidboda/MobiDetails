@@ -550,7 +550,7 @@ def variant(variant_id=None):
                 if isinstance(record, str):
                     annot['gnomadv3'] = record
                 else:
-                    print(record)
+                    # print(record)
                     annot['gnomadv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP
                 # # Eigen from dbNSFP for coding variants                

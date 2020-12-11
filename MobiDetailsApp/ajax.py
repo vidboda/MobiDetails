@@ -1046,7 +1046,7 @@ def spip():
                 i += 1
                 continue
             if header == 'InterConfident':
-                header = 'Confidence'
+                header = 'Risk'
             if header == 'mutInPBarea':
                 header = 'mutInBParea'
             if scores_spip[i] == 'No available':
