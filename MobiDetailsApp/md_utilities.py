@@ -802,6 +802,8 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 next
             else:
                 print(warning)
+                if 'Removing redundant reference bases from variant description' in warning:
+                    break
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto both genome versions
                     ncbi_chrom_regexp = regexp['ncbi_chrom']

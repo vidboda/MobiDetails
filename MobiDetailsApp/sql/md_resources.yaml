@@ -589,7 +589,7 @@
     'color': 'dark-grey'
 'spip_headers':
   'Interpretation': 'Overall interpretation of SPiP'
-  'Risk': 'The risk that the variant alters splicing'
+  'Risk': 'The risk for the variant to alter splicing'
   'seqPhysio': 'Wild type DNA sequence'
   'seqMutated': 'Mutant DNA sequence'
   'NearestSS': 'Nearest natural splice site type (5''/3'' ss) of the mutation'
