@@ -801,9 +801,9 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     re.search('Whitespace', warning):
                 next
             else:
-                print(warning)
+                # print(warning)
                 if 'Removing redundant reference bases from variant description' in warning:
-                    break
+                    continue
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto both genome versions
                     ncbi_chrom_regexp = regexp['ncbi_chrom']
@@ -839,6 +839,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
             elif caller == 'api':
                 return hg38_d
     except Exception:
+        # print(vv_data)
         if caller == 'webApp':
             return danger_panel(
                 vv_key_var,

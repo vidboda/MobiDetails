@@ -153,9 +153,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
-                        return jsonify(mobidetails_error='Variant Validator looks down!.')
+                        return jsonify(mobidetails_error='Variant Validator looks down!')
                     else:
-                        flash('Variant Validator looks down!.', 'w3-pale-red')
+                        flash('Variant Validator looks down!', 'w3-pale-red')
                         return redirect(url_for('md.index'))
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
                     vv_base_url, acc_no, acc_version, new_variant
@@ -175,7 +175,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                   The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
                         except Exception:
                             flash('There has been a issue with the annotation of the variant via VariantValidator. \
-                                  Sorry for the inconvenience. You may want to try directly in MobiDetails.', 'w3-pale-red')
+                                  Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
                         return redirect(url_for('md.index'))
                 if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
@@ -309,9 +309,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         if not vv_base_url:
                             close_db()
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Variant Validator looks down!.')
+                                return jsonify(mobidetails_error='Variant Validator looks down!')
                             else:
-                                flash('Variant Validator looks down!.', 'w3-pale-red')
+                                flash('Variant Validator looks down!', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
                         
                         vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
@@ -333,7 +333,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                           The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
                                 except Exception:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
-                                          Sorry for the inconvenience. You may want to try directly in MobiDetails.', 'w3-pale-red')
+                                          Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
                         # look for gene acc #
                         # print(vv_data)
@@ -385,7 +385,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                           The error is the following: {}'.format(vv_data['validation_warning_1']['validation_warnings']), 'w3-pale-red')
                                 except Exception:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
-                                          Sorry for the inconvenience. You may want to try directly in MobiDetails.', 'w3-pale-red')
+                                          Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
                                 return redirect(url_for('md.index'))
 
                 else:
