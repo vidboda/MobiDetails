@@ -1109,11 +1109,21 @@ def search_engine():
         semaph_query = 0
         # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
-        
+        if re.search(r'^last$', query_engine):
+            # get variant annotated the last 7 days
+            if 'db' not in locals():
+                db = get_db()
+                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                curs.execute(
+                    "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.nm_version, c.username from variant_feature a, gene b, mobiuser c \
+                    WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.creation_date > CURRENT_DATE - 7 ORDER BY creation_date DESC"
+                )
+                variants = curs.fetchall()
+                return render_template('md/variant_multiple.html', variants=variants)
         match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
             confusing_genes = ['C1R', 'C8G', 'S100G', 'F11R', 'C1S', 'A2M', 'C1D', 'S100P', 'F2R', 'C8A', 'C4A']
-            # list of genes that looks like the query
+            # list of genes that look like the query
             if query_engine.upper() in confusing_genes:
                 sql_table = 'gene'
                 query_type = 'name[1]'

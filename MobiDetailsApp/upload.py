@@ -89,7 +89,6 @@ def file_upload():
                             }            
                             try:
                                 md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
-                                # print(md_response)
                                 result.append({'variant': line, 'id': md_response['mobidetails_id'], 'url': md_response['url']})
                             except Exception:
                                 if 'mobidetails_error' in md_response:
