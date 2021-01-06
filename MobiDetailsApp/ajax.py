@@ -83,13 +83,14 @@ def litvar():
 @bp.route('/defgen', methods=['POST'])
 def defgen():
     genome_regexp = md_utilities.regexp['genome']
-    match_obj = re.search(rf'^({genome_regexp})$', request.form['genome'])
-    if re.search(r'^\d+$', request.form['vfid']) and \
-            match_obj:
+    match_obj_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
+    match_obj_varid = re.search(r'^(\d+)$', request.form['vfid'])
+    if match_obj_varid and \
+            match_obj_genome:
             # re.search(rf'^{genome_regexp}$', request.form['genome']):
-        variant_id = request.form['vfid']
+        variant_id = match_obj_varid.group(1)
         # genome = request.form['genome']
-        genome = match_obj.group(1)
+        genome = match_obj_genome.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
@@ -924,11 +925,18 @@ def autocomplete():
         else:
             return ('', 204)
     i = 1
-    if re.search(r'^[Nn][Mm]_.+', query):
+    match_obj_nm = re.search(r'^([Nn][Mm]_.+)$', query)
+    match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', query)
+    if match_obj_nm:
         i = 2
-        query = query.upper()
-    elif not re.search(r'orf', query):
-        query = query.upper()
+        query = match_obj_nm.group(1).upper()
+    elif not re.search(r'orf', query) and \
+            match_obj_gene:
+        query = match_obj_gene.group(1).upper()
+    elif match_obj_gene:
+        query = match_obj_gene.group(1)
+    else:
+        return ('', 204)
     curs.execute(
         "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
     )
@@ -949,12 +957,15 @@ def autocomplete():
 @bp.route('/autocomplete_var', methods=['POST'])
 def autocomplete_var():
     query = request.form['query_engine']
-    gene = request.form['gene']
+    match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', request.form['gene'])
+    # gene = request.form['gene']
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
     variant_regexp = md_utilities.regexp['variant']
     match_object = re.search(rf'^c\.({variant_regexp})', query)
-    if match_object:
+    if match_object and \
+            match_obj_gene:
         md_query = match_object.group(1)
+        gene = match_obj_gene.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(

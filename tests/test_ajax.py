@@ -282,7 +282,7 @@ def test_favourite(client, app, auth, vf_id, status_code):
     ('c.100C>', b'["NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
-    ('c.blabla', b'[]')
+    ('c.blabla', b'')
 ))
 def test_autocomplete(client, app, query, return_value):
     assert client.get('/autocomplete').status_code == 405
