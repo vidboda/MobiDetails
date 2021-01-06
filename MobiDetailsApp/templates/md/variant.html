@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?201204" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?210106" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -14,7 +14,7 @@
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
 		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
-		{% for vari in variant %}			
+		{% for vari in variant|sort() %}			
 			{% if vari.genome_version == 'hg19' %}
 				{# set variables #}
 				{% set hg19_var.pos = vari.pos %}
@@ -66,6 +66,8 @@
 				{% endif %}
 				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
 				<div class="w3-show" id="hg38_acc">
+					<span style="display:none;" id="mupit_url">{{ urls.mupit }}</span>
+					<span style="display:none;" id="mupit_link">{{ link("%s?gm=chr%s:%s"|format(urls.mupit, vari.chr, vari.pos), "MuPIT") }}</span>
 					{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
 					{{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }}
 					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}

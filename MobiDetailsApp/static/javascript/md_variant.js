@@ -366,6 +366,29 @@ function myAccFunc(acc_id, icon_id) {
 	}
 }
 
+// https://stackoverflow.com/questions/5684303/javascript-window-open-pass-values-using-post
+// function to send POST form and open it in new window
+
+//function openWindowWithPost(url, data) {
+//    var form = document.createElement("form");
+//    form.target = "_blank";
+//    form.method = "POST";
+//    form.action = url;
+//    form.style.display = "none";
+//
+//    for (var key in data) {
+//        var input = document.createElement("input");
+//        input.type = "hidden";
+//        input.name = key;
+//        input.value = data[key];
+//        form.appendChild(input);
+//    }
+//
+//    document.body.appendChild(form);
+//    form.submit();
+//    document.body.removeChild(form);
+//}
+
 
 // https://www.chartjs.org/docs/latest/general/responsive.html#important-note
 function beforePrintHandler () {
@@ -375,7 +398,8 @@ function beforePrintHandler () {
 }
 
 
-$(document).ready(function() {
+$(document).ready(function() {    
+    
     $('#third_br').remove();
 	if ($(window).width() < 600) {
 		$('#page_menu').remove();        
@@ -419,6 +443,18 @@ $(document).ready(function() {
 		]
 	});
 
+    // check MuPIT for available 3D structure
+    // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
+    $.ajax({
+		type: "GET",
+		url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
+	})
+	.done(function(mupit_results) {
+        // alert(mupit_results.hit);
+        if (mupit_results.hit === true) {
+            $('#mupit_link').show();
+        }
+    });
 	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {

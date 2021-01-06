@@ -106,6 +106,7 @@
   'mutalyzer_name_checker': 'https://mutalyzer.nl/name-checker?description='
   'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
   'mutalyzer_api_json': 'https://mutalyzer.nl/json/'
+  'mupit': 'https://mupit.icm.jhu.edu/MuPIT_Interactive'
   'ncbi': 'https://www.ncbi.nlm.nih.gov/'
   'ncbi_nuccore':  'https://www.ncbi.nlm.nih.gov/nuccore/'
   'ncbi_prot': 'https://www.ncbi.nlm.nih.gov/protein/'
@@ -421,6 +422,12 @@
     'paper': '29689380'
     'version': '1.1'
     'short_name': 'mpa'
+  'MuPIT':
+    'firstauthor': 'Niknafs'
+    'year': '2013'
+    'paper': '23793516'
+    'version': 'API'
+    'short_name': 'mupit'
   'Mutalyzer':
     'firstauthor': 'Wildeman'
     'year': '2008'
