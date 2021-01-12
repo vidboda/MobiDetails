@@ -185,4 +185,4 @@ def file_upload():
                 flash('That file extension is not allowed', 'w3-pale-red')
                 return redirect(request.url)
 
-    return render_template("upload/upload_form.html")
+    return render_template("upload/upload_form.html", run_mode=md_utilities.get_running_mode())

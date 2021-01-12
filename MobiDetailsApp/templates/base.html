@@ -118,7 +118,14 @@
 		<br/><br id="second_br"/><br id="third_br"/>
 		<header align="center">
 			{% block header %}{% endblock %}
-		</header>		
+		</header>
+		{% if run_mode  and run_mode == 'maintenance' %}
+			<br />
+			<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
+				<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
+				<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
+			</div>
+		{% endif %}
 		{% for category, message in get_flashed_messages(with_categories=true) %}
 			{% autoescape false %}
 				<br />

@@ -682,6 +682,13 @@ def test_run_spip(app):
             print(spip_results)
             assert 'Interpretation' in spip_results
 
+def test_get_running_mode(app):
+    with app.app_context():
+        assert md_utilities.get_running_mode() in ['on', 'maintenance']
+
+
+
+
 # 
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

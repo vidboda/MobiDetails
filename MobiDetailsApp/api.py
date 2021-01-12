@@ -80,6 +80,11 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     caller = md_utilities.get_post_param(request, 'caller')
     variant_chgvs = md_utilities.get_post_param(request, 'variant_chgvs')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        if caller == 'cli':
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+        else:
+            return redirect(url_for('md.index'))    
     if variant_chgvs and \
             caller and \
             api_key:
@@ -228,6 +233,13 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
     variant_ghgvs = md_utilities.get_post_param(request, 'variant_ghgvs')
     gene = md_utilities.get_post_param(request, 'gene_hgnc')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        if caller == 'cli':
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+        else:
+            return redirect(url_for('md.index'))
+    
     if variant_ghgvs and \
             gene and \
             caller and \
@@ -418,10 +430,15 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
 
 @bp.route('/api/variant/create_rs', methods=['POST'])
 def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
-     # get params
+    # get params
     caller = md_utilities.get_post_param(request, 'caller')
     rs_id = md_utilities.get_post_param(request, 'rs_id')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        if caller == 'cli':
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+        else:
+            return redirect(url_for('md.index'))
     if rs_id and \
             caller and \
             api_key:
@@ -665,6 +682,11 @@ def api_gene(gene_hgnc=None):
 # def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
 @bp.route('/api/variant/update_acmg', methods=['POST'])
 def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        if caller == 'cli':
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot add new ACMG classes.')
+        else:
+            return redirect(url_for('md.index'))
     # get params
     variant_id = md_utilities.get_post_param(request, 'variant_id')
     acmg_id = md_utilities.get_post_param(request, 'acmg_id')

@@ -32,18 +32,22 @@
   </div>
   {{ danger("This is a beta version. Please report any bug you might encounter.") }}
 	<div align = "center">
-	<form method="post" action="{{ url_for('upload.file_upload') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:60%" id="login_form" enctype="multipart/form-data" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <br />
-    <span class="w3-xlarge">Please select the file you wish to submit to MobiDetails annotation:</span><br/>
-		<div class="w3-row w3-section">
-			{{ fa('file-text-o') }}
-			<div class="w3-rest">{{ input('file', 'file') }}</div>
-		</div>
-		<p class="w3-center">
-			<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
-		</p>
-	</form>
+  {% if run_mode  and run_mode == 'on' %}
+    <form method="post" action="{{ url_for('upload.file_upload') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:60%" id="login_form" enctype="multipart/form-data" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <br />
+      <span class="w3-xlarge">Please select the file you wish to submit to MobiDetails annotation:</span><br/>
+      <div class="w3-row w3-section">
+        {{ fa('file-text-o') }}
+        <div class="w3-rest">{{ input('file', 'file') }}</div>
+      </div>
+      <p class="w3-center">
+        <input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
+      </p>
+    </form>
+  {% else %}
+    <p align="center">Please wait for the end of the maintenance to upload a new file.</p>
+  {% endif %}
   </div>
   <br /><br />
   <br /><br />

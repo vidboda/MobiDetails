@@ -36,9 +36,14 @@
 				<!--<span class="w3-button w3-hover-sand" onclick="window.open('http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t={{ main_iso.enst }}', '_blank')" title="click to open Ensembl in new tab">{{ main_iso.enst }})</span>-->
 			</h2>
 		</p>
-		<p align="center">
-		{{ create_variant(gene, main_iso, num_iso, res) }}
-		</p><br /><br />
+		{% if run_mode  and run_mode == 'on' %}
+			<p align="center">
+			{{ create_variant(gene, main_iso, num_iso, res) }}
+			</p>
+		{% else %}
+			<p align="center">Please wait for the end of the maintenance to annotate a new variant</p>
+		{% endif %}
+		<br /><br />
 		{% if main_iso.second_name %}
 			<div class="w3-margin w3-panel w3-sand w3-leftbar">
 				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }}</p>

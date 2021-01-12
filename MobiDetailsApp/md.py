@@ -27,6 +27,7 @@ bp = Blueprint('md', __name__)
 
 @bp.route('/')
 def index():
+    # print(app.config['RUN_MODE'])
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
@@ -45,7 +46,7 @@ def index():
         )
     else:
         close_db()
-        return render_template('md/index.html', nb_genes=res['gene'], nb_isoforms=res['transcript'])
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode(), nb_genes=res['gene'], nb_isoforms=res['transcript'])
 
 # -------------------------------------------------------------------
 # web app - about
@@ -53,7 +54,7 @@ def index():
 
 @bp.route('/about')
 def about():
-    return render_template('md/about.html', urls=md_utilities.urls, local_files=md_utilities.local_files, external_tools=md_utilities.external_tools)
+    return render_template('md/about.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, local_files=md_utilities.local_files, external_tools=md_utilities.external_tools)
 
 # -------------------------------------------------------------------
 # web app - changelog
@@ -61,7 +62,7 @@ def about():
 
 @bp.route('/changelog')
 def changelog():
-    return render_template('md/changelog.html', urls=md_utilities.urls)
+    return render_template('md/changelog.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls)
 
 # -------------------------------------------------------------------
 # web app - gene
@@ -248,15 +249,15 @@ def gene(gene_name=None):
                 annot = {'nognomad': 'No values in gnomAD'}
             close_db()
             return render_template(
-                'md/gene.html', urls=md_utilities.urls, gene=gene_name,
+                'md/gene.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, gene=gene_name,
                 num_iso=num_iso, main_iso=main, res=result_all, annotations=annot
             )
         else:
             close_db()
-            return render_template('md/unknown.html', query=gene_name)
+            return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
     else:
         close_db()
-        return render_template('md/unknown.html', query=gene_name)
+        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
 
 # -------------------------------------------------------------------
 # web app - all genes
@@ -272,10 +273,10 @@ def genes():
     genes = curs.fetchall()
     if genes:
         close_db()
-        return render_template('md/genes.html', genes=genes)
+        return render_template('md/genes.html', run_mode=md_utilities.get_running_mode(), genes=genes)
     else:
         close_db()
-        return render_template('md/unknown.html')
+        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
 
 # -------------------------------------------------------------------
 # web app - variants in genes
@@ -313,12 +314,12 @@ def vars(gene_name=None):
         # if vars_type is not None:
         close_db()
         return render_template(
-            'md/vars.html', urls=md_utilities.urls, gene=gene_name,
+            'md/vars.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, gene=gene_name,
             num_iso=num_iso, variants=variants, gene_info=main, res=result_all
         )
     else:
         close_db()
-        return render_template('md/unknown.html', query=gene_name)
+        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
 
 
 # -------------------------------------------------------------------
@@ -1070,7 +1071,7 @@ def variant(variant_id=None):
             signif_scores3 = 'Not performed'
     else:
         close_db()
-        return render_template('md/unknown.html', query="variant id: {}".format(variant_id))
+        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query="variant id: {}".format(variant_id))
     close_db()
     if 'mpa_score' not in annot:
         annot['mpa_score'] = 0
@@ -1078,7 +1079,7 @@ def variant(variant_id=None):
     else:
         annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
     return render_template(
-        'md/variant.html', favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
+        'md/variant.html', run_mode=md_utilities.get_running_mode(), favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
         urls=md_utilities.urls, external_tools=md_utilities.external_tools, thresholds=md_utilities.predictor_thresholds,
         variant_features=variant_features, variant=variant, protein_domain=domain,
@@ -1256,7 +1257,7 @@ def search_engine():
                     else:
                         error = 'You submitted a forbidden character in "{}".'.format(pattern)
                         flash(error, 'w3-pale-red')
-                        return render_template('md/unknown.html')
+                        return render_template('md/unknown.html', run_mode=app.config['RUN_MODE'])
                     # print(pattern)
                 if pattern == 'g_name':
                     curs.execute(
@@ -1305,8 +1306,8 @@ def search_engine():
                     if len(result) == 1:
                         return redirect(url_for('md.variant', variant_id=result[0][0]))
                     else:
-                        return render_template('md/variant_multiple.html', variants=result)
+                        return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=result)
     else:
         error = 'Please type something for the search engine to work.'
     flash(error, 'w3-pale-red')
-    return render_template('md/unknown.html')
+    return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())

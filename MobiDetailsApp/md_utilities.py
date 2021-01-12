@@ -1623,6 +1623,11 @@ def run_spip(gene_symbol, nm_acc, c_name):
         return 'There has been an error while processing SPiP'
 
 
+def get_running_mode():
+    return app.config['RUN_MODE']
+
+
+
 # 
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):
 #     if return_obj:

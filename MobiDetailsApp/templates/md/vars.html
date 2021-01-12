@@ -31,7 +31,11 @@
 			</h2>
 		</p>
 		<p align="center">
-			{{ create_variant(gene, gene_info, num_iso, res) }}
+			{% if run_mode  and run_mode == 'on' %}
+				{{ create_variant(gene, gene_info, num_iso, res) }}
+			{% else %}
+				<p align="center">Please wait for the end of the maintenance to annotate a new variant</p>
+			{% endif %}
 			{{ gene_redirection(gene, urls) }}
 			{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		</p><br />		

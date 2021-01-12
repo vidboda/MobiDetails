@@ -23,7 +23,8 @@ def app():
         'DATABASE': db_path,
         'SECRET_KEY': 'test',
         'WTF_CSRF_ENABLED' : False,
-        'ALLOWED_EXTENSIONS': '[txt]'
+        'ALLOWED_EXTENSIONS': '[txt]',
+        'RUN_MODE': 'maintenance'
     })
     # app.test_client_class = FlaskClient
     with app.app_context():

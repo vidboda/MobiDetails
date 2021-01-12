@@ -432,6 +432,8 @@ def lovd():
 @bp.route('/modif_class', methods=['POST'])
 @login_required
 def modif_class():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     # tr_html = 'notok'
     if 'variant_id' in request.form and \
             re.search(r'^\d+$', request.form['variant_id']) and \
@@ -626,6 +628,8 @@ def modif_class():
 @bp.route('/remove_class', methods=['POST'])
 @login_required
 def remove_class():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if re.search(r'^\d+$', request.form['variant_id']) and \
             re.search(r'^\d+$', request.form['acmg_class']):
         variant_id = request.form['variant_id']
@@ -711,6 +715,8 @@ def send_var_message():
 def create():
     # start_time = time.time()
     # print(request.form['new_variant'])
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     variant_regexp = md_utilities.regexp['variant']
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
@@ -823,6 +829,8 @@ def create():
 def toggle_prefs():
     # if re.search(r'^\d+$', request.form['user_id']) and \
     #        re.search(r'^[ft]$', request.form['pref_value']):
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if re.search(r'^[ft]$', request.form['pref_value']) and \
             re.search(r'^(email_pref|lovd_export)$', request.form['field']):
         # mobiuser_id = request.form['user_id']
@@ -858,6 +866,8 @@ def toggle_prefs():
 @bp.route('/favourite', methods=['POST'])
 @login_required
 def favourite():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if re.search(r'^\d+$', request.form['vf_id']):
         vf_id = request.form['vf_id']
         if vf_id is None:

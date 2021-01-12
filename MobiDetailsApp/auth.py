@@ -27,6 +27,8 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if request.method == 'POST':
         # username = urllib.parse.unquote(request.form['username'])
         username = request.form['username']
@@ -288,13 +290,13 @@ def login():
                     (url_parse(referrer_page).host != url_parse(request.base_url).host or
                         re.search(r'(login|register)', referrer_page)):
                 # not coming from mobidetails
-                return redirect(url_for('auth.profile', mobiuser_id=0))
+                return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0))
             else:
                 return redirect(referrer_page)
 
         flash(error, 'w3-pale-red')
 
-    return render_template('auth/login.html', referrer_page=referrer_page)
+    return render_template('auth/login.html', run_mode=md_utilities.get_running_mode(), referrer_page=referrer_page)
 
 # -------------------------------------------------------------------
 # profile activation
@@ -302,6 +304,8 @@ def login():
 
 @bp.route('/activate/<int:mobiuser_id>/<string:api_key>', methods=['GET'])
 def activate(mobiuser_id, api_key):
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if isinstance(mobiuser_id, int) and \
             isinstance(api_key, str):
         db = get_db()
@@ -403,18 +407,18 @@ def profile(mobiuser_id=0):
             variants_favourite = curs.fetchall()
             if error is None:
                 # num_var_fav = curs.rowcount
-                return render_template('auth/profile.html', mobiuser=mobiuser, view='own', num_var=num_var,
+                return render_template('auth/profile.html', run_mode=md_utilities.get_running_mode(), mobiuser=mobiuser, view='own', num_var=num_var,
                                        num_var_fav=curs.rowcount, variants=variants, variants_favourite=variants_favourite)
         elif error is None:
             # other profile view
-            return render_template('auth/profile.html', mobiuser=mobiuser, view='other', num_var=None,
+            return render_template('auth/profile.html', run_mode=md_utilities.get_running_mode(), mobiuser=mobiuser, view='other', num_var=None,
                                    num_var_fav=None, variants=None, variants_favourite=None)
 
         flash(error, 'w3-pale-red')
-        return render_template('md/index.html')
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     else:
         ('Invalid user ID!!', 'w3-pale-red')
-        return render_template('md/index.html')
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
 
 # -------------------------------------------------------------------
 # load profile when browsing
@@ -456,6 +460,8 @@ def logout():
 
 @bp.route('/forgot_pass', methods=('GET', 'POST'))
 def forgot_pass():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if request.method == 'GET':
         return render_template('auth/forgot_pass.html')
     elif request.method == 'POST':
@@ -509,6 +515,8 @@ def forgot_pass():
 
 @bp.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
     if request.method == 'GET':
         if re.search(r'^\d+$', request.args.get('mobiuser_id')) and \
                 re.search(r'^[\d\.]+$', request.args.get('ts')):
