@@ -572,7 +572,7 @@ def variant(variant_id=None):
                 if variant_features['prot_type'] == 'missense':
                     # CADD
                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
-                    print(record)
+                    # print(record)
                     try:
                         annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
                         annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
