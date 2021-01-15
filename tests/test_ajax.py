@@ -279,7 +279,7 @@ def test_favourite(client, app, auth, vf_id, status_code):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'')
@@ -295,7 +295,7 @@ def test_autocomplete(client, app, query, return_value):
 
 
 @pytest.mark.parametrize(('query', 'gene', 'return_value', 'http_code'), (
-    ('c.100C>', 'USH2A', b'["c.100C>G", "c.100C>T"]', 200),
+    ('c.100C>', 'USH2A', b'["c.100C>A", "c.100C>G", "c.100C>T"]', 200),
     ('USH2', 'USH2A', b'', 204),
     ('blabla', 'USH2A', b'', 204),
     ('c.blabla', 'USH2A', b'', 204),

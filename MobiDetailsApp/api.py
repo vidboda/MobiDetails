@@ -683,10 +683,7 @@ def api_gene(gene_hgnc=None):
 @bp.route('/api/variant/update_acmg', methods=['POST'])
 def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
     if (md_utilities.get_running_mode() == 'maintenance'):
-        if caller == 'cli':
-            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot add new ACMG classes.')
-        else:
-            return redirect(url_for('md.index'))
+        return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot add new ACMG classes.')
     # get params
     variant_id = md_utilities.get_post_param(request, 'variant_id')
     acmg_id = md_utilities.get_post_param(request, 'acmg_id')

@@ -24,7 +24,7 @@ def app():
         'SECRET_KEY': 'test',
         'WTF_CSRF_ENABLED' : False,
         'ALLOWED_EXTENSIONS': '[txt]',
-        'RUN_MODE': 'maintenance'
+        'RUN_MODE': 'on'
     })
     # app.test_client_class = FlaskClient
     with app.app_context():

@@ -340,7 +340,8 @@ def acmg2lovd(acmg_class, db):
             return res_lovd_acmg[0]
     return None
 
-def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix and look for a record:
+
+def get_value_from_tabix_file(text, tabix_file, var, variant_features):  # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     if text == 'gnomADv3' or \
@@ -370,16 +371,27 @@ def get_value_from_tabix_file(text, tabix_file, var):  # open a file with tabix 
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
             return record
-        # if record[i] == var['pos_ref'] and \
-        #         record[i+1] == var['pos_alt']:
-        #     # print('{0}-{1}-{2}-{3}'.format(record[i], var['pos_ref'], record[i+1], var['pos_alt']))
-        #     return record
-        # elif record[i] == var['pos_ref'] and \
-        #         (re.search(r'{},'.format(var['pos_alt']), record[i+1]) or
-        #          re.search(r',{}'.format(var['pos_alt']), record[i+1])):
-        #     # multiple alts
-        #     return record
+        elif re.search('dbNSFP', tabix_file) and \
+                variant_features['dna_type'] == 'indel' and \
+                variant_features['prot_type'] == 'missense':
+            # particular case delins resulting in missense e.g. FLNC c.3715_3716delinsTT p.Pro1239Phe
+            aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+            i = 4
+            ppos_list = re.split(';', record[i+7])
+            if aa1 == record[i] and \
+                    aa2 == record[i+1] and \
+                    ppos in ppos_list:
+                return record
     return 'No match in {}'.format(text)
+
+
+def decompose_missense(p_name):
+    match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
+    if match_obj:
+        return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
+    else:
+        return None, None, None
+
 
 
 def getdbNSFP_results(
@@ -1099,7 +1111,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         vf_d['ivs_name'] = 'NULL'
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
     hg38_d['chr'] = ncbi_chr[0]
-    record = get_value_from_tabix_file('dbsnp', local_files['dbsnp']['abs_path'], hg38_d)
+    record = get_value_from_tabix_file('dbsnp', local_files['dbsnp']['abs_path'], hg38_d, vf_d)
     reg_chr = get_common_chr_name(db, ncbi_chr[0])
     hg38_d['chr'] = reg_chr[0]
     if isinstance(record, str):

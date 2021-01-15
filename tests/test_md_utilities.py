@@ -255,6 +255,11 @@ var = {
     'pos_ref': 'C',
     'pos_alt': 'A'
 }
+var_f = {
+    'dna_type': 'substitution',
+    'prot_type': 'missense',
+    'p_name': 'Cys759Phe'
+}
 var_hg19 = {
     'chr': '1',
     'pos': '216420460',
@@ -267,17 +272,32 @@ var_3utr1 = {
     'pos_ref': 'A',
     'pos_alt': 'T'
 }
+var_3utr1_f = {
+    'dna_type': 'substitution',
+    'prot_type': 'unknown',
+    'p_name': '?'
+}
 var_3utr2 = {
     'chr': '7',
     'pos': '117667155',
     'pos_ref': 'G',
     'pos_alt': 'T'
 }
+var_3utr2_f = {
+    'dna_type': 'substitution',
+    'prot_type': 'unknown',
+    'p_name': '?'
+}
 var_dup = {
     'chr': '3',
     'pos': '81761551',
     'pos_ref': 'A',
     'pos_alt': 'AG'
+}
+var_dup_f = {
+    'dna_type': 'duplication',
+    'prot_type': 'unknown',
+    'p_name': '?'
 }
 var_dup_hg19 = {
     'chr': '3',
@@ -291,49 +311,55 @@ var_ss_hg19 = {
     'pos_ref': 'G',
     'pos_alt': 'T'
 }
+var_ss_f = {
+    'dna_type': 'substitution',
+    'prot_type': 'unknown',
+    'p_name': '?'
+}
 
-@pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name'), (
-    ('Clinvar', var, 'Pathogenic', 7, 'clinvar_hg38'),
-    ('Clinvar', var, '2356', 2, 'clinvar_hg38'),
-    ('dbnsfp', var, '3.55', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '24.9', int(md_utilities.external_tools['CADD']['dbNSFP_phred_col']), 'dbnsfp'),
-    ('dbnsfp', var, '1.04', int(md_utilities.external_tools['Eigen']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '15.52', int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col']), 'dbnsfp'),
-    ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp'),
-    ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp'),
-    ('dbnsfp', var, '-3.4', int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp'),
-    ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp'),
-    ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp'),
-    ('dbmts', var_3utr1, '0.35', int(md_utilities.external_tools['Eigen']['dbMTS_value_col']), 'dbmts'),
-    ('dbmts', var_3utr1, '10.12', int(md_utilities.external_tools['Eigen']['dbMTS_pred_col']), 'dbmts'),
-    ('dbmts', var_3utr1, '0.511638467', int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col']), 'dbmts'),
-    ('dbmts', var_3utr1, '0.656990242', int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col']), 'dbmts'),
-    ('dbmts', var_3utr2, '0.102982936', int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col']), 'dbmts'),
-    ('CADD', var_3utr2, '0.069', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd'),
-    ('CADD', var_3utr2, '1.83', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd'),
-    ('CADD', var_dup, '1.793870', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd_indels'),
-    ('CADD', var_dup, '17.69', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels'),
-    ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs'),
-    ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels'),
-    ('gnomAD exome', var_hg19, '0.0009', 5, 'gnomad_exome'),
-    ('gnomAD exome', var_dup_hg19, '1.0', 5, 'gnomad_exome'),
-    ('gnomAD genome', var_hg19, '0.0009', 5, 'gnomad_genome'),
-    ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome'),
-    ('gnomADv3', var, '0.0013', 5, 'gnomad_3'),
-    ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3'),
-    ('Mistic', var_hg19, '0.876', 4, 'mistic'),
-    ('dbscSNV', var_ss_hg19, '0.9999', 14, 'dbscsnv'),
-    ('dbscSNV', var_ss_hg19, '0.928', 15, 'dbscsnv')
+
+@pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name', 'var_f'), (
+    ('Clinvar', var, 'Pathogenic', 7, 'clinvar_hg38', var_f),
+    ('Clinvar', var, '2356', 2, 'clinvar_hg38', var_f),
+    ('dbnsfp', var, '3.55', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '24.9', int(md_utilities.external_tools['CADD']['dbNSFP_phred_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '1.04', int(md_utilities.external_tools['Eigen']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '15.52', int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '-3.4', int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp', var_f),
+    ('dbmts', var_3utr1, '0.35', int(md_utilities.external_tools['Eigen']['dbMTS_value_col']), 'dbmts', var_3utr1_f),
+    ('dbmts', var_3utr1, '10.12', int(md_utilities.external_tools['Eigen']['dbMTS_pred_col']), 'dbmts', var_3utr1_f),
+    ('dbmts', var_3utr1, '0.511638467', int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col']), 'dbmts', var_3utr1_f),
+    ('dbmts', var_3utr1, '0.656990242', int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col']), 'dbmts', var_3utr1_f),
+    ('dbmts', var_3utr2, '0.102982936', int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col']), 'dbmts', var_3utr2_f),
+    ('CADD', var_3utr2, '0.069', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd', var_3utr2_f),
+    ('CADD', var_3utr2, '1.83', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd', var_3utr2_f),
+    ('CADD', var_dup, '1.793870', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd_indels', var_dup_f),
+    ('CADD', var_dup, '17.69', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels', var_dup_f),
+    ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs', var_f),
+    ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels', var_dup_f),
+    ('gnomAD exome', var_hg19, '0.0009', 5, 'gnomad_exome', var_f),
+    ('gnomAD exome', var_dup_hg19, '1.0', 5, 'gnomad_exome', var_dup_f),
+    ('gnomAD genome', var_hg19, '0.0009', 5, 'gnomad_genome', var_f),
+    ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome', var_dup_f),
+    ('gnomADv3', var, '0.0013', 5, 'gnomad_3', var_f),
+    ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3', var_dup_f),
+    ('Mistic', var_hg19, '0.876', 4, 'mistic', var_f),
+    ('dbscSNV', var_ss_hg19, '0.9999', 14, 'dbscsnv', var_ss_f),
+    ('dbscSNV', var_ss_hg19, '0.928', 15, 'dbscsnv', var_ss_f)
 ))
-def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name):
-    record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var)
+def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
+    record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)
     print(record)
     assert re.search(expected, record[record_number])
     # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
@@ -342,7 +368,7 @@ def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name
 
 
 def test_getdbNSFP_results():
-    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, var_f)
     score, pred, star = md_utilities.getdbNSFP_results(0, 36, 38, ';', 'basic', 1.1, 'lt', record)
     assert score == '0.0'
     assert pred == 'Damaging'
@@ -687,7 +713,15 @@ def test_get_running_mode(app):
         assert md_utilities.get_running_mode() in ['on', 'maintenance']
 
 
-
+@pytest.mark.parametrize(('p_name', 'aa1', 'ppos', 'aa2'), (
+    ('Pro1239Phe', 'P', '1239', 'F'),
+    ('Pro1239X', None, None, None),
+    ('1239Phe', None, None, None)
+))
+def test_decompose_missense(p_name, aa1, ppos, aa2):
+    assert aa1 == md_utilities.decompose_missense(p_name)[0]
+    assert ppos == md_utilities.decompose_missense(p_name)[1]
+    assert aa2 == md_utilities.decompose_missense(p_name)[2]
 
 # 
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (

@@ -510,7 +510,7 @@ def variant(variant_id=None):
                             var['chr'], variant_features['strand'], 3, positions_neighb_exon
                         )
                 # clinvar
-                record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
+                record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var, variant_features)
                 if isinstance(record, str):
                     annot['clinsig'] = "{0} {1}".format(record, md_utilities.external_tools['ClinVar']['version'])
                 else:
@@ -539,7 +539,7 @@ def variant(variant_id=None):
                         annot['mpa_score'] = 10
                         annot['mpa_impact'] = variant_features['prot_type']
                 # gnomadv3
-                # record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var)
+                # record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features)
                 # if isinstance(record, str):
                 #     annot['gnomadv3'] = record
                 # else:
@@ -547,7 +547,7 @@ def variant(variant_id=None):
                 #     if match_obj:
                 #         annot['gnomadv3'] = match_obj.group(1)
                 # gnomadv3 annovar style
-                record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var)
+                record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features)
                 if isinstance(record, str):
                     annot['gnomadv3'] = record
                 else:
@@ -558,7 +558,7 @@ def variant(variant_id=None):
                 # if variant_features['dna_type'] == 'substitution' and \
                 #         re.search(r'^[^\*-]', variant_features['c_name']) and \
                 #         variant_features['start_segment_type'] == 'exon':
-                #     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                #     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
                 #     try:
                 #         annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
                 #         annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
@@ -571,7 +571,8 @@ def variant(variant_id=None):
                 #         annot['eigen'] = 'No score in dbNSFP for Eigen'
                 if variant_features['prot_type'] == 'missense':
                     # CADD
-                    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
+                    print(record)
                     try:
                         annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
                         annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
@@ -583,7 +584,7 @@ def variant(variant_id=None):
                             annot['cadd_raw'] == '.':
                         annot['cadd'] = 'No score in dbNSFP for CADD'
                     # Eigen
-                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
                     try:
                         annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
                         annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
@@ -594,7 +595,7 @@ def variant(variant_id=None):
                     if 'eigen_raw' in annot and \
                             annot['eigen_raw'] == '.':
                         annot['eigen'] = 'No score in dbNSFP for Eigen'
-                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var)
+                    # record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
                     # record comes from Eigen section above
                     if isinstance(record, str):
                         annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
@@ -790,7 +791,7 @@ def variant(variant_id=None):
                 # dbMTS
                 if variant_features['dna_type'] == 'substitution' and \
                         re.search(r'^\*', variant_features['c_name']):
-                    record = md_utilities.get_value_from_tabix_file('dbmts', md_utilities.local_files['dbmts']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('dbmts', md_utilities.local_files['dbmts']['abs_path'], var, variant_features)
                     if isinstance(record, str):
                         annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
                     else:
@@ -863,7 +864,7 @@ def variant(variant_id=None):
                 if variant_features['dna_type'] == 'substitution':
                     if variant_features['prot_type'] != 'missense':
                         # specific file for CADD
-                        record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var)
+                        record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
                         if isinstance(record, str):
                             annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                         else:
@@ -872,7 +873,7 @@ def variant(variant_id=None):
                             # annot['cadd_raw'] = record[4]
                             # annot['cadd_phred'] = record[5]
                 else:
-                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var, variant_features)
                     if isinstance(record, str):
                         annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
                     else:
@@ -886,14 +887,14 @@ def variant(variant_id=None):
                 # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
                 spliceai_res = False
                 if variant_features['dna_type'] == 'substitution':
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features)
                     spliceai_res = True
                 elif ((variant_features['dna_type'] == 'insertion' or
                         variant_features['dna_type'] == 'duplication') and
                         variant_features['variant_size'] == 1) or \
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4):
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
                     # print(record)
                     spliceai_res = True
                 if spliceai_res is True:
@@ -927,20 +928,20 @@ def variant(variant_id=None):
 
             elif var['genome_version'] == 'hg19':
                 # gnomad ex
-                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var)
+                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var, variant_features)
                 if isinstance(record, str):
                     annot['gnomad_exome_all'] = record
                 else:
                     annot['gnomad_exome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomad ge
-                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var)
+                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
                 if isinstance(record, str):
                     annot['gnomad_genome_all'] = record
                 else:
                     annot['gnomad_genome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # clinpred
                 if variant_features['prot_type'] == 'missense':
-                #     record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var)
+                #     record = md_utilities.get_value_from_tabix_file('ClinPred', md_utilities.local_files['clinpred']['abs_path'], var, variant_features)
                 #     if isinstance(record, str):
                 #         annot['clinpred_score'] = record
                 #     else:
@@ -954,7 +955,7 @@ def variant(variant_id=None):
                 #         if float(annot['clinpred_score']) > md_utilities.predictor_thresholds['clinpred']:
                 #             annot['clinpred_pred'] = 'Damaging'
                     # mistic
-                    record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
                     if isinstance(record, str):
                         annot['mistic_score'] = record
                     else:
@@ -969,7 +970,7 @@ def variant(variant_id=None):
                             annot['mistic_pred'] = 'Damaging'
                 if variant_features['dna_type'] == 'substitution':
                     # dbscSNV
-                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var)
+                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
                     if isinstance(record, str):
                         annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
                         annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
