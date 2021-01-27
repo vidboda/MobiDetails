@@ -11,6 +11,11 @@ It consists in a website where users can easily create variants and retrieve man
 
 It also includes an API for programmatic access.
 
-It is currently under intense development, and is available at:
-
 https://mobidetails.iurc.montp.inserm.fr/MD/
+
+
+Please cite:
+
+Baux, D., Van Goethem, C., Ardouin, O. et al. MobiDetails: online DNA variants interpretation. Eur J Hum Genet (2020).
+
+
