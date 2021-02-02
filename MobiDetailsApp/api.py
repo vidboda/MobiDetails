@@ -166,9 +166,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     vv_base_url, acc_no, acc_version, new_variant
                 )
                 vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-
-                try:
-                    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                try:                    
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
                     close_db()
@@ -331,9 +330,8 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-
-                        try:
-                            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                        try:                            
                             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                         except Exception:
                             close_db()

@@ -789,8 +789,8 @@ def create():
                     vv_base_url, acc_no, acc_version, new_variant
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
-            try:
-                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            try:                
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
             except Exception:
                 close_db()
