@@ -17,6 +17,9 @@ import datetime
 
 bp = Blueprint('ajax', __name__)
 
+# create a poolmanager
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+
 
 ######################################################################
 # web app - ajax for litvar
@@ -26,7 +29,7 @@ bp = Blueprint('ajax', __name__)
 def litvar():
     if re.search(r'^rs\d+$', request.form['rsid']):
         rsid = request.form['rsid']
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         litvar_data = None
         # litvar_url = "{0}{1}%23%23%22%5D%7D".format(md_utilities.urls['ncbi_litvar_api'], rsid)
         litvar_url = "{0}{1}".format(md_utilities.urls['ncbi_litvar_api'], rsid)
@@ -151,7 +154,7 @@ def intervar():
             return 'No wintervar for indels'
         if ref == alt:
             return 'hg19 reference is equal to variant: no wIntervar query'
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}&ref={4}&alt={5}".format(
             md_utilities.urls['intervar_api'], genome, chrom,
             pos, ref, alt
@@ -278,7 +281,7 @@ def lovd():
             return md_utilities.lovd_error_html("hg19 reference is equal to variant: no LOVD query")
             # return 'hg19 reference is equal to variant: no LOVD query'
         positions = md_utilities.compute_start_end_pos(g_name)
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         # http://www.lovd.nl/search.php?build=hg19&position=chr$evs_chr:".$evs_pos_start."_".$evs_pos_end
         lovd_url = "{0}search.php?build={1}&position=chr{2}:{3}_{4}".format(md_utilities.urls['lovd'], genome, chrom, positions[0], positions[1])
         # print(lovd_url)
@@ -578,7 +581,7 @@ def modif_class():
                         lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
                 
                 # send request to LOVD API
-                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
                 header = md_utilities.api_agent
                 header['Content-Type'] = 'application/json'
@@ -789,7 +792,7 @@ def create():
                     vv_base_url, acc_no, acc_version, new_variant
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
-            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             try:                
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
             except Exception:
@@ -1004,7 +1007,7 @@ def autocomplete_var():
 def is_panelapp_entity():
     if 'gene_symbol' in request.form:
         gene_symbol = request.form['gene_symbol']
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         panelapp = json.loads(
                         http.request(
                             'GET',
@@ -1054,9 +1057,9 @@ def spip():
                 i += 1
                 continue
             if header == 'Interpretation':
-                if re.search('\+', scores_spip[i]):
+                if re.search(r'\+', scores_spip[i]):
                     # we split intepretations with ' + ', then translate it and rejoin with the same separator
-                    splitted_int = re.split(' \+ ', scores_spip[i])
+                    splitted_int = re.split(r' \+ ', scores_spip[i])
                     formatted_list = ''
                     for interpretation in splitted_int:
                         formatted_list += ' + {}'.format(md_utilities.spip_annotations[interpretation])

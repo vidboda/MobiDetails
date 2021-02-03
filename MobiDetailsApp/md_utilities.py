@@ -99,6 +99,10 @@ spip_headers = resources['spip_headers']
 spip_annotations = resources['spip_annotations']
 countries = resources['countries']
 
+# create a poolmanager
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+
+
 def reverse_complement(seq):
     return "".join(complement[base] for base in reversed(seq.upper()))
 
@@ -572,7 +576,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 
 def get_vv_api_url():
     # try remote VV rest api and if not functional, switch on local
-    http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+    # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
     try:
         hello = json.loads(http.request('GET', urls['variant_validator_api_hello']).data.decode('utf-8'))
         if hello['status'] == "hello_world":
@@ -719,7 +723,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                     return {'mobidetails_error': '{0}: mapping issue.'.format(vv_key_var)}
         
         vv_base_url = get_vv_api_url()
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
             vv_base_url, hg38_d['chr'], hg38_d['pos'],
             hg38_d['pos_ref'], hg38_d['pos_alt']

@@ -18,7 +18,7 @@
   'maxentscan3': '/static/resources/maxentscan/score3.pl'
 'api_agent':
   'Accept': 'application/json'
-  'User-Agent': 'python-requests/2.22.0 Python/3.6.8'
+  'User-Agent': 'python-requests/2.22.0 Python/3.6.8 MobiDetails'
 'complement':
   'A': 'T'
   'C': 'G'

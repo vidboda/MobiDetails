@@ -14,6 +14,8 @@ from MobiDetailsApp.db import get_db, close_db
 from MobiDetailsApp import md_utilities
 
 bp = Blueprint('api', __name__)
+# create a poolmanager
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 # -------------------------------------------------------------------
 # api - check APi key
 
@@ -166,7 +168,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     vv_base_url, acc_no, acc_version, new_variant
                 )
                 vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-                http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 try:                    
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
@@ -330,7 +332,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
-                        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+                        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                         try:                            
                             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                         except Exception:
@@ -489,7 +491,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     else:                  
                         return redirect(url_for('md.variant_multiple', vars_rs=vars_rs))
             # use putalyzer to get HGVS noemclatures
-            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             mutalyzer_url = "{0}getdbSNPDescriptions?rs_id={1}".format(
                 md_utilities.urls['mutalyzer_api_json'], rs_id
             )
