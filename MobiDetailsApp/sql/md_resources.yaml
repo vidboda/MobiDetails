@@ -88,7 +88,7 @@
   'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome'
   'fathmm': 'http://fathmm.biocompute.org.uk/'
   'gnomad': 'http://gnomad.broadinstitute.org/'
-  'hexosplice': 'http://bioinfo.univ-rouen.fr/HExoSplice_submit/'
+  'hexosplice': 'http://bioinfo.univ-rouen.fr/HExoSplice/'
   'hgvs': 'http://varnomen.hgvs.org/'
   'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build='
   'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build='
