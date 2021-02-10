@@ -73,6 +73,9 @@
 					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}
 					{% if variant_features.dna_type == 'substitution' %}
 						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
+						{% if variant_features.start_segment_type == 'exon' %}
+							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, annot.exon_sequence, variant_features.c_name, annot.exon_first_nt_cdna_position), "HexoSplice") }}
+						{% endif %}
 					{% endif %}
 				</div>
 			{% endif %}

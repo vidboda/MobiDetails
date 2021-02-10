@@ -88,6 +88,7 @@
   'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome'
   'fathmm': 'http://fathmm.biocompute.org.uk/'
   'gnomad': 'http://gnomad.broadinstitute.org/'
+  'hexosplice': 'http://bioinfo.univ-rouen.fr/HExoSplice_submit/'
   'hgvs': 'http://varnomen.hgvs.org/'
   'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build='
   'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build='
@@ -369,6 +370,12 @@
     'version': 'v2.0.1;v3'
     'short_name': 'gnomad'
     'annovar_format_af_col': '5'
+  'HexoSplice':
+    'firstauthor': 'Tubeuf'
+    'year': '2020'
+    'paper': '32741062'
+    'version': 'Live web site'
+    'short_name': 'hexosplice'
   'InterVar':
     'firstauthor': 'Li'
     'year': '2017'

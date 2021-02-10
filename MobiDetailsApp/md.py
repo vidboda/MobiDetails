@@ -398,6 +398,11 @@ def variant(variant_id=None):
                         (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], variant_features['start_segment_number'])
                     )
                     positions = curs.fetchone()
+                    # get info to build hexoSplice link
+                    if variant_features['dna_type'] == 'substitution':
+                        annot['exon_sequence'] = md_utilities.get_exon_sequence(positions, var['chr'], variant_features['strand'])
+                        annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(positions, var['pos'], variant_features['c_name'])
+                        # annot['hexosplice_link'] = '{0}results.php?refSeq={1}&amp;variation=c.{2}&amp;c={3}'.format(md_utilities.urls['hexosplice'], exon_sequence, variant_features['c_name'], exon_first_nt_cdna_position)
                     # if not re.search(r'\*', variant_features['c_name']) and \
                     #        not re.search(r'^-', variant_features['c_name']):
                     # if not re.search(r'^[\*-]', variant_features['c_name']):
