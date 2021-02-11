@@ -293,7 +293,7 @@ def get_exon_sequence(positions, chrom, strand): # get DNA sequence for a given 
 
 def get_substitution_cdna_position(var_cdna):
     # from 158C>T get 158
-    match_obj = re.search(r'^(\d+)[ATCG]', var_cdna)
+    match_obj = re.search(r'^[\*-]?(\d+)[ATCG]', var_cdna)
     if match_obj:
         return match_obj.group(1)
     return None
