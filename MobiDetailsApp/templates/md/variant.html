@@ -38,7 +38,9 @@
 						{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
 					{# {% endif %}
 					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %} #}
-						{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+						{% if variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
+							{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+						{% endif %}
 					{% endif %}
 					{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
 					{% if variant_features.so_accession != None %}
@@ -75,6 +77,8 @@
 						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
 						{% if variant_features.start_segment_type == 'exon' %}
 							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, annot.exon_sequence, variant_features.c_name, annot.exon_first_nt_cdna_position), "HexoSplice") }}
+						{% else %}
+							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, variant_features.wt_seq|replace(' ', ''), annot.substitution_nature), "HexoSplice") }}
 						{% endif %}
 					{% endif %}
 				</div>

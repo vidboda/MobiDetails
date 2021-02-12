@@ -470,6 +470,8 @@ def variant(variant_id=None):
                                     annot['metadome_transcript'] = metad_json['transcript_id']
                 if variant_features['start_segment_type'] == 'intron':
                     annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
+                    if variant_features['dna_type'] == 'substitution':
+                        annot['substitution_nature'] = md_utilities.get_substitution_nature(variant_features['c_name'])
                 # MPA indel splice
                 elif variant_features['start_segment_type'] == 'intron' and \
                         (variant_features['dna_type'] == 'indel' or

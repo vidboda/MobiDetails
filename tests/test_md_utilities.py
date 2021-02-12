@@ -198,8 +198,18 @@ def test_get_exon_sequence(positions, chrom, strand, result):
     ('c.158C>T', None),
     ('158H>T', None),
 ))
-def test_get_substitution_cdna_position(var_cdna, result):
-    assert md_utilities.get_substitution_cdna_position(var_cdna) == result
+def test_get_exonic_substitution_position(var_cdna, result):
+    assert md_utilities.get_exonic_substitution_position(var_cdna) == result
+
+
+@pytest.mark.parametrize(('var_cdna', 'result'), (
+    ('158C>T', 'C>T'),
+    ('158-1C>T', 'C>T'),
+    ('c.158C>T', 'C>T'),
+    ('158H>T', None),
+))
+def test_get_substitution_nature(var_cdna, result):
+    assert md_utilities.get_substitution_nature(var_cdna) == result
 
 
 @pytest.mark.parametrize(('positions', 'var_gpos', 'var_c', 'result'), (

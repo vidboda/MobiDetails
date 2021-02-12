@@ -291,9 +291,17 @@ def get_exon_sequence(positions, chrom, strand): # get DNA sequence for a given 
         return 'Wrong or lacking parameter'
 
 
-def get_substitution_cdna_position(var_cdna):
+def get_exonic_substitution_position(var_cdna):
     # from 158C>T get 158
     match_obj = re.search(r'^[\*-]?(\d+)[ATCG]', var_cdna)
+    if match_obj:
+        return match_obj.group(1)
+    return None
+
+
+def get_substitution_nature(var_cdna):
+    # from 158C>T or 158-1C>T get C>T
+    match_obj = re.search(r'([ATCG]>[ATGC])$', var_cdna)
     if match_obj:
         return match_obj.group(1)
     return None
@@ -303,7 +311,7 @@ def get_exon_first_nt_cdna_position(positions, var_gpos, var_c):
     # we have a variant b and an exon start genomic position a, we want to get the c. of the exon start genomic
     # -------<a====b===>----
     dist_from_beg = abs(int(positions['segment_start'])-int(var_gpos)) + 1
-    var_cpos = get_substitution_cdna_position(var_c)
+    var_cpos = get_exonic_substitution_position(var_c)
     first_nt_cdna_position = (int(var_cpos) - dist_from_beg)
     if first_nt_cdna_position > 0:
         first_nt_cdna_position += 1
