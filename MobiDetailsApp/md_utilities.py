@@ -285,7 +285,7 @@ def get_user_id(username, db):
 
 
 def define_lovd_class(acmg_classes, db):
-    lovd_class = None    
+    lovd_class = None
     if isinstance(acmg_classes, list):
         for acmg_class in acmg_classes:
             if (isinstance(acmg_class, list) or
@@ -301,7 +301,7 @@ def define_lovd_class(acmg_classes, db):
                 # VUS => VUS
                 if acmg_class['acmg_class'] == 3:
                     lovd_class = 'VUS'
-                    break            
+                    break
                 elif lovd_class != 'Conflicting':
                     # do sthg
                     if (acmg_class['acmg_class'] == 1 or
@@ -721,7 +721,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                         '[MobiDetails API - Mapping issue]'
                     )
                     return {'mobidetails_error': '{0}: mapping issue.'.format(vv_key_var)}
-        
+
         vv_base_url = get_vv_api_url()
         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
@@ -785,7 +785,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error':  'An unknown error has been caught during variant creation with VariantValidator. \
                                             It is possible that it works if you try again: {0}-{1}'.format(acc_no, gene)}
-   
+
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
@@ -1113,7 +1113,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                 )
     if 'ivs_name' not in vf_d:
         vf_d['ivs_name'] = 'NULL'
-    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), 'hg38')
+    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
     hg38_d['chr'] = ncbi_chr[0]
     record = get_value_from_tabix_file('dbsnp', local_files['dbsnp']['abs_path'], hg38_d, vf_d)
     reg_chr = get_common_chr_name(db, ncbi_chr[0])
@@ -1134,7 +1134,18 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if vf_d['variant_size'] < 50:
         x = int(positions[0])-26
         y = int(positions[1])+25
-        genome = twobitreader.TwoBitFile('{}.2bit'.format(local_files['human_genome_hg38']['abs_path']))
+        ######## startbugfix david 20210216 - del/dups on strand - could get bad sequences
+        if res_strand['strand'] == '-' and \
+                (vf_d['dna_type'] == 'indel' or
+                vf_d['dna_type'] == 'deletion' or
+                vf_d['dna_type'] == 'duplication'):
+            pos_vcf = int(vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['pos'])
+            if vf_d['dna_type'] == 'indel':
+                pos_vcf += 1
+            x = pos_vcf - 25
+            y = pos_vcf + int(vf_d['variant_size']) + 25
+        ######## endbugfix
+        genome = twobitreader.TwoBitFile('{}.2bit'.format(local_files['human_genome_{}'.format(genome)]['abs_path']))
         current_chrom = genome['chr{}'.format(hg38_d['chr'])]
         seq_slice = current_chrom[x:y].upper()
         # seq2 = current_chrom[int(positions[0])+1:int(positions[0])+2]
@@ -1579,7 +1590,7 @@ def check_caller(caller):  # in api
 def get_api_key(g, curs):
     # when we need an API key just to trigger an API action e.g. in upload.py
     api_key = None
-    if g.user:                    
+    if g.user:
         api_key = g.user['api_key']
     else:
         curs.execute(
@@ -1628,7 +1639,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
     # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
     tf.seek(0)
     # print(tf.read())
-    
+
     result = subprocess.run([ext_exe['Rscript'], '{}'.format(ext_exe['spip']), '-I', '{}'.format(tf.name) , '-O', '{}'.format(tfout.name),  '-f', '{}.fa'.format(local_files['human_genome_hg38']['abs_path']), '-s', '{}'.format(ext_exe['samtools']), '-g', 'hg38'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     if result.returncode == 0:
         tfout.seek(0)
@@ -1644,7 +1655,7 @@ def get_running_mode():
 
 
 
-# 
+#
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):
 #     if return_obj:
 #         if caller == 'cli':
