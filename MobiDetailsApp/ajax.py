@@ -15,6 +15,8 @@ import urllib3
 import certifi
 import datetime
 
+import time
+
 bp = Blueprint('ajax', __name__)
 
 # create a poolmanager
@@ -214,7 +216,7 @@ def intervar():
                 #     ),
                 #     '[MobiDetails - API Error]'
                 # )
-                return "<span>wintervar looks down</span>"            
+                return "<span>wintervar looks down</span>"
         else:
             for intervar_dict in intervar_data:
                 # intervar likely returns several json objects
@@ -552,7 +554,7 @@ def modif_class():
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 
                 if res_var['dbsnp_id']:
-                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])                    
+                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
                 else:
                     lovd_json['lsdb']['variant'][0].pop('db_xref', None)
                 if res_var['hgnc_id'] == 0:
@@ -565,7 +567,7 @@ def modif_class():
                 if semaph == 1:
                     # first time submission
                     lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-                else:                
+                else:
                     # build ACMG class for LOVD update
                     curs.execute(
                         "SELECT acmg_class FROM class_history WHERE \
@@ -579,7 +581,7 @@ def modif_class():
                     else:
                         # we should never get in there
                         lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-                
+
                 # send request to LOVD API
                 # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
@@ -602,9 +604,9 @@ def modif_class():
                 '[MobiDetails - MD variant class Error]'
             )
             return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
-        
 
-            
+
+
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
 
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
@@ -716,7 +718,7 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
-    # start_time = time.time()
+    start_time = time.time()
     # print(request.form['new_variant'])
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
@@ -755,9 +757,11 @@ def create():
 
         if re.search(r'c\..+', new_variant):
             # is vv alive?
-            
+
             # vv_alive = None
+            print('--- 1- {} seconds ---'.format((time.time() - start_time)))
             vv_base_url = md_utilities.get_vv_api_url()
+            print('--- 2- {} seconds ---'.format((time.time() - start_time)))
             # try:
             #     json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
             # except Exception as e:
@@ -793,7 +797,10 @@ def create():
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
             # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-            try:                
+
+            print('--- 3- {} seconds ---'.format((time.time() - start_time)))
+
+            try:
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
             except Exception:
                 close_db()
@@ -814,6 +821,9 @@ def create():
         else:
             close_db()
             return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
+
+        print('--- 4- {} seconds ---'.format((time.time() - start_time)))
+
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
             original_variant, acc_version,
@@ -1045,7 +1055,7 @@ def spip():
         nm_acc = request.form['nm_acc']
         c_name = request.form['c_name']
         result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name)
-        
+
         spip_list = re.split('\n', result_spip)
         # print(result_spip[0])
         headers_spip = re.split('\t', spip_list[0])
@@ -1085,5 +1095,3 @@ def spip():
         return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'
-        
-        

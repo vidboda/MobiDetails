@@ -316,7 +316,7 @@ def get_exon_first_nt_cdna_position(positions, var_gpos, var_c):
     if first_nt_cdna_position > 0:
         first_nt_cdna_position += 1
     return first_nt_cdna_position
-    
+
 
 def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
     match_object = re.search(r'^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p)
@@ -342,7 +342,7 @@ def get_user_id(username, db):
 
 
 def define_lovd_class(acmg_classes, db):
-    lovd_class = None    
+    lovd_class = None
     if isinstance(acmg_classes, list):
         for acmg_class in acmg_classes:
             if (isinstance(acmg_class, list) or
@@ -358,7 +358,7 @@ def define_lovd_class(acmg_classes, db):
                 # VUS => VUS
                 if acmg_class['acmg_class'] == 3:
                     lovd_class = 'VUS'
-                    break            
+                    break
                 elif lovd_class != 'Conflicting':
                     # do sthg
                     if (acmg_class['acmg_class'] == 1 or
@@ -674,6 +674,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     vf_d = {}
     # deal with various warnings
     # docker up?
+
     if caller == 'webApp':
         print('Creating variant: {0} - {1}'.format(gene, original_variant))
     if 'flag' not in vv_data:
@@ -778,7 +779,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
                         '[MobiDetails API - Mapping issue]'
                     )
                     return {'mobidetails_error': '{0}: mapping issue.'.format(vv_key_var)}
-        
+
         vv_base_url = get_vv_api_url()
         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
@@ -842,7 +843,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error':  'An unknown error has been caught during variant creation with VariantValidator. \
                                             It is possible that it works if you try again: {0}-{1}'.format(acc_no, gene)}
-   
+
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
@@ -1051,7 +1052,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
         vf_d['rna_type'] = 'altered inferred'
     # exons pos, etc - based on hg38
-
     if positions[0] != positions[1]:
         # curs.execute(
         #     "SELECT number, type FROM segment WHERE genome_version = '{0}' AND \
@@ -1384,7 +1384,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
     db.commit()
-    # print("--- %s seconds ---" % (time.time() - start_time))
     if remapper is True and caller == 'webApp':
         return info_panel("Successfully annotated variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':
@@ -1636,7 +1635,7 @@ def check_caller(caller):  # in api
 def get_api_key(g, curs):
     # when we need an API key just to trigger an API action e.g. in upload.py
     api_key = None
-    if g.user:                    
+    if g.user:
         api_key = g.user['api_key']
     else:
         curs.execute(
@@ -1685,7 +1684,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
     # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
     tf.seek(0)
     # print(tf.read())
-    
+
     result = subprocess.run([ext_exe['Rscript'], '{}'.format(ext_exe['spip']), '-I', '{}'.format(tf.name) , '-O', '{}'.format(tfout.name),  '-f', '{}.fa'.format(local_files['human_genome_hg38']['abs_path']), '-s', '{}'.format(ext_exe['samtools']), '-g', 'hg38'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     if result.returncode == 0:
         tfout.seek(0)
@@ -1701,7 +1700,7 @@ def get_running_mode():
 
 
 
-# 
+#
 # def api_end_according_to_caller(caller, return_obj=None, message=None, url=None):
 #     if return_obj:
 #         if caller == 'cli':
