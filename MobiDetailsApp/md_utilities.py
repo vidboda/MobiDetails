@@ -585,7 +585,7 @@ def get_vv_api_url():
             raise Exception
     except Exception:
         try:
-            print('VV looks down - trying to switch on rescue docker {}'.format(urls['variant_validator_api_hello']))
+            print('VV looks down - trying to switch on rescue docker {}'.format(urls['variant_validator_api_hello_backup']))
             hello = json.loads(http.request('GET', urls['variant_validator_api_hello_backup']).data.decode('utf-8'))
             # send_error_email(
             #     prepare_email_html(
