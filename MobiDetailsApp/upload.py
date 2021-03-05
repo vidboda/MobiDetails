@@ -39,11 +39,10 @@ def allowed_file(filename):
 def file_upload():
     if request.method == 'POST':
         if request.files:
-            request_url = request.url
             uploaded_file = request.files['file']
             if uploaded_file.filename == "":
                 flash('No filename.', 'w3-pale-red')
-                return redirect(request_url)
+                return redirect(request.url)
             if allowed_file(uploaded_file.filename):
                 # filename = secure_filename(uploaded_file.filename)
                 lines = uploaded_file.read().decode().replace('\r\n', '\n').replace('\r', '\n').split('\n')
