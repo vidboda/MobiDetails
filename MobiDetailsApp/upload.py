@@ -42,7 +42,8 @@ def file_upload():
             uploaded_file = request.files['file']
             if uploaded_file.filename == "":
                 flash('No filename.', 'w3-pale-red')
-                return redirect(request.url)
+                return render_template('upload/upload_form.html')
+                # return redirect(request.url)
             if allowed_file(uploaded_file.filename):
                 # filename = secure_filename(uploaded_file.filename)
                 lines = uploaded_file.read().decode().replace('\r\n', '\n').replace('\r', '\n').split('\n')
@@ -58,7 +59,8 @@ def file_upload():
                 api_key = md_utilities.get_api_key(g, curs)
                 if api_key is None:
                     flash('There is an issue in obtaining an API key')
-                    return redirect(request.url)
+                    return render_template('upload/upload_form.html')
+                    # return redirect(request.url)
                 # we need to check the format and send a proper query to the API
                 for line in lines:
                     # print('-{}-'.format(line))
@@ -183,6 +185,7 @@ def file_upload():
                 return render_template('md/variant_multiple.html', upload=result)
             else:
                 flash('That file extension is not allowed', 'w3-pale-red')
-                return redirect(request.url)
+                return render_template('upload/upload_form.html')
+                # return redirect(request.url)
 
     return render_template("upload/upload_form.html", run_mode=md_utilities.get_running_mode())

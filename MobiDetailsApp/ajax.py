@@ -605,8 +605,6 @@ def modif_class():
             )
             return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
 
-
-
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
 
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
