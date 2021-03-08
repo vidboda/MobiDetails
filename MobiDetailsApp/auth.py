@@ -208,7 +208,7 @@ def register():
             # )
             flash('<br /><p>Your account has been created but requires an activation step. \
                   An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
-            return redirect(url_for('md.index'))
+            return redirect(url_for('md.index'), code=302)
 
         flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
@@ -235,18 +235,20 @@ def register():
 def login():
     referrer_page = None
     if request.method == 'GET':
-        # print(request.referrer)
-        if request.referrer is not None and \
-                url_parse(request.referrer).host == url_parse(request.base_url).host:
-            referrer_page = request.referrer
+        referrer_page = request.referrer
+        # if request.referrer is not None and \
+        #         url_parse(request.referrer).host == url_parse(request.base_url).host:
+        #     referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         try:
             referrer_page = request.form['referrer_page']
+            # if request.form['referrer_page'] is not None and \
+            #         url_parse(request.form['referrer_page']).host == url_parse(request.base_url).host:
+            #     referrer_page = request.form['referrer_page']
         except Exception:
             pass
-        # print(referrer_page)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
@@ -290,9 +292,13 @@ def login():
                     (url_parse(referrer_page).host != url_parse(request.base_url).host or
                         re.search(r'(login|register)', referrer_page)):
                 # not coming from mobidetails
-                return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0))
+                return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0), code=302)
             else:
-                return redirect(referrer_page)
+                if referrer_page is not None and \
+                        url_parse(referrer_page).host == url_parse(request.base_url).host:
+                    return redirect(referrer_page, code=302)
+                else:
+                    return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0), code=302)
 
         flash(error, 'w3-pale-red')
 
@@ -350,7 +356,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login'), code=302)
         return view(**kwargs)
     return wrapped_view
 
@@ -448,11 +454,14 @@ def load_logged_in_user():
 def logout():
     session.clear()
     flash('You have successfully been logged out.', 'w3-pale-green')
-    if request.referrer is not None and \
-            url_parse(request.referrer).host == url_parse(request.base_url).host:
-        return redirect(request.referrer)
+    referrer_page = request.referrer
+    if referrer_page is not None and \
+            url_parse(referrer_page).host == url_parse(request.base_url).host:
+    # if request.referrer is not None and \
+    #         url_parse(request.referrer).host == url_parse(request.base_url).host:
+        return redirect(referrer_page, code=302)
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for('index'), code=302)
 
 # -------------------------------------------------------------------
 # forgot password

@@ -155,8 +155,13 @@
   # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json'
   # hello on genuine VV dev
   # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json'
+# attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
+# 'internal_urls':
+#   'prod_prefix': '/MD/'
+#   'dev_prefix': ':5001/'
+#   'suffixes': ['auth/forgot_pass', 'auth/login', 'auth/profile/\d+', 'auth/register', 'md/about', 'md/changelog', 'md/gene/[A-Za-z0-9-]', 'md/genes', 'md/index', 'md/variant/\d+', 'upload/upload_form']
 'local_files':
-  # id :local path, version name, short desc, short name 4 urls xref    
+  # id :local path, version name, short desc, short name 4 urls xref
   'cadd':
     'rel_path': '/static/resources/CADD/hg38/v1.6/whole_genome_SNVs.tsv.gz'
     'name': 'CADD SNVs'
@@ -503,7 +508,7 @@
   'metadome_neutral': 0.875
   'metadome_stolerant': 1.025
   'metadome_tolerant': 1.375
-  'meta-lr': 0.5    
+  'meta-lr': 0.5
   'meta-svm': 0
   'mistic': 0.5
   'mpa_max': 8
