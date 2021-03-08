@@ -1,7 +1,7 @@
 import os
 import re
 from flask import (
-    Blueprint, flash, g, render_template, request
+    Blueprint, flash, g, render_template, request, escape
 )
 from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
@@ -469,10 +469,10 @@ def modif_class():
             if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td colspan='4'>\
+                    tr_html = "<tr id='already_classified'><td></td><td></td><td>\
                               You already classified this variant with the same class today.\
                               If you just want to modify comments, the previous classification and start from scratch.\
-                              </td></tr>"
+                              </td><td></td></tr>"
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
@@ -527,13 +527,13 @@ def modif_class():
                             <span class='w3-container w3-left-align w3-cell'>{7}</span>\
                 </tr>".format(
                     g.user['id'],
-                    acmg_select,
-                    variant_id,
+                    escape(acmg_select),
+                    escape(variant_id),
                     g.user['username'],
                     date,
                     acmg_details['html_code'],
                     acmg_details['acmg_translation'],
-                    acmg_comment
+                    escape(acmg_comment)
                 )
             # Send data to LOVD if relevant
             ########### REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] WHEN LOVD FEATURE IS READY ###########
@@ -1032,7 +1032,12 @@ def is_panelapp_entity():
                 str(panelapp['count']) != '0':
             # we can propose the link
             # panelapp_entity_url = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
-            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format('{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], gene_symbol))
+            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format(
+                            '{0}panels/entities/{1}'.format(
+                                    md_utilities.urls['panelapp'], escape(gene_symbol)
+                                )
+                        )
+
         else:
             return '<span class="w3-padding">No entry in panelApp for this gene</span>'
     else:
