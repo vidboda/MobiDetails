@@ -250,7 +250,7 @@ def get_exon_neighbours(db, positions):  # get introns names, numbers surroundin
         (positions['gene_name'][1], positions['number'] + 1)
     )
     following_seg = curs.fetchone()
-    if following_seg is not None:
+    if following_seg:
         if following_seg['type'] == '3UTR':
             fol_type = "3'"
             fol_number = "UTR"
@@ -259,6 +259,63 @@ def get_exon_neighbours(db, positions):  # get introns names, numbers surroundin
             fol_type = "intron"
             fol_number = positions['number']
     return [prec_type, prec_number, fol_type, fol_number]
+
+
+def get_exon_sequence(positions, chrom, strand): # get DNA sequence for a given exon
+    if isinstance(positions['number'], int) and \
+            re.search(r'^NM_\d+$', positions['gene_name'][1]) and \
+            re.search(r'^\d+$', chrom) and \
+            re.search('^[\+-]+', strand):
+        # get exon position
+        # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # curs.execute(
+        #    "SELECT segment_start, segment_end FROM segment WHERE gene_name[2] = %s AND number = %s AND genome_version = 'hg38' AND type = 'exon'",
+        #    (positions['gene_name'][1], positions['number'])
+        # )
+        # exon_pos = curs.fetchone()
+        # if exon_pos:
+        genome = twobitreader.TwoBitFile('{}.2bit'.format(local_files['human_genome_hg38']['abs_path']))
+        current_chrom = genome['chr{}'.format(chrom)]
+        exon_start = int(positions['segment_start'])
+        exon_end = int(positions['segment_end'])
+        if exon_start < exon_end:
+            exon_seq = current_chrom[exon_start-1:exon_end].upper()
+        else:
+            exon_seq = current_chrom[exon_end-1:exon_start].upper()
+        if strand == '-':
+            exon_seq = reverse_complement(exon_seq).upper()
+        return exon_seq
+        # else:
+        #   return 'No exon positions found'
+    else:
+        return 'Wrong or lacking parameter'
+
+
+def get_exonic_substitution_position(var_cdna):
+    # from 158C>T get 158
+    match_obj = re.search(r'^[\*-]?(\d+)[ATCG]', var_cdna)
+    if match_obj:
+        return match_obj.group(1)
+    return None
+
+
+def get_substitution_nature(var_cdna):
+    # from 158C>T or 158-1C>T get C>T
+    match_obj = re.search(r'([ATCG]>[ATGC])$', var_cdna)
+    if match_obj:
+        return match_obj.group(1)
+    return None
+
+
+def get_exon_first_nt_cdna_position(positions, var_gpos, var_c):
+    # we have a variant b and an exon start genomic position a, we want to get the c. of the exon start genomic
+    # -------<a====b===>----
+    dist_from_beg = abs(int(positions['segment_start'])-int(var_gpos)) + 1
+    var_cpos = get_exonic_substitution_position(var_c)
+    first_nt_cdna_position = (int(var_cpos) - dist_from_beg)
+    if first_nt_cdna_position > 0:
+        first_nt_cdna_position += 1
+    return first_nt_cdna_position
 
 
 def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
@@ -617,6 +674,7 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     vf_d = {}
     # deal with various warnings
     # docker up?
+
     if caller == 'webApp':
         print('Creating variant: {0} - {1}'.format(gene, original_variant))
     if 'flag' not in vv_data:
@@ -994,7 +1052,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
     if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
         vf_d['rna_type'] = 'altered inferred'
     # exons pos, etc - based on hg38
-
     if positions[0] != positions[1]:
         # curs.execute(
         #     "SELECT number, type FROM segment WHERE genome_version = '{0}' AND \
@@ -1338,7 +1395,6 @@ def create_var_vv(vv_key_var, gene, acc_no, new_variant, original_variant, acc_v
         elif caller == 'api':
             return {'mobidetails_error': 'Impossible to insert variant (hg19) for {}'.format(vv_key_var)}
     db.commit()
-    # print("--- %s seconds ---" % (time.time() - start_time))
     if remapper is True and caller == 'webApp':
         return info_panel("Successfully annotated variant (remapped to canonical isoform)", vf_d['c_name'], vf_id, 'w3-pale-green')
     elif caller == 'webApp':

@@ -398,6 +398,11 @@ def variant(variant_id=None):
                         (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], variant_features['start_segment_number'])
                     )
                     positions = curs.fetchone()
+                    # get info to build hexoSplice link
+                    if variant_features['dna_type'] == 'substitution':
+                        annot['exon_sequence'] = md_utilities.get_exon_sequence(positions, var['chr'], variant_features['strand'])
+                        annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(positions, var['pos'], variant_features['c_name'])
+                        # annot['hexosplice_link'] = '{0}results.php?refSeq={1}&amp;variation=c.{2}&amp;c={3}'.format(md_utilities.urls['hexosplice'], exon_sequence, variant_features['c_name'], exon_first_nt_cdna_position)
                     # if not re.search(r'\*', variant_features['c_name']) and \
                     #        not re.search(r'^-', variant_features['c_name']):
                     # if not re.search(r'^[\*-]', variant_features['c_name']):
@@ -465,6 +470,8 @@ def variant(variant_id=None):
                                     annot['metadome_transcript'] = metad_json['transcript_id']
                 if variant_features['start_segment_type'] == 'intron':
                     annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
+                    if variant_features['dna_type'] == 'substitution':
+                        annot['substitution_nature'] = md_utilities.get_substitution_nature(variant_features['c_name'])
                 # MPA indel splice
                 elif variant_features['start_segment_type'] == 'intron' and \
                         (variant_features['dna_type'] == 'indel' or

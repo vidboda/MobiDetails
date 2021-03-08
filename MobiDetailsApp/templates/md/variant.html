@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?210106" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?210307" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -14,7 +14,7 @@
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
 		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
 		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
-		{% for vari in variant|sort() %}			
+		{% for vari in variant|sort() %}
 			{% if vari.genome_version == 'hg19' %}
 				{# set variables #}
 				{% set hg19_var.pos = vari.pos %}
@@ -38,7 +38,9 @@
 						{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
 					{# {% endif %}
 					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %} #}
-						{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+						{% if variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
+							{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
+						{% endif %}
 					{% endif %}
 					{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
 					{% if variant_features.so_accession != None %}
@@ -73,6 +75,11 @@
 					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}
 					{% if variant_features.dna_type == 'substitution' %}
 						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
+						{% if variant_features.start_segment_type == 'exon' %}
+							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, annot.exon_sequence, variant_features.c_name, annot.exon_first_nt_cdna_position), "HexoSplice") }}
+						{% else %}
+							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, variant_features.wt_seq|replace(' ', ''), annot.substitution_nature), "HexoSplice") }}
+						{% endif %}
 					{% endif %}
 				</div>
 			{% endif %}
@@ -87,7 +94,7 @@
 </span>
 			{% endif %}
 		{% endif %}
-	</div>	
+	</div>
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
@@ -137,7 +144,7 @@
 							<td class="w3-left-align">{{ variant_features.ivs_name }}</td>
 							<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
 						</tr>
-					{% endif %}				
+					{% endif %}
 					<!--HGVS Protein-->
 					<tr>
 						<td class="w3-left-align">HGVS Protein:</td>
@@ -151,7 +158,7 @@
 							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
 							<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (gene centered)</em></td>
 						</tr>
-					{% endif %}		
+					{% endif %}
 					<!--HGVS genomic (hg19)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg19):</td>
@@ -222,7 +229,7 @@
 				</thead>
 				<tbody>
 					<tr><!--Position in transcript-->
-						<td class="w3-left-align">Position in transcript:</td>				
+						<td class="w3-left-align">Position in transcript:</td>
 						{% if variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
 							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }}</td>
 						{% else %}
@@ -250,7 +257,7 @@
 										{%endif %}
 									 <span> / {{ variant_features.prot_size }}</span>
 									</td>
-									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>								
+									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
 								</tr><!--protein domain-->
 							{% endif %}
 							<tr>
@@ -343,13 +350,13 @@
 								<a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a>
 							{% else %}
 								No match in dbSNP {{ external_tools['dbSNP']['version'] }}
-							{% endif %}						
+							{% endif %}
 						</td>
 						<td class="w3-left-align"><em class="w3-small">Identifier for NCBI dbSNP</em></td>
 					</tr>
 					<tr><!--clinvar-->
 						<td class="w3-left-align">Clinvar:</td>
-						<td class="w3-left-align">						
+						<td class="w3-left-align">
 							{% if annot.clinvar_id is defined %}
 								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant">{{ annot.clinsig }}</a>
 								{% if annot.clinsigconf is defined %}
@@ -361,7 +368,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if annot.clinvar_id is defined %}
-							
+
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
 							{%endif %}
@@ -418,7 +425,7 @@
 								<td class="w3-left-align">{{ annot.cadd }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
-						</tr>					
+						</tr>
 						<tr><!--CADD phred-->
 							{#{% if variant_features.dna_type == 'substitution' %}
 								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> phred:</td>
@@ -606,7 +613,7 @@
 			{{ info('<a href="%s" target="_blank">SPiP</a> results and predictions:' | format(urls.spip)) }}
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<!--dbscSNV / spliceAI-->
-			{{ info('This last table present dbscSNV and spliceAi scores, when available.') }}
+			{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available.') }}
 			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
@@ -824,7 +831,7 @@
 								<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}{{ annot.pph2_hvar_star }}</td>
 								<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging</em></td>
-							</tr>						
+							</tr>
 							<tr><!--REVEL-->
 								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
 								<td class="w3-left-align">{{ span_color(annot.revel_score, annot.revel_color) }}</td>
@@ -956,8 +963,8 @@
 					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 				{% endif %}
 			</div>
-			
-			
+
+
 		{% elif annot.dbnsfp is defined %}
 			{{ info(annot.dbnsfp) }}
 			{% if g.user %}
@@ -1025,7 +1032,7 @@
 										{% if classif.email_pref == true %}
 											&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
 										{% endif %}
-									</td>								
+									</td>
 								{% else %}
 									<td class="w3-left-align">{{ classif.username }}</td>
 								{% endif %}
@@ -1036,7 +1043,7 @@
 							<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
 							<td>
 								<div class="w3-cell-row">
-									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}">										
+									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}">
 									</span>
 									{% autoescape false %}
 										<script type="application/x-javascript">

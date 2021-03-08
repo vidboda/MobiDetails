@@ -1,7 +1,7 @@
 import os
 import re
 from flask import (
-    Blueprint, flash, g, render_template, request
+    Blueprint, flash, g, render_template, request, escape
 )
 from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
@@ -14,6 +14,8 @@ import json
 import urllib3
 import certifi
 import datetime
+
+import time
 
 bp = Blueprint('ajax', __name__)
 
@@ -214,7 +216,7 @@ def intervar():
                 #     ),
                 #     '[MobiDetails - API Error]'
                 # )
-                return "<span>wintervar looks down</span>"            
+                return "<span>wintervar looks down</span>"
         else:
             for intervar_dict in intervar_data:
                 # intervar likely returns several json objects
@@ -467,10 +469,10 @@ def modif_class():
             if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td colspan='4'>\
+                    tr_html = "<tr id='already_classified'><td></td><td></td><td>\
                               You already classified this variant with the same class today.\
                               If you just want to modify comments, the previous classification and start from scratch.\
-                              </td></tr>"
+                              </td><td></td></tr>"
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
@@ -525,13 +527,13 @@ def modif_class():
                             <span class='w3-container w3-left-align w3-cell'>{7}</span>\
                 </tr>".format(
                     g.user['id'],
-                    acmg_select,
-                    variant_id,
+                    escape(acmg_select),
+                    escape(variant_id),
                     g.user['username'],
                     date,
                     acmg_details['html_code'],
                     acmg_details['acmg_translation'],
-                    acmg_comment
+                    escape(acmg_comment)
                 )
             # Send data to LOVD if relevant
             ########### REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] WHEN LOVD FEATURE IS READY ###########
@@ -552,7 +554,7 @@ def modif_class():
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 
                 if res_var['dbsnp_id']:
-                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])                    
+                    lovd_json['lsdb']['variant'][0]['db_xref'][0]['@accession'] = 'rs{}'.format(res_var['dbsnp_id'])
                 else:
                     lovd_json['lsdb']['variant'][0].pop('db_xref', None)
                 if res_var['hgnc_id'] == 0:
@@ -565,7 +567,7 @@ def modif_class():
                 if semaph == 1:
                     # first time submission
                     lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-                else:                
+                else:
                     # build ACMG class for LOVD update
                     curs.execute(
                         "SELECT acmg_class FROM class_history WHERE \
@@ -579,7 +581,7 @@ def modif_class():
                     else:
                         # we should never get in there
                         lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-                
+
                 # send request to LOVD API
                 # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
@@ -602,9 +604,7 @@ def modif_class():
                 '[MobiDetails - MD variant class Error]'
             )
             return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
-        
 
-            
             # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
 
         # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
@@ -716,7 +716,7 @@ def send_var_message():
 
 @bp.route('/create', methods=['POST'])
 def create():
-    # start_time = time.time()
+    start_time = time.time()
     # print(request.form['new_variant'])
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
@@ -755,9 +755,11 @@ def create():
 
         if re.search(r'c\..+', new_variant):
             # is vv alive?
-            
+
             # vv_alive = None
+            print('--- 1- {} seconds ---'.format((time.time() - start_time)))
             vv_base_url = md_utilities.get_vv_api_url()
+            print('--- 2- {} seconds ---'.format((time.time() - start_time)))
             # try:
             #     json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
             # except Exception as e:
@@ -793,7 +795,10 @@ def create():
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
             # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-            try:                
+
+            print('--- 3- {} seconds ---'.format((time.time() - start_time)))
+
+            try:
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
             except Exception:
                 close_db()
@@ -814,6 +819,9 @@ def create():
         else:
             close_db()
             return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
+
+        print('--- 4- {} seconds ---'.format((time.time() - start_time)))
+
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
             original_variant, acc_version,
@@ -1022,7 +1030,12 @@ def is_panelapp_entity():
                 str(panelapp['count']) != '0':
             # we can propose the link
             # panelapp_entity_url = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
-            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format('{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], gene_symbol))
+            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format(
+                            '{0}panels/entities/{1}'.format(
+                                    md_utilities.urls['panelapp'], escape(gene_symbol)
+                                )
+                        )
+
         else:
             return '<span class="w3-padding">No entry in panelApp for this gene</span>'
     else:
@@ -1045,7 +1058,7 @@ def spip():
         nm_acc = request.form['nm_acc']
         c_name = request.form['c_name']
         result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name)
-        
+
         spip_list = re.split('\n', result_spip)
         # print(result_spip[0])
         headers_spip = re.split('\t', spip_list[0])
@@ -1085,5 +1098,3 @@ def spip():
         return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'
-        
-        
