@@ -473,8 +473,7 @@ def lovd():
                                 lovd_effect_count['effect_reported']:
                             lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
                         else:
-                            lovd_effect_count['effect_reported']
-                            [var['effect_reported'][0]] += 1
+                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1
                         if var['effect_concluded'][0] not in \
                                 lovd_effect_count['effect_concluded']:
                             lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
@@ -519,8 +518,7 @@ w3-hover-shadow" style="width:180px;">{1}: {2} \
                             concluded_effect_list.append(
                                 '<div class="w3-col w3-{0} w3-opacity-min \
 w3-padding w3-margin-top w3-margin-left w3-hover-shadow" \
-style="width:180px;">{1}: {2}  </div>'
-                                .format(
+style="width:180px;">{1}: {2}  </div>'.format(
                                     md_utilities.lovd_effect[effect]['color'],
                                     md_utilities.lovd_effect[effect]['translation'],
                                     lovd_effect_count[feat][effect]
@@ -546,11 +544,10 @@ style="vertical-align:middle;">LOVD Effect Concluded:</td> \
 style="vertical-align:middle;"> \
     <em class="w3-small">Effects concluded by \
 LOVD curators</em></td> \
-</tr>'
-                .format(
-                    ''.join(reported_effect_list),
-                    ''.join(concluded_effect_list)
-                )
+</tr>'.format(
+                        ''.join(reported_effect_list),
+                        ''.join(concluded_effect_list)
+                    )
             return html
         else:
             md_utilities.send_error_email(
@@ -702,14 +699,21 @@ and start from scratch.</td><td></td></tr>"
                     url_parse(
                         request.referrer
                     ).host == md_utilities.host['prod']:
-                with open(md_utilities.local_files['lovd_api_json']['abs_path']) as json_file:
+                with open(
+                    md_utilities.local_files['lovd_api_json']['abs_path']
+                ) as json_file:
                     lovd_json = json.load(json_file)
-                # get HGVS genomic, cDNA, protein HGNC gene name and refseq acc version
+                # get HGVS genomic, cDNA, protein HGNC
+                # gene symbol and refseq acc version
                 genome_version = 'hg19'
                 curs.execute(
-                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name, d.nm_version FROM variant_feature a, variant b, chromosomes c, gene d WHERE \
-                    a.id = b.feature_id AND b.genome_version = c.genome_version AND b.chr = c.name \
-                    AND a.gene_name = d.name AND a.id = %s AND b.genome_version = %s",
+                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
+                    b.g_name, d.hgnc_id, c.ncbi_name, d.nm_version FROM \
+                    variant_feature a, variant b, chromosomes c, gene d WHERE \
+                    a.id = b.feature_id AND b.genome_version = \
+                    c.genome_version AND b.chr = c.name \
+                    AND a.gene_name = d.name AND a.id = %s \
+                    AND b.genome_version = %s",
                     (variant_id, genome_version)
                 )
                 res_var = curs.fetchone()

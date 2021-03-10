@@ -971,8 +971,7 @@ Sorry for the inconvenience. Please retry later."
         vv_base_url = get_vv_api_url()
         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
         #  ca_certs=certifi.where())
-        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all\
-?content-type=application/json".format(
+        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
             vv_base_url, hg38_d['chr'], hg38_d['pos'],
             hg38_d['pos_ref'], hg38_d['pos_alt']
         )
@@ -1111,8 +1110,7 @@ try again: {0}-{1}'.format(acc_no, gene)}
                         and \
                         re.search(
                             rf'{ncbi_chrom_regexp}:g\.(.+)$',
-                            vv_data[vv_key_var]['primary_assembly_loci']
-                            ['hg19']['hgvs_genomic_description']
+                            vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']
                         ) and \
                         'hg38' in \
                         vv_data[vv_key_var]['primary_assembly_loci'] \
@@ -1122,8 +1120,7 @@ try again: {0}-{1}'.format(acc_no, gene)}
                         and \
                         re.search(
                             rf'{ncbi_chrom_regexp}:g\.(.+)$',
-                            vv_data[vv_key_var]['primary_assembly_loci']
-                            ['hg38']['hgvs_genomic_description']
+                            vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
                             ):
                         # we have a correct mapping
                         # print('going out')
@@ -1730,13 +1727,11 @@ def get_genomic_values(genome, vv_data, vv_key_var):
     if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
         g_name_obj = re.search(
             r':g\.(.+)$',
-            vv_data[vv_key_var]['primary_assembly_loci']
-            [genome]['hgvs_genomic_description']
+            vv_data[vv_key_var]['primary_assembly_loci'][genome]['hgvs_genomic_description']
         )
         chr_obj = re.search(
             r'chr([\dXYM]{1,2})$',
-            vv_data[vv_key_var]['primary_assembly_loci']
-            [genome]['vcf']['chr']
+            vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['chr']
         )
         if len(
             vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref']
@@ -1757,12 +1752,9 @@ def get_genomic_values(genome, vv_data, vv_key_var):
             'genome_version': genome,
             'g_name': g_name_obj.group(1),
             'chr': chr_obj.group(1),
-            'pos': vv_data[vv_key_var]['primary_assembly_loci']
-            [genome]['vcf']['pos'],
-            'pos_ref': vv_data[vv_key_var]['primary_assembly_loci']
-            [genome]['vcf']['ref'],
-            'pos_alt': vv_data[vv_key_var]['primary_assembly_loci']
-            [genome]['vcf']['alt']
+            'pos': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['pos'],
+            'pos_ref': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref'],
+            'pos_alt': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']
         }
 
 
