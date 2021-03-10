@@ -11,13 +11,13 @@ from . import (
     config, md_utilities
 )
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app as app
+    Blueprint, flash, g, redirect, render_template,
+    request, session, url_for, current_app as app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
 from datetime import datetime
 from MobiDetailsApp.db import get_db, close_db
-from . import md_utilities
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,7 +28,10 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if request.method == 'POST':
         # username = urllib.parse.unquote(request.form['username'])
         username = request.form['username']
@@ -51,35 +54,56 @@ def register():
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
+            error = 'Password should be at least 8 characters and mix\
+                        at least letters (upper and lower case) and numbers.'
         elif not country or re.match('--', country):
             error = 'Country is required.'
         elif not institute:
             error = 'Institute is required.'
         elif not email:
             error = 'Email is required.'
-        elif not re.search(r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        elif not re.search(
+            r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+            email
+        ):
             error = 'The email address does not look valid.'
         else:
-            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            http = urllib3.PoolManager(
+                cert_reqs='CERT_REQUIRED',
+                ca_certs=certifi.where()
+            )
             # try:
             # read api key for mailboxvalidator
             apikey = config.mdconfig(section='email_check')['apikey']
-            mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(apikey, email)
+            mv_url = 'https://api.mailboxvalidator.com/v1/validation/\
+                        single?key={0}&format=json&email={1}'.format(
+                            apikey, email
+                        )
             try:
-                mv_json = json.loads(http.request('GET', mv_url).data.decode('utf-8'))
+                mv_json = json.loads(
+                    http.request(
+                        'GET', mv_url
+                    ).data.decode('utf-8')
+                )
             except Exception:
                 mv_json = None
             if mv_json is not None:
                 try:
                     if mv_json['credits_available'] > 0:
                         if mv_json['status'] == "False":
-                            if mv_json['is_high_risk'] == "True" or mv_json['is_suppressed'] == "True" or mv_json['is_catchall'] == "True":
+                            if (mv_json['is_high_risk'] == "True" or
+                                    mv_json['is_suppressed'] == "True" or
+                                    mv_json['is_catchall'] == "True"):
                                 error = 'The email address is reported as risky or suppressed. \
-                                        If this is not the case, please send us an email directly to \
-                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;\
-                                        &#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.'
-                            # else:valid adressese such as d-baux@chu-montpellier.fr are reported as False
+                                        If this is not the case, please send \
+                                        us an email directly to \
+                                        &#109;&#111;&#098;&#105;&#100;&#101;\
+                                        &#116;&#097;&#105;&#108;&#115;\
+                                        &#046;&#105;&#117;&#114;&#099;&#064;\
+                                        &#103;&#109;&#097;&#105;&#108;&#046;\
+                                        &#099;&#111;&#109;.'
+                            # else:valid adressese such as
+                            # d-baux@chu-montpellier.fr are reported as False
                     else:
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
@@ -92,7 +116,9 @@ def register():
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails email validation error',
-                            '<p>mailboxvalidator validation failed:<br/> {0} <br /> - from {1} with args: {2}</p>'.format(
+                            '<p>mailboxvalidator validation failed:\
+                            <br/> {0} <br /> - from {1} with args: {2}\
+                            </p>'.format(
                                 mv_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -102,10 +128,17 @@ def register():
                     )
             # 2nd check https://www.stopforumspam.com/
             # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
-            sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(request.remote_addr, email, username)
+            sfs_url = 'https://www.stopforumspam.com/\
+                        api?ip={0}&email={1}&username={2}&f=json'.format(
+                            request.remote_addr,
+                            email,
+                            username
+                        )
             print(sfs_url)
             try:
-                sfs_json = json.loads(http.request('GET', sfs_url).data.decode('utf-8'))
+                sfs_json = json.loads(
+                    http.request('GET', sfs_url).data.decode('utf-8')
+                )
             except Exception:
                 sfs_json = None
             if sfs_json is not None:
@@ -118,16 +151,21 @@ def register():
                         if sfs_json['ip']['appears'] == 1 or \
                                 sfs_json['email']['appears'] == 1:
                             error = 'Sorry, your input data is reported as risky. \
-                                        If this is not the case, please send us an email directly to \
-                                        &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;\
-                                        &#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;\
+                                        If this is not the case, please send \
+                                        us an email directly to \
+                                        &#109;&#111;&#098;&#105;&#100;&#101;\
+                                        &#116;&#097;&#105;&#108;&#115;\
+                                        &#046;&#105;&#117;&#114;&#099;\
+                                        &#064;&#103;&#109;&#097;&#105;&#108;\
                                         &#046;&#099;&#111;&#109;.'
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
-                                    'MobiDetails stop forum spam username validation error',
+                                    'MobiDetails stop forum spam \
+                                    username validation error',
                                     '<p>Stop forum spam username validation failed (user created but to follow): \
-                                    <br/> {0} <br /> - from {1} with url: {2}</p>'.format(
+                                    <br/> {0} <br /> - from {1} with url: {2}\
+                                    </p>'.format(
                                         sfs_json,
                                         os.path.basename(__file__),
                                         sfs_url
@@ -139,7 +177,8 @@ def register():
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
                                 'MobiDetails stop forum spam validation error',
-                                '<p>Stop forum spam validation failed:<br/> {0} <br /> - from {1} with url: {2}</p>'.format(
+                                '<p>Stop forum spam validation failed:<br/> {0} \
+                                <br /> - from {1} with url: {2}</p>'.format(
                                     sfs_json,
                                     os.path.basename(__file__),
                                     sfs_url
@@ -151,7 +190,8 @@ def register():
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails stop forum spam validation error',
-                            '<p>Stop forum spam validation failed:<br/> {0} <br /> - from {1} with args: {2}</p>'.format(
+                            '<p>Stop forum spam validation failed:<br/> {0} \
+                            <br /> - from {1} with args: {2}</p>'.format(
                                 sfs_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -161,20 +201,31 @@ def register():
                     )
         if error is None:
             # curs.execute(
-            #     "SELECT id FROM mobiuser WHERE username = '{0}' OR email = '{1}'".format(username, email)
+            #     "SELECT id FROM mobiuser WHERE username = '{0}'\
+            #        OR email = '{1}'".format(username, email)
             # )
             curs.execute(
                 "SELECT id FROM mobiuser WHERE username = %s OR email = %s",
                 (username, email)
             )
             if curs.fetchone() is not None:
-                error = 'User {0} or email address {1} is already registered.'.format(username, email)
+                error = 'User {0} or email address {1}\
+                 is already registered.'.format(
+                    username, email
+                )
 
         if error is None:
             key = secrets.token_urlsafe(32)
             curs.execute(
-                "INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated) VALUES (%s, %s, %s, %s, %s, %s, 'f') RETURNING id",
-                (username, generate_password_hash(password), country, institute, email, key)
+                "INSERT INTO mobiuser (username, password, country,\
+                 institute, email, api_key, activated)\
+                 VALUES (%s, %s, %s, %s, %s, %s, 'f') RETURNING id",
+                (username,
+                 generate_password_hash(password),
+                 country,
+                 institute,
+                 email,
+                 key)
             )
             user_id = curs.fetchone()[0]
             db.commit()
@@ -182,14 +233,23 @@ def register():
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
                     'Dear {0},\
-                    <p>thank you for registering in MobiDetails. We hope you will find this website useful.</p>\
-                    <p>Please follow the link below to activate your MobiDetails account:</p>\
-                    <p><a href="{1}{2}" title="Activate your MD account">Activate your MD account</a></p>\
-                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    <p>thank you for registering in MobiDetails.\
+                     We hope you will find this website useful.</p>\
+                    <p>Please follow the link below to activate\
+                     your MobiDetails account:</p>\
+                    <p><a href="{1}{2}" title="Activate your MD account">\
+                    Activate your MD account</a></p>\
+                    <p>If you do not know why you receive this email,\
+                     do not follow the link and please alert\
+                      mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         username,
                         request.host_url.rstrip('/'),
-                        url_for('auth.activate', mobiuser_id=user_id, api_key=key)
+                        url_for(
+                            'auth.activate',
+                            mobiuser_id=user_id,
+                            api_key=key
+                        )
                     ),
                     False
                 ),
@@ -200,20 +260,26 @@ def register():
             # md_utilities.send_error_email(
             #     md_utilities.prepare_email_html(
             #         'MobiDetails Info',
-            #         'A new registration has been made:<br /><ul><li>Email:{0}</li><li>Institute:{1}</li><li>Country:{2}</li></ul>'.format(
+            #         'A new registration has been made:<br /><ul><li>\
+            #           Email:{0}</li><li>Institute:{1}</li><li>Country:{2}</li></ul>'.format(
             #             email, institute, country
             #         )
             #     ),
             #     '[MobiDetails - New Registration]'
             # )
             flash('<br /><p>Your account has been created but requires an activation step. \
-                  An email has been sent to {} with an activation link.</p><br />'.format(email), 'w3-pale-green')
+                  An email has been sent to {} \
+                  with an activation link.</p><br />'.format(email),
+                  'w3-pale-green'
+                  )
             return redirect(url_for('md.index'), code=302)
 
         flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
-            message_body = '<p>{0}</p><p>Originated from :</p><ul><li>Remote IP: {1}</li><li>Username: {2}</li>\
-                           <li>Country: {3}</li><li>Institute: {4}</li><li>Email: {5}</li></ul>'.format(
+            message_body = '<p>{0}</p><p>Originated from :</p><ul><li>\
+                            Remote IP: {1}</li><li>Username: {2}</li>\
+                           <li>Country: {3}</li><li>Institute: {4}</li>\
+                           <li>Email: {5}</li></ul>'.format(
                 error, request.remote_addr, username, country, institute, email
             )
             md_utilities.send_error_email(
@@ -223,9 +289,18 @@ def register():
                 ),
                 '[MobiDetails - Registering Error]'
             )
-        return render_template('auth/register.html', countries=md_utilities.countries, prev_username=username, prev_institute=institute, prev_email=email)
+        return render_template(
+            'auth/register.html',
+            countries=md_utilities.countries,
+            prev_username=username,
+            prev_institute=institute,
+            prev_email=email
+        )
 
-    return render_template('auth/register.html', countries=md_utilities.countries)
+    return render_template(
+        'auth/register.html',
+        countries=md_utilities.countries
+    )
 
 # -------------------------------------------------------------------
 # login
@@ -237,7 +312,8 @@ def login():
     if request.method == 'GET':
         referrer_page = request.referrer
         # if request.referrer is not None and \
-        #         url_parse(request.referrer).host == url_parse(request.base_url).host:
+        #         (url_parse(request.referrer).host ==
+        #            url_parse(request.base_url).host):
         #     referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
@@ -245,7 +321,8 @@ def login():
         try:
             referrer_page = request.form['referrer_page']
             # if request.form['referrer_page'] is not None and \
-            #         url_parse(request.form['referrer_page']).host == url_parse(request.base_url).host:
+            #         (url_parse(request.form['referrer_page']).host ==
+            #            url_parse(request.base_url).host:
             #     referrer_page = request.form['referrer_page']
         except Exception:
             pass
@@ -265,18 +342,28 @@ def login():
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
         elif user['activated'] is False:
-            error = 'This account is not activated. An email to activate your account has been sent to {}'.format(user['email'])
+            error = 'This account is not activated.\
+                     An email to activate your account\
+                     has been sent to {}'.format(user['email'])
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
-                    'Dear {0},<p>please follow the link below to activate your MobiDetails account:</p>\
-                    <p><a href="{1}{2}" title="Activate your MD account">Activate your MD account</a></p>\
-                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    'Dear {0},<p>please follow the link below\
+                     to activate your MobiDetails account:</p>\
+                    <p><a href="{1}{2}" title="Activate your MD account">\
+                    Activate your MD account</a></p>\
+                    <p>If you do not know why you receive this email,\
+                     do not follow the link and please alert\
+                      mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
                         request.host_url.rstrip('/'),
-                        url_for('auth.activate', mobiuser_id=user['id'], api_key=user['api_key'])
+                        url_for(
+                            'auth.activate',
+                            mobiuser_id=user['id'],
+                            api_key=user['api_key']
+                        )
                     ),
                     False
                 ),
@@ -286,23 +373,65 @@ def login():
 
         if error is None:
             session.clear()
-            flash('You have successfully been logged in as {}.'.format(user["username"]), 'w3-pale-green')
+            flash(
+                'You have successfully been logged in as {}.'.format(
+                    user["username"]), 'w3-pale-green'
+                )
             session['user_id'] = user['id']
+            # werkzeug url class
+            # https://werkzeug.palletsprojects.com/en/1.0.x/urls/#werkzeug.urls.URL
+            # URL(scheme='http', netloc='10.34.20.79:5001', \
+            # path='/gene/HSP90B2P', query='', fragment='')>
+            # print(
+            #     url_parse(referrer_page),
+            #     url_parse(referrer_page).host,
+            #     url_parse(referrer_page).port,
+            #     url_parse(referrer_page).decode_netloc
+            # )
             if referrer_page is None or \
-                    (url_parse(referrer_page).host != url_parse(request.base_url).host or
+                    (url_parse(referrer_page).host !=
+                        url_parse(request.base_url).host or
                         re.search(r'(login|register)', referrer_page)):
-                # not coming from mobidetails
-                return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0), code=302)
+                return redirect(
+                    url_for(
+                        'auth.profile',
+                        run_mode=md_utilities.get_running_mode(),
+                        mobiuser_id=0
+                    ),
+                    code=302
+                )
             else:
                 if referrer_page is not None and \
-                        url_parse(referrer_page).host == url_parse(request.base_url).host:
-                    return redirect(referrer_page, code=302)
+                        (url_parse(referrer_page).host ==
+                            url_parse(request.base_url).host):
+                    # not coming from mobidetails
+                    # rebuild redirect URL
+                    return redirect(
+                        md_utilities.build_redirect_url(
+                            referrer_page
+                        ),
+                        code=302
+                    )
                 else:
-                    return redirect(url_for('auth.profile', run_mode=md_utilities.get_running_mode(), mobiuser_id=0), code=302)
+                    return redirect(
+                        url_for(
+                            'auth.profile',
+                            run_mode=md_utilities.get_running_mode(),
+                            mobiuser_id=0
+                        ),
+                        code=302
+                    )
 
         flash(error, 'w3-pale-red')
-
-    return render_template('auth/login.html', run_mode=md_utilities.get_running_mode(), referrer_page=referrer_page)
+    # not coming from mobidetails
+    # rebuild redirect URL
+    return render_template(
+        'auth/login.html',
+        run_mode=md_utilities.get_running_mode(),
+        referrer_page=md_utilities.build_redirect_url(
+            referrer_page
+        )
+    )
 
 # -------------------------------------------------------------------
 # profile activation
@@ -311,13 +440,17 @@ def login():
 @bp.route('/activate/<int:mobiuser_id>/<string:api_key>', methods=['GET'])
 def activate(mobiuser_id, api_key):
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if isinstance(mobiuser_id, int) and \
             isinstance(api_key, str):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, api_key, activated FROM mobiuser WHERE id = %s AND api_key = %s",
+            "SELECT id, api_key, activated FROM \
+            mobiuser WHERE id = %s AND api_key = %s",
             (mobiuser_id, api_key)
         )
         user = curs.fetchone()
@@ -333,18 +466,21 @@ def activate(mobiuser_id, api_key):
                 ),
                 '[MobiDetails - Activation Error]'
             )
-            flash('API key and user id do not seem to fit. An admin has been warned', 'w3-pale-red')
+            flash('API key and user id do not seem to fit. \
+            An admin has been warned', 'w3-pale-red')
             return render_template('md/index.html')
         else:
             if user['activated'] is False and \
                     user['api_key'] == api_key and \
                     user['id'] == mobiuser_id:
                 curs.execute(
-                    "UPDATE mobiuser SET activated = 't' WHERE id = %s AND api_key = %s",
+                    "UPDATE mobiuser SET activated = 't' WHERE \
+                    id = %s AND api_key = %s",
                     (user['id'], user['api_key'])
                 )
                 db.commit()
-                flash('Your account has been activated, you may now log in using your email address.', 'w3-pale-green')
+                flash('Your account has been activated, \
+                you may now log in using your email address.', 'w3-pale-green')
                 return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
@@ -374,10 +510,12 @@ def profile(mobiuser_id=0):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # curs.execute(
-        #     "SELECT id, username, email, institute, country, api_key, email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
+        #     "SELECT id, username, email, institute, country, api_key, \
+        #       email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
         # )
         curs.execute(
-            "SELECT id, username, email, institute, country, api_key, email_pref, lovd_export, academic FROM mobiuser  WHERE id = %s",
+            "SELECT id, username, email, institute, country, api_key, \
+            email_pref, lovd_export, academic FROM mobiuser  WHERE id = %s",
             (user_id,)
         )
         mobiuser = curs.fetchone()
@@ -386,7 +524,8 @@ def profile(mobiuser_id=0):
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Bad profile attempt username: from id: {0} file: {1}</p>'.format(
+                    '<p>Bad profile attempt username: from id: {0} file: {1}\
+                    </p>'.format(
                         g.user['id'],
                         os.path.basename(__file__)
                     )
@@ -398,7 +537,8 @@ def profile(mobiuser_id=0):
                 error = 'This user seems to be unknown by MobiDetails.'
         if mobiuser_id == 0:
             curs.execute(
-                "SELECT id, c_name, gene_name, p_name, creation_date FROM variant_feature WHERE\
+                "SELECT id, c_name, gene_name, p_name, creation_date \
+                FROM variant_feature WHERE\
                 creation_user = %s ORDER BY creation_date DESC",
                 (g.user['id'],)
             )
@@ -406,25 +546,49 @@ def profile(mobiuser_id=0):
             num_var = curs.rowcount
 
             curs.execute(
-                "SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name FROM variant_feature a, mobiuser_favourite b \
-                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s ORDER BY a.gene_name, a.ng_name",
+                "SELECT a.id, a.c_name, a.ng_name, a.gene_name, \
+                a.p_name FROM variant_feature a, mobiuser_favourite b \
+                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s \
+                ORDER BY a.gene_name, a.ng_name",
                 (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
             if error is None:
                 # num_var_fav = curs.rowcount
-                return render_template('auth/profile.html', run_mode=md_utilities.get_running_mode(), mobiuser=mobiuser, view='own', num_var=num_var,
-                                       num_var_fav=curs.rowcount, variants=variants, variants_favourite=variants_favourite)
+                return render_template(
+                    'auth/profile.html',
+                    run_mode=md_utilities.get_running_mode(),
+                    mobiuser=mobiuser,
+                    view='own',
+                    num_var=num_var,
+                    num_var_fav=curs.rowcount,
+                    variants=variants,
+                    variants_favourite=variants_favourite
+                )
         elif error is None:
             # other profile view
-            return render_template('auth/profile.html', run_mode=md_utilities.get_running_mode(), mobiuser=mobiuser, view='other', num_var=None,
-                                   num_var_fav=None, variants=None, variants_favourite=None)
+            return render_template(
+                'auth/profile.html',
+                run_mode=md_utilities.get_running_mode(),
+                mobiuser=mobiuser,
+                view='other',
+                num_var=None,
+                num_var_fav=None,
+                variants=None,
+                variants_favourite=None
+            )
 
         flash(error, 'w3-pale-red')
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     else:
         ('Invalid user ID!!', 'w3-pale-red')
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
 
 # -------------------------------------------------------------------
 # load profile when browsing
@@ -457,9 +621,16 @@ def logout():
     referrer_page = request.referrer
     if referrer_page is not None and \
             url_parse(referrer_page).host == url_parse(request.base_url).host:
-    # if request.referrer is not None and \
-    #         url_parse(request.referrer).host == url_parse(request.base_url).host:
-        return redirect(referrer_page, code=302)
+        # if request.referrer is not None and \
+        #         url_parse(request.referrer).host == \
+        #        url_parse(request.base_url).host:
+        return redirect(
+            md_utilities.build_redirect_url(
+                referrer_page
+            ),
+            code=302
+        )
+        # return redirect(referrer_page, code=302)
     else:
         return redirect(url_for('index'), code=302)
 
@@ -470,13 +641,17 @@ def logout():
 @bp.route('/forgot_pass', methods=('GET', 'POST'))
 def forgot_pass():
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if request.method == 'GET':
         return render_template('auth/forgot_pass.html')
     elif request.method == 'POST':
         error = None
         email = request.form['email']
-        if not re.search(r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        if not re.search(r'^[a-zA-Z0-9\._%\+-]+@\
+                [a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             error = 'The email address does not look valid.'
             flash(error, 'w3-pale-red')
             return render_template('auth/forgot_pass.html')
@@ -489,16 +664,21 @@ def forgot_pass():
             )
             user = curs.fetchone()
             if user is None:
-                error = 'Your email address {} seems to be unknown by the system.'.format(email)
+                error = 'Your email address {} seems to be \
+                            unknown by the system.'.format(email)
                 flash(error, 'w3-pale-red')
                 return render_template('auth/forgot_pass.html')
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Reset your password',
-                    'Dear {0},<p>please follow the link below to reset your MobiDetails password:</p>\
-                    <p><a href="{1}{2}" title="Reset your MD password">Reset your MD password</a></p>\
-                    <p>If you do not know why you receive this email, do not follow the link and please alert mobidetails.iurc@gmail.com.</p><br />\
+                    'Dear {0},<p>please follow the link below \
+                    to reset your MobiDetails password:</p>\
+                    <p><a href="{1}{2}" title="Reset your MD password">\
+                    Reset your MD password</a></p>\
+                    <p>If you do not know why you receive this email, \
+                    do not follow the link and please alert \
+                    mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
                         request.host_url.rstrip('/'),
@@ -514,7 +694,9 @@ def forgot_pass():
                 '[MobiDetails - Password reset]',
                 [email]
             )
-            flash('Please check your e-mail inbox. You should have received a message with a link to reset your password', 'w3-pale-green')
+            flash('Please check your e-mail inbox. \
+                    You should have received a message with a link \
+                    to reset your password', 'w3-pale-green')
             return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
 
@@ -525,7 +707,10 @@ def forgot_pass():
 @bp.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if request.method == 'GET':
         if re.search(r'^\d+$', request.args.get('mobiuser_id')) and \
                 re.search(r'^[\d\.]+$', request.args.get('ts')):
@@ -533,14 +718,20 @@ def reset_password():
             api_key = request.args.get('api_key')
             original_timestamp = request.args.get('ts')
             # we will keep the link alive for 30 minutes i.e. 1800 s
-            if float(float(datetime.timestamp(datetime.now())) - float(original_timestamp)) > 1800 or \
-               float(float(datetime.timestamp(datetime.now())) - float(original_timestamp)) < 0:
-                flash('This link is outdated. Please try again the procedure.', 'w3-pale-red')
+            if float(float(datetime.timestamp(
+                datetime.now())
+                ) - float(original_timestamp)) > 1800 or \
+               float(float(datetime.timestamp(
+                datetime.now())
+                    ) - float(original_timestamp)) < 0:
+                flash('This link is outdated. \
+                    Please try again the procedure.', 'w3-pale-red')
                 return render_template('auth/login.html')
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT id, api_key, activated FROM mobiuser WHERE id = %s AND api_key = %s",
+                "SELECT id, api_key, activated FROM \
+                mobiuser WHERE id = %s AND api_key = %s",
                 (mobiuser_id, api_key)
             )
             user = curs.fetchone()
@@ -556,14 +747,21 @@ def reset_password():
                     ),
                     '[MobiDetails - Password reset Error]'
                 )
-                flash('API key and user id do not seem to fit. An admin has been warned', 'w3-pale-red')
+                flash('API key and user id do not seem to fit. \
+                    An admin has been warned', 'w3-pale-red')
                 return render_template('auth/forgot_pass.html')
             else:
-                return render_template('auth/reset_pass.html', mobiuser_id=mobiuser_id, api_key=api_key)
+                return render_template(
+                    'auth/reset_pass.html',
+                    mobiuser_id=mobiuser_id,
+                    api_key=api_key
+                )
         else:
             message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and\
                         mobiuser_id: {1} from {2}'.format(
-                             request.args.get('ts'), request.args.get('mobiuser_id'), request.remote_addr
+                             request.args.get('ts'),
+                             request.args.get('mobiuser_id'),
+                             request.remote_addr
                          )
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
@@ -572,7 +770,8 @@ def reset_password():
                 ),
                 '[MobiDetails - Password reset Error]'
             )
-            flash('Some parameters are not legal. An admin has been warned', 'w3-pale-red')
+            flash('Some parameters are not legal. \
+            An admin has been warned', 'w3-pale-red')
             return render_template('auth/forgot_pass.html')
     elif request.method == 'POST':
         mobiuser_id = request.form['mobiuser_id']
@@ -583,12 +782,14 @@ def reset_password():
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'
+            error = 'Password should be at least 8 characters and mix \
+                at least letters (upper and lower case) and numbers.'
         else:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "UPDATE mobiuser SET password= %s WHERE id = %s AND api_key = %s",
+                "UPDATE mobiuser SET password= %s WHERE \
+                id = %s AND api_key = %s",
                 (generate_password_hash(password), mobiuser_id, api_key)
             )
             db.commit()
@@ -596,5 +797,9 @@ def reset_password():
             return render_template('auth/login.html')
         if error is not None:
             flash(error, 'w3-pale-red')
-            return render_template('auth/reset_pass.html', mobiuser_id=mobiuser_id, api_key=api_key)
+            return render_template(
+                'auth/reset_pass.html',
+                mobiuser_id=mobiuser_id,
+                api_key=api_key
+            )
     return render_template('md/unknown.html')

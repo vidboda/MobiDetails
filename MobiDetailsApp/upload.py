@@ -5,7 +5,9 @@ import urllib.parse
 import psycopg2
 import psycopg2.extras
 import json
-from flask import Blueprint, request, current_app, render_template, flash, g, url_for
+from flask import (
+    Blueprint, request, current_app, render_template, flash, g, url_for
+)
 # from werkzeug.utils import secure_filename
 from MobiDetailsApp.db import get_db, close_db
 from . import (
@@ -14,7 +16,8 @@ from . import (
 
 bp = Blueprint('upload', __name__)
 
-# adapted from https://pythonise.com/series/learning-flask/flask-uploading-files
+# adapted from
+# https://pythonise.com/series/learning-flask/flask-uploading-files
 
 def allowed_file(filename):
     return '.' in filename and \
