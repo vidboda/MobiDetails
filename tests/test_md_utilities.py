@@ -675,18 +675,18 @@ def test_lovd_error_html():
 
 @pytest.mark.parametrize(('record', 'result'), (
     ('hsa-miR-548j-3p;hsa-miR-548j-3p;hsa-miR-548x-3p;hsa-miR-548ah-3p;\
-    hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-    ?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p\
-    </a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-    acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p\
-    </a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-    acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p\
-    </a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-    acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p\
-    </a><br />"),
+hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
+?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p\
+</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
+acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p\
+</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
+acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p\
+</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
+acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p\
+</a><br />"),
     ('hsa-miR-548o-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-    ?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p\
-    </a><br />"),
+?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p\
+</a><br />"),
     ('.', '.')
 ))
 def test_format_mirs(record, result):
@@ -798,6 +798,8 @@ def test_decompose_missense(p_name, aa1, ppos, aa2):
         'https://mobidetails.iurc.montp.inserm.fr/gene/USH2A#'),
     ('https://mobidetails.iurc.montp.inserm.fr/variant/8#splicing',
         'https://mobidetails.iurc.montp.inserm.fr/variant/8#splicing'),
+    ('/favourite',
+        '/favourite'),
 ))
 def test_build_redirect_url(incoming_url, outcoming_url):
     assert outcoming_url == md_utilities.build_redirect_url(incoming_url)

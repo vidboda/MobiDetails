@@ -522,8 +522,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
 
     i = 3
     if re.search(
-            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC|\
-            CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
+            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
             tabix_file
             ):
         i -= 1
@@ -551,9 +550,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
 def decompose_missense(p_name):
     match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
     if match_obj:
-        return three2one[match_obj.group(1)],
-        match_obj.group(2),
-        three2one[match_obj.group(3)]
+        return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
     else:
         return None, None, None
 
@@ -632,10 +629,7 @@ def get_most_other_deleterious_pred(
                 k = j
         j += 1
     if best_score != threshold:
-        return
-        best_score,
-        predictors_translations[pred_type][re.split(';', pred)[k]],
-        '*'
+        return best_score, predictors_translations[pred_type][re.split(';', pred)[k]], '*'
     else:
         return '.', 'no prediction', ''
 
@@ -738,9 +732,9 @@ def danger_panel(var, warning):  # to be used in create_var_vv
     if var == '':
         begin_txt = ''
     return '<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">\
-                <span class="w3-button w3-ripple w3-display-topright w3-large"\
-                 onclick="this.parentElement.style.display=\'none\'">X</span>\
-                <p><span><strong>{0}{1}<br/>{2}</strong></span><br /></p></div>'\
+<span class="w3-button w3-ripple w3-display-topright w3-large"\
+onclick="this.parentElement.style.display=\'none\'">X</span>\
+<p><span><strong>{0}{1}<br/>{2}</strong></span><br /></p></div>'\
                 .format(begin_txt, var, warning)
 
 
@@ -757,9 +751,9 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
                     url_for('md.variant', variant_id=id_var), c, var
                 )
     return '<div class="w3-margin w3-panel {0} w3-leftbar w3-display-container">\
-                <span class="w3-button w3-ripple w3-display-topright w3-large"\
-                 onclick="this.parentElement.style.display=\'none\'">X</span>\
-                <p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'\
+<span class="w3-button w3-ripple w3-display-topright w3-large"\
+onclick="this.parentElement.style.display=\'none\'">X</span>\
+<p><span><strong>{1}{2}<br/></strong></span><br /></p></div>'\
                 .format(color_class, text, link)
 
 
@@ -839,7 +833,7 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 "VariantValidator looks down!! Sorry for the inconvenience.\
-                 Please retry later."
+Please retry later."
             )
         elif caller == 'api':
             return {'mobidetails_error': 'VariantValidator looks down'}
@@ -848,14 +842,14 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 "VariantValidator could not process your variant,\
-                 please check carefully your nomenclature!\
-                Of course this may also come from the gene and not from you!"
+please check carefully your nomenclature!\
+Of course this may also come from the gene and not from you!"
             )
         elif caller == 'api':
             return {
                 'mobidetails_error':
                 'No flag in VariantValidator answer. \
-                Please check your variant.'
+Please check your variant.'
             }
     elif re.search('Major error', vv_data['flag']):
         if caller == 'webApp':
@@ -863,15 +857,15 @@ def create_var_vv(
                 prepare_email_html(
                     'MobiDetails error',
                     '<p>A major validation error has \
-                    occurred in VariantValidator.</p>'
+occurred in VariantValidator.</p>'
                 ),
                 '[MobiDetails - VariantValidator Error]'
             )
             return danger_panel(
                 vv_key_var,
                 "A major validation error has occurred in VariantValidator. \
-                VV Admin have been made aware of the issue. \
-                Sorry for the inconvenience. Please retry later."
+VV Admin have been made aware of the issue. \
+Sorry for the inconvenience. Please retry later."
             )
         elif caller == 'api':
             return {
@@ -978,7 +972,7 @@ def create_var_vv(
         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
         #  ca_certs=certifi.where())
         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all\
-        ?content-type=application/json".format(
+?content-type=application/json".format(
             vv_base_url, hg38_d['chr'], hg38_d['pos'],
             hg38_d['pos_ref'], hg38_d['pos_alt']
         )
@@ -1030,7 +1024,7 @@ def create_var_vv(
                 prepare_email_html(
                     'MobiDetails error',
                     '<p>Insertion failed for variant hg38 for {0} with args: {1}.\
-                    <br />The unknown error arised again.</p><p>{2}</p>'
+<br />The unknown error arised again.</p><p>{2}</p>'
                     .format(
                         vv_key_var,
                         e.args,
@@ -1042,17 +1036,17 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 'An unknown error has been caught during \
-                variant creation with VariantValidator.<br /> \
-                It may work if you try again.<br />I am aware \
-                of this bug and actively tracking it.'
+variant creation with VariantValidator.<br /> \
+It may work if you try again.<br />I am aware \
+of this bug and actively tracking it.'
             )
         elif caller == 'api':
             return {
                 'mobidetails_error':
                 'An unknown error has been caught during \
-                variant creation with VariantValidator. \
-                It is possible that it works if you \
-                try again: {0}-{1}'.format(acc_no, gene)}
+variant creation with VariantValidator. \
+It is possible that it works if you \
+try again: {0}-{1}'.format(acc_no, gene)}
 
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
@@ -1176,15 +1170,16 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 'Transcript {0} for gene {1} does not seem to map correctly to hg38. \
-                Currently, MobiDetails requires proper mapping on hg38 and \
-                hg19. It is therefore impossible to create a variant.'
+Currently, MobiDetails requires proper mapping on hg38 and \
+hg19. It is therefore impossible to create a variant.'
                 .format(acc_no, gene)
             )
         elif caller == 'api':
-            return {'mobidetails_error':  'Transcript {0} for gene {1} does not seem to map correctly to hg38. \
-                    Currently, MobiDetails requires proper mapping on \
-                    hg38 and hg19. \
-                    It is therefore impossible to create a variant.'
+            return {'mobidetails_error':  'Transcript {0} for gene {1} does \
+not seem to map correctly to hg38. \
+Currently, MobiDetails requires proper mapping on \
+hg38 and hg19. \
+It is therefore impossible to create a variant.'
                     .format(acc_no, gene)}
     # check again if variant exist
     curs.execute(
@@ -1229,18 +1224,18 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 'Transcript {0} for gene {1} does not seem to map correctly to hg19.\
-                Currently, MobiDetails requires proper mapping on \
-                hg38 and hg19. \
-                It is therefore impossible to create a variant.'
+Currently, MobiDetails requires proper mapping on \
+hg38 and hg19. \
+It is therefore impossible to create a variant.'
                 .format(acc_no, gene)
             )
         elif caller == 'api':
             return {
                 'mobidetails_error':
                 'Transcript {0} for gene {1} does not seem to map correctly to hg19. \
-                Currently, MobiDetails requires proper mapping on hg38 \
-                and hg19.\
-                It is therefore impossible to create a variant.'
+Currently, MobiDetails requires proper mapping on hg38 \
+and hg19.\
+It is therefore impossible to create a variant.'
                 .format(acc_no, gene)}
     positions = compute_start_end_pos(hg38_d['g_name'])
     if 'c_name' not in vf_d:
@@ -1271,13 +1266,13 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 'Reference should not be equal to alternative \
-                to define a variant.'
+to define a variant.'
             )
         elif caller == 'api':
             return {
                 'mobidetails_error':
                 'Reference should not be equal to alternative \
-                to define a variant.'
+to define a variant.'
             }
     else:
         if caller == 'webApp':
@@ -1313,12 +1308,12 @@ def create_var_vv(
             return danger_panel(
                 vv_key_var,
                 'No strand for gene {}, impossible to create a variant, \
-                please contact us'.format(gene))
+please contact us'.format(gene))
         elif caller == 'api':
             return {
                 'mobidetails_error':
                 'No strand for gene {}, impossible to create a variant, \
-                please contact us'.format(gene)}
+please contact us'.format(gene)}
 
     # p_name
     p_obj = re.search(
@@ -1464,7 +1459,7 @@ def create_var_vv(
                     prepare_email_html(
                         'MobiDetails error',
                         '<p>Insertion failed for variant features \
-                        for {0} with args {1}</p>'
+for {0} with args {1}</p>'
                         .format(vv_key_var, failed_query)
                     ),
                     '[MobiDetails - MD variant creation Error]'
@@ -1472,13 +1467,13 @@ def create_var_vv(
                 return danger_panel(
                     'MobiDetails error {}'.format(vv_key_var),
                     'Sorry, an issue occured with the variant position \
-                    and intron/exon definition. An admin has been warned'
+and intron/exon definition. An admin has been warned'
                 )
             elif caller == 'api':
                 return {
                     'mobidetails_error':
                     'Sorry, an issue occured with the variant position \
-                    and intron/exon definition for {}'.format(vv_key_var)
+and intron/exon definition for {}'.format(vv_key_var)
                 }
         vf_d['start_segment_type'] = res_seg['type']
         vf_d['start_segment_number'] = res_seg['number']
@@ -1497,7 +1492,7 @@ def create_var_vv(
                     prepare_email_html(
                         'MobiDetails error',
                         '<p>Issue with gene segments definition {0} \
-                        in md_utilities create_var_vv</p>'.format(vv_key_var)
+in md_utilities create_var_vv</p>'.format(vv_key_var)
                     ),
                     '[MobiDetails - MD variant creation Error]'
                 )
@@ -1636,14 +1631,14 @@ def create_var_vv(
                 prepare_email_html(
                     'MobiDetails error',
                     '<p>Insertion failed for variant features \
-                    for {0} with args {1}</p>'.format(vv_key_var, e.args)
+for {0} with args {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
             return danger_panel(
                 'MobiDetails error {}'.format(vv_key_var),
                 'Sorry, an issue occured with variant features. \
-                An admin has been warned'
+An admin has been warned'
             )
         elif caller == 'api':
             return {
@@ -1667,14 +1662,14 @@ def create_var_vv(
                 prepare_email_html(
                     'MobiDetails error',
                     '<p>Insertion failed for variant hg38 for \
-                    {0} with args: {1}</p>'.format(vv_key_var, e.args)
+{0} with args: {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
             return danger_panel(
                 'MobiDetails error {}'.format(vv_key_var),
                 'Sorry, an issue occured with variant \
-                mapping in hg38. An admin has been warned'
+mapping in hg38. An admin has been warned'
             )
         elif caller == 'api':
             return {
@@ -1696,14 +1691,14 @@ def create_var_vv(
                 prepare_email_html(
                     'MobiDetails error',
                     '<p>Insertion failed for variant hg19 for \
-                    {0} with args {1}</p>'.format(vv_key_var, e.args)
+{0} with args {1}</p>'.format(vv_key_var, e.args)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
             return danger_panel(
                 'MobiDetails error {}'.format(vv_key_var),
                 'Sorry, an issue occured with variant mapping \
-                in hg19. An admin has been warned'
+in hg19. An admin has been warned'
             )
         elif caller == 'api':
             return {
@@ -1756,7 +1751,7 @@ def get_genomic_values(genome, vv_data, vv_key_var):
             return {
                 'mobidetails_error':
                 'MobiDetails currently only accepts variants of length \
-                < 50 bp (SNVs ans small insertions/deletions)'
+< 50 bp (SNVs ans small insertions/deletions)'
             }
         return {
             'genome_version': genome,
@@ -2008,14 +2003,15 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     else:
         return ['There has been an error while processing MaxEntScan', '']
 
+
 def lovd_error_html(text):
     return '<tr><td class="w3-left-align" id="lovd_feature" \
-            style="vertical-align:middle;">LOVD Matches:</td> \
-            <td class="w3-left-align" style="vertical-align:middle;">{}</td> \
-            <td class="w3-left-align" id="lovd_description" \
-            style="vertical-align:middle;"><em class="w3-small">\
-            LOVD match in public instances</em></td> \
-            </tr>'.format(text)
+style="vertical-align:middle;">LOVD Matches:</td> \
+<td class="w3-left-align" style="vertical-align:middle;">{}</td> \
+<td class="w3-left-align" id="lovd_description" \
+style="vertical-align:middle;"><em class="w3-small">\
+LOVD match in public instances</em></td> \
+</tr>'.format(text)
 
 
 def format_mirs(record):
@@ -2030,7 +2026,7 @@ def format_mirs(record):
                 if match_obj:
                     mir_small = match_obj.group(1)
                 mir_html = "{0}<a href='{1}{2}' target='_blank' \
-                    title='Link to miRBase'>{3}</a><br />".format(
+title='Link to miRBase'>{3}</a><br />".format(
                         mir_html, urls['mirbase'], mir, mir_small
                     )
         else:
@@ -2088,6 +2084,7 @@ def get_post_param(request, param):
         elif '{}'.format(param) in request.form:
             return request.form['{}'.format(param)]
     return None
+
 
 def get_acmg_criterion_color(criterion):
     criterion = str(criterion)
@@ -2150,15 +2147,21 @@ def get_running_mode():
     return app.config['RUN_MODE']
 
 
-def build_redirect_url(incoming_url):
+def build_redirect_url(incoming_url=None):
     # method to rebuild URL and avoid Untrusted URL redirection
-    return '{0}://{1}{2}{3}#{4}'.format(
-        url_parse(incoming_url).scheme,
-        url_parse(incoming_url).netloc,
-        url_parse(incoming_url).path,
-        url_parse(incoming_url).query,
-        url_parse(incoming_url).fragment
-    )
+    # if re.search(r'https?:\/\/', incoming_url):
+    if incoming_url is None:
+        return None
+    elif url_parse(incoming_url).scheme:
+        return '{0}://{1}{2}{3}#{4}'.format(
+            url_parse(incoming_url).scheme,
+            url_parse(incoming_url).netloc,
+            url_parse(incoming_url).path,
+            url_parse(incoming_url).query,
+            url_parse(incoming_url).fragment
+        )
+    elif re.search(r'^\/', incoming_url):
+        return incoming_url
 
 
 # def api_end_according_to_caller(

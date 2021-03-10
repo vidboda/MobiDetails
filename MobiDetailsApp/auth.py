@@ -54,8 +54,8 @@ def register():
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix\
-                        at least letters (upper and lower case) and numbers.'
+            error = 'Password should be at least 8 characters and mix at least \
+letters (upper and lower case) and numbers.'
         elif not country or re.match('--', country):
             error = 'Country is required.'
         elif not institute:
@@ -76,7 +76,7 @@ def register():
             # read api key for mailboxvalidator
             apikey = config.mdconfig(section='email_check')['apikey']
             mv_url = 'https://api.mailboxvalidator.com/v1/validation/\
-                        single?key={0}&format=json&email={1}'.format(
+single?key={0}&format=json&email={1}'.format(
                             apikey, email
                         )
             try:
@@ -95,13 +95,13 @@ def register():
                                     mv_json['is_suppressed'] == "True" or
                                     mv_json['is_catchall'] == "True"):
                                 error = 'The email address is reported as risky or suppressed. \
-                                        If this is not the case, please send \
-                                        us an email directly to \
-                                        &#109;&#111;&#098;&#105;&#100;&#101;\
-                                        &#116;&#097;&#105;&#108;&#115;\
-                                        &#046;&#105;&#117;&#114;&#099;&#064;\
-                                        &#103;&#109;&#097;&#105;&#108;&#046;\
-                                        &#099;&#111;&#109;.'
+If this is not the case, please send \
+us an email directly to \
+&#109;&#111;&#098;&#105;&#100;&#101;\
+&#116;&#097;&#105;&#108;&#115;\
+&#046;&#105;&#117;&#114;&#099;&#064;\
+&#103;&#109;&#097;&#105;&#108;&#046;\
+&#099;&#111;&#109;.'
                             # else:valid adressese such as
                             # d-baux@chu-montpellier.fr are reported as False
                     else:
@@ -117,8 +117,8 @@ def register():
                         md_utilities.prepare_email_html(
                             'MobiDetails email validation error',
                             '<p>mailboxvalidator validation failed:\
-                            <br/> {0} <br /> - from {1} with args: {2}\
-                            </p>'.format(
+<br/> {0} <br /> - from {1} with args: {2}\
+</p>'.format(
                                 mv_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -129,7 +129,7 @@ def register():
             # 2nd check https://www.stopforumspam.com/
             # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
             sfs_url = 'https://www.stopforumspam.com/\
-                        api?ip={0}&email={1}&username={2}&f=json'.format(
+api?ip={0}&email={1}&username={2}&f=json'.format(
                             request.remote_addr,
                             email,
                             username
@@ -151,21 +151,21 @@ def register():
                         if sfs_json['ip']['appears'] == 1 or \
                                 sfs_json['email']['appears'] == 1:
                             error = 'Sorry, your input data is reported as risky. \
-                                        If this is not the case, please send \
-                                        us an email directly to \
-                                        &#109;&#111;&#098;&#105;&#100;&#101;\
-                                        &#116;&#097;&#105;&#108;&#115;\
-                                        &#046;&#105;&#117;&#114;&#099;\
-                                        &#064;&#103;&#109;&#097;&#105;&#108;\
-                                        &#046;&#099;&#111;&#109;.'
+    If this is not the case, please send \
+    us an email directly to \
+    &#109;&#111;&#098;&#105;&#100;&#101;\
+    &#116;&#097;&#105;&#108;&#115;\
+    &#046;&#105;&#117;&#114;&#099;\
+    &#064;&#103;&#109;&#097;&#105;&#108;\
+    &#046;&#099;&#111;&#109;.'
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails stop forum spam \
                                     username validation error',
                                     '<p>Stop forum spam username validation failed (user created but to follow): \
-                                    <br/> {0} <br /> - from {1} with url: {2}\
-                                    </p>'.format(
+<br/> {0} <br /> - from {1} with url: {2}\
+</p>'.format(
                                         sfs_json,
                                         os.path.basename(__file__),
                                         sfs_url
@@ -178,7 +178,7 @@ def register():
                             md_utilities.prepare_email_html(
                                 'MobiDetails stop forum spam validation error',
                                 '<p>Stop forum spam validation failed:<br/> {0} \
-                                <br /> - from {1} with url: {2}</p>'.format(
+<br /> - from {1} with url: {2}</p>'.format(
                                     sfs_json,
                                     os.path.basename(__file__),
                                     sfs_url
@@ -191,7 +191,7 @@ def register():
                         md_utilities.prepare_email_html(
                             'MobiDetails stop forum spam validation error',
                             '<p>Stop forum spam validation failed:<br/> {0} \
-                            <br /> - from {1} with args: {2}</p>'.format(
+<br /> - from {1} with args: {2}</p>'.format(
                                 sfs_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -233,15 +233,15 @@ def register():
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
                     'Dear {0},\
-                    <p>thank you for registering in MobiDetails.\
-                     We hope you will find this website useful.</p>\
-                    <p>Please follow the link below to activate\
-                     your MobiDetails account:</p>\
-                    <p><a href="{1}{2}" title="Activate your MD account">\
-                    Activate your MD account</a></p>\
-                    <p>If you do not know why you receive this email,\
-                     do not follow the link and please alert\
-                      mobidetails.iurc@gmail.com.</p><br />\
+<p>thank you for registering in MobiDetails.\
+ We hope you will find this website useful.</p>\
+<p>Please follow the link below to activate\
+ your MobiDetails account:</p>\
+<p><a href="{1}{2}" title="Activate your MD account">\
+Activate your MD account</a></p>\
+<p>If you do not know why you receive this email,\
+do not follow the link and please alert\
+mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         username,
                         request.host_url.rstrip('/'),
@@ -268,8 +268,8 @@ def register():
             #     '[MobiDetails - New Registration]'
             # )
             flash('<br /><p>Your account has been created but requires an activation step. \
-                  An email has been sent to {} \
-                  with an activation link.</p><br />'.format(email),
+An email has been sent to {} \
+with an activation link.</p><br />'.format(email),
                   'w3-pale-green'
                   )
             return redirect(url_for('md.index'), code=302)
@@ -277,9 +277,9 @@ def register():
         flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
             message_body = '<p>{0}</p><p>Originated from :</p><ul><li>\
-                            Remote IP: {1}</li><li>Username: {2}</li>\
-                           <li>Country: {3}</li><li>Institute: {4}</li>\
-                           <li>Email: {5}</li></ul>'.format(
+Remote IP: {1}</li><li>Username: {2}</li>\
+<li>Country: {3}</li><li>Institute: {4}</li>\
+<li>Email: {5}</li></ul>'.format(
                 error, request.remote_addr, username, country, institute, email
             )
             md_utilities.send_error_email(
@@ -343,19 +343,19 @@ def login():
             error = 'Incorrect password.'
         elif user['activated'] is False:
             error = 'This account is not activated.\
-                     An email to activate your account\
-                     has been sent to {}'.format(user['email'])
+An email to activate your account\
+has been sent to {}'.format(user['email'])
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
                     'Dear {0},<p>please follow the link below\
-                     to activate your MobiDetails account:</p>\
-                    <p><a href="{1}{2}" title="Activate your MD account">\
-                    Activate your MD account</a></p>\
-                    <p>If you do not know why you receive this email,\
-                     do not follow the link and please alert\
-                      mobidetails.iurc@gmail.com.</p><br />\
+to activate your MobiDetails account:</p>\
+<p><a href="{1}{2}" title="Activate your MD account">\
+Activate your MD account</a></p>\
+<p>If you do not know why you receive this email,\
+do not follow the link and please alert\
+mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
                         request.host_url.rstrip('/'),
@@ -456,7 +456,7 @@ def activate(mobiuser_id, api_key):
         user = curs.fetchone()
         if user is None:
             message_body = '<p>Account activation exception</p><p>Recived API key: {0} and\
-                       mobiuser_id: {1} from {2}'.format(
+mobiuser_id: {1} from {2}'.format(
                             api_key, mobiuser_id, request.remote_addr
                         )
             md_utilities.send_error_email(
@@ -467,7 +467,7 @@ def activate(mobiuser_id, api_key):
                 '[MobiDetails - Activation Error]'
             )
             flash('API key and user id do not seem to fit. \
-            An admin has been warned', 'w3-pale-red')
+An admin has been warned', 'w3-pale-red')
             return render_template('md/index.html')
         else:
             if user['activated'] is False and \
@@ -480,7 +480,7 @@ def activate(mobiuser_id, api_key):
                 )
                 db.commit()
                 flash('Your account has been activated, \
-                you may now log in using your email address.', 'w3-pale-green')
+you may now log in using your email address.', 'w3-pale-green')
                 return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
@@ -525,7 +525,7 @@ def profile(mobiuser_id=0):
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
                     '<p>Bad profile attempt username: from id: {0} file: {1}\
-                    </p>'.format(
+</p>'.format(
                         g.user['id'],
                         os.path.basename(__file__)
                     )
@@ -650,8 +650,10 @@ def forgot_pass():
     elif request.method == 'POST':
         error = None
         email = request.form['email']
-        if not re.search(r'^[a-zA-Z0-9\._%\+-]+@\
-                [a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+        if not re.search(
+                r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                email
+                ):
             error = 'The email address does not look valid.'
             flash(error, 'w3-pale-red')
             return render_template('auth/forgot_pass.html')
@@ -665,7 +667,7 @@ def forgot_pass():
             user = curs.fetchone()
             if user is None:
                 error = 'Your email address {} seems to be \
-                            unknown by the system.'.format(email)
+unknown by the system.'.format(email)
                 flash(error, 'w3-pale-red')
                 return render_template('auth/forgot_pass.html')
             # message, mail_object, receiver
@@ -673,12 +675,12 @@ def forgot_pass():
                 md_utilities.prepare_email_html(
                     'MobiDetails - Reset your password',
                     'Dear {0},<p>please follow the link below \
-                    to reset your MobiDetails password:</p>\
-                    <p><a href="{1}{2}" title="Reset your MD password">\
-                    Reset your MD password</a></p>\
-                    <p>If you do not know why you receive this email, \
-                    do not follow the link and please alert \
-                    mobidetails.iurc@gmail.com.</p><br />\
+to reset your MobiDetails password:</p>\
+<p><a href="{1}{2}" title="Reset your MD password">\
+Reset your MD password</a></p>\
+<p>If you do not know why you receive this email, \
+do not follow the link and please alert \
+mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
                         request.host_url.rstrip('/'),
@@ -695,8 +697,8 @@ def forgot_pass():
                 [email]
             )
             flash('Please check your e-mail inbox. \
-                    You should have received a message with a link \
-                    to reset your password', 'w3-pale-green')
+You should have received a message with a link \
+to reset your password', 'w3-pale-green')
             return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
 
@@ -737,7 +739,7 @@ def reset_password():
             user = curs.fetchone()
             if user is None:
                 message_body = '<p>Password reset exception</p><p>Received API key: {0} and\
-                           mobiuser_id: {1} from {2}'.format(
+mobiuser_id: {1} from {2}'.format(
                                 api_key, mobiuser_id, request.remote_addr
                             )
                 md_utilities.send_error_email(
@@ -748,7 +750,7 @@ def reset_password():
                     '[MobiDetails - Password reset Error]'
                 )
                 flash('API key and user id do not seem to fit. \
-                    An admin has been warned', 'w3-pale-red')
+An admin has been warned', 'w3-pale-red')
                 return render_template('auth/forgot_pass.html')
             else:
                 return render_template(
@@ -758,7 +760,7 @@ def reset_password():
                 )
         else:
             message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and\
-                        mobiuser_id: {1} from {2}'.format(
+mobiuser_id: {1} from {2}'.format(
                              request.args.get('ts'),
                              request.args.get('mobiuser_id'),
                              request.remote_addr
@@ -771,7 +773,7 @@ def reset_password():
                 '[MobiDetails - Password reset Error]'
             )
             flash('Some parameters are not legal. \
-            An admin has been warned', 'w3-pale-red')
+An admin has been warned', 'w3-pale-red')
             return render_template('auth/forgot_pass.html')
     elif request.method == 'POST':
         mobiuser_id = request.form['mobiuser_id']
@@ -782,8 +784,8 @@ def reset_password():
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix \
-                at least letters (upper and lower case) and numbers.'
+            error = 'Password should be at least 8 characters and mix at least \
+letters (upper and lower case) and numbers.'
         else:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
