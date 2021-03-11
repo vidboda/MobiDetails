@@ -19,6 +19,7 @@ bp = Blueprint('upload', __name__)
 # adapted from
 # https://pythonise.com/series/learning-flask/flask-uploading-files
 
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
@@ -88,13 +89,30 @@ def file_upload():
                             # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
                             # print(md_api_url)
                             data = {
-                                'variant_chgvs': urllib.parse.quote('{0}.{1}:{2}'.format(match_obj_c.group(1), match_obj_c.group(2), match_obj_c.group(3))),
+                                'variant_chgvs': urllib.parse.quote(
+                                    '{0}.{1}:{2}'.format(
+                                        match_obj_c.group(1),
+                                        match_obj_c.group(2),
+                                        match_obj_c.group(3)
+                                    )
+                                ),
                                 'caller': 'cli',
                                 'api_key': api_key
                             }
                             try:
-                                md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
-                                result.append({'variant': line, 'id': md_response['mobidetails_id'], 'url': md_response['url']})
+                                md_response = json.loads(
+                                    http.request(
+                                        'POST',
+                                        md_api_url,
+                                        headers=header,
+                                        fields=data
+                                    ).data.decode('utf-8')
+                                )
+                                result.append(
+                                    {'variant': line,
+                                        'id': md_response['mobidetails_id'],
+                                        'url': md_response['url']}
+                                )
                             except Exception:
                                 if 'mobidetails_error' in md_response:
                                     result.append({'variant': line, 'error': md_response['mobidetails_error']})
@@ -123,14 +141,24 @@ def file_upload():
                                 'api_key': api_key
                             }
                             try:
-                                md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
+                                md_response = json.loads(
+                                    http.request(
+                                        'POST',
+                                        md_api_url,
+                                        headers=header,
+                                        fields=data
+                                    ).data.decode('utf-8')
+                                )
                                 # print(md_response)
                                 result.append({'variant': line, 'id': md_response['mobidetails_id']})
                             except Exception:
                                 if 'variant_validator_output' in md_response and \
                                         'validation_warning_1' in md_response['variant_validator_output'] and \
                                         'validation_warnings' in md_response['variant_validator_output']['validation_warning_1']:
-                                    result.append({'variant': line, 'error': md_response['variant_validator_output']['validation_warning_1']['validation_warnings'][0]})
+                                    result.append(
+                                        {'variant': line,
+                                            'error': md_response['variant_validator_output']['validation_warning_1']['validation_warnings'][0]}
+                                    )
                                 elif 'mobidetails_error' in md_response:
                                     result.append({'variant': line, 'error': md_response['mobidetails_error']})
                                 else:
@@ -138,7 +166,7 @@ def file_upload():
                         else:
                             result.append({'variant': line, 'error': 'Unknown gene'})
                         continue
-                    if re.search(rf'^rs\d+$', line):
+                    if re.search(r'^rs\d+$', line):
                         md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create_rs'))
                         # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
                         # print(md_api_url)
@@ -148,15 +176,29 @@ def file_upload():
                             'api_key': api_key
                         }
                         try:
-                            md_response = json.loads(http.request('POST', md_api_url, headers=header, fields=data).data.decode('utf-8'))
+                            md_response = json.loads(
+                                http.request(
+                                    'POST',
+                                    md_api_url,
+                                    headers=header,
+                                    fields=data
+                                ).data.decode('utf-8')
+                            )
                             for var in md_response:
                                 print(md_response[var])
                                 if 'mobidetails_error' in md_response[var]:
-                                    result.append({'variant': '{0} - {1}'.format(line, var), 'error': md_response[var]['mobidetails_error']})
+                                    result.append(
+                                        {'variant': '{0} - {1}'.format(line, var),
+                                            'error': md_response[var]['mobidetails_error']}
+                                    )
                                 elif var == 'mobidetails_error':
                                     result.append({'variant': line, 'error': md_response[var]})
                                 else:
-                                    result.append({'variant': '{0} - {1}'.format(line, var), 'id': md_response[var]['mobidetails_id'], 'url': md_response[var]['url']})
+                                    result.append(
+                                        {'variant': '{0} - {1}'.format(line, var),
+                                            'id': md_response[var]['mobidetails_id'],
+                                            'url': md_response[var]['url']}
+                                    )
 
                         except Exception:
                             result.append({'variant': line, 'error': 'MDAPI call failed'})
@@ -173,9 +215,26 @@ def file_upload():
                         if 'error' in resul:
                             result_list = '{0} - {1}</li>'.format(result_list, resul['error'])
                         else:
-                            result_list = '{0} - <a href="{1}{2}">success</a></li>'.format(result_list, request.host_url[:-1], url_for('md.variant', variant_id=resul['id']))
+                            result_list = '{0} - <a href="{1}{2}">success</a></li>'.format(
+                                result_list,
+                                request.host_url[:-1],
+                                url_for(
+                                    'md.variant',
+                                    variant_id=resul['id']
+                                )
+                            )
 
-                    message = 'Dear {0},<br /><p>Your batch job returned the following results:</p><ul>{1}</ul><p>You can have a direct acces to the successfully annotated variants at your <a href="{2}{3}">profile page</a>.'.format(g.user['username'], result_list, request.host_url[:-1], url_for('auth.profile', mobiuser_id=0))
+                    message = 'Dear {0},<br /><p>Your batch job returned the following results:\
+</p><ul>{1}</ul><p>You can have a direct acces to the successfully annotated variants at your \
+<a href="{2}{3}">profile page</a>.'.format(
+                        g.user['username'],
+                        result_list,
+                        request.host_url[:-1],
+                        url_for(
+                            'auth.profile',
+                            mobiuser_id=0
+                        )
+                    )
                     md_utilities.send_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails - Batch job',

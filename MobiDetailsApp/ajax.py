@@ -544,10 +544,7 @@ style="vertical-align:middle;">LOVD Effect Concluded:</td> \
 style="vertical-align:middle;"> \
     <em class="w3-small">Effects concluded by \
 LOVD curators</em></td> \
-</tr>'.format(
-                        ''.join(reported_effect_list),
-                        ''.join(concluded_effect_list)
-                    )
+</tr>'.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
             return html
         else:
             md_utilities.send_error_email(
@@ -750,14 +747,22 @@ and start from scratch.</td><td></td></tr>"
                         lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
 
                 # send request to LOVD API
-                # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 # headers
                 header = md_utilities.api_agent
                 header['Content-Type'] = 'application/json'
-                #print (json.dumps(lovd_json))
+                # print (json.dumps(lovd_json))
                 try:
-                    lovd_response = http.request('POST', md_utilities.urls['lovd_api_submissions'], body=json.dumps(lovd_json).encode('utf-8'), headers=header).data.decode('utf-8')
-                    print('LOVD submission for {0}:g.{1} : {2}'.format(res_var['ncbi_name'], res_var['g_name'], lovd_response))
+                    lovd_response = http.request(
+                        'POST',
+                        md_utilities.urls['lovd_api_submissions'],
+                        body=json.dumps(lovd_json).encode('utf-8'),
+                        headers=header
+                    ).data.decode('utf-8')
+                    print('LOVD submission for {0}:g.{1} : {2}'.format(
+                        res_var['ncbi_name'],
+                        res_var['g_name'],
+                        lovd_response
+                    ))
                 except Exception:
                     pass
             return tr_html
@@ -766,20 +771,22 @@ and start from scratch.</td><td></td></tr>"
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Variant class modification failed for variant {0} with args: {1}</p>'.format(variant_id, e.args)
+                    '<p>Variant class modification failed for variant \
+{0} with args: {1}</p>'.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
-            return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
+            return md_utilities.danger_panel(
+                '',
+                'Sorry, something went wrong with the addition of \
+this annotation. An admin has been warned.')
 
-            # flash('Sorry, for some reason, variant class modification failed. The admin has been warned.', 'w3-pale-red')
-
-        # return redirect(url_for('md.variant', variant_id=variant_id, _anchor='class'))
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails error',
-                '<p>Variant class modification failed for variant {0} with args: wrong parameter {1}-{2}</p>'.format(
+                '<p>Variant class modification failed for variant \
+{0} with args: wrong parameter {1}-{2}</p>'.format(
                     variant_id,
                     request.form['variant_id'],
                     request.form['acmg_select']
@@ -787,7 +794,10 @@ and start from scratch.</td><td></td></tr>"
             ),
             '[MobiDetails - MD variant class Error]'
         )
-        return md_utilities.danger_panel('', 'Sorry, something went wrong with the addition of this annotation. An admin has been warned.')
+        return md_utilities.danger_panel(
+            '',
+            'Sorry, something went wrong with the addition of \
+this annotation. An admin has been warned.')
     # return redirect(url_for('md.index'))
 
 
@@ -799,7 +809,10 @@ and start from scratch.</td><td></td></tr>"
 @login_required
 def remove_class():
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if re.search(r'^\d+$', request.form['variant_id']) and \
             re.search(r'^\d+$', request.form['acmg_class']):
         variant_id = request.form['variant_id']
@@ -819,11 +832,15 @@ def remove_class():
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Variant class deletion failed for {0} with args: {1}</p>'.format(variant_id, e.args)
+                    '<p>Variant class deletion failed for \
+{0} with args: {1}</p>'.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
-    return md_utilities.danger_panel('', 'Sorry, something went wrong with the deletion of this annotation. An admin has been warned.')
+    return md_utilities.danger_panel(
+        '',
+        'Sorry, something went wrong with the deletion of \
+this annotation. An admin has been warned.')
 
 # -------------------------------------------------------------------
 # web app - ajax to contact other users
@@ -834,7 +851,10 @@ def remove_class():
 def send_var_message():
     if re.search(r'^\d+$', request.form['receiver_id']):
         if request.form['message'] != '' and \
-                re.search(r'Query\svia\sMobiDetails\sfrom', request.form['message_object']):
+                re.search(
+                    r'Query\svia\sMobiDetails\sfrom',
+                    request.form['message_object']
+                ):
             # sender = {}
             receiver = {}
             # variant = request.form['variant_mes']
@@ -852,22 +872,34 @@ def send_var_message():
             # res = curs.fetchall()
             receiver = curs.fetchone()
             message.replace("\n", "<br />")
-            message += "<br /><br /><p>You can contact user {0} directly at {1}</p>".format(
+            message += "<br /><br /><p>You can contact \
+user {0} directly at {1}</p>".format(
                     g.user['username'],
                     g.user['email']
                 )
             md_utilities.send_email(
-                md_utilities.prepare_email_html(message_object, message, False),
+                md_utilities.prepare_email_html(
+                    message_object, message, False
+                ),
                 message_object,
                 [receiver['email']]
             )
-            return md_utilities.info_panel('Your email has just been sent.', '', '', 'w3-pale-green')
+            return md_utilities.info_panel(
+                'Your email has just been sent.',
+                '',
+                '',
+                'w3-pale-green'
+            )
         else:
-            return md_utilities.danger_panel('', 'Please complete the message part of the form.')
+            return md_utilities.danger_panel(
+                '',
+                'Please complete the message part of the form.'
+            )
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
             'MobiDetails error',
-            '<p>An email was not sent from {0} to {1}<br />Variant was {2}<br />Message was:<br />{3}</p>'.format(
+            '<p>An email was not sent from {0} to {1}<br />Variant \
+was {2}<br />Message was:<br />{3}</p>'.format(
                 g.user['sender_id'],
                 request.form['receiver_id'],
                 request.form['variant_mes'],
@@ -875,10 +907,14 @@ def send_var_message():
         ),
         '[MobiDetails - Email Error]'
     )
-    return md_utilities.danger_panel('', 'Sorry, something went wrong with this message. An admin has been warned.')
+    return md_utilities.danger_panel(
+        '',
+        'Sorry, something went wrong with this message. \
+An admin has been warned.')
 
 # -------------------------------------------------------------------
-# web app - ajax for variant creation via VV API https://rest.variantvalidator.org/webservices/variantvalidator.html
+# web app - ajax for variant creation via VV API
+# https://rest.variantvalidator.org/webservices/variantvalidator.html
 
 
 @bp.route('/create', methods=['POST'])
@@ -886,13 +922,22 @@ def create():
     start_time = time.time()
     # print(request.form['new_variant'])
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     variant_regexp = md_utilities.regexp['variant']
     if request.form['new_variant'] == '':
-        return md_utilities.danger_panel('variant creation attempt', 'Please fill in the form before submitting!')
+        return md_utilities.danger_panel(
+            'variant creation attempt',
+            'Please fill in the form before submitting!'
+        )
     if re.search(r'^[\w-]+$', request.form['gene']) and \
             re.search(r'^NM_\d+$', request.form['acc_no']) and \
-            re.search(rf'^c\.{variant_regexp}$', request.form['new_variant']) and \
+            re.search(
+                rf'^c\.{variant_regexp}$',
+                request.form['new_variant']
+            ) and \
             re.search(r'^\d+$', request.form['acc_version']):
         gene = request.form['gene']
         acc_no = request.form['acc_no']
@@ -905,20 +950,27 @@ def create():
         if 'alt_iso' in request.form:
             alt_nm = request.form['alt_iso']
             # return md_utilities.danger_panel(alt_nm, acc_version)
-            if alt_nm != '' and alt_nm != "{0}.{1}".format(acc_no, acc_version):
+            if alt_nm != '' and alt_nm != "{0}.{1}".format(
+                acc_no, acc_version
+                    ):
                 acc_no, acc_version = alt_nm.split('.')
         # variant already registered?
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         var_db = new_variant.replace("c.", "")
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name = %s AND gene_name[2] = %s",
+            "SELECT id FROM variant_feature WHERE \
+            c_name = %s AND gene_name[2] = %s",
             (var_db, acc_no)
         )
         res = curs.fetchone()
         if res:
             close_db()
-            return md_utilities.info_panel('Variant already in MobiDetails: ', var_db, res['id'])
+            return md_utilities.info_panel(
+                'Variant already in MobiDetails: ',
+                var_db,
+                res['id']
+            )
 
         if re.search(r'c\..+', new_variant):
             # is vv alive?
@@ -927,31 +979,13 @@ def create():
             print('--- 1- {} seconds ---'.format((time.time() - start_time)))
             vv_base_url = md_utilities.get_vv_api_url()
             print('--- 2- {} seconds ---'.format((time.time() - start_time)))
-            # try:
-            #     json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello']).data.decode('utf-8'))
-            # except Exception as e:
-            #     try:
-            #         json.loads(http.request('GET', md_utilities.urls['variant_validator_api_hello_backup']).data.decode('utf-8'))
-            #         vv_base_url = md_utilities.urls['variant_validator_api_backup']
-            #     except Exception as e:
-            #         md_utilities.send_error_email(
-            #             md_utilities.prepare_email_html(
-            #                 'MobiDetails VariantValidator error',
-            #                 '<p>VariantValidator looks down!!<br /> - from {0} with args: {1}</p>'.format(
-            #                     os.path.basename(__file__), e.args
-            #                 )
-            #             ),
-            #             '[MobiDetails - VariantValidator Error]'
-            #         )
-            #         # vv_data = {'apiVersion': 'Service Unavailable'}
-            #         # vv_alive = {'status': 'Service Unavailable'}
+
             if not vv_base_url:
                 close_db()
                 return md_utilities.danger_panel(
                         new_variant, 'Variant Validator did not answer our call, status: Service Unavailable. \
                         I have been informed by email. Please retry later.')
 
-            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             if not alt_nm or acc_no == request.form['acc_no']:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
                     vv_base_url, acc_no, acc_version, new_variant
@@ -961,12 +995,14 @@ def create():
                     vv_base_url, acc_no, acc_version, new_variant
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
-            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
             print('--- 3- {} seconds ---'.format((time.time() - start_time)))
 
             try:
-                vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                vv_data = json.loads(http.request(
+                    'GET',
+                    vv_url
+                ).data.decode('utf-8'))
             except Exception:
                 close_db()
                 return md_utilities.danger_panel(
@@ -975,7 +1011,8 @@ def create():
                     Either it is down or your nomenclature is very odd!'
                 )
             if re.search('[di][neu][psl]', new_variant):
-                # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
+                # need to redefine vv_key_var for indels as the variant name
+                # returned by vv is likely to be different form the user's
                 for key in vv_data:
                     if re.search('{0}.{1}'.format(acc_no, acc_version), key):
                         vv_key_var = key
@@ -985,7 +1022,11 @@ def create():
                             new_variant = var_obj.group(1)
         else:
             close_db()
-            return md_utilities.danger_panel(new_variant, 'Please provide the variant name as HGVS c. nomenclature (including c.)')
+            return md_utilities.danger_panel(
+                new_variant,
+                'Please provide the variant name as HGVS \
+c. nomenclature (including c.)'
+            )
 
         print('--- 4- {} seconds ---'.format((time.time() - start_time)))
 
@@ -996,7 +1037,10 @@ def create():
         )
     else:
         close_db()
-        return md_utilities.danger_panel('variant creation attempt', 'A mandatory argument is lacking or is malformed.')
+        return md_utilities.danger_panel(
+            'variant creation attempt',
+            'A mandatory argument is lacking or is malformed.'
+        )
 
 # -------------------------------------------------------------------
 # web app - ajax to modify email prefs for logged users
@@ -1008,7 +1052,10 @@ def toggle_prefs():
     # if re.search(r'^\d+$', request.form['user_id']) and \
     #        re.search(r'^[ft]$', request.form['pref_value']):
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if re.search(r'^[ft]$', request.form['pref_value']) and \
             re.search(r'^(email_pref|lovd_export)$', request.form['field']):
         # mobiuser_id = request.form['user_id']
@@ -1017,7 +1064,8 @@ def toggle_prefs():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "UPDATE mobiuser SET {0} = '{1}' WHERE id = '{2}'".format(field, pref, g.user['id'])
+            "UPDATE mobiuser SET {0} = '{1}' WHERE \
+            id = '{2}'".format(field, pref, g.user['id'])
         )
         db.commit()
         return 'ok'
@@ -1025,7 +1073,8 @@ def toggle_prefs():
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
             'MobiDetails error',
-            '<p>MD failed to modify a user prefs for {0}. User id: {1} to {2}</p>'.format(
+            '<p>MD failed to modify a user prefs for \
+{0}. User id: {1} to {2}</p>'.format(
                 request.form['field'],
                 g.user['id'],
                 request.form['pref_value']
@@ -1033,8 +1082,11 @@ def toggle_prefs():
         ),
         '[MobiDetails - User prefs Error]'
     )
-    return md_utilities.danger_panel('', 'Sorry, something went wrong when trying to update your preferences.\
-                                              An admin has been warned. Please try again later.')
+    return md_utilities.danger_panel(
+        '',
+        'Sorry, something went wrong when trying to update your preferences.\
+An admin has been warned. Please try again later.'
+    )
 
 
 # -------------------------------------------------------------------
@@ -1045,11 +1097,15 @@ def toggle_prefs():
 @login_required
 def favourite():
     if (md_utilities.get_running_mode() == 'maintenance'):
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode()
+        )
     if re.search(r'^\d+$', request.form['vf_id']):
         vf_id = request.form['vf_id']
         if vf_id is None:
-            flash('Cannot mark a variant without id! Please contact us.', 'w3-pale-red')
+            flash('Cannot mark a variant without id! \
+Please contact us.', 'w3-pale-red')
             return 'notok'
         # print(vf_id)
         # g.user['id']
@@ -1057,19 +1113,22 @@ def favourite():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.form['marker'] == 'mark':
             curs.execute(
-                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) VALUES (%s, %s)",
+                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) \
+                VALUES (%s, %s)",
                 (g.user['id'], vf_id)
             )
         else:
             curs.execute(
-                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s AND feature_id = %s",
+                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s \
+                AND feature_id = %s",
                 (g.user['id'], vf_id)
             )
         db.commit()
         close_db()
         return 'ok'
     else:
-        flash('Cannot mark a variant without id! Please contact us.', 'w3-pale-red')
+        flash('Cannot mark a variant without id! \
+Please contact us.', 'w3-pale-red')
         return 'notok'
 
 # -------------------------------------------------------------------
@@ -1082,11 +1141,12 @@ def autocomplete():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
-    match_obj = re.search(rf'^rs(\d+)$', query)
+    match_obj = re.search(r'^rs(\d+)$', query)
     if match_obj:
         md_query = match_obj.group(1)
         curs.execute(
-            "SELECT dbsnp_id FROM variant_feature WHERE dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
+            "SELECT dbsnp_id FROM variant_feature WHERE \
+            dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
         )
         res = curs.fetchall()
         result = []
@@ -1101,14 +1161,22 @@ def autocomplete():
     if match_object:
         md_query = match_object.group(1)
         curs.execute(
-            "SELECT DISTINCT(a.c_name) as name, a.gene_name[2] as gene_name, b.nm_version FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.c_name LIKE '{}%' ORDER BY c_name LIMIT 10".format(md_query)
+            "SELECT DISTINCT(a.c_name) as name, a.gene_name[2] as gene_name, \
+            b.nm_version FROM variant_feature a, gene b WHERE \
+            a.gene_name = b.name AND a.c_name LIKE '{}%' ORDER BY \
+            c_name LIMIT 10".format(md_query)
         )
         res = curs.fetchall()
         result = []
         for var in res:
-            result.append('{0}.{1}:c.{2}'.format(var['gene_name'], var['nm_version'], var['name']))
+            result.append(
+                '{0}.{1}:c.{2}'.format(
+                    var['gene_name'],
+                    var['nm_version'],
+                    var['name']
+                )
+            )
         # print(json.dumps(result))
-        # print("SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query))
         if result is not None:
             return json.dumps(result)
         else:
@@ -1127,13 +1195,13 @@ def autocomplete():
     else:
         return ('', 204)
     curs.execute(
-        "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
+        "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE \
+        '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
     )
     res = curs.fetchall()
     result = []
     for gene in res:
         result.append(gene[0])
-    # print("SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query))
     if result is not None:
         return json.dumps(result)
     else:
@@ -1158,7 +1226,8 @@ def autocomplete_var():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
+            "SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' \
+            AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
                 gene, md_query
             )
         )
@@ -1167,7 +1236,6 @@ def autocomplete_var():
         for var in res:
             result.append('c.{}'.format(var[0]))
         # print(json.dumps(result))
-        # print("SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(gene, md_query))
         if result is not None:
             return json.dumps(result)
         else:
@@ -1182,7 +1250,6 @@ def autocomplete_var():
 def is_panelapp_entity():
     if 'gene_symbol' in request.form:
         gene_symbol = request.form['gene_symbol']
-        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
         panelapp = json.loads(
                         http.request(
                             'GET',
@@ -1196,17 +1263,20 @@ def is_panelapp_entity():
         if panelapp is not None and \
                 str(panelapp['count']) != '0':
             # we can propose the link
-            # panelapp_entity_url = '{0}panels/entities/{1}'.format(md_utilities.urls['panelapp'], main['name'][0])
-            return '<span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format(
+            return '<span class="w3-button" onclick=\
+"window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format(
                             '{0}panels/entities/{1}'.format(
-                                    md_utilities.urls['panelapp'], escape(gene_symbol)
+                                    md_utilities.urls['panelapp'],
+                                    escape(gene_symbol)
                                 )
                         )
 
         else:
-            return '<span class="w3-padding">No entry in panelApp for this gene</span>'
+            return '<span class="w3-padding">No entry in \
+panelApp for this gene</span>'
     else:
-        return '<span class="w3-padding">Unable to perform the PanelApp query</span>'
+        return '<span class="w3-padding">Unable to \
+perform the PanelApp query</span>'
 
 
 # -------------------------------------------------------------------
@@ -1215,7 +1285,7 @@ def is_panelapp_entity():
 
 @bp.route('/spip', methods=['POST'])
 def spip():
-    #print(request.form)
+    # print(request.form)
     variant_regexp = md_utilities.regexp['variant']
     if 'gene_symbol' in request.form and \
             'nm_acc' in request.form and \
@@ -1233,21 +1303,33 @@ def spip():
         i = 0
         dict_spip = {}
         for header in headers_spip:
-            if re.search(r'(gene|varID|chr|strand|gNomen|varType|ntChange|ExonInfo|transcript|seqPhysio|seqMutated)', header):
+            if re.search(
+                r'(gene|varID|chr|strand|gNomen|varType|ntChange|ExonInfo|transcript|seqPhysio|seqMutated)',
+                header
+                    ):
                 i += 1
                 continue
             if header == 'Interpretation':
                 if re.search(r'\+', scores_spip[i]):
-                    # we split intepretations with ' + ', then translate it and rejoin with the same separator
+                    # we split intepretations with ' + ', then translate it
+                    # and rejoin with the same separator
                     splitted_int = re.split(r' \+ ', scores_spip[i])
                     formatted_list = ''
                     for interpretation in splitted_int:
-                        formatted_list += ' + {}'.format(md_utilities.spip_annotations[interpretation])
+                        formatted_list += ' + {}'.format(
+                            md_utilities.spip_annotations[interpretation]
+                        )
 
-                    dict_spip[header] = [formatted_list, md_utilities.spip_headers[header]]
+                    dict_spip[header] = [
+                        formatted_list,
+                        md_utilities.spip_headers[header]
+                    ]
                     i += 1
                     continue
-                dict_spip[header] = [md_utilities.spip_annotations[scores_spip[i]], md_utilities.spip_headers[header]]
+                dict_spip[header] = [
+                    md_utilities.spip_annotations[scores_spip[i]],
+                    md_utilities.spip_headers[header]
+                ]
                 i += 1
                 continue
             if header == 'InterConfident':
@@ -1259,7 +1341,10 @@ def spip():
             if scores_spip[i] == 'Outside SPiCE Interpretation':
                 scores_spip[i] = 'Out of SPiCE interpretation region'
             # print('{0}-{1}'.format(header, scores_spip[i]))
-            dict_spip[header] = [scores_spip[i], md_utilities.spip_headers[header]]
+            dict_spip[header] = [
+                scores_spip[i],
+                md_utilities.spip_headers[header]
+            ]
             i += 1
         # print(dict_spip)
         return render_template('ajax/spip.html', spip_results=dict_spip)

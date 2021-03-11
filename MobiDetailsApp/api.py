@@ -35,7 +35,7 @@ def check_api_key(api_key=None):
         if response['mobiuser']['activated'] is True:
             return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='active')
         return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='inactive')
-    return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')            
+    return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
     # return jsonify(mobidetails_error='I cannot fetch the right parameters', api_key_pass_check=False, api_key_status='irrelevant')
 
 # -------------------------------------------------------------------
@@ -86,7 +86,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
-            return redirect(url_for('md.index'))    
+            return redirect(url_for('md.index'), code=302)
     if variant_chgvs and \
             caller and \
             api_key:
@@ -99,7 +99,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 return jsonify(res_check_api_key)
             else:
                 flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
         else:
             g.user = res_check_api_key['mobiuser']
         if md_utilities.check_caller(caller) == 'Invalid caller submitted':
@@ -107,7 +107,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
                 flash('Invalid caller submitted to API.', 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
 
         variant_regexp = md_utilities.regexp['variant']
         match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
@@ -133,8 +133,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         )
                     )
                 else:
-                    return redirect(url_for('md.variant', variant_id=res['id']))
-                
+                    return redirect(url_for('md.variant', variant_id=res['id']), code=302)
+
             else:
                 # creation
                 # get gene
@@ -148,13 +148,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return jsonify(mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no))
                     else:
                         flash('The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no), 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
                 if int(res_gene['nm_version']) != int(submitted_nm_version):
                     if caller == 'cli':
                         return jsonify(mobidetails_error='The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']))
                     else:
                         flash('The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']), 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
                 acc_version = res_gene['nm_version']
                 vv_base_url = md_utilities.get_vv_api_url()
                 if not vv_base_url:
@@ -163,13 +163,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return jsonify(mobidetails_error='Variant Validator looks down!')
                     else:
                         flash('Variant Validator looks down!', 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
                     vv_base_url, acc_no, acc_version, new_variant
                 )
                 vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                 # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-                try:                    
+                try:
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
                     close_db()
@@ -182,7 +182,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         except Exception:
                             flash('There has been a issue with the annotation of the variant via VariantValidator. \
                                   Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
                 if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
                     for key in vv_data.keys():
@@ -202,23 +202,23 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return jsonify(creation_dict)
                     else:
                         flash(creation_dict['mobidetails_error'], 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
                 if caller == 'cli':
                     return jsonify(creation_dict)
                 else:
-                    return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
+                    return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']), code=302)
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_chgvs)))
             else:
                 flash('The query seems to be malformed: {}.'.format(urllib.parse.unquote(variant_chgvs)), 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
     else:
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameters')
         else:
             flash('The submitted parameters looks invalid!!!', 'w3-pale-red')
-            return redirect(url_for('md.index'))
+            return redirect(url_for('md.index'), code=302)
 
 # -------------------------------------------------------------------
 # api - variant create from genomic HGVS eg NC_000001.11:g.40817273T>G and gene name (HGNC)
@@ -234,13 +234,13 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
     variant_ghgvs = md_utilities.get_post_param(request, 'variant_ghgvs')
     gene = md_utilities.get_post_param(request, 'gene_hgnc')
     api_key = md_utilities.get_post_param(request, 'api_key')
-    
+
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
-            return redirect(url_for('md.index'))
-    
+            return redirect(url_for('md.index'), code=302)
+
     if variant_ghgvs and \
             gene and \
             caller and \
@@ -254,7 +254,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                 return jsonify(res_check_api_key)
             else:
                 flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
         else:
             g.user = res_check_api_key['mobiuser']
 
@@ -263,7 +263,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
                 flash('Invalid caller submitted to API.', 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
 
         # check gene exists
         if re.search(r'^\d+$', gene):
@@ -306,7 +306,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     )
                     res = curs.fetchone()
                     if res:
-                        if caller == 'cli':                            
+                        if caller == 'cli':
                             return jsonify(
                                 mobidetails_id=res['feature_id'],
                                 url='{0}{1}'.format(
@@ -315,7 +315,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 )
                             )
                         else:
-                            return redirect(url_for('md.variant', variant_id=res['feature_id']))
+                            return redirect(url_for('md.variant', variant_id=res['feature_id']), code=302)
                     else:
                         # creation
                         vv_base_url = md_utilities.get_vv_api_url()
@@ -325,15 +325,15 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return jsonify(mobidetails_error='Variant Validator looks down!')
                             else:
                                 flash('Variant Validator looks down!', 'w3-pale-red')
-                                return redirect(url_for('md.index'))
-                        
+                                return redirect(url_for('md.index'), code=302)
+
                         vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
                             vv_base_url, genome_version, variant_ghgvs
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-                        try:                            
+                        try:
                             vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                         except Exception:
                             close_db()
@@ -346,7 +346,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 except Exception:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
                                           Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
-                                return redirect(url_for('md.index'))
+                                return redirect(url_for('md.index'), code=302)
                         # look for gene acc #
                         # print(vv_data)
                         new_variant = None
@@ -387,7 +387,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             if caller == 'cli':
                                 return jsonify(creation_dict)
                             else:
-                                return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']))
+                                return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']), code=302)
                         else:
                             if caller == 'cli':
                                 return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
@@ -398,32 +398,32 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 except Exception:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
                                           Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
-                                return redirect(url_for('md.index'))
+                                return redirect(url_for('md.index'), code=302)
 
                 else:
                     if caller == 'cli':
                         return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
                     else:
                         flash('The submitted chromosome or genome version looks corrupted (hg38 only).', 'w3-pale-red')
-                        return redirect(url_for('md.index'))
+                        return redirect(url_for('md.index'), code=302)
             else:
                 if caller == 'cli':
                     return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_ghgvs)))
                 else:
                     flash('The query seems to be malformed: {}.'.format(urllib.parse.unquote(variant_ghgvs)), 'w3-pale-red')
-                    return redirect(url_for('md.index'))
+                    return redirect(url_for('md.index'), code=302)
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='The gene {} is currently not available for variant annotation in MobiDetails'.format(gene))
             else:
                 flash('The gene {} is currently not available for variant annotation in MobiDetails'.format(gene), 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
     else:
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameters')
         else:
             flash('The submitted parameters looks invalid!!!', 'w3-pale-red')
-            return redirect(url_for('md.index'))
+            return redirect(url_for('md.index'), code=302)
 # -------------------------------------------------------------------
 # api - variant create from NCBI dbSNP rs id
 
@@ -438,7 +438,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
-            return redirect(url_for('md.index'))
+            return redirect(url_for('md.index'), code=302)
     if rs_id and \
             caller and \
             api_key:
@@ -451,7 +451,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 return jsonify(res_check_api_key)
             else:
                 flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
         else:
             g.user = res_check_api_key['mobiuser']
         # check caller
@@ -460,7 +460,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
                 flash('Invalid caller submitted to the API.', 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
         # check rs_id
         trunc_rs_id = None
         match_obj = re.search(r'^rs(\d+)$', rs_id)
@@ -487,9 +487,9 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         return jsonify(vars_rs)
                 else:
                     if len(res_rs) == 1:
-                        return redirect(url_for('md.variant', variant_id=res_rs['id']))
-                    else:                  
-                        return redirect(url_for('md.variant_multiple', vars_rs=vars_rs))
+                        return redirect(url_for('md.variant', variant_id=res_rs['id']), code=302)
+                    else:
+                        return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
             # use putalyzer to get HGVS noemclatures
             # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
             mutalyzer_url = "{0}getdbSNPDescriptions?rs_id={1}".format(
@@ -505,7 +505,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     return jsonify(mobidetails_error='Mutalyzer did not return any value for the variant {}.'.format(rs_id))
                 else:
                     flash('Mutalyzer did not return any value for the variant {}'.format(rs_id), 'w3-pale-red')
-                    return redirect(url_for('md.index'))
+                    return redirect(url_for('md.index'), code=302)
             # print(mutalyzer_data)
             md_response = {}
             # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
@@ -586,28 +586,28 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         for var in md_response:
                             if 'mobidetails_error' in md_response[var]:
                                 flash(md_response[var]['mobidetails_error'], 'w3-pale-red')
-                                return redirect(url_for('md.index'))
-                            return redirect(url_for('md.variant', variant_id=md_response[var]['mobidetails_id']))
-                    else:                        
+                                return redirect(url_for('md.index'), code=302)
+                            return redirect(url_for('md.variant', variant_id=md_response[var]['mobidetails_id']), code=302)
+                    else:
                         return render_template('md/variant_multiple.html', vars_rs=md_response)
 
             if caller == 'cli':
                 return jsonify(mobidetails_error='Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id))
             else:
                 flash('Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id={0}", target="_blank">Mutalyzer</a>, we did not find any suitable variant corresponding to your request {0}'.format(rs_id), 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid rs id provided')
             else:
                 flash('Invalid rs id provided', 'w3-pale-red')
-                return redirect(url_for('md.index'))
+                return redirect(url_for('md.index'), code=302)
     else:
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameter')
         else:
             flash('Invalid parameter', 'w3-pale-red')
-            return redirect(url_for('md.index'))
+            return redirect(url_for('md.index'), code=302)
             # return jsonify(mobidetails_error='Invalid rs id provided')
 
 

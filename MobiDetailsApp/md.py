@@ -31,7 +31,8 @@ def index():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) as transcript FROM gene WHERE variant_creation = 'ok'"
+        "SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) as \
+        transcript FROM gene WHERE variant_creation = 'ok'"
     )
     res = curs.fetchone()
     if res is None:
@@ -40,13 +41,19 @@ def index():
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails PostGreSQL error',
-                '<p>There is a problem with the number of genes.<br /> in {}</p>'.format(os.path.basename(__file__))
+                '<p>There is a problem with the number of genes.\
+<br /> in {}</p>'.format(os.path.basename(__file__))
             ),
             '[MobiDetails - PostGreSQL Error]'
         )
     else:
         close_db()
-        return render_template('md/index.html', run_mode=md_utilities.get_running_mode(), nb_genes=res['gene'], nb_isoforms=res['transcript'])
+        return render_template(
+            'md/index.html',
+            run_mode=md_utilities.get_running_mode(),
+            nb_genes=res['gene'],
+            nb_isoforms=res['transcript']
+        )
 
 # -------------------------------------------------------------------
 # web app - about
@@ -54,7 +61,13 @@ def index():
 
 @bp.route('/about')
 def about():
-    return render_template('md/about.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, local_files=md_utilities.local_files, external_tools=md_utilities.external_tools)
+    return render_template(
+        'md/about.html',
+        run_mode=md_utilities.get_running_mode(),
+        urls=md_utilities.urls,
+        local_files=md_utilities.local_files,
+        external_tools=md_utilities.external_tools
+    )
 
 # -------------------------------------------------------------------
 # web app - changelog
@@ -62,7 +75,11 @@ def about():
 
 @bp.route('/changelog')
 def changelog():
-    return render_template('md/changelog.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls)
+    return render_template(
+        'md/changelog.html',
+        run_mode=md_utilities.get_running_mode(),
+        urls=md_utilities.urls
+    )
 
 # -------------------------------------------------------------------
 # web app - gene
@@ -77,7 +94,6 @@ def gene(gene_name=None):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform? now canonical is stored in db
-    # "SELECT * FROM gene WHERE name[1] = '{0}' AND number_of_exons = (SELECT MAX(number_of_exons) FROM gene WHERE name[1] = '{0}')".format(gene_name)
     curs.execute(
         "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
         (gene_name,)
@@ -85,7 +101,8 @@ def gene(gene_name=None):
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT * FROM gene WHERE name[1] = %s ORDER BY number_of_exons DESC",
+            "SELECT * FROM gene WHERE name[1] = %s \
+            ORDER BY number_of_exons DESC",
             (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
@@ -93,25 +110,43 @@ def gene(gene_name=None):
         # in panelApp ?
         # we check  if the gene is in panelApp, if it is, we propose a link
         # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
-        http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+        http = urllib3.PoolManager(
+            cert_reqs='CERT_REQUIRED',
+            ca_certs=certifi.where()
+        )
 
         # get metadome json?
         enst_ver = {}
-        # if not json metadome file on filesystem, create it in radboud server, then next time get it - it will then be available for future requests
+        # if not json metadome file on filesystem, create it in
+        # radboud server, then next time get it - it will then be
+        # available for future requests
         # if we have the main => next step
-        if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], main['enst'])):
+        if not os.path.isfile(
+            '{0}{1}.json'.format(
+                md_utilities.local_files['metadome']['abs_path'],
+                main['enst']
+            )
+                ):
             for gene in result_all:
-                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):                    
+                if not os.path.isfile(
+                    '{0}{1}.json'.format(
+                        md_utilities.local_files['metadome']['abs_path'],
+                        gene['enst']
+                    )
+                        ):
                     if gene['enst'] not in enst_ver:
                         # get enst versions in a dict
                         metad_ts = None
                         try:
-                            # print('{0}get_transcripts/{1}'.format(md_utilities.urls['metadome_api'], gene['name'][0]))
+                            # print('{0}get_transcripts/{1}'
+                            # .format(md_utilities.urls['metadome_api'],
+                            # gene['name'][0]))
                             metad_ts = json.loads(
                                         http.request(
                                             'GET',
                                             '{0}get_transcripts/{1}'.format(
-                                                md_utilities.urls['metadome_api'], gene['name'][0]
+                                                md_utilities.urls['metadome_api'],
+                                                gene['name'][0]
                                             )
                                         ).data.decode('utf-8')
                             )
@@ -119,13 +154,17 @@ def gene(gene_name=None):
                                     'trancript_ids' in metad_ts:
                                 for ts in metad_ts['trancript_ids']:
                                     if ts['has_protein_data']:
-                                        match_obj = re.search(r'^(ENST\d+)\.\d', ts['gencode_id'])
+                                        match_obj = re.search(
+                                            r'^(ENST\d+)\.\d',
+                                            ts['gencode_id']
+                                        )
                                         enst_ver[match_obj.group(1)] = ts['gencode_id']
                         except Exception as e:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    '<p>MetaDome first block code failed for \
+gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         gene_name,
                                         gene['enst'],
                                         os.path.basename(__file__),
@@ -142,7 +181,12 @@ def gene(gene_name=None):
             # print('enst: {}'.format(enst_ver[enst]))
             # print('--{}--'.format(app.debug))
             # print(json.dumps({'transcript_id': enst_ver[enst]}))
-            if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], enst)):
+            if not os.path.isfile(
+                '{0}{1}.json'.format(
+                    md_utilities.local_files['metadome']['abs_path'],
+                    enst
+                )
+                    ):
                 metad_data = None
                 try:
                     metad_data = json.loads(
@@ -157,7 +201,8 @@ def gene(gene_name=None):
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails API error',
-                            '<p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                            '<p>MetaDome second block code failed for gene \
+{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                 gene_name,
                                 enst,
                                 os.path.basename(__file__),
@@ -184,18 +229,28 @@ def gene(gene_name=None):
                                                 ),
                                                 # headers={'Content-Type': 'application/json'},
                                                 headers=header,
-                                                body=json.dumps({'transcript_id': enst_ver[enst]})
+                                                body=json.dumps(
+                                                    {'transcript_id': enst_ver[enst]}
+                                                )
                                             ).data.decode('utf-8')
                             )
                             if not app.debug:
-                                app.logger.info('{} submitted to metadome'.format(vis_request['transcript_id']))
+                                app.logger.info(
+                                    '{} submitted to metadome'.format(
+                                        vis_request['transcript_id']
+                                    )
+                                )
                             else:
-                                print('{} submitted to metadome'.format(vis_request['transcript_id']))
+                                print('{} submitted to metadome'.format(
+                                        vis_request['transcript_id']
+                                    )
+                                )
                         except Exception as e:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    '<p>Error with metadome submission for \
+{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__),
@@ -204,7 +259,8 @@ def gene(gene_name=None):
                                 ),
                                 '[MobiDetails - API Error]'
                             )
-                            # print('Error with metadome submission for {}'.format(enst))
+                            # print('Error with metadome
+                            # submission for {}'.format(enst))
                     elif metad_data['status'] == 'SUCCESS':
                         # get_request = None
                         try:
@@ -218,17 +274,36 @@ def gene(gene_name=None):
                                             ).data.decode('utf-8')
                                         )
                             # copy in file system
-                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], enst), "w", encoding='utf-8') as metad_file:
-                                json.dump(get_request, metad_file, ensure_ascii=False, indent=4)
+                            with open(
+                                '{0}{1}.json'.format(
+                                    md_utilities.local_files['metadome']['abs_path'],
+                                    enst
+                                ),
+                                "w",
+                                encoding='utf-8'
+                            ) as metad_file:
+                                json.dump(
+                                    get_request,
+                                    metad_file,
+                                    ensure_ascii=False,
+                                    indent=4
+                                )
                             if not app.debug:
-                                app.logger.info('saving metadome {} into local file system'.format(enst_ver[enst]))
+                                app.logger.info(
+                                    'saving metadome {} into local file system'
+                                    .format(enst_ver[enst])
+                                )
                             else:
-                                print('saving metadome {} into local file system'.format(enst_ver[enst]))
+                                print(
+                                    'saving metadome {} into local file system'
+                                    .format(enst_ver[enst])
+                                )
                         except Exception as e:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    '<p>Error with metadome file writing for \
+{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__),
@@ -237,7 +312,8 @@ def gene(gene_name=None):
                                 ),
                                 '[MobiDetails - API Error]'
                             )
-                            # print('error saving metadome json file for {}'.format(enst))
+                            # print('error saving metadome json
+                            # file for {}'.format(enst))
         if result_all is not None:
             # get annotations
             curs.execute(
@@ -249,15 +325,29 @@ def gene(gene_name=None):
                 annot = {'nognomad': 'No values in gnomAD'}
             close_db()
             return render_template(
-                'md/gene.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, gene=gene_name,
-                num_iso=num_iso, main_iso=main, res=result_all, annotations=annot
+                'md/gene.html',
+                run_mode=md_utilities.get_running_mode(),
+                urls=md_utilities.urls,
+                gene=gene_name,
+                num_iso=num_iso,
+                main_iso=main,
+                res=result_all,
+                annotations=annot
             )
         else:
             close_db()
-            return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
+            return render_template(
+                'md/unknown.html',
+                run_mode=md_utilities.get_running_mode(),
+                query=gene_name
+            )
     else:
         close_db()
-        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
+        return render_template(
+            'md/unknown.html',
+            run_mode=md_utilities.get_running_mode(),
+            query=gene_name
+        )
 
 # -------------------------------------------------------------------
 # web app - all genes
@@ -273,10 +363,17 @@ def genes():
     genes = curs.fetchall()
     if genes:
         close_db()
-        return render_template('md/genes.html', run_mode=md_utilities.get_running_mode(), genes=genes)
+        return render_template(
+            'md/genes.html',
+            run_mode=md_utilities.get_running_mode(),
+            genes=genes
+        )
     else:
         close_db()
-        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
+        return render_template(
+            'md/unknown.html',
+            run_mode=md_utilities.get_running_mode()
+        )
 
 # -------------------------------------------------------------------
 # web app - variants in genes
@@ -305,21 +402,33 @@ def vars(gene_name=None):
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
-            "SELECT *, a.id as vf_id, d.nm_version FROM variant_feature a, variant b, mobiuser c, gene d WHERE a.id = b.feature_id AND \
-             a.creation_user = c.id  AND a.gene_name = d.name AND a.gene_name[1] = %s AND \
-             b.genome_version = 'hg38'",
+            "SELECT *, a.id as vf_id, d.nm_version FROM variant_feature a, \
+            variant b, mobiuser c, gene d WHERE a.id = b.feature_id AND \
+            a.creation_user = c.id  AND a.gene_name = d.name \
+            AND a.gene_name[1] = %s AND \
+            b.genome_version = 'hg38'",
             (gene_name,)
         )
         variants = curs.fetchall()
         # if vars_type is not None:
         close_db()
         return render_template(
-            'md/vars.html', run_mode=md_utilities.get_running_mode(), urls=md_utilities.urls, gene=gene_name,
-            num_iso=num_iso, variants=variants, gene_info=main, res=result_all
+            'md/vars.html',
+            run_mode=md_utilities.get_running_mode(),
+            urls=md_utilities.urls,
+            gene=gene_name,
+            num_iso=num_iso,
+            variants=variants,
+            gene_info=main,
+            res=result_all
         )
     else:
         close_db()
-        return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query=gene_name)
+        return render_template(
+            'md/unknown.html',
+            run_mode=md_utilities.get_running_mode(),
+            query=gene_name
+        )
 
 
 # -------------------------------------------------------------------
@@ -337,8 +446,10 @@ def variant(variant_id=None):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # get all variant_features and gene info
     curs.execute(
-        "SELECT *, a.id as var_id, c.id as mobiuser_id, d.so_accession FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
-        WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.prot_type = d.prot_type AND a.id = %s",
+        "SELECT *, a.id as var_id, c.id as mobiuser_id, d.so_accession \
+        FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
+        WHERE a.gene_name = b.name AND a.creation_user = c.id \
+        AND a.prot_type = d.prot_type AND a.id = %s",
         (variant_id,)
     )
     variant_features = curs.fetchone()
@@ -376,7 +487,8 @@ def variant(variant_id=None):
             if var['genome_version'] == 'hg38':
                 # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
                 curs.execute(
-                    "SELECT ncbi_name, genome_version FROM chromosomes WHERE name = %s",
+                    "SELECT ncbi_name, genome_version \
+                    FROM chromosomes WHERE name = %s",
                     (var['chr'],)
                 )
                 res_chr = curs.fetchall()
@@ -387,29 +499,24 @@ def variant(variant_id=None):
                         annot['ncbi_chr_hg38'] = res['ncbi_name']
                 # compute position / splice sites
                 if variant_features['variant_size'] < 50 and \
-                        variant_features['start_segment_type'] == 'exon':  # and \
-                    # variant_features['start_segment_type'] == variant_features['end_segment_type'] and \
-                    # variant_features['start_segment_number'] == variant_features['end_segment_number']: # and \
-                    # not re.search(r'\*', variant_features['c_name']) and \
-                    # not re.search(r'^-', variant_features['c_name']):
+                        variant_features['start_segment_type'] == 'exon':
                     curs.execute(
                         "SELECT * FROM segment WHERE genome_version = %s\
-                        AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
-                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], variant_features['start_segment_number'])
+                        AND gene_name[1] = %s and gene_name[2] = %s \
+                        AND type = 'exon' AND number = %s",
+                        (var['genome_version'],
+                            variant_features['gene_name'][0],
+                            variant_features['gene_name'][1],
+                            variant_features['start_segment_number'])
                     )
                     positions = curs.fetchone()
                     # get info to build hexoSplice link
                     if variant_features['dna_type'] == 'substitution':
                         annot['exon_sequence'] = md_utilities.get_exon_sequence(positions, var['chr'], variant_features['strand'])
                         annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(positions, var['pos'], variant_features['c_name'])
-                        # annot['hexosplice_link'] = '{0}results.php?refSeq={1}&amp;variation=c.{2}&amp;c={3}'.format(md_utilities.urls['hexosplice'], exon_sequence, variant_features['c_name'], exon_first_nt_cdna_position)
-                    # if not re.search(r'\*', variant_features['c_name']) and \
-                    #        not re.search(r'^-', variant_features['c_name']):
-                    # if not re.search(r'^[\*-]', variant_features['c_name']):
                     # get a tuple ['site_type', 'dist(bp)']
-                    (annot['nearest_site_type'], annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(
-                        var['pos'], positions
-                    )
+                    (annot['nearest_site_type'],
+                        annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(var['pos'], positions)
                     # relative position in exon for canvas drawing
                     # get a tuple ['relative position in exon canvas', 'segment_size']
                     (annot['pos_exon_canvas'], annot['segment_size']) = md_utilities.get_pos_exon_canvas(
@@ -561,7 +668,7 @@ def variant(variant_id=None):
                     # print(record)
                     annot['gnomadv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP
-                # # Eigen from dbNSFP for coding variants                
+                # # Eigen from dbNSFP for coding variants
                 # if variant_features['dna_type'] == 'substitution' and \
                 #         re.search(r'^[^\*-]', variant_features['c_name']) and \
                 #         variant_features['start_segment_type'] == 'exon':
@@ -629,7 +736,7 @@ def variant(variant_id=None):
                         # annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record
                         # )
-                        
+
                         annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')
                         if annot['sift_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -734,14 +841,14 @@ def variant(variant_id=None):
                             annot['clinpred_score'] = format(float(annot['clinpred_score']), '.3f')
                         except Exception:
                             pass
-                            
+
                         annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
-                        
+
                         # REVEL
                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                             transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                         )
-                        
+
                         # annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
                         # )
@@ -802,7 +909,7 @@ def variant(variant_id=None):
                     if isinstance(record, str):
                         annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
                     else:
-                        # Eigen from dbMTS for 3'UTR variants 
+                        # Eigen from dbMTS for 3'UTR variants
                         try:
                             annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_value_col'])]), '.2f')
                             annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_pred_col'])]), '.2f')
@@ -866,7 +973,7 @@ def variant(variant_id=None):
                             # annot['rnahybrid_altbestscore'] = record[211]
                         except Exception:
                             annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
-                        
+
                 # CADD
                 if variant_features['dna_type'] == 'substitution':
                     if variant_features['prot_type'] != 'missense':

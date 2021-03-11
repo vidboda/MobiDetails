@@ -49,7 +49,7 @@ def create_app(test_config=None):
     mail.init_app(app)
     csrf.init_app(app)
     paranoid = Paranoid(app)
-    paranoid.redirect_view = '/MD/auth/login'
+    paranoid.redirect_view = 'md.index'
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
@@ -97,13 +97,16 @@ def create_app(test_config=None):
     #     return 'Flask factory ok!'
     # if not app.debug:
     #     # logging into a file
-    #     # (from https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-vii-error-handling)
+    #     # (from https://blog.miguelgrinberg.com/post/
+    #       the-flask-mega-tutorial-part-vii-error-handling)
     #     if not os.path.exists('logs'):
     #         os.mkdir('logs')
-    #     file_handler = RotatingFileHandler('logs/mobidetails.log', maxBytes=10240,
+    #     file_handler =
+    #       RotatingFileHandler('logs/mobidetails.log', maxBytes=10240,
     #                                        backupCount=10)
     #     file_handler.setFormatter(logging.Formatter(
-    #         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    #         '%(asctime)s %(levelname)s:
+    #       %(message)s [in %(pathname)s:%(lineno)d]'))
     #     file_handler.setLevel(logging.INFO)
     #     app.logger.addHandler(file_handler)
     #     app.logger.setLevel(logging.INFO)
