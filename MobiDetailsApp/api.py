@@ -28,7 +28,11 @@ def check_api_key(api_key=None):
     # elif 'api_key' in request.form:
     #     api_key = request.form['api_key']
     if not api_key:
-        return jsonify(mobidetails_error='I cannot fetch the right parameters', api_key_pass_check=False, api_key_status='irrelevant')
+        return jsonify(
+            mobidetails_error='I cannot fetch the right parameters',
+            api_key_pass_check=False,
+            api_key_status='irrelevant'
+        )
     db = get_db()
     response = md_utilities.check_api_key(db, api_key)
     if 'mobiuser' in response:
@@ -36,7 +40,6 @@ def check_api_key(api_key=None):
             return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='active')
         return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='inactive')
     return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
-    # return jsonify(mobidetails_error='I cannot fetch the right parameters', api_key_pass_check=False, api_key_status='irrelevant')
 
 # -------------------------------------------------------------------
 # api - variant exists?
@@ -60,12 +63,17 @@ def api_variant_exists(variant_ghgvs=None):
         )
         res = curs.fetchone()
         if res is not None:
-            return jsonify(mobidetails_id=res['feature_id'], url='{0}{1}'.format(
-                request.host_url[:-1], url_for('md.variant', variant_id=res['feature_id'])
-            ))
-            # return jsonify(mobidetails_id=res['feature_id'])
+            return jsonify(
+                mobidetails_id=res['feature_id'],
+                url='{0}{1}'.format(
+                    request.host_url[:-1],
+                    url_for(
+                        'md.variant',
+                        variant_id=res['feature_id']
+                    )
+                )
+            )
         else:
-            # return jsonify("SELECT feature_id FROM variant WHERE g_name = 'chr{0}:g.{1}' AND genome_version = '{2}'".format(chrom, pattern, genome_version))
             return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
     else:
         return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
@@ -84,7 +92,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     api_key = md_utilities.get_post_param(request, 'api_key')
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
-            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+            return jsonify(
+                mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.'
+            )
         else:
             return redirect(url_for('md.index'), code=302)
     if variant_chgvs and \
@@ -110,7 +120,10 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 return redirect(url_for('md.index'), code=302)
 
         variant_regexp = md_utilities.regexp['variant']
-        match_object = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', urllib.parse.unquote(variant_chgvs))
+        match_object = re.search(
+            rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})',
+            urllib.parse.unquote(variant_chgvs)
+        )
         if match_object:
             # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
             acc_no, submitted_nm_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
@@ -145,9 +158,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 res_gene = curs.fetchone()
                 if res_gene is None:
                     if caller == 'cli':
-                        return jsonify(mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no))
+                        return jsonify(
+                            mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no)
+                        )
                     else:
-                        flash('The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no), 'w3-pale-red')
+                        flash(
+                            'The gene corresponding to {} is not available for variant annotation in MobiDetails.'.format(acc_no),
+                            'w3-pale-red'
+                        )
                         return redirect(url_for('md.index'), code=302)
                 if int(res_gene['nm_version']) != int(submitted_nm_version):
                     if caller == 'cli':
@@ -174,7 +192,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 except Exception:
                     close_db()
                     if caller == 'cli':
-                        return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(new_variant))
+                        return jsonify(
+                            mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(new_variant)
+                        )
                     else:
                         try:
                             flash('There has been a issue with the annotation of the variant via VariantValidator. \
@@ -184,7 +204,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                   Sorry for the inconvenience. You may want to try again in a few minutes.', 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
                 if re.search('[di][neu][psl]', new_variant):
-                    # need to redefine vv_key_var for indels as the variant name returned by vv is likely to be different form the user's
+                    # need to redefine vv_key_var for indels as the variant name returned
+                    # by vv is likely to be different form the user's
                     for key in vv_data.keys():
                         if re.search('{0}.{1}'.format(acc_no, acc_version), key):
                             vv_key_var = key

@@ -390,8 +390,7 @@ def lovd():
                     "No match in LOVD public instances"
                 )
                 # return 'No match in LOVD public instances'
-            lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t\
-"nm_accession"\t"DNA"\t"url"')
+            lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t\"nm_accession"\t"DNA"\t"url"')
             lovd_urls = []
             i = 1
             html = ''
@@ -408,8 +407,13 @@ def lovd():
                 for url in lovd_urls:
                     lovd_name = None
                     url = url.replace('"', '')
-                    lovd_base_url = '{0}://{1}{2}'.format(
-                        url_parse(url).scheme,
+                    # lovd_base_url = '{0}://{1}{2}'.format(
+                    #     url_parse(url).scheme,
+                    #     url_parse(url).host,
+                    #     url_parse(url).path
+                    # )
+                    # we don't require to match the scheme
+                    lovd_base_url = '://{1}{2}'.format(
                         url_parse(url).host,
                         url_parse(url).path
                     )
