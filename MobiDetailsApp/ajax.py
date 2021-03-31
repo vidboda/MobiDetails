@@ -980,9 +980,9 @@ def create():
             # is vv alive?
 
             # vv_alive = None
-            print('--- 1- {} seconds ---'.format((time.time() - start_time)))
+            # print('--- 1- {} seconds ---'.format((time.time() - start_time)))
             vv_base_url = md_utilities.get_vv_api_url()
-            print('--- 2- {} seconds ---'.format((time.time() - start_time)))
+            # print('--- 2- {} seconds ---'.format((time.time() - start_time)))
 
             if not vv_base_url:
                 close_db()
@@ -1000,7 +1000,7 @@ def create():
                 )
             vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
 
-            print('--- 3- {} seconds ---'.format((time.time() - start_time)))
+            # print('--- 3- {} seconds ---'.format((time.time() - start_time)))
 
             try:
                 vv_data = json.loads(http.request(
@@ -1032,7 +1032,7 @@ def create():
 c. nomenclature (including c.)'
             )
 
-        print('--- 4- {} seconds ---'.format((time.time() - start_time)))
+        # print('--- 4- {} seconds ---'.format((time.time() - start_time)))
 
         return md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
