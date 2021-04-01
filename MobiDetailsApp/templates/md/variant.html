@@ -6,7 +6,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?210307" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?210307" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -75,7 +75,7 @@
 					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}
 					{% if variant_features.dna_type == 'substitution' %}
 						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
-						{% if variant_features.start_segment_type == 'exon' %}
+						{% if variant_features.start_segment_type == 'exon' and annot.exon_first_nt_cdna_position > 1 %}
 							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, annot.exon_sequence, variant_features.c_name, annot.exon_first_nt_cdna_position), "HexoSplice") }}
 						{% else %}
 							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, variant_features.wt_seq|replace(' ', ''), annot.substitution_nature), "HexoSplice") }}

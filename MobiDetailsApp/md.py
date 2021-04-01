@@ -101,7 +101,7 @@ def gene(gene_name=None):
         # if we have the main => next step
         if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], main['enst'])):
             for gene in result_all:
-                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):                    
+                if not os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], gene['enst'])):
                     if gene['enst'] not in enst_ver:
                         # get enst versions in a dict
                         metad_ts = None
@@ -402,6 +402,8 @@ def variant(variant_id=None):
                     if variant_features['dna_type'] == 'substitution':
                         annot['exon_sequence'] = md_utilities.get_exon_sequence(positions, var['chr'], variant_features['strand'])
                         annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(positions, var['pos'], variant_features['c_name'])
+                        if annot['exon_first_nt_cdna_position'] < 1:
+                            annot['substitution_nature'] = md_utilities.get_substitution_nature(variant_features['c_name'])
                         # annot['hexosplice_link'] = '{0}results.php?refSeq={1}&amp;variation=c.{2}&amp;c={3}'.format(md_utilities.urls['hexosplice'], exon_sequence, variant_features['c_name'], exon_first_nt_cdna_position)
                     # if not re.search(r'\*', variant_features['c_name']) and \
                     #        not re.search(r'^-', variant_features['c_name']):
@@ -561,7 +563,7 @@ def variant(variant_id=None):
                     # print(record)
                     annot['gnomadv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP
-                # # Eigen from dbNSFP for coding variants                
+                # # Eigen from dbNSFP for coding variants
                 # if variant_features['dna_type'] == 'substitution' and \
                 #         re.search(r'^[^\*-]', variant_features['c_name']) and \
                 #         variant_features['start_segment_type'] == 'exon':
@@ -629,7 +631,7 @@ def variant(variant_id=None):
                         # annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 36, 38, ';', 'basic', 1.1, 'lt', record
                         # )
-                        
+
                         annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')
                         if annot['sift_pred'] == 'Damaging':
                             mpa_missense += 1
@@ -734,14 +736,14 @@ def variant(variant_id=None):
                             annot['clinpred_score'] = format(float(annot['clinpred_score']), '.3f')
                         except Exception:
                             pass
-                            
+
                         annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
-                        
+
                         # REVEL
                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                             transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                         )
-                        
+
                         # annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
                         #     transcript_index, 78, 78, ';', 'basic', '-1', 'gt', record
                         # )
@@ -802,7 +804,7 @@ def variant(variant_id=None):
                     if isinstance(record, str):
                         annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
                     else:
-                        # Eigen from dbMTS for 3'UTR variants 
+                        # Eigen from dbMTS for 3'UTR variants
                         try:
                             annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_value_col'])]), '.2f')
                             annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_pred_col'])]), '.2f')
@@ -866,7 +868,7 @@ def variant(variant_id=None):
                             # annot['rnahybrid_altbestscore'] = record[211]
                         except Exception:
                             annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
-                        
+
                 # CADD
                 if variant_features['dna_type'] == 'substitution':
                     if variant_features['prot_type'] != 'missense':
