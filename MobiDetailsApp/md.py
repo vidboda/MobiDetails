@@ -512,8 +512,16 @@ def variant(variant_id=None):
                     positions = curs.fetchone()
                     # get info to build hexoSplice link
                     if variant_features['dna_type'] == 'substitution':
-                        annot['exon_sequence'] = md_utilities.get_exon_sequence(positions, var['chr'], variant_features['strand'])
-                        annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(positions, var['pos'], variant_features['c_name'])
+                        annot['exon_sequence'] = md_utilities.get_exon_sequence(
+                            positions, var['chr'], variant_features['strand']
+                        )
+                        annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(
+                            positions, var['pos'], variant_features['c_name']
+                        )
+                        if annot['exon_first_nt_cdna_position'] < 1:
+                            annot['substitution_nature'] = md_utilities.get_substitution_nature(
+                                variant_features['c_name']
+                            )
                     # get a tuple ['site_type', 'dist(bp)']
                     (annot['nearest_site_type'],
                         annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(var['pos'], positions)
