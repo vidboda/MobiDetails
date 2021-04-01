@@ -413,7 +413,7 @@ def lovd():
                     #     url_parse(url).path
                     # )
                     # we don't require to match the scheme
-                    lovd_base_url = '://{1}{2}'.format(
+                    lovd_base_url = 'https://{0}{1}'.format(
                         url_parse(url).host,
                         url_parse(url).path
                     )
