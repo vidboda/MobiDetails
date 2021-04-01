@@ -22,7 +22,7 @@
 		{% block title %}
 			{% if variant_features is defined %}
 				{{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}
-			{% endif %}		
+			{% endif %}
 		{% endblock %} - MobiDetails</title>
 	</head>
 	<!--<body onload="show_loader();">-->
@@ -48,7 +48,7 @@
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('md.changelog') }}';">Change log</span>
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='/MDAPI/';">Swagger API</span>
 						</div>
-					</div>					
+					</div>
 					<!--about-->
 					<!--<div class="w3-dropdown-hover">-->
 					<!--	<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="window.location='{{ url_for('md.about') }}';" title="About Mobidetails">-->
@@ -91,7 +91,7 @@
 						</div>
 						{#{% else %}#}
 							<!--<span class="w3-bar-item w3-xlarge" id="app_desc">Online DNA Variants Interpretation</span>-->
-					{% endif %}					
+					{% endif %}
 					<!--auth-->
 					<div>
 					{% if g.user %}
@@ -101,7 +101,7 @@
 						</span>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="show_loader();window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
-						</span>						
+						</span>
 						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
 					{% else %}
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
@@ -122,7 +122,6 @@
 		{% if run_mode  and run_mode == 'maintenance' %}
 			<br />
 			<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
-				<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
 				<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
 			</div>
 		{% endif %}
@@ -136,6 +135,10 @@
 			{% endautoescape %}
 		{% endfor %}
 		<br />
+		<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
+			<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> IMPORTANT NOTICE: MobiDetails will permanentely be shut down on April, 2, 2021, due to a lack of time for maintenance. We gratefully thank all users for their support.</strong></p>
+		</div>
+		<br />
 		{# {{ info("October, 16th, LitVar service has been restored.") }} #}
 		{#{{ danger("IMPORTANT NOTICE:<br /> MobiDetails is currently facing a technical issue which can slow down your interpretation or even prevent it. <br />Apologies for any inconvenience. We are working on it. Some complete service interruptions may occur in the coming days.") }}#}
 		{#{{ danger("IMPORTANT NOTICE:<br /> Another important security improvement has been applied on the web server (2020/04/09). If you see an error page mentioning 'tokens', please close all MobiDetails tabs then just empty your <a href='https://www.wikihow.com/Clear-Your-Browser%27s-Cache#' target='_blank'>browser's cache</a> and come back to the site. The configuration should now be stable. Sorry for the inconvenience.") }}#}
@@ -144,7 +147,7 @@
 		<div id="footer">
 			<div class="w3-bottom" style="z-index:1112">
 				<div class="w3-bar w3-card-2 w3-black" id="mdNavBarBot">
-					<!--search engine-->					
+					<!--search engine-->
 					<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form" onsubmit="$('#submit_a').prop('disabled', true);show_loader();">
 						<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 						<div class="w3-row-padding">
@@ -158,12 +161,12 @@
 						</div>
 					</form>
 					<!--autocomplete-->
-					<script type="text/javascript">						
+					<script type="text/javascript">
 						$('#engine').autocomplete({
 							source: function(request, response){
 								// var req_encoded = request.term;
 								// req_encoded = req_encoded.replace(/>/g,"%3E");
-								//send header for flask-wtf crsf security	
+								//send header for flask-wtf crsf security
 								var csrf_token = "{{ csrf_token() }}";
 								$.ajaxSetup({
 									beforeSend: function(xhr, settings) {
