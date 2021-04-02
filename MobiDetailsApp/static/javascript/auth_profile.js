@@ -72,3 +72,24 @@ function empty_variant_list(ajax_url, csrf_token) {
     $('html').css('cursor', 'default');
   });
 }
+
+function create_unique_url(ajax_url, csrf_token) {
+  // ajax to generate a unique URL coresponding to a variant list
+  $('html').css('cursor', 'progress');
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+    type: "POST",
+    url: ajax_url
+  })
+  .done(function(url) {
+    $("#comment").text("Your unique URL for this list of variants is: " + url);
+    $('html').css('cursor', 'default');
+  });
+}

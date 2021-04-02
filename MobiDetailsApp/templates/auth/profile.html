@@ -100,7 +100,8 @@
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 			{% if run_mode and run_mode == 'on' %}
 				{% if num_var_fav > 0 %}
-					<button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');">Empty your favourite list</button>
+					<button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');">Empty your favourite list</button>&nbsp;&nbsp;&nbsp;&nbsp;
+					<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');">Generate a unique URL for this list of variants</button>
 				{% endif %}
 				<div id="comment"></div>
 			{% else %}

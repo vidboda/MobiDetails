@@ -11,6 +11,7 @@ from . import md_utilities
 import psycopg2
 import psycopg2.extras
 import json
+import secrets
 import urllib3
 import certifi
 import datetime
@@ -1150,8 +1151,34 @@ def empty_favourite_list():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "DELETE FROM mobiuser_favourite where mobiuser_id = %s",
+        "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s",
         (g.user['id'],)
+    )
+    db.commit()
+    close_db()
+    return 'ok'
+
+# -------------------------------------------------------------------
+# web app - ajax to generate a unique URL corresponding to a list of favourite variants
+
+
+@bp.route('/create_unique_url', methods=['POST'])
+@login_required
+def empty_favourite_list():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template(
+            'auth/profile.html',
+            run_mode=md_utilities.get_running_mode()
+        )
+    # generate URL token
+    url_end = secrets.token_urlsafe(32)
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # TO BE FINISHED
+    curs.execute(
+        "INSERT INTO variants_groups(id, mobiuser_id, creation_date, list_name, variant_ids) \
+        VALUES(%s, %s, %s, %s, %s)",
+        (url_end, g.user['id'],)
     )
     db.commit()
     close_db()
