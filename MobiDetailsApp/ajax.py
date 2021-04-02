@@ -923,7 +923,7 @@ An admin has been warned.')
 
 @bp.route('/create', methods=['POST'])
 def create():
-    start_time = time.time()
+    # start_time = time.time()
     # print(request.form['new_variant'])
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
@@ -1134,6 +1134,28 @@ Please contact us.', 'w3-pale-red')
         flash('Cannot mark a variant without id! \
 Please contact us.', 'w3-pale-red')
         return 'notok'
+
+# -------------------------------------------------------------------
+# web app - ajax to empty a list of favourite variants for logged users
+
+
+@bp.route('/empty_favourite_list', methods=['POST'])
+@login_required
+def empty_favourite_list():
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template(
+            'auth/profile.html',
+            run_mode=md_utilities.get_running_mode()
+        )
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    curs.execute(
+        "DELETE FROM mobiuser_favourite where mobiuser_id = %s",
+        (g.user['id'],)
+    )
+    db.commit()
+    close_db()
+    return 'ok'
 
 # -------------------------------------------------------------------
 # web app - ajax for search engine autocomplete
