@@ -123,7 +123,7 @@ function delete_list(ajax_url, list_name, csrf_token) {
       $("#" + list_name).hide();
     }
     else {
-      $("#comment_list").html('Something went wrong with teh deletion of your list. Please do not hesitate to advise us.');
+      $("#comment_list").html('Something went wrong with the deletion of your list. Please do not hesitate to warn us.');
     }
     $('html').css('cursor', 'default');
   });

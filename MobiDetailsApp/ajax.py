@@ -1259,6 +1259,32 @@ def create_unique_url():
                 ),
                 color_class='w3-pale-green'
             )
+        else:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails error',
+                    '<p>TinyURL service failed for \
+                    {0}</p>'.format(g.user['id'])
+                ),
+                '[MobiDetails - MD tinyurl Error]'
+            )
+            return md_utilities.danger_panel(
+                '',
+                'Sorry, something already went wrong with the creation of \
+                your list. An admin has been warned.')
+    else:
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails error',
+                '<p>TinyURL service failed for \
+                {0}</p>'.format(g.user['id'])
+            ),
+            '[MobiDetails - MD tinyurl Error]'
+        )
+        return md_utilities.danger_panel(
+            '',
+            'Sorry, something already went wrong with the creation of \
+            your list. An admin has been warned.')
 
 # -------------------------------------------------------------------
 # web app - ajax to generate a unique URL corresponding to a list of favourite variants
@@ -1283,6 +1309,8 @@ def delete_variant_list(list_name):
         db.commit()
         close_db()
         return 'success'
+    else:
+        return 'failed'
 
 # -------------------------------------------------------------------
 # web app - ajax for search engine autocomplete
