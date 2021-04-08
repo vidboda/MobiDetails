@@ -109,15 +109,6 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
     with app.app_context():
         if api_key == '':
             api_key = get_generic_api_key()
-            # db = get_db()
-            # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            # curs.execute(
-            #     "SELECT api_key FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
-            # )
-            # res = curs.fetchone()
-            # if res is not None:
-            #     api_key = res['api_key']
-        # print('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key))
         data = {
             'variant_ghgvs': variant_ghgvs,
             'gene_hgnc': gene,
@@ -125,8 +116,7 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
             'api_key': api_key
         }
         json_response = json.loads(client.post('/api/variant/create_g', data=data).data.decode('utf8'))
-        #json_response = json.loads(client.get('/api/variant/create_g/{0}/{1}/{2}/{3}'.format(variant_ghgvs, gene, caller, api_key)).data.decode('utf8'))
-
+        print(json_response)
         if isinstance(json_response[return_key], int):
             assert json_response[return_key] == message
         else:

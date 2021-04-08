@@ -776,6 +776,13 @@ def test_get_running_mode(app):
         assert md_utilities.get_running_mode() in ['on', 'maintenance']
 
 
+def test_get_tinyurl_api_key(app):
+    with app.app_context():
+        tinyurl_api_key = md_utilities.get_tinyurl_api_key()
+        assert len(tinyurl_api_key) == 60
+        assert re.search(r'^\w+$', tinyurl_api_key)
+
+
 @pytest.mark.parametrize(('p_name', 'aa1', 'ppos', 'aa2'), (
     ('Pro1239Phe', 'P', '1239', 'F'),
     ('Pro1239X', None, None, None),

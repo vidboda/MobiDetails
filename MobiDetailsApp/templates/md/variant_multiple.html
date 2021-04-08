@@ -6,8 +6,14 @@
 {% endblock %}
 {% block content %}
 {% if variants is defined %}
-	{% if variants[0].creation_date is defined%}
+	<!-- unique url case + " (" + unique_url_info.creation_date + "):"-->
+	{% if unique_url_info is defined%}
+		<!-- {{ info("Below the variants for the list " + unique_url_info.list_name + ", created by " + unique_url_info.username) }} -->
+		{{ info("Below the variants for the list <strong>'{}'</strong>, created by <strong>{}</strong>, on {}".format(unique_url_info.list_name, unique_url_info.username, unique_url_info.creation_date)) }}
+	<!-- 'last' search in serach engine -->
+	{% elif variants[0].creation_date is defined%}
 		{{ info("Below the variants annotated during the last 7 days:") }}
+	<!-- simple search in serach engine -->
 	{% else %}
 		{{ info("Your query returned multiple results:") }}
 	{% endif %}
@@ -22,6 +28,7 @@
 		{% endfor %}
 		</ul>
 	</div>
+<!-- file upload case -->
 {% elif upload is defined %}
 	{{ info("Your batch file submission returned the following results:") }}
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
@@ -35,6 +42,7 @@
 		{% endfor %}
 		</ul>
 	</div>
+<!-- rsid submission -->
 {% else %}
 	{{ info("Your rs id submission returned multiple results:") }}
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">

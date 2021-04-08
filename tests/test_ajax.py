@@ -230,7 +230,7 @@ def test_create(client, new_variant, gene, acc_no, acc_version, message1, messag
 # test toggle_email_prefs
 
 
-@pytest.mark.parametrize(('caller', 'pref','status_code'), (
+@pytest.mark.parametrize(('caller', 'pref', 'status_code'), (
     ('lovd_export', 't', 200),
     ('lovd_export', None, 200),
     ('lovd_export', 'f', 200),
@@ -251,13 +251,19 @@ def test_toggle_prefs(client, app, auth, caller, pref, status_code):
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login('mobidetails.iurc@gmail.com', res['password'])
-        assert client.post('/toggle_prefs', data=dict(pref_value=pref, field=caller), follow_redirects=True).status_code == status_code
-
+        assert client.post(
+            '/toggle_prefs',
+            data=dict(
+                pref_value=pref,
+                field=caller
+            ),
+            follow_redirects=True
+            ).status_code == status_code
 
 # test favourite
 
 
-@pytest.mark.parametrize(('vf_id','status_code'), (
+@pytest.mark.parametrize(('vf_id', 'status_code'), (
     (5, 200),
     (None, 200),
     ('', 200)
@@ -277,7 +283,85 @@ def test_favourite(client, app, auth, vf_id, status_code):
         auth.login('mobidetails.iurc@gmail.com', res['password'])
         assert client.post('/favourite', data=dict(vf_id=vf_id), follow_redirects=True).status_code == status_code
 
+# test empty_favourite_list
 
+
+def test_empty_favourite_list(client, app, auth):
+    assert client.get('/empty_favourite_list').status_code == 405
+    with app.app_context():
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        )
+        res = curs.fetchone()
+        response = client.post(
+            '/empty_favourite_list',
+            follow_redirects=True
+        )
+        print(response.get_data())
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        assert client.post(
+            '/empty_favourite_list',
+            follow_redirects=True
+        ).status_code == 200
+
+# test v
+
+
+def test_create_unique_url(client, app, auth):
+    assert client.get('/create_unique_url').status_code == 405
+    with app.app_context():
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        )
+        res = curs.fetchone()
+        response = client.post(
+            '/create_unique_url',
+            data=dict(list_name='mobidetails_list_1'),
+            follow_redirects=True
+        )
+        print(response.get_data())
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        assert client.post(
+            '/create_unique_url',
+            data=dict(list_name='mobidetails_list_1'),
+            follow_redirects=True
+        ).status_code == 200
+        assert b'already' in response.get_data()
+
+# test delete_variant_list
+
+
+@pytest.mark.parametrize(('list_name', 'http_code'), (
+    ('mobidetails_list_1', 200),
+    ('test', 200),
+    (9, 200),
+))
+def test_delete_variant_list(client, app, auth, list_name, http_code):
+    assert client.get('/delete_variant_list').status_code == 404
+    with app.app_context():
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        )
+        res = curs.fetchone()
+        response = client.get(
+            '/delete_variant_list/{}'.format(list_name),
+            follow_redirects=True
+        )
+        print(response.get_data())
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        auth.login('mobidetails.iurc@gmail.com', res['password'])
+        assert client.get(
+            '/delete_variant_list/{}'.format(list_name),
+            follow_redirects=True
+        ).status_code == http_code
 
 # test autocomplete
 
@@ -290,7 +374,7 @@ def test_favourite(client, app, auth, vf_id, status_code):
 ))
 def test_autocomplete(client, app, query, return_value):
     assert client.get('/autocomplete').status_code == 405
-    #with app.app_context():
+    # with app.app_context():
     response = client.post('/autocomplete', data=dict(query_engine=query))
     print(response.get_data())
     assert return_value == response.get_data()

@@ -1,7 +1,8 @@
 import os
 import re
+import datetime
 from flask import (
-    Blueprint, flash, g, render_template, request, escape
+    Blueprint, flash, g, render_template, request, escape, url_for
 )
 from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
@@ -11,12 +12,9 @@ from . import md_utilities
 import psycopg2
 import psycopg2.extras
 import json
-import secrets
 import urllib3
 import certifi
 import datetime
-
-import time
 
 bp = Blueprint('ajax', __name__)
 
@@ -1156,7 +1154,7 @@ def empty_favourite_list():
     )
     db.commit()
     close_db()
-    return 'ok'
+    return 'success'
 
 # -------------------------------------------------------------------
 # web app - ajax to generate a unique URL corresponding to a list of favourite variants
@@ -1164,25 +1162,127 @@ def empty_favourite_list():
 
 @bp.route('/create_unique_url', methods=['POST'])
 @login_required
-def empty_favourite_list():
+def create_unique_url():
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'auth/profile.html',
             run_mode=md_utilities.get_running_mode()
         )
-    # generate URL token
-    url_end = secrets.token_urlsafe(32)
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # TO BE FINISHED
-    curs.execute(
-        "INSERT INTO variants_groups(id, mobiuser_id, creation_date, list_name, variant_ids) \
-        VALUES(%s, %s, %s, %s, %s)",
-        (url_end, g.user['id'],)
-    )
-    db.commit()
-    close_db()
-    return 'ok'
+    if request.form['list_name']:
+        if re.search(r'[\w]+$', request.form['list_name']):
+            list_name = request.form['list_name']
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT a.id FROM variant_feature a, mobiuser_favourite b \
+                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s \
+                ORDER BY a.gene_name, a.ng_name",
+                (g.user['id'],)
+            )
+            variants_favourite = curs.fetchall()
+            # returns [[x], [y]]... we want [x,y]
+            variants_favourite_list = [id for [id] in variants_favourite]
+            # check we do not already have the same list of variants or name
+            curs.execute(
+                "SELECT tinyurl, list_name FROM variants_groups WHERE \
+                variant_ids = %s OR list_name = %s",
+                (variants_favourite_list, list_name)
+            )
+            control = curs.fetchone()
+            if control:
+                return md_utilities.danger_panel(
+                    '',
+                    'This list already exists with the name \'{0}\' and short URL: \
+                    <a href="{1}" target="_blank">{1}</a>'.format(
+                        control['list_name'], control['tinyurl']
+                    )
+                )
+            today = datetime.datetime.now()
+            # date
+            creation_date = '{0}-{1}-{2}'.format(
+                today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
+            )
+            # get tinyurl
+            # headers
+            tinyurl = ''
+            header = md_utilities.api_agent
+            header['Content-Type'] = 'application/json'
+            # https://swagger.io/docs/specification/authentication/bearer-authentication/
+            header['Authorization'] = 'Bearer {}'.format(md_utilities.get_tinyurl_api_key())
+            tinyurl_dict = {
+                'domain': 'tinyurl.com',
+                'url': url_for('auth.variant_list', list_name=list_name, _external=True)
+            }
+            try:
+                tinyurl_json = json.loads(
+                    http.request(
+                        'POST',
+                        md_utilities.urls['tinyurl_api'],
+                        body=json.dumps(tinyurl_dict).encode('utf-8'),
+                        headers=header
+                    ).data.decode('utf-8')
+                )
+                if str(tinyurl_json['code']) == '0' and \
+                        str(tinyurl_json['data']['url']) == str(url_for(
+                            'auth.variant_list', list_name=list_name, _external=True
+                        )):
+                    tinyurl = tinyurl_json['data']['tiny_url']
+            except Exception as e:
+                md_utilities.send_error_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails error',
+                        '<p>TinyURL service failed for \
+                        {0} with args: {1}</p>'.format(g.user['id'], e.args)
+                    ),
+                    '[MobiDetails - MD tinyurl Error]'
+                )
+                return md_utilities.danger_panel(
+                    '',
+                    'Sorry, something already went wrong with the creation of \
+                    your list. An admin has been warned.')
+            curs.execute(
+                "INSERT INTO variants_groups(list_name, tinyurl, mobiuser_id, creation_date, variant_ids) \
+                VALUES(%s, %s, %s, %s, %s)",
+                (list_name, tinyurl, g.user['id'], creation_date, variants_favourite_list)
+            )
+            db.commit()
+            close_db()
+            # return 'ok'
+            return md_utilities.info_panel(
+                '<div>Your list \'{0}\' was successfully created:<br /><ul> \
+                <li>Unique tiny URL: <a href="{1}" target="_blank">{1}</a></li> \
+                <li>Unique full URL: <a href="{2}" target="_blank">{2}</a></li></ul> \
+                <span>You will have to reload the page to see it in your list of variants section.</div>'.format(
+                    list_name,
+                    tinyurl,
+                    url_for('auth.variant_list', list_name=list_name, _external=True)
+                ),
+                color_class='w3-pale-green'
+            )
+
+# -------------------------------------------------------------------
+# web app - ajax to generate a unique URL corresponding to a list of favourite variants
+
+
+@bp.route('/delete_variant_list/<string:list_name>', methods=['GET'])
+@login_required
+def delete_variant_list(list_name):
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template(
+            'auth/profile.html',
+            run_mode=md_utilities.get_running_mode()
+        )
+    if list_name and \
+            re.search(r'[\w]+$', list_name):
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "DELETE FROM variants_groups WHERE list_name = %s AND mobiuser_id = %s",
+            (list_name, g.user['id'])
+        )
+        db.commit()
+        close_db()
+        return 'success'
 
 # -------------------------------------------------------------------
 # web app - ajax for search engine autocomplete

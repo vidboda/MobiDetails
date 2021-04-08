@@ -67,7 +67,7 @@ function empty_variant_list(ajax_url, csrf_token) {
   .done(function() {
     $("#variant_list").hide();
     $("#num_favourite").text("0")
-    $("#btn_empty_favourite").hide();
+    $("#variant_list_menu").hide();
     $("#comment").text("Your list of favourites has successfully been emptied.");
     $('html').css('cursor', 'default');
   });
@@ -75,7 +75,13 @@ function empty_variant_list(ajax_url, csrf_token) {
 
 function create_unique_url(ajax_url, csrf_token) {
   // ajax to generate a unique URL coresponding to a variant list
+  var reg = /^\w+$/;
+  if (!reg.test($("#list_name").val())) {
+    alert("Characters allowed for the list names are letters, numbers and underscores. No spaces or other characters.");
+    return false;
+  }
   $('html').css('cursor', 'progress');
+  $('#create_unique_url').css('cursor', 'progress');
   // send header for flask-wtf crsf security
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
@@ -86,10 +92,39 @@ function create_unique_url(ajax_url, csrf_token) {
   });
   $.ajax({
     type: "POST",
-    url: ajax_url
+    url: ajax_url,
+    data: {
+      list_name: $("#list_name").val()
+    }
   })
-  .done(function(url) {
-    $("#comment").text("Your unique URL for this list of variants is: " + url);
+  .done(function(return_html) {
+    $("#comment").html(return_html);
+    $('html').css('cursor', 'default');
+  });
+}
+
+function delete_list(ajax_url, list_name, csrf_token) {
+  // ajax to delete a variant list
+  $('html').css('cursor', 'progress');
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+    type: "GET",
+    url: ajax_url,
+  })
+  .done(function(return_code) {
+    if (return_code == 'success') {
+      $("#" + list_name).hide();
+    }
+    else {
+      $("#comment_list").html('Something went wrong with teh deletion of your list. Please do not hesitate to advise us.');
+    }
     $('html').css('cursor', 'default');
   });
 }

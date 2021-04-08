@@ -9,7 +9,7 @@
 	{% endif %}
 {% endblock %}
 {% block more_head %}
-	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?210402" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?210407" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	{% if view == 'own' -%}
@@ -100,8 +100,23 @@
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 			{% if run_mode and run_mode == 'on' %}
 				{% if num_var_fav > 0 %}
-					<button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');">Empty your favourite list</button>&nbsp;&nbsp;&nbsp;&nbsp;
-					<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');">Generate a unique URL for this list of variants</button>
+					<div id="variant_list_menu">
+						<div class="w3-card w3-mobile">
+							<ul class="w3-ul">
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants"><i class="fa fa-trash w3-xlarge"></i></button>
+								</li>
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
+								</li>
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Name of the list*: </span><input id="list_name" type="text" value="{{ g.user['username'] }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
+									<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants"><i class="fa fa-magic w3-xlarge"></i></button>
+								</li>
+							</ul>
+						</div>
+						<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
+					</div><br />
 				{% endif %}
 				<div id="comment"></div>
 			{% else %}
@@ -125,6 +140,45 @@
 		</div>
 	{% endif %}
 	<hr />
+
+	{% if variant_groups_number - 1 > 0 %}
+		<div class="w3-container w3-margin">
+			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#groups_vars').fadeToggle();">
+				<span class="w3-xlarge">Toggle your <span id="num_groups">{{ variant_groups_number - 1 }}</span> lists of variants:</span>
+			</div>
+		</div>
+		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="groups_vars" style="display:none;">
+			{% if variant_groups_number > 0 %}
+			<div id="groups_list" class="w3-card w3-mobile">
+					<ul class="w3-ul">
+						{% for list in variant_groups %}
+							<li id="{{ list.list_name }}" class="w3-padding-large w3-large w3-light-grey w3-hover-border-blue">
+								<span class="var_li" onclick="window.open('{{ url_for('auth.variant_list', list_name=list.list_name) }}')" title="Visit the variant list">List name: <strong>{{ list.list_name }}</strong> - ({{ list.creation_date }}) - ({{ list.variant_ids|length }} variants)</span>
+								{% if run_mode and run_mode == 'on' %}
+									<div class="w3-right">
+										<span>Delete this list: </span>
+										<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-times w3-xlarge"></i></span>
+									</div>
+								{% endif %}
+								<ul>
+									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+										<span>Tiny URL: <input id="{{ list.list_name }}_tinyurl" type="text" value="{{ list.tinyurl }}" size="50" maxlength="50"/></span>
+										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_tinyurl');" class="var_li" title="copy tiny URL key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+									</li>
+									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+										<span>Full URL: <input id="{{ list.list_name }}_fullurl" type="text" value="{{ url_for('auth.variant_list', list_name=list.list_name, _external=True) }}" size="80" maxlength="80"/></span>
+										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_fullurl');" class="var_li" title="copy full URL to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+									</li>
+								</ul>
+							</li>
+						{% endfor %}
+					</ul>
+			</div>
+			<div id="comment_list"></div>
+			{% endif %}
+		</div>
+	{% endif %}
+	<hr />
 	{% if variants != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
@@ -135,7 +189,7 @@
 			<div class=" w3-card w3-mobile">
 				<ul class="w3-ul">
 					{% for var in variants %}
-						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span><span class="w3-right">{{ var.creation_date }}</span></li>
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span><span class="w3-right">{{ var.creation_date }}</span></li>
 					{% endfor %}
 				</ul>
 			</div>
@@ -148,5 +202,5 @@
 			{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
 		</div>
 	{% endif %}
-	<br /><br />
+	<br /><br /><br /><br />
 {% endblock %}

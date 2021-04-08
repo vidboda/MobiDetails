@@ -545,14 +545,30 @@ def profile(mobiuser_id=0):
             variants = curs.fetchall()
             num_var = curs.rowcount
 
+            # curs.execute(
+            #     "SELECT COUNT(id) FROM variants_groups WHERE \
+            #     mobiuser_id = %s",
+            #     (g.user['id'],)
+            # )
+            # variant_groups_number = curs.fetchone()[0]
+
+            curs.execute(
+                "SELECT * FROM variants_groups WHERE \
+                mobiuser_id = %s",
+                (g.user['id'],)
+            )
+            variant_groups = curs.fetchall()
+            variant_groups_number = curs.rowcount
+
             curs.execute(
                 "SELECT a.id, a.c_name, a.ng_name, a.gene_name, \
                 a.p_name FROM variant_feature a, mobiuser_favourite b \
-                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s \
+                WHERE a.id = b.feature_id AND b.mobiuser_id = %s \
                 ORDER BY a.gene_name, a.ng_name",
                 (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
+
             if error is None:
                 # num_var_fav = curs.rowcount
                 return render_template(
@@ -563,7 +579,9 @@ def profile(mobiuser_id=0):
                     num_var=num_var,
                     num_var_fav=curs.rowcount,
                     variants=variants,
-                    variants_favourite=variants_favourite
+                    variants_favourite=variants_favourite,
+                    variant_groups=variant_groups,
+                    variant_groups_number=variant_groups_number + 1
                 )
         elif error is None:
             # other profile view
@@ -575,7 +593,9 @@ def profile(mobiuser_id=0):
                 num_var=None,
                 num_var_fav=None,
                 variants=None,
-                variants_favourite=None
+                variants_favourite=None,
+                variant_groups=None,
+                variant_groups_number=None
             )
 
         flash(error, 'w3-pale-red')
@@ -638,7 +658,7 @@ def logout():
 # forgot password
 
 
-@bp.route('/forgot_pass', methods=('GET', 'POST'))
+@bp.route('/forgot_pass', methods=['GET', 'POST'])
 def forgot_pass():
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
@@ -805,3 +825,39 @@ letters (upper and lower case) and numbers.'
                 api_key=api_key
             )
     return render_template('md/unknown.html')
+
+# -------------------------------------------------------------------
+# variant lists associated to a user
+
+
+@bp.route('/variant_list/<string:list_name>', methods=['GET'])
+def variant_list(list_name):
+    if len(list_name) < 31 and \
+            re.search(r'^[\w]+$', list_name):
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            "SELECT a.variant_ids, b.username, a.creation_date, a.list_name FROM variants_groups a, mobiuser b WHERE \
+            a.mobiuser_id = b.id AND list_name = %s",
+            (list_name,)
+        )
+        res = curs.fetchone()
+        # we've got an ARRAY of variants_ids and want to query on them...
+        if res:
+            res_ids_string = "("
+            for id in res['variant_ids']:
+                res_ids_string += "{}, ".format(id)
+            res_ids_string = res_ids_string[:-2]
+            res_ids_string += ")"
+            # print(res_ids_string)
+            curs.execute(
+                "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.nm_version, c.username \
+                FROM variant_feature a, gene b, mobiuser c \
+                WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id IN {}".format(res_ids_string)
+            )
+            variants = curs.fetchall()
+            return render_template('md/variant_multiple.html', variants=variants, unique_url_info=res)
+        else:
+            return render_template('errors/404.html'), 404
+    else:
+        return render_template('errors/404.html'), 404

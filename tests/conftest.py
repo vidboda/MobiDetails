@@ -22,9 +22,10 @@ def app():
         'TESTING': True,
         'DATABASE': db_path,
         'SECRET_KEY': 'test',
-        'WTF_CSRF_ENABLED' : False,
+        'WTF_CSRF_ENABLED': False,
         'ALLOWED_EXTENSIONS': '[txt]',
-        'RUN_MODE': 'on'
+        'RUN_MODE': 'on',
+        'TINY_URL_API_KEY': '19d5ze3g8e4a68t4s699s4ed42e6r2t8yf7z8r9t5y4h7g8d5z2e1r4f87f6'
     })
     # app.test_client_class = FlaskClient
     with app.app_context():
@@ -65,8 +66,8 @@ class AuthActions(object):
 @pytest.fixture
 def auth(client):
     return AuthActions(client)
-# 
-# 
+#
+#
 # # https://gist.github.com/singingwolfboy/2fca1de64950d5dfed72
 # # classes to simulate csrf
 # # Flask's assumptions about an incoming request don't quite match up with
@@ -81,21 +82,21 @@ def auth(client):
 #     def __init__(self, client):
 #         self.vary = set({})
 #         self.client = client
-# 
+#
 #     def set_cookie(self, key, value='', *args, **kwargs):
 #         "Set the cookie on the Flask test client."
 #         server_name = flask.current_app.config["SERVER_NAME"] or "localhost"
 #         return self.client.set_cookie(
 #             server_name, key=key, value=value, *args, **kwargs
 #         )
-# 
+#
 #     def delete_cookie(self, key, *args, **kwargs):
 #         "Delete the cookie on the Flask test client."
 #         server_name = flask.current_app.config["SERVER_NAME"] or "localhost"
 #         return self.client.delete_cookie(
 #             server_name, key=key, *args, **kwargs
 #         )
-# 
+#
 # # We're going to extend Flask's built-in test client class, so that it knows
 # # how to look up CSRF tokens for you!
 # class FlaskClient(BaseFlaskClient):
@@ -103,7 +104,7 @@ def auth(client):
 #     def csrf_token(self):
 #         # First, we'll wrap our request shim around the test client, so that
 #         # it will work correctly when Flask asks it to set a cookie.
-#         request = RequestShim(self) 
+#         request = RequestShim(self)
 #         # Next, we need to look up any cookies that might already exist on
 #         # this test client, such as the secure cookie that powers `flask.session`,
 #         # and make a test request context that has those cookies in it.

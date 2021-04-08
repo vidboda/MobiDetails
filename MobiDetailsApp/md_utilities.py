@@ -2139,6 +2139,10 @@ def get_running_mode():
     return app.config['RUN_MODE']
 
 
+def get_tinyurl_api_key():
+    return app.config['TINY_URL_API_KEY']
+
+
 def build_redirect_url(incoming_url=None):
     # method to rebuild URL and avoid Untrusted URL redirection
     # if re.search(r'https?:\/\/', incoming_url):

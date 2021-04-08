@@ -1,5 +1,4 @@
 import pytest
-import psycopg2
 from datetime import datetime
 # from flask import g, session
 from MobiDetailsApp.db import get_db
@@ -100,8 +99,6 @@ def test_profile(client, app, auth, mobiuser_id, message):
         # print(response.get_data())
         # assert message in response.get_data()
 
-
-
 # test log out redirect to homepage
 
 
@@ -150,3 +147,17 @@ def test_reset_password(client, mobiuser_id, api_key, timestamp, message):
     )
     # print(response.get_data())
     assert message in response.get_data()
+
+# test variant list
+
+
+@pytest.mark.parametrize(('list_name', 'http_code'), (
+    ('mobidetails_list_1', 200),
+    ('test', 404),
+))
+def test_variant_list(client, list_name, http_code):
+    assert client.get(
+            '/auth/variant_list/{}'.format(
+                list_name,
+            )
+        ).status_code == http_code
