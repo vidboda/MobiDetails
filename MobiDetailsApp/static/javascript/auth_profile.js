@@ -128,3 +128,34 @@ function delete_list(ajax_url, list_name, csrf_token) {
     $('html').css('cursor', 'default');
   });
 }
+
+function toggle_lock(ajax_url, list_name, csrf_token) {
+  // ajax to delete a variant list
+  $('html').css('cursor', 'progress');
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+    type: "GET",
+    url: ajax_url,
+  })
+  .done(function(return_code) {
+    if (return_code == 'unlocked') {
+      $("#unlock_" + list_name).hide();
+      $("#lock_" + list_name).show();
+    }
+    else if (return_code == 'locked') {
+      $("#lock_" + list_name).hide();
+      $("#unlock_" + list_name).show();
+    }
+    else{
+      $("#comment_list").html('Something went wrong with the lock toggle of your list. Please do not hesitate to warn us.');
+    }
+    $('html').css('cursor', 'default');
+  });
+}

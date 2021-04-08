@@ -1157,6 +1157,45 @@ def empty_favourite_list():
     return 'success'
 
 # -------------------------------------------------------------------
+# web app - ajax to lock/unlock a variant list
+
+
+@bp.route('/toggle_lock_variant_list/<string:list_name>', methods=['GET'])
+@login_required
+def toggle_lock_variant_list(list_name):
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        return render_template(
+            'auth/profile.html',
+            run_mode=md_utilities.get_running_mode()
+        )
+    if len(list_name) < 31 and \
+            re.search(r'^[\w]+$', list_name):
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # check whether list exists and belongs to user
+        # and get lock status
+        curs.execute(
+            "SELECT lock FROM variants_groups WHERE \
+            mobiuser_id = %s AND list_name = %s",
+            (g.user['id'], list_name)
+        )
+        res = curs.fetchone()
+        if res:
+            new_lock = 'f' if res['lock'] is True else 't'
+            curs.execute(
+                "UPDATE variants_groups set lock = %s WHERE \
+                mobiuser_id = %s AND list_name = %s",
+                (new_lock, g.user['id'], list_name)
+            )
+            db.commit()
+            close_db()
+            return 'unlocked' if new_lock == 'f' else 'locked'
+        else:
+            return 'failed'
+    else:
+        return 'failed'
+
+# -------------------------------------------------------------------
 # web app - ajax to generate a unique URL corresponding to a list of favourite variants
 
 
@@ -1232,7 +1271,7 @@ def create_unique_url():
                     md_utilities.prepare_email_html(
                         'MobiDetails error',
                         '<p>TinyURL service failed for \
-                        {0} with args: {1}</p>'.format(g.user['id'], e.args)
+                        {0} with args: {1}, json sent: {2}</p>'.format(g.user['id'], e.args, tinyurl_json)
                     ),
                     '[MobiDetails - MD tinyurl Error]'
                 )

@@ -9,7 +9,7 @@
 	{% endif %}
 {% endblock %}
 {% block more_head %}
-	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?210407" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?210408" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	{% if view == 'own' -%}
@@ -90,6 +90,7 @@
 		<br />
 		<hr />
 	{%- endif %}
+	<!-- variants favourite -->
 	{% if variants_favourite != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
@@ -140,7 +141,7 @@
 		</div>
 	{% endif %}
 	<hr />
-
+<!-- variants groups -->
 	{% if variant_groups_number - 1 > 0 %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#groups_vars').fadeToggle();">
@@ -155,10 +156,21 @@
 							<li id="{{ list.list_name }}" class="w3-padding-large w3-large w3-light-grey w3-hover-border-blue">
 								<span class="var_li" onclick="window.open('{{ url_for('auth.variant_list', list_name=list.list_name) }}')" title="Visit the variant list">List name: <strong>{{ list.list_name }}</strong> - ({{ list.creation_date }}) - ({{ list.variant_ids|length }} variants)</span>
 								{% if run_mode and run_mode == 'on' %}
-									<div class="w3-right">
-										<span>Delete this list: </span>
-										<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-times w3-xlarge"></i></span>
-									</div>
+									{% set style_value = namespace(lock='block', unlock='none') %}
+									{% if  list.lock == 0 %}
+										{% set style_value.lock = 'none' %}
+										{% set style_value.unlock = 'block' %}
+									{% endif %}
+										<div id="lock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.unlock }}">
+											<div>
+												<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list"><i class="fa fa-unlock w3-xlarge"></i></span>
+												&nbsp;&nbsp;&nbsp;&nbsp;
+												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-times w3-xlarge"></i></span>
+											</div>
+										</div>
+										<div id="unlock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.lock }}">
+											<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Unlock this list"><i class="fa fa-lock w3-xlarge"></i></span>
+										</div>
 								{% endif %}
 								<ul>
 									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
@@ -179,6 +191,7 @@
 		</div>
 	{% endif %}
 	<hr />
+	<!-- variants -->
 	{% if variants != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">

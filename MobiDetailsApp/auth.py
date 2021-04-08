@@ -509,10 +509,6 @@ def profile(mobiuser_id=0):
             user_id = mobiuser_id
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # curs.execute(
-        #     "SELECT id, username, email, institute, country, api_key, \
-        #       email_pref FROM mobiuser  WHERE id = '{}'".format(user_id)
-        # )
         curs.execute(
             "SELECT id, username, email, institute, country, api_key, \
             email_pref, lovd_export, academic FROM mobiuser  WHERE id = %s",
@@ -545,16 +541,9 @@ def profile(mobiuser_id=0):
             variants = curs.fetchall()
             num_var = curs.rowcount
 
-            # curs.execute(
-            #     "SELECT COUNT(id) FROM variants_groups WHERE \
-            #     mobiuser_id = %s",
-            #     (g.user['id'],)
-            # )
-            # variant_groups_number = curs.fetchone()[0]
-
             curs.execute(
                 "SELECT * FROM variants_groups WHERE \
-                mobiuser_id = %s",
+                mobiuser_id = %s ORDER BY creation_date DESC",
                 (g.user['id'],)
             )
             variant_groups = curs.fetchall()
