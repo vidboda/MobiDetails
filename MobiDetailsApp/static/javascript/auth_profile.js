@@ -100,6 +100,7 @@ function create_unique_url(ajax_url, csrf_token) {
   .done(function(return_html) {
     $("#comment").html(return_html);
     $('html').css('cursor', 'default');
+    $('#create_unique_url').css('cursor', 'default');
   });
 }
 
