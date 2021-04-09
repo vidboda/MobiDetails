@@ -480,7 +480,8 @@ def variant(variant_id=None):
         )
         favourite = curs.fetchone()
         if favourite is not None:
-            favourite = True
+            if favourite['mobiuser_id'] == g.user['id']:
+                favourite = True
         splicing_radar_labels = []
         splicing_radar_values = []
         for var in variant:

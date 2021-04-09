@@ -111,7 +111,7 @@
 									<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
 								</li>
 								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-									<span>Name of the list*: </span><input id="list_name" type="text" value="{{ g.user['username'] }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
+									<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
 									<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants"><i class="fa fa-magic w3-xlarge"></i></button>
 								</li>
 							</ul>

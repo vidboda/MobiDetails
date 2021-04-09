@@ -548,6 +548,8 @@ def profile(mobiuser_id=0):
             )
             variant_groups = curs.fetchall()
             variant_groups_number = curs.rowcount
+            # we need to modify the username to propose a list name without special characters
+            clean_username = re.sub('[^\w]', '_', mobiuser['username'])
 
             curs.execute(
                 "SELECT a.id, a.c_name, a.ng_name, a.gene_name, \
@@ -570,7 +572,8 @@ def profile(mobiuser_id=0):
                     variants=variants,
                     variants_favourite=variants_favourite,
                     variant_groups=variant_groups,
-                    variant_groups_number=variant_groups_number + 1
+                    variant_groups_number=variant_groups_number + 1,
+                    clean_username=clean_username
                 )
         elif error is None:
             # other profile view
@@ -584,7 +587,8 @@ def profile(mobiuser_id=0):
                 variants=None,
                 variants_favourite=None,
                 variant_groups=None,
-                variant_groups_number=None
+                variant_groups_number=None,
+                clean_username=None
             )
 
         flash(error, 'w3-pale-red')
