@@ -1,6 +1,5 @@
 import os
 import re
-import datetime
 from flask import (
     Blueprint, flash, g, render_template, request, escape, url_for
 )

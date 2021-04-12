@@ -165,7 +165,7 @@
 											<div>
 												<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list"><i class="fa fa-unlock w3-xlarge"></i></span>
 												&nbsp;&nbsp;&nbsp;&nbsp;
-												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-times w3-xlarge"></i></span>
+												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-trash w3-xlarge"></i></span>
 											</div>
 										</div>
 										<div id="unlock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.lock }}">
