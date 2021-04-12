@@ -20,11 +20,15 @@ function toggle_service(pref_url, csrf_token, caller) {
   	.done(function(return_value, html_error) {
   		if (return_value == 'ok') {
               var txt = 'enabled';
-              var label = 'Disable it';
+              // var label = 'Disable it';
+              var title = 'contact service';
+              if (caller == 'lovd_export') {title = 'LOVD export';}
+              var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
               var value_to_send = 'f';
               if (value_id == 'f') {
                   txt = 'disabled';
-                  label = 'Enable it';
+                  // label = 'Enable it';
+                  var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
                   value_to_send = 't';
               }
               $("#value_to_send_" + caller).html(value_to_send);
