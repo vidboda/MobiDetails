@@ -532,10 +532,16 @@ def profile(mobiuser_id=0):
             if mobiuser_id != 0:
                 error = 'This user seems to be unknown by MobiDetails.'
         if mobiuser_id == 0:
+            # curs.execute(
+            #     "SELECT id, c_name, gene_name, p_name, creation_date \
+            #     FROM variant_feature WHERE\
+            #     creation_user = %s ORDER BY creation_date DESC",
+            #     (g.user['id'],)
+            # )
             curs.execute(
-                "SELECT id, c_name, gene_name, p_name, creation_date \
-                FROM variant_feature WHERE\
-                creation_user = %s ORDER BY creation_date DESC",
+                "SELECT a.id, a.c_name, a.gene_name, a.p_name, a.creation_date, b.mobiuser_id \
+                FROM variant_feature a LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id WHERE\
+                a.creation_user = %s ORDER BY a.creation_date DESC",
                 (g.user['id'],)
             )
             variants = curs.fetchall()

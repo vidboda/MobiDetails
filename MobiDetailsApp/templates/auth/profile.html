@@ -29,6 +29,7 @@
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Country: {{ mobiuser.country }}</li>
 				{% if view == 'own' %}
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">E-mail: {{ mobiuser.email }}</li>
+					<!-- email preferences -->
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 						{% if mobiuser.email_pref == true %}
 							<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-green">enabled</strong>
@@ -52,6 +53,7 @@
 							{% endif %}
 						{% endif %}
 					</li>
+					<!-- LOVD preferences -->
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 						{% if mobiuser.lovd_export == true %}
 							<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-green">enabled</strong>
@@ -75,6 +77,7 @@
 							{% endif %}
 						{% endif %}
 					</li>
+					<!-- User academic or not -->
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">You are currently identified as
 						{% if mobiuser.academic %}
 							an
@@ -83,6 +86,7 @@
 						{% endif %}
 						academic user
 					</li>
+					<!-- API key -->
 					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" class="var_li" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>
@@ -95,57 +99,75 @@
 		<hr />
 	{%- endif %}
 	<!-- variants favourite -->
-	{% if variants_favourite != None %}
+	{% if variants_favourite is defined and variants_favourite %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-				<span class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite variants:</span>
+				<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite variants:</span>
 			</div>
 		</div>
-		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="favourite_vars" style="display:none;">
+		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 			{% if run_mode and run_mode == 'on' %}
-				{% if num_var_fav > 0 %}
-					<div id="variant_list_menu">
-						<div class="w3-card w3-mobile">
-							<ul class="w3-ul">
-								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-									<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants"><i class="fa fa-trash w3-xlarge"></i></button>
-								</li>
-								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-									<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
-								</li>
-								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-									<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
-									<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants"><i class="fa fa-magic w3-xlarge"></i></button>
-								</li>
-							</ul>
-						</div>
-						<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
-					</div><br />
-				{% endif %}
+				{#{% if num_var_fav > 0 %}#}
+				<div id="variant_list_menu">
+					<div class="w3-card w3-mobile">
+						<ul class="w3-ul">
+							<!-- variants favourite delete -->
+							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+								<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants"><i class="fa fa-trash w3-xlarge"></i></button>
+							</li>
+							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+								<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
+							</li>
+							<!-- variants list URL generation -->
+							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+								<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
+								<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants"><i class="fa fa-magic w3-xlarge"></i></button>
+							</li>
+						</ul>
+					</div>
+					<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
+				</div><br />
+				{#{% endif %}#}
 				<div id="comment"></div>
 			{% else %}
 				<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
 			{% endif %}
 			<br /><br />
+			<!-- variants favourite list -->
 			<div id="variant_list" class="w3-card w3-mobile">
-				<ul class="w3-ul">
+				<ul id="favourite_ul" class="w3-ul">
 					{% for var in variants_favourite %}
-						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span></span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>
+						<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page">
+							<span>
+								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+							</span>
+							<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
+							<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
+								<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
+							</span> -->
+							<span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span>
+						</li>
 					{% endfor %}
 				</ul>
 			</div>
 		</div>
 	{% elif view == 'own' %}
+		<!-- no favourites -->
 		<div class="w3-container w3-margin">
-			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-				<span class="w3-xlarge">You have no favourite variants yet.</span>
+			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
+				<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
 			</div>
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 		</div>
+		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+			<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
+				<ul id="favourite_ul" class="w3-ul"></ul>
+			</div>
+		</div>
 	{% endif %}
 	<hr />
-<!-- variants groups -->
+	<!-- variants groups -->
 	{% if variant_groups_number - 1 > 0 %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#groups_vars').fadeToggle();">
@@ -158,6 +180,8 @@
 					<ul class="w3-ul">
 						{% for list in variant_groups %}
 							<li id="{{ list.list_name }}" class="w3-padding-large w3-large w3-light-grey w3-hover-border-blue">
+								<!-- 1st row -->
+								<!-- name, date, number of variants, actions -->
 								<span class="var_li" onclick="window.open('{{ url_for('auth.variant_list', list_name=list.list_name) }}')" title="Visit the variant list">List name: <strong>{{ list.list_name }}</strong> - ({{ list.creation_date }}) - ({{ list.variant_ids|length }} variants)</span>
 								{% if run_mode and run_mode == 'on' %}
 									{% set style_value = namespace(lock='block', unlock='none') %}
@@ -177,10 +201,12 @@
 										</div>
 								{% endif %}
 								<ul>
+									<!-- 2nd row tinyURL -->
 									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 										<span>Tiny URL: <input id="{{ list.list_name }}_tinyurl" type="text" value="{{ list.tinyurl }}" size="50" maxlength="50"/></span>
 										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_tinyurl');" class="var_li" title="copy tiny URL key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
 									</li>
+									<!-- 3rd row fullURL -->
 									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 										<span>Full URL: <input id="{{ list.list_name }}_fullurl" type="text" value="{{ url_for('auth.variant_list', list_name=list.list_name, _external=True) }}" size="80" maxlength="80"/></span>
 										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_fullurl');" class="var_li" title="copy full URL to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
@@ -195,7 +221,7 @@
 		</div>
 	{% endif %}
 	<hr />
-	<!-- variants -->
+	<!-- variants created -->
 	{% if variants != None %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
@@ -206,7 +232,28 @@
 			<div class=" w3-card w3-mobile">
 				<ul class="w3-ul">
 					{% for var in variants %}
-						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page"><span><em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}</span><span class="w3-right">{{ var.creation_date }}</span></li>
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span class="var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page">
+								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+							</span>
+							<span class="w3-right">
+								{{ var.creation_date }}
+								{% if var.mobiuser_id != None and var.mobiuser_id == g.user['id'] %}
+									<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
+										<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
+									</span>
+								{% else %}
+									<span id="favour_span_{{ var.id }}" name="mark" title="Mark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
+										<i id="favour_{{ var.id }}" class="fa fa-star-o w3-xxlarge"></i>
+									</span>
+								{% endif %}
+								<!-- to be used in js favourite function -->
+								<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('md.variant', variant_id=var.id) }}</span>
+								<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_name[0] }}</span>
+								<span id="c_name_{{ var.id }}" style="display:none;">{{ var.c_name }}</span>
+								<span id="p_name_{{ var.id }}" style="display:none;">{{ var.p_name }}</span>
+							</span>
+						</li>
 					{% endfor %}
 				</ul>
 			</div>

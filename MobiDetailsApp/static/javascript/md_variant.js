@@ -20,43 +20,44 @@ function defgen_export(genome, vf_id, defgen_url, csrf_token) {
 		$('#defgen_modal_' + genome).show();
 	});
 }
-function favourite(vf_id, fav_url, csrf_token) {
-	// send header for flask-wtf crsf security
-	// alert($('#favour_span').attr('name'));
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
-	$.ajax({
-		type: "POST",
-		url: fav_url,
-		data: {
-			vf_id: vf_id, marker: $('#favour_span').attr('name')
-		}
-	})
-	.done(function() {
-		if ($('#favour_span').attr('name') === 'mark') {
-			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
-			$('#favour').toggleClass('fa-star fa-star-o');
-			$('#favour_span').attr('title', 'Unmark the variant');
-			$('#favour_span').attr('name', 'unmark');
-			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
-			$('#favour_star').show();
-		}
-		else {
-			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
-			$('#favour').toggleClass('fa-star-o fa-star');
-			$('#favour_span').attr('title', 'Mark the variant');
-			$('#favour_span').attr('name', 'mark');
-			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
-			$('#favour_star').hide();
-		}
-
-	});
-}
+// in md.js now
+// function favourite(vf_id, fav_url, csrf_token) {
+// 	// send header for flask-wtf crsf security
+// 	// alert($('#favour_span').attr('name'));
+//     $.ajaxSetup({
+//         beforeSend: function(xhr, settings) {
+//             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+//                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
+//             }
+//         }
+//     });
+// 	$.ajax({
+// 		type: "POST",
+// 		url: fav_url,
+// 		data: {
+// 			vf_id: vf_id, marker: $('#favour_span').attr('name')
+// 		}
+// 	})
+// 	.done(function() {
+// 		if ($('#favour_span').attr('name') === 'mark') {
+// 			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
+// 			$('#favour').toggleClass('fa-star fa-star-o');
+// 			$('#favour_span').attr('title', 'Unmark the variant');
+// 			$('#favour_span').attr('name', 'unmark');
+// 			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
+// 			$('#favour_star').show();
+// 		}
+// 		else {
+// 			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
+// 			$('#favour').toggleClass('fa-star-o fa-star');
+// 			$('#favour_span').attr('title', 'Mark the variant');
+// 			$('#favour_span').attr('name', 'mark');
+// 			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
+// 			$('#favour_star').hide();
+// 		}
+//
+// 	});
+// }
 function litvar(litvar_url, csrf_token) {
 	//ajax for litvar
 	if ($('#dbsnp_id').text() !== '') {

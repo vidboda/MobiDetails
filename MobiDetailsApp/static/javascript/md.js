@@ -5,15 +5,15 @@ function show_loader() {
 	if ($('header').length) {$('header').hide();}
 }
 
-document.onreadystatechange = function() { 
-  if (document.readyState !== "complete") { 
+document.onreadystatechange = function() {
+  if (document.readyState !== "complete") {
 		$('#loader').show();
 		$('#content').hide();
-  } else { 
+  } else {
 		$('#loader').hide();
 		$('#content').show();
-  } 
-}; 
+  }
+};
 
 function accord(id) {
 	$('#'+id).fadeToggle("slow");
@@ -92,6 +92,80 @@ function hide_params() {
 //		// alert($('#' + input_id).val());
 //		return true;
 //}
+// used in md.variant and auth.profile.html
+function favourite(vf_id, fav_url, csrf_token) {
+	// send header for flask-wtf crsf security
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+	// call form variant page
+	var marker;
+	if ($('#favour_span').length) {
+		favour_span_id = 'favour_span';
+		favour_id = 'favour';
+	}
+	else {
+		//call form profile page
+		favour_span_id = 'favour_span_' + vf_id;
+		favour_id = 'favour_' + vf_id;
+	}
+	$.ajax({
+		type: "POST",
+		url: fav_url,
+		data: {
+			vf_id: vf_id, marker: $('#' + favour_span_id).attr('name')
+		}
+	})
+	.done(function() {
+		if ($('#' + favour_span_id).attr('name') === 'mark') {
+			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
+			$('#' + favour_id).toggleClass('fa-star fa-star-o');
+			$('#' + favour_span_id).attr('title', 'Unmark the variant');
+			$('#' + favour_span_id).attr('name', 'unmark');
+			if ($('#favour_span').length) {
+				// call from variant page
+				$('#favour_star').show();
+			}
+			else {
+				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + $('#md_variant_url_' + vf_id).text() + '\')" title="Visit the variant page"><span><em>' + $('#gene_' + vf_id).text() + '</em>:c.' + $('#c_name_' + vf_id).text() + ' - p.(' + $('#p_name_' + vf_id).text() + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
+				$('#favourite_vars').show();
+				$('#variant_list').show();
+				if ($('#num_favourite').length) {
+					var num_fav = parseInt($('#num_favourite').text()) + 1;
+					$('#num_favourite').text(num_fav);
+				}
+				else {
+					$('#favourite_title').html('Toggle your <span id="num_favourite">1</span> favourite variant');
+				}
+			}
+		}
+		else {
+			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
+			$('#' + favour_id).toggleClass('fa-star-o fa-star');
+			$('#' + favour_span_id).attr('title', 'Mark the variant');
+			$('#' + favour_span_id).attr('name', 'mark');
+			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
+			if ($('#favour_span').length) {
+				$('#favour_star').hide();
+			}
+			else {
+				$('#favourite_li_'+ vf_id).remove();
+				var num_fav = parseInt($('#num_favourite').text()) - 1;
+				if(num_fav > 0) {
+					$('#num_favourite').text(num_fav);
+				}
+				else {
+					$('#favourite_title').text('You have no favourite variants yet.');
+				}
+			}
+		}
+
+	});
+}
 $(document).ready(function(){
 	// $('#loader').hide();
 	// $('#content').show();
@@ -110,7 +184,7 @@ $(document).ready(function(){
 			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 1300);}
     }
 	);
-	
+
 	// reduce icon size on small screens
 	var wi = $(window).width();
 	// alert(wi);
@@ -172,8 +246,8 @@ $(document).ready(function(){
 			b = document.body,
 			st = 'scrollTop',
 			sh = 'scrollHeight';
-	
+
 		var percent = (h[st]||b[st]) / ((h[sh]||b[sh]) - h.clientHeight) * 100;
-		document.getElementById('scroll-bar').style.width = percent + '%';	
+		document.getElementById('scroll-bar').style.width = percent + '%';
 	});
 });

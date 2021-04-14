@@ -1,6 +1,7 @@
 function toggle_service(pref_url, csrf_token, caller) {
     // ajax to modify prefs for email contacts
     $('html').css('cursor', 'progress');
+    $('#btn_' +  + caller).css('cursor', 'progress');
     // send header for flask-wtf crsf security
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
@@ -42,11 +43,13 @@ function toggle_service(pref_url, csrf_token, caller) {
               }
               $("#value_" + caller).html(txt);
               //$('#contact_box_label').html(label);
+              $('#btn_' +  + caller).css('cursor', 'default');
               $("html").css('cursor', 'default');
           }
           else{
               //$("#contact_box").prop( "checked", false);
               $("#error_messages").html(html_error);
+              $('#btn_' +  + caller).css('cursor', 'default');
               $("html").css('cursor', 'default');
           }
 
@@ -69,11 +72,14 @@ function empty_variant_list(ajax_url, csrf_token) {
     url: ajax_url
   })
   .done(function() {
-    $("#variant_list").hide();
-    $("#num_favourite").text("0")
-    $("#variant_list_menu").hide();
-    $("#comment").text("Your list of favourites has successfully been emptied.");
+    $('#variant_list').hide();
+    $('#favourite_ul').empty();
+    $('#num_favourite').text("0")
+    $('#variant_list_menu').hide();
+    $('#comment').text('Your list of favourites has successfully been emptied.');
     $('html').css('cursor', 'default');
+    $('i.fa-star').toggleClass('fa-star fa-star-o');
+    $('span[name="mark"]').attr('name', 'unmark');
   });
 }
 
@@ -81,7 +87,7 @@ function create_unique_url(ajax_url, csrf_token) {
   // ajax to generate a unique URL coresponding to a variant list
   var reg = /^\w+$/;
   if (!reg.test($("#list_name").val())) {
-    alert("Characters allowed for the list names are letters, numbers and underscores. No spaces or other characters.");
+    alert('Characters allowed for the list names are letters, numbers and underscores. No spaces or other characters.');
     return false;
   }
   $('html').css('cursor', 'progress');
@@ -102,7 +108,7 @@ function create_unique_url(ajax_url, csrf_token) {
     }
   })
   .done(function(return_html) {
-    $("#comment").html(return_html);
+    $('#comment').html(return_html);
     $('html').css('cursor', 'default');
     $('#create_unique_url').css('cursor', 'default');
   });
@@ -125,10 +131,10 @@ function delete_list(ajax_url, list_name, csrf_token) {
   })
   .done(function(return_code) {
     if (return_code == 'success') {
-      $("#" + list_name).hide();
+      $('#' + list_name).hide();
     }
     else {
-      $("#comment_list").html('Something went wrong with the deletion of your list. Please do not hesitate to warn us.');
+      $('#comment_list').html('Something went wrong with the deletion of your list. Please do not hesitate to warn us.');
     }
     $('html').css('cursor', 'default');
   });
@@ -151,15 +157,15 @@ function toggle_lock(ajax_url, list_name, csrf_token) {
   })
   .done(function(return_code) {
     if (return_code == 'unlocked') {
-      $("#unlock_" + list_name).hide();
-      $("#lock_" + list_name).show();
+      $('#unlock_' + list_name).hide();
+      $('#lock_' + list_name).show();
     }
     else if (return_code == 'locked') {
-      $("#lock_" + list_name).hide();
-      $("#unlock_" + list_name).show();
+      $('#lock_' + list_name).hide();
+      $('#unlock_' + list_name).show();
     }
     else{
-      $("#comment_list").html('Something went wrong with the lock toggle of your list. Please do not hesitate to warn us.');
+      $('#comment_list').html('Something went wrong with the lock toggle of your list. Please do not hesitate to warn us.');
     }
     $('html').css('cursor', 'default');
   });
