@@ -103,7 +103,8 @@ function favourite(vf_id, fav_url, csrf_token) {
       }
   });
 	// call form variant page
-	var marker;
+	var favour_span_id;
+	var favour_id;
 	if ($('#favour_span').length) {
 		favour_span_id = 'favour_span';
 		favour_id = 'favour';
@@ -131,7 +132,7 @@ function favourite(vf_id, fav_url, csrf_token) {
 				$('#favour_star').show();
 			}
 			else {
-				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + $('#md_variant_url_' + vf_id).text() + '\')" title="Visit the variant page"><span><em>' + $('#gene_' + vf_id).text() + '</em>:c.' + $('#c_name_' + vf_id).text() + ' - p.(' + $('#p_name_' + vf_id).text() + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
+				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + $("#md_variant_url_" + vf_id).text() + '\')" title="Visit the variant page"><span><em>' + $("#gene_" + vf_id).text() + '</em>:c.' + $("#c_name_" + vf_id).text() + ' - p.(' + $("#p_name_" + vf_id).text() + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
 				$('#favourite_vars').show();
 				$('#variant_list').show();
 				if ($('#num_favourite').length) {
