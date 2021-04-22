@@ -313,7 +313,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     (ncbi_chr,)
                 )
                 res = curs.fetchone()
-                if res: #   and \
+                if res:  # and \
                     #    res['genome_version'] == 'hg38':
                     genome_version, chrom = res['genome_version'], res['name']
                     # check if variant exists
@@ -347,9 +347,12 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             else:
                                 flash('Variant Validator looks down!', 'w3-pale-red')
                                 return redirect(url_for('md.index'), code=302)
-
+                        genome_vv = 'GRCh38'
+                        if genome_version == 'hg19':
+                            genome_vv = 'GRCh37'
+                            # weird VV seems to work better with 'GRCh37' than with 'hg19'
                         vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
-                            vv_base_url, genome_version, variant_ghgvs
+                            vv_base_url, genome_vv, variant_ghgvs
                         )
                         # print(vv_url)
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
