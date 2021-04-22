@@ -1091,8 +1091,7 @@ try again: {0}-{1}'.format(acc_no, gene)}
                 next
             else:
                 # print(warning)
-                if 'Removing redundant reference bases \
-                from variant description' in warning:
+                if 'Removing redundant reference bases from variant description' in warning:
                     continue
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto
