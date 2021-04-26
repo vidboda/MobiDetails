@@ -1203,6 +1203,20 @@ def variant(variant_id=None):
         annot['mpa_impact'] = 'unknown'
     else:
         annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
+
+    # print(var_cname)
+    # print(aa_pos)
+    # # print(md_utilities.urls)
+    # # print(md_utilities.external_tools)
+    # # print(md_utilities.predictor_thresholds)
+    # print(variant_features)
+    # print(variant)
+    # print(domain)
+    # print(class_history)
+    # print(annot)
+    # print(signif_scores5)
+    # print(signif_scores3)
+
     return render_template(
         'md/variant.html', run_mode=md_utilities.get_running_mode(), favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
         splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,

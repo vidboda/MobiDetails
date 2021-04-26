@@ -116,7 +116,7 @@ us an email directly to \
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails email validation error',
-                            '<p>mailboxvalidator validation failed:\
+                            '<p>mailboxvalidator validation failed: \
 <br/> {0} <br /> - from {1} with args: {2}\
 </p>'.format(
                                 mv_json,
@@ -233,14 +233,14 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
                     'Dear {0},\
-<p>thank you for registering in MobiDetails.\
+<p>thank you for registering in MobiDetails. \
  We hope you will find this website useful.</p>\
-<p>Please follow the link below to activate\
+<p>Please follow the link below to activate \
  your MobiDetails account:</p>\
 <p><a href="{1}{2}" title="Activate your MD account">\
 Activate your MD account</a></p>\
-<p>If you do not know why you receive this email,\
-do not follow the link and please alert\
+<p>If you do not know why you receive this email, \
+do not follow the link and please alert \
 mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         username,
@@ -342,19 +342,19 @@ def login():
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
         elif user['activated'] is False:
-            error = 'This account is not activated.\
-An email to activate your account\
+            error = 'This account is not activated. \
+An email to activate your account \
 has been sent to {}'.format(user['email'])
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
-                    'Dear {0},<p>please follow the link below\
+                    'Dear {0},<p>please follow the link below \
 to activate your MobiDetails account:</p>\
 <p><a href="{1}{2}" title="Activate your MD account">\
 Activate your MD account</a></p>\
-<p>If you do not know why you receive this email,\
-do not follow the link and please alert\
+<p>If you do not know why you receive this email, \
+do not follow the link and please alert \
 mobidetails.iurc@gmail.com.</p><br />\
                     '.format(
                         user['username'],
@@ -455,7 +455,7 @@ def activate(mobiuser_id, api_key):
         )
         user = curs.fetchone()
         if user is None:
-            message_body = '<p>Account activation exception</p><p>Recived API key: {0} and\
+            message_body = '<p>Account activation exception</p><p>Recived API key: {0} and \
 mobiuser_id: {1} from {2}'.format(
                             api_key, mobiuser_id, request.remote_addr
                         )
@@ -757,7 +757,7 @@ def reset_password():
             )
             user = curs.fetchone()
             if user is None:
-                message_body = '<p>Password reset exception</p><p>Received API key: {0} and\
+                message_body = '<p>Password reset exception</p><p>Received API key: {0} and \
 mobiuser_id: {1} from {2}'.format(
                                 api_key, mobiuser_id, request.remote_addr
                             )
@@ -778,7 +778,7 @@ An admin has been warned', 'w3-pale-red')
                     api_key=api_key
                 )
         else:
-            message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and\
+            message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and \
 mobiuser_id: {1} from {2}'.format(
                              request.args.get('ts'),
                              request.args.get('mobiuser_id'),
