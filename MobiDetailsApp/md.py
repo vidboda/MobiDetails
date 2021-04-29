@@ -442,6 +442,7 @@ def variant(variant_id=None):
     #     return render_template('unknown.html', query='No variant provided')
     # elif re.search(r'[^\d]', str(variant_id)):
     #     return render_template('unknown.html', query=variant_id)
+    print(variant_id)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # get all variant_features and gene info

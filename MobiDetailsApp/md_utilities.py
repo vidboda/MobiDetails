@@ -1528,7 +1528,7 @@ in md_utilities create_var_vv</p>'.format(vv_key_var)
                 [genome]['vcf']['pos']
             )
             if vf_d['dna_type'] == 'indel':
-                pos_vcf += 1
+                pos_vcf -= 1
             x = pos_vcf - 25
             y = pos_vcf + int(vf_d['variant_size']) + 25
         # endbugfix
