@@ -150,11 +150,13 @@ def test_get_pos_splice_site(pos, positions, result):
     ('1524+37C>T', [37, '+']),
     ('1258+59_1258+61del', [59, '+']),
     ('1258-589_1258-587del', [587, '-']),
-    ('51437-4_51444del', [1, '-'])
+    ('51437-4_51444del', [1, '-']),
+    ('-385-172_-385-166delinsATT', [166, '-'])
 ))
 def test_get_pos_splice_site_intron(client, app, name, return_value):
     dist = md_utilities.get_pos_splice_site_intron(name)
     assert dist == return_value
+
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
     (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, [288, 689]),
