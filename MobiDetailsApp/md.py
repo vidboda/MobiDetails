@@ -20,7 +20,8 @@ bp = Blueprint('md', __name__)
 # to be modified when in prod - modify pythonpath and use venv with mod_wsgi
 # https://stackoverflow.com/questions/10342114/how-to-set-pythonpath-on-web-server
 # https://flask.palletsprojects.com/en/1.1.x/deploying/mod_wsgi/
-
+# create a poolmanager
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 # -------------------------------------------------------------------
 # web app - index
 
@@ -28,6 +29,15 @@ bp = Blueprint('md', __name__)
 @bp.route('/')
 def index():
     # print(app.config['RUN_MODE'])
+    # check vv
+    md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.check_vv_instance'))
+    vv_instance = json.loads(
+                    http.request(
+                        'GET',
+                        md_api_url
+                    ).data.decode('utf-8')
+                )
+    # count genes
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
@@ -52,7 +62,8 @@ def index():
             'md/index.html',
             run_mode=md_utilities.get_running_mode(),
             nb_genes=res['gene'],
-            nb_isoforms=res['transcript']
+            nb_isoforms=res['transcript'],
+            vv_instance=vv_instance
         )
 
 # -------------------------------------------------------------------
@@ -110,10 +121,10 @@ def gene(gene_name=None):
         # in panelApp ?
         # we check  if the gene is in panelApp, if it is, we propose a link
         # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
-        http = urllib3.PoolManager(
-            cert_reqs='CERT_REQUIRED',
-            ca_certs=certifi.where()
-        )
+        # http = urllib3.PoolManager(
+        #     cert_reqs='CERT_REQUIRED',
+        #     ca_certs=certifi.where()
+        # )
 
         # get metadome json?
         enst_ver = {}
