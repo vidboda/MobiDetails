@@ -17,10 +17,22 @@ def test_check_api_key(client, app, api_key, api_key_pass_check, api_key_status)
     with app.app_context():
         if api_key == '':
             api_key = get_generic_api_key()
-    json_response = json.loads(client.post('/api/service/check_api_key', data={'api_key':api_key}).data.decode('utf8'))
+    json_response = json.loads(
+        client.post('/api/service/check_api_key', data={'api_key':api_key}).data.decode('utf8')
+    )
     print(json_response)
     assert api_key_pass_check == json_response['api_key_pass_check']
     assert api_key_status == json_response['api_key_status']
+
+# test vv instance
+
+
+def test_check_vv_instance(client):
+    json_response = json.loads(client.get('/api/service/vv_instance').data.decode('utf8'))
+    print(json_response)
+    assert json_response['variant_validator_instance'] in \
+        ['No VV running', 'Running our own emergency VV server', 'Running genuine VV server']
+
 # test variant exists
 
 

@@ -42,6 +42,31 @@ def check_api_key(api_key=None):
     return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
 
 # -------------------------------------------------------------------
+# api - check which VV is running
+
+
+@bp.route('/api/service/vv_instance', methods=['GET'])
+def check_vv_instance():
+    vv_url = md_utilities.get_vv_api_url()
+    if not vv_url:
+        return jsonify(
+            variant_validator_instance='No VV running',
+            URL='None'
+        )
+    else:
+        if vv_url == md_utilities.urls['variant_validator_api_backup']:
+            return jsonify(
+                variant_validator_instance='Running our own emergency VV server',
+                URL=vv_url
+            )
+        elif vv_url == md_utilities.urls['variant_validator_api']:
+            return jsonify(
+                variant_validator_instance='Running genuine VV server',
+                URL=vv_url
+            )
+
+
+# -------------------------------------------------------------------
 # api - variant exists?
 
 
