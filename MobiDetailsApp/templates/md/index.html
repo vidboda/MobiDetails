@@ -29,7 +29,7 @@
 		 investigate variants in
 			</p>
 			<div>
-				{% if nb_genes ‰}
+				{% if nb_genes %}
 					<span class="w3-button w3-badge w3-xxxlarge w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}';show_loader();" title="see all genes">{{ nb_genes }}</span><span> genes and </span><span class="w3-button w3-badge w3-xxxlarge w3-blue w3-hover-light-blue" onclick="window.location='{{ url_for('md.genes') }}';show_loader();" title="see all genes">{{ nb_isoforms }}</span><span> isoforms </span>
 				{% else %}
 					<span> many genes</span>
