@@ -1,10 +1,10 @@
 import pytest
-#import urllib.parse
+# import urllib.parse
 from MobiDetailsApp.db import get_db
 
 
-def test_homepage(client):
-    assert client.get('/').status_code == 200
+# def test_homepage(client):
+#     assert client.get('/').status_code == 200
 
 
 def test_about(client):
