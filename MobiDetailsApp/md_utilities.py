@@ -1179,8 +1179,8 @@ It is therefore impossible to create a variant.'
     # check again if variant exist
     curs.execute(
         "SELECT feature_id FROM variant \
-        WHERE genome_version = %s AND g_name = %s",
-        (genome, hg38_d['g_name'])
+        WHERE genome_version = %s AND g_name = %s AND chr = %s",
+        (genome, hg38_d['g_name'], hg38_d['chr'])
     )
     res = curs.fetchone()
     if res is not None:
