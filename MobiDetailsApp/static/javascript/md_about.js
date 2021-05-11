@@ -3,7 +3,7 @@ $(document).ready(function() {
 	//var wi = $(window).width();
 	// alert(wi);
 	//if (wi < 400) {
-	//	
+	//
 	//else if (wi <= 600) {
 	//	$('span.w3-xxlarge').removeClass('w3-xxlarge').addClass('w3-medium');
 	//}
@@ -15,7 +15,7 @@ $(document).ready(function() {
 		dom: 'Bft',
 		"order": [],
 		//scrollY: 600,
-		"pageLength": 25,
+		"pageLength": 30,
 		buttons: [
 			'copy', 'excel', 'pdf'
 		]
