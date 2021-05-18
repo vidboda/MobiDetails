@@ -402,95 +402,94 @@ function beforePrintHandler () {
 
 
 $(document).ready(function() {
-
     $('#third_br').remove();
-	if ($(window).width() < 600) {
-		$('#page_menu').remove();
-        $('#second_br').remove();
-        // hide left menu items
-		myAccFunc('hg19_acc', 'hg19_icon');
-		myAccFunc('hg38_acc', 'hg38_icon');
-		$('#smart_menu').hide();
-		$('#openNav').css('visibility', 'visible');
-		$('#global_content').animate({marginLeft: '0%'});
-		$('#mobile_var_name').show();
-		$('#defgen_hg19').remove();
-		$('#defgen_hg38').remove();
+  	if ($(window).width() < 600) {
+    		$('#page_menu').remove();
+            $('#second_br').remove();
+            // hide left menu items
+    		myAccFunc('hg19_acc', 'hg19_icon');
+    		myAccFunc('hg38_acc', 'hg38_icon');
+    		$('#smart_menu').hide();
+    		$('#openNav').css('visibility', 'visible');
+    		$('#global_content').animate({marginLeft: '0%'});
+    		$('#mobile_var_name').show();
+    		$('#defgen_hg19').remove();
+    		$('#defgen_hg38').remove();
 
-	}
+  	}
     else if ($(window).width() < 900) {
         $('#second_br').remove();
         $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+      	$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+      	$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+      	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
         $('#global_content').animate({marginLeft: '25%'});
-		$('#smart_menu').width('25%');
+  		  $('#smart_menu').width('25%');
     }
     else if($(window).width() < 1300) {
         $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
-		$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+      	$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+      	$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+      	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
         if ($('#login_name').length) {$('#login_name').remove();}
     }
 
     // transform all tables as datatables
 	$('.w3-table').DataTable({
-		responsive: true,
-		dom: 't',
-		"order": [],
-		//scrollY: 600,
-		buttons: [
-				'copy', 'excel', 'pdf'
-		]
+  		responsive: true,
+  		dom: 't',
+  		"order": [],
+  		//scrollY: 600,
+  		buttons: [
+  				'copy', 'excel', 'pdf'
+  		]
 	});
 
-    // check MuPIT for available 3D structure
-    // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
-    $.ajax({
-		type: "GET",
-		url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
+  // check MuPIT for available 3D structure
+  // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
+  $.ajax({
+	type: "GET",
+	url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
 	})
 	.done(function(mupit_results) {
-        // alert(mupit_results.hit);
-        if (mupit_results.hit === true) {
-            $('#mupit_link').show();
-        }
+      // alert(mupit_results.hit);
+      if (mupit_results.hit === true) {
+          $('#mupit_link').show();
+      }
     });
 	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
 	// export multiple tables in one single pdf
 	$('#ExportPdf').click(function() {
 
 		var config = {
-			className: "buttons-pdf buttons-html5",
-			customize: null,
-			download: "download",
-			exportOptions: {},
-			extension: ".pdf",
-			filename: "*",
-			footer: false,
-			header: true,
-			messageBottom: "*",
-			messagetop: "*",
-			namespace: ".dt-button-2",
-			orientation: "portrait",
-			pageSize: "A4",
-			title: "*"
+  			className: "buttons-pdf buttons-html5",
+  			customize: null,
+  			download: "download",
+  			exportOptions: {},
+  			extension: ".pdf",
+  			filename: "*",
+  			footer: false,
+  			header: true,
+  			messageBottom: "*",
+  			messagetop: "*",
+  			namespace: ".dt-button-2",
+  			orientation: "portrait",
+  			pageSize: "A4",
+  			title: "*"
 		};
 		var tables = ["nomenclature_table", "position_table", "population_table",  "prediction_table"];
 		if ($('#splicing_table').length > 0) {
-			tables.push("splicing_table");
-            tables.push("spip_summary");
-            tables.push("spip_full");
+			  tables.push("splicing_table");
+        tables.push("spip_summary");
+        tables.push("spip_full");
 		}
 		tables.push("maxent5ss_table");
 		tables.push("maxent3ss_table");
 		if ($('#missense_table').length > 0) {
-			tables.push("missense_table");
+		    tables.push("missense_table");
 		}
-        else if ($('#dbmts_table').length > 0) {
-			tables.push("dbmts_table");
+    else if ($('#dbmts_table').length > 0) {
+		    tables.push("dbmts_table");
 		}
 		tables.push("class_table");
 		tables.push("admin_table");
@@ -498,40 +497,37 @@ $(document).ready(function() {
 		// var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
 		var tablesConverted = {};
 		for (var k = 0; k < tables.length; k++) {
-			var dt = $('#' + tables[k]).DataTable();
-			var data = dt.buttons.exportData(config.exportOptions);
-			var info = dt.buttons.exportInfo(config);
-			// alert(tables[k]);
-			var rows = [];
-			if (config.header) {
-				rows.push($.map(data.header, function(d) {
-					return {
-						text: typeof d === 'string' ? d : d + '',
-						style: 'tableHeader'
-					};
-				}));
-			}
-
-			for (var i = 0, ien = data.body.length; i < ien; i++) {
-				rows.push($.map(data.body[i], function(d) {
-					return {
-						text: typeof d === 'string' ? d : d + '',
-						style: i % 2 ? 'tableBodyEven' : 'tableBodyOdd'
-					};
-				}));
-			}
-
-			if (config.footer && data.footer) {
-				rows.push($.map(data.footer, function(d) {
-					return {
-						text: typeof d === 'string' ? d : d + '',
-						style: 'tableFooter'
-					};
-				}));
-			}
-
-			tablesConverted[tables[k]] = rows;
-        }
+  			var dt = $('#' + tables[k]).DataTable();
+  			var data = dt.buttons.exportData(config.exportOptions);
+  			var info = dt.buttons.exportInfo(config);
+  			// alert(tables[k]);
+  			var rows = [];
+  			if (config.header) {
+    				rows.push($.map(data.header, function(d) {
+      					return {
+        						text: typeof d === 'string' ? d : d + '',
+        						style: 'tableHeader'
+      					};
+    				}));
+  			}
+  			for (var i = 0, ien = data.body.length; i < ien; i++) {
+    				rows.push($.map(data.body[i], function(d) {
+      					return {
+        						text: typeof d === 'string' ? d : d + '',
+        						style: i % 2 ? 'tableBodyEven' : 'tableBodyOdd'
+      					};
+    				}));
+  			}
+  			if (config.footer && data.footer) {
+    				rows.push($.map(data.footer, function(d) {
+      					return {
+        						text: typeof d === 'string' ? d : d + '',
+        						style: 'tableFooter'
+      					};
+    				}));
+  			}
+  			tablesConverted[tables[k]] = rows;
+    }
 
 
 		var doc = {
