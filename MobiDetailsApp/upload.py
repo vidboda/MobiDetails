@@ -219,8 +219,9 @@ def file_upload():
                                 result_list,
                                 request.host_url[:-1],
                                 url_for(
-                                    'md.variant',
-                                    variant_id=resul['id']
+                                    'api.variant',
+                                    variant_id=resul['id'],
+                                    caller='browser'
                                 )
                             )
 

@@ -1,6 +1,6 @@
 {% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection, fa %}
 {% extends "base.html" %}
-{% block title %}  {{ variant_features.gene_name[0] }}:{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} {% endblock %}
+{% block title %}  {{ external_data.gene.symbol }}:{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }} {% endblock %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
@@ -12,85 +12,70 @@
 	<!--left menu (hidden at first)-->
 	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="max-height:86%;height:auto;">
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
-		{% set hg19_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
-		{% set hg38_var = namespace(chr='', pos='', ref='', alt='', g_name='') %}
-		{% for vari in variant|sort() %}
-			{% if vari.genome_version == 'hg19' %}
-				{# set variables #}
-				{% set hg19_var.pos = vari.pos %}
-				{% set hg19_var.ref = vari.pos_ref %}
-				{% set hg19_var.alt = vari.pos_alt %}
-				{% set hg19_var.g_name = vari.g_name %}
-				{# deal with position for genome browsers #}
-				{% set positions = namespace(min=vari.pos-25, max=vari.pos+25, end=vari.pos) %}
-				{% if variant_features.variant_size > 1 %}
-					{% set positions.end = vari.pos + variant_features.variant_size %}
-					{% set positions.max = vari.pos + variant_features.variant_size +25 %}
+		{# hg19 #}
+		{# deal with position for genome browsers #}
+		{% set positions = namespace(min=external_data.VCF.hg19.pos-25, max=external_data.VCF.hg19.pos+25, end=external_data.VCF.hg19.pos) %}
+		{% if external_data.positions.size > 1 %}
+			{% set positions.end = external_data.VCF.hg19.pos + external_data.positions.size %}
+			{% set positions.max = external_data.VCF.hg19.pos + external_data.positions.size +25 %}
+		{% endif %}
+		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
+		<div class="w3-show" id="hg19_acc">
+			{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
+			{# {{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }} #}
+			{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end), "ESP6500") }}
+			{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, external_data.VCF.chr, positions.min, positions.max, external_data.frequenciesDatabases.dbSNPrsid, external_data.VCF.hg19.pos, external_data.VCF.hg19.pos, external_data.frequenciesDatabases.dbSNPrsid), "1000 genomes")}}
+			{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "gnomAD v2")}}
+			{% if external_data.positions.DNAType == 'substitution' %}
+				{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "CADD")}}
+			{# {% endif %}
+			{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' %} #}
+				{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
+					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
 				{% endif %}
-				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
-				<div class="w3-show" id="hg19_acc">
-					{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
-					{# {{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }} #}
-					{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, vari.chr, vari.pos, positions.end), "ESP6500") }}
-					{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, vari.chr, positions.min, positions.max, variant_features.dbsnp_id, vari.pos, vari.pos, variant_features.dbsnp_id), "1000 genomes")}}
-					{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v2")}}
-					{% if variant_features.dna_type == 'substitution' %}
-						{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
-					{# {% endif %}
-					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' %} #}
-						{% if variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
-							{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "InterVar")}}
-						{% endif %}
-					{% endif %}
-					{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "Clinvar")}}#}
-					{% if variant_features.so_accession != None %}
-						{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, vari.pos, vari.chr, variant_features.so_accession, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
-					{% else %}
-						{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, vari.pos, vari.chr, variant_features.gene_name[0], variant_features.c_name), "Clinvar search")}}
-					{% endif %}
-					{{ link("%srs%s"|format(urls.ncbi_dbsnp, variant_features.dbsnp_id), "dbSNP")}}
-					{% if variant_features.dbsnp_id != None %}
-						{{ link("%srs%s"|format(urls.regulomedb_hg19_search, variant_features.dbsnp_id), "RegulomeDB") }}
-					{% endif %}
-				{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name), "VarSome") }}#}
-				</div>
-			{% elif vari.genome_version == 'hg38' %}
-				{# set variables #}
-				{% set hg38_var.pos = vari.pos %}
-				{% set hg38_var.ref = vari.pos_ref %}
-				{% set hg38_var.alt = vari.pos_alt %}
-				{% set hg38_var.g_name = vari.g_name %}
-				{# deal with position for genome browsers #}
-				{% set positions = namespace(min=vari.pos-25, max=vari.pos+25, end=vari.pos) %}
-				{% if variant_features.variant_size > 1 %}
-					{% set positions.end = vari.pos + variant_features.variant_size %}
-					{% set positions.max = vari.pos + variant_features.variant_size +25 %}
-				{% endif %}
-				<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
-				<div class="w3-show" id="hg38_acc">
-					<span style="display:none;" id="mupit_url">{{ urls.mupit }}</span>
-					<span style="display:none;" id="mupit_link">{{ link("%s?gm=chr%s:%s"|format(urls.mupit, vari.chr, vari.pos), "MuPIT") }}</span>
-					{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, vari.chr, positions.min, positions.max, vari.chr, vari.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
-					{# {{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }} #}
-					{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "gnomAD v3")}}
-					{% if variant_features.dna_type == 'substitution' %}
-						{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, vari.chr, vari.pos, vari.pos_ref, vari.pos_alt), "CADD")}}
-						{% if variant_features.start_segment_type == 'exon' and annot.exon_first_nt_cdna_position > 1 %}
-							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, annot.exon_sequence, variant_features.c_name, annot.exon_first_nt_cdna_position), "HexoSplice") }}
-						{% else %}
-							{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, variant_features.gene_name[1], variant_features.gene_name[0], variant_features.start_segment_type|capitalize, variant_features.start_segment_number, variant_features.wt_seq|replace(' ', ''), annot.substitution_nature), "HexoSplice") }}
-						{% endif %}
-					{% endif %}
-				</div>
 			{% endif %}
-		{% endfor %}
-		{{ link(url_for('md.gene', gene_name=variant_features.name[0]), "MD %s"|format(variant_features.name[0])) }}
+			{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "Clinvar")}}#}
+			{% if external_data.positions.proteinTypeSoAccession != None %}
+				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{% else %}
+				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{% endif %}
+			{% if external_data.frequenciesDatabases.dbSNPrsid != None %}
+				{{ link("%srs%s"|format(urls.ncbi_dbsnp, external_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
+				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, external_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
+			{% endif %}
+		{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "VarSome") }}#}
+		</div>
+		{# hg38 #}
+		{# deal with position for genome browsers #}
+		{% set positions = namespace(min=external_data.VCF.hg38.pos-25, max=external_data.VCF.hg38.pos+25, end=external_data.VCF.hg38.pos) %}
+		{% if external_data.positions.size > 1 %}
+			{% set positions.end = external_data.VCF.hg38.pos + external_data.positions.size %}
+			{% set positions.max = external_data.VCF.hg38.pos + external_data.positions.size +25 %}
+		{% endif %}
+		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
+		<div class="w3-show" id="hg38_acc">
+			<span style="display:none;" id="mupit_url">{{ urls.mupit }}</span>
+			<span style="display:none;" id="mupit_link">{{ link("%s?gm=chr%s:%s"|format(urls.mupit, external_data.VCF.chr, external_data.VCF.hg38.pos), "MuPIT") }}</span>
+			{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg38.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
+			{# {{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }} #}
+			{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "gnomAD v3")}}
+			{% if external_data.positions.DNAType == 'substitution' %}
+				{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CADD")}}
+				{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
+					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
+				{% else %}
+					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.hexosplice.substitutionNature), "HexoSplice") }}
+				{% endif %}
+			{% endif %}
+		</div>
+		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
 			{% if favourite != True %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ variant_features.var_id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
 			{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ variant_features.var_id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 </span>
 			{% endif %}
 		{% endif %}
@@ -100,23 +85,21 @@
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
-		{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
+		{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG != None %}
 			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{% endif %}
-		{% if variant_features.prot_type == 'missense' %}
+		{% if external_data.positions.proteinType == 'missense' %}
 			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
-		{% if variant_features.dna_type == 'substitution' and annot.miranda_cat is defined %}
+		{% if external_data.positions.DNAType == 'substitution' and internal_data.miRNATargetSitesPredictions.mirandaCat != None %}
 			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
 	</div>
-	{#{{ gene_redirection(variant_features.name[0], urls) }}
-	{{ modal_js('gene_modal') }}#}
 	<div id="global_content" style="margin-left:15%">
 		<!--first section-->
-		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s.%s:c.%s"|format(variant_features.gene_name[0], variant_features.gene_name[1], variant_features.nm_version, variant_features.c_name) }}</div>
+		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s.%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
 		<div class="w3-container w3-responsive">
@@ -130,69 +113,69 @@
 				</thead>
 				<tbody>
 					<!--HGVS DNA on transcript-->
-					<span style="display:none;" id="gene_name">{{ variant_features.gene_name[0] }}</span>
+					<span style="display:none;" id="gene_name">{{ external_data.gene.symbol }}</span>
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
-						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}" target="_blank" title="open NCBI page for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}"><span id="nm_acc">{{ variant_features.gene_name[1] }}</span>.{{ variant_features.nm_version }}</a>:<span id="c_name">c.{{ variant_features.c_name }}</span></td>
+						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span>.{{ external_data.gene.nmVersion }}</a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
-					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}">-->
+					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}">-->
 					<!--IVS name-->
-					{% if variant_features.start_segment_type == 'intron' %}
+					{% if external_data.positions.segmentStartType == 'intron' %}
 						<tr>
 							<td class="w3-left-align">IVS name:</td>
-							<td class="w3-left-align">{{ variant_features.ivs_name }}</td>
+							<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
 							<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
 						</tr>
 					{% endif %}
 					<!--HGVS Protein-->
 					<tr>
 						<td class="w3-left-align">HGVS Protein:</td>
-						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ variant_features.np }}" target="_blank" title="open NCBI page for {{ variant_features.np }}">{{ variant_features.np }}</a>:<span id="hgvs_p_name">p.({{ variant_features.p_name }})</span></td>
+						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ external_data.gene.RefSeqNp }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNp }}">{{ external_data.gene.RefSeqNp }}</a>:<span id="hgvs_p_name">p.({{ internal_data.nomenclatures.pName }})</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene)-->
-					{% if variant_features.ng != 'NG_000000.0' and variant_features.ng_name != None %}
+					{% if external_data.gene.RefSeqNg != 'NG_000000.0' and internal_data.nomenclatures.ngName != None %}
 						<tr>
 							<td class="w3-left-align">HGVS genomic (gene):</td>
-							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ variant_features.ng }}" target="_blank" title="open NCBI page for {{ variant_features.ng }}">{{ variant_features.ng }}</a>:g.{{ variant_features.ng_name }}</td>
+							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqNg }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNg }}">{{ external_data.gene.RefSeqNg }}</a>:g.{{ internal_data.nomenclatures.ngName }}</td>
 							<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (gene centered)</em></td>
 						</tr>
 					{% endif %}
 					<!--HGVS genomic (hg19)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg19):</td>
-						<td class="w3-left-align">chr{{ variant_features.chr }}:g.<span id="hg19_g_name">{{ hg19_var.g_name }}</span></td>
+						<td class="w3-left-align">chr{{ external_data.VCF.chr }}:g.<span id="hg19_g_name">{{ internal_data.VCF.hg19.gName }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg19)</em></td>
 					</tr>
 					<!--HGVS genomic strict (hg19)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg19):</td>
-						<td class="w3-left-align">{{ annot.ncbi_chr_hg19 }}:g.{{ hg19_var.g_name }}</td>
+						<td class="w3-left-align">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg19)</em></td>
 					</tr>
 					<!--pseudo VCF (hg19)-->
 					<tr>
 						<td class="w3-left-align">pseudo VCF (<span id="genome_19">hg19</span>):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg19_var.pos }}-{{ hg19_var.ref }}-{{ hg19_var.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_19">{{ variant_features.chr }}</span>-<span id="pos_19">{{ hg19_var.pos }}</span>-<span id="ref_19">{{ hg19_var.ref }}</span>-<span id="alt_19">{{ hg19_var.alt }}</span></a></td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg19.pos }}-{{ external_data.VCF.hg19.ref }}-{{ external_data.VCF.hg19.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_19">{{ external_data.VCF.chr }}</span>-<span id="pos_19">{{ external_data.VCF.hg19.pos }}</span>-<span id="ref_19">{{ external_data.VCF.hg19.ref }}</span>-<span id="alt_19">{{ external_data.VCF.hg19.alt }}</span></a></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg19)</em></td>
 					</tr>
 					<!--HGVS genomic (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg38):</td>
-						<td class="w3-left-align">chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}</td>
+						<td class="w3-left-align">chr{{ external_data.VCF.chr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--HGVS genomic strict (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
-						<td class="w3-left-align">{{ annot.ncbi_chr_hg38 }}:g.{{ hg38_var.g_name }}</td>
+						<td class="w3-left-align">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
 					<tr>
 						<td class="w3-left-align">pseudo VCF (<span id="genome_38">hg38</span>):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ variant_features.chr }}-{{ hg38_var.pos }}-{{ hg38_var.ref }}-{{ hg38_var.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_38">{{ variant_features.chr }}</span>-<span id="pos_38">{{ hg38_var.pos }}</span>-<span id="ref_38">{{ hg38_var.ref }}</span>-<span id="alt_38">{{ hg38_var.alt }}</span></a></td>
+						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg38.pos }}-{{ external_data.VCF.hg38.ref }}-{{ external_data.VCF.hg38.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator"><span id="chrom_38">{{ external_data.VCF.chr }}</span>-<span id="pos_38">{{ external_data.VCF.hg38.pos }}</span>-<span id="ref_38">{{ external_data.VCF.hg38.ref }}</span>-<span id="alt_38">{{ external_data.VCF.hg38.alt }}</span></a></td>
 						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg38)</em></td>
 					</tr>
 				</tbody>
@@ -201,12 +184,11 @@
 			<div class="w3-row-padding">
 				<!--Mutalyzer-->
 				<div class="w3-col m4">
-					<!--<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_name_checker }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}', '_blank');" title="Mutalyzer for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" style="width:100%">Mutalyzer</span>-->
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ variant_features.chr }}:g.{{ hg38_var.g_name }}', '_blank');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ external_data.VCF.chr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span>
 				</div>
 				<!--VariantValidator-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.' + encodeURIComponent('{{ variant_features.c_name }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }} (hg38)" style="width:100%">VariantValidator</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.' + encodeURIComponent('{{ internal_data.nomenclatures.cName }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }} (hg38)" style="width:100%">VariantValidator</span>
 				</div>
 				<!--HGVS-->
 				<div class="w3-col m4">
@@ -230,64 +212,64 @@
 				<tbody>
 					<tr><!--Position in transcript-->
 						<td class="w3-left-align">Position in transcript:</td>
-						{% if variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
-							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }}</td>
+						{% if external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
+							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}</td>
 						{% else %}
-							<td class="w3-left-align">{{ variant_features.start_segment_type|capitalize }} {{ variant_features.start_segment_number }} - {{ variant_features.end_segment_type|capitalize }} {{ variant_features.end_segment_number }}</td>
+							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
 						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}</em></td>
-					</tr><!--position in exon  and variant_features.c_name|match('^[^\*-]')-->
-					{% if variant_features.start_segment_type == 'exon' and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.start_segment_number == variant_features.end_segment_number %}
+						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}</em></td>
+					</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
+					{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
 						{% if pos_splice is not none %}
 							<tr>
 								<td class="w3-left-align">Position / splice site</td>
-								<td class="w3-left-align">{{ annot.nearest_site_dist }} bp from {{ annot.nearest_site_type }}</td>
+								<td class="w3-left-align">{{ external_data.positions.nearestSsType }} bp from {{ external_data.positions.nearestSsType }}</td>
 								<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
 							</tr>
 						{% endif %}
-						{% if variant_features.prot_type != 'unknown' %}
-							{% if aa_pos[0]|int <= variant_features.prot_size|int %}
+						{% if external_data.positions.proteinType != 'unknown' %}
+							{% if external_data.positions.aaPositionStart|int <= external_data.positions.size|int %}
 								<!-- in case prot size is wrong-->
 								<tr><!--protein-->
 									<td class="w3-left-align">Position / protein</td>
 									<td class="w3-left-align">
-										<span>{{ aa_pos[0] }}</span>
-										{% if aa_pos[0] != aa_pos[1] %}
-											<span> - {{ aa_pos[1] }}</span>
+										<span>{{ external_data.positions.aaPositionStart }}</span>
+										{% if external_data.positions.aaPositionStart != external_data.positions.aaPositionEnd %}
+											<span> - {{ external_data.positions.aaPositionEnd }}</span>
 										{%endif %}
-									 <span> / {{ variant_features.prot_size }}</span>
+									 <span> / {{ external_data.positions.size }}</span>
 									</td>
 									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
 								</tr><!--protein domain-->
 							{% endif %}
 							<tr>
 								<td class="w3-left-align">Position / domain</td>
-								{% if protein_domain[0] is defined %}
+								{% if external_data.positions.proteinDomain[0] is defined %}
 									<td class="w3-left-align">
-									{% for dom in protein_domain  %}
-										{{ dom.name }} ({{ dom.aa_start }} - {{ dom.aa_end }})&nbsp;&nbsp;
+									{% for dom in external_data.positions.proteinDomain  %}
+										{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
 									{% endfor %}
 									</td>
 								{% else %}
 									<td class="w3-left-align">Not in a UNIPROT defined domain</td>
 								{% endif %}
-								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ variant_features.uniprot_id }}" target="_blank" title="Visit UNIPROT {{ variant_features.uniprot_id }}">{{ variant_features.uniprot_id }})</a></em></td>
+								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}">{{ external_data.gene.uniprotId }})</a></em></td>
 							</tr>
 						{% endif %}
-						{% if annot.metadome_dn_ds is defined %}
+						{% if external_data.positions.metaDomednds is defined %}
 							<td class="w3-left-align">Position tolerance</td>
-							<td class="w3-left-align">{{ annot.metadome_dn_ds }} : {{ span_color(annot.metadome_effect, annot.metadome_color) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ annot.metadome_transcript }}/" target="_blank">Transcript view</a></td>
+							<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank">Transcript view</a></td>
 							<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
 						{% endif %}
 					{% endif %}
 					<tr>
 						<td class="w3-left-align">Wild type sequence</td>
-						<td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ variant_features.wt_seq }}</textarea></td>
+						<td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.wildType }}</textarea></td>
 						<td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('wt_seq');" title="copy wild type sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
 					</tr>
 					<tr>
 						<td class="w3-left-align">Mutant sequence</td>
-						<td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ variant_features.mt_seq }}</textarea></td>
+						<td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.mutant }}</textarea></td>
 						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
 					</tr>
 				</tbody>
@@ -299,12 +281,11 @@
 					</span>
 				</div>
 				<div class="w3-col m4" id="defgen_hg19">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19" style="z-index:2002;"></div>
-					<!--<span id="vf_id" style="display:none;">{{ variant_features.id }}</span>-->
 				</div>
 				<div class="w3-col m4" id="defgen_hg38">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ variant_features.var_id }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38" style="z-index:2002;"></div>
 				</div>
 			</div>
@@ -324,30 +305,25 @@
 				</thead>
 				<tbody>
 					<tr><!--gnomAD exome-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> exome:</td>
-						<td class="w3-left-align">{{ annot.gnomad_exome_all }}</td>
+						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> exome:</td>
+						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Exome }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.0.1 Exomes global MAF</em></td>
 					</tr>
 					<tr><!--gnomAD genome-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> genome:</td>
-						<td class="w3-left-align">{{ annot.gnomad_genome_all }}</td>
+						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> genome:</td>
+						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Genome }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.0.1 Genomes global MAF</em></td>
 					</tr>
-					<!--<tr>--><!--gnomAD v3-->
-						<!--<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, variant_features.chr, hg38_var.pos, hg38_var.ref, hg38_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
-						<td class="w3-left-align">{{ annot.gnomadv3 }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v3 Genomes global MAF</em></td>-->
-					<!--</tr>-->
 					<tr><!--gnomAD v3-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, variant_features.chr, hg38_var.pos, hg38_var.ref, hg38_var.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
-						<td class="w3-left-align">{{ annot.gnomadv3 }}</td>
+						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
+						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv3 }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v3 Genomes global MAF</em></td>
 					</tr>
 					<tr><!--dbSNP id-->
 						<td class="w3-left-align">dbSNP rsid:</td>
 						<td class="w3-left-align">
-							{% if variant_features.dbsnp_id != None %}
-								<a href="{{ urls.ncbi_dbsnp }}rs{{ variant_features.dbsnp_id }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ variant_features.dbsnp_id }}</a>
+							{% if internal_data.frequenciesDatabases.dbSNPrsid != None %}
+								<a href="{{ urls.ncbi_dbsnp }}rs{{ internal_data.frequenciesDatabases.dbSNPrsid }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ internal_data.frequenciesDatabases.dbSNPrsid }}</a>
 							{% else %}
 								No match in dbSNP {{ external_tools['dbSNP']['version'] }}
 							{% endif %}
@@ -357,27 +333,27 @@
 					<tr><!--clinvar-->
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">
-							{% if annot.clinvar_id is defined %}
-								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, annot.clinvar_id) }}  target="_blank" title="Visit Clinvar for this variant">{{ annot.clinsig }}</a>
-								{% if annot.clinsigconf is defined %}
-									({{ annot.clinsigconf }})
+							{% if external_data.frequenciesDatabases.clinvarId is defined %}
+								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
+								{% if external_data.frequenciesDatabases.clinvarClinsigConf is defined %}
+									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
 								{% endif %}
 							{% else %}
-								 {{ annot.clinsig }}
+								 {{ external_data.frequenciesDatabases.clinvarClinsig }}
 							{%endif %}
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
-							{% if annot.clinvar_id is defined %}
-
+							{% if external_data.frequenciesDatabases.clinvarId is defined %}
+								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
 							{%endif %}
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
-					{% if variant_features.dna_type == 'substitution' and variant_features.start_segment_type == 'exon' and variant_features.p_name != '?' and variant_features.p_name != 'Met1?' %}
+					{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 						<tr id="intervar_tr" onmouseout="$('#acmg_info').text('');"><!--intervar-->
-							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, variant_features.chr, hg19_var.pos, hg19_var.ref, hg19_var.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
+							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
 							<td class="w3-left-align">
 								<span  id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 							</td>
@@ -395,8 +371,8 @@
 				</tbody>
 			</table><br/><br/>
 			<!--hidden values to trigger intervar ajax-->
-			<span style="visibility:hidden" id="segment_type">{{ variant_features.start_segment_type }}</span>
-			<span style="visibility:hidden" id="dna_type">{{ variant_features.dna_type }}</span>
+			<span style="visibility:hidden" id="segment_type">{{ external_data.positions.segmentStartType }}</span>
+			<span style="visibility:hidden" id="dna_type">{{ external_data.positions.DNAType }}</span>
 		</div>
 		<!--fourth section-->
 		<hr />
@@ -414,60 +390,52 @@
 					{% if g.user['academic'] or not g.user %}
 						<tr><!--CADD raw-->
 							<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
-							{# {% if variant_features.dna_type == 'substitution' %}
-								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> raw:</td>
-							{% else %} #}
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
-							{#{% endif %}#}
-							{% if annot.cadd is not defined %}
-								<td class="w3-left-align">{{ annot.cadd_raw }}</td>
+							{% if internal_data.noMatch.cadd != None %}
+								<td class="w3-left-align">{{ external_data.overallPredictions.caddRaw }}</td>
 							{% else %}
-								<td class="w3-left-align">{{ annot.cadd }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
 						</tr>
 						<tr><!--CADD phred-->
-							{#{% if variant_features.dna_type == 'substitution' %}
-								<td class="w3-left-align"><a href="{{ urls.cadd }}snv/GRCh38-{{ external_tools.CADD.version }}/{{ variant_features.chr }}:{{ hg38_var.pos }}_{{ hg38_var.ref }}_{{ hg38_var.alt }}" target="_blank" title="Visit CADD {{ external_tools.CADD.version }} for this variant">CADD</a> phred:</td>
-							{% else %}#}
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
-							{#{% endif %}#}
-							{% if annot.cadd is not defined %}
-								<td class="w3-left-align">{{ annot.cadd_phred }}</td>
+							{% if internal_data.noMatch.cadd != None %}
+								<td class="w3-left-align">{{ external_data.overallPredictions.caddPhred }}</td>
 							{% else %}
-								<td class="w3-left-align">{{ annot.cadd }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 						</tr>
 					{% endif %}
-					{% if annot.eigen is defined or annot.eigen_raw is defined %}
+					{% if internal_data.noMatch.eigen != None or external_data.overallPredictions.eigenRaw != None %}
 						<tr><!--Eigen raw-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
-							{% if annot.eigen is not defined %}
-								<td class="w3-left-align">{{ annot.eigen_raw }}</td>
+							{% if internal_data.noMatch.eigen != None %}
+								<td class="w3-left-align">{{ external_data.overallPredictions.eigenRaw }}</td>
 							{% else %}
-								<td class="w3-left-align">{{ annot.eigen }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.eigen }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">[-3.33;6.84] The higher the less likely to be observed</em></td>
 						</tr>
 						<tr><!--Eigen phred-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> phred:</td>
-							{% if annot.eigen is not defined %}
-								<td class="w3-left-align">{{ annot.eigen_phred }}</td>
+							{% if internal_data.noMatch.eigen != None %}
+								<td class="w3-left-align">{{ external_data.overallPredictions.eigenPhred }}</td>
 							{% else %}
-								<td class="w3-left-align">{{ annot.eigen }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.eigen }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 						</tr>
 					{% endif %}
 					<tr><!--MPA score-->
-						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> score:</td>
-							<td class="w3-left-align">{{ span_color(annot.mpa_score, annot.mpa_color) }}</td>
+						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="VMPA GitHub">MPA</a> score:</td>
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.mpaScore, internal_data.overallPredictions.mpaColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Raw score [0;10], 10: high impact</em></td>
 					</tr>
 					<tr><!--MPA impact-->
-						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="Visit CADD">MPA</a> impact:</td>
-							<td class="w3-left-align">{{ span_color(annot.mpa_impact.capitalize(), annot.mpa_color) }}</td>
+						<td class="w3-left-align"><a href="{{ urls.mpa }}" target="_blank" title="MPA GitHub">MPA</a> impact:</td>
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.mpaImpact.capitalize(), internal_data.overallPredictions.mpaColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Impact type</em></td>
 					</tr>
 				</tbody>
@@ -477,7 +445,7 @@
 		<hr />
 		{{ section_title('splicing', 'Splicing predictions') }}
 		<div class="w3-responsive w3-container">
-			{% if (variant_features.start_segment_type == 'exon' or (variant_features.start_segment_type == 'intron' and annot.dist_from_exon < 101)) and variant_features.start_segment_type == variant_features.end_segment_type and variant_features.variant_size < 50 %}
+			{% if (external_data.positions.segmentStartType == 'exon' or (external_data.positions.segmentStartType == 'intron' and internal_data.positions.distFromExon < 101)) and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.size < 50 %}
 				<!-- Exonic Splicing context -->
 				<br />{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}
 				<div class="w3-container w3-center">
@@ -490,44 +458,44 @@
 						context.fillStyle = "#000000";
 						context.font = "bold 14px sans-serif";
 						context.strokeStyle = "#2196F3";
-						{% if annot.preceeding_segment_type != None %}
-							context.fillText("{{ annot.preceeding_segment_type }} {{ annot.preceeding_segment_number }}", 100, 25);
+						{% if internal_data.canvas.preceedingSegmentType != None %}
+							context.fillText("{{ internal_data.canvas.preceedingSegmentType }} {{ internal_data.canvas.preceedingSegmentNumber }}", 100, 25);
 						{% endif %}
-						{% if annot.pos_exon_canvas != None %}
-							context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_exon_canvas }}, 20);
+						{% if internal_data.canvas.posExonCanvas != None %}
+							context.fillText("c.{{ internal_data.nomenclatures.cName }}", {{ internal_data.canvas.posExonCanvas }}, 20);
 						{% else %}
-							context.fillText("c.{{ variant_features.c_name }}", {{ annot.pos_intron_canvas }}, 45);
+							context.fillText("c.{{ internal_data.nomenclatures.cName }}", {{ internal_data.canvas.posIntronCanvas }}, 45);
 						{% endif %}
-						{% if annot.following_segment_type != None %}
-							context.fillText("{{ annot.following_segment_type }} {{ annot.following_segment_number }}", 500, 25);
+						{% if internal_data.canvas.followingSegmentType != None %}
+							context.fillText("{{ internal_data.canvas.followingSegmentType }} {{ internal_data.canvas.followingSegmentNumber }}", 500, 25);
 						{% endif %}
-						{% if annot.preceeding_segment_number != 'UTR' and annot.preceeding_segment_number != None %}
-							context.fillText("3'ss MaxEnt: {{ annot.nat3ss_score }}", 150, 125);
-							context.fillText("{{ annot.nat3ss_seq }}", 100, 140);
+						{% if internal_data.canvas.preceedingSegmentNumber != 'UTR' and internal_data.canvas.preceedingSegmentNumber != None %}
+							context.fillText("3'ss MaxEnt: {{ internal_data.splicingPredictions.nat3ssScore }}", 150, 125);
+							context.fillText("{{ internal_data.splicingPredictions.nat3ssSeq }}", 100, 140);
 						{% endif %}
-						{% if annot.following_segment_number != 'UTR' and annot.following_segment_number != None %}
-							context.fillText("5'ss MaxEnt: {{ annot.nat5ss_score }}", 400, 125);
-							context.fillText("{{ annot.nat5ss_seq }}", 400, 140);
+						{% if internal_data.canvas.followingSegmentNumber != 'UTR' and internal_data.canvas.followingSegmentNumber != None %}
+							context.fillText("5'ss MaxEnt: {{ internal_data.splicingPredictions.nat5ssScore }}", 400, 125);
+							context.fillText("{{ internal_data.splicingPredictions.nat5ssSeq }}", 400, 140);
 						{% endif %}
 						context.moveTo(100,75);
 						context.lineTo(200,75);
 						context.stroke();
-						{% if annot.pos_exon_canvas != None %}
-							context.moveTo({{ annot.pos_exon_canvas }},20);
-							context.lineTo({{ annot.pos_exon_canvas }},20+30);
+						{% if internal_data.canvas.posExonCanvas != None %}
+							context.moveTo({{ internal_data.canvas.posExonCanvas }},20);
+							context.lineTo({{ internal_data.canvas.posExonCanvas }},20+30);
 						{% else %}
-							context.moveTo({{ annot.pos_intron_canvas }},45);
-							context.lineTo({{ annot.pos_intron_canvas }},45+30);
+							context.moveTo({{ internal_data.canvas.posIntronCanvas }},45);
+							context.lineTo({{ internal_data.canvas.posIntronCanvas }},45+30);
 						{% endif %}
 						context.stroke();
 						context.fillStyle = "#fdf5e6"
 						context.fillRect(200,50,200,50);
 						context.strokeRect(200,50,200,50);
 						context.fillStyle = "#000000";
-						{% if variant_features.start_segment_type == 'exon' %}
-							context.fillText("Exon {{ variant_features.start_segment_number }} ({{ annot.segment_size }} bp)", 250, 75);
+						{% if external_data.positions.segmentStartType == 'exon' %}
+							context.fillText("Exon {{ external_data.positions.segmentStartNumber }} ({{ internal_data.canvas.segmentSize }} bp)", 250, 75);
 						{% else %}
-							context.fillText("Exon {{ annot.neighb_exon_number }}", 250, 75);
+							context.fillText("Exon {{ internal_data.positions.neighbourExonNumber.neighb_exon_number }}", 250, 75);
 						{% endif %}
 						context.moveTo(400,75);
 						context.lineTo(500,75);
@@ -536,7 +504,7 @@
 				{% endautoescape %}
 			{% endif %}
 			<!-- MaxEntScan 5'ss -->
-			{# {% if mes5 != None or (mes3 != None and mes3 != 'Not performed') %} #}
+			{# {% if external_data.splicingPredictions.mes5 != None or (external_data.splicingPredictions.mes3 != None and external_data.splicingPredictions.mes3 != 'Not performed') %} #}
 				{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}
 			{#{% endif %}#}
 			<br />
@@ -552,18 +520,18 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if mes5 != None %}
+					{% if external_data.splicingPredictions.mes5 != None %}
 						{% autoescape false %}
-							{% for score in mes5 %}
+							{% for score in external_data.splicingPredictions.mes5 %}
 								<tr>
-									<td>... {{ mes5[score][5] }}...<br />... {{ mes5[score][6] }} ...</td>
-									<td style="vertical-align:middle;">{{ mes5[score][1] }}</td>
-									<td>... {{ mes5[score][7] }}...<br />... {{ mes5[score][8] }} ...</td>
-									<td style="vertical-align:middle;">{{ mes5[score][3] }}</td>
-									{% if mes5[score][4] > 0 %}
-										<td style="vertical-align:middle;">+{{ mes5[score][4] }}</td>
+									<td>... {{ external_data.splicingPredictions.mes5[score][5] }}...<br />... {{ external_data.splicingPredictions.mes5[score][6] }} ...</td>
+									<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes5[score][1] }}</td>
+									<td>... {{ external_data.splicingPredictions.mes5[score][7] }}...<br />... {{ external_data.splicingPredictions.mes5[score][8] }} ...</td>
+									<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes5[score][3] }}</td>
+									{% if external_data.splicingPredictions.mes5[score][4] > 0 %}
+										<td style="vertical-align:middle;">+{{ external_data.splicingPredictions.mes5[score][4] }}</td>
 									{% else %}
-										<td style="vertical-align:middle;">{{ mes5[score][4] }}</td>
+										<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes5[score][4] }}</td>
 									{% endif %}
 								</tr>
 							{% endfor %}
@@ -586,23 +554,23 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if mes3 != None and mes3 != 'Not performed' %}
+					{% if external_data.splicingPredictions.mes3 != None and external_data.splicingPredictions.mes3 != 'Not performed' %}
 						{% autoescape false %}
-							{% for score in mes3 %}
+							{% for score in external_data.splicingPredictions.mes3 %}
 								<tr>
-									<td>... {{ mes3[score][5] }}...<br />... {{ mes3[score][6] }} ...</td>
-									<td style="vertical-align:middle;">{{ mes3[score][1] }}</td>
-									<td>... {{ mes3[score][7] }}...<br />... {{ mes3[score][8] }} ...</td>
-									<td style="vertical-align:middle;">{{ mes3[score][3] }}</td>
-									{% if mes3[score][4] > 0 %}
-										<td style="vertical-align:middle;">+{{ mes3[score][4] }}</td>
+									<td>... {{ external_data.splicingPredictions.mes3[score][5] }}...<br />... {{ external_data.splicingPredictions.mes3[score][6] }} ...</td>
+									<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes3[score][1] }}</td>
+									<td>... {{ external_data.splicingPredictions.mes3[score][7] }}...<br />... {{ external_data.splicingPredictions.mes3[score][8] }} ...</td>
+									<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes3[score][3] }}</td>
+									{% if external_data.splicingPredictions.mes3[score][4] > 0 %}
+										<td style="vertical-align:middle;">+{{ external_data.splicingPredictions.mes3[score][4] }}</td>
 									{% else %}
-										<td style="vertical-align:middle;">{{ mes3[score][4] }}</td>
+										<td style="vertical-align:middle;">{{ external_data.splicingPredictions.mes3[score][4] }}</td>
 									{% endif %}
 								</tr>
 							{% endfor %}
 						{% endautoescape %}
-					{% elif mes3 == 'Not performed' %}
+					{% elif external_data.splicingPredictions.mes3 == 'Not performed' %}
 						<tr><td></td><td></td><td>No MaxEnt 3'ss score performed (exonic variant far form 3'ss).</td><td></td><td></td></tr>
 					{% else %}
 						<tr><td></td><td></td><td>No significant MaxEnt 3'ss scores found.</td><td></td><td></td></tr>
@@ -614,7 +582,7 @@
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<!--dbscSNV / spliceAI-->
 			{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available.') }}
-			{% if variant_features.dna_type == 'substitution' or annot.spliceai_DS_AG is defined %}
+			{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is defined %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
 						<tr>
@@ -624,50 +592,49 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% if variant_features.dna_type == 'substitution' %}
+						{% if external_data.positions.DNAType == 'substitution' %}
 							<tr><!--dbscSNV ADA-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
-								<td class="w3-left-align">{{ span_color(annot.dbscsnv_ada, annot.dbscsnv_ada_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 							<tr><!--dbscSNV RF-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
-								<td class="w3-left-align">{{ span_color(annot.dbscsnv_rf, annot.dbscsnv_rf_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 						{% endif %}
-						{% if annot.spliceai_DS_AG is defined %}
+						{% if external_data.splicingPredictions.spliceai_DS_AG is defined %}
 							<tr><!--spliceAI AG-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AG, annot.spliceai_DS_AG_color) }} ({{ annot.spliceai_DP_AG }})</td>
-								<!--<td class="w3-left-align"><span style="color:{{ annot.spliceai_DS_AG_color }};">{{ annot.spliceai_DS_AG }}</span> ({{ annot.spliceai_DP_AG }})</td>-->
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
 								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI AL-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_AL, annot.spliceai_DS_AL_color) }} ({{ annot.spliceai_DP_AL }})</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
 								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI DG-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DG, annot.spliceai_DS_DG_color) }} ({{ annot.spliceai_DP_DG }})</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
 								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 							<tr><!--spliceAI DL-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
-								<td class="w3-left-align">{{ span_color(annot.spliceai_DS_DL, annot.spliceai_DS_DL_color) }} ({{ annot.spliceai_DP_DL }})</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
 								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
-						{% elif annot.spliceai is defined %}
+						{% elif internal_data.noMatch.spliceai != None %}
 							<tr>
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
-								<td class="w3-left-align">{{ annot.spliceai }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
 								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
 						{% endif %}
 					</tbody>
 				</table><br/><br/>
-				{% if annot.spliceai_DS_AG is defined %}
+				{% if external_data.splicingPredictions.spliceai_DS_AG is defined %}
 					<div class="w3-row-padding">
 						<!--Splicing radar chart-->
 						<div class="w3-col m4">
@@ -701,10 +668,10 @@
 								type: 'radar',
 								data: {
 									//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
-									labels: {{ splicing_radar_labels }},
+									labels: {{ internal_data.splicingPredictions.splicingRadarLabels }},
 									datasets: [{
 										label:'Splicing predictors',
-										data: {{ splicing_radar_values }},
+										data: {{ internal_data.splicingPredictions.splicingRadarValues }},
 										fill: true,
 										backgroundColor:'rgb(255, 99, 132, 0.2)',
 										borderColor:'rgb(255, 99, 132)',
@@ -723,7 +690,7 @@
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--alt sixth section-->
-		{% if variant_features.dna_type == 'substitution' and annot.dbmts is not defined and annot.miranda_cat is defined%}
+		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts != None and internal_data.miRNATargetSitesPredictions.mirandaCat is defined %}
 			<hr />
 			{{ section_title('dbmts', 'miRNA target sites predictions') }}
 			<div class="w3-responsive w3-container">
@@ -742,65 +709,65 @@
 					<tbody>
 						<tr><!--category-->
 							<td class="w3-left-align">Category:</td>
-							<td class="w3-left-align">{{ annot.miranda_cat }}</td>
-							<td class="w3-left-align">{{ annot.targetscan_cat }}</td>
-							<td class="w3-left-align">{{ annot.rnahybrid_cat }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaCat }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanCat }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridCat }}</td>
 							<td class="w3-left-align"><em class="w3-small">Predicted functional category of this variant according to each predictor. 'S': substitution of regulating miRNAs. 'L': loss of all miRNAs. 'G' gain.</em></td>
 						</tr>
 						<tr><!--rankscore-->
 							<td class="w3-left-align">Rank Score:</td>
-							<td class="w3-left-align">{{ annot.miranda_rankscore }}</td>
-							<td class="w3-left-align">{{ annot.targetscan_rankscore }}</td>
-							<td class="w3-left-align">{{ annot.rnahybrid_rankscore }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaRankScore }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanRankScore }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridRankScore }}</td>
 							<td class="w3-left-align"><em class="w3-small">Rank of the max_dif score among all max_dif scores within the same category [0;1]. The closer to 1 the more likely to highlight a significant change.</em></td>
 						</tr>
 						<tr><!--maxdiff-->
 							<td class="w3-left-align">Max Diff:</td>
-							<td class="w3-left-align">{{ annot.miranda_maxdiff }}</td>
-							<td class="w3-left-align">{{ annot.targetscan_maxdiff }}</td>
-							<td class="w3-left-align">{{ annot.rnahybrid_maxdiff }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaMaxDiff }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanMaxDiff }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridMaxDiff }}</td>
 							<td class="w3-left-align"><em class="w3-small">The absolute value of the maximum potential difference between all the scores (ref and alt).</em></td>
 						</tr>
 						{% autoescape false %}
 							<tr><!--refbestmir-->
 								<td class="w3-left-align">Ref Best Mir:</td>
-								<td class="w3-left-align">{{ annot.miranda_refbestmir }}</td>
-								<td class="w3-left-align">{{ annot.targetscan_refbestmir }}</td>
-								<td class="w3-left-align">{{ annot.rnahybrid_refbestmir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaRefBestMir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanRefBestMir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridRefBestMir }}</td>
 								<td class="w3-left-align"><em class="w3-small">miRNA corresponding to the best score of the reference (wild-type) sequence.</em></td>
 							</tr>
 							<tr><!--refbestscore-->
 								<td class="w3-left-align">Ref Best Score:</td>
-								<td class="w3-left-align">{{ annot.miranda_refbestscore }}</td>
-								<td class="w3-left-align">{{ annot.targetscan_refbestscore }}</td>
-								<td class="w3-left-align">{{ annot.rnahybrid_refbestscore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaRefBestScore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanRefBestScore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridRefBestScore }}</td>
 								<td class="w3-left-align"><em class="w3-small">Best score for the reference sequence for each predictor.</em></td>
 							</tr>
 							<tr><!--altbestmir-->
 								<td class="w3-left-align">Alt Best Mir:</td>
-								<td class="w3-left-align">{{ annot.miranda_altbestmir }}</td>
-								<td class="w3-left-align">{{ annot.targetscan_altbestmir }}</td>
-								<td class="w3-left-align">{{ annot.rnahybrid_altbestmir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaAltBestMir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanAltBestMir }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridAltBestMir }}</td>
 								<td class="w3-left-align"><em class="w3-small">miRNA corresponding to the best score of the alternative (mutant) sequence.</em></td>
 							</tr>
 							<tr><!--altbestscore-->
 								<td class="w3-left-align">Alt Best Score:</td>
-								<td class="w3-left-align">{{ annot.miranda_altbestscore }}</td>
-								<td class="w3-left-align">{{ annot.targetscan_altbestscore }}</td>
-								<td class="w3-left-align">{{ annot.rnahybrid_altbestscore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaAltBestScore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanAltBestScore }}</td>
+								<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridAltBestScore }}</td>
 								<td class="w3-left-align"><em class="w3-small">Best score for the alternative sequence for each predictor.</em></td>
 							</tr>
 						{% endautoescape %}
 					</tbody>
 				</table>
 			</div>
-		{% elif annot.dbmts is defined %}
-			{{ info(annot.dbmts) }}
+		{% elif internal_data.noMatch.dbmts != None %}
+			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
 		<!--sixth section-->
-		{% if variant_features.prot_type == 'missense' and annot.dbnsfp is not defined %}
+		{% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp == None %}
 			<hr />
-			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(variant_features.p_name)) }}
+			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
 			<div class="w3-responsive w3-container">
 				<!--dbscSNV-->
 				<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
@@ -815,63 +782,63 @@
 					<tbody>
 						<tr><!--SIFT-->
 							<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G">SIFT</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.sift_score, annot.sift_color) }}{{ annot.sift_star }}</td>
-							<td class="w3-left-align">{{ span_color(annot.sift_pred, annot.sift_color) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftScore, internal_data.missensePredictions.siftColor) }}{{ internal_data.missensePredictions.siftStar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftPred, internal_data.missensePredictions.siftColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging</em></td>
 						</tr>
 						{% if g.user['academic'] or not g.user %}
 							<tr><!--PH2 HDIV-->
 								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
-								<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_score, annot.pph2_hdiv_color) }}{{ annot.pph2_hdiv_star }}</td>
-								<td class="w3-left-align">{{ span_color(annot.pph2_hdiv_pred, annot.pph2_hdiv_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging</em></td>
 							</tr>
 							<tr><!--PH2 HVAR-->
 								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
-								<td class="w3-left-align">{{ span_color(annot.pph2_hvar_score, annot.pph2_hvar_color) }}{{ annot.pph2_hvar_star }}</td>
-								<td class="w3-left-align">{{ span_color(annot.pph2_hvar_pred, annot.pph2_hvar_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging</em></td>
 							</tr>
 							<tr><!--REVEL-->
 								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
-								<td class="w3-left-align">{{ span_color(annot.revel_score, annot.revel_color) }}</td>
-								<td class="w3-left-align">{{ span_color(annot.revel_pred, annot.revel_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging</em></td>
 							</tr>
 							<tr><!--ClinPred-->
 								<td class="w3-left-align"><a href="{{ urls.clinpred }}" target="_blank" title="Visit ClinPred">ClinPred</a>:</td>
-								<td class="w3-left-align">{{ span_color(annot.clinpred_score, annot.clinpred_color) }}{{ annot.clinpred_star }}</td>
-								<td class="w3-left-align">{{ span_color(annot.clinpred_pred, annot.clinpred_color) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredScore, internal_data.missensePredictions.clinpredColor) }}{{ internal_data.missensePredictions.clinpredStar }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredPred, internal_data.missensePredictions.clinpredColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging</em></td>
 							</tr>
 						{% endif %}
 						<tr><!--FATHMM-->
 							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.fathmm_score, annot.fathmm_color) }}{{ annot.fathmm_star }}</td>
-							<td class="w3-left-align">{{ span_color(annot.fathmm_pred, annot.fathmm_color) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging</em></td>
 						</tr>
 						<tr><!--Meta SVM-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.msvm_score, annot.msvm_color) }} ({{ annot.m_rel }})</td>
-							<td class="w3-left-align">{{ span_color(annot.msvm_pred, annot.msvm_color) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMScore, internal_data.missensePredictions.metaSVMColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMPred, internal_data.missensePredictions.metaSVMColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 						<tr><!--Meta LR-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.mlr_score, annot.mlr_color) }} ({{ annot.m_rel }})</td>
-							<td class="w3-left-align">{{ span_color(annot.mlr_pred, annot.mlr_color) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRScore, internal_data.missensePredictions.metaLRColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRPred, internal_data.missensePredictions.metaLRColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
 						</tr>
 						<tr><!--Mistic-->
 							<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic">Mistic</a>:</td>
-							<td class="w3-left-align">{{ span_color(annot.mistic_score, annot.mistic_color) }}</td>
-							<td class="w3-left-align">{{ span_color(annot.mistic_pred, annot.mistic_color) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging</em></td>
 						</tr>
 					</tbody>
 				</table>
-				{% if annot.sift_star == '*' or annot.pph2_hdiv_star == '*' or annot.pph2_hvar_star == '*' or annot.fathmm_star == '*' %}
+				{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
 					<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
 				{% endif %}
 				<br/><br/>
@@ -896,32 +863,32 @@
 					</div>
 				</div>
 				{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=annot.sift_score, pphvar=annot.pph2_hvar_score, pphdiv=annot.pph2_hdiv_score, revel=annot.revel_score, clinpred=annot.clinpred_score, fathmm=annot.fathmm_score, metasvm=annot.msvm_score, metalr=annot.mlr_score, mistic=annot.mistic_score) %}
-				{% if annot.sift_pred == 'no prediction' %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore) %}
+				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 				{% endif %}
-				{% if annot.pph2_hvar_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.polyphen2HvarPred == 'no prediction' %}
 					{% set missense_pred.pphvar = 0 %}
 				{% endif %}
-				{% if annot.pph2_hdiv_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.polyphen2HdivPred == 'no prediction' %}
 					{% set missense_pred.pphdiv = 0 %}
 				{% endif %}
-				{% if annot.revel_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.revelPred == 'no prediction' %}
 					{% set missense_pred.revel = 0 %}
 				{% endif %}
-				{% if annot.clinpred == 'no prediction' %}
+				{% if external_data.missensePredictions.clinpredPred == 'no prediction' %}
 					{% set missense_pred.clinpred = 0 %}
 				{% endif %}
-				{% if annot.fathmm_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.fathmmPred == 'no prediction' %}
 					{% set missense_pred.fathmm = 10.64 %}
 				{% endif %}
-				{% if annot.msvm_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.metaSVMPred == 'no prediction' %}
 					{% set missense_pred.metasvm = -2 %}
 				{% endif %}
-				{% if annot.mlr_pred == 'no prediction' %}
+				{% if external_data.missensePredictions.metaLRPred == 'no prediction' %}
 					{% set missense_pred.metalr = 0 %}
 				{% endif %}
-				{% if annot.mistic == 'no prediction' %}
+				{% if external_data.missensePredictions.misticPred == 'no prediction' %}
 					{% set missense_pred.mistic = 0 %}
 				{% endif %}
 				<script>
@@ -965,14 +932,14 @@
 			</div>
 
 
-		{% elif annot.dbnsfp is defined %}
-			{{ info(annot.dbnsfp) }}
+		{% elif internal_data.noMatch.dbnsfp != None %}
+			{{ info(internal_data.noMatch.dbnsfp) }}
 			{% if g.user %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
 			{% else %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 			{% endif %}
-		{% elif annot.spliceai_DS_AG is defined  %}
+		{% elif external_data.splicingPredictions.spliceai_DS_AG is defined  %}
 			{% if g.user %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
 			{% else %}
@@ -991,7 +958,7 @@
 		<div class="w3-responsive w3-container">
 			{% if g.user %}
 				<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-					<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ variant_features.name[0] }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
+					<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ external_data.gene.symbol }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
 					<p>
 						{% if g.user['lovd_export'] == true %}
 							Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
@@ -1022,7 +989,7 @@
 					</tr>
 				{% else %}
 					{% for classif in class_history %}
-						<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}"><!--classification infos-->
+						<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}"><!--classification infos-->
 							{% if g.user %}
 								{% if g.user['id'] == classif.id %}
 									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
@@ -1043,17 +1010,17 @@
 							<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
 							<td>
 								<div class="w3-cell-row">
-									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}">
+									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
 									</span>
 									{% autoescape false %}
 										<script type="application/x-javascript">
-											$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ variant_features.var_id }}").html(unescape('{{ classif.comment }}'));
+											$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
                                         </script>
 									{% endautoescape %}
 									{% if classif.username == g.user['username'] %}
 										{% if run_mode  and run_mode == 'on' %}
 											<span class="w3-container w3-right-align w3-cell">
-												<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
+												<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
 											</span>
 										{% endif %}
 									{% endif %}
@@ -1082,7 +1049,7 @@
 										<form method="post" class="w3-container w3-text-blue w3-margin w3-large" style="width:100%" id="acmg_form" enctype="application/x-www-form-urlencoded">
 											 <!--action="{{ url_for('ajax.modif_class') }}"-->
 											<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-											<input type="hidden" name="variant_id" value="{{ variant_features.var_id }}" />
+											<input type="hidden" name="variant_id" value="{{ external_data.variantId }}" />
 											<input type="hidden" name="mobiuser_id" value="{{ g.user['id'] }}" />
 											<h3>This will be visible to all users:</h3><br />
 											<div class="w3-row w3-section">
@@ -1108,7 +1075,7 @@
 												</div>
 											</div>
 											<span class="w3-center">
-												<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ variant_features.var_id }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}', '{{ csrf_token() }}');" value="submit"/>
+												<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}', '{{ csrf_token() }}');" value="submit"/>
 												<!--<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="$('#html').css('cursor', 'progress');$('#acmg_form').css('cursor', 'progress');" value="submit"/>-->
 											</span>
 										</form>
@@ -1134,9 +1101,9 @@
 								<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
-								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}" />-->
+								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}" />-->
 								<span>This message will be sent via MobiDetails. The contact will also receive your email address and be able to answer directly.</span><br />
-								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}:c.{{ variant_features.c_name }}</span></p>
+								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
 								<div class="w3-row w3-section w3-responsive">
 									<div class="w3-quarter w3-left-align">
 										<label for="message_body" form="message_form"><span >Type your message here:</span></label>
@@ -1177,16 +1144,16 @@
 				<tbody>
 					<tr><!--creation user-->
 						<td class="w3-left-align">Creation user:</td>
-						{% if variant_features.username != 'mobidetails' and g.user %}
-							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=variant_features.mobiuser_id) }}" target="_blank" title="Click to see {{ variant_features.username }} profile"><span id="owner_username">{{ variant_features.username }}</span></a></td>
+						{% if external_data.admin.creationUserName != 'mobidetails' and g.user %}
+							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=internal_data.admin.creationUser) }}" target="_blank" title="Click to see {{ external_data.admin.creationUserName }} profile"><span id="owner_username">{{ external_data.admin.creationUserName }}</span></a></td>
 						{% else %}
-							<td class="w3-left-align"><span id="owner_username">{{ variant_features.username }}</span></td>
+							<td class="w3-left-align"><span id="owner_username">{{ external_data.admin.creationUserName }}</span></td>
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">User who created the variant</em></td>
 					</tr>
 					<tr><!--creation date-->
 						<td class="w3-left-align">Creation date:</td>
-						<td class="w3-left-align">{{ variant_features.creation_date }}</td>
+						<td class="w3-left-align">{{ external_data.admin.creationDate }}</td>
 						<td class="w3-left-align"><em class="w3-small">Date of creation in MD</em></td>
 					</tr>
 				</tbody>
@@ -1198,29 +1165,6 @@
 			{% endif %}
 		</div>
 		<br/><br/>
-<!--		<div class="w3-responsive w3-container" id="res_versions" style="display:none">
-			<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
-				<caption>Links and versions of external resources used in MD:</caption>
-				<thead>
-					<tr>
-						<th class="w3-left-align">Resource</th>
-						<th class="w3-left-align">Version</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for resource in local_files %}
-						{% if local_files[resource]['name'] != 'Human genome sequence' %}
-							<tr>
-								<td class="w3-left-align">
-									<a href="{{ urls[local_files[resource]['short_name']] }}" target="_blank" title="Visit {{ local_files[resource]['name'] }}">{{ local_files[resource]['name'] }}</a>
-								</td>
-								<td class="w3-left-align">{{ local_files[resource]['version'] }}</td>
-							</tr>
-						{% endif %}
-					{% endfor %}
-				</tbody>
-			</table>
-		</div>-->
 		<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:none">
 			<div class="w3-responsive w3-container">
 				<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
