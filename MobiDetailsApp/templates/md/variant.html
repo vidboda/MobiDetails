@@ -256,7 +256,7 @@
 								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}">{{ external_data.gene.uniprotId }})</a></em></td>
 							</tr>
 						{% endif %}
-						{% if external_data.positions.metaDomednds is defined %}
+						{% if external_data.positions.metaDomednds != None %}
 							<td class="w3-left-align">Position tolerance</td>
 							<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank">Transcript view</a></td>
 							<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
@@ -333,9 +333,9 @@
 					<tr><!--clinvar-->
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">
-							{% if external_data.frequenciesDatabases.clinvarId is defined %}
+							{% if external_data.frequenciesDatabases.clinvarId != None %}
 								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
-								{% if external_data.frequenciesDatabases.clinvarClinsigConf is defined %}
+								{% if external_data.frequenciesDatabases.clinvarClinsigConf != None %}
 									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
 								{% endif %}
 							{% else %}
@@ -343,7 +343,7 @@
 							{%endif %}
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
-							{% if external_data.frequenciesDatabases.clinvarId is defined %}
+							{% if external_data.frequenciesDatabases.clinvarId != None %}
 								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
@@ -582,7 +582,7 @@
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<!--dbscSNV / spliceAI-->
 			{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available.') }}
-			{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is defined %}
+			{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG != None %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
 						<tr>
@@ -604,7 +604,7 @@
 								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 						{% endif %}
-						{% if external_data.splicingPredictions.spliceai_DS_AG is defined %}
+						{% if external_data.splicingPredictions.spliceai_DS_AG != None %}
 							<tr><!--spliceAI AG-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
@@ -634,7 +634,7 @@
 						{% endif %}
 					</tbody>
 				</table><br/><br/>
-				{% if external_data.splicingPredictions.spliceai_DS_AG is defined %}
+				{% if external_data.splicingPredictions.spliceai_DS_AG != None %}
 					<div class="w3-row-padding">
 						<!--Splicing radar chart-->
 						<div class="w3-col m4">
@@ -690,7 +690,7 @@
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--alt sixth section-->
-		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts != None and internal_data.miRNATargetSitesPredictions.mirandaCat is defined %}
+		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts != None and internal_data.miRNATargetSitesPredictions.mirandaCat != None %}
 			<hr />
 			{{ section_title('dbmts', 'miRNA target sites predictions') }}
 			<div class="w3-responsive w3-container">
@@ -939,7 +939,7 @@
 			{% else %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 			{% endif %}
-		{% elif external_data.splicingPredictions.spliceai_DS_AG is defined  %}
+		{% elif external_data.splicingPredictions.spliceai_DS_AG != None  %}
 			{% if g.user %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
 			{% else %}
