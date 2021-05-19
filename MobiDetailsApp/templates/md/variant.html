@@ -34,12 +34,12 @@
 				{% endif %}
 			{% endif %}
 			{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "Clinvar")}}#}
-			{% if external_data.positions.proteinTypeSoAccession != None %}
+			{% if external_data.positions.proteinTypeSoAccession is not none %}
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% else %}
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% endif %}
-			{% if external_data.frequenciesDatabases.dbSNPrsid != None %}
+			{% if external_data.frequenciesDatabases.dbSNPrsid is not none %}
 				{{ link("%srs%s"|format(urls.ncbi_dbsnp, external_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
 				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, external_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
 			{% endif %}
@@ -84,13 +84,13 @@
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
-		{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG != None %}
+		{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %}
 			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{% endif %}
 		{% if external_data.positions.proteinType == 'missense' %}
 			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
-		{% if external_data.positions.DNAType == 'substitution' and internal_data.miRNATargetSitesPredictions.mirandaCat != None %}
+		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
@@ -134,7 +134,7 @@
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene)-->
-					{% if external_data.gene.RefSeqNg != 'NG_000000.0' and internal_data.nomenclatures.ngName != None %}
+					{% if external_data.gene.RefSeqNg != 'NG_000000.0' and internal_data.nomenclatures.ngName is not none %}
 						<tr>
 							<td class="w3-left-align">HGVS genomic (gene):</td>
 							<td class="w3-left-align"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqNg }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNg }}">{{ external_data.gene.RefSeqNg }}</a>:g.{{ internal_data.nomenclatures.ngName }}</td>
@@ -255,7 +255,7 @@
 								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}">{{ external_data.gene.uniprotId }})</a></em></td>
 							</tr>
 						{% endif %}
-						{% if external_data.positions.metaDomednds != None %}
+						{% if external_data.positions.metaDomednds is not none %}
 							<td class="w3-left-align">Position tolerance</td>
 							<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank">Transcript view</a></td>
 							<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
@@ -321,7 +321,7 @@
 					<tr><!--dbSNP id-->
 						<td class="w3-left-align">dbSNP rsid:</td>
 						<td class="w3-left-align">
-							{% if internal_data.frequenciesDatabases.dbSNPrsid != None %}
+							{% if internal_data.frequenciesDatabases.dbSNPrsid  is not none %}
 								<a href="{{ urls.ncbi_dbsnp }}rs{{ internal_data.frequenciesDatabases.dbSNPrsid }}" target="_blank" title="open dbSNP" id="dbsnp_id">rs{{ internal_data.frequenciesDatabases.dbSNPrsid }}</a>
 							{% else %}
 								No match in dbSNP {{ external_tools['dbSNP']['version'] }}
@@ -332,9 +332,9 @@
 					<tr><!--clinvar-->
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">
-							{% if external_data.frequenciesDatabases.clinvarId != None %}
+							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
 								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
-								{% if external_data.frequenciesDatabases.clinvarClinsigConf != None %}
+								{% if external_data.frequenciesDatabases.clinvarClinsigConf  is not none %}
 									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
 								{% endif %}
 							{% else %}
@@ -342,7 +342,7 @@
 							{%endif %}
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
-							{% if external_data.frequenciesDatabases.clinvarId != None %}
+							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
 								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar">
@@ -390,7 +390,7 @@
 						<tr><!--CADD raw-->
 							<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> raw:</td>
-							{% if internal_data.noMatch.cadd != None %}
+							{% if internal_data.noMatch.cadd is none %}
 								<td class="w3-left-align">{{ external_data.overallPredictions.caddRaw }}</td>
 							{% else %}
 								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
@@ -399,7 +399,7 @@
 						</tr>
 						<tr><!--CADD phred-->
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD">CADD</a> phred:</td>
-							{% if internal_data.noMatch.cadd != None %}
+							{% if internal_data.noMatch.cadd is none %}
 								<td class="w3-left-align">{{ external_data.overallPredictions.caddPhred }}</td>
 							{% else %}
 								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
@@ -407,10 +407,10 @@
 							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 						</tr>
 					{% endif %}
-					{% if internal_data.noMatch.eigen != None or external_data.overallPredictions.eigenRaw != None %}
+					{% if internal_data.noMatch.eigen is none or external_data.overallPredictions.eigenRaw is not none %}
 						<tr><!--Eigen raw-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> raw:</td>
-							{% if internal_data.noMatch.eigen != None %}
+							{% if internal_data.noMatch.eigen is none %}
 								<td class="w3-left-align">{{ external_data.overallPredictions.eigenRaw }}</td>
 							{% else %}
 								<td class="w3-left-align">{{ internal_data.noMatch.eigen }}</td>
@@ -419,7 +419,7 @@
 						</tr>
 						<tr><!--Eigen phred-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen">Eigen</a> phred:</td>
-							{% if internal_data.noMatch.eigen != None %}
+							{% if internal_data.noMatch.eigen is none %}
 								<td class="w3-left-align">{{ external_data.overallPredictions.eigenPhred }}</td>
 							{% else %}
 								<td class="w3-left-align">{{ internal_data.noMatch.eigen }}</td>
@@ -457,29 +457,29 @@
 						context.fillStyle = "#000000";
 						context.font = "bold 14px sans-serif";
 						context.strokeStyle = "#2196F3";
-						{% if internal_data.canvas.preceedingSegmentType != None %}
+						{% if internal_data.canvas.preceedingSegmentType is not none %}
 							context.fillText("{{ internal_data.canvas.preceedingSegmentType }} {{ internal_data.canvas.preceedingSegmentNumber }}", 100, 25);
 						{% endif %}
-						{% if internal_data.canvas.posExonCanvas != None %}
+						{% if internal_data.canvas.posExonCanvas is not none %}
 							context.fillText("c.{{ internal_data.nomenclatures.cName }}", {{ internal_data.canvas.posExonCanvas }}, 20);
 						{% else %}
 							context.fillText("c.{{ internal_data.nomenclatures.cName }}", {{ internal_data.canvas.posIntronCanvas }}, 45);
 						{% endif %}
-						{% if internal_data.canvas.followingSegmentType != None %}
+						{% if internal_data.canvas.followingSegmentType is not none %}
 							context.fillText("{{ internal_data.canvas.followingSegmentType }} {{ internal_data.canvas.followingSegmentNumber }}", 500, 25);
 						{% endif %}
-						{% if internal_data.canvas.preceedingSegmentNumber != 'UTR' and internal_data.canvas.preceedingSegmentNumber != None %}
+						{% if internal_data.canvas.preceedingSegmentNumber != 'UTR' and internal_data.canvas.preceedingSegmentNumber is not none %}
 							context.fillText("3'ss MaxEnt: {{ internal_data.splicingPredictions.nat3ssScore }}", 150, 125);
 							context.fillText("{{ internal_data.splicingPredictions.nat3ssSeq }}", 100, 140);
 						{% endif %}
-						{% if internal_data.canvas.followingSegmentNumber != 'UTR' and internal_data.canvas.followingSegmentNumber != None %}
+						{% if internal_data.canvas.followingSegmentNumber != 'UTR' and internal_data.canvas.followingSegmentNumber is not none %}
 							context.fillText("5'ss MaxEnt: {{ internal_data.splicingPredictions.nat5ssScore }}", 400, 125);
 							context.fillText("{{ internal_data.splicingPredictions.nat5ssSeq }}", 400, 140);
 						{% endif %}
 						context.moveTo(100,75);
 						context.lineTo(200,75);
 						context.stroke();
-						{% if internal_data.canvas.posExonCanvas != None %}
+						{% if internal_data.canvas.posExonCanvas is not none %}
 							context.moveTo({{ internal_data.canvas.posExonCanvas }},20);
 							context.lineTo({{ internal_data.canvas.posExonCanvas }},20+30);
 						{% else %}
@@ -503,9 +503,7 @@
 				{% endautoescape %}
 			{% endif %}
 			<!-- MaxEntScan 5'ss -->
-			{# {% if external_data.splicingPredictions.mes5 != None or (external_data.splicingPredictions.mes3 != None and external_data.splicingPredictions.mes3 != 'Not performed') %} #}
 				{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}
-			{#{% endif %}#}
 			<br />
 			<table class="w3-table w3-centered display compact" style="width:90%;" id="maxent5ss_table">
 				<caption>MaxEntScan 5'ss scores</caption>
@@ -519,7 +517,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if external_data.splicingPredictions.mes5 != None %}
+					{% if external_data.splicingPredictions.mes5 is not none %}
 						{% autoescape false %}
 							{% for score in external_data.splicingPredictions.mes5 %}
 								<tr>
@@ -553,7 +551,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% if external_data.splicingPredictions.mes3 != None and external_data.splicingPredictions.mes3 != 'Not performed' %}
+					{% if external_data.splicingPredictions.mes3 is not none and external_data.splicingPredictions.mes3 != 'Not performed' %}
 						{% autoescape false %}
 							{% for score in external_data.splicingPredictions.mes3 %}
 								<tr>
@@ -581,7 +579,7 @@
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<!--dbscSNV / spliceAI-->
 			{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available.') }}
-			{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG != None %}
+			{% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
 						<tr>
@@ -603,7 +601,7 @@
 								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 						{% endif %}
-						{% if external_data.splicingPredictions.spliceai_DS_AG != None %}
+						{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
 							<tr><!--spliceAI AG-->
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
@@ -624,7 +622,7 @@
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
 								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 							</tr>
-						{% elif internal_data.noMatch.spliceai != None %}
+						{% elif internal_data.noMatch.spliceai is not none %}
 							<tr>
 								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
 								<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
@@ -633,7 +631,7 @@
 						{% endif %}
 					</tbody>
 				</table><br/><br/>
-				{% if external_data.splicingPredictions.spliceai_DS_AG != None %}
+				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
 					<div class="w3-row-padding">
 						<!--Splicing radar chart-->
 						<div class="w3-col m4">
@@ -689,7 +687,7 @@
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
 		<!--alt sixth section-->
-		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts != None and internal_data.miRNATargetSitesPredictions.mirandaCat != None %}
+		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts is none and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 			<hr />
 			{{ section_title('dbmts', 'miRNA target sites predictions') }}
 			<div class="w3-responsive w3-container">
@@ -708,9 +706,9 @@
 					<tbody>
 						<tr><!--category-->
 							<td class="w3-left-align">Category:</td>
-							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaCat }}</td>
-							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanCat }}</td>
-							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridCat }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.mirandaCategory }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.targetScanCategory }}</td>
+							<td class="w3-left-align">{{ external_data.miRNATargetSitesPredictions.RNAHybridCategory }}</td>
 							<td class="w3-left-align"><em class="w3-small">Predicted functional category of this variant according to each predictor. 'S': substitution of regulating miRNAs. 'L': loss of all miRNAs. 'G' gain.</em></td>
 						</tr>
 						<tr><!--rankscore-->
@@ -760,11 +758,11 @@
 					</tbody>
 				</table>
 			</div>
-		{% elif internal_data.noMatch.dbmts != None %}
+		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
 		<!--sixth section-->
-		{% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp == None %}
+		{% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %}
 			<hr />
 			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
 			<div class="w3-responsive w3-container">
@@ -931,14 +929,14 @@
 			</div>
 
 
-		{% elif internal_data.noMatch.dbnsfp != None %}
+		{% elif internal_data.noMatch.dbnsfp is not none %}
 			{{ info(internal_data.noMatch.dbnsfp) }}
 			{% if g.user %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
 			{% else %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 			{% endif %}
-		{% elif external_data.splicingPredictions.spliceai_DS_AG != None  %}
+		{% elif external_data.splicingPredictions.spliceai_DS_AG is not none  %}
 			{% if g.user %}
 				{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
 			{% else %}
@@ -979,7 +977,7 @@
 					</tr>
 				</thead>
 				<tbody>
-				{% if class_history == None %}
+				{% if class_history is none %}
 					<tr id="no_class">
 						<td></td>
 						<td></td>

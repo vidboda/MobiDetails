@@ -222,7 +222,7 @@
 	{% endif %}
 	<hr />
 	<!-- variants created -->
-	{% if variants != None %}
+	{% if variants is not none %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
 				<span class="w3-xlarge">Toggle the {{ num_var }} variants you created:</span>
@@ -238,7 +238,7 @@
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
-								{% if var.mobiuser_id != None and var.mobiuser_id == g.user['id'] %}
+								{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] %}
 									<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
 										<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
 									</span>

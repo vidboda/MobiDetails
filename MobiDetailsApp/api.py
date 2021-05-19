@@ -879,18 +879,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DP_DL': None,
         },
         'miRNATargetSitesPredictions': {
+            'mirandaCategory': None,
             'mirandaRankScore': None,
             'mirandaMaxDiff': None,
             'mirandaRefBestMir': None,
             'mirandaRefBestScore': None,
             'mirandaAltBestMir': None,
             'mirandaAltBestScore': None,
+            'targetScanCategory': None,
             'targetScanRankScore': None,
             'targetScanMaxDiff': None,
             'targetScanRefBestMir': None,
             'targetScanRefBestScore': None,
             'targetScanAltBestMir': None,
             'targetScanAltBestScore': None,
+            'RNAHybridCategory': None,
             'RNAHybridRankScore': None,
             'RNAHybridMaxDiff': None,
             'RNAHybridRefBestMir': None,
@@ -986,11 +989,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'distFromExon': None,
             'substitutionNature': None,
             'neighbourExonNumber': None,
-        },
-        'miRNATargetSitesPredictions': {
-            'mirandaCat': None,
-            'targetScanCat': None,
-            'RNAHybridCat': None,
         },
         'missensePredictions': {
             'siftStar': None,
@@ -1489,7 +1487,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['overallPredictions']['eigen'] = 'No score in dbMTS for Eigen'
                         try:
                             # Miranda
-                            internal_data['miRNATargetSitesPredictions']['mirandaCat'] = record[int(md_utilities.external_tools['dbMTS']['miranda_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['mirandaCategory'] = record[int(md_utilities.external_tools['dbMTS']['miranda_cat_col'])]
                             external_data['miRNATargetSitesPredictions']['mirandaRankScore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col'])]
                             external_data['miRNATargetSitesPredictions']['mirandaMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['miranda_maxdiff_col'])]
                             external_data['miRNATargetSitesPredictions']['mirandaRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_refbestmir_col'])])
@@ -1497,7 +1495,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['miRNATargetSitesPredictions']['mirandaAltBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_altbestmir_col'])])
                             external_data['miRNATargetSitesPredictions']['mirandaAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_altbestscore_col'])]
                             # TargetScan
-                            internal_data['miRNATargetSitesPredictions']['targetScanCat'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['targetScanCategory'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_cat_col'])]
                             external_data['miRNATargetSitesPredictions']['targetScanRankScore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col'])]
                             external_data['miRNATargetSitesPredictions']['targetScanMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_maxdiff_col'])]
                             external_data['miRNATargetSitesPredictions']['targetScanRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestmir_col'])])
@@ -1505,7 +1503,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['miRNATargetSitesPredictions']['targetScanAltBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestmir_col'])])
                             external_data['miRNATargetSitesPredictions']['targetScanAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestscore_col'])]
                             # RNAHybrid
-                            internal_data['miRNATargetSitesPredictions']['RNAHybridCat'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['RNAHybridCategory'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_cat_col'])]
                             external_data['miRNATargetSitesPredictions']['RNAHybridRankScore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col'])]
                             external_data['miRNATargetSitesPredictions']['RNAHybridMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_maxdiff_col'])]
                             external_data['miRNATargetSitesPredictions']['RNAHybridRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestmir_col'])])
