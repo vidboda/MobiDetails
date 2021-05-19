@@ -1047,7 +1047,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['sequences']['wildType'] = variant_features['wt_seq']
         external_data['sequences']['mutant'] = variant_features['mt_seq']
 
-        #fr HTML webpages
+        # for HTML webpages
         internal_data['nomenclatures']['cName'] = variant_features['c_name']
         internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
