@@ -227,6 +227,7 @@
 							</tr>
 						{% endif %}
 						{% if external_data.positions.proteinType != 'unknown' %}
+						{{ external_data.positions.proteinSize }}
 							{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
 								<!-- in case prot size is wrong-->
 								<tr><!--protein-->
