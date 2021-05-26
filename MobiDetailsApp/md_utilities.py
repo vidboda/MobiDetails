@@ -292,7 +292,7 @@ def get_pos_splice_site_intron(name):
             match_obj.group(1)
         ]
     match_obj = re.search(
-        r'[\*-]?\d+([\+-])(\d+)_\d+[\+-](\d+)[^\d_]', name
+        r'[\*-]?\d+([\+-])(\d+)_[\*-]?\d+[\+-](\d+)[^\d_]', name
     )
     if match_obj:
         return [
