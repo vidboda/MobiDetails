@@ -747,7 +747,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
     if var != '':
         link = '<a href="{0}" target="_blank" title="Go to the variant page">\
                 {1}{2}</a>'.format(
-                    url_for('md.variant', variant_id=id_var), c, var
+                    url_for('api.variant', variant_id=id_var, caller='browser'), c, var
                 )
     return '<div class="w3-margin w3-panel {0} w3-leftbar w3-display-container">\
 <span class="w3-button w3-ripple w3-display-topright w3-large"\
@@ -1196,8 +1196,9 @@ It is therefore impossible to create a variant.'
                 'url': '{0}{1}'.format(
                     request.host_url[:-1],
                     url_for(
-                        'md.variant',
-                        variant_id=res['feature_id']
+                        'api.variant',
+                        variant_id=res['feature_id'],
+                        caller='browser'
                     )
                 )
             }
@@ -1717,7 +1718,7 @@ in hg19. An admin has been warned'
         )
     if caller == 'api':
         return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
-            request.host_url[:-1], url_for('md.variant', variant_id=vf_id)
+            request.host_url[:-1], url_for('api.variant', variant_id=vf_id, caller='browser')
         )}
 
 
@@ -2030,12 +2031,12 @@ def check_api_key(db, api_key):  # in api
         return {'mobidetails_error': 'Invalid API key'}
     else:
         curs.execute(
-            "SELECT * FROM mobiuser WHERE api_key = %s",
+            "SELECT * FROM mobiuser WHERE api_key = %s and activated = 't'",
             (api_key,)
         )
         res = curs.fetchone()
         if res is None:
-            return {'mobidetails_error': 'Unknown API key'}
+            return {'mobidetails_error': 'Unknown API key or unactivated account'}
         else:
             return {'mobiuser': res}
 

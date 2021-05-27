@@ -138,7 +138,7 @@
 			<div id="variant_list" class="w3-card w3-mobile">
 				<ul id="favourite_ul" class="w3-ul">
 					{% for var in variants_favourite %}
-						<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page">
+						<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 							<span>
 								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
@@ -222,7 +222,7 @@
 	{% endif %}
 	<hr />
 	<!-- variants created -->
-	{% if variants != None %}
+	{% if variants is not none %}
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
 				<span class="w3-xlarge">Toggle the {{ num_var }} variants you created:</span>
@@ -233,12 +233,12 @@
 				<ul class="w3-ul">
 					{% for var in variants %}
 						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-							<span class="var_li" onclick="window.open('{{ url_for('md.variant', variant_id=var.id) }}')" title="Visit the variant page">
+							<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
-								{% if var.mobiuser_id != None and var.mobiuser_id == g.user['id'] %}
+								{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] %}
 									<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
 										<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
 									</span>
@@ -248,7 +248,7 @@
 									</span>
 								{% endif %}
 								<!-- to be used in js favourite function -->
-								<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('md.variant', variant_id=var.id) }}</span>
+								<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('api.variant', variant_id=var.id, caller='browser') }}</span>
 								<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_name[0] }}</span>
 								<span id="c_name_{{ var.id }}" style="display:none;">{{ var.c_name }}</span>
 								<span id="p_name_{{ var.id }}" style="display:none;">{{ var.p_name }}</span>

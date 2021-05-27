@@ -24,6 +24,7 @@
   'C': 'G'
   'G': 'C'
   'T': 'A'
+  'N': 'N'
 'one2three':
   'A': 'Ala'
   'C': 'Cys'

@@ -92,10 +92,10 @@
 					</li>
 					<li class="w3-padding-small">
 						<!--<span class="w3-button" onclick="window.open('http://genome-euro.ucsc.edu/cgi-bin/hgTracks?clade=mammal&amp;org=Human&amp;db=hg19&amp;position={{ gene_name }}&amp;hgt.positionInput={{ gene_name }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC</span>-->
-						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> / 
+						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
 					</li>
-					
+
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank')">MARRVEL</span>
 					</li>
@@ -104,7 +104,7 @@
 					</li>
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_name=gene_symbol) }}', '_self')">MD Gene page</span>
-					</li>					
+					</li>
 				</ul>
 			</div>
 		</div>
@@ -122,7 +122,7 @@
 		<div class="w3-modal w3-animate-opacity" id="var_modal" style="z-index:1000">
 			<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 				<div class="w3-container w3-blue">
-					<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>				
+					<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>
 					<br /><span class="w3-xlarge" id="main_text">Run a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
 					{% if num_iso > 1 %}
 						<span onclick="new_isoform();" class="w3-button w3-sand" id="alt_span">Choose an isoform</span>
@@ -152,7 +152,7 @@
 							<script type="text/javascript">
 								$('#new_variant').autocomplete({
 									source : function(request, response){
-										//send header for flask-wtf crsf security	
+										//send header for flask-wtf crsf security
 										var csrf_token = "{{ csrf_token() }}";
 										$.ajaxSetup({
 											beforeSend: function(xhr, settings) {
@@ -277,7 +277,7 @@
 {%- endmacro %}
 <!-- not used because is displayed before the table in vars-->
 {% macro vars_tr(variant) -%}
-	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('md.variant', variant_id=variant.id), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
+	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
 {%- endmacro %}
 <!--create links for variants view-->
 {% macro link(link, text) -%}

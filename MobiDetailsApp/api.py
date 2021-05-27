@@ -93,8 +93,9 @@ def api_variant_exists(variant_ghgvs=None):
                 url='{0}{1}'.format(
                     request.host_url[:-1],
                     url_for(
-                        'md.variant',
-                        variant_id=res['feature_id']
+                        'api.variant',
+                        variant_id=res['feature_id'],
+                        caller='browser'
                     )
                 )
             )
@@ -102,6 +103,1697 @@ def api_variant_exists(variant_ghgvs=None):
             return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
     else:
         return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
+
+# -------------------------------------------------------------------
+# api - variant
+
+
+# @bp.route('/api/variant_old/<int:variant_id>/<string:caller>', methods=['GET'])
+# def variant_old(variant_id=None, caller='browser'):
+#     if variant_id is None:
+#         return jsonify(mobidetails_error='No variant submitted')
+#     db = get_db()
+#     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+#     # get all variant_features and gene info
+#     curs.execute(
+#         "SELECT *, a.id as var_id, c.id as mobiuser_id, d.so_accession \
+#         FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
+#         WHERE a.gene_name = b.name AND a.creation_user = c.id \
+#         AND a.prot_type = d.prot_type AND a.id = %s",
+#         (variant_id,)
+#     )
+#     variant_features = curs.fetchone()
+#     if variant_features is not None:
+#         # get variant info
+#         curs.execute(
+#             "SELECT * FROM variant WHERE feature_id = %s",
+#             (variant_id,)
+#         )
+#         variant = curs.fetchall()
+#         # length of c_name for priting on screen
+#         var_cname = variant_features['c_name']
+#         if len(var_cname) > 30:
+#             match_obj = re.search(r'(.+ins)[ATGC]+$', var_cname)
+#             if match_obj is not None:
+#                 var_cname = match_obj.group(1)
+#         # dict for annotations
+#         annot = {}
+#         aa_pos = None
+#         # pos_splice_site = None
+#         domain = None
+#         # favourite var?
+#         curs.execute(
+#             "SELECT mobiuser_id FROM mobiuser_favourite WHERE feature_id = %s",
+#             (variant_id,)
+#         )
+#         favourite = curs.fetchone()
+#         if favourite is not None and \
+#                 g.user is not None:
+#             if favourite['mobiuser_id'] == g.user['id']:
+#                 favourite = True
+#         splicing_radar_labels = []
+#         splicing_radar_values = []
+#         for var in variant:
+#             if var['genome_version'] == 'hg38':
+#                 # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
+#                 curs.execute(
+#                     "SELECT ncbi_name, genome_version \
+#                     FROM chromosomes WHERE name = %s",
+#                     (var['chr'],)
+#                 )
+#                 res_chr = curs.fetchall()
+#                 for res in res_chr:
+#                     if res['genome_version'] == 'hg19':
+#                         annot['ncbi_chr_hg19'] = res['ncbi_name']
+#                     elif res['genome_version'] == 'hg38':
+#                         annot['ncbi_chr_hg38'] = res['ncbi_name']
+#                 # compute position / splice sites
+#                 if variant_features['variant_size'] < 50 and \
+#                         variant_features['start_segment_type'] == 'exon':
+#                     curs.execute(
+#                         "SELECT * FROM segment WHERE genome_version = %s\
+#                         AND gene_name[1] = %s and gene_name[2] = %s \
+#                         AND type = 'exon' AND number = %s",
+#                         (var['genome_version'],
+#                             variant_features['gene_name'][0],
+#                             variant_features['gene_name'][1],
+#                             variant_features['start_segment_number'])
+#                     )
+#                     positions = curs.fetchone()
+#                     # get info to build hexoSplice link
+#                     if variant_features['dna_type'] == 'substitution':
+#                         annot['exon_sequence'] = md_utilities.get_exon_sequence(
+#                             positions, var['chr'], variant_features['strand']
+#                         )
+#                         annot['exon_first_nt_cdna_position'] = md_utilities.get_exon_first_nt_cdna_position(
+#                             positions, var['pos'], variant_features['c_name']
+#                         )
+#                         if annot['exon_first_nt_cdna_position'] < 1:
+#                             annot['substitution_nature'] = md_utilities.get_substitution_nature(
+#                                 variant_features['c_name']
+#                             )
+#                     # get a tuple ['site_type', 'dist(bp)']
+#                     (annot['nearest_site_type'],
+#                         annot['nearest_site_dist']) = md_utilities.get_pos_splice_site(var['pos'], positions)
+#                     # relative position in exon for canvas drawing
+#                     # get a tuple ['relative position in exon canvas', 'segment_size']
+#                     (annot['pos_exon_canvas'], annot['segment_size']) = md_utilities.get_pos_exon_canvas(
+#                         var['pos'], positions
+#                     )
+#                     # get neighbours type, number
+#                     (annot['preceeding_segment_type'], annot['preceeding_segment_number'],
+#                         annot['following_segment_type'], annot['following_segment_number']) = md_utilities.get_exon_neighbours(db, positions)
+#                     # get natural ss maxent scores
+#                     if annot['preceeding_segment_number'] != 'UTR':
+#                         (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+#                             var['chr'], variant_features['strand'], 3, positions
+#                         )
+#                     if annot['following_segment_number'] != 'UTR':
+#                         (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+#                             var['chr'], variant_features['strand'], 5, positions
+#                         )
+#                     # compute position in domain
+#                     # 1st get aa pos
+#                     if variant_features['prot_type'] != 'unknown':
+#                         aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+#                         curs.execute(
+#                             "SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' \
+#                             BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
+#                                 variant_features['gene_name'][1], aa_pos[0], aa_pos[1]
+#                             )
+#                         )
+#                         domain = curs.fetchall()
+#                         # metadome data?
+#                         if variant_features['dna_type'] == 'substitution' and \
+#                                 os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
+#                             # get value in json file
+#                             with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst']), "r") as metad_file:
+#                                 metad_json = json.load(metad_file)
+#                                 if 'positional_annotation' in metad_json:
+#                                     for pos in metad_json['positional_annotation']:
+#                                         if int(pos['protein_pos']) == int(aa_pos[0]):
+#                                             if 'sw_dn_ds' in pos:
+#                                                 annot['metadome_dn_ds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
+#                                                 [annot['metadome_effect'], annot['metadome_color']] = md_utilities.get_metadome_colors(annot['metadome_dn_ds'])
+#                                 if 'transcript_id' in metad_json:
+#                                     annot['metadome_transcript'] = metad_json['transcript_id']
+#                 if variant_features['start_segment_type'] == 'intron':
+#                     annot['dist_from_exon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
+#                     if variant_features['dna_type'] == 'substitution':
+#                         annot['substitution_nature'] = md_utilities.get_substitution_nature(variant_features['c_name'])
+#                 # MPA indel splice
+#                 elif variant_features['start_segment_type'] == 'intron' and \
+#                         (variant_features['dna_type'] == 'indel' or
+#                             variant_features['dna_type'] == 'deletion' or
+#                             variant_features['dna_type'] == 'duplication') and \
+#                         variant_features['variant_size'] < 50:
+#                     if annot['dist_from_exon'] <= 20 and \
+#                             ('mpa_score' not in annot or annot['mpa_score'] < 6):
+#                         annot['mpa_score'] = 6
+#                         annot['mpa_impact'] = 'splice indel'
+#                 # intronic variant canvas
+#                 if variant_features['start_segment_type'] == 'intron' and \
+#                         annot['dist_from_exon'] <= 100 and \
+#                         variant_features['variant_size'] < 50:
+#                     annot['pos_intron_canvas'] = 200 - annot['dist_from_exon']  # relative position inside canvas fomr exon beginning
+#                     annot['neighb_exon_number'] = variant_features['start_segment_number'] + 1
+#                     if sign == '+':
+#                         annot['neighb_exon_number'] = variant_features['start_segment_number']
+#                         annot['pos_intron_canvas'] = 400 + annot['dist_from_exon']  # relative position inside canvas from exon end
+#
+#                     annot['pos_exon_canvas'] = None
+#                     # get info from neighboring exon
+#                     curs.execute(
+#                         "SELECT * FROM segment WHERE genome_version = %s\
+#                         AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
+#                         (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], annot['neighb_exon_number'])
+#                     )
+#                     positions_neighb_exon = curs.fetchone()
+#                     if sign == '+':
+#                         annot['preceeding_segment_type'] = None
+#                         annot['preceeding_segment_number'] = None
+#                         annot['following_segment_type'] = 'intron'
+#                         annot['following_segment_number'] = variant_features['start_segment_number']
+#                         (annot['nat5ss_score'], annot['nat5ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+#                             var['chr'], variant_features['strand'], 5, positions_neighb_exon
+#                         )
+#                     else:
+#                         annot['preceeding_segment_type'] = 'intron'
+#                         annot['preceeding_segment_number'] = variant_features['start_segment_number']
+#                         annot['following_segment_type'] = None
+#                         annot['following_segment_number'] = None
+#                         (annot['nat3ss_score'], annot['nat3ss_seq']) = md_utilities.get_maxent_natural_sites_scores(
+#                             var['chr'], variant_features['strand'], 3, positions_neighb_exon
+#                         )
+#                 # clinvar
+#                 record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var, variant_features)
+#                 if isinstance(record, str):
+#                     annot['clinsig'] = "{0} {1}".format(record, md_utilities.external_tools['ClinVar']['version'])
+#                 else:
+#                     annot['clinvar_id'] = record[2]
+#                     match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
+#                     if match_object:
+#                         match2_object = re.search(r'^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
+#                         if match2_object:
+#                             annot['clinsig'] = match2_object.group(1)
+#                             annot['clinsigconf'] = match2_object.group(2)
+#                             annot['clinsigconf'] = annot['clinsigconf'].replace('%3B', '-')
+#                         else:
+#                             annot['clinsig'] = match_object.group(1)
+#                     elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
+#                         annot['clinsig'] = 'No interpretation for the single variant'
+#                     if 'clinsig' in annot and \
+#                             re.search('pathogenic', annot['clinsig'], re.IGNORECASE) and \
+#                             not re.search('pathogenicity', annot['clinsig'], re.IGNORECASE):
+#                         annot['mpa_score'] = 10
+#                         annot['mpa_impact'] = 'clinvar pathogenic'
+#                 # MPA PTC
+#                 if 'mpa_score' not in annot or \
+#                         annot['mpa_impact'] != 'clinvar pathogenic':
+#                     if variant_features['prot_type'] == 'nonsense' or \
+#                             variant_features['prot_type'] == 'frameshift':
+#                         annot['mpa_score'] = 10
+#                         annot['mpa_impact'] = variant_features['prot_type']
+#                 # gnomadv3
+#                 record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features)
+#                 if isinstance(record, str):
+#                     annot['gnomadv3'] = record
+#                 else:
+#                     # print(record)
+#                     annot['gnomadv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+#                 # dbNSFP
+#                 if variant_features['prot_type'] == 'missense':
+#                     # CADD
+#                     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
+#                     # print(record)
+#                     try:
+#                         annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
+#                         annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
+#                     except Exception:
+#                         annot['cadd'] = 'No match in dbNSFP for CADD'
+#                     if 'cadd_raw' in annot and \
+#                             annot['cadd_raw'] == '.':
+#                         annot['cadd'] = 'No score in dbNSFP for CADD'
+#                     # Eigen
+#                     try:
+#                         annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
+#                         annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
+#                     except Exception:
+#                         annot['eigen'] = 'No match in dbNSFP for Eigen'
+#                     if 'eigen_raw' in annot and \
+#                             annot['eigen_raw'] == '.':
+#                         annot['eigen'] = 'No score in dbNSFP for Eigen'
+#                     # record comes from Eigen section above
+#                     if isinstance(record, str):
+#                         annot['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
+#                     else:
+#                         # first: get enst we're dealing with
+#                         i = 0
+#                         transcript_index = 0
+#                         enst_list = re.split(';', record[14])
+#                         if len(enst_list) > 1:
+#                             for enst in enst_list:
+#                                 if variant_features['enst'] == enst:
+#                                     transcript_index = i
+#                                 i += 1
+#                         # print(transcript_index)
+#                         # then iterate for each score of interest, e.g.  sift..
+#                         # missense:
+#                         # mpa score
+#                         mpa_missense = 0
+#                         mpa_avail = 0
+#                         # sift
+#                         annot['sift_score'], annot['sift_pred'], annot['sift_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), int(md_utilities.external_tools['SIFT']['dbNSFP_pred_col']), ';', 'basic', 1.1, 'lt', record
+#                         )
+#
+#                         annot['sift_color'] = md_utilities.get_preditor_single_threshold_color(annot['sift_score'], 'sift')
+#                         if annot['sift_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['sift_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # polyphen 2 hdiv
+#                         annot['pph2_hdiv_score'], annot['pph2_hdiv_pred'], annot['pph2_hdiv_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hdiv']), ';', 'pph2', -0.1, 'gt', record
+#                         )
+#
+#                         annot['pph2_hdiv_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hdiv_score'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
+#                         if re.search('Damaging', annot['pph2_hdiv_pred']):
+#                             mpa_missense += 1
+#                         if annot['pph2_hdiv_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # hvar
+#                         annot['pph2_hvar_score'], annot['pph2_hvar_pred'], annot['pph2_hvar_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hvar']), ';', 'pph2', -0.1, 'gt', record
+#                         )
+#
+#                         annot['pph2_hvar_color'] = md_utilities.get_preditor_double_threshold_color(annot['pph2_hvar_score'], 'pph2_hvar_mid', 'pph2_hvar_max')
+#                         if re.search('Damaging', annot['pph2_hvar_pred']):
+#                             mpa_missense += 1
+#                         if annot['pph2_hvar_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # fathmm
+#                         annot['fathmm_score'], annot['fathmm_pred'], annot['fathmm_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+#                         )
+#
+#                         annot['fathmm_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_score'], 'fathmm')
+#                         if annot['fathmm_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['fathmm_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # fathmm-mkl -- not displayed
+#                         annot['fathmm_mkl_score'], annot['fathmm_mkl_pred'], annot['fathmm_mkl_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+#                         )
+#
+#                         annot['fathmm_mkl_color'] = md_utilities.get_preditor_single_threshold_reverted_color(annot['fathmm_mkl_score'], 'fathmm-mkl')
+#                         if annot['fathmm_mkl_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['fathmm_mkl_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # provean -- not displayed
+#                         annot['provean_score'], annot['provean_pred'], annot['provean_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['Provean']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+#                         )
+#                         if annot['provean_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['provean_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # LRT -- not displayed
+#                         annot['lrt_score'], annot['lrt_pred'], annot['lrt_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
+#                         )
+#
+#                         if annot['lrt_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if re.search(r'^[DUN]', annot['lrt_pred']):
+#                             mpa_avail += 1
+#                         # MutationTaster -- not displayed
+#                         annot['mt_score'], annot['mt_pred'], annot['mt_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_pred_col']), ';', 'mt', -1, 'gt', record
+#                         )
+#
+#                         if re.search('Disease causing', annot['mt_pred']):
+#                             mpa_missense += 1
+#                         if annot['mt_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # ClinPred
+#                         annot['clinpred_score'], annot['clinpred_pred'], annot['clinpred_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), int(md_utilities.external_tools['ClinPred']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
+#                         )
+#                         # clinpred score in dbNSFP, contrary to other scores, presents with 9-10 numbers after '.'
+#                         try:
+#                             annot['clinpred_score'] = format(float(annot['clinpred_score']), '.3f')
+#                         except Exception:
+#                             pass
+#
+#                         annot['clinpred_color'] = md_utilities.get_preditor_single_threshold_color(annot['clinpred_score'], 'clinpred')
+#
+#                         # REVEL
+#                         annot['revel_score'], annot['revel_pred'], annot['revel_star'] = md_utilities.getdbNSFP_results(
+#                             transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
+#                         )
+#
+#                         # no REVEL pred in dbNSFP => custom
+#                         if annot['revel_score'] != '.' and \
+#                                 float(annot['revel_score']) < 0.2:
+#                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['B']
+#                         elif annot['revel_score'] != '.' and \
+#                                 float(annot['revel_score']) > 0.5:
+#                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['D']
+#                         elif annot['revel_score'] != '.':
+#                             annot['revel_pred'] = md_utilities.predictors_translations['revel']['U']
+#                         else:
+#                             annot['revel_pred'] = 'no prediction'
+#
+#                         #   annot['revel_pred'] = 'No interpretation'
+#                         annot['revel_color'] = md_utilities.get_preditor_double_threshold_color(annot['revel_score'], 'revel_min', 'revel_max')
+#
+#                         # meta SVM
+#                         # print(record[68])
+#                         # annot['msvm_score'] = record[68]
+#                         annot['msvm_score'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
+#                         annot['msvm_color'] = md_utilities.get_preditor_single_threshold_color(annot['msvm_score'], 'meta-svm')
+#                         annot['msvm_pred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_msvm'])]]
+#                         if annot['msvm_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['msvm_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         # meta LR
+#                         annot['mlr_score'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr'])]
+#                         annot['mlr_color'] = md_utilities.get_preditor_single_threshold_color(annot['mlr_score'], 'meta-lr')
+#                         annot['mlr_pred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_mlr'])]]
+#                         if annot['mlr_pred'] == 'Damaging':
+#                             mpa_missense += 1
+#                         if annot['mlr_pred'] != 'no prediction':
+#                             mpa_avail += 1
+#                         annot['m_rel'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mrel'])]  # reliability index for meta score (1-10): the higher, the higher the reliability
+#                         if (('mpa_score' not in annot or
+#                                 annot['mpa_score'] < mpa_missense) and
+#                                 mpa_avail > 0):
+#                             annot['mpa_score'] = float('{0:.2f}'.format((mpa_missense / mpa_avail) * 10))
+#                             if annot['mpa_score'] >= 8:
+#                                 annot['mpa_impact'] = 'high missense'
+#                             elif annot['mpa_score'] >= 6:
+#                                 annot['mpa_impact'] = 'moderate missense'
+#                             else:
+#                                 annot['mpa_impact'] = 'low missense'
+#                 # dbMTS
+#                 if variant_features['dna_type'] == 'substitution' and \
+#                         re.search(r'^\*', variant_features['c_name']):
+#                     record = md_utilities.get_value_from_tabix_file('dbmts', md_utilities.local_files['dbmts']['abs_path'], var, variant_features)
+#                     if isinstance(record, str):
+#                         annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+#                     else:
+#                         # Eigen from dbMTS for 3'UTR variants
+#                         try:
+#                             annot['eigen_raw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_value_col'])]), '.2f')
+#                             annot['eigen_phred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_pred_col'])]), '.2f')
+#                         except Exception:
+#                             annot['eigen'] = 'No match in dbMTS for Eigen'
+#                         if 'eigen_raw' in annot and \
+#                                 annot['eigen_raw'] == '.':
+#                             annot['eigen'] = 'No score in dbMTS for Eigen'
+#                         try:
+#                             # Miranda
+#                             annot['miranda_cat'] = record[int(md_utilities.external_tools['dbMTS']['miranda_cat_col'])]
+#                             annot['miranda_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col'])]
+#                             annot['miranda_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['miranda_maxdiff_col'])]
+#                             annot['miranda_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_refbestmir_col'])])
+#                             annot['miranda_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_refbestscore_col'])]
+#                             annot['miranda_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_altbestmir_col'])])
+#                             annot['miranda_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_altbestscore_col'])]
+#                             # TargetScan
+#                             annot['targetscan_cat'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_cat_col'])]
+#                             annot['targetscan_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col'])]
+#                             annot['targetscan_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_maxdiff_col'])]
+#                             annot['targetscan_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestmir_col'])])
+#                             annot['targetscan_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestscore_col'])]
+#                             annot['targetscan_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestmir_col'])])
+#                             annot['targetscan_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestscore_col'])]
+#                             # RNAHybrid
+#                             annot['rnahybrid_cat'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_cat_col'])]
+#                             annot['rnahybrid_rankscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col'])]
+#                             annot['rnahybrid_maxdiff'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_maxdiff_col'])]
+#                             annot['rnahybrid_refbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestmir_col'])])
+#                             annot['rnahybrid_refbestscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestscore_col'])]
+#                             annot['rnahybrid_altbestmir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestmir_col'])])
+#                             annot['rnahybrid_altbestscore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestscore_col'])]
+#                         except Exception:
+#                             annot['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+#
+#                 # CADD
+#                 if variant_features['dna_type'] == 'substitution':
+#                     if variant_features['prot_type'] != 'missense':
+#                         # specific file for CADD
+#                         record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
+#                         if isinstance(record, str):
+#                             annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+#                         else:
+#                             annot['cadd_raw'] = format(float(record[int(md_utilities.external_tools['CADD']['raw_col'])]), '.2f')
+#                             annot['cadd_phred'] = format(float(record[int(md_utilities.external_tools['CADD']['phred_col'])]), '.2f')
+#                 else:
+#                     record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var, variant_features)
+#                     if isinstance(record, str):
+#                         annot['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+#                     else:
+#                         annot['cadd_raw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
+#                         annot['cadd_phred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+#                 # spliceAI 1.3
+#                 # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
+#                 # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
+#                 # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
+#                 spliceai_res = False
+#                 if variant_features['dna_type'] == 'substitution':
+#                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features)
+#                     spliceai_res = True
+#                 elif ((variant_features['dna_type'] == 'insertion' or
+#                         variant_features['dna_type'] == 'duplication') and
+#                         variant_features['variant_size'] == 1) or \
+#                         (variant_features['dna_type'] == 'deletion' and
+#                             variant_features['variant_size'] <= 4):
+#                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
+#                     # print(record)
+#                     spliceai_res = True
+#                 if spliceai_res is True:
+#                     if isinstance(record, str):
+#                         annot['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
+#                     else:
+#                         spliceais = re.split(r'\|', record[7])
+#                         # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+#                         splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
+#                         order_list = ['DS_AG', 'DS_AL', 'DS_DG', 'DS_DL', 'DP_AG', 'DP_AL', 'DP_DG', 'DP_DL']
+#                         i = 2
+#                         for tag in order_list:
+#                             identifier = "spliceai_{}".format(tag)
+#                             annot[identifier] = spliceais[i]
+#                             if re.search(r'DS_', tag):
+#                                 splicing_radar_values.append(spliceais[i])
+#                             i += 1
+#                             if re.match('spliceai_DS_', identifier):
+#                                 id_color = "{}_color".format(identifier)
+#                                 annot[id_color] = md_utilities.get_spliceai_color(float(annot[identifier]))
+#                                 if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+#                                     if float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+#                                         annot['mpa_score'] = 10
+#                                         annot['mpa_impact'] = 'high splice'
+#                                     elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+#                                         annot['mpa_score'] = 8
+#                                         annot['mpa_impact'] = 'moderate splice'
+#                                     elif float(annot[identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+#                                         annot['mpa_score'] = 6
+#                                         annot['mpa_impact'] = 'low splice'
+#
+#             elif var['genome_version'] == 'hg19':
+#                 # gnomad ex
+#                 record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var, variant_features)
+#                 if isinstance(record, str):
+#                     annot['gnomad_exome_all'] = record
+#                 else:
+#                     annot['gnomad_exome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+#                 # gnomad ge
+#                 record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
+#                 if isinstance(record, str):
+#                     annot['gnomad_genome_all'] = record
+#                 else:
+#                     annot['gnomad_genome_all'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+#                 # clinpred
+#                 if variant_features['prot_type'] == 'missense':
+#                     # mistic
+#                     record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
+#                     if isinstance(record, str):
+#                         annot['mistic_score'] = record
+#                     else:
+#                         annot['mistic_score'] = record[4]
+#                     annot['mistic_color'] = "#000000"
+#                     annot['mistic_pred'] = 'no prediction'
+#                     if re.search(r'^[\d\.]+$', annot['mistic_score']):
+#                         annot['mistic_score'] = format(float(annot['mistic_score']), '.2f')
+#                         annot['mistic_color'] = md_utilities.get_preditor_single_threshold_color(annot['mistic_score'], 'mistic')
+#                         annot['mistic_pred'] = 'Tolerated'
+#                         if float(annot['mistic_score']) > md_utilities.predictor_thresholds['mistic']:
+#                             annot['mistic_pred'] = 'Damaging'
+#                 if variant_features['dna_type'] == 'substitution':
+#                     # dbscSNV
+#                     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
+#                     if isinstance(record, str):
+#                         annot['dbscsnv_ada'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+#                         annot['dbscsnv_rf'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+#                         if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
+#                             splicing_radar_labels.append('dbscSNV ADA')
+#                             splicing_radar_values.append(annot['dbscsnv_ada'])
+#                         if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
+#                             splicing_radar_labels.append('dbscSNV RF')
+#                             splicing_radar_values.append(annot['dbscsnv_rf'])
+#                     else:
+#                         try:
+#                             annot['dbscsnv_ada'] = "{:.2f}".format(float(record[14]))
+#                             annot['dbscsnv_ada_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_ada']), 'dbscsnv')
+#                             if annot['dbscsnv_ada'] != 'No match in dbscSNV v1.1':
+#                                 splicing_radar_labels.append('dbscSNV ADA')
+#                                 splicing_radar_values.append(annot['dbscsnv_ada'])
+#                         except Exception:
+#                             # "score" is '.'
+#                             annot['dbscsnv_ada'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
+#                         try:
+#                             annot['dbscsnv_rf'] = "{:.2f}".format(float(record[15]))
+#                             annot['dbscsnv_rf_color'] = md_utilities.get_preditor_single_threshold_color(float(annot['dbscsnv_rf']), 'dbscsnv')
+#                             if annot['dbscsnv_rf'] != 'No match in dbscSNV v1.1':
+#                                 splicing_radar_labels.append('dbscSNV RF')
+#                                 splicing_radar_values.append(annot['dbscsnv_rf'])
+#                         except Exception:
+#                             # "score" is '.'
+#                             annot['dbscsnv_rf'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
+#                         # dbscsnv_mpa_threshold = 0.8
+#                         if 'mpa_score' not in annot or annot['mpa_score'] < 10:
+#                             if (isinstance(annot['dbscsnv_ada'], float) and
+#                                 float(annot['dbscsnv_ada']) > md_utilities.predictor_thresholds['dbscsnv']) or \
+#                                 (isinstance(annot['dbscsnv_rf'], float) and
+#                                  float(annot['dbscsnv_ada']) > md_utilities.predictor_thresholds['dbscsnv']):
+#                                 annot['mpa_score'] = 10
+#                                 annot['mpa_impact'] = 'high splice'
+#         # get classification info
+#         curs.execute(
+#             "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, c.html_code, c.acmg_translation \
+#                 FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
+#                 AND a.variant_feature_id = %s ORDER BY a.class_date ASC",
+#             (variant_id,)
+#         )
+#         class_history = curs.fetchall()
+#         if len(class_history) == 0:
+#             class_history = None
+#         # MaxEntScan
+#         # we need to iterize through the wt and mt sequences to get
+#         # stretches of 23 nts for score3 and of 9 nts for score 5
+#         # then we create 2 NamedTemporaryFile to store the data
+#         # then run the perl scripts as subprocesses like this:
+#         # import subprocess
+#         # result = subprocess.run(['perl', 'score5.pl', 'test5'], stdout=subprocess.PIPE)
+#         # result.stdout
+#         # result is like
+#         # b'CAAATTCTG\t-17.88\nAAATTCTGC\t-13.03\nAATTCTGCA\t-35.61\nATTCTGCAA\t-22.21\nTTCTGCAAT\t-31.16\nTCTGCAATC\t-13.69\nCTGCAATCC\t-14.15\nTGCAATCCT\t-37.49\nGCAATCCTC\t-30.00\n'
+#
+#         # iterate through scores and get the most likely to disrupt splicing
+#         # from Houdayer Humut 2012
+#         # "In every case, we recommend first‐line analysis with MES using a 15% cutoff."
+#         signif_scores5 = signif_scores3 = None
+#         # print(pos_splice_site )
+#         scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
+#         scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+#         # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+#         signif_scores5 = md_utilities.select_mes_scores(
+#             re.split('\n', scores5wt),
+#             seq5wt_html,
+#             re.split('\n', scores5mt),
+#             seq5mt_html,
+#             0.15,
+#             3
+#         )
+#         if signif_scores5 == {}:
+#             signif_scores5 = None
+#         # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
+#         # print(signif_scores5)
+#         # ex
+#         # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n',\
+#         # '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
+#         if (variant_features['start_segment_type'] != 'exon') or \
+#                 (annot['nearest_site_type'] == 'acceptor' and
+#                     annot['nearest_site_dist'] < 10):
+#             # exonic variants not near 3' ss don't require predictions for 3'ss
+#             seq3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
+#             seq3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
+#             signif_scores3 = md_utilities.select_mes_scores(
+#                 re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
+#                 seq3wt_html,
+#                 re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
+#                 seq3mt_html,
+#                 0.15,
+#                 3
+#             )
+#             if signif_scores3 == {}:
+#                 signif_scores3 = None
+#             # print(signif_scores3)
+#         else:
+#             signif_scores3 = 'Not performed'
+#     else:
+#         close_db()
+#         if caller == 'cli':
+#             return jsonify(mobidetails_error='No such variant ID')
+#         else:
+#             return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode(), query="variant id: {}".format(variant_id))
+#     close_db()
+#     if 'mpa_score' not in annot:
+#         annot['mpa_score'] = 0
+#         annot['mpa_impact'] = 'unknown'
+#     else:
+#         annot['mpa_color'] = md_utilities.get_preditor_double_threshold_color(annot['mpa_score'], 'mpa_mid', 'mpa_max')
+#     if caller == 'cli':
+#         # format json
+#         return jsonify(mobidetails_error='Bad URL to get the Json: try /api/variant/')
+#     else:
+#         return render_template(
+#             'md/variant_old.html', run_mode=md_utilities.get_running_mode(), favourite=favourite, var_cname=var_cname, aa_pos=aa_pos,
+#             splicing_radar_labels=splicing_radar_labels, splicing_radar_values=splicing_radar_values,
+#             urls=md_utilities.urls, external_tools=md_utilities.external_tools, thresholds=md_utilities.predictor_thresholds,
+#             variant_features=variant_features, variant=variant, protein_domain=domain,
+#             class_history=class_history, annot=annot, mes5=signif_scores5, mes3=signif_scores3
+#         )
+
+# -------------------------------------------------------------------
+# api - variant
+
+
+@bp.route('/api/variant/<int:variant_id>/<string:caller>/', methods=['GET'])
+@bp.route('/api/variant/<int:variant_id>/<string:caller>/<string:api_key>', methods=['GET'])
+def variant(variant_id=None, caller='browser', api_key=None):
+    if variant_id is None:
+        return jsonify(mobidetails_error='No variant submitted')
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    # dealing with academic or not user
+    academic = True
+    # typically calling from API - swagger sends ','
+    if api_key and \
+            api_key != ',':
+        res_check_api_key = md_utilities.check_api_key(db, api_key)
+        if 'mobidetails_error' in res_check_api_key:
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
+        academic = res_check_api_key['mobiuser']['academic']
+    # typically calling from webapp
+    elif g.user:
+        curs.execute(
+            "SELECT * FROM mobiuser where id = %s",
+            (g.user['id'],)
+        )
+        res_user = curs.fetchone()
+        academic = res_user['academic']
+
+    # we need 2 dicts:
+    # - one for data that will be presented to the world via the API: external_data
+    # - a second one for data required for web pages presentation: internal_data
+    external_data = {
+        'variantId': None,
+        'gene': {
+            'symbol': None,
+            'RefSeqTranscript': None,
+            'nmVersion': None,
+            'RefSeqNg': None,
+            'RefSeqNp': None,
+            'ENST': None,
+            'ENSP': None,
+            'canonical': None,
+            'previousSymbols_aliases': None,
+            'hgncId': None,
+            'chromosome': None,
+            'strand': None,
+            'numberOfExons': None,
+            'proteinName': None,
+            'proteinShortName': None,
+            'proteinSize': None,
+            'uniprotId': None,
+        },
+        'nomenclatures': {
+            'cName': None,
+            'ngName': None,
+            'ivsName': None,
+            'pName': None,
+            'hg19gName': None,
+            'hg19StrictgName': None,
+            'hg19PseudoVCF': None,
+            'hg38gName': None,
+            'hg38StrictgName': None,
+            'hg38PseudoVCF': None,
+        },
+        'VCF': {
+            'chr': None,
+            'hg19': {
+                'ncbiChr': None,
+                'pos': None,
+                'ref': None,
+                'alt': None,
+            },
+            'hg38': {
+                'ncbiChr': None,
+                'pos': None,
+                'ref': None,
+                'alt': None,
+            }
+        },
+        'sequences': {
+            'wildType': None,
+            'mutant': None,
+        },
+        'positions': {
+            'DNAType': None,
+            'RNAType': None,
+            'proteinType': None,
+            'proteinTypeSoAccession': None,
+            'segmentStartType': None,
+            'segmentStartNumber': None,
+            'segmentEndType': None,
+            'segmentEndNumber': None,
+            'size': None,
+            'nearestSsDist': None,
+            'nearestSsType': None,
+            'aaPositionStart': None,
+            'aaPositionEnd': None,
+            'proteinDomain': [],
+            'metaDomednds': None,
+            'metaDomeTolerance': None,
+            'metaDomeTranscriptId': None,
+        },
+        'admin': {
+            'creationDate': None,
+            'creationUserName': None,
+        },
+        'frequenciesDatabases': {
+            'gnomADv2Exome': None,
+            'gnomADv2Genome': None,
+            'gnomADv3': None,
+            'dbSNPrsid': None,
+            'clinvarId': None,
+            'clinvarClinsigConf': None,
+            'clinvarClinsig': None,
+        },
+        'overallPredictions': {
+            'caddRaw': None,
+            'caddPhred': None,
+            'eigenRaw': None,
+            'eigenPhred': None,
+            'mpaScore': None,
+            'mpaImpact': None,
+        },
+        'splicingPredictions': {
+            'mes5': None,
+            'mes3': None,
+            'dbscSNVADA': None,
+            'dbscSNVRF': None,
+            'spliceai_DS_AG': None,
+            'spliceai_DS_AL': None,
+            'spliceai_DS_DG': None,
+            'spliceai_DS_DL': None,
+            'spliceai_DP_AG': None,
+            'spliceai_DP_AL': None,
+            'spliceai_DP_DG': None,
+            'spliceai_DP_DL': None,
+        },
+        'miRNATargetSitesPredictions': {
+            'mirandaCategory': None,
+            'mirandaRankScore': None,
+            'mirandaMaxDiff': None,
+            'mirandaRefBestMir': None,
+            'mirandaRefBestScore': None,
+            'mirandaAltBestMir': None,
+            'mirandaAltBestScore': None,
+            'targetScanCategory': None,
+            'targetScanRankScore': None,
+            'targetScanMaxDiff': None,
+            'targetScanRefBestMir': None,
+            'targetScanRefBestScore': None,
+            'targetScanAltBestMir': None,
+            'targetScanAltBestScore': None,
+            'RNAHybridCategory': None,
+            'RNAHybridRankScore': None,
+            'RNAHybridMaxDiff': None,
+            'RNAHybridRefBestMir': None,
+            'RNAHybridRefBestScore': None,
+            'RNAHybridAltBestMir': None,
+            'RNAHybridAltBestScore': None,
+        },
+        'missensePredictions': {
+            'siftScore': None,
+            'siftPred': None,
+            'polyphen2HdivScore': None,
+            'polyphen2HdivPred': None,
+            'polyphen2HvarScore': None,
+            'polyphen2HvarPred': None,
+            'revelScore': None,
+            'revelPred': None,
+            'clinpredScore': None,
+            'clinpredPred': None,
+            'fathmmScore': None,
+            'fathmmPred': None,
+            'fathmmMklScore': None,
+            'fathmmMklPred': None,
+            'proveanScore': None,
+            'proveanPred': None,
+            'lrtScore': None,
+            'lrtPred': None,
+            'mutationTasterScore': None,
+            'mutationTasterPred': None,
+            'metaSVMScore': None,
+            'metaSVMPred': None,
+            'metaLRScore': None,
+            'metaLRPred': None,
+            'metaSVMLRRel': None,
+            'misticScore': None,
+            'misticPred': None,
+        },
+    }
+    internal_data = {
+        'admin': {
+            'creationUser': None,
+            'creationUserEmail': None,
+        },
+        'nomenclatures': {
+            'cName': None,
+            'ngName': None,
+            'pName': None,
+        },
+        'VCF': {
+            'hg19': {
+                'gName': None,
+            },
+            'hg38': {
+                'gName': None,
+            }
+        },
+        'frequenciesDatabases': {
+            'dbSNPrsid': None,
+        },
+        'hexosplice': {
+            'exonSequence': None,
+            'exonFirstNtCdnaPosition': None,
+            'substitutionNature': None,
+        },
+        'canvas': {
+            'posExonCanvas': None,
+            'segmentSize': None,
+            'preceedingSegmentType': None,
+            'preceedingSegmentNumber': None,
+            'followingSegmentType': None,
+            'followingSegmentNumber': None,
+            'posIntronCanvas': None,
+            'posExonCanvas': None,
+        },
+        'overallPredictions': {
+            'mpaColor': None,
+        },
+        'splicingPredictions': {
+            'splicingRadarLabels': [],
+            'splicingRadarValues': [],
+            'dbscSNVADAColor': None,
+            'dbscSNVRFColor': None,
+            'nat3ssScore': None,
+            'nat3ssSeq': None,
+            'nat5ssScore': None,
+            'nat5ssSeq': None,
+            'spliceai_DS_AG_color': None,
+            'spliceai_DS_AL_color': None,
+            'spliceai_DS_DG_color': None,
+            'spliceai_DS_DL_color': None,
+        },
+        'positions': {
+            'metaDomeColor': None,
+            'distFromExon': None,
+            'substitutionNature': None,
+            'neighbourExonNumber': None,
+        },
+        'missensePredictions': {
+            'siftStar': None,
+            'siftColor': None,
+            'polyphen2HdivStar': None,
+            'polyphen2HdivColor': None,
+            'polyphen2HvarStar': None,
+            'polyphen2HvarColor': None,
+            'fathmmStar': None,
+            'fathmmColor': None,
+            'fathmmMklStar': None,
+            'fathmmMklColor': None,
+            'proveanStar': None,
+            'lrtStar': None,
+            'mutationTasterStar': None,
+            'clinpredStar': None,
+            'clinpredColor': None,
+            'revelStar': None,
+            'metaSVMColor': None,
+            'metaLRColor': None,
+            'misticColor': None,
+        },
+        'noMatch': {
+            'cadd': None,
+            'eigen': None,
+            'dbnsfp': None,
+            'dbmts': None,
+            'spliceai': None,
+        }
+    }
+
+    # get all variant_features and gene info
+    curs.execute(
+        "SELECT a.*, b.*, a.id as var_id, c.id as mobiuser_id, c.email, c.username,  d.so_accession \
+        FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
+        WHERE a.gene_name = b.name AND a.creation_user = c.id \
+        AND a.prot_type = d.prot_type AND a.id = %s",
+        (variant_id,)
+    )
+    variant_features = curs.fetchone()
+    if variant_features is not None:
+
+        # length of c_name for priting on screen
+        var_cname = variant_features['c_name']
+        if len(var_cname) > 30:
+            match_obj = re.search(r'(.+ins)[ATGC]+$', var_cname)
+            if match_obj is not None:
+                var_cname = match_obj.group(1)
+
+        # fill in dicts
+        external_data['variantId'] = variant_features['var_id']
+        external_data['nomenclatures']['cName'] = 'c.{}'.format(variant_features['c_name'])
+        external_data['nomenclatures']['ngName'] = 'g.{}'.format(variant_features['ng_name'])
+        external_data['nomenclatures']['ivsName'] = variant_features['ivs_name']
+        external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
+        external_data['sequences']['wildType'] = variant_features['wt_seq']
+        external_data['sequences']['mutant'] = variant_features['mt_seq']
+
+        # for HTML webpages
+        internal_data['nomenclatures']['cName'] = variant_features['c_name']
+        internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
+        internal_data['nomenclatures']['pName'] = variant_features['p_name']
+
+        external_data['gene']['symbol'] = variant_features['gene_name'][0]
+        external_data['gene']['RefSeqTranscript'] = variant_features['gene_name'][1]
+        external_data['gene']['nmVersion'] = variant_features['nm_version']
+        external_data['gene']['RefSeqNg'] = variant_features['ng']
+        external_data['gene']['RefSeqNp'] = variant_features['np']
+        external_data['gene']['ENST'] = variant_features['enst']
+        external_data['gene']['ENSP'] = variant_features['ensp']
+        external_data['gene']['canonical'] = variant_features['canonical']
+        external_data['gene']['previousSymbols_aliases'] = variant_features['second_name']
+        external_data['gene']['hgncId'] = variant_features['hgnc_id']
+        external_data['gene']['chromosome'] = variant_features['chr']
+        external_data['gene']['strand'] = variant_features['strand']
+        external_data['gene']['numberOfExons'] = variant_features['number_of_exons']
+        external_data['gene']['proteinName'] = variant_features['prot_name']
+        external_data['gene']['proteinShortName'] = variant_features['prot_short']
+        external_data['gene']['proteinSize'] = variant_features['prot_size']
+        external_data['gene']['uniprotId'] = variant_features['uniprot_id']
+
+        external_data['positions']['DNAType'] = variant_features['dna_type']
+        external_data['positions']['RNAType'] = variant_features['rna_type']
+        external_data['positions']['proteinType'] = variant_features['prot_type']
+        external_data['positions']['proteinTypeSoAccession'] = variant_features['so_accession']
+        external_data['positions']['segmentStartType'] = variant_features['start_segment_type']
+        external_data['positions']['segmentStartNumber'] = variant_features['start_segment_number']
+        external_data['positions']['segmentEndType'] = variant_features['end_segment_type']
+        external_data['positions']['segmentEndNumber'] = variant_features['end_segment_number']
+        external_data['positions']['size'] = variant_features['variant_size']
+
+        external_data['admin']['creationDate'] = variant_features['creation_date']
+        internal_data['admin']['creationUser'] = variant_features['mobiuser_id']
+        internal_data['admin']['creationUserEmail'] = variant_features['email']
+        external_data['admin']['creationUserName'] = variant_features['username']
+
+        external_data['frequenciesDatabases']['dbSNPrsid'] = 'rs{}'.format(variant_features['dbsnp_id'])
+        internal_data['frequenciesDatabases']['dbSNPrsid'] = variant_features['dbsnp_id']
+
+        # get variant info
+        curs.execute(
+            "SELECT * FROM variant WHERE feature_id = %s",
+            (variant_id,)
+        )
+        variant = curs.fetchall()
+
+        aa_pos = None
+        # pos_splice_site = None
+        domain = None
+        # favourite var?
+        curs.execute(
+            "SELECT mobiuser_id FROM mobiuser_favourite WHERE feature_id = %s",
+            (variant_id,)
+        )
+        favourite = curs.fetchone()
+        if favourite is not None and \
+                g.user is not None:
+            if favourite['mobiuser_id'] == g.user['id']:
+                favourite = True
+        splicing_radar_labels = []
+        splicing_radar_values = []
+        for var in variant:
+            if var['genome_version'] == 'hg38':
+                # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
+                curs.execute(
+                    "SELECT ncbi_name \
+                    FROM chromosomes WHERE name = %s and genome_version = %s",
+                    (var['chr'], var['genome_version'])
+                )
+                res_chr = curs.fetchone()
+                external_data['VCF']['chr'] = var['chr']
+                external_data['VCF']['hg38']['ncbiChr'] = res_chr['ncbi_name']
+                external_data['VCF']['hg38']['pos'] = var['pos']
+                external_data['VCF']['hg38']['ref'] = var['pos_ref']
+                external_data['VCF']['hg38']['alt'] = var['pos_alt']
+                internal_data['VCF']['hg38']['gName'] = var['g_name']
+                external_data['nomenclatures']['hg38PseudoVCF'] = '{0}-{1}-{2}-{3}'.format(
+                    var['chr'], var['pos'], var['pos_ref'], var['pos_alt']
+                )
+                external_data['nomenclatures']['hg38StrictgName'] = '{0}:g.{1}'.format(
+                    res_chr['ncbi_name'], var['g_name']
+                )
+                external_data['nomenclatures']['hg38gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
+
+                # compute position / splice sites
+                if variant_features['variant_size'] < 50 and \
+                        variant_features['start_segment_type'] == 'exon':
+                    curs.execute(
+                        "SELECT * FROM segment WHERE genome_version = %s\
+                        AND gene_name[1] = %s and gene_name[2] = %s \
+                        AND type = 'exon' AND number = %s",
+                        (var['genome_version'],
+                            variant_features['gene_name'][0],
+                            variant_features['gene_name'][1],
+                            variant_features['start_segment_number'])
+                    )
+                    positions = curs.fetchone()
+                    # get info to build hexoSplice link
+                    if variant_features['dna_type'] == 'substitution':
+                        internal_data['hexosplice']['exonSequence'] = md_utilities.get_exon_sequence(
+                            positions, var['chr'], variant_features['strand']
+                        )
+                        internal_data['hexosplice']['exonFirstNtCdnaPosition'] = md_utilities.get_exon_first_nt_cdna_position(
+                            positions, var['pos'], variant_features['c_name']
+                        )
+                        if internal_data['hexosplice']['exonFirstNtCdnaPosition'] < 1:
+                            internal_data['hexosplice']['substitutionNature'] = md_utilities.get_substitution_nature(
+                                variant_features['c_name']
+                            )
+                    # get a tuple ['site_type', 'dist(bp)']
+                    (external_data['positions']['nearestSsType'],
+                        external_data['positions']['nearestSsDist']) = md_utilities.get_pos_splice_site(var['pos'], positions)
+                    # relative position in exon for canvas drawing
+                    # get a tuple ['relative position in exon canvas', 'segment_size']
+                    (internal_data['canvas']['posExonCanvas'], internal_data['canvas']['segmentSize']) = md_utilities.get_pos_exon_canvas(
+                        var['pos'], positions
+                    )
+                    # get neighbours type, number
+                    (internal_data['canvas']['preceedingSegmentType'], internal_data['canvas']['preceedingSegmentNumber'],
+                        internal_data['canvas']['followingSegmentType'], internal_data['canvas']['followingSegmentNumber']) = md_utilities.get_exon_neighbours(db, positions)
+                    # get natural ss maxent scores
+                    if internal_data['canvas']['preceedingSegmentNumber'] != 'UTR':
+                        (internal_data['splicingPredictions']['nat3ssScore'], internal_data['splicingPredictions']['nat3ssSeq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 3, positions
+                        )
+                    if internal_data['canvas']['followingSegmentNumber'] != 'UTR':
+                        (internal_data['splicingPredictions']['nat5ssScore'], internal_data['splicingPredictions']['nat5ssSeq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 5, positions
+                        )
+                    # compute position in domain
+                    # 1st get aa pos
+                    if variant_features['prot_type'] != 'unknown':
+                        aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
+                        external_data['positions']['aaPositionStart'] = aa_pos[0]
+                        external_data['positions']['aaPositionEnd'] = aa_pos[1]
+                        curs.execute(
+                            "SELECT * FROM protein_domain WHERE gene_name[2] = '{0}' AND (('{1}' \
+                            BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
+                                variant_features['gene_name'][1], aa_pos[0], aa_pos[1]
+                            )
+                        )
+                        domains = curs.fetchall()
+                        for domain in domains:
+                            external_data['positions']['proteinDomain'].append([domain['name'], domain['aa_start'], domain['aa_end']])
+
+                        # metadome data?
+                        if variant_features['dna_type'] == 'substitution' and \
+                                os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
+                            # get value in json file
+                            with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst']), "r") as metad_file:
+                                metad_json = json.load(metad_file)
+                                if 'positional_annotation' in metad_json:
+                                    for pos in metad_json['positional_annotation']:
+                                        if int(pos['protein_pos']) == int(aa_pos[0]):
+                                            if 'sw_dn_ds' in pos:
+                                                external_data['positions']['metaDomednds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
+                                                [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
+                                if 'transcript_id' in metad_json:
+                                    external_data['positions']['metadomeTranscript'] = metad_json['transcript_id']
+                if variant_features['start_segment_type'] == 'intron':
+                    internal_data['positions']['distFromExon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
+                    if variant_features['dna_type'] == 'substitution':
+                        internal_data['positions']['substitutionNature'] = md_utilities.get_substitution_nature(variant_features['c_name'])
+                # MPA indel splice
+                elif variant_features['start_segment_type'] == 'intron' and \
+                        (variant_features['dna_type'] == 'indel' or
+                            variant_features['dna_type'] == 'deletion' or
+                            variant_features['dna_type'] == 'duplication') and \
+                        variant_features['variant_size'] < 50:
+                    if internal_data['positions']['distFromExon'] <= 20 and \
+                            (not external_data['overallPredictions']['mpaScore'] or external_data['overallPredictions']['mpaScore'] < 6):
+                        external_data['overallPredictions']['mpaScore'] = 6
+                        external_data['overallPredictions']['mpaImpact'] = 'splice indel'
+                # intronic variant canvas
+                if variant_features['start_segment_type'] == 'intron' and \
+                        internal_data['positions']['distFromExon'] <= 100 and \
+                        variant_features['variant_size'] < 50:
+                    internal_data['canvas']['posIntronCanvas'] = 200 - internal_data['positions']['distFromExon']  # relative position inside canvas fomr exon beginning
+                    internal_data['positions']['neighbourExonNumber'] = variant_features['start_segment_number'] + 1
+                    if sign == '+':
+                        internal_data['positions']['neighbourExonNumber'] = variant_features['start_segment_number']
+                        internal_data['canvas']['posIntronCanvas'] = 400 + internal_data['positions']['distFromExon']  # relative position inside canvas from exon end
+
+                    internal_data['canvas']['posExonCanvas'] = None
+                    # get info from neighboring exon
+                    curs.execute(
+                        "SELECT * FROM segment WHERE genome_version = %s\
+                        AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
+                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], internal_data['positions']['neighbourExonNumber'])
+                    )
+                    positions_neighb_exon = curs.fetchone()
+                    if sign == '+':
+                        internal_data['canvas']['preceedingSegmentType'] = None
+                        internal_data['canvas']['preceedingSegmentNumber'] = None
+                        internal_data['canvas']['followingSegmentType'] = 'intron'
+                        internal_data['canvas']['followingSegmentNumber'] = variant_features['start_segment_number']
+                        (internal_data['splicingPredictions']['nat5ssScore'], internal_data['splicingPredictions']['nat5ssSeq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 5, positions_neighb_exon
+                        )
+                    else:
+                        internal_data['canvas']['preceedingSegmentType'] = 'intron'
+                        internal_data['canvas']['preceedingSegmentNumber'] = variant_features['start_segment_number']
+                        internal_data['canvas']['followingSegmentType'] = None
+                        internal_data['canvas']['followingSegmentNumber'] = None
+                        (internal_data['splicingPredictions']['nat3ssScore'], internal_data['splicingPredictions']['nat3ssSeq']) = md_utilities.get_maxent_natural_sites_scores(
+                            var['chr'], variant_features['strand'], 3, positions_neighb_exon
+                        )
+                # clinvar
+                record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['clinvarClinsig'] = "{0} {1}".format(record, md_utilities.external_tools['ClinVar']['version'])
+                else:
+                    external_data['frequenciesDatabases']['clinvarId'] = record[2]
+                    match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
+                    if match_object:
+                        match2_object = re.search(r'^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
+                        if match2_object:
+                            external_data['frequenciesDatabases']['clinvarClinsig'] = match2_object.group(1)
+                            external_data['frequenciesDatabases']['clinvarClinsigConf'] = match2_object.group(2)
+                            external_data['frequenciesDatabases']['clinvarClinsigConf'] = external_data['frequenciesDatabases']['clinvarClinsigConf'].replace('%3B', '-')
+                        else:
+                            external_data['frequenciesDatabases']['clinvarClinsig'] = match_object.group(1)
+                    elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
+                        external_data['frequenciesDatabases']['clinvarClinsig'] = 'No interpretation for the single variant'
+                    if external_data['frequenciesDatabases']['clinvarClinsig'] and \
+                            re.search('pathogenic', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE) and \
+                            not re.search('pathogenicity', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE):
+                        external_data['overallPredictions']['mpaScore'] = 10
+                        external_data['overallPredictions']['mpaImpact'] = 'clinvar pathogenic'
+                # MPA PTC
+                if not external_data['overallPredictions']['mpaScore'] or \
+                        external_data['overallPredictions']['mpaImpact'] != 'clinvar pathogenic':
+                    if variant_features['prot_type'] == 'nonsense' or \
+                            variant_features['prot_type'] == 'frameshift':
+                        external_data['overallPredictions']['mpaScore'] = 10
+                        external_data['overallPredictions']['mpaImpact'] = variant_features['prot_type']
+                # gnomadv3
+                record = md_utilities.get_value_from_tabix_file('gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv3'] = record
+                else:
+                    # print(record)
+                    external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # dbNSFP
+                if variant_features['prot_type'] == 'missense':
+                    # CADD
+                    record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features)
+                    # print(record)
+                    if academic is True:
+                        try:
+                            external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
+                            external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
+                        except Exception:
+                            internal_data['noMatch']['cadd'] = 'No match in dbNSFP for CADD'
+                        if 'caddRaw' in external_data['overallPredictions'] and \
+                                external_data['overallPredictions']['caddRaw'] == '.':
+                            internal_data['noMatch']['cadd'] = 'No score in dbNSFP for CADD'
+                    # Eigen
+                    try:
+                        external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
+                        external_data['overallPredictions']['eigenPhred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
+                    except Exception:
+                        internal_data['noMatch']['eigen'] = 'No match in dbNSFP for Eigen'
+                    if 'eigenRaw' in external_data['overallPredictions'] and \
+                            external_data['overallPredictions']['eigenRaw'] == '.':
+                        internal_data['noMatch']['eigen'] = 'No score in dbNSFP for Eigen'
+                    # record comes from CADD section above
+                    if isinstance(record, str):
+                        internal_data['noMatch']['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
+                    else:
+                        # first: get enst we're dealing with
+                        i = 0
+                        transcript_index = 0
+                        enst_list = re.split(';', record[14])
+                        if len(enst_list) > 1:
+                            for enst in enst_list:
+                                if variant_features['enst'] == enst:
+                                    transcript_index = i
+                                i += 1
+                        # print(transcript_index)
+                        # then iterate for each score of interest, e.g.  sift..
+                        # missense:
+                        # mpa score
+                        mpa_missense = 0
+                        mpa_avail = 0
+                        # sift
+                        external_data['missensePredictions']['siftScore'], external_data['missensePredictions']['siftPred'], internal_data['missensePredictions']['siftStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), int(md_utilities.external_tools['SIFT']['dbNSFP_pred_col']), ';', 'basic', 1.1, 'lt', record
+                        )
+
+                        internal_data['missensePredictions']['siftColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['siftScore'], 'sift')
+                        if external_data['missensePredictions']['siftPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['siftPred'] != 'no prediction':
+                            mpa_avail += 1
+                        if academic is True:
+                            # polyphen 2 hdiv
+                            external_data['missensePredictions']['polyphen2HdivScore'], external_data['missensePredictions']['polyphen2HdivPred'], internal_data['missensePredictions']['polyphen2HdivStar'] = md_utilities.getdbNSFP_results(
+                                transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hdiv']), ';', 'pph2', -0.1, 'gt', record
+                            )
+
+                            internal_data['missensePredictions']['polyphen2HdivColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['polyphen2HdivScore'], 'pph2_hdiv_mid', 'pph2_hdiv_max')
+                            if re.search('Damaging', external_data['missensePredictions']['polyphen2HdivPred']):
+                                mpa_missense += 1
+                            if external_data['missensePredictions']['polyphen2HdivPred'] != 'no prediction':
+                                mpa_avail += 1
+                            # hvar
+                            external_data['missensePredictions']['polyphen2HvarScore'], external_data['missensePredictions']['polyphen2HvarPred'], internal_data['missensePredictions']['polyphen2HvarStar'] = md_utilities.getdbNSFP_results(
+                                transcript_index, int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), int(md_utilities.external_tools['Polyphen-2']['dbNSFP_pred_col_hvar']), ';', 'pph2', -0.1, 'gt', record
+                            )
+
+                            internal_data['missensePredictions']['polyphen2HvarColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['polyphen2HvarScore'], 'pph2_hvar_mid', 'pph2_hvar_max')
+                            if re.search('Damaging', external_data['missensePredictions']['polyphen2HvarPred']):
+                                mpa_missense += 1
+                            if external_data['missensePredictions']['polyphen2HvarPred'] != 'no prediction':
+                                mpa_avail += 1
+                        # fathmm
+                        external_data['missensePredictions']['fathmmScore'], external_data['missensePredictions']['fathmmPred'], internal_data['missensePredictions']['fathmmStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+                        )
+
+                        internal_data['missensePredictions']['fathmmColor'] = md_utilities.get_preditor_single_threshold_reverted_color(external_data['missensePredictions']['fathmmScore'], 'fathmm')
+                        if external_data['missensePredictions']['fathmmPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['fathmmPred'] != 'no prediction':
+                            mpa_avail += 1
+                        # fathmm-mkl -- not displayed
+                        external_data['missensePredictions']['fathmmMklScore'], external_data['missensePredictions']['fathmmMklPred'], internal_data['missensePredictions']['fathmmMklStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+                        )
+
+                        internal_data['missensePredictions']['fathmmMklColor'] = md_utilities.get_preditor_single_threshold_reverted_color(external_data['missensePredictions']['fathmmMklScore'], 'fathmm-mkl')
+                        if external_data['missensePredictions']['fathmmMklPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['fathmmMklPred'] != 'no prediction':
+                            mpa_avail += 1
+                        # provean -- not displayed
+                        external_data['missensePredictions']['proveanScore'], external_data['missensePredictions']['proveanPred'], internal_data['missensePredictions']['proveanStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['Provean']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+                        )
+                        if external_data['missensePredictions']['proveanPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['proveanPred'] != 'no prediction':
+                            mpa_avail += 1
+                        # LRT -- not displayed
+                        external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
+                        )
+
+                        if external_data['missensePredictions']['lrtPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if re.search(r'^[DUN]', external_data['missensePredictions']['lrtPred']):
+                            mpa_avail += 1
+                        # MutationTaster -- not displayed
+                        external_data['missensePredictions']['mutationTasterScore'], external_data['missensePredictions']['mutationTasterPred'], internal_data['missensePredictions']['mutationTasterStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_pred_col']), ';', 'mt', -1, 'gt', record
+                        )
+
+                        if re.search('Disease causing', external_data['missensePredictions']['mutationTasterPred']):
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['mutationTasterPred'] != 'no prediction':
+                            mpa_avail += 1
+                        if academic is True:
+                            # ClinPred
+                            external_data['missensePredictions']['clinpredScore'], external_data['missensePredictions']['clinpredPred'], internal_data['missensePredictions']['clinpredStar'] = md_utilities.getdbNSFP_results(
+                                transcript_index, int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), int(md_utilities.external_tools['ClinPred']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
+                            )
+                            # clinpred score in dbNSFP, contrary to other scores, presents with 9-10 numbers after '.'
+                            try:
+                                external_data['missensePredictions']['clinpredScore'] = format(float(external_data['missensePredictions']['clinpredScore']), '.3f')
+                                internal_data['missensePredictions']['clinpredColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['clinpredScore'], 'clinpred')
+                            except Exception:
+                                pass
+
+                        # REVEL
+                            external_data['missensePredictions']['revelScore'], external_data['missensePredictions']['revelPred'], internal_data['missensePredictions']['revelStar'] = md_utilities.getdbNSFP_results(
+                                transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
+                            )
+
+                            # no REVEL pred in dbNSFP => custom
+                            if external_data['missensePredictions']['revelScore'] != '.' and \
+                                    float(external_data['missensePredictions']['revelScore']) < 0.2:
+                                external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['B']
+                            elif external_data['missensePredictions']['revelScore'] != '.' and \
+                                    float(external_data['missensePredictions']['revelScore']) > 0.5:
+                                external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['D']
+                            elif external_data['missensePredictions']['revelScore'] != '.':
+                                external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['U']
+                            else:
+                                external_data['missensePredictions']['revelPred'] = 'no prediction'
+
+                            internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
+
+                        # meta SVM
+                        external_data['missensePredictions']['metaSVMScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
+                        internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')
+                        external_data['missensePredictions']['metaSVMPred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_msvm'])]]
+                        if external_data['missensePredictions']['metaSVMPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['metaSVMPred'] != 'no prediction':
+                            mpa_avail += 1
+                        # meta LR
+                        external_data['missensePredictions']['metaLRScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr'])]
+                        internal_data['missensePredictions']['metaLRColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaLRScore'], 'meta-lr')
+                        external_data['missensePredictions']['metaLRPred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_mlr'])]]
+                        if external_data['missensePredictions']['metaLRPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['metaLRPred'] != 'no prediction':
+                            mpa_avail += 1
+                        external_data['missensePredictions']['metaSVMLRRel'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mrel'])]  # reliability index for meta score (1-10): the higher, the higher the reliability
+                        if ((not external_data['overallPredictions']['mpaScore'] or
+                                external_data['overallPredictions']['mpaScore'] < mpa_missense) and
+                                mpa_avail > 0):
+                            external_data['overallPredictions']['mpaScore'] = float('{0:.2f}'.format((mpa_missense / mpa_avail) * 10))
+                            if external_data['overallPredictions']['mpaScore'] >= 8:
+                                external_data['overallPredictions']['mpaImpact'] = 'high missense'
+                            elif external_data['overallPredictions']['mpaScore'] >= 6:
+                                external_data['overallPredictions']['mpaImpact'] = 'moderate missense'
+                            else:
+                                external_data['overallPredictions']['mpaImpact'] = 'low missense'
+                # dbMTS
+                if variant_features['dna_type'] == 'substitution' and \
+                        re.search(r'^\*', variant_features['c_name']):
+                    record = md_utilities.get_value_from_tabix_file('dbmts', md_utilities.local_files['dbmts']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        internal_data['noMatch']['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+                    else:
+                        # Eigen from dbMTS for 3'UTR variants
+                        try:
+                            external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_value_col'])]), '.2f')
+                            external_data['overallPredictions']['eigenPhred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbMTS_pred_col'])]), '.2f')
+                        except Exception:
+                            external_data['overallPredictions']['eigen'] = 'No match in dbMTS for Eigen'
+                        if 'eigen_raw' in external_data['overallPredictions'] and \
+                                external_data['overallPredictions']['eigenRaw'] == '.':
+                            external_data['overallPredictions']['eigen'] = 'No score in dbMTS for Eigen'
+                        try:
+                            # Miranda
+                            external_data['miRNATargetSitesPredictions']['mirandaCategory'] = record[int(md_utilities.external_tools['dbMTS']['miranda_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['mirandaRankScore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_rankscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['mirandaMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['miranda_maxdiff_col'])]
+                            external_data['miRNATargetSitesPredictions']['mirandaRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_refbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['mirandaRefBestScore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_refbestscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['mirandaAltBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['miranda_altbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['mirandaAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['miranda_altbestscore_col'])]
+                            # TargetScan
+                            external_data['miRNATargetSitesPredictions']['targetScanCategory'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['targetScanRankScore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['targetScanMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_maxdiff_col'])]
+                            external_data['miRNATargetSitesPredictions']['targetScanRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['targetScanRefBestScore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_refbestscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['targetScanAltBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['targetScanAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['targetscan_altbestscore_col'])]
+                            # RNAHybrid
+                            external_data['miRNATargetSitesPredictions']['RNAHybridCategory'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_cat_col'])]
+                            external_data['miRNATargetSitesPredictions']['RNAHybridRankScore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['RNAHybridMaxDiff'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_maxdiff_col'])]
+                            external_data['miRNATargetSitesPredictions']['RNAHybridRefBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['RNAHybridRefBestScore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_refbestscore_col'])]
+                            external_data['miRNATargetSitesPredictions']['RNAHybridAltBestMir'] = md_utilities.format_mirs(record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestmir_col'])])
+                            external_data['miRNATargetSitesPredictions']['RNAHybridAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestscore_col'])]
+                        except Exception:
+                            internal_data['noMatch']['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
+
+                # CADD
+                if academic is True:
+                    if variant_features['dna_type'] == 'substitution':
+                        if variant_features['prot_type'] != 'missense':
+                            # specific file for CADD
+                            record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
+                            if isinstance(record, str):
+                                internal_data['noMatch']['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+                            else:
+                                external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['raw_col'])]), '.2f')
+                                external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['phred_col'])]), '.2f')
+                    else:
+                        record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            internal_data['noMatch']['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+                        else:
+                            external_data['overallPredictions']['caddRaw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
+                            external_data['overallPredictions']['caddPhred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+                # spliceAI 1.3
+                # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
+                # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
+                # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
+                spliceai_res = False
+                if variant_features['dna_type'] == 'substitution':
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features)
+                    spliceai_res = True
+                elif ((variant_features['dna_type'] == 'insertion' or
+                        variant_features['dna_type'] == 'duplication') and
+                        variant_features['variant_size'] == 1) or \
+                        (variant_features['dna_type'] == 'deletion' and
+                            variant_features['variant_size'] <= 4):
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
+                    # print(record)
+                    spliceai_res = True
+                if spliceai_res is True:
+                    if isinstance(record, str):
+                        internal_data['noMatch']['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
+                    else:
+                        spliceais = re.split(r'\|', record[7])
+                        # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+                        splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
+                        order_list = ['DS_AG', 'DS_AL', 'DS_DG', 'DS_DL', 'DP_AG', 'DP_AL', 'DP_DG', 'DP_DL']
+                        i = 2
+                        for tag in order_list:
+                            identifier = "spliceai_{}".format(tag)
+                            external_data['splicingPredictions'][identifier] = spliceais[i]
+                            if re.search(r'DS_', tag):
+                                splicing_radar_values.append(spliceais[i])
+                            i += 1
+                            if re.match('spliceai_DS_', identifier):
+                                id_color = "{}_color".format(identifier)
+                                internal_data['splicingPredictions'][id_color] = md_utilities.get_spliceai_color(float(external_data['splicingPredictions'][identifier]))
+                                if not external_data['overallPredictions']['mpaScore'] or \
+                                        external_data['overallPredictions']['mpaScore'] < 10:
+                                    if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+                                        external_data['overallPredictions']['mpaScore'] = 10
+                                        external_data['overallPredictions']['mpaImpact'] = 'high splice'
+                                    elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+                                        external_data['overallPredictions']['mpaScore'] = 8
+                                        external_data['overallPredictions']['mpaImpact'] = 'moderate splice'
+                                    elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+                                        external_data['overallPredictions']['mpaScore'] = 6
+                                        external_data['overallPredictions']['mpaImpact'] = 'low splice'
+
+            elif var['genome_version'] == 'hg19':
+                # ncbi chr
+                curs.execute(
+                    "SELECT ncbi_name \
+                    FROM chromosomes WHERE name = %s and genome_version = %s",
+                    (var['chr'], var['genome_version'])
+                )
+                res_chr = curs.fetchone()
+                external_data['VCF']['hg19']['ncbiChr'] = res_chr['ncbi_name']
+                external_data['VCF']['hg19']['pos'] = var['pos']
+                external_data['VCF']['hg19']['ref'] = var['pos_ref']
+                external_data['VCF']['hg19']['alt'] = var['pos_alt']
+                internal_data['VCF']['hg19']['gName'] = var['g_name']
+                external_data['nomenclatures']['hg19PseudoVCF'] = '{0}-{1}-{2}-{3}'.format(var['chr'], var['pos'], var['pos_ref'], var['pos_alt'])
+                external_data['nomenclatures']['hg19StrictgName'] = '{0}:g.{1}'.format(res_chr['ncbi_name'], var['g_name'])
+                external_data['nomenclatures']['hg19gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
+
+                # gnomad ex
+                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record
+                else:
+                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # gnomad ge
+                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv2Genome'] = record
+                else:
+                    external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # clinpred
+                if variant_features['prot_type'] == 'missense':
+                    # mistic
+                    record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        external_data['missensePredictions']['misticScore'] = record
+                    else:
+                        external_data['missensePredictions']['misticScore'] = record[4]
+                    internal_data['missensePredictions']['misticColor'] = "#000000"
+                    external_data['missensePredictions']['misticPred'] = 'no prediction'
+                    if re.search(r'^[\d\.]+$', external_data['missensePredictions']['misticScore']):
+                        external_data['missensePredictions']['misticScore'] = format(float(external_data['missensePredictions']['misticScore']), '.2f')
+                        internal_data['missensePredictions']['misticColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['misticScore'], 'mistic')
+                        external_data['missensePredictions']['misticPred'] = 'Tolerated'
+                        if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
+                            external_data['missensePredictions']['misticPred'] = 'Damaging'
+                if variant_features['dna_type'] == 'substitution':
+                    # dbscSNV
+                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                        external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                        if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                            splicing_radar_labels.append('dbscSNV ADA')
+                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                        if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                            splicing_radar_labels.append('dbscSNV RF')
+                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                    else:
+                        try:
+                            external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
+                            internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
+                            if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                                splicing_radar_labels.append('dbscSNV ADA')
+                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                        except Exception:
+                            # "score" is '.'
+                            external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                        try:
+                            external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
+                            internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
+                            if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                                splicing_radar_labels.append('dbscSNV RF')
+                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                        except Exception:
+                            # "score" is '.'
+                            external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                        # dbscsnv_mpa_threshold = 0.8
+                        if not external_data['overallPredictions']['mpaScore'] or \
+                                external_data['overallPredictions']['mpaScore'] < 10:
+                            if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
+                                float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
+                                (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
+                                 float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
+                                external_data['overallPredictions']['mpaScore'] = 10
+                                external_data['overallPredictions']['mpaImpact'] = 'high splice'
+        internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
+        internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
+        # get classification info
+        curs.execute(
+            "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, c.html_code, c.acmg_translation \
+                FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
+                AND a.variant_feature_id = %s ORDER BY a.class_date ASC",
+            (variant_id,)
+        )
+        class_history = curs.fetchall()
+        if len(class_history) == 0:
+            class_history = None
+
+        # MaxEntScan
+        # we need to iterize through the wt and mt sequences to get
+        # stretches of 23 nts for score3 and of 9 nts for score 5
+        # then we create 2 NamedTemporaryFile to store the data
+        # then run the perl scripts as subprocesses like this:
+        # import subprocess
+        # result = subprocess.run(['perl', 'score5.pl', 'test5'], stdout=subprocess.PIPE)
+        # result.stdout
+        # result is like
+        # b'CAAATTCTG\t-17.88\nAAATTCTGC\t-13.03\nAATTCTGCA\t-35.61\nATTCTGCAA\t-22.21\nTTCTGCAAT\t-31.16\nTCTGCAATC\t-13.69\nCTGCAATCC\t-14.15\nTGCAATCCT\t-37.49\nGCAATCCTC\t-30.00\n'
+
+        # iterate through scores and get the most likely to disrupt splicing
+        # from Houdayer Humut 2012
+        # "In every case, we recommend first‐line analysis with MES using a 15% cutoff."
+        signif_scores5 = signif_scores3 = None
+        # print(pos_splice_site )
+        scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
+        scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+        # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
+        signif_scores5 = md_utilities.select_mes_scores(
+            re.split('\n', scores5wt),
+            seq5wt_html,
+            re.split('\n', scores5mt),
+            seq5mt_html,
+            0.15,
+            3
+        )
+        if signif_scores5 == {}:
+            signif_scores5 = None
+        # 2 last numbers are variation cutoff to sign a significant change and absolute threshold to consider a score as interesting
+        # print(signif_scores5)
+        # ex
+        # {5: ['CAGGTAATG', '9.43', 'CAGATAATG', '1.25', -654.4, 'CAG<span class="w3-text-red"><strong>G</strong></span>TAATG\n',\
+        # '<strong>CAG</strong>gtaatg', 'CAG<span class="w3-text-red"><strong>A</strong></span>TAATG\n', '<strong>CAG</strong>ataatg']}
+        if (variant_features['start_segment_type'] != 'exon') or \
+                (external_data['positions']['nearestSsType'] == 'acceptor' and
+                    external_data['positions']['nearestSsDist'] < 10):
+            # exonic variants not near 3' ss don't require predictions for 3'ss
+            scores3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
+            scores3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
+            # signif_scores3 = md_utilities.select_mes_scores(
+            #     re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
+            #     seq3wt_html,
+            #     re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
+            #     seq3mt_html,
+            #     0.15,
+            #     3
+            # )
+            signif_scores3 = md_utilities.select_mes_scores(
+                re.split('\n', scores3wt),
+                seq3wt_html,
+                re.split('\n', scores3mt),
+                seq3mt_html,
+                0.15,
+                3
+            )
+            if signif_scores3 == {}:
+                signif_scores3 = None
+            # print(signif_scores3)
+        else:
+            signif_scores3 = 'Not performed'
+        external_data['splicingPredictions']['mes5'] = signif_scores5
+        external_data['splicingPredictions']['mes3'] = signif_scores3
+    else:
+        close_db()
+        if caller == 'cli':
+            return jsonify(mobidetails_error='No such variant ID')
+        else:
+            return render_template(
+                'md/unknown.html', run_mode=md_utilities.get_running_mode(), query="variant id: {}".format(variant_id)
+            )
+    close_db()
+    if not external_data['overallPredictions']['mpaScore']:
+        external_data['overallPredictions']['mpaScore'] = 0
+        external_data['overallPredictions']['mpaImpact'] = 'unknown'
+    else:
+        internal_data['overallPredictions']['mpaColor'] = md_utilities.get_preditor_double_threshold_color(
+            external_data['overallPredictions']['mpaScore'], 'mpa_mid', 'mpa_max'
+        )
+    if caller == 'cli':
+        # format json
+        return jsonify(external_data)
+    else:
+        return render_template(
+            'md/variant.html',
+            run_mode=md_utilities.get_running_mode(),
+            favourite=favourite, urls=md_utilities.urls,
+            external_tools=md_utilities.external_tools,
+            thresholds=md_utilities.predictor_thresholds,
+            class_history=class_history,
+            external_data=external_data,
+            internal_data=internal_data
+        )
+
 
 # -------------------------------------------------------------------
 # api - variant create
@@ -167,11 +1859,11 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         mobidetails_id=res['id'],
                         url='{0}{1}'.format(
                             request.host_url[:-1],
-                            url_for('md.variant', variant_id=res['id'])
+                            url_for('api.variant', variant_id=res['id'], caller='browser')
                         )
                     )
                 else:
-                    return redirect(url_for('md.variant', variant_id=res['id']), code=302)
+                    return redirect(url_for('api.variant', variant_id=res['id'], caller='browser'), code=302)
 
             else:
                 # creation
@@ -252,7 +1944,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 if caller == 'cli':
                     return jsonify(creation_dict)
                 else:
-                    return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']), code=302)
+                    return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_chgvs)))
@@ -357,11 +2049,11 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 mobidetails_id=res['feature_id'],
                                 url='{0}{1}'.format(
                                     request.host_url[:-1],
-                                    url_for('md.variant', variant_id=res['feature_id'])
+                                    url_for('api.variant', variant_id=res['feature_id'], caller='browser')
                                 )
                             )
                         else:
-                            return redirect(url_for('md.variant', variant_id=res['feature_id']), code=302)
+                            return redirect(url_for('api.variant', variant_id=res['feature_id'], caller='browser'), code=302)
                     else:
                         # creation
                         vv_base_url = md_utilities.get_vv_api_url()
@@ -436,7 +2128,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                             if caller == 'cli':
                                 return jsonify(creation_dict)
                             else:
-                                return redirect(url_for('md.variant', variant_id=creation_dict['mobidetails_id']), code=302)
+                                return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
                         else:
                             if caller == 'cli':
                                 return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
@@ -529,14 +2221,14 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         'mobidetails_id': var['id'],
                         'url': '{0}{1}'.format(
                             request.host_url[:-1],
-                            url_for('md.variant', variant_id=var['id'])
+                            url_for('api.variant', variant_id=var['id'], caller='browser')
                         )
                     }
                 if caller == 'cli':
                         return jsonify(vars_rs)
                 else:
                     if len(res_rs) == 1:
-                        return redirect(url_for('md.variant', variant_id=res_rs['id']), code=302)
+                        return redirect(url_for('api.variant', variant_id=res_rs['id'], caller='browser'), code=302)
                     else:
                         return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
             # use putalyzer to get HGVS noemclatures
@@ -636,7 +2328,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             if 'mobidetails_error' in md_response[var]:
                                 flash(md_response[var]['mobidetails_error'], 'w3-pale-red')
                                 return redirect(url_for('md.index'), code=302)
-                            return redirect(url_for('md.variant', variant_id=md_response[var]['mobidetails_id']), code=302)
+                            return redirect(url_for('api.variant', variant_id=md_response[var]['mobidetails_id'], caller='browser'), code=302)
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=md_response)
 
