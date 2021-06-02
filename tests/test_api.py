@@ -75,7 +75,31 @@ def get_generic_api_key():
     if res is not None:
         return res['api_key']
 
+
 # test variant creation
+@pytest.mark.parametrize(('variant_id', 'key', 'value'), (
+    (220783, 'cName', 'c.1771T>C'),
+    (8, 'hg19PseudoVCF', '1-216420460-C-A'),
+))
+def test_api_variant(client, variant_id, key, value):
+    json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id)).data.decode('utf8'))
+    assert json_response['nomenclatures'][key] == value
+
+# 2nd test variant creation
+
+
+def test_api_variant2(app, client):
+    with app.app_context():
+        db = get_db()
+        curs = db.cursor()
+        curs.execute(
+            "SELECT id FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 100"  #  LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
+        )
+        res = curs.fetchall()
+        for variant_id in res:
+            print(variant_id)
+            json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id[0])).data.decode('utf8'))
+            assert 'nomenclatures' in json_response
 
 
 @pytest.mark.parametrize(('new_variant', 'api_key', 'return_key', 'message'), (

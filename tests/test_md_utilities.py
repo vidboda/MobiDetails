@@ -762,7 +762,7 @@ def test_run_spip(app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT gene_name, c_name FROM variant_feature LIMIT 15"
+            "SELECT gene_name, c_name FROM variant_feature ORDER BY random() LIMIT 15"
         )
         res = curs.fetchall()
         for var in res:
@@ -771,6 +771,9 @@ def test_run_spip(app):
             )
             print(spip_results)
             assert 'Interpretation' in spip_results
+            dict_spip = md_utilities.format_spip_result(spip_results, 'cli')
+            print(dict_spip)
+            assert isinstance(dict_spip, dict)
 
 
 def test_get_running_mode(app):
