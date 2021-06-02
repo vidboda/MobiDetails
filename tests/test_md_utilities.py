@@ -769,7 +769,7 @@ def test_run_spip(app):
             )
             print(spip_results)
             assert 'Interpretation' in spip_results
-            dict_spip = md_utilities.format_spip_result(spip_results)
+            dict_spip = md_utilities.format_spip_result(spip_results, 'cli')
             print(dict_spip)
             assert isinstance(dict_spip, dict)
 

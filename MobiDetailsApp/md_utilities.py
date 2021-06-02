@@ -2135,7 +2135,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
         return 'There has been an error while processing SPiP'
 
 
-def format_spip_result(result_spip):
+def format_spip_result(result_spip, caller):
     spip_list = re.split('\n', result_spip)
     # print(result_spip[0])
     headers_spip = re.split('\t', spip_list[0])
@@ -2159,34 +2159,42 @@ def format_spip_result(result_spip):
                     formatted_list += ' + {}'.format(
                         spip_annotations[interpretation]
                     )
-
-                dict_spip[header] = [
-                    formatted_list,
-                    spip_headers[header]
-                ]
+                if caller == 'browser':
+                    dict_spip[header] = [
+                        formatted_list,
+                        spip_headers[header]
+                    ]
+                else:
+                    dict_spip[header] = formatted_list
                 i += 1
                 continue
-            dict_spip[header] = [
-                spip_annotations[scores_spip[i]],
-                spip_headers[header]
-            ]
+            if caller == 'browser':
+                dict_spip[header] = [
+                    spip_annotations[scores_spip[i]],
+                    spip_headers[header]
+                ]
+            else:
+                dict_spip[header] = spip_annotations[scores_spip[i]]
             i += 1
             continue
-        if header == 'InterConfident':
-            header = 'Risk'
-        if header == 'mutInPBarea':
-            header = 'mutInBParea'
-        if scores_spip[i] == 'No available':
-            scores_spip[i] = 'Not available'
-        if scores_spip[i] == 'Outside SPiCE Interpretation':
-            scores_spip[i] = 'Out of SPiCE interpretation region'
-        # print('{0}-{1}'.format(header, scores_spip[i]))
-        dict_spip[header] = [
-            scores_spip[i],
-            spip_headers[header]
-        ]
+        if caller == 'browser':
+            if header == 'InterConfident':
+                header = 'Risk'
+            if header == 'mutInPBarea':
+                header = 'mutInBParea'
+            if scores_spip[i] == 'No available':
+                scores_spip[i] = 'Not available'
+            if scores_spip[i] == 'Outside SPiCE Interpretation':
+                scores_spip[i] = 'Out of SPiCE interpretation region'
+            dict_spip[header] = [
+                scores_spip[i],
+                spip_headers[header]
+            ]
+        else:
+            dict_spip[header] = scores_spip[i]
         i += 1
     return dict_spip
+
 
 def get_running_mode():
     return app.config['RUN_MODE']

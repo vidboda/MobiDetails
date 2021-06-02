@@ -1517,7 +1517,7 @@ def spip():
         if result_spip == 'There has been an error while processing SPiP':
             return result_spip
 
-        dict_spip = md_utilities.format_spip_result(result_spip)
+        dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
         return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'

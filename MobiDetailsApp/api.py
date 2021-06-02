@@ -1115,7 +1115,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         if result_spip == 'There has been an error while processing SPiP':
             external_data['splicingPredictions']['SPiP']['error'] = result_spip
         else:
-            external_data['splicingPredictions']['SPiP'] = md_utilities.format_spip_result(result_spip)
+            external_data['splicingPredictions']['SPiP'] = md_utilities.format_spip_result(result_spip, 'cli')
         # format json
         return jsonify(external_data)
     else:
