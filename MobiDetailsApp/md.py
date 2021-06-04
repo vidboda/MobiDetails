@@ -407,7 +407,7 @@ def vars(gene_name=None):
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT name, nm_version FROM gene WHERE name[1] = %s",
+            "SELECT name, nm_version, variant_creation FROM gene WHERE name[1] = %s",
             (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
