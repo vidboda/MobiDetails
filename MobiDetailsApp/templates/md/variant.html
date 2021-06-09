@@ -4,7 +4,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script>
+	<!-- <script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script> -->
 	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?2100518" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
@@ -639,7 +639,7 @@
 							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
 						</div>
 					</div>
-					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:none;z-index:2002;">
+					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
 						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 							<header class="w3-container w3-blue">
 								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
@@ -846,7 +846,7 @@
 						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
 					</div>
 				</div>
-				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:none;z-index:2002;">
+				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
 					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 						<header class="w3-container w3-blue">
 							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>

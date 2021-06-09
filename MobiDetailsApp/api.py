@@ -591,7 +591,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     if internal_data['positions']['distFromExon'] <= 20 and \
                             (not external_data['overallPredictions']['mpaScore'] or external_data['overallPredictions']['mpaScore'] < 6):
                         external_data['overallPredictions']['mpaScore'] = 6
-                        external_data['overallPredictions']['mpaImpact'] = 'splice indel'
+                        external_data['overallPredictions']['mpaImpact'] = 'Splice indel'
                 # intronic variant canvas
                 if variant_features['start_segment_type'] == 'intron' and \
                         internal_data['positions']['distFromExon'] <= 100 and \
@@ -647,10 +647,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             re.search('pathogenic', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE) and \
                             not re.search('pathogenicity', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE):
                         external_data['overallPredictions']['mpaScore'] = 10
-                        external_data['overallPredictions']['mpaImpact'] = 'clinvar pathogenic'
+                        external_data['overallPredictions']['mpaImpact'] = 'Clinvar pathogenic'
                 # MPA PTC
                 if not external_data['overallPredictions']['mpaScore'] or \
-                        external_data['overallPredictions']['mpaImpact'] != 'clinvar pathogenic':
+                        external_data['overallPredictions']['mpaImpact'] != 'Clinvar pathogenic':
                     if variant_features['prot_type'] == 'nonsense' or \
                             variant_features['prot_type'] == 'frameshift':
                         external_data['overallPredictions']['mpaScore'] = 10
@@ -834,11 +834,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 mpa_avail > 0):
                             external_data['overallPredictions']['mpaScore'] = float('{0:.2f}'.format((mpa_missense / mpa_avail) * 10))
                             if external_data['overallPredictions']['mpaScore'] >= 8:
-                                external_data['overallPredictions']['mpaImpact'] = 'high missense'
+                                external_data['overallPredictions']['mpaImpact'] = 'High missense'
                             elif external_data['overallPredictions']['mpaScore'] >= 6:
-                                external_data['overallPredictions']['mpaImpact'] = 'moderate missense'
+                                external_data['overallPredictions']['mpaImpact'] = 'Moderate missense'
                             else:
-                                external_data['overallPredictions']['mpaImpact'] = 'low missense'
+                                external_data['overallPredictions']['mpaImpact'] = 'Low missense'
                 # dbMTS
                 if variant_features['dna_type'] == 'substitution' and \
                         re.search(r'^\*', variant_features['c_name']):
@@ -939,13 +939,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                         external_data['overallPredictions']['mpaScore'] < 10:
                                     if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
                                         external_data['overallPredictions']['mpaScore'] = 10
-                                        external_data['overallPredictions']['mpaImpact'] = 'high splice'
+                                        external_data['overallPredictions']['mpaImpact'] = 'High splice'
                                     elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
                                         external_data['overallPredictions']['mpaScore'] = 8
-                                        external_data['overallPredictions']['mpaImpact'] = 'moderate splice'
+                                        external_data['overallPredictions']['mpaImpact'] = 'Moderate splice'
                                     elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
                                         external_data['overallPredictions']['mpaScore'] = 6
-                                        external_data['overallPredictions']['mpaImpact'] = 'low splice'
+                                        external_data['overallPredictions']['mpaImpact'] = 'Low splice'
 
             elif var['genome_version'] == 'hg19':
                 # ncbi chr
@@ -1031,7 +1031,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
                                  float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
                                 external_data['overallPredictions']['mpaScore'] = 10
-                                external_data['overallPredictions']['mpaImpact'] = 'high splice'
+                                external_data['overallPredictions']['mpaImpact'] = 'High splice'
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info

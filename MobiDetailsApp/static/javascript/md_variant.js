@@ -20,44 +20,7 @@ function defgen_export(genome, vf_id, defgen_url, csrf_token) {
 		$('#defgen_modal_' + genome).show();
 	});
 }
-// in md.js now
-// function favourite(vf_id, fav_url, csrf_token) {
-// 	// send header for flask-wtf crsf security
-// 	// alert($('#favour_span').attr('name'));
-//     $.ajaxSetup({
-//         beforeSend: function(xhr, settings) {
-//             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-//                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
-//             }
-//         }
-//     });
-// 	$.ajax({
-// 		type: "POST",
-// 		url: fav_url,
-// 		data: {
-// 			vf_id: vf_id, marker: $('#favour_span').attr('name')
-// 		}
-// 	})
-// 	.done(function() {
-// 		if ($('#favour_span').attr('name') === 'mark') {
-// 			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
-// 			$('#favour').toggleClass('fa-star fa-star-o');
-// 			$('#favour_span').attr('title', 'Unmark the variant');
-// 			$('#favour_span').attr('name', 'unmark');
-// 			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'unmark');");
-// 			$('#favour_star').show();
-// 		}
-// 		else {
-// 			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
-// 			$('#favour').toggleClass('fa-star-o fa-star');
-// 			$('#favour_span').attr('title', 'Mark the variant');
-// 			$('#favour_span').attr('name', 'mark');
-// 			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
-// 			$('#favour_star').hide();
-// 		}
-//
-// 	});
-// }
+
 function litvar(litvar_url, csrf_token) {
 	//ajax for litvar
 	if ($('#dbsnp_id').text() !== '') {
@@ -334,20 +297,20 @@ function run_spip(url, csrf_token) {
 	})
 	.done(function(spip_result) {
 		$("#spip").html(spip_result);
-        datatable = $('#spip_summary').DataTable({
-            responsive: true,
-            dom: 't',
-            "order": [],
-            buttons: [
-                   'copy', 'excel', 'pdf'
-            ]
-        });
-        datatable = $('#spip_full').DataTable({
-            responsive: true,
-            dom: 't',
-            "pageLength": 25,
-            "order": []
-        });
+    datatable = $('#spip_summary').DataTable({
+        responsive: true,
+        dom: 't',
+        "order": [],
+        buttons: [
+               'copy', 'excel', 'pdf'
+        ]
+    });
+    datatable = $('#spip_full').DataTable({
+        responsive: true,
+        dom: 't',
+        "pageLength": 25,
+        "order": []
+    });
 	});
 }
 
@@ -452,15 +415,132 @@ $(document).ready(function() {
 	url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
 	})
 	.done(function(mupit_results) {
-      // alert(mupit_results.hit);
-      if (mupit_results.hit === true) {
-          $('#mupit_link').show();
-      }
-    });
-	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
-	// export multiple tables in one single pdf
-	$('#ExportPdf').click(function() {
+    // alert(mupit_results.hit);
+    if (mupit_results.hit === true) {
+        $('#mupit_link').show();
+    }
+  });
 
+  // trick to force charts.js script execution and to get canvas in pdf export
+  // charts are displayed by default and then quickly hidden
+  $('#radar_splicing_modal').hide();
+  $('#radar_missense_modal').hide();
+
+  function convert_dt(config, table_id, table_title, table_title_style, doc) {
+    var dt = $('#' + table_id).DataTable();
+    var data = dt.buttons.exportData(config.exportOptions);
+    // var info = dt.buttons.exportInfo(config);
+    var rows = [];
+    if (config.header) {
+      rows.push($.map(data.header, function(d) {
+        return {
+          text: typeof d === 'string' ? d : d + '',
+          style: 'tableHeader'
+        };
+      }));
+    }
+    for (var i = 0, ien = data.body.length; i < ien; i++) {
+      rows.push($.map(data.body[i], function(d) {
+        var color_style = '#000000';
+        if (table_title === 'Missense predictions'){
+          if (d === 'Damaging' || d === 'Probably Damaging') {color_style = '#FF0000'}
+          else if (d === 'Possibly damaging') {color_style = '#FF6020'}
+          else if (d === 'Tolerated' || d === 'Neutral' || d === 'Benign') {color_style = '#00A020'}
+        }
+        else if (table_title === 'dbscSNV and SpliceAI'){
+          // we need to split str to get actual spliceAI values
+          var split_str = d.split(" ");
+          if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) < 0.2) {color_style = '#00A020'}
+          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.8) {color_style = '#FF0000'}
+          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.5) {color_style = '#FF6020'}
+          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.2) {color_style = '#FFA020'}
+        }
+        else if (table_title === 'Positions'){
+          // we need to split str to get actual metadome values
+          var split_str = d.split(/[:-]+/);
+          if (split_str[1] === '  	 		highly intolerant 	  ') {color_style = '#D7191C'}
+          else if (split_str[1] === '  	 		intolerant 	  ') {color_style = '#FF0000'}
+          else if (split_str[1] === '  	 		slightly intolerant 	  ') {color_style = '#00CCBC'}
+          else if (split_str[1] === '  	 		neutral 	  ') {color_style = '#F9D057'}
+          else if (split_str[1] === '  	 		slightly tolerant  	  ') {color_style = '#00CCBC'}
+          else if (split_str[1] === '  	 		tolerant 	  ') {color_style = '#2E64FE'}
+          else if (split_str[1] === '  	 		highly tolerant 	  ') {color_style = '#0404B4'}
+        }
+        else if (table_title === 'Population frequencies and databases') {
+          var re = /Pathogenic/;
+          if (re.test(d)) {color_style = '#FF0000'}
+          re = /Benign/;
+          if (re.test(d)) {color_style = '#00A020'}
+          re = /Likely[\s_]pathogenic/;
+          if (re.test(d)) {color_style = '#FF6020'}
+          re = /Likely[\s_]benign/;
+          if (re.test(d)) {color_style = '#0000A0'}
+        }
+        else if (table_title === 'Overall predictions'){
+          if (d === 'High missense' || d === 'Clinvar pathogenic' || d === 'High splice' || d === 'nonsense' || d === 'frameshift') {color_style = '#FF0000'}
+          if (d === 'Moderate missense' || d === 'Moderate splice') {color_style = '#FF6020'}
+          if (d === 'Low missense' || d === 'Low splice' || d ==='Splice indel') {color_style = '#FFA020'}
+        }
+        else if (table_title === 'Classification history') {
+          var split_str = d.split(" ");
+          if (split_str[1] === '5') {color_style = '#FF0000'}
+          else if (split_str[1] === '4') {color_style = '#FF6020'}
+          else if (split_str[1] === '3') {color_style = '#969696'}
+          else if (split_str[1] === '2') {color_style = '#0000A0'}
+          else if (split_str[1] === '1') {color_style = '#00A020'}
+        }
+        return {
+          text: typeof d === 'string' ? d : d + '',
+          style: i % 2 ? 'tableBodyEven'  : 'tableBodyOdd',
+          color: color_style
+        };
+      }));
+    }
+    if (config.footer && data.footer) {
+      rows.push($.map(data.footer, function(d) {
+        return {
+          text: typeof d === 'string' ? d : d + '',
+          style: 'tableFooter'
+        };
+      }));
+    }
+    // return rows;
+    doc['content'].push(
+      " ",
+      {text: table_title, style: table_title_style, tocItem: true},
+      " ", {
+        table: {
+          headerRows: 1,
+          body: rows
+        },
+        layout: 'noBorders'
+      }
+    );
+    return doc;
+  }
+  function addZero(i) {
+    if (i < 10) {
+      i = "0" + i;
+    }
+    return i;
+  }
+  function formatDate() {
+    var d = new Date();
+    //var x = document.getElementById("demo");
+    var h = addZero(d.getHours());
+    var m = addZero(d.getMinutes());
+    var s = addZero(d.getSeconds());
+    var js_date = "MobiDetails accessed " + d.toLocaleDateString();
+    var js_time = " - " + h + ":" + m + ":" + s;
+    return js_date + js_time;// + "-" h + ":" + m + ":" + s;
+  }
+
+	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
+  // uses pdfMake https://pdfmake.github.io/docs
+  // http://pdfmake.org/#/gettingstarted
+	// export multiple tables in one single pdf
+
+	$('#ExportPdf').click(function() {
 		var config = {
   			className: "buttons-pdf buttons-html5",
   			customize: null,
@@ -475,162 +555,40 @@ $(document).ready(function() {
   			namespace: ".dt-button-2",
   			orientation: "portrait",
   			pageSize: "A4",
-  			title: "*"
+  			title: "*",
+        author:"MobiDetails",
 		};
-		var tables = ["nomenclature_table", "position_table", "population_table",  "prediction_table"];
-		if ($('#splicing_table').length > 0) {
-			  tables.push("splicing_table");
-        tables.push("spip_summary");
-        tables.push("spip_full");
-		}
-		tables.push("maxent5ss_table");
-		tables.push("maxent3ss_table");
-		if ($('#missense_table').length > 0) {
-		    tables.push("missense_table");
-		}
-    else if ($('#dbmts_table').length > 0) {
-		    tables.push("dbmts_table");
-		}
-		tables.push("class_table");
-		tables.push("admin_table");
-		tables.push("resource_table");
-		// var tables = ["nomenclature_table", "position_table", "population_table", "splicing_table", "missense_table", "prediction_table", "admin_table"];
-		var tablesConverted = {};
-		for (var k = 0; k < tables.length; k++) {
-  			var dt = $('#' + tables[k]).DataTable();
-  			var data = dt.buttons.exportData(config.exportOptions);
-  			var info = dt.buttons.exportInfo(config);
-  			// alert(tables[k]);
-  			var rows = [];
-  			if (config.header) {
-    				rows.push($.map(data.header, function(d) {
-      					return {
-        						text: typeof d === 'string' ? d : d + '',
-        						style: 'tableHeader'
-      					};
-    				}));
-  			}
-  			for (var i = 0, ien = data.body.length; i < ien; i++) {
-    				rows.push($.map(data.body[i], function(d) {
-      					return {
-        						text: typeof d === 'string' ? d : d + '',
-        						style: i % 2 ? 'tableBodyEven' : 'tableBodyOdd'
-      					};
-    				}));
-  			}
-  			if (config.footer && data.footer) {
-    				rows.push($.map(data.footer, function(d) {
-      					return {
-        						text: typeof d === 'string' ? d : d + '',
-        						style: 'tableFooter'
-      					};
-    				}));
-  			}
-  			tablesConverted[tables[k]] = rows;
-    }
 
 
-		var doc = {
+    var doc = {
 			pageSize: config.pageSize,
 			pageOrientation: config.orientation,
+      footer: function(currentPage, pageCount) {
+        return {
+          margin:10,
+          alignment: 'right',
+          text: currentPage.toString() + ' of ' + pageCount
+        }
+      },
+      header: function() {
+        return {
+          margin:10,
+          alignment: 'right',
+          text: formatDate()
+        }
+      },
 			content: [
-				"Data for " + tables[0],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[0]]
-					},
-					layout: 'noBorders'
-				},
-				" ",
-				"Data for " + tables[1],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[1]]
-					},
-					layout: 'noBorders'
-				},
-				" ",
-				"Data for " + tables[2],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[2]]
-					},
-					layout: 'noBorders'
-				},
-				" ",
-				"Data for " + tables[3],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[3]]
-					},
-					layout: 'noBorders'
-				},
-				" ",
-				"Data for " + tables[4],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[4]]
-					},
-					layout: 'noBorders'
-				},
-				" ",
-				"Data for " + tables[5],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[5]]
-					},
-					layout: 'noBorders'
-				},
-				"Data for " + tables[6],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[6]]
-					},
-					layout: 'noBorders'
-				},
-                "Data for " + tables[7],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[7]]
-					},
-					layout: 'noBorders'
-				},
-                "Data for " + tables[8],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[8]]
-					},
-					layout: 'noBorders'
-				},
-			//images: [],
-			//	" ",
-			//	"Data for " + tables[5],
-			//	" ", {
-			//		table: {
-			//			headerRows: 1,
-			//			body: tablesConverted[tables[5]]
-			//		},
-			//		layout: 'noBorders'
-			//	},
-			//	" ",
-			//	"Data for " + tables[6],
-			//	" ", {
-			//		table: {
-			//			headerRows: 1,
-			//			body: tablesConverted[tables[6]]
-			//		},
-			//		layout: 'noBorders'
-			//	},
-			],
+        " ",
+        " ",
+        {
+          toc: {
+            title: {text: "Table of Content", style: 'table_title'},
+          }
+        },
+        " ",
+        " ",
+        {text: "Click on a page number to get to the corresponding page (i.e. page numbers are clickable ;) ).", pageBreak: "after"}
+      ],
 			styles: {
 				tableHeader: {
 					bold: true,
@@ -643,6 +601,9 @@ $(document).ready(function() {
 				tableBodyOdd: {
 					fillColor: '#f3f3f3'
 				},
+        damaging: {
+          color: '#ff0000'
+        },
 				tableFooter: {
 					bold: true,
 					fontSize: 11,
@@ -651,115 +612,128 @@ $(document).ready(function() {
 				},
 				title: {
 					alignment: 'center',
-					fontSize: 15
+					fontSize: 14
 				},
-				message: {}
+        table_title: {
+          fontSize: 12,
+          bold: true,
+        },
+        table_subtitle: {
+          fontSize: 12,
+          italics: true,
+        },
+				message: {},
 			},
 			defaultStyle: {
-				fontSize: 10
+				fontSize: 9
 			}
 		};
-		if ($('#splicing_table').length > 0) {
-			doc['content'].push(
-				" ",
-				"Data for " + tables[9],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[9]]
-					},
-					layout: 'noBorders'
-				}
-			);
-            doc['content'].push(
-				" ",
-				"Data for " + tables[10],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[10]]
-					},
-					layout: 'noBorders'
-				}
-			);
-            doc['content'].push(
-				" ",
-				"Data for " + tables[11],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[11]]
-					},
-					layout: 'noBorders'
-				}
-			);
-		}
-		if ($('#missense_table').length > 0 || $('#dbmts_table').length > 0) {
-			doc['content'].push(
-				" ",
-				"Data for " + tables[12],
-				" ", {
-					table: {
-						headerRows: 1,
-						body: tablesConverted[tables[12]]
-					},
-					layout: 'noBorders'
-				}
-			);
-		}
-		function addZero(i) {
-			if (i < 10) {
-				i = "0" + i;
-			}
-			return i;
-		}
-		function formatDate() {
-			var d = new Date();
-			//var x = document.getElementById("demo");
-			var h = addZero(d.getHours());
-			var m = addZero(d.getMinutes());
-			var s = addZero(d.getSeconds());
-			var js_date = "MobiDetails accessed " + d.toLocaleDateString();
-			var js_time = " - " + h + ":" + m + ":" + s;
-			return js_date + js_time;// + "-" h + ":" + m + ":" + s;
-		}
+    if ($("#nomenclature_table").length) {
+      var dt = $('#nomenclature_table').DataTable();
+      var info = dt.buttons.exportInfo(config);
+      doc = convert_dt(config, "nomenclature_table", "Nomenclatures", "table_title", doc);
+    }
+    if ($("#position_table").length) {
+      doc = convert_dt(config, "position_table", "Positions", "table_title", doc);
+    }
+    if ($("#population_table").length) {
+      doc = convert_dt(config, "population_table", "Population frequencies and databases", "table_title", doc);
+    }
+    if ($("#prediction_table").length) {
+      doc = convert_dt(config, "prediction_table", "Overall predictions", "table_title", doc);
+    }
+    if ($("#prediction_table_").length) {
+      doc = convert_dt(config, "prediction_table", "Positions", "table_title", doc);
+    }
+    if ($('#segment_drawing').length) {
+      var segment_image = document.querySelector('#segment_drawing').toDataURL();
+      doc['content'].push(
+        " ",
+        {text: "Splicing context and predictions", style: "table_title", tocItem: true},
+        " ",
+        {image: segment_image, width: 350, alignment: 'center'}
+      );
+    }
+    if ($('#maxent5ss_table').length) {
+      doc = convert_dt(config, "maxent5ss_table", "MaxEntScan 5'ss", "table_subtitle", doc);
+    }
+    if ($('#maxent3ss_table').length) {
+      doc = convert_dt(config, "maxent3ss_table", "MaxEntScan 3'ss", "table_subtitle", doc);
+    }
+    if ($('#spip_summary').length) {
+      doc = convert_dt(config, "spip_summary", "SPiP summary", "table_subtitle", doc);
+    }
+    if ($('#spip_full').length) {
+      doc = convert_dt(config, "spip_full", "Full SPiP results", "table_subtitle", doc);
+    }
+    if ($('#splicing_radar').width() > 0) {
+      // attempt to transform radars into pdf
+      var splicing_radar_image = document.querySelector('#splicing_radar').toDataURL();
+      doc['content'].push(
+        " ",
+        {text: "Splicing radar:", style: "table_subtitle"},
+        {image: splicing_radar_image, width: 350, alignment: 'center'}
+      );
+    }
+    if ($('#splicing_table').length) {
+      doc = convert_dt(config, "splicing_table", "dbscSNV and SpliceAI", "table_subtitle", doc);
+    }
+    if ($('#missense_table').length) {
+      doc['content'].push(
+        " ",
+        {text: "Missense predictions", style: "table_title"},
+        " ",
+      );
+      if ($('#missense_radar').width() > 0) {
+        // attempt to transform radars into pdf
+        var missense_radar_image = document.querySelector('#missense_radar').toDataURL();
+        doc['content'].push(
+          " ",
+          {text: "Missense radar", style: "table_subtitle", tocItem: true},
+          {image: missense_radar_image, width: 350, alignment: 'center'}
+        );
+      }
+      doc = convert_dt(config, "missense_table", "Missense predictions", "table_subtitle", doc);
+    }
+    if ($('#dbmts_table').length) {
+      doc = convert_dt(config, "dbmts_table", "dbMTS results", "table_title", doc);
+    }
+    if ($('#class_table').length) {
+      doc = convert_dt(config, "class_table", "Classification history", "table_title", doc);
+    }
+    // pubmed
+    if ($('#hidden_pubmed_results').length > 0) {
+      const articles = $('#hidden_pubmed_results').text().split(';');
+
+      doc['content'].push(
+        " ",
+        {text: "Pubmed citations", style: "table_title", tocItem: true},
+        " ",
+        {
+          ul: articles,
+          pageBreak: 'after'
+        }
+      );
+    }
+    else {
+      doc['content'].push(
+        " ",
+        {text: "Pubmed citations", style: "table_title"},
+        " ",
+        {text: "No Pubmed citations found using LitVar"}
+      );
+    }
+    if ($('#admin_table').length) {
+      doc = convert_dt(config, "admin_table", "Administrative data", "table_title", doc);
+    }
+    if ($('#resource_table').length) {
+      doc = convert_dt(config, "resource_table", "Tools and versions", "table_title", doc);
+    }
+
 
 		//get formatted date to report access time
-		info.messageTop = formatDate();
-
-		//if ($('#missense_radar').length) {
-		////	//attempt to transform chart.js canvas into pdf
-		////	info.messageBottom = document.getElementById('missense_radar').toDataURL();
-		//	var canvas = document.querySelector('#missense_radar');
-		//	//doc.content.push({
-		//	//	image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
-		//	//});
-		//	//creates image
-		//	//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
-		//	//creates PDF from img
-		//	//var doc_chart = new jsPDF('landscape');
-		//	//doc.setFontSize(20);
-		//	//doc.text(15, 15, "Cool Chart");
-		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
-		//	//info.radarImg = canvasImg
-		//}
-//        if ($('#segment_drawing').length) {
-////			//attempt to transform exon/intron canvas into pdf
-//            //info.messageBottom = $('#segment_drawing').toDataURL();
-//			var canvas = document.querySelector('#segment_drawing');
-//			doc.content.push({
-//				image:'data:image/jpeg;base64,' + canvas.toDataURL("image/jpeg", 1.0)
-//			});
-////		//	//creates image
-////		//	//var canvasImg = canvas.toDataURL("image/jpeg", 1.0);
-////		//	//creates PDF from img
-////		//	//var doc_chart = new jsPDF('landscape');
-////		//	//doc.setFontSize(20);
-////		//	//doc.text(15, 15, "Cool Chart");
-////		//	//doc_chart.addImage(canvasImg, 'JPEG', 10, 10, 280, 150 );
-////		//	//info.radarImg = canvasImg
-//		}
-
+		// info.messageTop = formatDate();
+    // optional places for additional data
 		if (info.messageTop) {
 			doc.content.unshift({
 				text: info.messageTop,
@@ -767,14 +741,7 @@ $(document).ready(function() {
 				margin: [0, 0, 0, 12]
 			});
 		}
-		//if (info.radarImg) {
-		//	doc.content.push({
-		//		image:'data:image/jpeg;base64,' + info.radarImg
-		//	});
-		//	//doc.images.push({
-		//	//	radarImg: 'data:image/jpeg;base64,' + info.radarImg
-		//	//});
-		//}
+
 		if (info.messageBottom) {
 			doc.content.push({
 				text: info.messageBottom,
@@ -794,6 +761,8 @@ $(document).ready(function() {
 		if (config.customize) {
 			config.customize(doc, config);
 		}
+
+    // console.log(doc.content )
 		pdfMake.createPdf(doc).download($('#nm_var').text() + '.pdf');
 		//'{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}_{{ variant_features.c_name }}.pdf'
 	});

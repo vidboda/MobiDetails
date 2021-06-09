@@ -20,7 +20,9 @@
 					{% endif %}
 				{% endfor %}
 			</ul>
-		<br><br></div>
+			<br /><br />
+			<div id = "hidden_pubmed_results" style="display:none;">{% for pubmedid in pmids|sort %}{% if pmids[pubmedid]['title'] %}{{ pmids[pubmedid]['author'] }} et al., {{ pmids[pubmedid]['year'] }} ({{ pmids[pubmedid]['journal'] }}) : {{ pmids[pubmedid]['title'] }};{% else %}{{ pubmedid }}{% endif %}{% endfor %}</div>
+		</div>
 	</div>
 </div>
 {#{{ modal_js('pubmed') }}#}
