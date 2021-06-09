@@ -328,7 +328,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'substitutionNature': None,
         },
         'canvas': {
-            'posExonCanvas': None,
             'segmentSize': None,
             'preceedingSegmentType': None,
             'preceedingSegmentNumber': None,
@@ -401,7 +400,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
     variant_features = curs.fetchone()
     if variant_features is not None:
 
-        # length of c_name for priting on screen
+        # length of c_name for printing on screen
         var_cname = variant_features['c_name']
         if len(var_cname) > 30:
             match_obj = re.search(r'(.+ins)[ATGC]+$', var_cname)
@@ -418,7 +417,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['sequences']['mutant'] = variant_features['mt_seq']
 
         # for HTML webpages
-        internal_data['nomenclatures']['cName'] = variant_features['c_name']
+        internal_data['nomenclatures']['cName'] = var_cname
         internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
 
@@ -1126,12 +1125,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         )
     if caller == 'cli':
         # we run spip here
-        data = {
-            'gene_symbol': external_data['gene']['symbol'],
-            'nm_acc': external_data['gene']['RefSeqTranscript'],
-            'c_name': external_data['nomenclatures']['cName'],
-            'caller': 'cli'
-        }
         result_spip = md_utilities.run_spip(
             external_data['gene']['symbol'],
             external_data['gene']['RefSeqTranscript'],
