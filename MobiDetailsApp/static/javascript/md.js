@@ -133,7 +133,7 @@ function favourite(vf_id, fav_url, csrf_token) {
 			}
 			else {
 				//$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + encodeURIComponent($("#md_variant_url_" + vf_id).text()) + '\')" title="Visit the variant page"><span><em>' + encodeURIComponent($("#gene_" + vf_id).text()) + '</em>:c.' + encodeURIComponent($("#c_name_" + vf_id).text()) + ' - p.(' + encodeURIComponent($("#p_name_" + vf_id).text()) + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
-				// returns https://lgtm.com/rules/1511866576920/ in LGTM in not encoded
+				// returns https://lgtm.com/rules/1511866576920/ in LGTM if not encoded
 				$('#favourite_ul').append('<li id="favourite_li_' + encodeURIComponent(vf_id) + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + $("#md_variant_url_" + encodeURIComponent(vf_id)).text() + '\')" title="Visit the variant page"><span><em>' + $("#gene_" + encodeURIComponent(vf_id)).text() + '</em>:c.' + $("#c_name_" + encodeURIComponent(vf_id)).text() + ' - p.(' + $("#p_name_" + encodeURIComponent(vf_id)).text() + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
 				$('#favourite_vars').show();
 				$('#variant_list').show();
