@@ -672,6 +672,7 @@ $(document).ready(function() {
       doc['content'].push(
         " ",
         {text: "Splicing radar:", style: "table_subtitle"},
+        "Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.",
         {image: splicing_radar_image, width: 350, alignment: 'center'}
       );
     }
@@ -690,6 +691,7 @@ $(document).ready(function() {
         doc['content'].push(
           " ",
           {text: "Missense radar", style: "table_subtitle", tocItem: true},
+          "Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.",
           {image: missense_radar_image, width: 350, alignment: 'center'}
         );
       }
