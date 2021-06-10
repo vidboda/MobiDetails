@@ -450,10 +450,17 @@ $(document).ready(function() {
         else if (table_title === 'dbscSNV and SpliceAI'){
           // we need to split str to get actual spliceAI values
           var split_str = d.split(" ");
-          if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) < 0.2) {color_style = '#00A020'}
-          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.8) {color_style = '#FF0000'}
-          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.5) {color_style = '#FF6020'}
-          else if (parseFloat(split_str[0]) !== NaN && parseFloat(split_str[0]) > 0.2) {color_style = '#FFA020'}
+          var totest = parseFloat(split_str[0]);
+          if (!isNaN(totest)) {
+            if (totest < 0.2) {color_style = '#00A020'}
+            else if (totest > 0.8) {color_style = '#FF0000'}
+            else if (totest > 0.5) {color_style = '#FF6020'}
+            else if (totest > 0.2) {color_style = '#FFA020'}
+          }
+          // if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) < 0.2) {color_style = '#00A020'}
+          // else if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) > 0.8) {color_style = '#FF0000'}
+          // else if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) > 0.5) {color_style = '#FF6020'}
+          // else if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) > 0.2) {color_style = '#FFA020'}
         }
         else if (table_title === 'Positions'){
           // we need to split str to get actual metadome values
