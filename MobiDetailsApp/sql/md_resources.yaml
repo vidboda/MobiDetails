@@ -90,6 +90,7 @@
   'fathmm': 'http://fathmm.biocompute.org.uk/'
   'gnomad': 'http://gnomad.broadinstitute.org/'
   'hexosplice': 'http://bioinfo.univ-rouen.fr/HExoSplice/'
+  'hgnc_gene': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:'
   'hgvs': 'http://varnomen.hgvs.org/'
   'intervar': 'http://wintervar.wglab.org/results.pos.php?queryType=position&build='
   'intervar_api': 'http://wintervar.wglab.org/api_new.php?queryType=position&build='

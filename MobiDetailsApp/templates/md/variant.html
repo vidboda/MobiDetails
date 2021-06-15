@@ -111,8 +111,13 @@
 					</tr>
 				</thead>
 				<tbody>
+					<!--HGNC gene symbol-->
+					<tr>
+						<td class="w3-left-align">HGNC gene symbol (ID):</td>
+						<td class="w3-left-align" id="hgnc_symbol"><a href="{{ urls.hgnc_gene }}{{ external_data.gene.hgncId }}" target="_blank" title="open HGNC page for {{ external_data.gene.symbol }}"><span id="gene_name"><em>{{ external_data.gene.symbol }}</em></span><span>&nbsp;({{ external_data.gene.hgncId }})</span></td>
+						<td class="w3-left-align"><em class="w3-small">HGNC gene symbol and corresponding ID</em></td>
+					</tr>
 					<!--HGVS DNA on transcript-->
-					<span style="display:none;" id="gene_name">{{ external_data.gene.symbol }}</span>
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
 						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span>.{{ external_data.gene.nmVersion }}</a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
