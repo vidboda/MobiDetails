@@ -1543,9 +1543,10 @@ in md_utilities create_var_vv</p>'.format(vv_key_var)
         # return seq2
         if res_strand['strand'] == '-':
             seq_slice = reverse_complement(seq_slice).upper()
-        begin = seq_slice[:25]
-        middle = seq_slice[25:len(seq_slice)-25]
-        end = seq_slice[-25:]
+        marker = 25 if vf_d['dna_type'] != 'insertion' else 26
+        begin = seq_slice[:marker]
+        middle = seq_slice[marker:len(seq_slice)-marker]
+        end = seq_slice[-marker:]
         # substitutions
         if vf_d['dna_type'] == 'substitution':
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
