@@ -199,8 +199,10 @@ def intervar():
         )
         # print(intervar_url)
         try:
+            intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
+            # urllib3.disable_warnings()
             intervar_data = [
-                json.loads(http.request(
+                json.loads(intervar_http.request(
                     'GET',
                     intervar_url).data.decode('utf-8')
                 )
