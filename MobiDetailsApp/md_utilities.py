@@ -2129,7 +2129,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
     if result.returncode == 0:
         tfout.seek(0)
         result_file = str(tfout.read(), 'utf-8')
-        # print(result_file)
+        # print('SPiP: {}'.format(result_file))
         return result_file
     else:
         return 'There has been an error while processing SPiP'

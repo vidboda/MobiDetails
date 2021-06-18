@@ -407,3 +407,20 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     print(response.status_code)
     assert return_value in response.get_data()
     assert http_code == response.status_code
+
+
+@pytest.mark.parametrize(('variant', 'transcript', 'return_value'), (
+    ('chr1-216247118-C-A', 'NM_206933', b'(-419)'),
+    ('chr17-43095795-TCTACCCACTCTCTTTTCAGTGCCTGTTAAGTTGGC-T', 'NM_007294', b'(127)'),
+    ('chr17-43104962-A-C', 'NM_007294', b'(-94)'),
+    ('chr1-216415508-CTTTTTTT-C', 'NM_206933', b'(-362)'),
+    ('chr1-216247056-A-AGGTGTC', 'NM_206933', b'(-471)'),
+    ('chr1-215625755-G-GCAT', 'NM_206933', b'(-324)')
+))
+def test_spliceai_lookup(client, variant, transcript, return_value):
+    assert client.get('/spliceai_lookup').status_code == 405
+    data_dict = dict(variant=variant, transcript=transcript)
+    response = client.post('/spliceai_lookup', data=data_dict)
+    print(response.get_data)
+    print(response.status_code)
+    assert return_value in response.get_data()

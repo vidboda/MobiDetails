@@ -1471,14 +1471,18 @@ def autocomplete_var():
 def is_panelapp_entity():
     if 'gene_symbol' in request.form:
         gene_symbol = request.form['gene_symbol']
-        panelapp = json.loads(
-                        http.request(
-                            'GET',
-                            '{0}genes/{1}/'.format(
-                                md_utilities.urls['panelapp_api'],
-                                gene_symbol)
-                        ).data.decode('utf-8')
-                    )
+        try:
+            panelapp = json.loads(
+                            http.request(
+                                'GET',
+                                '{0}genes/{1}/'.format(
+                                    md_utilities.urls['panelapp_api'],
+                                    gene_symbol)
+                            ).data.decode('utf-8')
+                        )
+        except Exception:
+            return '<span class="w3-padding">Unable to \
+    perform the PanelApp query</span>'
         # panelapp = None
         md_utilities.urls['panel_app'] = None
         if panelapp is not None and \
@@ -1523,3 +1527,47 @@ def spip():
         return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'
+
+# -------------------------------------------------------------------
+# web app - ajax to run spliceAI500
+
+
+@bp.route('/spliceai_lookup', methods=['POST'])
+def spliceai_lookup():
+    if 'variant' in request.form and \
+            'transcript' in request.form:
+        variant = request.form['variant']
+        transcript = request.form['transcript']
+        try:
+            spliceai500 = json.loads(
+                            http.request(
+                                'GET',
+                                '{0}{1}'.format(
+                                    md_utilities.urls['spliceai_api'],
+                                    variant)
+                            ).data.decode('utf-8')
+                        )
+        except Exception:
+            return '<span class="w3-padding">Unable to \
+     run spliceAI lookup API</span>'
+        if spliceai500 and \
+                spliceai500['variant'] == variant:
+            # print(spliceai500)
+            for score in spliceai500['scores']:
+                if re.search(rf'{transcript}', score):
+                    spliceai_score = re.split(r'\|', score)
+                    # AG AL DG DL
+                    return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                        spliceai_score[1],
+                        spliceai_score[5],
+                        spliceai_score[2],
+                        spliceai_score[6],
+                        spliceai_score[3],
+                        spliceai_score[7],
+                        spliceai_score[4],
+                        spliceai_score[8]
+                    )
+            return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'
+    else:
+        return '<span class="w3-padding">Unable to \
+run spliceAI lookup API (wrong parameter)</span>'

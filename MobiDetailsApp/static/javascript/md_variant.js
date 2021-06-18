@@ -114,16 +114,16 @@ function intervar(intervar_url, csrf_token) {
 		})
 		.done(function(html) {
 			$("#intervar_data").replaceWith(html);
-            $('#population_table').DataTable().destroy();
-            datatable = $('#population_table').DataTable({
-                responsive: true,
-                dom: 't',
-                "order": [],
-                //scrollY: 600,
-                buttons: [
-                        'copy', 'excel', 'pdf'
-                ]
-            });
+      $('#population_table').DataTable().destroy();
+      datatable = $('#population_table').DataTable({
+          responsive: true,
+          dom: 't',
+          "order": [],
+          //scrollY: 600,
+          buttons: [
+            'copy', 'excel', 'pdf'
+          ]
+      });
 		});
 	}
 }
@@ -282,11 +282,11 @@ function send_var_message(url, csrf_token) {
 function run_spip(url, csrf_token) {
 	// send header for flask-wtf crsf security
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
         }
+      }
     });
 	$.ajax({
 		type: "POST",
@@ -298,20 +298,86 @@ function run_spip(url, csrf_token) {
 	.done(function(spip_result) {
 		$("#spip").html(spip_result);
     datatable = $('#spip_summary').DataTable({
-        responsive: true,
-        dom: 't',
-        "order": [],
-        buttons: [
-               'copy', 'excel', 'pdf'
-        ]
+      responsive: true,
+      dom: 't',
+      "order": [],
+      buttons: [
+             'copy', 'excel', 'pdf'
+      ]
     });
     datatable = $('#spip_full').DataTable({
-        responsive: true,
-        dom: 't',
-        "pageLength": 25,
-        "order": []
+      responsive: true,
+      dom: 't',
+      "pageLength": 25,
+      "order": []
     });
 	});
+}
+
+function spliceai_lookup(spliceai_lookup_url, csrf_token) {
+	// ajax for spliceai lookup
+
+	// send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: spliceai_lookup_url,
+		data: {
+			variant: "chr" + $('#chrom_38').text() + "-" + $('#pos_38').text() + "-" + $('#ref_38').text() + "-" + $('#alt_38').text(), transcript: $('#nm_acc').text()
+		}
+	})
+	.done(function(spliceai_result) {
+    var re = /spliceAI lookup API/;
+    if (!re.test(spliceai_result)) {
+      spliceai_split = spliceai_result.split(';')
+  		$("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
+      $("#spliceai_lookup_al").html(spliceai_lookup_html(spliceai_split[1]));
+      $("#spliceai_lookup_dg").html(spliceai_lookup_html(spliceai_split[2]));
+      $("#spliceai_lookup_dl").html(spliceai_lookup_html(spliceai_split[3]));
+      $("#spliceai_lookup_ag_tr").show();
+      $("#spliceai_lookup_al_tr").show();
+      $("#spliceai_lookup_dg_tr").show();
+      $("#spliceai_lookup_dl_tr").show();
+    }
+    else {
+      $("#spliceai_lookup_ag").html(spliceai_result);
+      $("#spliceai_lookup_ag_tr").show();
+    }
+    if ($.fn.DataTable.isDataTable('#splicing_table')) {
+      $('#splicing_table').DataTable().destroy();
+    }
+    datatable = $('#splicing_table').DataTable({
+      responsive: true,
+      dom: 't',
+      "order": [],
+      //scrollY: 600,
+      buttons: [
+        'copy', 'excel', 'pdf'
+      ]
+    });
+    $('#splicing_table').show();
+    $("#spliceai_lookup_button").hide();
+    $('html').css('cursor', 'default');
+	});
+}
+
+function spliceai_lookup_html(spliceai_str) {
+  var split_str = spliceai_str.split(" ");
+  var totest = parseFloat(split_str[0]);
+  if (!isNaN(totest)) {
+    if (totest < 0.2) {color_style = '#00A020'}
+    else if (totest > 0.8) {color_style = '#FF0000'}
+    else if (totest > 0.5) {color_style = '#FF6020'}
+    else if (totest > 0.2) {color_style = '#FFA020'}
+    return '<span style="color:' + color_style + ';">' + split_str[0] + '</span>&nbsp;<span>' + split_str[1]+ '</span>';
+  }
+  return spliceai_str;
 }
 
 function myAccFunc(acc_id, icon_id) {
@@ -358,61 +424,66 @@ function myAccFunc(acc_id, icon_id) {
 
 // https://www.chartjs.org/docs/latest/general/responsive.html#important-note
 function beforePrintHandler () {
-    for (var id in Chart.instances) {
-        Chart.instances[id].resize();
-    }
+  for (var id in Chart.instances) {
+    Chart.instances[id].resize();
+  }
 }
 
 
 $(document).ready(function() {
-    $('#third_br').remove();
-  	if ($(window).width() < 600) {
-    		$('#page_menu').remove();
-            $('#second_br').remove();
-            // hide left menu items
-    		myAccFunc('hg19_acc', 'hg19_icon');
-    		myAccFunc('hg38_acc', 'hg38_icon');
-    		$('#smart_menu').hide();
-    		$('#openNav').css('visibility', 'visible');
-    		$('#global_content').animate({marginLeft: '0%'});
-    		$('#mobile_var_name').show();
-    		$('#defgen_hg19').remove();
-    		$('#defgen_hg38').remove();
-
-  	}
-    else if ($(window).width() < 900) {
+  $('#third_br').remove();
+  if ($(window).width() < 600) {
+  	$('#page_menu').remove();
         $('#second_br').remove();
-        $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
-        $('#global_content').animate({marginLeft: '25%'});
-  		  $('#smart_menu').width('25%');
-    }
-    else if($(window).width() < 1300) {
-        $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
-      	$('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
-        if ($('#login_name').length) {$('#login_name').remove();}
-    }
+        // hide left menu items
+  	myAccFunc('hg19_acc', 'hg19_icon');
+  	myAccFunc('hg38_acc', 'hg38_icon');
+  	$('#smart_menu').hide();
+  	$('#openNav').css('visibility', 'visible');
+  	$('#global_content').animate({marginLeft: '0%'});
+  	$('#mobile_var_name').show();
+  	$('#defgen_hg19').remove();
+  	$('#defgen_hg38').remove();
+  }
+  else if ($(window).width() < 900) {
+    $('#second_br').remove();
+    $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+    $('#global_content').animate({marginLeft: '25%'});
+  	$('#smart_menu').width('25%');
+  }
+  else if($(window).width() < 1300) {
+    $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').find('button').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
+    $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
+    if ($('#login_name').length) {$('#login_name').remove();}
+  }
 
-    // transform all tables as datatables
+  // transform all tables as datatables
 	$('.w3-table').DataTable({
-  		responsive: true,
-  		dom: 't',
-  		"order": [],
-  		//scrollY: 600,
-  		buttons: [
-  				'copy', 'excel', 'pdf'
-  		]
+  	responsive: true,
+  	dom: 't',
+  	"order": [],
+    "pageLength": 15,
+  	//scrollY: 600,
+  	buttons: [
+  		'copy', 'excel', 'pdf'
+  	]
 	});
+  // deal with dbscSNV/spliceai table which can be empty
+  if (!$('#spliceai_ag_50_tr').length) {
+    $('#splicing_table').hide();
+    $('#splicing_table').DataTable().destroy();
+  }
 
   // check MuPIT for available 3D structure
   // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
   $.ajax({
-	type: "GET",
-	url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
+	  type: "GET",
+	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
 	})
 	.done(function(mupit_results) {
     // alert(mupit_results.hit);
@@ -683,7 +754,7 @@ $(document).ready(function() {
         {image: splicing_radar_image, width: 350, alignment: 'center'}
       );
     }
-    if ($('#splicing_table').length) {
+    if ($.fn.DataTable.isDataTable('#splicing_table')) {
       doc = convert_dt(config, "splicing_table", "dbscSNV and SpliceAI", "table_subtitle", doc);
     }
     if ($('#missense_table').length) {
