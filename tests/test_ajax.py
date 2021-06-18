@@ -415,7 +415,8 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     ('chr17-43104962-A-C', 'NM_007294', b'(-94)'),
     ('chr1-216415508-CTTTTTTT-C', 'NM_206933', b'(-362)'),
     ('chr1-216247056-A-AGGTGTC', 'NM_206933', b'(-471)'),
-    ('chr1-215625755-G-GCAT', 'NM_206933', b'(-324)')
+    ('chr1-215625755-G-GCAT', 'NM_206933', b'(-324)'),
+    ('chr1-215680269-CAG-TTTA', 'NM_206933', b'No results')
 ))
 def test_spliceai_lookup(client, variant, transcript, return_value):
     assert client.get('/spliceai_lookup').status_code == 405

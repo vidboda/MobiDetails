@@ -584,137 +584,139 @@
 			<!-- SPiP -->
 			{{ info('<a href="%s" target="_blank">SPiP</a> results and predictions:' | format(urls.spip)) }}
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
-			<!--dbscSNV / spliceAI-->
-			{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available. Anyway you can run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large indels. ')|format(urls.spliceai_lookup) }}
-			{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
-			<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
-				<thead>
-					<tr>
-						<th class="w3-left-align">Features</th>
-						<th class="w3-left-align" width="40%">Values</th>
-						<th class="w3-left-align">Descriptions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% if external_data.positions.DNAType == 'substitution' %}
-						<tr><!--dbscSNV ADA-->
-							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+			{% if external_data.positions.DNAType != 'indel' and external_data.positions.size > 1 %}
+				<!--dbscSNV / spliceAI-->
+				{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available. Anyway you can run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large indels. ')|format(urls.spliceai_lookup) }}
+				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
+				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align">Descriptions</th>
 						</tr>
-						<tr><!--dbscSNV RF-->
-							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
-						</tr>
-					{% endif %}
-					{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
-						<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
-							<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
+					</thead>
+					<tbody>
+						{% if external_data.positions.DNAType == 'substitution' %}
+							<tr><!--dbscSNV ADA-->
+								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+							</tr>
+							<tr><!--dbscSNV RF-->
+								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
+								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+							</tr>
+						{% endif %}
+						{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
+							<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_dg_50_tr'><!--spliceAI DG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_dl_50_tr'><!--spliceAI DL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+						{% elif internal_data.noMatch.spliceai is not none %}
+							<tr>
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+						{% endif %}
+						<tr id="spliceai_lookup_ag_tr" style="display:none;"><!--spliceAI lookup AG-->
+							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> AG:</td>
+							<td class="w3-left-align" id="spliceai_lookup_ag">SpliceAi 500 was not ran</td>
 							<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
-						<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
-							<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
+						<tr id="spliceai_lookup_al_tr" style="display:none;"><!--spliceAI lookup AL-->
+							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> AL:</td>
+							<td class="w3-left-align" id="spliceai_lookup_al">SpliceAi 500 was not ran</td>
 							<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
-						<tr id='spliceai_dg_50_tr'><!--spliceAI DG-->
-							<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
+						<tr id="spliceai_lookup_dg_tr" style="display:none;"><!--spliceAI lookup DG-->
+							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> DG:</td>
+							<td class="w3-left-align" id="spliceai_lookup_dg">SpliceAi 500 was not ran</td>
 							<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
-						<tr id='spliceai_dl_50_tr'><!--spliceAI DL-->
-							<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
-							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
+						<tr id="spliceai_lookup_dl_tr" style="display:none;"><!--spliceAI lookup DL-->
+							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> DL:</td>
+							<td class="w3-left-align" id="spliceai_lookup_dl">SpliceAi 500 was not ran</td>
 							<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
-					{% elif internal_data.noMatch.spliceai is not none %}
-						<tr>
-							<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a>:</td>
-							<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
-							<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-						</tr>
+					</tbody>
+				</table><br/><br/>
+				<div class="w3-row-padding">
+					{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
+						<!--Splicing radar chart-->
+						<div class="w3-col m4">
+							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+						</div>
 					{% endif %}
-					<tr id="spliceai_lookup_ag_tr" style="display:none;"><!--spliceAI lookup AG-->
-						<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> AG:</td>
-						<td class="w3-left-align" id="spliceai_lookup_ag">SpliceAi 500 was not ran</td>
-						<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-					</tr>
-					<tr id="spliceai_lookup_al_tr" style="display:none;"><!--spliceAI lookup AL-->
-						<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> AL:</td>
-						<td class="w3-left-align" id="spliceai_lookup_al">SpliceAi 500 was not ran</td>
-						<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-					</tr>
-					<tr id="spliceai_lookup_dg_tr" style="display:none;"><!--spliceAI lookup DG-->
-						<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> DG:</td>
-						<td class="w3-left-align" id="spliceai_lookup_dg">SpliceAi 500 was not ran</td>
-						<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-					</tr>
-					<tr id="spliceai_lookup_dl_tr" style="display:none;"><!--spliceAI lookup DL-->
-						<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup">spliceAI lookup (500)</a> DL:</td>
-						<td class="w3-left-align" id="spliceai_lookup_dl">SpliceAi 500 was not ran</td>
-						<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-					</tr>
-				</tbody>
-			</table><br/><br/>
-			<div class="w3-row-padding">
-				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
-					<!--Splicing radar chart-->
-					<div class="w3-col m4">
-						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
+					<!--spliceai lookup button-->
+					<div class="w3-col m4" id="spliceai_lookup_button">
+						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');spliceai_lookup('{{ url_for('ajax.spliceai_lookup') }}', '{{ csrf_token() }}');this.disabled=true;" title="Run spliceAi lookup API with a distance of 500 bp instead of the default 50 bp - may be useful to identify e.g. deep intronic variant which trigger exonisation" style="width:100%">Run spliceAI 500</span>
 					</div>
-				{% endif %}
-				<!--spliceai lookup button-->
-				<div class="w3-col m4" id="spliceai_lookup_button">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');spliceai_lookup('{{ url_for('ajax.spliceai_lookup') }}', '{{ csrf_token() }}');this.disabled=true;" title="Run spliceAi lookup API with a distance of 500 bp instead of the default 50 bp - may be useful to identify e.g. deep intronic variant which trigger exonisation" style="width:100%">Run spliceAI 500</span>
 				</div>
-			</div>
-			{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
-				<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
-					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
-						<header class="w3-container w3-blue">
-							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
-							<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
-							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
-						</header>
-						<div class="w3-container">
-							<div class="chart-container" style="position: relative;">
-								<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
+					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
+						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+							<header class="w3-container w3-blue">
+								<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_splicing_modal').hide();">X</span>
+								<br /><span class="w3-xlarge">Radar view of splicing predictors</span><br />
+								<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+							</header>
+							<div class="w3-container">
+								<div class="chart-container" style="position: relative;">
+									<canvas id="splicing_radar"><p>Radar Chart for splicing predictions</p></canvas>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<script>
-					Chart.defaults.global.defaultFontSize=16;
-					var point_font_size = 16
-					var wi = $(window).width();
-					if (wi < 400) {
-						Chart.defaults.global.defaultFontSize=12;
-						point_font_size = 12;
-					}
-					{% autoescape false %}
-						var myRadarChart = new Chart($("#splicing_radar"), {
-							type: 'radar',
-							data: {
-								//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
-								labels: {{ internal_data.splicingPredictions.splicingRadarLabels }},
-								datasets: [{
-									label:'Splicing predictors',
-									data: {{ internal_data.splicingPredictions.splicingRadarValues }},
-									fill: true,
-									backgroundColor:'rgb(255, 99, 132, 0.2)',
-									borderColor:'rgb(255, 99, 132)',
-									pointBackgroundColor:'rgb(255, 99, 132)',
-									pointBorderColor:'#fff',
-									pointHoverBackgroundColor:'#fff',
-									pointHoverBorderColor:'rgb(255, 99, 132)'
-								}]
-							},
-							options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
-						});
-					{% endautoescape %}
-				</script>
+					<script>
+						Chart.defaults.global.defaultFontSize=16;
+						var point_font_size = 16
+						var wi = $(window).width();
+						if (wi < 400) {
+							Chart.defaults.global.defaultFontSize=12;
+							point_font_size = 12;
+						}
+						{% autoescape false %}
+							var myRadarChart = new Chart($("#splicing_radar"), {
+								type: 'radar',
+								data: {
+									//labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
+									labels: {{ internal_data.splicingPredictions.splicingRadarLabels }},
+									datasets: [{
+										label:'Splicing predictors',
+										data: {{ internal_data.splicingPredictions.splicingRadarValues }},
+										fill: true,
+										backgroundColor:'rgb(255, 99, 132, 0.2)',
+										borderColor:'rgb(255, 99, 132)',
+										pointBackgroundColor:'rgb(255, 99, 132)',
+										pointBorderColor:'#fff',
+										pointHoverBackgroundColor:'#fff',
+										pointHoverBorderColor:'rgb(255, 99, 132)'
+									}]
+								},
+								options:{elements:{line:{tension:0,borderWidth:3}},scale:{pointLabels:{fontSize:point_font_size},ticks:{beginAtZero:true,min:0,max:1,stepSize:0.2}},multiTooltipTemplate : "<%=label%> : <%=value%>",onAnimationComplete: "done"}
+							});
+						{% endautoescape %}
+					</script>
+				{% endif %}
 			{% endif %}
 			{# {% endif %} #}
 		</div>

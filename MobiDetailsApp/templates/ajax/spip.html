@@ -9,7 +9,7 @@
     <tbody>
         <tr>
             <td class="w3-left-align">Interpretation</td>
-            <td class="w3-left-align">{{ spip_results.Interpretation[0] }}</td>
+            <td id="spip_interpretation" class="w3-left-align">{{ spip_results.Interpretation[0] }}</td>
             <td class="w3-left-align">{{ spip_results.Interpretation[1] }}</td>
         </tr>
         <tr>
@@ -19,29 +19,31 @@
         </tr>
     </tbody>
 </table><br />
-<div class="w3-row-padding">
-	<!--Splicing radar chart-->
-	<div class="w3-col m4">
-		<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#spip_full').toggle();" title="Toggle full output of SPiP" style="width:100%">Toggle full SPiP results</span>
-	</div>
-</div>
-<table class="w3-table w3-centered display compact" style="width:90%;display:none;" id="spip_full">
-    <thead>
-        <tr>
-            <th class="w3-left-align">Features</th>
-            <th class="w3-left-align" width="40%">Values</th>
-            <th class="w3-left-align">Descriptions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for feature in spip_results %}
-            {% if feature != 'Interpretation' and feature != 'Confidence' %}
-                <tr>
-                    <td class="w3-left-align">{{ feature }}</td>
-                    <td class="w3-left-align">{{ spip_results[feature][0] }}</td>
-                    <td class="w3-left-align">{{ spip_results[feature][1] }}</td>
-                </tr>
-            {% endif %}
-        {% endfor %}
-    </tbody>
-</table>
+{% if spip_results.Interpretation[0] != 'Not available' %}
+  <div class="w3-row-padding">
+  	<!--Display full spip results button -->
+  	<div class="w3-col m4">
+  		<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#spip_full').toggle();" title="Toggle full output of SPiP" style="width:100%">Toggle full SPiP results</span>
+  	</div>
+  </div>
+  <table class="w3-table w3-centered display compact" style="width:90%;display:none;" id="spip_full">
+      <thead>
+          <tr>
+              <th class="w3-left-align">Features</th>
+              <th class="w3-left-align" width="40%">Values</th>
+              <th class="w3-left-align">Descriptions</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for feature in spip_results %}
+              {% if feature != 'Interpretation' and feature != 'Confidence' %}
+                  <tr>
+                      <td class="w3-left-align">{{ feature }}</td>
+                      <td class="w3-left-align">{{ spip_results[feature][0] }}</td>
+                      <td class="w3-left-align">{{ spip_results[feature][1] }}</td>
+                  </tr>
+              {% endif %}
+          {% endfor %}
+      </tbody>
+  </table>
+{% endif %}

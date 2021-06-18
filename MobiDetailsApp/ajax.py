@@ -1551,7 +1551,8 @@ def spliceai_lookup():
             return '<span class="w3-padding">Unable to \
      run spliceAI lookup API</span>'
         if spliceai500 and \
-                spliceai500['variant'] == variant:
+                spliceai500['variant'] == variant and \
+                'error' not in spliceai500:
             # print(spliceai500)
             for score in spliceai500['scores']:
                 if re.search(rf'{transcript}', score):
@@ -1567,7 +1568,7 @@ def spliceai_lookup():
                         spliceai_score[4],
                         spliceai_score[8]
                     )
-            return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'
+        return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'.format(transcript)
     else:
         return '<span class="w3-padding">Unable to \
 run spliceAI lookup API (wrong parameter)</span>'

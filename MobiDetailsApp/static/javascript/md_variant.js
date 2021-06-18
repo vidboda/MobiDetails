@@ -305,12 +305,14 @@ function run_spip(url, csrf_token) {
              'copy', 'excel', 'pdf'
       ]
     });
-    datatable = $('#spip_full').DataTable({
-      responsive: true,
-      dom: 't',
-      "pageLength": 25,
-      "order": []
-    });
+    if ($('#spip_interpretation').html() !== 'Not available') {
+      datatable = $('#spip_full').DataTable({
+        responsive: true,
+        dom: 't',
+        "pageLength": 25,
+        "order": []
+      });
+    }
 	});
 }
 
