@@ -364,7 +364,8 @@ function spliceai_lookup(spliceai_lookup_url, csrf_token) {
       ]
     });
     $('#splicing_table').show();
-    $("#spliceai_lookup_button").hide();
+    $('#spliceai_lookup_wheel').empty();
+    $('#spliceai_lookup_button').hide();
     $('html').css('cursor', 'default');
 	});
 }
