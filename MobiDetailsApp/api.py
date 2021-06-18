@@ -123,7 +123,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             api_key != ',':
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
-            if caller == 'cli':
+            if caller != 'browser':
                 return jsonify(res_check_api_key)
             else:
                 flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
@@ -1089,14 +1089,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
             # exonic variants not near 3' ss don't require predictions for 3'ss
             scores3wt, seq3wt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)
             scores3mt, seq3mt_html = md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)
-            # signif_scores3 = md_utilities.select_mes_scores(
-            #     re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['wt_seq'], 3)[0]),
-            #     seq3wt_html,
-            #     re.split('\n', md_utilities.maxentscan(23, variant_features['variant_size'], variant_features['mt_seq'], 3)[0]),
-            #     seq3mt_html,
-            #     0.15,
-            #     3
-            # )
             signif_scores3 = md_utilities.select_mes_scores(
                 re.split('\n', scores3wt),
                 seq3wt_html,
@@ -1114,7 +1106,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['splicingPredictions']['mes3'] = signif_scores3
     else:
         close_db()
-        if caller == 'cli':
+        if caller != 'browser':
             return jsonify(mobidetails_error='No such variant ID')
         else:
             return render_template(
@@ -1128,17 +1120,18 @@ def variant(variant_id=None, caller='browser', api_key=None):
         internal_data['overallPredictions']['mpaColor'] = md_utilities.get_preditor_double_threshold_color(
             external_data['overallPredictions']['mpaScore'], 'mpa_mid', 'mpa_max'
         )
-    if caller == 'cli':
-        # we run spip here
-        result_spip = md_utilities.run_spip(
-            external_data['gene']['symbol'],
-            external_data['gene']['RefSeqTranscript'],
-            external_data['nomenclatures']['cName']
-        )
-        if result_spip == 'There has been an error while processing SPiP':
-            external_data['splicingPredictions']['SPiP']['error'] = result_spip
-        else:
-            external_data['splicingPredictions']['SPiP'] = md_utilities.format_spip_result(result_spip, 'cli')
+    if caller != 'browser':
+        if caller == 'clispip':
+            # we run spip here
+            result_spip = md_utilities.run_spip(
+                external_data['gene']['symbol'],
+                external_data['gene']['RefSeqTranscript'],
+                external_data['nomenclatures']['cName']
+            )
+            if result_spip == 'There has been an error while processing SPiP':
+                external_data['splicingPredictions']['SPiP']['error'] = result_spip
+            else:
+                external_data['splicingPredictions']['SPiP'] = md_utilities.format_spip_result(result_spip, 'cli')
         # format json
         return jsonify(external_data)
     else:
