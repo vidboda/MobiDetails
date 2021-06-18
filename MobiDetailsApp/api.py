@@ -358,6 +358,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'distFromExon': None,
             'substitutionNature': None,
             'neighbourExonNumber': None,
+            'insSize': None,
         },
         'missensePredictions': {
             'siftStar': None,
@@ -398,13 +399,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
         (variant_id,)
     )
     variant_features = curs.fetchone()
-    if variant_features is not None:
+    if variant_features:
 
         # length of c_name for printing on screen
         var_cname = variant_features['c_name']
         if len(var_cname) > 30:
             match_obj = re.search(r'(.+ins)[ATGC]+$', var_cname)
-            if match_obj is not None:
+            if match_obj:
                 var_cname = match_obj.group(1)
 
         # fill in dicts
@@ -457,6 +458,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['frequenciesDatabases']['dbSNPrsid'] = 'rs{}'.format(variant_features['dbsnp_id'])
         internal_data['frequenciesDatabases']['dbSNPrsid'] = variant_features['dbsnp_id']
 
+        if variant_features['dna_type'] == 'indel':
+            match_obj = re.search(r'ins([ATGC]+)$', variant_features['c_name'])
+            if match_obj:
+                internal_data['positions']['insSize'] = len(match_obj.group(1))
         # get variant info
         curs.execute(
             "SELECT * FROM variant WHERE feature_id = %s",
