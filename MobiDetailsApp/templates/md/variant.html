@@ -584,7 +584,7 @@
 			<!-- SPiP -->
 			{{ info('<a href="%s" target="_blank">SPiP</a> results and predictions:' | format(urls.spip)) }}
 			<div id="spip">{{ info('MobiDetails is running SPiP... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
-			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize != 'None' and internal_data.positions.insSize < 2) %}
+			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
 				<!--dbscSNV / spliceAI-->
 				{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available. Anyway you can run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large indels. ')|format(urls.spliceai_lookup) }}
 				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
@@ -1215,7 +1215,11 @@
 									<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
 								</td>
 								<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
-								<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
+								{% if external_tools[tool]['paper'] != 'None' %}
+									<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
+								{% else %}
+									<td class="w3-left-align">No paper available yet</td>
+								{% endif %}
 							</tr>
 						{% endfor %}
 					</tbody>

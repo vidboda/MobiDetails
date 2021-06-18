@@ -489,6 +489,12 @@
     'paper': '30661751'
     'version': 'v1.3'
     'short_name': 'spliceai'
+  'spliceAIlookup':
+    'firstauthor': 'None'
+    'year': 'None'
+    'paper': 'None'
+    'version': 'API'
+    'short_name': 'spliceai_lookup'
   'togows':
     'firstauthor': 'Katayama'
     'year': '2010'

@@ -94,7 +94,11 @@
 								<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
 							</td>
 							<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
-							<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
+							{% if external_tools[tool]['paper'] != 'None' %}
+								<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
+							{% else %}
+								<td class="w3-left-align">No paper available yet</td>
+							{% endif %}
 						</tr>
 					{% endfor %}
 				</tbody>
