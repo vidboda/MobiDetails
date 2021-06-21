@@ -262,6 +262,11 @@
     'name': 'Mistic scores'
     'description': 'Pre-computed Mistic scores for all possible human missense variant'
     'short_name': 'mistic'
+  'spip':
+    'rel_path': '/static/resources/SPiP/cache/'
+    'name': 'Cache for SPiP results'
+    'description': 'Storage of SPiP .txt result files'
+    'short_name': 'spip'
   'spliceai_snvs':
     'rel_path': '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'
     'name': 'spliceAI SNVs'

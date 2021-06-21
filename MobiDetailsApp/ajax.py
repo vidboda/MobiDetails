@@ -1512,19 +1512,33 @@ perform the PanelApp query</span>'
 def spip():
     # print(request.form)
     variant_regexp = md_utilities.regexp['variant']
+
     if 'gene_symbol' in request.form and \
             'nm_acc' in request.form and \
             'c_name' in request.form and \
-            re.search(rf'^c\.{variant_regexp}$', request.form['c_name']):
-        gene_symbol = request.form['gene_symbol']
-        nm_acc = request.form['nm_acc']
-        c_name = request.form['c_name']
-        result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name)
-        if result_spip == 'There has been an error while processing SPiP':
-            return result_spip
+            'variant_id' in request.form:
+        match_obj = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
+        if match_obj and \
+            re.search(r'^\d+$', request.form['variant_id']):
+            # re.search(rf'^c\.{variant_regexp}$', request.form['c_name']):
+            gene_symbol = request.form['gene_symbol']
+            nm_acc = request.form['nm_acc']
+            c_name = match_obj.group(1)
+            variant_id = request.form['variant_id']
+            if os.path.exists(
+                    '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)
+                    ):
+                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
+                result_spip = spip_out.read()
+            else:
+                result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
+            if result_spip == 'There has been an error while processing SPiP':
+                return result_spip
 
-        dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
-        return render_template('ajax/spip.html', spip_results=dict_spip)
+            dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
+            return render_template('ajax/spip.html', spip_results=dict_spip)
+        else:
+            return 'received bad parameters c_name or variant_id to run SPiP.'
     else:
         return 'received bad parameters to run SPiP.'
 

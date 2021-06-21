@@ -108,6 +108,9 @@ local_files['metadome']['abs_path'] = '{0}{1}'.format(
 local_files['mistic']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['mistic']['rel_path']
 )
+local_files['spip']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['spip']['rel_path']
+)
 local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_snvs']['rel_path']
 )
@@ -2095,9 +2098,10 @@ def get_acmg_criterion_color(criterion):
         return None
 
 
-def run_spip(gene_symbol, nm_acc, c_name):
+def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     tf = tempfile.NamedTemporaryFile(suffix='.txt')
-    tfout = tempfile.NamedTemporaryFile()
+    # tfout = tempfile.NamedTemporaryFile()
+    # temp file replaced w/ real file to perform caching
     # print(tf.name)
     tf.write(
         bytes('gene\tvarID\n{0}\t{1}:{2}'.format(
@@ -2106,7 +2110,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
     )
     # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
     tf.seek(0)
-    # print(tf.read())
+    # print(tf.read()
 
     result = subprocess.run(
         [
@@ -2115,7 +2119,7 @@ def run_spip(gene_symbol, nm_acc, c_name):
             '-I',
             '{}'.format(tf.name),
             '-O',
-            '{}'.format(tfout.name),
+            '{}'.format('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id)),
             '-f',
             '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
             '-s',
@@ -2127,9 +2131,11 @@ def run_spip(gene_symbol, nm_acc, c_name):
         stderr=subprocess.STDOUT
     )
     if result.returncode == 0:
-        tfout.seek(0)
-        result_file = str(tfout.read(), 'utf-8')
+        # tfout.seek(0)
+        # result_file = str(tfout.read(), 'utf-8')
         # print('SPiP: {}'.format(result_file))
+        spip_out = open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r")
+        result_file = spip_out.read()
         return result_file
     else:
         return 'There has been an error while processing SPiP'

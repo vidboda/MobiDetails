@@ -10,7 +10,10 @@
 	#}
 	<div class="w3-container">
 		{{ info("[2021-06-21] - Minor : \
-			New value for parameter caller for the /api/variant/ endpoint: Setting caller to 'clispip' will now return the full results including SPiP (takes longer), while using 'cli' will return the results without SPiP (faster).") }}
+			<ul>
+				<li>New value for parameter caller for the /api/variant/ endpoint: Setting caller to 'clispip' will now return the full results including SPiP (takes longer), while using 'cli' will return the results without SPiP (faster).</li>
+				<li>SPiP results are now cached to be computed only once and enable a faster access the second (and third....) time.</li>
+			</ul>") }}
 		{{ info("[2021-06-18] - New predictor : \
 			SpliceAi lookup API can be requested with the non-default parameter distance of 500bp for almost all variants (except complex indels). This can be useful to analyse deep intronic variants as well as large dels and dups.") }}
 		{{ info("[2021-06-15] - Minor : \

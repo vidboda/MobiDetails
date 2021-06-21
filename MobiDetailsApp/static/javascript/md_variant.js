@@ -279,7 +279,7 @@ function send_var_message(url, csrf_token) {
 }
 
 
-function run_spip(url, csrf_token) {
+function run_spip(url, variant_id, csrf_token) {
 	// send header for flask-wtf crsf security
     $.ajaxSetup({
       beforeSend: function(xhr, settings) {
@@ -292,7 +292,7 @@ function run_spip(url, csrf_token) {
 		type: "POST",
 		url: url,
 		data: {
-			gene_symbol: $('#gene_name').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text()
+			gene_symbol: $('#gene_name').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
 		}
 	})
 	.done(function(spip_result) {
