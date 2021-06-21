@@ -82,7 +82,7 @@ def get_generic_api_key():
     (8, 'hg19PseudoVCF', '1-216420460-C-A'),
 ))
 def test_api_variant(client, variant_id, key, value):
-    json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id)).data.decode('utf8'))
+    json_response = json.loads(client.get('/api/variant/{}/clispip/'.format(variant_id)).data.decode('utf8'))
     assert json_response['nomenclatures'][key] == value
 
 # 2nd test variant creation
