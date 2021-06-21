@@ -1525,12 +1525,17 @@ def spip():
             nm_acc = request.form['nm_acc']
             c_name = match_obj.group(1)
             variant_id = request.form['variant_id']
+            spip_cache = 0
             if os.path.exists(
                     '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)
                     ):
-                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
-                result_spip = spip_out.read()
-            else:
+                with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)) as spip_file:
+                    num_lines = len(spip_file.readlines())
+                if num_lines == 2:
+                    spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
+                    result_spip = spip_out.read()
+                    spip_cache = 1
+            if spip_cache == 0:
                 result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
             if result_spip == 'There has been an error while processing SPiP':
                 return result_spip

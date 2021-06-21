@@ -1123,12 +1123,17 @@ def variant(variant_id=None, caller='browser', api_key=None):
     if caller != 'browser':
         if caller == 'clispip':
             # we run spip here
+            spip_cache = 0
             if os.path.exists(
                     '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId'])
                     ):
-                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId']), "r")
-                result_spip = spip_out.read()
-            else:
+                with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId'])) as spip_file:
+                    num_lines = len(spip_file.readlines())
+                if num_lines == 2:
+                    spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId']), "r")
+                    result_spip = spip_out.read()
+                    spip_cache == 1
+            if spip_cache == 0:
                 result_spip = md_utilities.run_spip(
                     external_data['gene']['symbol'],
                     external_data['gene']['RefSeqTranscript'],
