@@ -1123,11 +1123,18 @@ def variant(variant_id=None, caller='browser', api_key=None):
     if caller != 'browser':
         if caller == 'clispip':
             # we run spip here
-            result_spip = md_utilities.run_spip(
-                external_data['gene']['symbol'],
-                external_data['gene']['RefSeqTranscript'],
-                external_data['nomenclatures']['cName']
-            )
+            if os.path.exists(
+                    '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId'])
+                    ):
+                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId']), "r")
+                result_spip = spip_out.read()
+            else:
+                result_spip = md_utilities.run_spip(
+                    external_data['gene']['symbol'],
+                    external_data['gene']['RefSeqTranscript'],
+                    internal_data['nomenclatures']['cName'],
+                    external_data['variantId']
+                )
             if result_spip == 'There has been an error while processing SPiP':
                 external_data['splicingPredictions']['SPiP']['error'] = result_spip
             else:

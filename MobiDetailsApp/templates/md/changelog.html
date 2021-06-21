@@ -9,10 +9,11 @@
 		-New dataset
 	#}
 	<div class="w3-container">
-		{{ info("[2021-06-21] - Minor : \
+		{{ info("[2021-06-21] - several changes around SPiP: \
 			<ul>
-				<li>New value for parameter caller for the /api/variant/ endpoint: Setting caller to 'clispip' will now return the full results including SPiP (takes longer), while using 'cli' will return the results without SPiP (faster).</li>
-				<li>SPiP results are now cached to be computed only once and enable a faster access the second (and third....) time.</li>
+				<li>New value for parameter caller for the /api/variant/ endpoint: Setting caller to 'clispip' will now return the full results including SPiP (takes longer), while using 'cli' will return the results without SPiP (faster). The swagger page has also bee nupdated to reflect this change.</li>
+				<li>SPiP results are now cached to be computed only once and enable a faster access the second (and third....) time</li>
+				<li>SPiP has been upgraded to v2. v2 is much more computer intensive than v1 (i.e. is slower). Start a <a href='https://github.com/beboche/MobiDetails/discussions' target='_blank'>Discussion</a> on github if you have any comments!</li>
 			</ul>") }}
 		{{ info("[2021-06-18] - New predictor : \
 			SpliceAi lookup API can be requested with the non-default parameter distance of 500bp for almost all variants (except complex indels). This can be useful to analyse deep intronic variants as well as large dels and dups.") }}

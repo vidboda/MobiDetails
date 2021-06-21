@@ -2104,14 +2104,18 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     # temp file replaced w/ real file to perform caching
     # print(tf.name)
     tf.write(
-        bytes('gene\tvarID\n{0}\t{1}:{2}'.format(
+        bytes('gene\tvarID\n{0}\t{1}:c.{2}'.format(
             gene_symbol, nm_acc, c_name
         ), encoding='utf-8')
     )
     # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
     tf.seek(0)
     # print(tf.read()
-
+    # SPiP v1:
+    # '-f',
+    # '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
+    # '-s',
+    # '{}'.format(ext_exe['samtools']),
     result = subprocess.run(
         [
             ext_exe['Rscript'],
@@ -2120,10 +2124,6 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
             '{}'.format(tf.name),
             '-O',
             '{}'.format('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id)),
-            '-f',
-            '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
-            '-s',
-            '{}'.format(ext_exe['samtools']),
             '-g',
             'hg38'
         ],
