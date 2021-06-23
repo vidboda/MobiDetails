@@ -2123,7 +2123,7 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
             '-I',
             '{}'.format(tf.name),
             '-O',
-            '{}'.format('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id)),
+            '{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id),
             '-g',
             'hg38'
         ],

@@ -487,7 +487,7 @@
     'firstauthor': 'Preprint: Leman'
     'year': '2020'
     'paper': 'https://www.researchgate.net/publication/339817193_SPiP_a_comprehensive_Splicing_Prediction_Pipeline_for_massive_detection_of_exonic_and_intronic_variant_effect_on_mRNA_splicing'
-    'version': 'v1.0'
+    'version': 'v2.0'
     'short_name': 'spip'
   'spliceAI':
     'firstauthor': 'Jaganathan'
