@@ -762,12 +762,12 @@ def test_run_spip(app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT gene_name, c_name FROM variant_feature ORDER BY random() LIMIT 15"
+            "SELECT id, gene_name, c_name FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 15"
         )
         res = curs.fetchall()
         for var in res:
             spip_results = md_utilities.run_spip(
-                var['gene_name'][0], var['gene_name'][1], var['c_name']
+                var['gene_name'][0], var['gene_name'][1], var['c_name'], var['id']
             )
             print(spip_results)
             assert 'Interpretation' in spip_results

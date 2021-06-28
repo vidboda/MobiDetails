@@ -393,6 +393,7 @@ def test_autocomplete_var(client, query, gene, return_value, http_code):
     assert return_value == response.get_data()
     assert http_code == response.status_code
 
+# test panelApp
 
 @pytest.mark.parametrize(('gene_symbol', 'return_value', 'http_code'), (
     ('USH2A', b'panelapp.genomicsengland.co.uk', 200),
@@ -407,6 +408,8 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     print(response.status_code)
     assert return_value in response.get_data()
     assert http_code == response.status_code
+
+# test spliceai lookup
 
 
 @pytest.mark.parametrize(('variant', 'transcript', 'return_value'), (
