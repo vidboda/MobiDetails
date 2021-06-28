@@ -1,6 +1,6 @@
 import pytest
 import psycopg2
-from MobiDetailsApp.db import get_db
+from MobiDetailsApp.db import get_db, md_utilities
 # get generic mobidetails password
 
 
@@ -15,6 +15,7 @@ def get_generic_password():
         return res['email'], res['password']
 
 # test litvar
+
 
 def test_litvar(client, app):
     assert client.get('/litVar').status_code == 405
@@ -388,7 +389,7 @@ def test_autocomplete_var(client, query, gene, return_value, http_code):
     assert client.get('/autocomplete_var').status_code == 405
     data_dict = dict(query_engine=query, gene=gene)
     response = client.post('/autocomplete_var', data=data_dict)
-    print(response.get_data)
+    print(response.get_data())
     print(response.status_code)
     assert return_value == response.get_data()
     assert http_code == response.status_code
@@ -404,10 +405,30 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     assert client.get('/is_panelapp_entity').status_code == 405
     data_dict = dict(gene_symbol=gene_symbol)
     response = client.post('/is_panelapp_entity', data=data_dict)
-    print(response.get_data)
+    print(response.get_data())
     print(response.status_code)
     assert return_value in response.get_data()
     assert http_code == response.status_code
+
+# test SPiP
+
+
+@pytest.mark.parametrize(('gene_symbol', 'nm_acc', 'c_name', 'variant_id'), (
+    ('USH2A', 'NM_206933', 'c.-205+40A>G', '641'),
+    ('BRCA1', 'NM_007294', 'c.213-6T>G', '157446'),
+    ('BRCA1', 'NM_007294', 'c.441+36_441+53delinsG', '239248'),
+    ('USH2A', 'NM_206933', 'c.1972-12dup', '97698'),
+    ('USH2A', 'NM_206933', 'c.7061G>A', '952'),
+    ('USH2A', 'NM_206933', 'c.11389+8_11389+10delinsT', '202888'),
+    ('USH2A', 'NM_206933', 'c.11549-5del', '110'),
+))
+def test_spip(client, gene_symbol, nm_acc, c_name, variant_id):
+    assert client.get('/spip').status_code == 405
+    data_dict = dict(gene_symbol=gene_symbol, nm_acc=nm_acc, c_name=c_name, variant_id=variant_id)
+    response = client.post('/spip', data=data_dict)
+    print(response.get_data())
+    print(response.status_code)
+    assert b'Interpretation' in response.get_data()
 
 # test spliceai lookup
 
@@ -425,6 +446,6 @@ def test_spliceai_lookup(client, variant, transcript, return_value):
     assert client.get('/spliceai_lookup').status_code == 405
     data_dict = dict(variant=variant, transcript=transcript)
     response = client.post('/spliceai_lookup', data=data_dict)
-    print(response.get_data)
+    print(response.get_data())
     print(response.status_code)
     assert return_value in response.get_data()
