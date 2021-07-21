@@ -1566,9 +1566,9 @@ def spliceai_lookup():
                                     variant)
                             ).data.decode('utf-8')
                         )
-        except Exception:
+        except Exception as e:
             return '<span class="w3-padding">Unable to \
-     run spliceAI lookup API</span>'
+     run spliceAI lookup API - Error returned</span>'
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
