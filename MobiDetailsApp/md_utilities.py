@@ -1052,8 +1052,11 @@ try again: {0}-{1}'.format(acc_no, gene)}
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
+            # print(warning)
             if re.search(r'RefSeqGene record not available', warning):
                 vf_d['ng_name'] = 'NULL'
+            elif re.search(r'automapped to NC_0000', warning):
+                continue
             elif re.search(
                     r'automapped to {0}\.{1}:c\..+'
                     .format(acc_no, acc_version),
@@ -1092,7 +1095,6 @@ try again: {0}-{1}'.format(acc_no, gene)}
                     re.search('Whitespace', warning):
                 next
             else:
-                # print(warning)
                 if 'Removing redundant reference bases from variant description' in warning:
                     continue
                 if 'cannot be mapped directly to genome build' in warning:
