@@ -1558,17 +1558,21 @@ def spliceai_lookup():
         variant = request.form['variant']
         transcript = request.form['transcript']
         try:
+            http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
             spliceai500 = json.loads(
-                            http.request(
-                                'GET',
-                                '{0}{1}'.format(
-                                    md_utilities.urls['spliceai_api'],
-                                    variant)
-                            ).data.decode('utf-8')
-                        )
-        except Exception as e:
+                        http_dangerous.request(
+                            'GET',
+                            '{0}{1}'.format(
+                                md_utilities.urls['spliceai_api'],
+                                variant)
+                        ).data.decode('utf-8')
+                    )
+        except Exception:
             return '<span class="w3-padding">Unable to \
      run spliceAI lookup API - Error returned</span>'
+        # print('{0}{1}'.format(
+            md_utilities.urls['spliceai_api'],
+            variant))
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
