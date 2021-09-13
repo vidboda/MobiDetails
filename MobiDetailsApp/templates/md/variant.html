@@ -5,7 +5,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<!-- <script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script> -->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?2100621" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?21000902" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -64,7 +64,7 @@
 				{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
 					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
 				{% else %}
-					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.hexosplice.substitutionNature), "HexoSplice") }}
+					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
 				{% endif %}
 			{% endif %}
 		</div>
@@ -93,6 +93,9 @@
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
+		{% endif %}
+		{% if internal_data.episignature.ExpertACMGClassification is not none %}
+			<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
@@ -796,7 +799,7 @@
 		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
-		<!--sixth section-->
+		<!--missense section-->
 		{% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %}
 			<hr />
 			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
@@ -984,7 +987,50 @@
 				{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 			{% endif %}
 		{% endif %}
-		<!--seventh section-->
+		<!--EpiSign section-->
+		{% if internal_data.episignature.ExpertACMGClassification is not none %}
+			<hr />
+			{{ section_title('episignature', 'Epigenetic Signature') }}
+			{{ info("The next table presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
+			<div class="w3-responsive w3-container">
+				<table class="w3-table w3-centered display compact" style="width:90%" id="episignature_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align">Descriptions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!--WDSTS Episignature-->
+						<tr>
+							<td class="w3-left-align">DNA Methylation pattern</td>
+							<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
+							<td class="w3-left-align">{{ internal_data.episignature.Description }}</td>
+						</tr>
+						<!--ACMG Classification-->
+						<tr>
+							<td class="w3-left-align">Expert opinion</td>
+							<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
+							<td class="w3-left-align">Expert opinion after DNA methylation study (Anne-Sophie Lebre)</td>
+						</tr>
+						<!--Reference Article-->
+						<tr>
+							<td class="w3-left-align">Reference Article</td>
+							<td class="w3-left-align">
+								{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
+										<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
+								{% else %}
+									{{ internal_data.episignature.referenceArticle }}
+								{% endif %}
+							</td>
+							<td class="w3-left-align">reference data</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		{% endif %}
+		<!--Classification section-->
 		<hr />
 		{{ section_title('class', 'Classification History') }}
 		<div class="w3-responsive w3-container">

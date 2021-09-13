@@ -86,6 +86,7 @@
   'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP'
   'eigen': 'http://www.columbia.edu/~ii2135/eigen.html'
   'ensembl_t': 'http://ensembl.org/Homo_sapiens/Transcript/Summary?t='
+  'episignature': ''
   'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome'
   'fathmm': 'http://fathmm.biocompute.org.uk/'
   'gnomad': 'http://gnomad.broadinstitute.org/'
@@ -146,8 +147,8 @@
   'variant_validator_api_backup': 'http://194.167.35.245:8000/'
   # uncomment below to use VV on beast
   # 'variant_validator_api': 'https://194.167.35.207:8000/'
-  # uncomment below to use VV on medium
-  # 'variant_validator_api': 'http://10.34.20.79:8000/'
+  # uncomment below to use VV on IURC Ovirt restvv
+  # 'variant_validator_api': 'http://194.167.35.195:8000/'
   # uncomment below to use VV on genuine VV dev
   # 'variant_validator_api': 'https://www35.lamp.le.ac.uk/'
   # hello on genuine VV
@@ -156,8 +157,8 @@
   'variant_validator_api_hello_backup': 'http://194.167.35.245:8000/hello/?content-type=application/json'
   # hello on beast VV
   # 'variant_validator_api_hello': 'https://194.167.35.207:8000/hello/?content-type=application/json'
-  # hello on medium VV
-  # 'variant_validator_api_hello': 'https://10.34.20.79:8000/hello/?content-type=application/json'
+  # hello on IURC OVirt restvv
+  # 'variant_validator_api_hello': 'http://194.167.35.195:8000/hello/?content-type=application/json'
   # hello on genuine VV dev
   # 'variant_validator_api_hello': 'https://www35.lamp.le.ac.uk/hello/?content-type=application/json'
 # attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
@@ -207,6 +208,11 @@
     'name': 'dbSNP'
     'description': 'Database of human genetic variations'
     'short_name': 'ncbi_dbsnp'
+  'episignature':
+    'rel_path': '/static/resources/episign/hg38/episign_20210901.txt.gz'
+    'name': 'epiSignature'
+    'description': 'Database of episignatures'
+    'short_name': 'episignature'
   'gnomad_exome':
     'rel_path': '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'
     'name': 'gnomAD exome'
@@ -360,6 +366,17 @@
     'paper': '11125122'
     'version': 'v154'
     'short_name': 'ncbi_dbsnp'
+  'EpiSignature':
+    'firstauthor': 'Foroutan'
+    'year': '2021'
+    'paper': 'Submitted'
+    'version': 'v20210901'
+    'short_name': 'episignature'
+    'referenceArticle_value_col': '9'
+    'pubmedID_value_col': '10'
+    'DNA_methylation_pattern_value_col': '6'
+    'Description': '7'
+    'expert_ACMG_classification_value_col': '8'
   'Eigen':
     'firstauthor': 'Ionita-Laza'
     'year': '2016'

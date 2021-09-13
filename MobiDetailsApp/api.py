@@ -325,7 +325,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         'hexosplice': {
             'exonSequence': None,
             'exonFirstNtCdnaPosition': None,
-            'substitutionNature': None,
         },
         'canvas': {
             'segmentSize': None,
@@ -381,12 +380,22 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'metaLRColor': None,
             'misticColor': None,
         },
+        'episignature': {
+            'referenceArticle': None,
+            'pubmedID': None,
+            'DNAMethylationPattern': None,
+            'Description': None,
+            'ExpertACMGClassification': None,
+            'ACMGTranslation': None,
+            'htmlCode': None
+        },
         'noMatch': {
             'cadd': None,
             'eigen': None,
             'dbnsfp': None,
             'dbmts': None,
             'spliceai': None,
+            'episignature': None
         }
     }
 
@@ -506,7 +515,31 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     res_chr['ncbi_name'], var['g_name']
                 )
                 external_data['nomenclatures']['hg38gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
-
+                # episignature
+                # if this developps, need to identify target genes
+                if variant_features['gene_name'][0] == 'KMT2A':
+                    record = md_utilities.get_value_from_tabix_file(
+                        'EpiSign',
+                        md_utilities.local_files['episignature']['abs_path'],
+                        var,
+                        variant_features
+                    )
+                    if isinstance(record, str):
+                        internal_data['noMatch']['episignature'] = 'No match in EpiSIgn'
+                    else:
+                        internal_data['episignature']['referenceArticle'] = record[int(md_utilities.external_tools['EpiSignature']['referenceArticle_value_col'])]
+                        internal_data['episignature']['pubmedID'] = record[int(md_utilities.external_tools['EpiSignature']['pubmedID_value_col'])]
+                        internal_data['episignature']['DNAMethylationPattern'] = record[int(md_utilities.external_tools['EpiSignature']['DNA_methylation_pattern_value_col'])]
+                        internal_data['episignature']['Description'] = record[int(md_utilities.external_tools['EpiSignature']['Description'])]
+                        internal_data['episignature']['ExpertACMGClassification'] = record[int(md_utilities.external_tools['EpiSignature']['expert_ACMG_classification_value_col'])]
+                        curs.execute(
+                            'SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = %s',
+                            (internal_data['episignature']['ExpertACMGClassification'],)
+                        )
+                        res_code = curs.fetchone()
+                        internal_data['episignature']['ACMGTranslation'] = res_code['acmg_translation']
+                        internal_data['episignature']['htmlCode'] = res_code['html_code']
+                        # print(internal_data['episignature'])
                 # compute position / splice sites
                 if variant_features['variant_size'] < 50 and \
                         variant_features['start_segment_type'] == 'exon':
@@ -529,7 +562,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             positions, var['pos'], variant_features['c_name']
                         )
                         if internal_data['hexosplice']['exonFirstNtCdnaPosition'] < 1:
-                            internal_data['hexosplice']['substitutionNature'] = md_utilities.get_substitution_nature(
+                            internal_data['positions']['substitutionNature'] = md_utilities.get_substitution_nature(
                                 variant_features['c_name']
                             )
                     # get a tuple ['site_type', 'dist(bp)']

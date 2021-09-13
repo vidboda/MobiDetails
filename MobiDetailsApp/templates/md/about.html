@@ -91,14 +91,22 @@
 					{% for tool in external_tools %}
 						<tr>
 							<td class="w3-left-align">
+							{% if urls[external_tools[tool]['short_name']] != '' %}
 								<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
+							{% else %}
+								<span>{{ tool }}</span>
+							{% endif %}
 							</td>
 							<td class="w3-left-align">{{ external_tools[tool]['version'] }}</td>
-							{% if external_tools[tool]['paper'] != 'None' %}
-								<td class="w3-left-align"><a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a></td>
-							{% else %}
-								<td class="w3-left-align">No paper available yet</td>
-							{% endif %}
+							<td class="w3-left-align">
+								{% if external_tools[tool]['paper'] is not none and external_tools[tool]['paper'] != 'Submitted' %}
+									<a href="{{ external_tools[tool]['paper'] }}" target="_blank" rel="noopener noreferrer" title="Paper">{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}</a>
+								{% elif external_tools[tool]['paper'] == 'Submitted' %}
+									<span>{{ external_tools[tool]['firstauthor'] }} et al., {{ external_tools[tool]['year'] }}, submitted</span>
+								{% else %}
+									<span>No paper available yet</span>
+								{% endif %}
+							</td>
 						</tr>
 					{% endfor %}
 				</tbody>

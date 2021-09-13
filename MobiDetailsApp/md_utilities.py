@@ -81,6 +81,9 @@ local_files['dbscsnv']['abs_path'] = '{0}{1}'.format(
 local_files['dbsnp']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['dbsnp']['rel_path']
 )
+local_files['episignature']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['episignature']['rel_path']
+)
 local_files['gnomad_exome']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_exome']['rel_path']
 )
@@ -503,6 +506,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
+    # print(query)
     if text == 'gnomADv3' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
@@ -531,6 +535,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     for record in records:
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
+        # print(record)
+        # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
             return record

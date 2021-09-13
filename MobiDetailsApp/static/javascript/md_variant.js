@@ -562,7 +562,7 @@ $(document).ready(function() {
           if (d === 'Moderate missense' || d === 'Moderate splice') {color_style = '#FF6020'}
           if (d === 'Low missense' || d === 'Low splice' || d ==='Splice indel') {color_style = '#FFA020'}
         }
-        else if (table_title === 'Classification history') {
+        else if (table_title === 'Classification history' || table_title === 'Epigenetic signature') {
           var split_str = d.split(" ");
           if (split_str[1] === '5') {color_style = '#FF0000'}
           else if (split_str[1] === '4') {color_style = '#FF6020'}
@@ -780,6 +780,9 @@ $(document).ready(function() {
     }
     if ($('#dbmts_table').length) {
       doc = convert_dt(config, "dbmts_table", "dbMTS results", "table_title", doc);
+    }
+    if ($('#episignature_table').length) {
+      doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);
     }
     if ($('#class_table').length) {
       doc = convert_dt(config, "class_table", "Classification history", "table_title", doc);
