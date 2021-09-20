@@ -337,7 +337,7 @@ function spliceai_lookup(spliceai_lookup_url, csrf_token) {
 	.done(function(spliceai_result) {
     var re = /spliceAI lookup API/;
     if (!re.test(spliceai_result)) {
-      spliceai_split = spliceai_result.split(';')
+      var spliceai_split = spliceai_result.split(';');
   		$("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
       $("#spliceai_lookup_al").html(spliceai_lookup_html(spliceai_split[1]));
       $("#spliceai_lookup_dg").html(spliceai_lookup_html(spliceai_split[2]));

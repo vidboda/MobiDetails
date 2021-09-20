@@ -362,7 +362,7 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'')

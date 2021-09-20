@@ -134,7 +134,7 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
                             email,
                             username
                         )
-            print(sfs_url)
+            # print(sfs_url)
             try:
                 sfs_json = json.loads(
                     http.request('GET', sfs_url).data.decode('utf-8')

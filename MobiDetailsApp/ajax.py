@@ -1518,13 +1518,14 @@ def spip():
             'c_name' in request.form and \
             'variant_id' in request.form:
         match_obj = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
+        match_obj_id = re.search(r'^(\d+)$', request.form['variant_id'])
         if match_obj and \
-            re.search(r'^\d+$', request.form['variant_id']):
+                match_obj_id:
             # re.search(rf'^c\.{variant_regexp}$', request.form['c_name']):
             gene_symbol = request.form['gene_symbol']
             nm_acc = request.form['nm_acc']
             c_name = match_obj.group(1)
-            variant_id = request.form['variant_id']
+            variant_id = match_obj_id.group(1)
             spip_cache = 0
             if os.path.exists(
                     '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)
@@ -1555,43 +1556,54 @@ def spip():
 def spliceai_lookup():
     if 'variant' in request.form and \
             'transcript' in request.form:
-        variant = request.form['variant']
-        transcript = request.form['transcript']
-        try:
-            http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
-            spliceai500 = json.loads(
-                        http_dangerous.request(
-                            'GET',
-                            '{0}{1}'.format(
-                                md_utilities.urls['spliceai_api'],
-                                variant)
-                        ).data.decode('utf-8')
-                    )
-        except Exception:
+        # variant = request.form['variant']
+        # transcript = request.form['transcript']
+        nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+        ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+        match_obj_variant = re.search(rf'(chr{nochr_chrom_regexp}-\d+-[ATGC]+-[ATGC]+$)', request.form['variant'])
+        match_obj_transcript = re.search(rf'({ncbi_transcript_regexp})', request.form['transcript'])
+        if match_obj_variant and \
+                match_obj_transcript:
+            variant = match_obj_variant.group(1)
+            transcript = match_obj_transcript.group(1)
+            try:
+                http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
+                spliceai500 = json.loads(
+                            http_dangerous.request(
+                                'GET',
+                                '{0}{1}'.format(
+                                    md_utilities.urls['spliceai_api'],
+                                    variant)
+                            ).data.decode('utf-8')
+                        )
+            except Exception:
+                return '<span class="w3-padding">Unable to \
+         run spliceAI lookup API - Error returned</span>'
+            # print('{0}{1}'.format(
+            #     md_utilities.urls['spliceai_api'],
+            #     variant))
+            if spliceai500 and \
+                    spliceai500['variant'] == variant and \
+                    'error' not in spliceai500:
+                # print(spliceai500)
+                for score in spliceai500['scores']:
+                    if re.search(rf'{transcript}', score):
+                        spliceai_score = re.split(r'\|', score)
+                        # AG AL DG DL
+                        return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                            spliceai_score[1],
+                            spliceai_score[5],
+                            spliceai_score[2],
+                            spliceai_score[6],
+                            spliceai_score[3],
+                            spliceai_score[7],
+                            spliceai_score[4],
+                            spliceai_score[8]
+                        )
+            return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'.format(transcript)
+        else:
             return '<span class="w3-padding">Unable to \
-     run spliceAI lookup API - Error returned</span>'
-        # print('{0}{1}'.format(
-        #     md_utilities.urls['spliceai_api'],
-        #     variant))
-        if spliceai500 and \
-                spliceai500['variant'] == variant and \
-                'error' not in spliceai500:
-            # print(spliceai500)
-            for score in spliceai500['scores']:
-                if re.search(rf'{transcript}', score):
-                    spliceai_score = re.split(r'\|', score)
-                    # AG AL DG DL
-                    return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
-                        spliceai_score[1],
-                        spliceai_score[5],
-                        spliceai_score[2],
-                        spliceai_score[6],
-                        spliceai_score[3],
-                        spliceai_score[7],
-                        spliceai_score[4],
-                        spliceai_score[8]
-                    )
-        return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'.format(transcript)
+run spliceAI lookup API (wrong parameter)</span>'
     else:
         return '<span class="w3-padding">Unable to \
 run spliceAI lookup API (wrong parameter)</span>'

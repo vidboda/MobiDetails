@@ -8,6 +8,7 @@
   'nochr_chrom': '[\dXYM]{1,2}'
   'nochr_captured': '\d{1,2}|[XYM]'
   'ncbi_chrom': 'NC_0{4}\d{1,2}\.\d{1,2}'
+  'ncbi_transcript': 'NM_\d+'
   'amino_acid': 'ACDEFGHIKLMNPQRSTVXWYacdefghiklmnpqrstvwyx'
 'ext_exe':
   'perl': '/usr/bin/perl'
