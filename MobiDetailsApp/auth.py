@@ -555,7 +555,7 @@ def profile(mobiuser_id=0):
             variant_groups = curs.fetchall()
             variant_groups_number = curs.rowcount
             # we need to modify the username to propose a list name without special characters
-            clean_username = re.sub('[^\w]', '_', mobiuser['username'])
+            clean_username = re.sub(r'[^\w]', '_', mobiuser['username'])
 
             curs.execute(
                 "SELECT a.id, a.c_name, a.ng_name, a.gene_name, \
@@ -638,18 +638,14 @@ def logout():
     session.clear()
     flash('You have successfully been logged out.', 'w3-pale-green')
     # https://pythonise.com/series/learning-flask/the-flask-request-object
+    # url attributes
+    # scheme auth username password raw_username raw_password
+    # ascii_host host port path query fragment
     if request.referrer is not None and \
-            url_parse(request.referrer).host == url_parse(request.base_url).host:
-        referrer_page = request.referrer
-        # if request.referrer is not None and \
-        #         url_parse(request.referrer).host == \
-        #        url_parse(request.base_url).host:
-        return redirect(
-            md_utilities.build_redirect_url(
-                referrer_page
-            ),
-            code=302
-        )
+            (url_parse(request.referrer).host == md_utilities.host['dev'] or
+                url_parse(request.referrer).host == md_utilities.host['prod']):
+        redirect_url = md_utilities.build_redirect_url(request.referrer)
+        return redirect(redirect_url, code=302)
     else:
         return redirect(url_for('index'), code=302)
 
