@@ -637,9 +637,10 @@ def load_logged_in_user():
 def logout():
     session.clear()
     flash('You have successfully been logged out.', 'w3-pale-green')
-    referrer_page = request.referrer
-    if referrer_page is not None and \
-            url_parse(referrer_page).host == url_parse(request.base_url).host:
+    # https://pythonise.com/series/learning-flask/the-flask-request-object
+    if request.referrer is not None and \
+            url_parse(request.referrer).host == url_parse(request.base_url).host:
+        referrer_page = request.referrer
         # if request.referrer is not None and \
         #         url_parse(request.referrer).host == \
         #        url_parse(request.base_url).host:
@@ -649,7 +650,6 @@ def logout():
             ),
             code=302
         )
-        # return redirect(referrer_page, code=302)
     else:
         return redirect(url_for('index'), code=302)
 
