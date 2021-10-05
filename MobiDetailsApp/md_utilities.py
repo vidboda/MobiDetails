@@ -2232,7 +2232,18 @@ def build_redirect_url(incoming_url=None):
             url_parse(incoming_url).fragment
         )
     elif re.search(r'^\/', incoming_url):
-        return incoming_url
+        if url_parse(incoming_url).fragment:
+            return '{0}{1}#{2}'.format(
+                url_parse(incoming_url).path,
+                url_parse(incoming_url).query,
+                url_parse(incoming_url).fragment
+            )
+        else:
+            return '{0}{1}'.format(
+                url_parse(incoming_url).path,
+                url_parse(incoming_url).query,
+            )
+        # return incoming_url
 
 
 # def api_end_according_to_caller(

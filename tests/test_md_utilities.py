@@ -812,6 +812,8 @@ def test_decompose_missense(p_name, aa1, ppos, aa2):
         'https://mobidetails.iurc.montp.inserm.fr/variant/8#splicing'),
     ('/favourite',
         '/favourite'),
+    ('/favourite#case',
+        '/favourite#case'),
 ))
 def test_build_redirect_url(incoming_url, outcoming_url):
     assert outcoming_url == md_utilities.build_redirect_url(incoming_url)
