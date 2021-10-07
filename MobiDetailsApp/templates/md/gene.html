@@ -49,10 +49,10 @@
 				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }}</p>
 			</div>
 		{% endif %}
-		{{ gene_redirection(gene, urls) }}
+		{{ gene_redirection(gene, max_prot_size, main_iso.uniprot_id, urls) }}
 		{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		{#{{ danger("WARNING: currently, you can only create variants in canonical isoforms.") }}#}
-		<div id="created_var"></div>		
+		<div id="created_var"></div>
 		<div class="w3-responsive" id="gene_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
 				<caption>Gene info table:</caption>
@@ -77,7 +77,7 @@
 							{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
 							<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
 							{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
-							<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>			
+							<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>
 							{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
 							<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
 							</td>
@@ -109,7 +109,7 @@
 							<tr style="opacity:0.2;">
 						{% else %}
 							<tr>
-						{% endif %}						
+						{% endif %}
 							<td class="w3-button w3-hover-sand">
 								<strong><span  onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">{{ iso.name[1] }}.{{ iso.nm_version }}
 									{% if iso.canonical == 1 %}
@@ -131,6 +131,9 @@
 							</td>
 							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
 								<span>{{ iso.uniprot_id }}</span>
+							<!-- {% if iso.prot_size < 2700 %}
+								<span> (<a href="{{ urls.alphafold }}entry/{{ iso.uniprot_id }}" target="_blank" title="open AlphaFold/EBI page for {{ iso.uniprot_id }}">Alphafold</a>)</span>
+							{% endif %} -->
 							</td>
 						</tr>
 					{% endfor %}

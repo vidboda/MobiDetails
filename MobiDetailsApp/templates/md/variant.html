@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, gene_redirection, fa %}
+{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, fa %}
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
@@ -68,6 +68,9 @@
 				{% endif %}
 			{% endif %}
 		</div>
+		{% if external_data.gene.proteinSize < 2700 %}
+			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
 			{% if favourite != True %}

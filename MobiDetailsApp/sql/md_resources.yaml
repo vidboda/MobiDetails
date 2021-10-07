@@ -80,6 +80,7 @@
   'Ter': 'Ter'
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
+  'alphafold': 'https://alphafold.ebi.ac.uk/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'clinpred': 'https://sites.google.com/site/clinpred/home'
   'dbmts': 'http://www.liulab.science/dbmts.html'
@@ -122,6 +123,7 @@
   'ncbi_pubmed': 'https://pubmed.ncbi.nlm.nih.gov/'
   'ncbi_litvar': 'https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query='
   'ncbi_litvar_api': 'https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='
+  'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'

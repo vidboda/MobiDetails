@@ -92,6 +92,28 @@ function hide_params() {
 //		// alert($('#' + input_id).val());
 //		return true;
 //}
+// used in gene.html and vars.html
+function panelapp(panelapp_url, gene_symbol, csrf_token) {
+	//ajax for PanelApp
+	// send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: panelapp_url,
+		data: {
+			gene_symbol: gene_symbol
+		}
+	})
+	.done(function(html) {
+		$("#panelapp").replaceWith(html);
+	});
+}
 // used in md.variant and auth.profile.html
 function favourite(vf_id, fav_url, csrf_token) {
 	// send header for flask-wtf crsf security

@@ -334,6 +334,11 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
             annot = curs.fetchone()
             if annot is None:
                 annot = {'nognomad': 'No values in gnomAD'}
+            curs.execute(
+                "SELECT MAX(prot_size) as size FROM gene WHERE name[1] = %s",
+                (gene_name,)
+            )
+            res_size = curs.fetchone()
             close_db()
             return render_template(
                 'md/gene.html',
@@ -343,7 +348,8 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                 num_iso=num_iso,
                 main_iso=main,
                 res=result_all,
-                annotations=annot
+                annotations=annot,
+                max_prot_size=res_size['size']
             )
         else:
             close_db()
@@ -421,6 +427,11 @@ def vars(gene_name=None):
             (gene_name,)
         )
         variants = curs.fetchall()
+        curs.execute(
+            "SELECT MAX(prot_size) as size FROM gene WHERE name[1] = %s",
+            (gene_name,)
+        )
+        res_size = curs.fetchone()
         # if vars_type is not None:
         close_db()
         return render_template(
@@ -431,7 +442,8 @@ def vars(gene_name=None):
             num_iso=num_iso,
             variants=variants,
             gene_info=main,
-            res=result_all
+            res=result_all,
+            max_prot_size=res_size['size']
         )
     else:
         close_db()
