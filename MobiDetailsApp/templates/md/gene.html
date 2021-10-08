@@ -131,9 +131,6 @@
 							</td>
 							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
 								<span>{{ iso.uniprot_id }}</span>
-							<!-- {% if iso.prot_size < 2700 %}
-								<span> (<a href="{{ urls.alphafold }}entry/{{ iso.uniprot_id }}" target="_blank" title="open AlphaFold/EBI page for {{ iso.uniprot_id }}">Alphafold</a>)</span>
-							{% endif %} -->
 							</td>
 						</tr>
 					{% endfor %}
