@@ -871,7 +871,7 @@ def send_var_message():
             # get username and email
             curs.execute(
                 "SELECT id, username, email FROM mobiuser WHERE id = %s",
-                (receiver['id'])
+                (receiver['id'],)
             )
             # res = curs.fetchall()
             receiver = curs.fetchone()
