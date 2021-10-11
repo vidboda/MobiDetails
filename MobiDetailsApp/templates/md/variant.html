@@ -68,7 +68,9 @@
 				{% endif %}
 			{% endif %}
 		</div>
-		{% if external_data.gene.proteinSize < 2700 %}
+		{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
+			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{% elif not external_data.gene.proteinSize %}
 			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}

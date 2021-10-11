@@ -102,7 +102,11 @@
 					<li class="w3-padding-small">
 						<span class="w3-padding" id="panelapp">Searching for PanelApp entity... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 					</li>
-					{% if max_prot_size < 2700 %}
+					{% if max_prot_size and max_prot_size < 2700 %}
+						<li class="w3-padding-small">
+							<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
+						</li>
+					{% elif not max_prot_size %}
 						<li class="w3-padding-small">
 							<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
 						</li>
