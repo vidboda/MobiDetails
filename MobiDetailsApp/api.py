@@ -1157,7 +1157,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         if caller == 'clispip':
             # we run spip here
             # spip_cache = 0
-            # result_spip = ''
+            result_spip = ''
             if os.path.exists(
                     '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId'])
                     ):
