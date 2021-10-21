@@ -556,7 +556,7 @@
   'provean': -2.5
   'revel_min': 0.2
   'revel_max': 0.5
-  'sift': 0.94
+  'sift': 0.9499
   'spliceai_min': 0.2
   'spliceai_mid': 0.5
   'spliceai_max': 0.8
