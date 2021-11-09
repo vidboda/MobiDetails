@@ -120,6 +120,9 @@ local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_indels']['rel_path']
 )
+local_files['variant_validator']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['variant_validator']['rel_path']
+)
 
 predictor_thresholds = resources['predictor_thresholds']
 predictor_colors = resources['predictor_colors']
@@ -1455,6 +1458,11 @@ please contact us'.format(gene)}
             (genome, gene, acc_no, positions[0])
         )
         res_seg = curs.fetchone()
+        # print(res_seg['type'])
+        # print("SELECT number, type FROM segment WHERE genome_version = '{0}' \
+        # AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
+        # BETWEEN SYMMETRIC segment_start AND \
+        # segment_end".format(genome, gene, acc_no, positions[0]))
         if not res_seg:
             failed_query = "SELECT number, type FROM segment WHERE genome_version = '{0}' \
             AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
