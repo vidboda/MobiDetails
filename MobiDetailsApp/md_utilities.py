@@ -324,10 +324,10 @@ def get_pos_exon_canvas(pos, positions):
         return [
             200 + int(
                 round(
-                    (pos_from_beginning / positions['segment_size'])*200
+                    (int(pos_from_beginning) / int(positions['segment_size']))*200
                 )
             ),
-            positions['segment_size']
+            int(positions['segment_size'])
         ]
 
 
@@ -1367,48 +1367,90 @@ please contact us'.format(gene)}
     if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
         vf_d['rna_type'] = 'altered inferred'
     # exons pos, etc - based on hg38
+    # VV2 here we basically get "variant_exonic_positions"
+    # we need the NCBI hg38 chrom
+    # "NC_000004.12": {
+    #     "end_exon": "21",
+    #     "start_exon": "20i"
+    # },
+    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+    vf_d['start_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+    vf_d['start_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+    vf_d['end_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+    vf_d['end_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+    if vf_d['start_segment_type'] == 'segment_type_error' or \
+            vf_d['end_segment_type'] == 'segment_type_error' or \
+            vf_d['start_segment_number'] == 'segment_number_error' or \
+            vf_d['end_segment_number'] == 'segment_number_error':
+        if caller == 'webApp':
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Insertion failed for variant features \
+        for {0} with args start_segment_type:{1}-end_segment_type:{2}-start_segment_number:{3}-end_segment_number:{4}</p>'
+                    .format(
+                        vv_key_var,
+                        vf_d['start_segment_type'],
+                        vf_d['end_segment_type'],
+                        vf_d['start_segment_number'],
+                        vf_d['end_segment_number']
+                    )
+                ),
+                '[MobiDetails - MD variant creation Error]'
+            )
+            return danger_panel(
+                'MobiDetails error {}'.format(vv_key_var),
+                'Sorry, an issue occured with the variant position \
+            and intron/exon definition. An admin has been warned'
+            )
+        elif caller == 'api':
+            return {
+                'mobidetails_error':
+                'Sorry, an issue occured with the variant position \
+          and intron/exon definition for {}'.format(vv_key_var)
+            }
     if positions[0] != positions[1]:
-        curs.execute(
-            "SELECT number, type FROM segment \
-            WHERE genome_version = %s AND \
-            gene_name[1] = %s AND gene_name[2] = %s \
-            AND %s BETWEEN SYMMETRIC segment_start \
-            AND segment_end AND %s BETWEEN SYMMETRIC \
-            segment_start AND segment_end",
-            (genome, gene, acc_no, positions[0], positions[1])
-        )
-        res_seg = curs.fetchone()
-        if res_seg is not None:
-            # start - end in same segment
-            vf_d['start_segment_type'] = res_seg['type']
-            vf_d['start_segment_number'] = res_seg['number']
-            vf_d['end_segment_type'] = res_seg['type']
-            vf_d['end_segment_number'] = res_seg['number']
-        else:
-            curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = %s \
-                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-                BETWEEN SYMMETRIC segment_start AND segment_end ",
-                (genome, gene, acc_no, positions[0])
-            )
-            res_seg1 = curs.fetchone()
-            curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = %s \
-                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-                BETWEEN SYMMETRIC segment_start AND segment_end ",
-                (genome, gene, acc_no, positions[1])
-            )
-            res_seg2 = curs.fetchone()
-            if res_strand['strand'] == '+':
-                vf_d['start_segment_type'] = res_seg1['type']
-                vf_d['start_segment_number'] = res_seg1['number']
-                vf_d['end_segment_type'] = res_seg2['type']
-                vf_d['end_segment_number'] = res_seg2['number']
-            else:
-                vf_d['start_segment_type'] = res_seg2['type']
-                vf_d['start_segment_number'] = res_seg2['number']
-                vf_d['end_segment_type'] = res_seg1['type']
-                vf_d['end_segment_number'] = res_seg1['number']
+        # curs.execute(
+        #     "SELECT number, type FROM segment \
+        #     WHERE genome_version = %s AND \
+        #     gene_name[1] = %s AND gene_name[2] = %s \
+        #     AND %s BETWEEN SYMMETRIC segment_start \
+        #     AND segment_end AND %s BETWEEN SYMMETRIC \
+        #     segment_start AND segment_end",
+        #     (genome, gene, acc_no, positions[0], positions[1])
+        # )
+        # res_seg = curs.fetchone()
+        # if res_seg is not None:
+        #     # start - end in same segment
+        #     vf_d['start_segment_type'] = res_seg['type']
+        #     vf_d['start_segment_number'] = res_seg['number']
+        #     vf_d['end_segment_type'] = res_seg['type']
+        #     vf_d['end_segment_number'] = res_seg['number']
+        # else:
+        #     curs.execute(
+        #         "SELECT number, type FROM segment WHERE genome_version = %s \
+        #         AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+        #         BETWEEN SYMMETRIC segment_start AND segment_end ",
+        #         (genome, gene, acc_no, positions[0])
+        #     )
+        #     res_seg1 = curs.fetchone()
+        #     curs.execute(
+        #         "SELECT number, type FROM segment WHERE genome_version = %s \
+        #         AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+        #         BETWEEN SYMMETRIC segment_start AND segment_end ",
+        #         (genome, gene, acc_no, positions[1])
+        #     )
+        #     res_seg2 = curs.fetchone()
+        #     if res_strand['strand'] == '+':
+        #         vf_d['start_segment_type'] = res_seg1['type']
+        #         vf_d['start_segment_number'] = res_seg1['number']
+        #         vf_d['end_segment_type'] = res_seg2['type']
+        #         vf_d['end_segment_number'] = res_seg2['number']
+        #     else:
+        #         vf_d['start_segment_type'] = res_seg2['type']
+        #         vf_d['start_segment_number'] = res_seg2['number']
+        #         vf_d['end_segment_type'] = res_seg1['type']
+        #         vf_d['end_segment_number'] = res_seg1['number']
         # get IVS name
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(
@@ -1451,49 +1493,49 @@ please contact us'.format(gene)}
         # WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}'\
         # AND '{3}' BETWEEN SYMMETRIC segment_start AND \
         # segment_end ".format(genome, gene, acc_no, positions[0]))
-        curs.execute(
-            "SELECT number, type FROM segment WHERE genome_version = %s \
-            AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-            BETWEEN SYMMETRIC segment_start AND segment_end",
-            (genome, gene, acc_no, positions[0])
-        )
-        res_seg = curs.fetchone()
+        # curs.execute(
+        #     "SELECT number, type FROM segment WHERE genome_version = %s \
+        #     AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
+        #     BETWEEN SYMMETRIC segment_start AND segment_end",
+        #     (genome, gene, acc_no, positions[0])
+        # )
+        # res_seg = curs.fetchone()
         # print(res_seg['type'])
         # print("SELECT number, type FROM segment WHERE genome_version = '{0}' \
         # AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
         # BETWEEN SYMMETRIC segment_start AND \
         # segment_end".format(genome, gene, acc_no, positions[0]))
-        if not res_seg:
-            failed_query = "SELECT number, type FROM segment WHERE genome_version = '{0}' \
-            AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
-            BETWEEN SYMMETRIC segment_start AND \
-            segment_end".format(genome, gene, acc_no, positions[0])
-            # print(failed_query)
-            if caller == 'webApp':
-                send_error_email(
-                    prepare_email_html(
-                        'MobiDetails error',
-                        '<p>Insertion failed for variant features \
-for {0} with args {1}</p>'
-                        .format(vv_key_var, failed_query)
-                    ),
-                    '[MobiDetails - MD variant creation Error]'
-                )
-                return danger_panel(
-                    'MobiDetails error {}'.format(vv_key_var),
-                    'Sorry, an issue occured with the variant position \
-and intron/exon definition. An admin has been warned'
-                )
-            elif caller == 'api':
-                return {
-                    'mobidetails_error':
-                    'Sorry, an issue occured with the variant position \
-and intron/exon definition for {}'.format(vv_key_var)
-                }
-        vf_d['start_segment_type'] = res_seg['type']
-        vf_d['start_segment_number'] = res_seg['number']
-        vf_d['end_segment_type'] = res_seg['type']
-        vf_d['end_segment_number'] = res_seg['number']
+        # if not res_seg:
+        #     failed_query = "SELECT number, type FROM segment WHERE genome_version = '{0}' \
+        #     AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
+        #     BETWEEN SYMMETRIC segment_start AND \
+        #     segment_end".format(genome, gene, acc_no, positions[0])
+        #     print(failed_query)
+        #     if caller == 'webApp':
+        #         send_error_email(
+        #             prepare_email_html(
+        #                 'MobiDetails error',
+        #                 '<p>Insertion failed for variant features \
+        # for {0} with args {1}</p>'
+        #                 .format(vv_key_var, failed_query)
+        #             ),
+        #             '[MobiDetails - MD variant creation Error]'
+        #         )
+        #         return danger_panel(
+        #             'MobiDetails error {}'.format(vv_key_var),
+        #             'Sorry, an issue occured with the variant position \
+        #     and intron/exon definition. An admin has been warned'
+        #         )
+        #     elif caller == 'api':
+        #         return {
+        #             'mobidetails_error':
+        #             'Sorry, an issue occured with the variant position \
+        #       and intron/exon definition for {}'.format(vv_key_var)
+        #         }
+        # vf_d['start_segment_type'] = res_seg['type']
+        # vf_d['start_segment_number'] = res_seg['number']
+        # vf_d['end_segment_type'] = res_seg['type']
+        # vf_d['end_segment_number'] = res_seg['number']
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
             if ivs_obj:
@@ -1513,7 +1555,7 @@ in md_utilities create_var_vv</p>'.format(vv_key_var)
                 )
     if 'ivs_name' not in vf_d:
         vf_d['ivs_name'] = 'NULL'
-    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+    # ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
     hg38_d['chr'] = ncbi_chr[0]
     record = get_value_from_tabix_file(
         'dbsnp', local_files['dbsnp']['abs_path'], hg38_d, vf_d
@@ -1742,6 +1784,73 @@ in hg19. An admin has been warned'
         )}
 
 
+def get_segment_type_from_vv(vv_expr):
+    if re.match(r'^\d+i$', vv_expr):
+        return 'intron'
+    elif re.match(r'^\d+$', vv_expr):
+        return 'exon'
+    else:
+        return 'segment_type_error'
+
+
+def get_segment_size_from_vv_cigar(cigar):
+    match_obj = re.search(r'^(\d+)=', cigar)
+    if match_obj:
+        return str(match_obj.group(1))
+    else:
+        return 'cigar_error'
+
+
+def get_positions_dict_from_vv_json(gene_symbol, transcript, transcript_version, ncbi_chr, exon_number):
+    # we will find the exon start and end in the VV json file
+    try:
+        json_file = open('{0}{1}.json'.format(
+            local_files['variant_validator']['abs_path'],
+            gene_symbol
+        ))
+    except IOError:
+        print('file_not_found_error')
+        return 'file_not_found_error'
+    vv_json = json.load(json_file)
+    positions = {
+        'number': int(exon_number),
+        'gene_name': [gene_symbol, transcript]
+    }
+    for vv_transcript in vv_json['transcripts']:
+        if vv_transcript['reference'] == '{0}.{1}'.format(transcript, transcript_version):
+            if ncbi_chr[0] in vv_transcript['genomic_spans']:
+                # get strand
+                strand = vv_transcript['genomic_spans'][ncbi_chr[0]]['orientation']
+                # we loop on exons
+                for exon in vv_transcript['genomic_spans'][ncbi_chr[0]]['exon_structure']:
+                    if str(exon['exon_number']) == exon_number:
+                        if strand == 1:
+                            positions['segment_start'] = str(exon['genomic_start'])
+                            positions['segment_end'] = str(exon['genomic_end'])
+                        else:
+                            positions['segment_start'] = str(exon['genomic_end'])
+                            positions['segment_end'] = str(exon['genomic_start'])
+                        positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
+                        if positions['segment_size'] != 'cigar_error' and \
+                                re.search(r'^\d+$', positions['segment_start']) and \
+                                re.search(r'^\d+$', positions['segment_start']):
+                            json_file.close()
+                            return positions
+                        else:
+                            json_file.close()
+                            return 'positions_error'
+    json_file.close()
+    return 'transcript_error'
+
+
+def get_segment_number_from_vv(vv_expr):
+    match_obj = re.search(r'^(\d+)i?$', vv_expr)
+    if match_obj:
+        return match_obj.group(1)
+    else:
+        return 'segment_number_error'
+
+
 def get_genomic_values(genome, vv_data, vv_key_var):
     if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
         g_name_obj = re.search(
@@ -1955,22 +2064,24 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
 def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     # 1st we need the sequences and therefore determine
     # start and end of interest
+    segment_start = int(positions['segment_start'])
+    segment_end = int(positions['segment_end'])
     x = y = None
     if scantype == 3:
         if strand == '+':
-            x = positions['segment_start']-21
-            y = positions['segment_start']+2
+            x = segment_start-21
+            y = segment_start+2
         else:
-            x = positions['segment_start']-3
-            y = positions['segment_start']+20
+            x = segment_start-3
+            y = segment_start+20
 
     else:
         if strand == '+':
-            x = positions['segment_end']-3
-            y = positions['segment_end']+6
+            x = segment_end-3
+            y = segment_end+6
         else:
-            x = positions['segment_end']-7
-            y = positions['segment_end']+2
+            x = segment_end-7
+            y = segment_end+2
 
     genome = twobitreader.TwoBitFile('{}.2bit'.format(
         local_files['human_genome_hg38']['abs_path'])

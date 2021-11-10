@@ -498,6 +498,52 @@ def test_compute_pos_end(g_name, pos_end):
     assert pos == pos_end
 
 
+@pytest.mark.parametrize(('vv_expr', 'result'), (
+    ('8i', 'intron'),
+    ('72', 'exon'),
+    ('xc', 'segment_type_error'),
+))
+def test_get_segment_type_from_vv(vv_expr, result):
+    segment_type = md_utilities.get_segment_type_from_vv(vv_expr)
+    assert segment_type == result
+
+
+@pytest.mark.parametrize(('vv_expr', 'result'), (
+    ('8i', '8'),
+    ('72', '72'),
+    ('xc', 'segment_number_error'),
+))
+def test_get_segment_number_from_vv(vv_expr, result):
+    segment_number = md_utilities.get_segment_number_from_vv(vv_expr)
+    assert segment_number == result
+
+
+@pytest.mark.parametrize(('cigar', 'result'), (
+    ('8=', '8'),
+    ('72258=', '72258'),
+    ('xc', 'cigar_error'),
+))
+def test_get_segment_size_from_vv_cigar(cigar, result):
+    segment_size = md_utilities.get_segment_size_from_vv_cigar(cigar)
+    assert segment_size == result
+
+
+@pytest.mark.parametrize(('gene_symbol', 'transcript', 'transcript_version', 'ncbi_chr', 'exon_number', 'start_result'), (
+    ('A2ML1', 'NM_144670', '6', ['NC_000012.12'], '27', '8860881'),
+    ('A2ML1', 'NM_144670', '6', ['NC_000012.13'], '27', 'transcript_error'),
+    ('A2ML1', 'NM_001282424', '3', ['NC_000012.12'], '27', 'transcript_error'),
+    ('ABCA4', 'NM_000350', '3', ['NC_000001.11'], '22', '94042898'),
+    ('ABCA4', 'NM_000350', '3', ['NC_000001.11'], '82', 'transcript_error'),
+    ('ABCA4', 'NM_000350', '7', ['NC_000001.11'], '22', 'transcript_error'),
+))
+def test_get_positions_dict_from_vv_json(gene_symbol, transcript, transcript_version, ncbi_chr, exon_number, start_result):
+    positions = md_utilities.get_positions_dict_from_vv_json(gene_symbol, transcript, transcript_version, ncbi_chr, exon_number)
+    if isinstance(positions, str):
+        assert positions == start_result
+    else:
+        assert positions['segment_start'] == start_result
+
+
 vv_dict = {
   "flag": "gene_variant",
   "NM_206933.2:c.100_101delinsA": {

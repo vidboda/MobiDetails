@@ -496,12 +496,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
         for var in variant:
             if var['genome_version'] == 'hg38':
                 # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
-                curs.execute(
-                    "SELECT ncbi_name \
-                    FROM chromosomes WHERE name = %s and genome_version = %s",
-                    (var['chr'], var['genome_version'])
-                )
-                res_chr = curs.fetchone()
+                # curs.execute(
+                #     "SELECT ncbi_name \
+                #     FROM chromosomes WHERE name = %s and genome_version = %s",
+                #     (var['chr'], var['genome_version'])
+                # )
+                # res_chr = curs.fetchone()
+                res_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(var['chr']), var['genome_version'])
                 external_data['VCF']['chr'] = var['chr']
                 external_data['VCF']['hg38']['ncbiChr'] = res_chr['ncbi_name']
                 external_data['VCF']['hg38']['pos'] = var['pos']
@@ -543,16 +544,39 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # compute position / splice sites
                 if variant_features['variant_size'] < 50 and \
                         variant_features['start_segment_type'] == 'exon':
-                    curs.execute(
-                        "SELECT * FROM segment WHERE genome_version = %s\
-                        AND gene_name[1] = %s and gene_name[2] = %s \
-                        AND type = 'exon' AND number = %s",
-                        (var['genome_version'],
-                            variant_features['gene_name'][0],
-                            variant_features['gene_name'][1],
-                            variant_features['start_segment_number'])
+                    # we want exon start and end
+                    positions = md_utilities.get_positions_dict_from_vv_json(
+                        external_data['gene']['symbol'],
+                        external_data['gene']['RefSeqTranscript'],
+                        external_data['gene']['nmVersion'],
+                        res_chr,
+                        str(external_data['positions']['segmentStartNumber'])
                     )
-                    positions = curs.fetchone()
+                    if isinstance(positions, str):
+                        # error
+                        if caller == 'cli':
+                            return jsonify(mobidetails_error='Error in retrieving the exon genomic positions')
+                        else:
+                            flash('Error in retrieving the exon genomic positions. An admin has been warned.', 'w3-pale-red')
+                            # md_utilities.send_error_email(
+                            #     md_utilities.prepare_email_html(
+                            #         'MobiDetails API error',
+                            #         '<p>Error with MDAPI exon definition for variant {0}'.format(variant_id)
+                            #     ),
+                            #     '[MobiDetails - MDAPI Error]'
+                            # )
+                            return redirect(url_for('md.index'), code=302)
+
+                    # curs.execute(
+                    #     "SELECT * FROM segment WHERE genome_version = %s\
+                    #     AND gene_name[1] = %s and gene_name[2] = %s \
+                    #     AND type = 'exon' AND number = %s",
+                    #     (var['genome_version'],
+                    #         variant_features['gene_name'][0],
+                    #         variant_features['gene_name'][1],
+                    #         variant_features['start_segment_number'])
+                    # )
+                    # positions = curs.fetchone()
                     # get info to build hexoSplice link
                     if variant_features['dna_type'] == 'substitution':
                         internal_data['hexosplice']['exonSequence'] = md_utilities.get_exon_sequence(
