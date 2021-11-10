@@ -203,12 +203,12 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
 
 
 @pytest.mark.parametrize(('new_variant', 'gene', 'acc_no', 'acc_version', 'message1', 'message2'), (
-    ('c.2276G>T', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('', 'USH2A', 'NM_206933', '2', b'fill in the form', b'fill in the form'),
-    ('c.216_219del', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.-104_-99dup', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.*25_*26insATG', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.651+126_651+128del', 'USH2A', 'NM_206933', '2', b'already', b'successfully')
+    ('c.2276G>T', 'USH2A', 'NM_206933', '4', b'already', b'successfully'),
+    ('', 'USH2A', 'NM_206933', '4', b'fill in the form', b'fill in the form'),
+    ('c.216_219del', 'USH2A', 'NM_206933', '4', b'already', b'successfully'),
+    ('c.-104_-99dup', 'USH2A', 'NM_206933', '4', b'already', b'successfully'),
+    ('c.*25_*26insATG', 'USH2A', 'NM_206933', '4', b'already', b'successfully'),
+    ('c.651+126_651+128del', 'USH2A', 'NM_206933', '4', b'already', b'successfully')
 ))
 def test_create(client, new_variant, gene, acc_no, acc_version, message1, message2):
     assert client.get('/create').status_code == 405
@@ -362,7 +362,7 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.4:c.100C>A", "NM_001197104.2:c.100C>G", "NM_206933.4:c.100C>G", "NM_206933.4:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'')

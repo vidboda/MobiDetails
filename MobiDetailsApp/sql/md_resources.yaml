@@ -113,6 +113,7 @@
   'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
   'mutalyzer_api_json': 'https://mutalyzer.nl/json/'
   'mupit': 'https://mupit.icm.jhu.edu/MuPIT_Interactive'
+  'mygene.info': 'https://mygene.info/v3/'
   'ncbi': 'https://www.ncbi.nlm.nih.gov/'
   'ncbi_nuccore':  'https://www.ncbi.nlm.nih.gov/nuccore/'
   'ncbi_prot': 'https://www.ncbi.nlm.nih.gov/protein/'
@@ -481,6 +482,12 @@
     'paper': '18000842'
     'version': 'API'
     'short_name': 'mutalyzer'
+  'mygene.info':
+    'firstauthor': 'Xin'
+    'year': '2016'
+    'paper': ' 27154141'
+    'version': 'API'
+    'short_name': 'mygene.info'
   'Polyphen-2':
     'firstauthor': 'Adzhubei'
     'year': '2010'

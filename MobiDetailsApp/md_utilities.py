@@ -1809,7 +1809,7 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, transcript_version,
             gene_symbol
         ))
     except IOError:
-        print('file_not_found_error')
+        # print('file_not_found_error')
         return 'file_not_found_error'
     vv_json = json.load(json_file)
     positions = {

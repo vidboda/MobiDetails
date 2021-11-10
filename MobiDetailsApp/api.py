@@ -1674,7 +1674,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
             # md_nm = []
             hgvs_nc = []
-            gene_names = []
+            gene_symbols = []
             # can_nm = None
             for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
                 variant_regexp = md_utilities.regexp['variant']
@@ -1700,24 +1700,74 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         # look for gene name
                         positions = md_utilities.compute_start_end_pos(match_nc.group(2))
                         # print("SELECT a.name[1] as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = {0} AND {1} BETWEEN SYMMETRIC # b.segment_start AND b.segment_end".format(res_chr['name'], positions[0]))
-                        if not gene_names:
-                            curs.execute(
-                                "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND b.genome_version = %s AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
-                                (res_chr['genome_version'], res_chr['name'], positions[0])
-                            )
-                            res_gene = curs.fetchall()
-                            if res_gene:
-                                for hgnc_name in res_gene:
-                                    gene_names.append(hgnc_name[0])
+                        if not gene_symbols:
+                            # we want gene names spanning the genomic position
+                            # we need to hit mygene.info with shtg like:
+                            # https://mygene.info/v3/query?q=chr1%3A216524862-216524862&fields=symbol&species=human
+                            # to get
+                            # {
+                            #   "took": 21,
+                            #   "total": 1,
+                            #   "max_score": 8.792146,
+                            #   "hits": [
+                            #     {
+                            #       "_id": "2104",
+                            #       "_score": 8.792146,
+                            #       "symbol": "ESRRG"
+                            #     }
+                            #   ]
+                            # }
+                            # and then check if the gene is available in MD
+                            mygene_info_url = '{0}query?q=chr{1}:{2}-{3}&fields=symbol&species=human'.format(md_utilities.urls['mygene.info'], res_chr['name'], positions[0], positions[1])
+                            try:
+                                mygene_response = json.loads(http.request('GET', mygene_info_url, headers=md_utilities.api_agent).data.decode('utf-8'))
+                            except Exception as e:
+                                if caller == 'cli':
+                                    return {'mobidetails_error': 'mygene.info API did not answer our query. We cannot map the dbSNP id {0}'}
+                                else:
+                                    md_utilities.send_error_email(
+                                        md_utilities.prepare_email_html(
+                                            'MobiDetails API error',
+                                            '<p>Error with MDAPI dbsnp creation for {0}<br /> - from {1} with args: {2}</p>'.format(
+                                                rs_id,
+                                                os.path.basename(__file__),
+                                                e.args
+                                            )
+                                        ),
+                                        '[MobiDetails - MDAPI Error]'
+                                    )
+                                    flash('mygene.info API did not answer our query. We cannot map the dbSNP id {0}. An admin has been warned.'.format(rs_id), 'w3-pale-red')
+                                    return redirect(url_for('md.index'), code=302)
+                            if "hits" in mygene_response:
+                                for hit in mygene_response['hits']:
+                                    if 'symbol' in hit:
+                                        # now we check if gene symbol can be foud in MD
+                                        curs.execute(
+                                            "SELECT name[1] as gene_symbol FROM gene WHERE name[1] = %s",
+                                            (hit['symbol'],)
+                                        )
+                                        res_gene = curs.fetchone()
+                                        if res_gene and \
+                                                res_gene['gene_symbol'] == hit['symbol']:
+                                            gene_symbols.append(hit['symbol'])
+
+                            # curs.execute(
+                            #     "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND b.genome_version = %s AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
+                            #     (res_chr['genome_version'], res_chr['name'], positions[0])
+                            # )
+                            # res_gene = curs.fetchall()
+                            # if res_gene:
+                            #     for hgnc_name in res_gene:
+                            #         gene_symbols.append(hgnc_name[0])
                 else:
                     continue
             # do we have an intronic variant?
             if hgvs_nc and \
-                    gene_names:  # and \
+                    gene_symbols:  # and \
                     # not md_response:
                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                 for var_hgvs_nc in hgvs_nc:
-                    for gene_hgnc in gene_names:
+                    for gene_hgnc in gene_symbols:
                         data = {
                             'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
                             'gene_hgnc': gene_hgnc,
@@ -1732,7 +1782,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with MDAPI file writing for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    '<p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                                         rs_id,
                                         var_hgvs_nc,
                                         os.path.basename(__file__),
@@ -1807,6 +1857,8 @@ def api_gene(gene_hgnc=None):
     d_gene = {}
     if res:
         for transcript in res:
+            if 'HGNC Symbol' not in d_gene:
+                d_gene['HGNC Symbol'] = transcript['prot_name']
             if 'HGNC Name' not in d_gene:
                 d_gene['HGNC Name'] = transcript['name'][0]
             if 'HGNC ID' not in d_gene:
@@ -1823,6 +1875,7 @@ def api_gene(gene_hgnc=None):
             refseq = '{0}.{1}'.format(transcript['name'][1], transcript['nm_version'])
             d_gene[refseq] = {
                 'canonical': transcript['canonical'],
+                'total exons': transcript['number_of_exons']
             }
             if 'RefProtein' not in d_gene[refseq]:
                 if transcript['np'] == 'NP_000000.0':

@@ -118,7 +118,7 @@ def gene(gene_name=None):
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
-        # in panelApp ?
+        # in panelApp ? takes too much time, done in ajax
         # we check  if the gene is in panelApp, if it is, we propose a link
         # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
         # http = urllib3.PoolManager(
@@ -340,6 +340,28 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
             )
             res_size = curs.fetchone()
             close_db()
+            # get refseq select, mane, etc from vv json file
+            no_vv_file = 0
+            try:
+                json_file = open('{0}{1}.json'.format(
+                    md_utilities.local_files['variant_validator']['abs_path'],
+                    gene_name
+                ))
+            except IOError:
+                no_vv_file = 1
+            if no_vv_file == 0:
+                transcript_road_signs = {}
+                vv_json = json.load(json_file)
+                for vv_transcript in vv_json['transcripts']:
+                    for res in result_all:
+                        # need to check vv isoforms against MD isoforms to keep only relevant ones
+                        if vv_transcript['reference'] == '{0}.{1}'.format(res['name'][1], res['nm_version']):
+                            transcript_road_signs[res['name'][1]] = {
+                                'mane_select': vv_transcript['annotations']['mane_select'],
+                                'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                'refseq_select': vv_transcript['annotations']['refseq_select']
+                            }
+                # print(transcript_road_signs)
             return render_template(
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),
@@ -349,7 +371,8 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                 main_iso=main,
                 res=result_all,
                 annotations=annot,
-                max_prot_size=res_size['size']
+                max_prot_size=res_size['size'],
+                transcript_road_signs=transcript_road_signs
             )
         else:
             close_db()
