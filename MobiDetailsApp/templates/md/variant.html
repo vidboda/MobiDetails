@@ -33,7 +33,6 @@
 					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
 				{% endif %}
 			{% endif %}
-			{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "Clinvar")}}#}
 			{% if external_data.positions.proteinTypeSoAccession is not none %}
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% else %}
@@ -43,7 +42,6 @@
 				{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
 				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
 			{% endif %}
-		{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "VarSome") }}#}
 		</div>
 		{# hg38 #}
 		{# deal with position for genome browsers #}
@@ -107,7 +105,7 @@
 	</div>
 	<div id="global_content" style="margin-left:15%">
 		<!--first section-->
-		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s.%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName) }}</div>
+		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
 		<div class="w3-container w3-responsive">
@@ -129,10 +127,9 @@
 					<!--HGVS DNA on transcript-->
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
-						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span>.{{ external_data.gene.nmVersion }}</a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
+						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
-					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}">-->
 					<!--IVS name-->
 					{% if external_data.positions.segmentStartType == 'intron' %}
 						<tr>
@@ -201,7 +198,7 @@
 				</div>
 				<!--VariantValidator-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.' + encodeURIComponent('{{ internal_data.nomenclatures.cName }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }} (hg38)" style="width:100%">VariantValidator</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ external_data.gene.RefSeqTranscript }}:c.' + encodeURIComponent('{{ internal_data.nomenclatures.cName }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }} (hg38)" style="width:100%">VariantValidator</span>
 				</div>
 				<!--HGVS-->
 				<div class="w3-col m4">
@@ -230,7 +227,7 @@
 						{% else %}
 							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
 						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}</em></td>
+						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}</em></td>
 					</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
 					{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
 						{% if pos_splice is not none %}
@@ -1184,9 +1181,8 @@
 								<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
-								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}" />-->
 								<span>This message will be sent via MobiDetails. The contact will also receive your email address and be able to answer directly.</span><br />
-								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
+								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
 								<div class="w3-row w3-section w3-responsive">
 									<div class="w3-quarter w3-left-align">
 										<label for="message_body" form="message_form"><span >Type your message here:</span></label>

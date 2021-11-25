@@ -318,7 +318,6 @@ function run_spip(url, variant_id, csrf_token) {
 
 function spliceai_lookup(spliceai_lookup_url, csrf_token) {
 	// ajax for spliceai lookup
-
 	// send header for flask-wtf crsf security
 	$.ajaxSetup({
 		beforeSend: function(xhr, settings) {

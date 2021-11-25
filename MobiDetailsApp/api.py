@@ -146,7 +146,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         'gene': {
             'symbol': None,
             'RefSeqTranscript': None,
-            'nmVersion': None,
             'RefSeqNg': None,
             'RefSeqNp': None,
             'ENST': None,
@@ -401,7 +400,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
     # get all variant_features and gene info
     curs.execute(
-        "SELECT a.*, b.*, a.id as var_id, c.id as mobiuser_id, c.email, c.username,  d.so_accession \
+        "SELECT a.*, b.*, a.id as var_id, c.id as mobiuser_id, c.email, c.username, d.so_accession \
         FROM variant_feature a, gene b, mobiuser c, valid_prot_type d \
         WHERE a.gene_name = b.name AND a.creation_user = c.id \
         AND a.prot_type = d.prot_type AND a.id = %s",
@@ -433,7 +432,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
         external_data['gene']['symbol'] = variant_features['gene_name'][0]
         external_data['gene']['RefSeqTranscript'] = variant_features['gene_name'][1]
-        external_data['gene']['nmVersion'] = variant_features['nm_version']
         external_data['gene']['RefSeqNg'] = variant_features['ng']
         external_data['gene']['RefSeqNp'] = variant_features['np']
         external_data['gene']['ENST'] = variant_features['enst']
@@ -548,7 +546,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     positions = md_utilities.get_positions_dict_from_vv_json(
                         external_data['gene']['symbol'],
                         external_data['gene']['RefSeqTranscript'],
-                        external_data['gene']['nmVersion'],
                         res_chr,
                         str(external_data['positions']['segmentStartNumber'])
                     )
@@ -558,25 +555,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             return jsonify(mobidetails_error='Error in retrieving the exon genomic positions')
                         else:
                             flash('Error in retrieving the exon genomic positions. An admin has been warned.', 'w3-pale-red')
-                            # md_utilities.send_error_email(
-                            #     md_utilities.prepare_email_html(
-                            #         'MobiDetails API error',
-                            #         '<p>Error with MDAPI exon definition for variant {0}'.format(variant_id)
-                            #     ),
-                            #     '[MobiDetails - MDAPI Error]'
-                            # )
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails API error',
+                                    '<p>Error with MDAPI exon definition for variant {0}'.format(variant_id)
+                                ),
+                                '[MobiDetails - MDAPI Error]'
+                            )
                             return redirect(url_for('md.index'), code=302)
 
-                    # curs.execute(
-                    #     "SELECT * FROM segment WHERE genome_version = %s\
-                    #     AND gene_name[1] = %s and gene_name[2] = %s \
-                    #     AND type = 'exon' AND number = %s",
-                    #     (var['genome_version'],
-                    #         variant_features['gene_name'][0],
-                    #         variant_features['gene_name'][1],
-                    #         variant_features['start_segment_number'])
-                    # )
-                    # positions = curs.fetchone()
                     # get info to build hexoSplice link
                     if variant_features['dna_type'] == 'substitution':
                         internal_data['hexosplice']['exonSequence'] = md_utilities.get_exon_sequence(
@@ -665,19 +652,26 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
                     internal_data['canvas']['posExonCanvas'] = None
                     # get info from neighboring exon
-                    curs.execute(
-                        "SELECT * FROM segment WHERE genome_version = %s\
-                        AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
-                        (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], internal_data['positions']['neighbourExonNumber'])
+                    positions_neighb_exon = md_utilities.get_positions_dict_from_vv_json(
+                        external_data['gene']['symbol'],
+                        external_data['gene']['RefSeqTranscript'],
+                        external_data['VCF']['hg38']['ncbiChr'],
+                        internal_data['positions']['neighbourExonNumber']
                     )
-                    positions_neighb_exon = curs.fetchone()
+                    print(positions_neighb_exon)
+                    # curs.execute(
+                    #     "SELECT * FROM segment WHERE genome_version = %s\
+                    #     AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
+                    #     (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], internal_data['positions']['neighbourExonNumber'])
+                    # )
+                    # positions_neighb_exon = curs.fetchone()
                     if sign == '+':
                         internal_data['canvas']['preceedingSegmentType'] = None
                         internal_data['canvas']['preceedingSegmentNumber'] = None
                         internal_data['canvas']['followingSegmentType'] = 'intron'
                         internal_data['canvas']['followingSegmentNumber'] = variant_features['start_segment_number']
                         (internal_data['splicingPredictions']['nat5ssScore'], internal_data['splicingPredictions']['nat5ssSeq']) = md_utilities.get_maxent_natural_sites_scores(
-                            var['chr'], variant_features['strand'], 5, positions_neighb_exon
+                            var['chr'], external_data['gene']['strand'], 5, positions_neighb_exon
                         )
                     else:
                         internal_data['canvas']['preceedingSegmentType'] = 'intron'
@@ -1221,8 +1215,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
 # api - variant create
 
 
-# @bp.route('/api/variant/create/<string:variant_chgvs>/<string:api_key>')
-# def api_variant_create(variant_chgvs=None, api_key=None):
 @bp.route('/api/variant/create', methods=['POST'])
 def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     # get params
@@ -1259,16 +1251,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 return redirect(url_for('md.index'), code=302)
 
         variant_regexp = md_utilities.regexp['variant']
+        ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
         match_object = re.search(
-            rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})',
+            rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})',
             urllib.parse.unquote(variant_chgvs)
         )
         if match_object:
-            # match_object = re.search(r'^([Nn][Mm]_\d+)\.(\d{1,2}):c\.(.+)', variant_chgvs)
-            acc_no, submitted_nm_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
-            # acc_no, acc_version, new_variant = match_object.group(1), match_object.group(2), match_object.group(3)
+            acc_no, new_variant = match_object.group(1), match_object.group(2)
             new_variant = new_variant.replace(" ", "").replace("\t", "")
-            # new_variant = new_variant.replace("\t", "")
             original_variant = new_variant
             curs.execute(
                 "SELECT id FROM variant_feature WHERE c_name = %s AND gene_name[2] = %s",
@@ -1291,14 +1281,32 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 # creation
                 # get gene
                 curs.execute(
-                    "SELECT name[1] as gene, nm_version FROM gene WHERE name[2] = %s and variant_creation = 'ok'",
+                    "SELECT name[1] as gene, canonical FROM gene WHERE name[2] = %s and variant_creation = 'ok'",
                     (acc_no,)
                 )
                 res_gene = curs.fetchone()
-                if res_gene is None:
+                if not res_gene:
+                    # decompose transcript and check if it's a version pb
+                    refseq, submitted_version = acc_no.split(".")
+                    curs.execute(
+                        "SELECT name[1] as gene, name[2] as nm FROM gene WHERE name[2] LIKE %s and variant_creation = 'ok'",
+                        ('{0}%'.format(refseq),)
+                    )
+                    res_version = curs.fetchall()
+                    if res_version:
+                        if caller == 'cli':
+                            return jsonify(
+                                mobidetails_error='It seems that your transcript version ({0}) does not match MobiDetails ({1}).'.format(acc_no, ','.join(version['nm'] for version in res_version))
+                            )
+                        else:
+                            flash(
+                                'It seems that your transcript version ({0}) does not match MobiDetails ({1}).'.format(acc_no, ','.join(version['nm'] for version in res_version)),
+                                'w3-pale-red'
+                            )
+                            return redirect(url_for('md.index'), code=302)
                     if caller == 'cli':
                         return jsonify(
-                            mobidetails_error='The gene corresponding to {} is not yet available for variant annotation in MobiDetails'.format(acc_no)
+                            mobidetails_error='The transcript corresponding to {} is not  available for variant annotation in MobiDetails.'.format(acc_no)
                         )
                     else:
                         flash(
@@ -1306,13 +1314,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             'w3-pale-red'
                         )
                         return redirect(url_for('md.index'), code=302)
-                if int(res_gene['nm_version']) != int(submitted_nm_version):
-                    if caller == 'cli':
-                        return jsonify(mobidetails_error='The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']))
-                    else:
-                        flash('The RefSeq accession number submitted ({0}) for {1} does not match MobiDetail\'s ({2}).'.format(submitted_nm_version, acc_no, res_gene['nm_version']), 'w3-pale-red')
-                        return redirect(url_for('md.index'), code=302)
-                acc_version = res_gene['nm_version']
+
                 vv_base_url = md_utilities.get_vv_api_url()
                 if not vv_base_url:
                     close_db()
@@ -1321,10 +1323,10 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash('Variant Validator looks down!', 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                    vv_base_url, acc_no, acc_version, new_variant
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/all?content-type=application/json".format(
+                    vv_base_url, acc_no, new_variant
                 )
-                vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
+                vv_key_var = "{0}:c.{1}".format(acc_no, new_variant)
                 # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 try:
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
@@ -1346,27 +1348,49 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     # need to redefine vv_key_var for indels as the variant name returned
                     # by vv is likely to be different form the user's
                     for key in vv_data.keys():
-                        if re.search('{0}.{1}'.format(acc_no, acc_version), key):
+                        if re.search(acc_no, key):
                             vv_key_var = key
                             # print(key)
                             var_obj = re.search(r':c\.(.+)$', key)
                             if var_obj is not None:
                                 new_variant = var_obj.group(1)
+                # check if the transcript is canonical - if not, send 2 requests, one for the canonical, the other for the asked trancript
+                # returns only the results for the asked transcript (retrocompatibility)
+                if res_gene['canonical'] is False:
+                    curs.execute(
+                        "SELECT name[2] as nm FROM gene \
+                        WHERE name[1] = %s and canonical = 't'",
+                        (res_gene['gene'],)
+                    )
+                    res_can = curs.fetchone()
+                    md_utilities.create_var_vv(
+                        vv_key_var, res_gene['gene'], res_can['nm'],
+                        'c.{}'.format(new_variant), original_variant,
+                        vv_data, 'api', db, g
+                    )
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene'], acc_no,
                     'c.{}'.format(new_variant), original_variant,
-                    acc_version, vv_data, 'api', db, g
+                    vv_data, 'api', db, g
                 )
+                if isinstance(creation_dict, int):
+                    # success
+                    if caller == 'cli':
+                        return jsonify(
+                            mobidetails_id=creation_dict,
+                            url='{0}{1}'.format(
+                                request.host_url[:-1],
+                                url_for('api.variant', variant_id=creation_dict, caller='browser')
+                            )
+                        )
+                    else:
+                        return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
                 if 'mobidetails_error' in creation_dict:
                     if caller == 'cli':
                         return jsonify(creation_dict)
                     else:
                         flash(creation_dict['mobidetails_error'], 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
-                if caller == 'cli':
-                    return jsonify(creation_dict)
-                else:
-                    return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
         else:
             if caller == 'cli':
                 return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_chgvs)))
@@ -1429,13 +1453,13 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
         if re.search(r'^\d+$', gene):
             # HGNC id submitted
              curs.execute(
-                "SELECT name, nm_version FROM gene WHERE hgnc_id = %s AND canonical = 't' and variant_creation = 'ok'",
+                "SELECT name FROM gene WHERE hgnc_id = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
             )
         else:
             # search for gene name
             curs.execute(
-                "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 't' and variant_creation = 'ok'",
+                "SELECT name FROM gene WHERE name[1] = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
             )
         res_gene = curs.fetchone()
@@ -1517,36 +1541,47 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                         res_gene_non_can_list = []
                         # we still need a list of non canonical NM for the gene of interest
                         curs.execute(
-                            "SELECT name, nm_version FROM gene WHERE name[1] = %s AND canonical = 'f'",
+                            "SELECT name FROM gene WHERE name[1] = %s AND canonical = 'f'",
                             (gene,)
                         )
                         res_gene_non_can = curs.fetchall()
                         for transcript in res_gene_non_can:
-                            res_gene_non_can_list.append('{0}.{1}'.format(transcript['name'][1], transcript['nm_version']))
+                            res_gene_non_can_list.append(transcript['name'][1])
                         for key in vv_data.keys():
                             variant_regexp = md_utilities.regexp['variant']
-                            match_obj = re.search(rf'^([Nn][Mm]_\d+)\.(\d{{1,2}}):c\.({variant_regexp})', key)
+                            ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+                            match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
                             if match_obj:
-                                new_variant = match_obj.group(3)
-                                # print("{0}-{1}-{2}-{3}".format(match_obj.group(1), res_gene['name'][1], match_obj.group(2), res_gene['nm_version']))
-                                if match_obj.group(1) == res_gene['name'][1] and \
-                                        str(match_obj.group(2)) == str(res_gene['nm_version']):
+                                new_variant = match_obj.group(2)
+                                if match_obj.group(1) == res_gene['name'][1]:
                                     # treat canonical as priority
-                                    vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
+                                    vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
                                     break
                                 elif not vv_key_var:
                                     # take into account non canonical isoforms
                                     # print('{0}.{1}'.format(match_obj.group(1), match_obj.group(2)))
                                     # print(res_gene_non_can_list)
-                                    if '{0}.{1}'.format(match_obj.group(1), match_obj.group(2)) in res_gene_non_can_list:
-                                        vv_key_var = "{0}.{1}:c.{2}".format(match_obj.group(1), match_obj.group(2), match_obj.group(3))
+                                    if match_obj.group(1) in res_gene_non_can_list:
+                                        vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
                         if vv_key_var:
                             # print(vv_key_var)
                             creation_dict = md_utilities.create_var_vv(
                                 vv_key_var, res_gene['name'][0], res_gene['name'][1],
                                 'c.{}'.format(new_variant), new_variant,
-                                res_gene['nm_version'], vv_data, 'api', db, g
+                                vv_data, 'api', db, g
                             )
+                            if isinstance(creation_dict, int):
+                                # success
+                                if caller == 'cli':
+                                    return jsonify(
+                                        mobidetails_id=creation_dict,
+                                        url='{0}{1}'.format(
+                                            request.host_url[:-1],
+                                            url_for('api.variant', variant_id=creation_dict, caller='browser')
+                                        )
+                                    )
+                                else:
+                                    return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
                             if caller == 'cli':
                                 return jsonify(creation_dict)
                             else:
@@ -1631,14 +1666,14 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             trunc_rs_id = match_obj.group(1)
             # check if rsid exists
             curs.execute(
-                "SELECT a.c_name, a.id, b.name[2] as nm, b.nm_version FROM variant_feature a, gene b WHERE a.gene_name = b.name AND a.dbsnp_id = %s",
+                "SELECT c_name, id, gene_name[2] as nm FROM variant_feature WHERE dbsnp_id = %s",
                 (trunc_rs_id,)
             )
             res_rs = curs.fetchall()
             if res_rs:
                 vars_rs = {}
                 for var in res_rs:
-                    current_var = '{0}.{1}:c.{2}'.format(var['nm'], var['nm_version'], var['c_name'])
+                    current_var = '{0}:c.{1}'.format(var['nm'], var['c_name'])
                     vars_rs[current_var] = {
                         'mobidetails_id': var['id'],
                         'url': '{0}{1}'.format(
@@ -1647,14 +1682,13 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         )
                     }
                 if caller == 'cli':
-                        return jsonify(vars_rs)
+                    return jsonify(vars_rs)
                 else:
                     if len(res_rs) == 1:
                         return redirect(url_for('api.variant', variant_id=res_rs['id'], caller='browser'), code=302)
                     else:
                         return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
-            # use putalyzer to get HGVS noemclatures
-            # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+            # use mutalyzer to get HGVS nomenclatures
             mutalyzer_url = "{0}getdbSNPDescriptions?rs_id={1}".format(
                 md_utilities.urls['mutalyzer_api_json'], rs_id
             )
@@ -1699,7 +1733,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         hgvs_nc.append(hgvs)
                         # look for gene name
                         positions = md_utilities.compute_start_end_pos(match_nc.group(2))
-                        # print("SELECT a.name[1] as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND a.chr = {0} AND {1} BETWEEN SYMMETRIC # b.segment_start AND b.segment_end".format(res_chr['name'], positions[0]))
                         if not gene_symbols:
                             # we want gene names spanning the genomic position
                             # we need to hit mygene.info with shtg like:
@@ -1728,8 +1761,9 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                     md_utilities.send_error_email(
                                         md_utilities.prepare_email_html(
                                             'MobiDetails API error',
-                                            '<p>Error with MDAPI dbsnp creation for {0}<br /> - from {1} with args: {2}</p>'.format(
+                                            '<p>mygene.info API did not answer the query dbsnp creation for {0} using url {1}<br /> - from {2} with args: {3}</p>'.format(
                                                 rs_id,
+                                                mygene_info_url,
                                                 os.path.basename(__file__),
                                                 e.args
                                             )
@@ -1750,15 +1784,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                         if res_gene and \
                                                 res_gene['gene_symbol'] == hit['symbol']:
                                             gene_symbols.append(hit['symbol'])
-
-                            # curs.execute(
-                            #     "SELECT DISTINCT(a.name[1]) as hgnc FROM gene a, segment b WHERE a.name = b.gene_name AND b.genome_version = %s AND a.chr = %s AND %s BETWEEN SYMMETRIC b.segment_start AND b.segment_end",
-                            #     (res_chr['genome_version'], res_chr['name'], positions[0])
-                            # )
-                            # res_gene = curs.fetchall()
-                            # if res_gene:
-                            #     for hgnc_name in res_gene:
-                            #         gene_symbols.append(hgnc_name[0])
                 else:
                     continue
             # do we have an intronic variant?
@@ -1836,7 +1861,8 @@ def api_gene(gene_hgnc=None):
         return jsonify(mobidetails_error='Invalid gene submitted ({})'.format(gene_hgnc))
     research = gene_hgnc
     search_id = 1
-    match_obj = re.search(r'(NM_\d+)\.?\d?', gene_hgnc)
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    match_obj = re.search(rf'({ncbi_transcript_regexp})', gene_hgnc)
     if match_obj:
         # we have a RefSeq accession number
         research = match_obj.group(1)
@@ -1860,7 +1886,7 @@ def api_gene(gene_hgnc=None):
             if 'HGNC Symbol' not in d_gene:
                 d_gene['HGNC Symbol'] = transcript['prot_name']
             if 'HGNC Name' not in d_gene:
-                d_gene['HGNC Name'] = transcript['name'][0]
+                d_gene['HGNC Symbol'] = transcript['name'][0]
             if 'HGNC ID' not in d_gene:
                 d_gene['HGNC ID'] = transcript['hgnc_id']
             if 'chr' not in d_gene:
@@ -1872,20 +1898,19 @@ def api_gene(gene_hgnc=None):
                     d_gene['RefGene'] = 'No RefGene in MobiDetails'
                 else:
                     d_gene['RefGene'] = transcript['ng']
-            refseq = '{0}.{1}'.format(transcript['name'][1], transcript['nm_version'])
-            d_gene[refseq] = {
+            d_gene[transcript['name'][1]] = {
                 'canonical': transcript['canonical'],
                 'total exons': transcript['number_of_exons']
             }
-            if 'RefProtein' not in d_gene[refseq]:
+            if 'RefProtein' not in d_gene[transcript['name'][1]]:
                 if transcript['np'] == 'NP_000000.0':
-                    d_gene[refseq]['RefProtein'] = 'No RefProtein in MobiDetails'
+                    d_gene[transcript['name'][1]]['RefProtein'] = 'No RefProtein in MobiDetails'
                 else:
-                    d_gene[refseq]['RefProtein'] = transcript['np']
-            if 'UNIPROT' not in d_gene[refseq]:
-                d_gene[refseq]['UNIPROT'] = transcript['uniprot_id']
-            if 'variantCreationTag' not in d_gene[refseq]:
-                d_gene[refseq]['variantCreationTag'] = transcript['variant_creation']
+                    d_gene[transcript['name'][1]]['RefProtein'] = transcript['np']
+            if 'UNIPROT' not in d_gene[transcript['name'][1]]:
+                d_gene[transcript['name'][1]]['UNIPROT'] = transcript['uniprot_id']
+            if 'variantCreationTag' not in d_gene[transcript['name'][1]]:
+                d_gene[transcript['name'][1]]['variantCreationTag'] = transcript['variant_creation']
         return jsonify(d_gene)
     else:
         return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))
@@ -1930,19 +1955,6 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
             return jsonify(res_check_api_key)
         else:
             g.user = res_check_api_key['mobiuser']
-        # if len(api_key) != 43:
-        #     return jsonify(mobidetails_error='Invalid API key')
-        # else:
-        #     curs.execute(
-        #         "SELECT * FROM mobiuser WHERE api_key = %s",
-        #         (api_key,)
-        #     )
-        #     res = curs.fetchone()
-        #     if res is None:
-        #         return jsonify(mobidetails_error='Unknown API key')
-        #     else:
-        #         g.user = res
-        # if not isinstance(variant_id, int):
         # request.form data are str
         if not isinstance(variant_id, int):
             if not re.search(r'^\d+$', variant_id):

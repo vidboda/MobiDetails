@@ -4,7 +4,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_gene.js') }}?201123" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}?200812" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}?211123" type="text/javascript"></script>
 {% endblock %}
 {% block header %}
 	<div class="w3-row">
@@ -110,8 +110,8 @@
 						{% else %}
 							<tr>
 						{% endif %}
-							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}.{{ iso.nm_version }}', '_blank')" title="click to open Genbank in new tab">
-								<strong><span>{{ iso.name[1] }}.{{ iso.nm_version }}
+							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}', '_blank')" title="click to open Genbank in new tab">
+								<strong><span>{{ iso.name[1] }}
 									{% if iso.canonical == 1 %}
 										<div class="w3-tag w3-round w3-green" style="padding:3px">
 											<div class="w3-tag w3-round w3-green w3-border w3-border-white">

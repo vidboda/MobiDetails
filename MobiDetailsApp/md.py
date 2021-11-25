@@ -355,7 +355,7 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                 for vv_transcript in vv_json['transcripts']:
                     for res in result_all:
                         # need to check vv isoforms against MD isoforms to keep only relevant ones
-                        if vv_transcript['reference'] == '{0}.{1}'.format(res['name'][1], res['nm_version']):
+                        if vv_transcript['reference'] == res['name'][1]:
                             transcript_road_signs[res['name'][1]] = {
                                 'mane_select': vv_transcript['annotations']['mane_select'],
                                 'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
@@ -436,15 +436,15 @@ def vars(gene_name=None):
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT name, nm_version, variant_creation FROM gene WHERE name[1] = %s",
+            "SELECT name, variant_creation FROM gene WHERE name[1] = %s",
             (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
-            "SELECT *, a.id as vf_id, d.nm_version FROM variant_feature a, \
-            variant b, mobiuser c, gene d WHERE a.id = b.feature_id AND \
-            a.creation_user = c.id  AND a.gene_name = d.name \
+            "SELECT *, a.id as vf_id FROM variant_feature a, \
+            variant b, mobiuser c WHERE a.id = b.feature_id AND \
+            a.creation_user = c.id \
             AND a.gene_name[1] = %s AND \
             b.genome_version = 'hg38'",
             (gene_name,)
@@ -500,6 +500,7 @@ def search_engine():
     variant_regexp_flexible = md_utilities.regexp['variant_flexible']
     amino_acid_regexp = md_utilities.regexp['amino_acid']
     nochr_captured_regexp = md_utilities.regexp['nochr_captured']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
 
     if query_engine is not None and \
             query_engine != '':
@@ -516,8 +517,8 @@ def search_engine():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 curs.execute(
-                    "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.nm_version, c.username from variant_feature a, gene b, mobiuser c \
-                    WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.creation_date > CURRENT_DATE - 7 ORDER BY creation_date DESC"
+                    "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.username from variant_feature a, mobiuser b \
+                    WHERE a.creation_user = b.id AND a.creation_date > CURRENT_DATE - 7 ORDER BY creation_date DESC"
                 )
                 variants = curs.fetchall()
                 return render_template('md/variant_multiple.html', variants=variants)
@@ -552,22 +553,22 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{variant_regexp}$', query_engine) or \
-                re.search(rf'^[Nn][Mm]_\d+\.\d+\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
+        elif re.search(rf'^{ncbi_transcript_regexp}:c\.{variant_regexp}$', query_engine) or \
+                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # API call
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+)\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
+            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
             if api_key is not None:
                 return redirect(url_for('api.api_variant_create', variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)), caller='browser', api_key=api_key), code=307)
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
             query_type = 'name[2]'
             col_names = 'name'
-            match_object = re.search(r'^([Nn][Mm]_\d+)\.?\d?', query_engine)
+            match_object = re.search(rf'^({ncbi_transcript_regexp})', query_engine)
             pattern = match_object.group(1)
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
