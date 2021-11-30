@@ -104,6 +104,29 @@
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
 	</div>
 	<div id="global_content" style="margin-left:15%">
+		<hr />
+		<!--alternative mappings-->
+		{% if internal_data.admin.otherIds is not none %}
+			<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
+				<p>This variant has been mapped on other transcripts. You can check the following ids:</p>
+				<ul>
+					{% for id in internal_data.admin.otherIds %}
+						<li>
+						{% autoescape false %}
+							<a href="{{ url_for('api.variant', variant_id=id.feature_id, caller='browser') }}" onclick="show_loader();">{{ "%s(<em>%s</em>):c.%s" | format(id.gene_name[1], id.gene_name[0], id.c_name) }}</a>
+							{% if id.canonical %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									MD canonical
+								</div>
+							</div>
+							{% endif %}
+						{% endautoescape %}
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
 		<!--first section-->
 		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
 		<hr />
@@ -127,16 +150,25 @@
 					<!--HGVS DNA on transcript-->
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
-						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
+						<td class="w3-left-align" id="nm_var">
+							<a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span>
+							{% if external_data.gene.canonical %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									MD canonical
+								</div>
+							</div>
+							{% endif %}
+						</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
 					<!--IVS name-->
 					{% if external_data.positions.segmentStartType == 'intron' %}
-						<tr>
-							<td class="w3-left-align">IVS name:</td>
-							<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
-							<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
-						</tr>
+					<tr>
+						<td class="w3-left-align">IVS name:</td>
+						<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
+						<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
+					</tr>
 					{% endif %}
 					<!--HGVS Protein-->
 					<tr>
@@ -991,68 +1023,69 @@
 		{% endif %}
 		<!--EpiSign section-->
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
-			<hr />
-			{{ section_title('episignature', 'Epigenetic Signature') }}
-			{{ info("The next table presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
-			<div class="w3-responsive w3-container">
-				<table class="w3-table w3-centered display compact" style="width:90%" id="episignature_table">
-					<thead>
-						<tr>
-							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align" width="40%">Values</th>
-							<th class="w3-left-align">Descriptions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!--WDSTS Episignature-->
-						<tr>
-							<td class="w3-left-align">DNA Methylation pattern</td>
-							<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
-							<td class="w3-left-align">{{ internal_data.episignature.Description }}</td>
-						</tr>
-						<!--ACMG Classification-->
-						<tr>
-							<td class="w3-left-align">Expert opinion</td>
-							<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
-							<td class="w3-left-align">Expert opinion after DNA methylation study (Anne-Sophie Lebre)</td>
-						</tr>
-						<!--Reference Article-->
-						<tr>
-							<td class="w3-left-align">Reference Article</td>
-							<td class="w3-left-align">
-								{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
-										<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
-								{% else %}
-									{{ internal_data.episignature.referenceArticle }}
-								{% endif %}
-							</td>
-							<td class="w3-left-align">reference data</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+		<hr />
+		{{ section_title('episignature', 'Epigenetic Signature') }}
+		{{ info("The next table presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
+		<div class="w3-responsive w3-container">
+			<table class="w3-table w3-centered display compact" style="width:90%" id="episignature_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align" width="40%">Values</th>
+						<th class="w3-left-align">Descriptions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--WDSTS Episignature-->
+					<tr>
+						<td class="w3-left-align">DNA Methylation pattern</td>
+						<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
+						<td class="w3-left-align">{{ internal_data.episignature.Description }}</td>
+					</tr>
+					<!--ACMG Classification-->
+					<tr>
+						<td class="w3-left-align">Expert opinion</td>
+						<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
+						<td class="w3-left-align">Expert opinion after DNA methylation study (Anne-Sophie Lebre)</td>
+					</tr>
+					<!--Reference Article-->
+					<tr>
+						<td class="w3-left-align">Reference Article</td>
+						<td class="w3-left-align">
+							{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
+									<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
+							{% else %}
+								{{ internal_data.episignature.referenceArticle }}
+							{% endif %}
+						</td>
+						<td class="w3-left-align">reference data</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		{% endif %}
 		<!--Classification section-->
 		<hr />
 		{{ section_title('class', 'Classification History') }}
 		<div class="w3-responsive w3-container">
 			{% if g.user %}
-				<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-					<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ external_data.gene.symbol }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
-					<p>
-						{% if g.user['lovd_export'] == true %}
-							Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
-						{% else %}
-							Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.
-						{% endif %}
-						<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.
-					</p>
-				</div>
+			<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+				<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ external_data.gene.symbol }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
+				<p>
+					{% if g.user['lovd_export'] == true %}
+					Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
+					{% else %}
+					Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.
+					{% endif %}
+					<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.
+				</p>
+			</div>
 			{% endif %}
 			<!--ACMG Classifications-->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="class_table">
 				<thead>
 					<tr>
+						<th class="w3-left-align">Variant</th>
 						<th class="w3-left-align">User</th>
 						<th class="w3-left-align">Date</th>
 						<th class="w3-left-align">ACMG Classification</th>
@@ -1061,52 +1094,64 @@
 				</thead>
 				<tbody>
 				{% if class_history is none %}
-					<tr id="no_class">
-						<td></td>
-						<td></td>
-						<td>No classification defined yet for this variant</td>
-						<td></td>
-					</tr>
+				<tr id="no_class">
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>No classification defined yet for this variant</td>
+					<td></td>
+				</tr>
 				{% else %}
 					{% for classif in class_history %}
-						<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}"><!--classification infos-->
-							{% if g.user %}
-								{% if g.user['id'] == classif.id %}
-									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
-								{% elif classif.username != 'mobidetails' %}
-									<td class="w3-left-align">
-										<a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank" title="See {{ classif.username }} profile">{{ classif.username }}</a>
-										{% if classif.email_pref == true %}
-											&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
-										{% endif %}
-									</td>
-								{% else %}
-									<td class="w3-left-align">{{ classif.username }}</td>
+					<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ classif.variant_feature_id }}"><!--classification infos-->
+						{% autoescape false %}
+						<td>{{ "%s(<em>%s</em>):c.%s" | format(classif.gene_name[1], classif.gene_name[0], classif.c_name) }}
+						{% if classif.gene_name[1] == external_data.gene.RefSeqTranscript %}
+						<div class="w3-tag w3-round w3-green" style="padding:3px">
+							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+								Current
+							</div>
+						</div>
+						{% endif %}
+						</td>
+						{% endautoescape %}
+						{% if g.user %}
+							{% if g.user['id'] == classif.id %}
+							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
+							{% elif classif.username != 'mobidetails' %}
+							<td class="w3-left-align">
+								<a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank" title="See {{ classif.username }} profile">{{ classif.username }}</a>
+								{% if classif.email_pref == true %}
+									&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
 								{% endif %}
-							{% else %}
-								<td class="w3-left-align">{{ classif.username }}</td>
-							{% endif %}
-							<td class="w3-left-align">{{ classif.class_date }}</td>
-							<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
-							<td>
-								<div class="w3-cell-row">
-									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
-									</span>
-									{% autoescape false %}
-										<script type="application/x-javascript">
-											$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
-                                        </script>
-									{% endautoescape %}
-									{% if classif.username == g.user['username'] %}
-										{% if run_mode  and run_mode == 'on' %}
-											<span class="w3-container w3-right-align w3-cell">
-												<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
-											</span>
-										{% endif %}
-									{% endif %}
-								</div>
 							</td>
-						</tr>
+							{% else %}
+							<td class="w3-left-align">{{ classif.username }}</td>
+							{% endif %}
+						{% else %}
+						<td class="w3-left-align">{{ classif.username }}</td>
+						{% endif %}
+						<td class="w3-left-align">{{ classif.class_date }}</td>
+						<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
+						<td>
+							<div class="w3-cell-row">
+								<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
+								</span>
+								{% autoescape false %}
+								<script type="application/x-javascript">
+										$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
+								</script>
+								{% endautoescape %}
+								{% if classif.username == g.user['username'] %}
+									{% if run_mode  and run_mode == 'on' %}
+									<span class="w3-container w3-right-align w3-cell">
+										<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
+									</span>
+									{% endif %}
+								{% endif %}
+							</div>
+						</td>
+					</tr>
 					{% endfor %}
 				{% endif %}
 				</tbody>

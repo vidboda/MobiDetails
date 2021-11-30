@@ -619,15 +619,14 @@ def modif_class():
             if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td></td><td></td><td>\
-You already classified this variant with the same class today.\
-If you just want to modify comments, the previous classification \
-and start from scratch.</td><td></td></tr>"
+                    tr_html = "<tr id='already_classified'><td>\
+You already classified this variant with the same class today. \
+If you just want to modify comments, remove the previous classification \
+and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
-                    variant_feature_id = %s AND acmg_class = %s \
-                    AND mobiuser_id = %s",
+                    variant_feature_id = %s AND acmg_class = %s AND mobiuser_id = %s",
                     (date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
@@ -675,20 +674,38 @@ and start from scratch.</td><td></td></tr>"
                 (acmg_select,)
             )
             acmg_details = curs.fetchone()
+            # get HGVS genomic, cDNA, protein HGNC
+            # gene symbol and refseq acc version
+            genome_version = 'hg19'
+            curs.execute(
+                "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
+                b.g_name, d.hgnc_id, c.ncbi_name FROM \
+                variant_feature a, variant b, chromosomes c, gene d WHERE \
+                a.id = b.feature_id AND b.genome_version = \
+                c.genome_version AND b.chr = c.name \
+                AND a.gene_name = d.name AND a.id = %s \
+                AND b.genome_version = %s",
+                (variant_id, genome_version)
+            )
+            res_var = curs.fetchone()
             tr_html = "<tr id='{0}-{1}-{2}'> \
-<td class='w3-left-align'>{3}</td> \
-<td class='w3-left-align'>{4}</td> \
+<td class='w3-left-align'>{3}(<em>{4}</em>):c.{5}</td> \
+<td class='w3-left-align'>{6}</td> \
+<td class='w3-left-align'>{7}</td> \
 <td class='w3-left-align'> \
-    <span style='color:{5};'>Class {1} ({6})</span>\
+    <span style='color:{8};'>Class {1} ({9})</span>\
 </td> \
 <td> \
     <div class='w3-cell-row'> \
     <span class='w3-container w3-left-align w3-cell'>\
-{7}</span>\
+{10}</span>\
                 </tr>".format(
                     g.user['id'],
                     escape(acmg_select),
                     escape(variant_id),
+                    res_var['gene_name'][1],
+                    res_var['gene_name'][0],
+                    res_var['c_name'],
                     g.user['username'],
                     date,
                     acmg_details['html_code'],
@@ -708,18 +725,18 @@ and start from scratch.</td><td></td></tr>"
                     lovd_json = json.load(json_file)
                 # get HGVS genomic, cDNA, protein HGNC
                 # gene symbol and refseq acc version
-                genome_version = 'hg19'
-                curs.execute(
-                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
-                    b.g_name, d.hgnc_id, c.ncbi_name FROM \
-                    variant_feature a, variant b, chromosomes c, gene d WHERE \
-                    a.id = b.feature_id AND b.genome_version = \
-                    c.genome_version AND b.chr = c.name \
-                    AND a.gene_name = d.name AND a.id = %s \
-                    AND b.genome_version = %s",
-                    (variant_id, genome_version)
-                )
-                res_var = curs.fetchone()
+                # genome_version = 'hg19'
+                # curs.execute(
+                #     "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
+                #     b.g_name, d.hgnc_id, c.ncbi_name FROM \
+                #     variant_feature a, variant b, chromosomes c, gene d WHERE \
+                #     a.id = b.feature_id AND b.genome_version = \
+                #     c.genome_version AND b.chr = c.name \
+                #     AND a.gene_name = d.name AND a.id = %s \
+                #     AND b.genome_version = %s",
+                #     (variant_id, genome_version)
+                # )
+                # res_var = curs.fetchone()
                 lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 

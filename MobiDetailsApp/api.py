@@ -304,6 +304,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         'admin': {
             'creationUser': None,
             'creationUserEmail': None,
+            'otherIds': None,
         },
         'nomenclatures': {
             'cName': None,
@@ -491,6 +492,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 favourite = True
         splicing_radar_labels = []
         splicing_radar_values = []
+        other_ids = None
         for var in variant:
             if var['genome_version'] == 'hg38':
                 # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
@@ -514,6 +516,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     res_chr['ncbi_name'], var['g_name']
                 )
                 external_data['nomenclatures']['hg38gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
+                # same variant mapped on other isoforms
+                curs.execute(
+                    "SELECT a.feature_id, b.gene_name, b.c_name, c.canonical FROM variant a, variant_feature b, gene c WHERE a.feature_id = b.id AND b.gene_name = c.name AND a.chr = %s AND pos = %s AND a.pos_ref = %s AND a.pos_alt = %s AND a.genome_version  = 'hg38' AND a.feature_id <> %s",
+                    (
+                        external_data['VCF']['chr'],
+                        external_data['VCF']['hg38']['pos'],
+                        external_data['VCF']['hg38']['ref'],
+                        external_data['VCF']['hg38']['alt'],
+                        variant_id
+                    )
+                )
+                res_ids = curs.fetchall()
+                if res_ids:
+                    other_ids = [res_id['feature_id'] for res_id in res_ids]
+                    internal_data['admin']['otherIds'] = res_ids
                 # episignature
                 # if this developps, need to identify target genes
                 if variant_features['gene_name'][0] == 'KMT2A':
@@ -1090,15 +1107,22 @@ def variant(variant_id=None, caller='browser', api_key=None):
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info
+        id_list = [variant_id]
+        if other_ids:
+            for id in other_ids:
+                id_list.append(id)
+        id_tuple = tuple(id_list)
         curs.execute(
-            "SELECT a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, c.html_code, c.acmg_translation \
-                FROM class_history a, mobiuser b, valid_class c WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class \
-                AND a.variant_feature_id = %s ORDER BY a.class_date ASC",
-            (variant_id,)
+            "SELECT a.variant_feature_id, a.acmg_class, a.class_date, a.comment, b.id, b.email, b.email_pref, b.username, \
+            c.html_code, c.acmg_translation, d.c_name, d.gene_name FROM class_history a, mobiuser b, valid_class c, variant_feature d \
+            WHERE a.mobiuser_id = b.id AND a.acmg_class = c.acmg_class AND a.variant_feature_id = d.id AND a.variant_feature_id IN %s \
+            ORDER BY a.class_date ASC",
+            [id_tuple]
         )
         class_history = curs.fetchall()
         if len(class_history) == 0:
             class_history = None
+
 
         # MaxEntScan
         # we need to iterize through the wt and mt sequences to get

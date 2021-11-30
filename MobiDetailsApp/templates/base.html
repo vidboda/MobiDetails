@@ -21,7 +21,7 @@
 		<title>
 		{% block title %}
 			{% if external_data is defined %}
-				{{ external_data.gene.symbol }}:{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}
+				{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
 			{% endif %}
 		{% endblock %} - MobiDetails</title>
 	</head>
@@ -79,7 +79,7 @@
 						</div>
 						<!--page title-->
 						<div>
-							<span class="w3-bar-item w3-xlarge" id="variant_name"><em>{{ external_data.gene.symbol }}</em>:{{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }}</span>
+							<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
 						</div>
 						<div>
 							{% if g.user and favourite == True %}
