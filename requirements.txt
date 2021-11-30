@@ -43,7 +43,7 @@ pyparsing==2.4.2
 pytabix==0.1
 pytest==5.1.1
 python-gnupg==0.4.5
-python-ldap==3.2.0
+python-ldap==3.4.0
 PyYAML==5.4
 requests==2.22.0
 ruamel.yaml==0.16.5
