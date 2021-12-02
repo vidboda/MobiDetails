@@ -137,6 +137,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         )
         res_user = curs.fetchone()
         academic = res_user['academic']
+    if not api_key:
+        api_key = md_utilities.get_api_key(g, curs)
 
     # we need 2 dicts:
     # - one for data that will be presented to the world via the API: external_data
@@ -305,6 +307,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'creationUser': None,
             'creationUserEmail': None,
             'otherIds': None,
+            'mappedCanonical': None,
+            'apiKey': api_key
         },
         'nomenclatures': {
             'cName': None,
@@ -495,13 +499,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         other_ids = None
         for var in variant:
             if var['genome_version'] == 'hg38':
-                # HGVS strict genomic names e.g. NC_000001.11:g.216422237G>A
-                # curs.execute(
-                #     "SELECT ncbi_name \
-                #     FROM chromosomes WHERE name = %s and genome_version = %s",
-                #     (var['chr'], var['genome_version'])
-                # )
-                # res_chr = curs.fetchone()
                 res_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(var['chr']), var['genome_version'])
                 external_data['VCF']['chr'] = var['chr']
                 external_data['VCF']['hg38']['ncbiChr'] = res_chr['ncbi_name']
@@ -528,9 +525,23 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     )
                 )
                 res_ids = curs.fetchall()
+                mapped_canonical = True if external_data['gene']['canonical'] is True else False
                 if res_ids:
-                    other_ids = [res_id['feature_id'] for res_id in res_ids]
                     internal_data['admin']['otherIds'] = res_ids
+                    other_ids = [res_id['feature_id'] for res_id in res_ids]
+                    for res_id in res_ids:
+                        if mapped_canonical is False and \
+                                res_id['canonical'] is True:
+                            mapped_canonical = True
+                if mapped_canonical is False:
+                    # get canonical iso
+                    curs.execute(
+                        "SELECT name[2] as canonical FROM gene WHERE name[1] = %s AND canonical = 't'",
+                        (external_data['gene']['symbol'],)
+                    )
+                    res_canon = curs.fetchone()
+                    if res_canon:
+                        internal_data['admin']['mappedCanonical'] = res_canon['canonical']
                 # episignature
                 # if this developps, need to identify target genes
                 if variant_features['gene_name'][0] == 'KMT2A':
@@ -1123,7 +1134,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         if len(class_history) == 0:
             class_history = None
 
-
         # MaxEntScan
         # we need to iterize through the wt and mt sequences to get
         # stretches of 23 nts for score3 and of 9 nts for score 5
@@ -1435,7 +1445,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
 # @bp.route('/api/variant/create_g/<string:variant_ghgvs>/<string:gene>/<string:caller>/<string:api_key>', methods=['GET', 'POST'])
 # def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=None):
 @bp.route('/api/variant/create_g', methods=['POST'])
-def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=None):
+def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_key=None):
     # get params
     # treat params one by one
     caller = md_utilities.get_post_param(request, 'caller')
@@ -1476,12 +1486,12 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
         # check gene exists
         if re.search(r'^\d+$', gene):
             # HGNC id submitted
-             curs.execute(
+            curs.execute(
                 "SELECT name FROM gene WHERE hgnc_id = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
             )
         else:
-            # search for gene name
+            # search for gene symbol
             curs.execute(
                 "SELECT name FROM gene WHERE name[1] = %s AND canonical = 't' and variant_creation = 'ok'",
                 (gene,)
@@ -1504,12 +1514,9 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                     #    res['genome_version'] == 'hg38':
                     genome_version, chrom = res['genome_version'], res['name']
                     # check if variant exists
-                    # curs.execute(
-                    #     "SELECT feature_id FROM variant WHERE genome_version = %s AND g_name = %s AND chr = %s",
-                    #     (genome_version, g_var, chrom)
-                    # )
+                    # must already exist on canonical to be returned
                     curs.execute(
-                        "SELECT b.feature_id FROM variant_feature a, variant b WHERE a.id = b.feature_id AND a.gene_name[1] = %s AND b.genome_version = %s AND b.g_name = %s AND b.chr = %s",
+                        "SELECT b.feature_id FROM variant_feature a, variant b, gene c WHERE a.id = b.feature_id AND a.gene_name = c.name AND a.gene_name[1] = %s AND b.genome_version = %s AND b.g_name = %s AND b.chr = %s AND c.canonical = 't'",
                         (gene, genome_version, g_var, chrom)
                     )
                     res = curs.fetchone()
@@ -1612,7 +1619,7 @@ def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=Non
                                 return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
                         else:
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
+                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes, or simply the VariantValidator API is full - you may want to try again later).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
                             else:
                                 try:
                                     flash('There has been a issue with the annotation of the variant via VariantValidator. \
@@ -1907,9 +1914,9 @@ def api_gene(gene_hgnc=None):
     d_gene = {}
     if res:
         for transcript in res:
-            if 'HGNC Symbol' not in d_gene:
-                d_gene['HGNC Symbol'] = transcript['prot_name']
             if 'HGNC Name' not in d_gene:
+                d_gene['HGNC Name'] = transcript['prot_name']
+            if 'HGNC Symbol' not in d_gene:
                 d_gene['HGNC Symbol'] = transcript['name'][0]
             if 'HGNC ID' not in d_gene:
                 d_gene['HGNC ID'] = transcript['hgnc_id']
@@ -1935,6 +1942,10 @@ def api_gene(gene_hgnc=None):
                 d_gene[transcript['name'][1]]['UNIPROT'] = transcript['uniprot_id']
             if 'variantCreationTag' not in d_gene[transcript['name'][1]]:
                 d_gene[transcript['name'][1]]['variantCreationTag'] = transcript['variant_creation']
+            if 'ensemblTranscript' not in d_gene[transcript['name'][1]]:
+                d_gene[transcript['name'][1]]['ensemblTranscript'] = transcript['enst']
+            if 'ensemblProtein' not in d_gene[transcript['name'][1]]:
+                d_gene[transcript['name'][1]]['ensemblProtein'] = transcript['ensp']
         return jsonify(d_gene)
     else:
         return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))

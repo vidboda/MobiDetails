@@ -5,7 +5,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<!-- <script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script> -->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20210920" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20211202" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -15,8 +15,8 @@
 		{# deal with position for genome browsers #}
 		{% set positions = namespace(min=external_data.VCF.hg19.pos-25, max=external_data.VCF.hg19.pos+25, end=external_data.VCF.hg19.pos) %}
 		{% if external_data.positions.size > 1 %}
-			{% set positions.end = external_data.VCF.hg19.pos + external_data.positions.size %}
-			{% set positions.max = external_data.VCF.hg19.pos + external_data.positions.size +25 %}
+		{% set positions.end = external_data.VCF.hg19.pos + external_data.positions.size %}
+		{% set positions.max = external_data.VCF.hg19.pos + external_data.positions.size +25 %}
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
 		<div class="w3-show" id="hg19_acc">
@@ -30,25 +30,25 @@
 			{# {% endif %}
 			{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' %} #}
 				{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
-					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
+				{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
 				{% endif %}
 			{% endif %}
 			{% if external_data.positions.proteinTypeSoAccession is not none %}
-				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% else %}
-				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% endif %}
 			{% if internal_data.frequenciesDatabases.dbSNPrsid is not none %}
-				{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
-				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
+			{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
+			{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
 			{% endif %}
 		</div>
 		{# hg38 #}
 		{# deal with position for genome browsers #}
 		{% set positions = namespace(min=external_data.VCF.hg38.pos-25, max=external_data.VCF.hg38.pos+25, end=external_data.VCF.hg38.pos) %}
 		{% if external_data.positions.size > 1 %}
-			{% set positions.end = external_data.VCF.hg38.pos + external_data.positions.size %}
-			{% set positions.max = external_data.VCF.hg38.pos + external_data.positions.size +25 %}
+		{% set positions.end = external_data.VCF.hg38.pos + external_data.positions.size %}
+		{% set positions.max = external_data.VCF.hg38.pos + external_data.positions.size +25 %}
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
 		<div class="w3-show" id="hg38_acc">
@@ -67,17 +67,17 @@
 			{% endif %}
 		</div>
 		{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% elif not external_data.gene.proteinSize %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
 			{% if favourite != True %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
 			{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 </span>
 			{% endif %}
 		{% endif %}
@@ -92,13 +92,13 @@
 			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{# {% endif %} #}
 		{% if external_data.positions.proteinType == 'missense' %}
-			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
+		<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
-			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
+		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
-			<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
+		<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
@@ -107,25 +107,35 @@
 		<hr />
 		<!--alternative mappings-->
 		{% if internal_data.admin.otherIds is not none %}
-			<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
-				<p>This variant has been mapped on other transcripts. You can check the following ids:</p>
-				<ul>
-					{% for id in internal_data.admin.otherIds %}
-						<li>
-						{% autoescape false %}
-							<a href="{{ url_for('api.variant', variant_id=id.feature_id, caller='browser') }}" onclick="show_loader();">{{ "%s(<em>%s</em>):c.%s" | format(id.gene_name[1], id.gene_name[0], id.c_name) }}</a>
-							{% if id.canonical %}
-							<div class="w3-tag w3-round w3-green" style="padding:3px">
-								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-									MD canonical
-								</div>
-							</div>
-							{% endif %}
-						{% endautoescape %}
-						</li>
-					{% endfor %}
-				</ul>
-			</div>
+		<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
+			<p>This variant has been mapped on at least one other transcript. You can check the following links:</p>
+			<ul>
+				{% for id in internal_data.admin.otherIds %}
+				<li>
+				{% autoescape false %}
+					<a href="{{ url_for('api.variant', variant_id=id.feature_id, caller='browser') }}" onclick="show_loader();">{{ "%s(<em>%s</em>):c.%s" | format(id.gene_name[1], id.gene_name[0], id.c_name) }}</a>
+					{% if id.canonical %}
+					<div class="w3-tag w3-round w3-green" style="padding:3px">
+						<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+							MD canonical
+						</div>
+					</div>
+					{% endif %}
+				{% endautoescape %}
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
+		{% if internal_data.admin.mappedCanonical is not none %}
+		{{ danger('This variant can be mapped on the current canonicam isoform (%s) using the following expression directly in the search engine at the bottom of the page or by using the blue button below: <br />
+		%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
+		<div class="w3-margin w3-panel w3-pale-red w3-leftbar">
+			<p>
+				<span id="annnotation_launcher" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="submit_create_var_g('{{ url_for('api.api_variant_g_create') }}', '{{ internal_data.admin.apiKey }}', '{{ csrf_token() }}');$('#annnotation_launcher').hide();$('#result_display').show();">Annotate on the canonical {{ internal_data.admin.mappedCanonical }}</span>
+				<span id="result_display" style="display:none;">Annotating the variant on {{  internal_data.admin.mappedCanonical }} <i class="fa fa-spinner w3-spin" style="font-size:48px"></i></span>
+			</p>
+		</div>
 		{% endif %}
 		<!--first section-->
 		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
@@ -211,7 +221,7 @@
 					<!--HGVS genomic strict (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
-						<td class="w3-left-align">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
+						<td class="w3-left-align" id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
