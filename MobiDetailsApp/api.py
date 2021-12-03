@@ -1397,11 +1397,27 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         (res_gene['gene'],)
                     )
                     res_can = curs.fetchone()
-                    md_utilities.create_var_vv(
-                        vv_key_var, res_gene['gene'], res_can['nm'],
-                        'c.{}'.format(new_variant), original_variant,
-                        vv_data, 'api', db, g
-                    )
+                    # get variant name for this transcript
+                    # need another call to VV
+                    if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
+                        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
+                            vv_base_url,
+                            vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
+                        )
+                        vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                        for key in vv_full_data.keys():
+                            # print(key)
+                            if re.search(res_can['nm'], key):
+                                vv_key_var_can = key
+                                var_obj = re.search(r':c\.(.+)$', key)
+                                if var_obj is not None:
+                                    new_variant_can = var_obj.group(1)
+                                    original_variant_can = new_variant_can
+                        md_utilities.create_var_vv(
+                            vv_key_var_can, res_gene['gene'], res_can['nm'],
+                            'c.{}'.format(new_variant_can), original_variant_can,
+                            vv_full_data, 'api', db, g
+                        )
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene'], acc_no,
                     'c.{}'.format(new_variant), original_variant,

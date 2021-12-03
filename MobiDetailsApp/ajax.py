@@ -1636,7 +1636,7 @@ def spliceai_lookup():
         if match_obj_variant and \
                 match_obj_transcript:
             variant = match_obj_variant.group(1)
-            transcript = match_obj_transcript.group(1)
+            transcript = match_obj_transcript.group(1).split(".")[0]
             try:
                 http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
                 spliceai500 = json.loads(
