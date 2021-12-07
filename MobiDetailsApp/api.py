@@ -1931,11 +1931,11 @@ def api_gene(gene_hgnc=None):
     if res:
         for transcript in res:
             if 'HGNC Name' not in d_gene:
-                d_gene['HGNC Name'] = transcript['prot_name']
+                d_gene['HGNCName'] = transcript['prot_name']
             if 'HGNC Symbol' not in d_gene:
-                d_gene['HGNC Symbol'] = transcript['name'][0]
+                d_gene['HGNCSymbol'] = transcript['name'][0]
             if 'HGNC ID' not in d_gene:
-                d_gene['HGNC ID'] = transcript['hgnc_id']
+                d_gene['HGNCID'] = transcript['hgnc_id']
             if 'chr' not in d_gene:
                 d_gene['Chr'] = transcript['chr']
             if 'strand' not in d_gene:
@@ -1947,7 +1947,7 @@ def api_gene(gene_hgnc=None):
                     d_gene['RefGene'] = transcript['ng']
             d_gene[transcript['name'][1]] = {
                 'canonical': transcript['canonical'],
-                'total exons': transcript['number_of_exons']
+                'numberOfExons': transcript['number_of_exons']
             }
             if 'RefProtein' not in d_gene[transcript['name'][1]]:
                 if transcript['np'] == 'NP_000000.0':
