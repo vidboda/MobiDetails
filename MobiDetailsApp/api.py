@@ -1955,6 +1955,8 @@ def api_gene(gene_hgnc=None):
                     d_gene[transcript['name'][1]]['RefProtein'] = transcript['np']
             if 'UNIPROT' not in d_gene[transcript['name'][1]]:
                 d_gene[transcript['name'][1]]['UNIPROT'] = transcript['uniprot_id']
+            if 'proteinSize' not in d_gene[transcript['name'][1]]:
+                d_gene[transcript['name'][1]]['proteinSize'] = transcript['prot_size']
             if 'variantCreationTag' not in d_gene[transcript['name'][1]]:
                 d_gene[transcript['name'][1]]['variantCreationTag'] = transcript['variant_creation']
             if 'ensemblTranscript' not in d_gene[transcript['name'][1]]:
