@@ -118,14 +118,6 @@ def gene(gene_name=None):
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
-        # in panelApp ? takes too much time, done in ajax
-        # we check  if the gene is in panelApp, if it is, we propose a link
-        # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
-        # http = urllib3.PoolManager(
-        #     cert_reqs='CERT_REQUIRED',
-        #     ca_certs=certifi.where()
-        # )
-
         # get metadome json?
         enst_ver = {}
         # if not json metadome file on filesystem, create it in

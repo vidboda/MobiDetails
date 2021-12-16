@@ -108,7 +108,7 @@
 		<!--alternative mappings-->
 		{% if internal_data.admin.otherIds is not none %}
 		<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
-			<p>This variant has been mapped on at least one other transcript. You can check the following links:</p>
+			<p>This variant has been annotated on at least one other transcript. You can check the following links:</p>
 			<ul>
 				{% for id in internal_data.admin.otherIds %}
 				<li>
@@ -128,7 +128,7 @@
 		</div>
 		{% endif %}
 		{% if internal_data.admin.mappedCanonical is not none %}
-		{{ danger('This variant can be mapped on the current canonicam isoform (%s) using the following expression directly in the search engine at the bottom of the page or by using the blue button below: <br />
+		{{ danger('This variant can be annotated on the current canonicam isoform (%s) using the following expression, <br /> directly in the search engine at the bottom of the page or by using the blue button below: <br />
 		%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
 		<div class="w3-margin w3-panel w3-pale-red w3-leftbar">
 			<p>

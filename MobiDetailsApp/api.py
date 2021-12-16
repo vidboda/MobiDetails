@@ -158,8 +158,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'chromosome': None,
             'strand': None,
             'numberOfExons': None,
-            'proteinName': None,
-            'proteinShortName': None,
+            'hgncName': None,
             'proteinSize': None,
             'uniprotId': None,
         },
@@ -447,8 +446,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['gene']['chromosome'] = variant_features['chr']
         external_data['gene']['strand'] = variant_features['strand']
         external_data['gene']['numberOfExons'] = variant_features['number_of_exons']
-        external_data['gene']['proteinName'] = variant_features['prot_name']
-        external_data['gene']['proteinShortName'] = variant_features['prot_short']
+        external_data['gene']['hgncName'] = variant_features['hgnc_name']
         external_data['gene']['proteinSize'] = variant_features['prot_size']
         external_data['gene']['uniprotId'] = variant_features['uniprot_id']
 
@@ -574,7 +572,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     positions = md_utilities.get_positions_dict_from_vv_json(
                         external_data['gene']['symbol'],
                         external_data['gene']['RefSeqTranscript'],
-                        res_chr,
+                        external_data['VCF']['hg38']['ncbiChr'],
                         str(external_data['positions']['segmentStartNumber'])
                     )
                     if isinstance(positions, str):
@@ -686,7 +684,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['VCF']['hg38']['ncbiChr'],
                         internal_data['positions']['neighbourExonNumber']
                     )
-                    print(positions_neighb_exon)
+                    # print(positions_neighb_exon)
+                    # print(internal_data['positions']['neighbourExonNumber'])
                     # curs.execute(
                     #     "SELECT * FROM segment WHERE genome_version = %s\
                     #     AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
@@ -1931,7 +1930,7 @@ def api_gene(gene_hgnc=None):
     if res:
         for transcript in res:
             if 'HGNC Name' not in d_gene:
-                d_gene['HGNCName'] = transcript['prot_name']
+                d_gene['HGNCName'] = transcript['hgnc_name']
             if 'HGNC Symbol' not in d_gene:
                 d_gene['HGNCSymbol'] = transcript['name'][0]
             if 'HGNC ID' not in d_gene:

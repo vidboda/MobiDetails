@@ -93,6 +93,9 @@ local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_3']['rel_path']
 )
+local_files['hgnc_full_set']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['hgnc_full_set']['rel_path']
+)
 local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['human_genome_hg38']['rel_path']
 )
@@ -1730,12 +1733,13 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
     }
     for vv_transcript in vv_json['transcripts']:
         if vv_transcript['reference'] == transcript:
-            if ncbi_chr[0] in vv_transcript['genomic_spans']:
+            if ncbi_chr in vv_transcript['genomic_spans']:
                 # get strand
-                strand = vv_transcript['genomic_spans'][ncbi_chr[0]]['orientation']
+                strand = vv_transcript['genomic_spans'][ncbi_chr]['orientation']
                 # we loop on exons
-                for exon in vv_transcript['genomic_spans'][ncbi_chr[0]]['exon_structure']:
-                    if str(exon['exon_number']) == exon_number:
+                for exon in vv_transcript['genomic_spans'][ncbi_chr]['exon_structure']:
+                    if str(exon['exon_number']) == str(exon_number):
+                        print('exon')
                         if strand == 1:
                             positions['segment_start'] = str(exon['genomic_start'])
                             positions['segment_end'] = str(exon['genomic_end'])
