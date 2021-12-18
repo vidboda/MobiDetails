@@ -74,7 +74,7 @@ def test_intervar(client, app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_name[1] as gene FROM variant a, variant_feature b WHERE \
+            r"SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_name[1] as gene FROM variant a, variant_feature b WHERE \
             a.feature_id = b.id AND a.genome_version = 'hg19' AND b.dna_type = 'substitution' AND \
             b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '\?' ORDER BY random() LIMIT 5"
         )
@@ -120,12 +120,12 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
     assert client.get('/modif_class').status_code == 405
     with app.app_context():
         response = client.post('/modif_class',
-                           data=dict(
+                            data=dict(
                                 variant_id=vf_id,
                                 acmg_select=acmg,
                                 acmg_comment=acmg_com
                             ), follow_redirects=True
-                           )
+                        )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         email, password = get_generic_password()
         auth.login(email, password)
@@ -135,7 +135,7 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
                                     acmg_select=acmg,
                                     acmg_comment=acmg_com
                                  ), follow_redirects=True
-                                )
+                            )
         assert response.status_code == status_code2
 
 # test remove_class
@@ -202,17 +202,17 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
 # test variant creation
 
 
-@pytest.mark.parametrize(('new_variant', 'gene', 'acc_no', 'acc_version', 'message1', 'message2'), (
-    ('c.2276G>T', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('', 'USH2A', 'NM_206933', '2', b'fill in the form', b'fill in the form'),
-    ('c.216_219del', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.-104_-99dup', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.*25_*26insATG', 'USH2A', 'NM_206933', '2', b'already', b'successfully'),
-    ('c.651+126_651+128del', 'USH2A', 'NM_206933', '2', b'already', b'successfully')
+@pytest.mark.parametrize(('new_variant', 'gene', 'acc_no', 'message1', 'message2'), (
+    ('c.2276G>T', 'USH2A', 'NM_206933.4', b'already', b'successfully'),
+    ('', 'USH2A', 'NM_206933', b'fill in the form', b'fill in the form'),
+    ('c.216_219del', 'USH2A', 'NM_206933.4', b'already', b'successfully'),
+    ('c.-104_-99dup', 'USH2A', 'NM_206933.4', b'already', b'successfully'),
+    ('c.*25_*26insATG', 'USH2A', 'NM_206933.4', b'already', b'successfully'),
+    ('c.651+126_651+128del', 'USH2A', 'NM_206933.4', b'already', b'successfully')
 ))
-def test_create(client, new_variant, gene, acc_no, acc_version, message1, message2):
+def test_create(client, new_variant, gene, acc_no, message1, message2):
     assert client.get('/create').status_code == 405
-    data_dict = dict(new_variant=new_variant, gene=gene, acc_no=acc_no, acc_version=acc_version)
+    data_dict = dict(new_variant=new_variant, gene=gene, acc_no=acc_no)
     response = client.post('/create', data=data_dict)
     assert response.status_code == 200
     possible = [message1, message2]
@@ -362,7 +362,7 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.4:c.100C>A", "NM_001197104.2:c.100C>G", "NM_206933.4:c.100C>G", "NM_206933.4:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'')
@@ -377,17 +377,17 @@ def test_autocomplete(client, app, query, return_value):
 # test autocomplete_var
 
 
-@pytest.mark.parametrize(('query', 'gene', 'return_value', 'http_code'), (
-    ('c.100C>', 'USH2A', b'["c.100C>A", "c.100C>G", "c.100C>T"]', 200),
-    ('USH2', 'USH2A', b'', 204),
-    ('blabla', 'USH2A', b'', 204),
-    ('c.blabla', 'USH2A', b'', 204),
-    ('c.actg', 'USH2A', b'', 204),
-    ('c.ATCG', 'USH2A', b'[]', 200)
+@pytest.mark.parametrize(('query', 'acc_no', 'return_value', 'http_code'), (
+    ('c.100C>', 'NM_206933.4', b'["c.100C>A", "c.100C>G", "c.100C>T"]', 200),
+    ('USH2', 'NM_206933.4', b'', 204),
+    ('blabla', 'NM_206933.4', b'', 204),
+    ('c.blabla', 'NM_206933.4', b'', 204),
+    ('c.actg', 'NM_206933.4', b'', 204),
+    ('c.ATCG', 'NM_206933.4', b'[]', 200)
 ))
-def test_autocomplete_var(client, query, gene, return_value, http_code):
+def test_autocomplete_var(client, query, acc_no, return_value, http_code):
     assert client.get('/autocomplete_var').status_code == 405
-    data_dict = dict(query_engine=query, gene=gene)
+    data_dict = dict(query_engine=query, acc_no=acc_no)
     response = client.post('/autocomplete_var', data=data_dict)
     print(response.get_data())
     print(response.status_code)
@@ -434,13 +434,13 @@ def test_spip(client, gene_symbol, nm_acc, c_name, variant_id):
 
 
 @pytest.mark.parametrize(('variant', 'transcript', 'return_value'), (
-    ('chr1-216247118-C-A', 'NM_206933', b'(-419)'),
-    ('chr17-43095795-TCTACCCACTCTCTTTTCAGTGCCTGTTAAGTTGGC-T', 'NM_007294', b'(127)'),
-    ('chr17-43104962-A-C', 'NM_007294', b'(-94)'),
-    ('chr1-216415508-CTTTTTTT-C', 'NM_206933', b'(-362)'),
-    ('chr1-216247056-A-AGGTGTC', 'NM_206933', b'(-471)'),
-    ('chr1-215625755-G-GCAT', 'NM_206933', b'(-324)'),
-    ('chr1-215680269-CAG-TTTA', 'NM_206933', b'No results')
+    ('chr1-216247118-C-A', 'NM_206933.4', b'(-419)'),
+    ('chr17-43095795-TCTACCCACTCTCTTTTCAGTGCCTGTTAAGTTGGC-T', 'NM_007294.4', b'(127)'),
+    ('chr17-43104962-A-C', 'NM_007294.4', b'(-94)'),
+    ('chr1-216415508-CTTTTTTT-C', 'NM_206933.4', b'(-362)'),
+    ('chr1-216247056-A-AGGTGTC', 'NM_206933.4', b'(-471)'),
+    ('chr1-215625755-G-GCAT', 'NM_206933.4', b'(-324)'),
+    ('chr1-215680269-CAG-TTTA', 'NM_206933.4', b'No results')
 ))
 def test_spliceai_lookup(client, variant, transcript, return_value):
     assert client.get('/spliceai_lookup').status_code == 405

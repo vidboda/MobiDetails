@@ -5,7 +5,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<!-- <script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script> -->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20210920" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20211202" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -15,8 +15,8 @@
 		{# deal with position for genome browsers #}
 		{% set positions = namespace(min=external_data.VCF.hg19.pos-25, max=external_data.VCF.hg19.pos+25, end=external_data.VCF.hg19.pos) %}
 		{% if external_data.positions.size > 1 %}
-			{% set positions.end = external_data.VCF.hg19.pos + external_data.positions.size %}
-			{% set positions.max = external_data.VCF.hg19.pos + external_data.positions.size +25 %}
+		{% set positions.end = external_data.VCF.hg19.pos + external_data.positions.size %}
+		{% set positions.max = external_data.VCF.hg19.pos + external_data.positions.size +25 %}
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
 		<div class="w3-show" id="hg19_acc">
@@ -30,27 +30,25 @@
 			{# {% endif %}
 			{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' %} #}
 				{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
-					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
+				{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "InterVar")}}
 				{% endif %}
 			{% endif %}
-			{#{{ link("http://www.ncbi.nlm.nih.gov/clinvar?term='%s.%s:c.%s' [Variant name]"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "Clinvar")}}#}
 			{% if external_data.positions.proteinTypeSoAccession is not none %}
-				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% else %}
-				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+			{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 			{% endif %}
 			{% if internal_data.frequenciesDatabases.dbSNPrsid is not none %}
-				{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
-				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
+			{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
+			{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
 			{% endif %}
-		{#{{ link("https://varsome.com/variant/hg19/%s.%s:c.%s"|format(external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName), "VarSome") }}#}
 		</div>
 		{# hg38 #}
 		{# deal with position for genome browsers #}
 		{% set positions = namespace(min=external_data.VCF.hg38.pos-25, max=external_data.VCF.hg38.pos+25, end=external_data.VCF.hg38.pos) %}
 		{% if external_data.positions.size > 1 %}
-			{% set positions.end = external_data.VCF.hg38.pos + external_data.positions.size %}
-			{% set positions.max = external_data.VCF.hg38.pos + external_data.positions.size +25 %}
+		{% set positions.end = external_data.VCF.hg38.pos + external_data.positions.size %}
+		{% set positions.max = external_data.VCF.hg38.pos + external_data.positions.size +25 %}
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
 		<div class="w3-show" id="hg38_acc">
@@ -69,17 +67,17 @@
 			{% endif %}
 		</div>
 		{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% elif not external_data.gene.proteinSize %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
 			{% if favourite != True %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 </span>
 			{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 </span>
 			{% endif %}
 		{% endif %}
@@ -94,20 +92,53 @@
 			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{# {% endif %} #}
 		{% if external_data.positions.proteinType == 'missense' %}
-			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
+		<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
-			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
+		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
-			<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
+		<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
 		{% endif %}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
 	</div>
 	<div id="global_content" style="margin-left:15%">
+		<hr />
+		<!--alternative mappings-->
+		{% if internal_data.admin.otherIds is not none %}
+		<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
+			<p>This variant has been annotated on at least one other transcript. You can check the following links:</p>
+			<ul>
+				{% for id in internal_data.admin.otherIds %}
+				<li>
+				{% autoescape false %}
+					<a href="{{ url_for('api.variant', variant_id=id.feature_id, caller='browser') }}" onclick="show_loader();">{{ "%s(<em>%s</em>):c.%s" | format(id.gene_name[1], id.gene_name[0], id.c_name) }}</a>
+					{% if id.canonical %}
+					<div class="w3-tag w3-round w3-green" style="padding:3px">
+						<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+							MD canonical
+						</div>
+					</div>
+					{% endif %}
+				{% endautoescape %}
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+		{% endif %}
+		{% if internal_data.admin.mappedCanonical is not none %}
+		{{ danger('This variant can be annotated on the current canonicam isoform (%s) using the following expression, <br /> directly in the search engine at the bottom of the page or by using the blue button below: <br />
+		%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
+		<div class="w3-margin w3-panel w3-pale-red w3-leftbar">
+			<p>
+				<span id="annnotation_launcher" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="submit_create_var_g('{{ url_for('api.api_variant_g_create') }}', '{{ internal_data.admin.apiKey }}', '{{ csrf_token() }}');$('#annnotation_launcher').hide();$('#result_display').show();">Annotate on the canonical {{ internal_data.admin.mappedCanonical }}</span>
+				<span id="result_display" style="display:none;">Annotating the variant on {{  internal_data.admin.mappedCanonical }} <i class="fa fa-spinner w3-spin" style="font-size:48px"></i></span>
+			</p>
+		</div>
+		{% endif %}
 		<!--first section-->
-		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s.%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, external_data.gene.nmVersion, internal_data.nomenclatures.cName) }}</div>
+		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
 		<div class="w3-container w3-responsive">
@@ -129,17 +160,25 @@
 					<!--HGVS DNA on transcript-->
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
-						<td class="w3-left-align" id="nm_var"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span>.{{ external_data.gene.nmVersion }}</a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></td>
+						<td class="w3-left-align" id="nm_var">
+							<a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span>
+							{% if external_data.gene.canonical %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									MD canonical
+								</div>
+							</div>
+							{% endif %}
+						</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
-					<!--<a target="_blank" title="Check Mutalyzer for the variant" href="{{ urls.mutalyzer_name_checker }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}">-->
 					<!--IVS name-->
 					{% if external_data.positions.segmentStartType == 'intron' %}
-						<tr>
-							<td class="w3-left-align">IVS name:</td>
-							<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
-							<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
-						</tr>
+					<tr>
+						<td class="w3-left-align">IVS name:</td>
+						<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
+						<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
+					</tr>
 					{% endif %}
 					<!--HGVS Protein-->
 					<tr>
@@ -182,7 +221,7 @@
 					<!--HGVS genomic strict (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
-						<td class="w3-left-align">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
+						<td class="w3-left-align" id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
 						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
@@ -201,7 +240,7 @@
 				</div>
 				<!--VariantValidator-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.' + encodeURIComponent('{{ internal_data.nomenclatures.cName }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }} (hg38)" style="width:100%">VariantValidator</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.variant_validator }}{{ external_data.gene.RefSeqTranscript }}:c.' + encodeURIComponent('{{ internal_data.nomenclatures.cName }}') + '&primary_assembly=GRCh38&alignment=splign', '_blank');" title="VariantValidator for {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }} (hg38)" style="width:100%">VariantValidator</span>
 				</div>
 				<!--HGVS-->
 				<div class="w3-col m4">
@@ -230,7 +269,7 @@
 						{% else %}
 							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
 						{% endif %}
-						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}</em></td>
+						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}</em></td>
 					</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
 					{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
 						{% if pos_splice is not none %}
@@ -994,68 +1033,69 @@
 		{% endif %}
 		<!--EpiSign section-->
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
-			<hr />
-			{{ section_title('episignature', 'Epigenetic Signature') }}
-			{{ info("The next table presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
-			<div class="w3-responsive w3-container">
-				<table class="w3-table w3-centered display compact" style="width:90%" id="episignature_table">
-					<thead>
-						<tr>
-							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align" width="40%">Values</th>
-							<th class="w3-left-align">Descriptions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<!--WDSTS Episignature-->
-						<tr>
-							<td class="w3-left-align">DNA Methylation pattern</td>
-							<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
-							<td class="w3-left-align">{{ internal_data.episignature.Description }}</td>
-						</tr>
-						<!--ACMG Classification-->
-						<tr>
-							<td class="w3-left-align">Expert opinion</td>
-							<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
-							<td class="w3-left-align">Expert opinion after DNA methylation study (Anne-Sophie Lebre)</td>
-						</tr>
-						<!--Reference Article-->
-						<tr>
-							<td class="w3-left-align">Reference Article</td>
-							<td class="w3-left-align">
-								{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
-										<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
-								{% else %}
-									{{ internal_data.episignature.referenceArticle }}
-								{% endif %}
-							</td>
-							<td class="w3-left-align">reference data</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
+		<hr />
+		{{ section_title('episignature', 'Epigenetic Signature') }}
+		{{ info("The next table presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
+		<div class="w3-responsive w3-container">
+			<table class="w3-table w3-centered display compact" style="width:90%" id="episignature_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align" width="40%">Values</th>
+						<th class="w3-left-align">Descriptions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--WDSTS Episignature-->
+					<tr>
+						<td class="w3-left-align">DNA Methylation pattern</td>
+						<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
+						<td class="w3-left-align">{{ internal_data.episignature.Description }}</td>
+					</tr>
+					<!--ACMG Classification-->
+					<tr>
+						<td class="w3-left-align">Expert opinion</td>
+						<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
+						<td class="w3-left-align">Expert opinion after DNA methylation study (Anne-Sophie Lebre)</td>
+					</tr>
+					<!--Reference Article-->
+					<tr>
+						<td class="w3-left-align">Reference Article</td>
+						<td class="w3-left-align">
+							{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
+									<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
+							{% else %}
+								{{ internal_data.episignature.referenceArticle }}
+							{% endif %}
+						</td>
+						<td class="w3-left-align">reference data</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		{% endif %}
 		<!--Classification section-->
 		<hr />
 		{{ section_title('class', 'Classification History') }}
 		<div class="w3-responsive w3-container">
 			{% if g.user %}
-				<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-					<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ external_data.gene.symbol }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
-					<p>
-						{% if g.user['lovd_export'] == true %}
-							Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
-						{% else %}
-							Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.
-						{% endif %}
-						<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.
-					</p>
-				</div>
+			<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+				<p>By assigning an ACMG class to this variant, you also contribute to the international knowledge on DNA variants, as we will submit the variant and the classification to the <a href="https://databases.lovd.nl/shared/genes/{{ external_data.gene.symbol }}" target="_blank">Global Variome Shared LOVD</a> (Read <a href="{{ url_for('md.about') }}#data_sharing" target="_blank">more</a>).</p>
+				<p>
+					{% if g.user['lovd_export'] == true %}
+					Your LOVD export status is currently <span class="w3-text-green">On</span> - This means the data will be exported.
+					{% else %}
+					Your LOVD export status is currently <span class="w3-text-red">Off</span> - This means the data will not be exported.
+					{% endif %}
+					<br /> You can modify it at your <a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank">profile</a> page.
+				</p>
+			</div>
 			{% endif %}
 			<!--ACMG Classifications-->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="class_table">
 				<thead>
 					<tr>
+						<th class="w3-left-align">Variant</th>
 						<th class="w3-left-align">User</th>
 						<th class="w3-left-align">Date</th>
 						<th class="w3-left-align">ACMG Classification</th>
@@ -1064,52 +1104,64 @@
 				</thead>
 				<tbody>
 				{% if class_history is none %}
-					<tr id="no_class">
-						<td></td>
-						<td></td>
-						<td>No classification defined yet for this variant</td>
-						<td></td>
-					</tr>
+				<tr id="no_class">
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>No classification defined yet for this variant</td>
+					<td></td>
+				</tr>
 				{% else %}
 					{% for classif in class_history %}
-						<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}"><!--classification infos-->
-							{% if g.user %}
-								{% if g.user['id'] == classif.id %}
-									<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
-								{% elif classif.username != 'mobidetails' %}
-									<td class="w3-left-align">
-										<a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank" title="See {{ classif.username }} profile">{{ classif.username }}</a>
-										{% if classif.email_pref == true %}
-											&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
-										{% endif %}
-									</td>
-								{% else %}
-									<td class="w3-left-align">{{ classif.username }}</td>
+					<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ classif.variant_feature_id }}"><!--classification infos-->
+						{% autoescape false %}
+						<td>{{ "%s(<em>%s</em>):c.%s" | format(classif.gene_name[1], classif.gene_name[0], classif.c_name) }}
+						{% if classif.gene_name[1] == external_data.gene.RefSeqTranscript %}
+						<div class="w3-tag w3-round w3-green" style="padding:3px">
+							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+								Current
+							</div>
+						</div>
+						{% endif %}
+						</td>
+						{% endautoescape %}
+						{% if g.user %}
+							{% if g.user['id'] == classif.id %}
+							<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=0) }}" target="_blank" title="Visit your profile">{{ classif.username }}</a></td>
+							{% elif classif.username != 'mobidetails' %}
+							<td class="w3-left-align">
+								<a href="{{ url_for('auth.profile', mobiuser_id=classif.id) }}" target="_blank" title="See {{ classif.username }} profile">{{ classif.username }}</a>
+								{% if classif.email_pref == true %}
+									&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ classif.id }}');$('#receiver_username').html('{{ classif.username }}');$('#message_modal').show();" title="Send {{ classif.username }} a message via mobidetails" style="cursor:pointer;"></i>
 								{% endif %}
-							{% else %}
-								<td class="w3-left-align">{{ classif.username }}</td>
-							{% endif %}
-							<td class="w3-left-align">{{ classif.class_date }}</td>
-							<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
-							<td>
-								<div class="w3-cell-row">
-									<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
-									</span>
-									{% autoescape false %}
-										<script type="application/x-javascript">
-											$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
-                                        </script>
-									{% endautoescape %}
-									{% if classif.username == g.user['username'] %}
-										{% if run_mode  and run_mode == 'on' %}
-											<span class="w3-container w3-right-align w3-cell">
-												<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
-											</span>
-										{% endif %}
-									{% endif %}
-								</div>
 							</td>
-						</tr>
+							{% else %}
+							<td class="w3-left-align">{{ classif.username }}</td>
+							{% endif %}
+						{% else %}
+						<td class="w3-left-align">{{ classif.username }}</td>
+						{% endif %}
+						<td class="w3-left-align">{{ classif.class_date }}</td>
+						<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
+						<td>
+							<div class="w3-cell-row">
+								<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
+								</span>
+								{% autoescape false %}
+								<script type="application/x-javascript">
+										$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
+								</script>
+								{% endautoescape %}
+								{% if classif.username == g.user['username'] %}
+									{% if run_mode  and run_mode == 'on' %}
+									<span class="w3-container w3-right-align w3-cell">
+										<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
+									</span>
+									{% endif %}
+								{% endif %}
+							</div>
+						</td>
+					</tr>
 					{% endfor %}
 				{% endif %}
 				</tbody>
@@ -1184,9 +1236,8 @@
 								<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
-								<!--<input type="hidden" name="variant_mes" id="variant_mes" value="{{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}" />-->
 								<span>This message will be sent via MobiDetails. The contact will also receive your email address and be able to answer directly.</span><br />
-								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}.{{ external_data.gene.nmVersion }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
+								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
 								<div class="w3-row w3-section w3-responsive">
 									<div class="w3-quarter w3-left-align">
 										<label for="message_body" form="message_form"><span >Type your message here:</span></label>

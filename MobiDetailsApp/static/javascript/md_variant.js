@@ -318,7 +318,6 @@ function run_spip(url, variant_id, csrf_token) {
 
 function spliceai_lookup(spliceai_lookup_url, csrf_token) {
 	// ajax for spliceai lookup
-
 	// send header for flask-wtf crsf security
 	$.ajaxSetup({
 		beforeSend: function(xhr, settings) {
@@ -382,6 +381,34 @@ function spliceai_lookup_html(spliceai_str) {
   }
   return spliceai_str;
 }
+
+function submit_create_var_g(create_g_url, api_key, csrf_token) {
+  // send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: create_g_url,
+		data: {
+			variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_name').text(), caller: 'cli', api_key: api_key
+		}
+	})
+  .done(function(var_json) {
+      if (var_json.mobidetails_error) {
+        $('#result_display').html(var_json.mobidetails_error)
+      }
+      else {
+        $('#result_display').html("<a href='" + var_json.url + "' target='_blank'>Check this variant on the canonical isoform</a>")
+      }
+    }
+  );
+}
+
 
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion

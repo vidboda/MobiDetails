@@ -129,12 +129,14 @@ def defgen():
 VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;\
 REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;\
 NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
-
-        file_content += "{0};{1}.{2}:c.{3};;;;p.{4};c.{3};{5};{1}.{2};{6};\
-;;;rs{7};;{8};;chr{9};{10};chr{9}:g.{11};{12} {13};;;;\r\n".format(
-            vf['gene_name'][0], vf['gene_name'][1], vf['nm_version'],
+        rsid = ''
+        if vf['dbsnp_id']:
+            rsid = 'rs{0}'.format(vf['dbsnp_id'])
+        file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
+;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
+            vf['gene_name'][0], vf['gene_name'][1],
             vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
-            vf['dbsnp_id'], vf['prot_type'], vf['chr'], genome,
+            rsid, vf['prot_type'], vf['chr'], genome,
             vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
         )
         # print(file_content)
@@ -147,8 +149,8 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
         close_db()
         return render_template(
             'ajax/defgen.html',
-            variant="{0}.{1}:c.{2}".format(
-                vf['gene_name'][1], vf['nm_version'], vf['c_name']
+            variant="{0}:c.{1}".format(
+                vf['gene_name'][1], vf['c_name']
             ),
             defgen_file=file_loc,
             genome=genome
@@ -401,7 +403,7 @@ def lovd():
                 # print(fields)
                 if len(fields) > 1:
                     fields[4] = fields[4].replace('"', '')
-                    if fields[4] == c_name or re.match(c_name, fields[4]):
+                    if fields[4] == c_name or re.match(escape(c_name), fields[4]):
                         lovd_urls.append(fields[5])
             if len(lovd_urls) > 0:
                 for url in lovd_urls:
@@ -617,15 +619,14 @@ def modif_class():
             if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td></td><td></td><td>\
-You already classified this variant with the same class today.\
-If you just want to modify comments, the previous classification \
-and start from scratch.</td><td></td></tr>"
+                    tr_html = "<tr id='already_classified'><td>\
+You already classified this variant with the same class today. \
+If you just want to modify comments, remove the previous classification \
+and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
-                    variant_feature_id = %s AND acmg_class = %s \
-                    AND mobiuser_id = %s",
+                    variant_feature_id = %s AND acmg_class = %s AND mobiuser_id = %s",
                     (date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
@@ -673,20 +674,38 @@ and start from scratch.</td><td></td></tr>"
                 (acmg_select,)
             )
             acmg_details = curs.fetchone()
+            # get HGVS genomic, cDNA, protein HGNC
+            # gene symbol and refseq acc version
+            genome_version = 'hg19'
+            curs.execute(
+                "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
+                b.g_name, d.hgnc_id, c.ncbi_name FROM \
+                variant_feature a, variant b, chromosomes c, gene d WHERE \
+                a.id = b.feature_id AND b.genome_version = \
+                c.genome_version AND b.chr = c.name \
+                AND a.gene_name = d.name AND a.id = %s \
+                AND b.genome_version = %s",
+                (variant_id, genome_version)
+            )
+            res_var = curs.fetchone()
             tr_html = "<tr id='{0}-{1}-{2}'> \
-<td class='w3-left-align'>{3}</td> \
-<td class='w3-left-align'>{4}</td> \
+<td class='w3-left-align'>{3}(<em>{4}</em>):c.{5}</td> \
+<td class='w3-left-align'>{6}</td> \
+<td class='w3-left-align'>{7}</td> \
 <td class='w3-left-align'> \
-    <span style='color:{5};'>Class {1} ({6})</span>\
+    <span style='color:{8};'>Class {1} ({9})</span>\
 </td> \
 <td> \
     <div class='w3-cell-row'> \
     <span class='w3-container w3-left-align w3-cell'>\
-{7}</span>\
+{10}</span>\
                 </tr>".format(
                     g.user['id'],
                     escape(acmg_select),
                     escape(variant_id),
+                    res_var['gene_name'][1],
+                    res_var['gene_name'][0],
+                    res_var['c_name'],
                     g.user['username'],
                     date,
                     acmg_details['html_code'],
@@ -706,18 +725,18 @@ and start from scratch.</td><td></td></tr>"
                     lovd_json = json.load(json_file)
                 # get HGVS genomic, cDNA, protein HGNC
                 # gene symbol and refseq acc version
-                genome_version = 'hg19'
-                curs.execute(
-                    "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
-                    b.g_name, d.hgnc_id, c.ncbi_name, d.nm_version FROM \
-                    variant_feature a, variant b, chromosomes c, gene d WHERE \
-                    a.id = b.feature_id AND b.genome_version = \
-                    c.genome_version AND b.chr = c.name \
-                    AND a.gene_name = d.name AND a.id = %s \
-                    AND b.genome_version = %s",
-                    (variant_id, genome_version)
-                )
-                res_var = curs.fetchone()
+                # genome_version = 'hg19'
+                # curs.execute(
+                #     "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
+                #     b.g_name, d.hgnc_id, c.ncbi_name FROM \
+                #     variant_feature a, variant b, chromosomes c, gene d WHERE \
+                #     a.id = b.feature_id AND b.genome_version = \
+                #     c.genome_version AND b.chr = c.name \
+                #     AND a.gene_name = d.name AND a.id = %s \
+                #     AND b.genome_version = %s",
+                #     (variant_id, genome_version)
+                # )
+                # res_var = curs.fetchone()
                 lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 
@@ -729,7 +748,7 @@ and start from scratch.</td><td></td></tr>"
                     lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
                 else:
                     lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['hgnc_id']
-                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = '{0}.{1}'.format(res_var['gene_name'][1], res_var['nm_version'])
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = res_var['gene_name'][1]
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
                 if semaph == 1:
@@ -923,8 +942,8 @@ An admin has been warned.')
 
 @bp.route('/create', methods=['POST'])
 def create():
+    # This method will have to be merged with /api/variant/create in a future version
     # start_time = time.time()
-    # print(request.form['new_variant'])
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'md/index.html',
@@ -937,42 +956,37 @@ def create():
             'Please fill in the form before submitting!'
         )
     if re.search(r'^[\w-]+$', request.form['gene']) and \
-            re.search(r'^NM_\d+$', request.form['acc_no']) and \
+            re.search(r'^NM_\d+\.\d+$', request.form['acc_no']) and \
             re.search(
                 rf'^c\.{variant_regexp}$',
                 request.form['new_variant']
-            ) and \
-            re.search(r'^\d+$', request.form['acc_version']):
+            ):
         gene = request.form['gene']
         acc_no = request.form['acc_no']
         new_variant = request.form['new_variant']
         new_variant = new_variant.replace(" ", "").replace("\t", "")
         # new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
-        acc_version = request.form['acc_version']
         alt_nm = None
         if 'alt_iso' in request.form:
             alt_nm = request.form['alt_iso']
             # return md_utilities.danger_panel(alt_nm, acc_version)
-            if alt_nm != '' and alt_nm != "{0}.{1}".format(
-                acc_no, acc_version
-                    ):
-                acc_no, acc_version = alt_nm.split('.')
+            if alt_nm != '' and alt_nm != acc_no:
+                acc_no = alt_nm
         # variant already registered?
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        var_db = new_variant.replace("c.", "")
         curs.execute(
-            "SELECT id FROM variant_feature WHERE \
+            "SELECT id, c_name as nm FROM variant_feature WHERE \
             c_name = %s AND gene_name[2] = %s",
-            (var_db, acc_no)
+            (new_variant.replace("c.", ""), acc_no)
         )
         res = curs.fetchone()
         if res:
             close_db()
             return md_utilities.info_panel(
                 'Variant already in MobiDetails: ',
-                var_db,
+                '{0}:{1}'.format(acc_no, new_variant),
                 res['id']
             )
 
@@ -990,15 +1004,16 @@ def create():
                         new_variant, 'Variant Validator did not answer our call, status: Service Unavailable. \
                         I have been informed by email. Please retry later.')
 
-            if not alt_nm or acc_no == request.form['acc_no']:
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/{1}.{2}?content-type=application/json".format(
-                    vv_base_url, acc_no, acc_version, new_variant
+            if not alt_nm or \
+                    acc_no == request.form['acc_no']:
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/{1}?content-type=application/json".format(
+                    vv_base_url, acc_no, new_variant
                 )
             else:
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}.{2}:{3}/all?content-type=application/json".format(
-                    vv_base_url, acc_no, acc_version, new_variant
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/all?content-type=application/json".format(
+                    vv_base_url, acc_no, new_variant
                 )
-            vv_key_var = "{0}.{1}:{2}".format(acc_no, acc_version, new_variant)
+            vv_key_var = "{0}:{1}".format(acc_no, new_variant)
 
             # print('--- 3- {} seconds ---'.format((time.time() - start_time)))
 
@@ -1018,7 +1033,7 @@ def create():
                 # need to redefine vv_key_var for indels as the variant name
                 # returned by vv is likely to be different form the user's
                 for key in vv_data:
-                    if re.search('{0}.{1}'.format(acc_no, acc_version), key):
+                    if re.search(escape(acc_no), key):
                         vv_key_var = key
                         # print(key)
                         var_obj = re.search(r':(c\..+)$', key)
@@ -1033,12 +1048,63 @@ c. nomenclature (including c.)'
             )
 
         # print('--- 4- {} seconds ---'.format((time.time() - start_time)))
-
-        return md_utilities.create_var_vv(
+        # if not canonical we annotate first the canonnical then the desired one
+        # main isoform?
+        can_output = None
+        curs.execute(
+            "SELECT canonical FROM gene WHERE name[2] = %s",
+            (acc_no,)
+        )
+        res_main = curs.fetchone()
+        if res_main['canonical'] is False:
+            curs.execute(
+                "SELECT name FROM gene \
+                WHERE name[1] = %s and canonical = 't'",
+                (gene,)
+            )
+            res_can = curs.fetchone()
+            can_output = md_utilities.create_var_vv(
+                vv_key_var, gene, res_can['name'][1], new_variant,
+                original_variant,
+                vv_data, 'webApp', db, g
+            )
+            # if non_can_output is a number => success => just get the text to display
+            if isinstance(can_output, int):
+                # get variant c_name
+                curs.execute(
+                    "SELECT c_name, gene_name[2] as nm FROM variant_feature WHERE id = %s",
+                    (can_output,)
+                )
+                var_c_name = curs.fetchone()
+                can_output = md_utilities.info_panel(
+                    "Successfully annotated the variant on the canonical isoform",
+                    '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
+                    can_output,
+                    'w3-pale-green'
+                )
+        output = md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
-            original_variant, acc_version,
+            original_variant,
             vv_data, 'webApp', db, g
         )
+        # if output is a number => success => just get the text to display
+        if isinstance(output, int):
+            # get variant c_name
+            curs.execute(
+                "SELECT c_name, gene_name[2] as nm FROM variant_feature WHERE id = %s",
+                (output,)
+            )
+            var_c_name = curs.fetchone()
+            output = md_utilities.info_panel(
+                "Successfully annotated the variant",
+                '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
+                output,
+                'w3-pale-green'
+            )
+            if can_output:
+                output = '{0}{1}'.format(can_output, output)
+
+        return output
     else:
         close_db()
         return md_utilities.danger_panel(
@@ -1358,109 +1424,114 @@ def delete_variant_list(list_name):
 
 @bp.route('/autocomplete', methods=['POST'])
 def autocomplete():
-    query = request.form['query_engine']
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
-    match_obj = re.search(r'^rs(\d+)$', query)
-    if match_obj:
-        md_query = match_obj.group(1)
-        curs.execute(
-            "SELECT dbsnp_id FROM variant_feature WHERE \
-            dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
-        )
-        res = curs.fetchall()
-        result = []
-        for var in res:
-            result.append('rs{}'.format(var[0]))
-        if result is not None:
-            return json.dumps(result)
-        else:
-            return ('', 204)
-    variant_regexp = md_utilities.regexp['variant']
-    match_object = re.search(rf'^c\.({variant_regexp})', query)
-    if match_object:
-        md_query = match_object.group(1)
-        curs.execute(
-            "SELECT DISTINCT(a.c_name) as name, a.gene_name[2] as gene_name, \
-            b.nm_version FROM variant_feature a, gene b WHERE \
-            a.gene_name = b.name AND a.c_name LIKE '{}%' ORDER BY \
-            c_name LIMIT 10".format(md_query)
-        )
-        res = curs.fetchall()
-        result = []
-        for var in res:
-            result.append(
-                '{0}.{1}:c.{2}'.format(
-                    var['gene_name'],
-                    var['nm_version'],
-                    var['name']
-                )
+    if 'query_engine' in request.form:
+        query = request.form['query_engine']
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+        match_obj = re.search(r'^rs(\d+)$', query)
+        if match_obj:
+            md_query = match_obj.group(1)
+            curs.execute(
+                "SELECT dbsnp_id FROM variant_feature WHERE \
+                dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
             )
-        # print(json.dumps(result))
+            res = curs.fetchall()
+            result = []
+            for var in res:
+                result.append('rs{}'.format(var[0]))
+            if result is not None:
+                return json.dumps(result)
+            else:
+                return ('', 204)
+        variant_regexp = md_utilities.regexp['variant']
+        match_object = re.search(rf'^c\.({variant_regexp})', query)
+        if match_object:
+            md_query = match_object.group(1)
+            curs.execute(
+                "SELECT DISTINCT(c_name) as name, gene_name[2] as nm, \
+                FROM variant_feature WHERE \
+                c_name LIKE '{}%' ORDER BY \
+                c_name LIMIT 10".format(md_query)
+            )
+            res = curs.fetchall()
+            result = []
+            for var in res:
+                result.append(
+                    '{0}:c.{1}'.format(
+                        var['nm'],
+                        var['name']
+                    )
+                )
+            # print(json.dumps(result))
+            if result is not None:
+                return json.dumps(result)
+            else:
+                return ('', 204)
+        i = 1
+        match_obj_nm = re.search(r'^([Nn][Mm]_.+)$', query)
+        match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', query)
+        if match_obj_nm:
+            i = 2
+            query = match_obj_nm.group(1).upper()
+        elif not re.search(r'orf', query) and \
+                match_obj_gene:
+            query = match_obj_gene.group(1).upper()
+        elif match_obj_gene:
+            query = match_obj_gene.group(1)
+        else:
+            return ('', 204)
+        curs.execute(
+            "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE \
+            '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
+        )
+        res = curs.fetchall()
+        result = []
+        for gene in res:
+            result.append(gene[0])
         if result is not None:
             return json.dumps(result)
         else:
             return ('', 204)
-    i = 1
-    match_obj_nm = re.search(r'^([Nn][Mm]_.+)$', query)
-    match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', query)
-    if match_obj_nm:
-        i = 2
-        query = match_obj_nm.group(1).upper()
-    elif not re.search(r'orf', query) and \
-            match_obj_gene:
-        query = match_obj_gene.group(1).upper()
-    elif match_obj_gene:
-        query = match_obj_gene.group(1)
-    else:
-        return ('', 204)
-    curs.execute(
-        "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE \
-        '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
-    )
-    res = curs.fetchall()
-    result = []
-    for gene in res:
-        result.append(gene[0])
-    if result is not None:
-        return json.dumps(result)
-    else:
-        return ('', 204)
-
+    return ('', 204)
 # -------------------------------------------------------------------
 # web app - ajax for variant creation autocomplete
 
 
 @bp.route('/autocomplete_var', methods=['POST'])
 def autocomplete_var():
-    query = request.form['query_engine']
-    match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', request.form['gene'])
-    # gene = request.form['gene']
-    # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
-    variant_regexp = md_utilities.regexp['variant']
-    match_object = re.search(rf'^c\.({variant_regexp})', query)
-    if match_object and \
-            match_obj_gene:
-        md_query = match_object.group(1)
-        gene = match_obj_gene.group(1)
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        curs.execute(
-            "SELECT c_name FROM variant_feature WHERE gene_name[1] = '{0}' \
-            AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
-                gene, md_query
+    if 'query_engine' in request.form and \
+            'acc_no' in request.form:
+        query = request.form['query_engine']
+        # match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', request.form['gene'])
+        ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+        match_obj_nm = re.search(rf'^({ncbi_transcript_regexp})$', request.form['acc_no'])
+        # gene = request.form['gene']
+        # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
+        variant_regexp = md_utilities.regexp['variant']
+        match_object = re.search(rf'^c\.({variant_regexp})', query)
+        if match_object and \
+                match_obj_nm:
+            md_query = match_object.group(1)
+            acc_no = match_obj_nm.group(1)
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                "SELECT c_name FROM variant_feature WHERE gene_name[2] = '{0}' \
+                AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
+                    acc_no, md_query
+                )
             )
-        )
-        res = curs.fetchall()
-        result = []
-        for var in res:
-            result.append('c.{}'.format(var[0]))
-        # print(json.dumps(result))
-        if result is not None:
-            return json.dumps(result)
-        else:
-            return ('', 204)
+            res = curs.fetchall()
+            result = []
+            for var in res:
+                result.append('c.{}'.format(var[0]))
+            # print(json.dumps(result))
+            if result is not None:
+                return json.dumps(result)
+            else:
+                return ('', 204)
+    # print(request.form)
     return ('', 204)
 
 # -------------------------------------------------------------------
@@ -1565,7 +1636,7 @@ def spliceai_lookup():
         if match_obj_variant and \
                 match_obj_transcript:
             variant = match_obj_variant.group(1)
-            transcript = match_obj_transcript.group(1)
+            transcript = match_obj_transcript.group(1).split(".")[0]
             try:
                 http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
                 spliceai500 = json.loads(

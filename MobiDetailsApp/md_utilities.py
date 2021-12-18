@@ -93,6 +93,9 @@ local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_3']['rel_path']
 )
+local_files['hgnc_full_set']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['hgnc_full_set']['rel_path']
+)
 local_files['human_genome_hg38']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['human_genome_hg38']['rel_path']
 )
@@ -119,6 +122,9 @@ local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
 )
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_indels']['rel_path']
+)
+local_files['variant_validator']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['variant_validator']['rel_path']
 )
 
 predictor_thresholds = resources['predictor_thresholds']
@@ -321,16 +327,17 @@ def get_pos_exon_canvas(pos, positions):
         return [
             200 + int(
                 round(
-                    (pos_from_beginning / positions['segment_size'])*200
+                    (int(pos_from_beginning) / int(positions['segment_size']))*200
                 )
             ),
-            positions['segment_size']
+            int(positions['segment_size'])
         ]
 
 
 def get_exon_neighbours(db, positions):
     # get introns names, numbers surrounding an exon
     prec_type = prec_number = fol_type = fol_number = None
+    # preceeding segment if 5UTR or an intron
     if positions['number'] == 1:
         prec_type = "5'"
         prec_number = "UTR"
@@ -338,38 +345,27 @@ def get_exon_neighbours(db, positions):
         prec_type = "intron"
         prec_number = positions['number'] - 1
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # following segemnt is either an intron or 3UTR
     curs.execute(
-        "SELECT type FROM segment WHERE \
-        gene_name[2] = %s AND number = %s AND genome_version = 'hg38'",
-        (positions['gene_name'][1], positions['number'] + 1)
+        "SELECT number_of_exons FROM gene WHERE name[2] = %s",
+        (positions['gene_name'][1],)
     )
-    following_seg = curs.fetchone()
-    if following_seg:
-        if following_seg['type'] == '3UTR':
-            fol_type = "3'"
-            fol_number = "UTR"
-        elif following_seg['type'] == 'intron' or \
-                following_seg['type'] == 'exon':
-            fol_type = "intron"
-            fol_number = positions['number']
+    res_nm = curs.fetchone()
+    if res_nm['number_of_exons'] == positions['number']:
+        fol_type = "3'"
+        fol_number = "UTR"
+    else:
+        fol_type = "intron"
+        fol_number = positions['number']
     return [prec_type, prec_number, fol_type, fol_number]
 
 
 def get_exon_sequence(positions, chrom, strand):
     # get DNA sequence for a given exon
     if isinstance(positions['number'], int) and \
-            re.search(r'^NM_\d+$', positions['gene_name'][1]) and \
+            re.search(r'^NM_\d+\.\d+$', positions['gene_name'][1]) and \
             re.search(r'^\d+$', chrom) and \
             re.search(r'^[\+-]+', strand):
-        # get exon position
-        # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # curs.execute(
-        #    "SELECT segment_start, segment_end FROM segment WHERE gene_name[2]
-        #  = %s AND number = %s AND genome_version = 'hg38' AND type = 'exon'",
-        #    (positions['gene_name'][1], positions['number'])
-        # )
-        # exon_pos = curs.fetchone()
-        # if exon_pos:
         genome = twobitreader.TwoBitFile(
             '{}.2bit'.format(local_files['human_genome_hg38']['abs_path'])
         )
@@ -383,8 +379,6 @@ def get_exon_sequence(positions, chrom, strand):
         if strand == '-':
             exon_seq = reverse_complement(exon_seq).upper()
         return exon_seq
-        # else:
-        #   return 'No exon positions found'
     else:
         return 'Wrong or lacking parameter'
 
@@ -750,7 +744,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
     # to print general info do not send var neither id_var
     # Newly created variant:
     c = 'c.'
-    if re.search('N[MR]_', var):
+    if re.search(r'N[MR]_', var):
         c = ''
     link = ''
     if var != '':
@@ -821,7 +815,7 @@ def get_vv_api_url():
 
 def create_var_vv(
         vv_key_var, gene, acc_no, new_variant,
-        original_variant, acc_version, vv_data, caller, db, g):
+        original_variant, vv_data, caller, db, g):
     vf_d = {}
     # deal with various warnings
     # docker up?
@@ -883,128 +877,123 @@ Sorry for the inconvenience. Please retry later."
     # print(vv_data['flag'])
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform?
-    curs.execute(
-        "SELECT canonical FROM gene WHERE name[2] = %s",
-        (acc_no,)
-    )
-    res_main = curs.fetchone()
-    remapper = False
-    if res_main['canonical'] is not True:
-        # check if canonical in vv_data
-        # we want variants in priority in canonical isoforms
-        curs.execute(
-            "SELECT name, nm_version FROM gene \
-            WHERE name[1] = %s and canonical = 't'",
-            (gene,)
-        )
-        res_can = curs.fetchone()
-        # cannot happen as VV when queried with an
-        # isoform returns the results  only for this isoform
-        # we could get pseudo VCF values an rerun VV instead
-        try:
-            hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
-            if 'mobidetails_error' in hg38_d:
-                if caller == 'webApp':
-                    return danger_panel(
-                        'MobiDetails error',
-                        hg38_d['mobidetails_error']
-                    )
-                elif caller == 'api':
-                    return hg38_d
-        except Exception as e:
-            # means we have an error
-            if vv_data['flag'] == 'warning':
-                if caller == 'webApp':
-                    return danger_panel(
-                        vv_key_var,
-                        ' '.join(
-                            vv_data['validation_warning_1']
-                            ['validation_warnings']
-                        )
-                    )
-                elif caller == 'api':
-                    return {
-                        'mobidetails_error':
-                        vv_data['validation_warning_1']['validation_warnings']
-                    }
-            else:
-                vv_warning = ''
-                for level1 in vv_data:
-                    if re.search(r'NM_\d+\.\d{1,2}:c.*', level1) and \
-                            'validation_warnings' in vv_data[level1]:
-                        vv_warning = 'Warning from VariantValidator \
-                            for your submission ({0}): {1}'.format(
-                                vv_key_var, ' - '.join(
-                                    vv_data[level1]['validation_warnings']
-                                )
-                            )
-                        if caller == 'webApp':
-                            return danger_panel(
-                                vv_key_var,
-                                'I have some troubles with the mapping \
-                                of this variant. {0}'.format(vv_warning))
-                        elif caller == 'api':
-                            return {
-                                'mobidetails_error': '{0}: mapping issue. {1}'
-                                .format(vv_key_var, vv_warning)
-                            }
-                if caller == 'webApp':
-                    send_error_email(
-                        prepare_email_html(
-                            'MobiDetails error',
-                            '<p>Mapping issue with {0} with args: {1}</p>'
-                            .format(vv_key_var, e.args)
-                        ),
-                        '[MobiDetails - Mapping issue]'
-                    )
-                    return danger_panel(
-                        vv_key_var,
-                        'I have some troubles with \
-                        the mapping of this variant.'
-                    )
-                elif caller == 'api':
-                    send_error_email(
-                        prepare_email_html(
-                            'MobiDetails error',
-                            '<p>Mapping issue with {0} with args: {1}</p>'
-                            .format(vv_key_var, e.args)
-                        ),
-                        '[MobiDetails API - Mapping issue]'
-                    )
-                    return {
-                        'mobidetails_error':
-                        '{0}: mapping issue.'.format(vv_key_var)
-                    }
-
-        vv_base_url = get_vv_api_url()
-        # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
-        #  ca_certs=certifi.where())
-        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
-            vv_base_url, hg38_d['chr'], hg38_d['pos'],
-            hg38_d['pos_ref'], hg38_d['pos_alt']
-        )
-        try:
-            vv_data2 = json.loads(http.request(
-                'GET', vv_url).data.decode('utf-8')
-            )
-            for key in vv_data2:
-                if re.search(
-                        r'{0}\.{1}'.format(
-                            res_can['name'][1], res_can['nm_version']
-                        ),
-                        key):
-                    # if canonical isoform in new query
-                    vv_data = vv_data2
-                    vv_key_var = key
-                    var_obj = re.search(r':c\.(.+)$', key)
-                    vf_d['c_name'] = var_obj.group(1)
-                    acc_no = res_can['name'][1]
-                    acc_version = res_can['nm_version']
-                    first_level_key = key
-                    remapper = True
-        except Exception:
-            pass
-    # print(vv_key_var)
+    # curs.execute(
+    #     "SELECT canonical FROM gene WHERE name[2] = %s",
+    #     (acc_no,)
+    # )
+    # res_main = curs.fetchone()
+    # remapper = False
+    # if res_main['canonical'] is not True:
+    #     # check if canonical in vv_data
+    #     # we want variants in priority in canonical isoforms
+    #     curs.execute(
+    #         "SELECT name, nm_version FROM gene \
+    #         WHERE name[1] = %s and canonical = 't'",
+    #         (gene,)
+    #     )
+    #     res_can = curs.fetchone()
+    #     # cannot happen as VV when queried with an
+    #     # isoform returns the results  only for this isoform
+    #     # we could get pseudo VCF values an rerun VV instead
+    #     try:
+    #         hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
+    #         if 'mobidetails_error' in hg38_d:
+    #             if caller == 'webApp':
+    #                 return danger_panel(
+    #                     'MobiDetails error',
+    #                     hg38_d['mobidetails_error']
+    #                 )
+    #             elif caller == 'api':
+    #                 return hg38_d
+    #     except Exception as e:
+    #         # means we have an error
+    #         if vv_data['flag'] == 'warning':
+    #             if caller == 'webApp':
+    #                 return danger_panel(
+    #                     vv_key_var,
+    #                     ' '.join(
+    #                         vv_data['validation_warning_1']['validation_warnings']
+    #                     )
+    #                 )
+    #             elif caller == 'api':
+    #                 return {
+    #                     'mobidetails_error':
+    #                     vv_data['validation_warning_1']['validation_warnings']
+    #                 }
+    #         else:
+    #             vv_warning = ''
+    #             for level1 in vv_data:
+    #                 if re.search(r'NM_\d+\.\d{1,2}:c.*', level1) and \
+    #                         'validation_warnings' in vv_data[level1]:
+    #                     vv_warning = 'Warning from VariantValidator \
+    #                         for your submission ({0}): {1}'.format(
+    #                             vv_key_var, ' - '.join(
+    #                                 vv_data[level1]['validation_warnings']
+    #                             )
+    #                         )
+    #                     if caller == 'webApp':
+    #                         return danger_panel(
+    #                             vv_key_var,
+    #                             'I have some troubles with the mapping \
+    #                             of this variant. {0}'.format(vv_warning))
+    #                     elif caller == 'api':
+    #                         return {
+    #                             'mobidetails_error': '{0}: mapping issue. {1}'
+    #                             .format(vv_key_var, vv_warning)
+    #                         }
+    #             if caller == 'webApp':
+    #                 send_error_email(
+    #                     prepare_email_html(
+    #                         'MobiDetails error',
+    #                         '<p>Mapping issue with {0} with args: {1}</p>'
+    #                         .format(vv_key_var, e.args)
+    #                     ),
+    #                     '[MobiDetails - Mapping issue]'
+    #                 )
+    #                 return danger_panel(
+    #                     vv_key_var,
+    #                     'I have some troubles with \
+    #                     the mapping of this variant.'
+    #                 )
+    #             elif caller == 'api':
+    #                 send_error_email(
+    #                     prepare_email_html(
+    #                         'MobiDetails error',
+    #                         '<p>Mapping issue with {0} with args: {1}</p>'
+    #                         .format(vv_key_var, e.args)
+    #                     ),
+    #                     '[MobiDetails API - Mapping issue]'
+    #                 )
+    #                 return {
+    #                     'mobidetails_error':
+    #                     '{0}: mapping issue.'.format(vv_key_var)
+    #                 }
+    #
+    #     vv_base_url = get_vv_api_url()
+    #     # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
+    #     #  ca_certs=certifi.where())
+    #     vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}-{2}-{3}-{4}/all?content-type=application/json".format(
+    #         vv_base_url, hg38_d['chr'], hg38_d['pos'],
+    #         hg38_d['pos_ref'], hg38_d['pos_alt']
+    #     )
+    #     try:
+    #         vv_data2 = json.loads(http.request(
+    #             'GET', vv_url).data.decode('utf-8')
+    #         )
+    #         for key in vv_data2:
+    #             if re.search(res_can['name'][1], key):
+    #                 # if canonical isoform in new query
+    #                 vv_data = vv_data2
+    #                 vv_key_var = key
+    #                 var_obj = re.search(r':c\.(.+)$', key)
+    #                 vf_d['c_name'] = var_obj.group(1)
+    #                 acc_no = res_can['name'][1]
+    #                 acc_version = res_can['nm_version']
+    #                 first_level_key = key
+    #                 remapper = True
+    #     except Exception:
+    #         pass
+    # # print(vv_key_var)
     if 'validation_warning_1' in vv_data:
         first_level_key = 'validation_warning_1'
     if vv_key_var in vv_data:
@@ -1064,15 +1053,15 @@ try again: {0}-{1}'.format(acc_no, gene)}
             elif re.search(r'automapped to NC_0000', warning):
                 continue
             elif re.search(
-                    r'automapped to {0}\.{1}:c\..+'
-                    .format(acc_no, acc_version),
+                    r'automapped to {0}:c\..+'
+                    .format(acc_no),
                     warning):
                 match_obj = re.search(
-                    r'automapped to {0}\.{1}:(c\..+)'
-                    .format(acc_no, acc_version),
+                    r'automapped to {0}:(c\..+)'
+                    .format(acc_no),
                     warning
                 )
-                if match_obj.group(1) is not None:
+                if match_obj.group(1):
                     return_text = ' VariantValidator reports that \
                     your variant should be {0} instead of {1}'.format(
                         match_obj.group(1), original_variant
@@ -1085,11 +1074,11 @@ try again: {0}-{1}'.format(acc_no, gene)}
                     danger_panel(vv_key_var, warning)
             elif re.search('normalized', warning):
                 match_obj = re.search(
-                    r'normalized to ({0}\.{1}:c\..+)'
-                    .format(acc_no, acc_version),
+                    r'normalized to ({0}:c\..+)'
+                    .format(acc_no),
                     warning
                 )
-                if match_obj.group(1) is not None and \
+                if match_obj.group(1) and \
                         match_obj.group(1) == vv_key_var:
                     next
                 elif caller == 'webApp':
@@ -1100,6 +1089,15 @@ try again: {0}-{1}'.format(acc_no, gene)}
                     re.search('LRG_', warning) or \
                     re.search('Whitespace', warning):
                 next
+            elif re.search(r'is not HGVS-compliant: Instead', warning):
+                match_obj = re.search(r'^(.+is not HGVS-compliant)', warning)
+                message = warning
+                if match_obj:
+                    message = '{0}. Your variant is not located inside the gene genomic boundaries, therefore MD cannot treat it.'.format(match_obj.group(1))
+                if caller == 'webApp':
+                    return danger_panel(vv_key_var, message)
+                elif caller == 'api':
+                    return {'mobidetails_error': '{}'.format(message)}
             else:
                 if 'Removing redundant reference bases from variant description' in warning:
                     continue
@@ -1187,35 +1185,41 @@ Currently, MobiDetails requires proper mapping on \
 hg38 and hg19. \
 It is therefore impossible to create a variant.'
                     .format(acc_no, gene)}
-    # check again if variant exist
+    # check again if variant exist for this transcript
     curs.execute(
-        "SELECT feature_id FROM variant \
-        WHERE genome_version = %s AND g_name = %s AND chr = %s",
-        (genome, hg38_d['g_name'], hg38_d['chr'])
+        "SELECT id, c_name as nm FROM variant_feature WHERE \
+        c_name = %s AND gene_name[2] = %s",
+        (new_variant.replace("c.", ""), acc_no)
     )
     res = curs.fetchone()
+    # curs.execute(
+    #     "SELECT feature_id FROM variant \
+    #     WHERE genome_version = %s AND g_name = %s AND chr = %s",
+    #     (genome, hg38_d['g_name'], hg38_d['chr'])
+    # )
+    # res = curs.fetchone()
     if res is not None:
         if caller == 'webApp':
             return info_panel(
                 'Variant already in MobiDetails: ',
-                vv_key_var,
-                res['feature_id']
+                '{0}:{1}'.format(acc_no, new_variant),
+                res['id']
             )
         elif caller == 'api':
             return {
-                'mobidetails_id': res['feature_id'],
+                'mobidetails_id': res['id'],
                 'url': '{0}{1}'.format(
                     request.host_url[:-1],
                     url_for(
                         'api.variant',
-                        variant_id=res['feature_id'],
+                        variant_id=res['id'],
                         caller='browser'
                     )
                 )
             }
         elif caller == 'test':
             # for unit tests
-            return {'mobidetails_id': res['feature_id']}
+            return {'mobidetails_id': res['id']}
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
@@ -1364,48 +1368,49 @@ please contact us'.format(gene)}
     if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
         vf_d['rna_type'] = 'altered inferred'
     # exons pos, etc - based on hg38
+    # VV2 here we basically get "variant_exonic_positions"
+    # we need the NCBI hg38 chrom
+    # "NC_000004.12": {
+    #     "end_exon": "21",
+    #     "start_exon": "20i"
+    # },
+    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+    vf_d['start_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+    vf_d['start_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+    vf_d['end_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+    vf_d['end_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+    if vf_d['start_segment_type'] == 'segment_type_error' or \
+            vf_d['end_segment_type'] == 'segment_type_error' or \
+            vf_d['start_segment_number'] == 'segment_number_error' or \
+            vf_d['end_segment_number'] == 'segment_number_error':
+        if caller == 'webApp':
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails error',
+                    '<p>Insertion failed for variant features \
+        for {0} with args start_segment_type:{1}-end_segment_type:{2}-start_segment_number:{3}-end_segment_number:{4}</p>'
+                    .format(
+                        vv_key_var,
+                        vf_d['start_segment_type'],
+                        vf_d['end_segment_type'],
+                        vf_d['start_segment_number'],
+                        vf_d['end_segment_number']
+                    )
+                ),
+                '[MobiDetails - MD variant creation Error]'
+            )
+            return danger_panel(
+                'MobiDetails error {}'.format(vv_key_var),
+                'Sorry, an issue occured with the variant position \
+            and intron/exon definition. An admin has been warned'
+            )
+        elif caller == 'api':
+            return {
+                'mobidetails_error':
+                'Sorry, an issue occured with the variant position \
+          and intron/exon definition for {}'.format(vv_key_var)
+            }
     if positions[0] != positions[1]:
-        curs.execute(
-            "SELECT number, type FROM segment \
-            WHERE genome_version = %s AND \
-            gene_name[1] = %s AND gene_name[2] = %s \
-            AND %s BETWEEN SYMMETRIC segment_start \
-            AND segment_end AND %s BETWEEN SYMMETRIC \
-            segment_start AND segment_end",
-            (genome, gene, acc_no, positions[0], positions[1])
-        )
-        res_seg = curs.fetchone()
-        if res_seg is not None:
-            # start - end in same segment
-            vf_d['start_segment_type'] = res_seg['type']
-            vf_d['start_segment_number'] = res_seg['number']
-            vf_d['end_segment_type'] = res_seg['type']
-            vf_d['end_segment_number'] = res_seg['number']
-        else:
-            curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = %s \
-                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-                BETWEEN SYMMETRIC segment_start AND segment_end ",
-                (genome, gene, acc_no, positions[0])
-            )
-            res_seg1 = curs.fetchone()
-            curs.execute(
-                "SELECT number, type FROM segment WHERE genome_version = %s \
-                AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-                BETWEEN SYMMETRIC segment_start AND segment_end ",
-                (genome, gene, acc_no, positions[1])
-            )
-            res_seg2 = curs.fetchone()
-            if res_strand['strand'] == '+':
-                vf_d['start_segment_type'] = res_seg1['type']
-                vf_d['start_segment_number'] = res_seg1['number']
-                vf_d['end_segment_type'] = res_seg2['type']
-                vf_d['end_segment_number'] = res_seg2['number']
-            else:
-                vf_d['start_segment_type'] = res_seg2['type']
-                vf_d['start_segment_number'] = res_seg2['number']
-                vf_d['end_segment_type'] = res_seg1['type']
-                vf_d['end_segment_number'] = res_seg1['number']
         # get IVS name
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(
@@ -1444,48 +1449,6 @@ please contact us'.format(gene)}
                         )
     else:
         # substitutions
-        # print("SELECT number, type FROM segment \
-        # WHERE genome_version = '{0}' AND gene_name = '{{\"{1}\",\"{2}\"}}'\
-        # AND '{3}' BETWEEN SYMMETRIC segment_start AND \
-        # segment_end ".format(genome, gene, acc_no, positions[0]))
-        curs.execute(
-            "SELECT number, type FROM segment WHERE genome_version = %s \
-            AND gene_name[1] = %s AND gene_name[2] = %s AND %s \
-            BETWEEN SYMMETRIC segment_start AND segment_end",
-            (genome, gene, acc_no, positions[0])
-        )
-        res_seg = curs.fetchone()
-        if not res_seg:
-            failed_query = "SELECT number, type FROM segment WHERE genome_version = '{0}' \
-            AND gene_name[1] = '{1}' AND gene_name[2] = '{2}' AND '{3}' \
-            BETWEEN SYMMETRIC segment_start AND \
-            segment_end".format(genome, gene, acc_no, positions[0])
-            # print(failed_query)
-            if caller == 'webApp':
-                send_error_email(
-                    prepare_email_html(
-                        'MobiDetails error',
-                        '<p>Insertion failed for variant features \
-for {0} with args {1}</p>'
-                        .format(vv_key_var, failed_query)
-                    ),
-                    '[MobiDetails - MD variant creation Error]'
-                )
-                return danger_panel(
-                    'MobiDetails error {}'.format(vv_key_var),
-                    'Sorry, an issue occured with the variant position \
-and intron/exon definition. An admin has been warned'
-                )
-            elif caller == 'api':
-                return {
-                    'mobidetails_error':
-                    'Sorry, an issue occured with the variant position \
-and intron/exon definition for {}'.format(vv_key_var)
-                }
-        vf_d['start_segment_type'] = res_seg['type']
-        vf_d['start_segment_number'] = res_seg['number']
-        vf_d['end_segment_type'] = res_seg['type']
-        vf_d['end_segment_number'] = res_seg['number']
         if vf_d['start_segment_type'] == 'intron':
             ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
             if ivs_obj:
@@ -1505,7 +1468,7 @@ in md_utilities create_var_vv</p>'.format(vv_key_var)
                 )
     if 'ivs_name' not in vf_d:
         vf_d['ivs_name'] = 'NULL'
-    ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+    # ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
     hg38_d['chr'] = ncbi_chr[0]
     record = get_value_from_tabix_file(
         'dbsnp', local_files['dbsnp']['abs_path'], hg38_d, vf_d
@@ -1714,24 +1677,94 @@ in hg19. An admin has been warned'
                 'Impossible to insert variant (hg19) for {}'
                 .format(vv_key_var)}
     db.commit()
-    if remapper is True and caller == 'webApp':
-        return info_panel(
-            "Successfully annotated variant (remapped to canonical isoform)",
-            vf_d['c_name'],
-            vf_id,
-            'w3-pale-green'
-        )
-    elif caller == 'webApp':
-        return info_panel(
-            "Successfully annotated variant",
-            vf_d['c_name'],
-            vf_id,
-            'w3-pale-green'
-        )
-    if caller == 'api':
-        return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
-            request.host_url[:-1], url_for('api.variant', variant_id=vf_id, caller='browser')
-        )}
+    # if remapper is True and caller == 'webApp':
+    #     return info_panel(
+    #         "Successfully annotated variant (remapped to canonical isoform)",
+    #         vf_d['c_name'],
+    #         vf_id,
+    #         'w3-pale-green'
+    #     )
+    # elif caller == 'webApp':
+    return vf_id
+    # if caller == 'webApp':
+    #     return info_panel(
+    #         "Successfully annotated variant",
+    #         vf_d['c_name'],
+    #         vf_id,
+    #         'w3-pale-green'
+    #     )
+    # if caller == 'api':
+    #     return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
+    #         request.host_url[:-1], url_for('api.variant', variant_id=vf_id, caller='browser')
+    #     )}
+
+
+def get_segment_type_from_vv(vv_expr):
+    if re.match(r'^\d+i$', vv_expr):
+        return 'intron'
+    elif re.match(r'^\d+$', vv_expr):
+        return 'exon'
+    else:
+        return 'segment_type_error'
+
+
+def get_segment_size_from_vv_cigar(cigar):
+    match_obj = re.search(r'^(\d+)=', cigar)
+    if match_obj:
+        return str(match_obj.group(1))
+    else:
+        return 'cigar_error'
+
+
+def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
+    # we will find the exon start and end in the VV json file
+    try:
+        json_file = open('{0}{1}.json'.format(
+            local_files['variant_validator']['abs_path'],
+            gene_symbol
+        ))
+    except IOError:
+        # print('file_not_found_error')
+        return 'file_not_found_error'
+    vv_json = json.load(json_file)
+    positions = {
+        'number': int(exon_number),
+        'gene_name': [gene_symbol, transcript]
+    }
+    for vv_transcript in vv_json['transcripts']:
+        if vv_transcript['reference'] == transcript:
+            if ncbi_chr in vv_transcript['genomic_spans']:
+                # get strand
+                strand = vv_transcript['genomic_spans'][ncbi_chr]['orientation']
+                # we loop on exons
+                for exon in vv_transcript['genomic_spans'][ncbi_chr]['exon_structure']:
+                    if str(exon['exon_number']) == str(exon_number):
+                        print('exon')
+                        if strand == 1:
+                            positions['segment_start'] = str(exon['genomic_start'])
+                            positions['segment_end'] = str(exon['genomic_end'])
+                        else:
+                            positions['segment_start'] = str(exon['genomic_end'])
+                            positions['segment_end'] = str(exon['genomic_start'])
+                        positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
+                        if positions['segment_size'] != 'cigar_error' and \
+                                re.search(r'^\d+$', positions['segment_start']) and \
+                                re.search(r'^\d+$', positions['segment_start']):
+                            json_file.close()
+                            return positions
+                        else:
+                            json_file.close()
+                            return 'positions_error'
+    json_file.close()
+    return 'transcript_error'
+
+
+def get_segment_number_from_vv(vv_expr):
+    match_obj = re.search(r'^(\d+)i?$', vv_expr)
+    if match_obj:
+        return match_obj.group(1)
+    else:
+        return 'segment_number_error'
 
 
 def get_genomic_values(genome, vv_data, vv_key_var):
@@ -1947,22 +1980,24 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
 def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
     # 1st we need the sequences and therefore determine
     # start and end of interest
+    segment_start = int(positions['segment_start'])
+    segment_end = int(positions['segment_end'])
     x = y = None
     if scantype == 3:
         if strand == '+':
-            x = positions['segment_start']-21
-            y = positions['segment_start']+2
+            x = segment_start-21
+            y = segment_start+2
         else:
-            x = positions['segment_start']-3
-            y = positions['segment_start']+20
+            x = segment_start-3
+            y = segment_start+20
 
     else:
         if strand == '+':
-            x = positions['segment_end']-3
-            y = positions['segment_end']+6
+            x = segment_end-3
+            y = segment_end+6
         else:
-            x = positions['segment_end']-7
-            y = positions['segment_end']+2
+            x = segment_end-7
+            y = segment_end+2
 
     genome = twobitreader.TwoBitFile('{}.2bit'.format(
         local_files['human_genome_hg38']['abs_path'])
