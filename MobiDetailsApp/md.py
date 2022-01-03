@@ -348,11 +348,14 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                     for res in result_all:
                         # need to check vv isoforms against MD isoforms to keep only relevant ones
                         if vv_transcript['reference'] == res['name'][1]:
-                            transcript_road_signs[res['name'][1]] = {
-                                'mane_select': vv_transcript['annotations']['mane_select'],
-                                'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
-                                'refseq_select': vv_transcript['annotations']['refseq_select']
-                            }
+                            if 'mane_select' in vv_transcript['annotations'] and \
+                                    'mane_plus_clinical' in vv_transcript['annotations'] and \
+                                    'refseq_select' in vv_transcript['annotations']:
+                                transcript_road_signs[res['name'][1]] = {
+                                    'mane_select': vv_transcript['annotations']['mane_select'],
+                                    'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                    'refseq_select': vv_transcript['annotations']['refseq_select']
+                                }
                 # print(transcript_road_signs)
             return render_template(
                 'md/gene.html',

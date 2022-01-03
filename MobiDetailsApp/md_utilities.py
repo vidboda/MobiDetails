@@ -1739,7 +1739,7 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
                 # we loop on exons
                 for exon in vv_transcript['genomic_spans'][ncbi_chr]['exon_structure']:
                     if str(exon['exon_number']) == str(exon_number):
-                        print('exon')
+                        # print('exon')
                         if strand == 1:
                             positions['segment_start'] = str(exon['genomic_start'])
                             positions['segment_end'] = str(exon['genomic_end'])
