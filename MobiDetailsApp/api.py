@@ -629,9 +629,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['positions']['aaPositionStart'] = aa_pos[0]
                         external_data['positions']['aaPositionEnd'] = aa_pos[1]
                         curs.execute(
-                            "SELECT * FROM protein_domain WHERE np = '{0}' AND (('{1}' \
+                            "SELECT * FROM uniprot_domain WHERE uniprot_id = '{0}' AND (('{1}' \
                             BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
-                                variant_features['np'], aa_pos[0], aa_pos[1]
+                                variant_features['uniprot_id'], aa_pos[0], aa_pos[1]
                             )
                         )
                         domains = curs.fetchall()

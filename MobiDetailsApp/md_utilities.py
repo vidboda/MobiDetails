@@ -123,6 +123,9 @@ local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_indels']['rel_path']
 )
+local_files['uniprot']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['uniprot']['rel_path']
+)
 local_files['variant_validator']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['variant_validator']['rel_path']
 )

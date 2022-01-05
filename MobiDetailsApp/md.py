@@ -331,7 +331,6 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                 (gene_name,)
             )
             res_size = curs.fetchone()
-            close_db()
             # get refseq select, mane, etc from vv json file
             no_vv_file = 0
             try:
@@ -344,19 +343,35 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
             if no_vv_file == 0:
                 transcript_road_signs = {}
                 vv_json = json.load(json_file)
-                for vv_transcript in vv_json['transcripts']:
-                    for res in result_all:
-                        # need to check vv isoforms against MD isoforms to keep only relevant ones
-                        if vv_transcript['reference'] == res['name'][1]:
-                            if 'mane_select' in vv_transcript['annotations'] and \
-                                    'mane_plus_clinical' in vv_transcript['annotations'] and \
-                                    'refseq_select' in vv_transcript['annotations']:
-                                transcript_road_signs[res['name'][1]] = {
-                                    'mane_select': vv_transcript['annotations']['mane_select'],
-                                    'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
-                                    'refseq_select': vv_transcript['annotations']['refseq_select']
-                                }
+                if 'error' in vv_json:
+                    no_vv_file = 1
+                    curs.execute(
+                        "UPDATE gene SET variant_creation = 'not_in_vv_json' WHERE name[1] = %s",
+                        (gene_name,)
+                    )
+                    db.commit()
+                    curs.execute(
+                        "SELECT * FROM gene WHERE name[1] = %s \
+                        ORDER BY number_of_exons DESC",
+                        (gene_name,)
+                    )  # get all isoforms
+                    result_all = curs.fetchall()
+                    num_iso = len(result_all)
+                if no_vv_file == 0:
+                    for vv_transcript in vv_json['transcripts']:
+                        for res in result_all:
+                            # need to check vv isoforms against MD isoforms to keep only relevant ones
+                            if vv_transcript['reference'] == res['name'][1]:
+                                if 'mane_select' in vv_transcript['annotations'] and \
+                                        'mane_plus_clinical' in vv_transcript['annotations'] and \
+                                        'refseq_select' in vv_transcript['annotations']:
+                                    transcript_road_signs[res['name'][1]] = {
+                                        'mane_select': vv_transcript['annotations']['mane_select'],
+                                        'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                        'refseq_select': vv_transcript['annotations']['refseq_select']
+                                    }
                 # print(transcript_road_signs)
+            close_db()
             return render_template(
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),

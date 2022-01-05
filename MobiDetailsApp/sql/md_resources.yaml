@@ -292,6 +292,11 @@
     'name': 'spliceAI Indels'
     'description': 'Dataset of splicing predictions'
     'short_name': 'spliceai'
+  'uniprot':
+    'rel_path': '/static/resources/uniprot/'
+    'name': 'UNIPROT'
+    'description': 'Storage of UNIPROT GFFs'
+    'short_name': 'uniprot'
   'variant_validator':
     'rel_path': '/static/resources/VariantValidator/genes/'
     'name': 'VariantValidator'
