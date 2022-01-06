@@ -1410,19 +1410,21 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
                         )
                         vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                        vv_key_var_can = None
                         for key in vv_full_data.keys():
-                            # print(key)
+                            # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
                             if re.search(res_can['nm'], key):
                                 vv_key_var_can = key
                                 var_obj = re.search(r':c\.(.+)$', key)
                                 if var_obj is not None:
                                     new_variant_can = var_obj.group(1)
                                     original_variant_can = new_variant_can
-                        md_utilities.create_var_vv(
-                            vv_key_var_can, res_gene['gene'], res_can['nm'],
-                            'c.{}'.format(new_variant_can), original_variant_can,
-                            vv_full_data, 'api', db, g
-                        )
+                        if vv_key_var_can:
+                            md_utilities.create_var_vv(
+                                vv_key_var_can, res_gene['gene'], res_can['nm'],
+                                'c.{}'.format(new_variant_can), original_variant_can,
+                                vv_full_data, 'api', db, g
+                            )
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene'], acc_no,
                     'c.{}'.format(new_variant), original_variant,
