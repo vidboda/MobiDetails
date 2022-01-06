@@ -272,6 +272,7 @@ An email has been sent to {} \
 with an activation link.</p><br />'.format(email),
                   'w3-pale-green'
                   )
+            close_db()
             return redirect(url_for('md.index'), code=302)
 
         flash(error, 'w3-pale-red')
@@ -289,6 +290,7 @@ Remote IP: {1}</li><li>Username: {2}</li>\
                 ),
                 '[MobiDetails - Registering Error]'
             )
+        close_db()
         return render_template(
             'auth/register.html',
             countries=md_utilities.countries,
@@ -373,6 +375,7 @@ mobidetails.iurc@gmail.com.</p><br />\
 
         if error is None:
             session.clear()
+            close_db()
             flash(
                 'You have successfully been logged in as {}.'.format(
                     user["username"]), 'w3-pale-green'
@@ -468,6 +471,7 @@ mobiuser_id: {1} from {2}'.format(
             )
             flash('API key and user id do not seem to fit. \
 An admin has been warned', 'w3-pale-red')
+            close_db()
             return render_template('md/index.html')
         else:
             if user['activated'] is False and \
@@ -481,6 +485,7 @@ An admin has been warned', 'w3-pale-red')
                 db.commit()
                 flash('Your account has been activated, \
 you may now log in using your email address.', 'w3-pale-green')
+                close_db()
                 return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
@@ -568,6 +573,7 @@ def profile(mobiuser_id=0):
 
             if error is None:
                 # num_var_fav = curs.rowcount
+                close_db()
                 return render_template(
                     'auth/profile.html',
                     run_mode=md_utilities.get_running_mode(),
@@ -583,6 +589,7 @@ def profile(mobiuser_id=0):
                 )
         elif error is None:
             # other profile view
+            close_db()
             return render_template(
                 'auth/profile.html',
                 run_mode=md_utilities.get_running_mode(),
@@ -598,6 +605,7 @@ def profile(mobiuser_id=0):
             )
 
         flash(error, 'w3-pale-red')
+        close_db()
         return render_template(
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
@@ -627,7 +635,7 @@ def load_logged_in_user():
             (user_id,)
         )
         g.user = curs.fetchone()
-    close_db()
+        close_db()
 
 # -------------------------------------------------------------------
 # logout
@@ -714,6 +722,7 @@ mobidetails.iurc@gmail.com.</p><br />\
             flash('Please check your e-mail inbox. \
 You should have received a message with a link \
 to reset your password', 'w3-pale-green')
+            close_db()
             return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
 
@@ -766,8 +775,10 @@ mobiuser_id: {1} from {2}'.format(
                 )
                 flash('API key and user id do not seem to fit. \
 An admin has been warned', 'w3-pale-red')
+                close_db()
                 return render_template('auth/forgot_pass.html')
             else:
+                close_db()
                 return render_template(
                     'auth/reset_pass.html',
                     mobiuser_id=mobiuser_id,
@@ -811,6 +822,7 @@ letters (upper and lower case) and numbers.'
             )
             db.commit()
             flash('Your password has just been reset.', 'w3-pale-green')
+            close_db()
             return render_template('auth/login.html')
         if error is not None:
             flash(error, 'w3-pale-red')

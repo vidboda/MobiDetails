@@ -46,6 +46,7 @@ def index():
     )
     res = curs.fetchone()
     if res is None:
+        close_db()
         error = "There is a problem with the number of genes."
         flash(error, 'w3-pale-red')
         md_utilities.send_error_email(
@@ -493,7 +494,7 @@ def vars(gene_name=None):
 
 @bp.route('/variant/<int:variant_id>', methods=['GET', 'POST'])
 def variant(variant_id=None):
-    # kept for backward compatiobility of URLs
+    # kept for backward compatibility of URLs
     return redirect(url_for('api.variant', variant_id=variant_id, caller='browser'))
 
 # -------------------------------------------------------------------
@@ -531,6 +532,7 @@ def search_engine():
                     WHERE a.creation_user = b.id AND a.creation_date > CURRENT_DATE - 7 ORDER BY creation_date DESC"
                 )
                 variants = curs.fetchall()
+                close_db()
                 return render_template('md/variant_multiple.html', variants=variants)
         match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
@@ -573,6 +575,7 @@ def search_engine():
             api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
             if api_key is not None:
+                close_db()
                 return redirect(url_for('api.api_variant_create', variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)), caller='browser', api_key=api_key), code=307)
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
@@ -598,6 +601,7 @@ def search_engine():
             api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
             if api_key is not None:
+                close_db()
                 return redirect(url_for('api.api_variant_g_create', variant_ghgvs=match_obj.group(1), gene_hgnc=match_obj.group(2), caller='browser', api_key=api_key), code=307)
         elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
             sql_table = 'variant'
@@ -625,6 +629,7 @@ def search_engine():
                 )
             )
             semaph_query = 1
+            close_db()
         elif re.search(r'^\d{2,}$', query_engine):  # only numbers: get matching variants (partial match, at least 2 numbers) - specific query
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -634,6 +639,7 @@ def search_engine():
                 )
             )
             semaph_query = 1
+            close_db()
         elif re.search(r'^[A-Za-z0-9-]+$', query_engine):  # genes
             sql_table = 'gene'
             query_type = 'name[1]'
@@ -666,6 +672,7 @@ def search_engine():
                     if var_match:
                         pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
                     else:
+                        close_db()
                         error = 'You submitted a forbidden character in "{}".'.format(pattern)
                         flash(error, 'w3-pale-red')
                         return render_template('md/unknown.html', run_mode=app.config['RUN_MODE'])
@@ -694,12 +701,13 @@ def search_engine():
                         )
                     )
                     result_second = curs.fetchone()
+                    close_db()
                     if result_second is None:
-                        close_db()
                         error = 'Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).'.format(query_engine)
                     else:
                         return redirect(url_for('md.gene', gene_name=result_second[col_names][0]))
                 else:
+                    close_db()
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:
                 result = curs.fetchall()

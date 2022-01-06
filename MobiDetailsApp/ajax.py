@@ -623,6 +623,7 @@ def modif_class():
 You already classified this variant with the same class today. \
 If you just want to modify comments, remove the previous classification \
 and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
+                    close_db()
                     return tr_html
                 curs.execute(
                     "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
@@ -788,6 +789,7 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     ))
                 except Exception:
                     pass
+            close_db()
             return tr_html
         except Exception as e:
             # pass
@@ -799,6 +801,7 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
+            close_db()
             return md_utilities.danger_panel(
                 '',
                 'Sorry, something went wrong with the addition of \
@@ -860,6 +863,7 @@ def remove_class():
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
+        close_db()
     return md_utilities.danger_panel(
         '',
         'Sorry, something went wrong with the deletion of \
@@ -907,6 +911,7 @@ user {0} directly at {1}</p>".format(
                 message_object,
                 [receiver['email']]
             )
+            close_db()
             return md_utilities.info_panel(
                 'Your email has just been sent.',
                 '',
@@ -1103,7 +1108,7 @@ c. nomenclature (including c.)'
             )
             if can_output:
                 output = '{0}{1}'.format(can_output, output)
-
+        close_db()
         return output
     else:
         close_db()
@@ -1138,6 +1143,7 @@ def toggle_prefs():
             id = '{2}'".format(field, pref, g.user['id'])
         )
         db.commit()
+        close_db()
         return 'ok'
 
     md_utilities.send_error_email(
@@ -1258,6 +1264,7 @@ def toggle_lock_variant_list(list_name):
             close_db()
             return 'unlocked' if new_lock == 'f' else 'locked'
         else:
+            close_db()
             return 'failed'
     else:
         return 'failed'
@@ -1296,6 +1303,7 @@ def create_unique_url():
             )
             control = curs.fetchone()
             if control:
+                close_db()
                 return md_utilities.danger_panel(
                     '',
                     'This list already exists with the name \'{0}\' and short URL: \
@@ -1342,6 +1350,7 @@ def create_unique_url():
                     ),
                     '[MobiDetails - MD tinyurl Error]'
                 )
+                close_db()
                 return md_utilities.danger_panel(
                     '',
                     'Sorry, something already went wrong with the creation of \
@@ -1464,6 +1473,7 @@ def autocomplete():
                     )
                 )
             # print(json.dumps(result))
+            close_db()
             if result is not None:
                 return json.dumps(result)
             else:
@@ -1480,6 +1490,7 @@ def autocomplete():
         elif match_obj_gene:
             query = match_obj_gene.group(1)
         else:
+            close_db()
             return ('', 204)
         curs.execute(
             "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE \
@@ -1489,6 +1500,7 @@ def autocomplete():
         result = []
         for gene in res:
             result.append(gene[0])
+        close_db()
         if result is not None:
             return json.dumps(result)
         else:
@@ -1527,6 +1539,7 @@ def autocomplete_var():
             for var in res:
                 result.append('c.{}'.format(var[0]))
             # print(json.dumps(result))
+            close_db()
             if result is not None:
                 return json.dumps(result)
             else:

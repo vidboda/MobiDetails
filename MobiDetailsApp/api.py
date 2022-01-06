@@ -36,9 +36,11 @@ def check_api_key(api_key=None):
     db = get_db()
     response = md_utilities.check_api_key(db, api_key)
     if 'mobiuser' in response:
+        close_db()
         if response['mobiuser']['activated'] is True:
             return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='active')
         return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='inactive')
+    close_db()
     return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
 
 # -------------------------------------------------------------------
@@ -88,6 +90,7 @@ def api_variant_exists(variant_ghgvs=None):
         )
         res = curs.fetchone()
         if res is not None:
+            close_db()
             return jsonify(
                 mobidetails_id=res['feature_id'],
                 url='{0}{1}'.format(
@@ -100,6 +103,7 @@ def api_variant_exists(variant_ghgvs=None):
                 )
             )
         else:
+            close_db()
             return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
     else:
         return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
@@ -1327,6 +1331,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     )
                     res_version = curs.fetchall()
                     if res_version:
+                        close_db()
                         if caller == 'cli':
                             return jsonify(
                                 mobidetails_error='It seems that your transcript version ({0}) does not match MobiDetails ({1}).'.format(acc_no, ','.join(version['nm'] for version in res_version))
@@ -1338,6 +1343,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             )
                             return redirect(url_for('md.index'), code=302)
                     if caller == 'cli':
+                        close_db()
                         return jsonify(
                             mobidetails_error='The transcript corresponding to {} is not  available for variant annotation in MobiDetails.'.format(acc_no)
                         )
@@ -1424,6 +1430,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 )
                 if isinstance(creation_dict, int):
                     # success
+                    close_db()
                     if caller == 'cli':
                         return jsonify(
                             mobidetails_id=creation_dict,
@@ -1435,12 +1442,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
                 if 'mobidetails_error' in creation_dict:
+                    close_db()
                     if caller == 'cli':
                         return jsonify(creation_dict)
                     else:
                         flash(creation_dict['mobidetails_error'], 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
         else:
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_chgvs)))
             else:
@@ -1483,6 +1492,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
         # mobiuser_id = None
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
+            close_db()
             if caller == 'cli':
                 return jsonify(res_check_api_key)
             else:
@@ -1492,6 +1502,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
             g.user = res_check_api_key['mobiuser']
 
         if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
@@ -1536,6 +1547,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                     )
                     res = curs.fetchone()
                     if res:
+                        close_db()
                         if caller == 'cli':
                             return jsonify(
                                 mobidetails_id=res['feature_id'],
@@ -1618,6 +1630,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             )
                             if isinstance(creation_dict, int):
                                 # success
+                                close_db()
                                 if caller == 'cli':
                                     return jsonify(
                                         mobidetails_id=creation_dict,
@@ -1633,6 +1646,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             else:
                                 return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
                         else:
+                            close_db()
                             if caller == 'cli':
                                 return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes, or simply the VariantValidator API is full - you may want to try again later).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
                             else:
@@ -1645,18 +1659,21 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 return redirect(url_for('md.index'), code=302)
 
                 else:
+                    close_db()
                     if caller == 'cli':
                         return jsonify(mobidetails_error='Unknown chromosome {} submitted or bad genome version (hg38 only)'.format(ncbi_chr))
                     else:
                         flash('The submitted chromosome or genome version looks corrupted (hg38 only).', 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
             else:
+                close_db()
                 if caller == 'cli':
                     return jsonify(mobidetails_error='Malformed query {}'.format(urllib.parse.unquote(variant_ghgvs)))
                 else:
                     flash('The query seems to be malformed: {}.'.format(urllib.parse.unquote(variant_ghgvs)), 'w3-pale-red')
                     return redirect(url_for('md.index'), code=302)
         else:
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='The gene {} is currently not available for variant annotation in MobiDetails'.format(gene))
             else:
@@ -1691,6 +1708,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
         # check api key
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
+            close_db()
             if caller == 'cli':
                 return jsonify(res_check_api_key)
             else:
@@ -1700,6 +1718,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             g.user = res_check_api_key['mobiuser']
         # check caller
         if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
@@ -1727,6 +1746,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             url_for('api.variant', variant_id=var['id'], caller='browser')
                         )
                     }
+                close_db()
                 if caller == 'cli':
                     return jsonify(vars_rs)
                 else:
@@ -1801,6 +1821,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             try:
                                 mygene_response = json.loads(http.request('GET', mygene_info_url, headers=md_utilities.api_agent).data.decode('utf-8'))
                             except Exception as e:
+                                close_db()
                                 if caller == 'cli':
                                     return {'mobidetails_error': 'mygene.info API did not answer our query. We cannot map the dbSNP id {0}'}
                                 else:
@@ -1849,6 +1870,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
                         except Exception as e:
+                            close_db()
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = {'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)}
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
@@ -1863,6 +1885,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                 '[MobiDetails - MDAPI Error]'
                             )
             if md_response:
+                close_db()
                 if caller == 'cli':
                     return jsonify(md_response)
                 else:
@@ -1874,13 +1897,14 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             return redirect(url_for('api.variant', variant_id=md_response[var]['mobidetails_id'], caller='browser'), code=302)
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=md_response)
-
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id))
             else:
                 flash('Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id={0}", target="_blank">Mutalyzer</a>, we did not find any suitable variant corresponding to your request {0}'.format(rs_id), 'w3-pale-red')
                 return redirect(url_for('md.index'), code=302)
         else:
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid rs id provided')
             else:
@@ -1963,8 +1987,10 @@ def api_gene(gene_hgnc=None):
                 d_gene[transcript['name'][1]]['ensemblTranscript'] = transcript['enst']
             if 'ensemblProtein' not in d_gene[transcript['name'][1]]:
                 d_gene[transcript['name'][1]]['ensemblProtein'] = transcript['ensp']
+        close_db()
         return jsonify(d_gene)
     else:
+        close_db()
         return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))
 
 # -------------------------------------------------------------------
@@ -2010,11 +2036,13 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
         # request.form data are str
         if not isinstance(variant_id, int):
             if not re.search(r'^\d+$', variant_id):
+                close_db()
                 return jsonify(mobidetails_error='No or invalid variant id submitted')
             else:
                 variant_id = int(variant_id)
             # if not isinstance(acmg_id, int):
             if not re.search(r'^\d+$', acmg_id):
+                close_db()
                 return jsonify(mobidetails_error='No or invalid ACMG class submitted')
             else:
                 acmg_id = int(acmg_id)
@@ -2033,6 +2061,7 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
                 )
                 res = curs.fetchone()
                 if res:
+                    close_db()
                     return jsonify(mobidetails_error='ACMG class already submitted by this user for this variant')
                 today = datetime.datetime.now()
                 date = '{0}-{1}-{2}'.format(
@@ -2049,10 +2078,13 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
                     'mobiuser_id': g.user['id'],
                     'date': date
                 }
+                close_db()
                 return jsonify(d_update)
             else:
+                close_db()
                 return jsonify(mobidetails_error='Invalid variant id submitted')
         else:
+            close_db()
             return jsonify(mobidetails_error='Invalid ACMG class submitted')
     else:
         return jsonify(mobidetails_error='Invalid parameters')

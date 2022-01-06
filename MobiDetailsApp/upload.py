@@ -63,6 +63,7 @@ def file_upload():
                 api_key = md_utilities.get_api_key(g, curs)
                 if api_key is None:
                     flash('There is an issue in obtaining an API key')
+                    close_db()
                     return render_template('upload/upload_form.html')
                     # return redirect(request.url)
                 # we need to check the format and send a proper query to the API
