@@ -154,7 +154,7 @@ spip_annotations = resources['spip_annotations']
 countries = resources['countries']
 
 # create a poolmanager
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where(), timeout=urllib3.Timeout(connect=1.0, read=5.0))
 
 
 def reverse_complement(seq):
@@ -786,17 +786,6 @@ def get_vv_api_url():
                 urls['variant_validator_api_hello_backup'])
                     .data.decode('utf-8')
             )
-            # send_error_email(
-            #     prepare_email_html(
-            #         'MobiDetails VariantValidator error',
-            #         '<p>VariantValidator looks down!!<br />\
-            #            - from {0} with args: {1}</p>\
-            #            Trying to switch to backup.'.format(
-            #             os.path.basename(__file__), e.args
-            #         )
-            #     ),
-            #     '[MobiDetails - VariantValidator Error]'
-            # )
             if hello['status'] == "hello_world":
                 return urls['variant_validator_api_backup']
             else:

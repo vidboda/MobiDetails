@@ -158,7 +158,7 @@
   # hello on genuine VV VV2 - 2021
   # 'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
   # hello on genuine VV2 IURC
-  'variant_validator_api_hello': 'https://194.167.35.195:8000/hello/?content-type=application/json'
+  'variant_validator_api_hello': 'http://194.167.35.195:8000/hello/?content-type=application/json'
   # hello on monster VV
   # 'variant_validator_api_hello_backup': 'http://194.167.35.245:8000/hello/?content-type=application/json'
   # hello on IURC OVirt restvv

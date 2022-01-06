@@ -56,14 +56,14 @@ def check_vv_instance():
             URL='None'
         )
     else:
-        if vv_url == md_utilities.urls['variant_validator_api_backup']:
-            return jsonify(
-                variant_validator_instance='Running our own emergency VV server',
-                URL=vv_url
-            )
-        elif vv_url == md_utilities.urls['variant_validator_api']:
+        if vv_url == md_utilities.urls['variant_validator_api']:
             return jsonify(
                 variant_validator_instance='Running genuine VV server',
+                URL=vv_url
+            )
+        elif vv_url == md_utilities.urls['variant_validator_api_backup']:
+            return jsonify(
+                variant_validator_instance='Running our own emergency VV server',
                 URL=vv_url
             )
 
