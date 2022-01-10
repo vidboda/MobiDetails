@@ -1,6 +1,20 @@
 import pytest
 import psycopg2
-from MobiDetailsApp.db import get_db, md_utilities
+from MobiDetailsApp import configuration
+# from MobiDetailsApp import md_utilities
+
+
+def get_db():
+    db = None
+    try:
+        # read connection parameters
+        params = configuration.mdconfig()
+        db = psycopg2.connect(**params)
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    return db
+
+
 # get generic mobidetails password
 
 
@@ -12,8 +26,12 @@ def get_generic_password():
     )
     res = curs.fetchone()
     if res is not None:
+        db.close()
         return res['email'], res['password']
+    db.close()
 
+
+email, password = get_generic_password()
 # test litvar
 
 
@@ -23,8 +41,13 @@ def test_litvar(client, app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT dbsnp_id FROM variant_feature WHERE dbsnp_id IS NOT NULL \
-            ORDER BY random() LIMIT 5"
+            """
+            SELECT dbsnp_id
+            FROM variant_feature
+            WHERE dbsnp_id IS NOT NULL
+            ORDER BY random()
+            LIMIT 5
+            """
         )
         # https://stackoverflow.com/questions/5297396/quick-random-row-selection-in-postgres
         # discussion on how to select random rows in postgresql
@@ -36,9 +59,9 @@ def test_litvar(client, app):
             )
             assert response.status_code == 200
             possible = [
-                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">No match in Pubmed using LitVar API</div>',
+                b'No match in Pubmed using LitVar API',
                 b'PubMed links of articles citing this variant',
-                b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">The Litvar query failed</div>'
+                b'The Litvar query failed'
             ]
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
             print(values['dbsnp_id'])
@@ -46,6 +69,7 @@ def test_litvar(client, app):
             assert any(test in response.get_data() for test in possible)
             # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
             # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()
+        db.close()
 
 # test defgen
 
@@ -56,7 +80,11 @@ def test_defgen(client, app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT feature_id, genome_version FROM variant OFFSET RANDOM() * (SELECT COUNT(*) FROM variant) LIMIT 50"
+            """
+            SELECT feature_id, genome_version
+            FROM variant OFFSET RANDOM() * (SELECT COUNT(*) FROM variant)
+            LIMIT 50
+            """
         )
         res = curs.fetchall()
         for values in res:
@@ -64,7 +92,7 @@ def test_defgen(client, app):
             response = client.post('/defgen', data=data_dict)
             assert response.status_code == 200
             assert b'Export Variant data to DEFGEN' in response.get_data()
-
+        db.close()
 # test intervar
 
 
@@ -74,20 +102,30 @@ def test_intervar(client, app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            r"SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_name[1] as gene FROM variant a, variant_feature b WHERE \
-            a.feature_id = b.id AND a.genome_version = 'hg19' AND b.dna_type = 'substitution' AND \
-            b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '\?' ORDER BY random() LIMIT 5"
+            r"""
+            SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_name[1] as gene FROM variant a,
+            variant_feature b WHERE a.feature_id = b.id AND a.genome_version = 'hg19' AND b.dna_type = 'substitution'
+            AND b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '\?' ORDER BY random() LIMIT 5
+            """
         )
         res = curs.fetchall()
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene'])
             response = client.post('/intervar', data=data_dict)
             assert response.status_code == 200
-            possible = [b'athogenic', b'lassified', b'enign', b'ncertain',b'wintervar looks down',b'hg19 reference is equal to variant: no wIntervar query']
+            possible = [
+                b'athogenic',
+                b'lassified',
+                b'enign',
+                b'ncertain',
+                b'wintervar looks down',
+                b'hg19 reference is equal to variant: no wIntervar query'
+            ]
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
             print(res)
             print(response.get_data())
             assert any(test in response.get_data() for test in possible)
+        db.close()
 
 # test lovd
 
@@ -98,13 +136,18 @@ def test_lovd(client, app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT a.genome_version, a.chr, a.g_name, b.c_name FROM variant a, variant_feature b WHERE \
-            a.feature_id = b.id AND a.genome_version = 'hg19' ORDER BY random() LIMIT 5"
+            """
+            SELECT a.genome_version, a.chr, a.g_name, b.c_name FROM variant a, variant_feature b
+            WHERE a.feature_id = b.id AND a.genome_version = 'hg19'
+            ORDER BY random()
+            LIMIT 5
+            """
         )
         res = curs.fetchall()
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
             assert client.post('/lovd', data=data_dict).status_code == 200
+        db.close()
 
 # test modif_class
 
@@ -120,22 +163,22 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
     assert client.get('/modif_class').status_code == 405
     with app.app_context():
         response = client.post('/modif_class',
-                            data=dict(
-                                variant_id=vf_id,
-                                acmg_select=acmg,
-                                acmg_comment=acmg_com
-                            ), follow_redirects=True
-                        )
+                               data=dict(
+                                    variant_id=vf_id,
+                                    acmg_select=acmg,
+                                    acmg_comment=acmg_com
+                                ), follow_redirects=True
+                               )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
+        # email, password = get_generic_password()
         auth.login(email, password)
         response = client.post('/modif_class',
-                                data=dict(
+                               data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg,
                                     acmg_comment=acmg_com
                                  ), follow_redirects=True
-                            )
+                               )
         assert response.status_code == status_code2
 
 # test remove_class
@@ -152,20 +195,20 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
     assert client.get('/modif_class').status_code == 405
     with app.app_context():
         response = client.post('/remove_class',
-                           data=dict(
-                                variant_id=vf_id,
-                                acmg_select=acmg
-                            ), follow_redirects=True
-                           )
-        assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
-        auth.login(email, password)
-        response = client.post('/remove_class',
-                                data=dict(
+                               data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg
-                                 ), follow_redirects=True
-                                )
+                               ), follow_redirects=True
+                               )
+        assert b'check_login_form' in response.get_data()  # means we are in the login page
+        # email, password = get_generic_password()
+        auth.login(email, password)
+        response = client.post('/remove_class',
+                               data=dict(
+                                    variant_id=vf_id,
+                                    acmg_select=acmg
+                               ), follow_redirects=True
+                               )
         assert response.status_code == status_code
         # print(response.get_data())
         # assert return_value in response.get_data()
@@ -181,14 +224,14 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
     assert client.get('/send_var_message').status_code == 405
     with app.app_context():
         response = client.post('/send_var_message',
-                           data=dict(
-                                receiver_id=receiver_id,
-                                message_object=message_object,
-                                message=message
-                            ), follow_redirects=True
-                           )
+                               data=dict(
+                                    receiver_id=receiver_id,
+                                    message_object=message_object,
+                                    message=message
+                               ), follow_redirects=True
+                               )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
+        # email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/send_var_message',
@@ -237,7 +280,6 @@ def test_toggle_prefs(client, app, auth, caller, pref, status_code):
         response = client.post('/toggle_prefs', data=dict(pref_value=pref, field=caller), follow_redirects=True)
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/toggle_prefs',
@@ -262,7 +304,6 @@ def test_favourite(client, app, auth, vf_id, status_code):
         response = client.post('/favourite', data=dict(vf_id=vf_id), follow_redirects=True)
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/favourite',
@@ -282,7 +323,6 @@ def test_empty_favourite_list(client, app, auth):
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/empty_favourite_list',
@@ -301,7 +341,6 @@ def test_toggle_lock_variant_list(client, app, auth):
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.get(
             '/toggle_lock_variant_list/mobidetails_list_1',
@@ -321,7 +360,6 @@ def test_create_unique_url(client, app, auth):
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/create_unique_url',
@@ -347,7 +385,6 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        email, password = get_generic_password()
         auth.login(email, password)
         assert client.get(
             '/delete_variant_list/{}'.format(list_name),
@@ -369,7 +406,6 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 ))
 def test_autocomplete(client, app, query, return_value):
     assert client.get('/autocomplete').status_code == 405
-    # with app.app_context():
     response = client.post('/autocomplete', data=dict(query_engine=query))
     print(response.get_data())
     assert return_value == response.get_data()
@@ -395,6 +431,7 @@ def test_autocomplete_var(client, query, acc_no, return_value, http_code):
     assert http_code == response.status_code
 
 # test panelApp
+
 
 @pytest.mark.parametrize(('gene_symbol', 'return_value', 'http_code'), (
     ('USH2A', b'panelapp.genomicsengland.co.uk', 200),

@@ -17,8 +17,11 @@ import datetime
 
 bp = Blueprint('ajax', __name__)
 
-# create a poolmanager
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+# creates a poolmanager
+http = urllib3.PoolManager(
+    cert_reqs='CERT_REQUIRED',
+    ca_certs=certifi.where()
+)
 
 
 ######################################################################
@@ -50,13 +53,18 @@ def litvar():
                 ),
                 '[MobiDetails - API Error]'
             )
-            return '<div class="w3-blue w3-ripple w3-padding-16 w3-large \
-w3-center" style="width:100%;">The Litvar query failed</div>'
+            return """
+            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                The Litvar query failed
+            </div>
+            """
         if litvar_data is not None:
             if len(litvar_data) == 0:
-                return '<div class="w3-blue w3-ripple w3-padding-16 w3-large \
-w3-center" style="width:100%;">\
-No match in Pubmed using LitVar API</div>'
+                return """
+                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                    No match in Pubmed using LitVar API
+                </div>
+                """
             pubmed_info = {}
             togows_url = '{0}/entry/ncbi-pubmed/'.format(
                 md_utilities.urls['togows']
@@ -91,13 +99,17 @@ No match in Pubmed using LitVar API</div>'
                 pmids=pubmed_info
             )
         else:
-            return '<div class="w3-blue w3-ripple w3-padding-16 w3-large \
-w3-center" style="width:100%;">\
-No match in Pubmed using LitVar API</div>'
+            return """
+                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                    No match in Pubmed using LitVar API
+                </div>
+            """
     else:
-        return '<div class="w3-blue w3-ripple w3-padding-16 w3-large \
-w3-center" style="width:100%;">\
-No match in Pubmed using LitVar API</div>'
+        return """
+            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                No match in Pubmed using LitVar API
+            </div>
+        """
 
 ######################################################################
 # web app - ajax for defgen export file
@@ -167,8 +179,11 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
             ),
             '[MobiDetails - Ajax Error]'
         )
-        return '<div class="w3-blue w3-ripple w3-padding-16 w3-large \
-w3-center" style="width:100%">Impossible to create DEFGEN file</div>'
+        return """
+            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">
+                Impossible to create DEFGEN file
+            </div>
+        """
 
 # -------------------------------------------------------------------
 # web app - ajax for intervar API
@@ -244,8 +259,9 @@ def intervar():
                 md_utilities.send_error_email(
                     md_utilities.prepare_email_html(
                         'MobiDetails API error',
-                        '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4} \
-- url: {5} <br /> - from {6} with args: {7}</p>'.format(
+                        """
+                        <p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}- url: {5} <br /> - from {6} with args: {7}</p>
+                        """.format(
                             genome, chrom, pos, ref, alt,
                             intervar_url, os.path.basename(__file__), e.args
                         )
@@ -262,14 +278,18 @@ def intervar():
                 for key in intervar_data[0]:
                     if key != 'Chromosome' and \
                             intervar_data[0][key] == 1:
-                        intervar_criteria = '{0}&nbsp;<div class="w3-col {1} w3-opacity-min \
-w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
-.text(\'{2}: {3}\');">{2}</div>'.format(
-                                    str(intervar_criteria),
-                                    md_utilities.get_acmg_criterion_color(key),
-                                    key,
-                                    md_utilities.acmg_criteria[key]
-                                )
+                        intervar_criteria = """
+                        {0}&nbsp;<div
+                            class="w3-col {1} w3-opacity-min w3-hover-shadow"
+                            style="width:50px;"
+                            onmouseover="$(\'#acmg_info\').text(\'{2}: {3}\');">
+                        {2}</div>
+                        """.format(
+                            str(intervar_criteria),
+                            md_utilities.get_acmg_criterion_color(key),
+                            key,
+                            md_utilities.acmg_criteria[key]
+                        )
             except Exception:
                 return "<span>wintervar looks down</span>"
         else:
@@ -280,14 +300,27 @@ w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
                     for key in intervar_dict:
                         if key != 'Chromosome' and \
                                 intervar_dict[key] == 1:
-                            intervar_criteria = '{0}&nbsp;<div class="w3-col {1} w3-opacity-min \
-w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
-.text(\'{2}: {3}\');">{2}</div>'.format(
-                                    str(intervar_criteria),
-                                    md_utilities.get_acmg_criterion_color(key),
-                                    key,
-                                    md_utilities.acmg_criteria[key]
-                                )
+                            intervar_criteria = """
+                            {0}&nbsp;
+                            <div
+                                class="w3-col {1} w3-opacity-min w3-hover-shadow"
+                                style="width:50px;"
+                                onmouseover="$(\'#acmg_info\').text(\'{2}: {3}\');">
+                            {2}</div>
+                            """.format(
+                                str(intervar_criteria),
+                                md_utilities.get_acmg_criterion_color(key),
+                                key,
+                                md_utilities.acmg_criteria[key]
+                            )
+#                             intervar_criteria = '{0}&nbsp;<div class="w3-col {1} w3-opacity-min \
+# w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
+# .text(\'{2}: {3}\');">{2}</div>'.format(
+#                                     str(intervar_criteria),
+#                                     md_utilities.get_acmg_criterion_color(key),
+#                                     key,
+#                                     md_utilities.acmg_criteria[key]
+#                                 )
         if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -299,10 +332,12 @@ w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
             )
             res = curs.fetchone()
             close_db()
-            return "<span style='color:{0};'>{1}</span><span> \
-with the following criteria:</span><br /><br />\
-<div class='w3-row-padding w3-center'>{2}</div><br />\
-<div id='acmg_info'></div>".format(
+            return """
+            <span style='color:{0};'>{1}</span>
+            <span> with the following criteria:</span><br /><br />
+            <div class='w3-row-padding w3-center'>{2}</div><br />
+            <div id='acmg_info'></div>
+            """.format(
                                 res['html_code'],
                                 intervar_acmg,
                                 intervar_criteria
@@ -313,8 +348,10 @@ with the following criteria:</span><br /><br />\
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br />\
- - from {5} with args: A mandatory argument is missing</p>'.format(
+                """
+                <p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> -
+                from {5} with args: A mandatory argument is missing</p>
+                """.format(
                     request.form['genome'], request.form['chrom'],
                     request.form['pos'], request.form['ref'],
                     request.form['alt'], os.path.basename(__file__)
@@ -492,13 +529,15 @@ def lovd():
                     "No match in LOVD public instances"
                 )
                 # return 'No match in LOVD public instances'
-            html = '<tr><td class="w3-left-align" id="lovd_feature" \
-style="vertical-align:middle;">LOVD Matches:</td> \
-<td class="w3-left-align"><ul>{}</ul></td> \
-<td class="w3-left-align" id="lovd_description" \
-style="vertical-align:middle;"> \
-<em class="w3-small">LOVD match in public instances</em></td> \
-</tr>'.format(''.join(html_list))
+            html = """
+            <tr>
+                <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:</td>
+                <td class="w3-left-align"><ul>{}</ul></td>
+                <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;">
+                    <em class="w3-small">LOVD match in public instances</em>
+                </td>
+            </tr>
+            """.format(''.join(html_list))
             if lovd_effect_count is not None:
                 reported_effect_list = []
                 concluded_effect_list = []
@@ -507,12 +546,13 @@ style="vertical-align:middle;"> \
                     for effect in lovd_effect_count[feat]:
                         # print(effect)
                         if feat == 'effect_reported':
-                            reported_effect_list.append(
-                                '<div class="w3-col w3-{0} w3-opacity-min \
-w3-padding w3-margin-top w3-margin-left \
-w3-hover-shadow" style="width:180px;">{1}: {2} \
-</div>'
-                                .format(
+                            reported_effect_list.append("""
+                                <div
+                                    class="w3-col w3-{0} w3-opacity-min w3-padding w3-margin-top w3-margin-left w3-hover-shadow"
+                                    style="width:180px;">
+                                {1}: {2}
+                                </div>
+                                """.format(
                                     md_utilities.lovd_effect[effect]['color'],
                                     md_utilities.lovd_effect[effect]['translation'],
                                     lovd_effect_count[feat][effect]
@@ -521,10 +561,12 @@ w3-hover-shadow" style="width:180px;">{1}: {2} \
                             # reported_effect_list.append('<li>{0}: {1} </li>'
                             # .format(effect, lovd_effect_count[feat][effect]))
                         else:
-                            concluded_effect_list.append(
-                                '<div class="w3-col w3-{0} w3-opacity-min \
-w3-padding w3-margin-top w3-margin-left w3-hover-shadow" \
-style="width:180px;">{1}: {2}  </div>'.format(
+                            concluded_effect_list.append("""
+                                <div
+                                    class="w3-col w3-{0} w3-opacity-min w3-padding w3-margin-top w3-margin-left w3-hover-shadow"
+                                    style="width:180px;">
+                                {1}: {2}  </div>
+                                """.format(
                                     md_utilities.lovd_effect[effect]['color'],
                                     md_utilities.lovd_effect[effect]['translation'],
                                     lovd_effect_count[feat][effect]
@@ -532,25 +574,28 @@ style="width:180px;">{1}: {2}  </div>'.format(
                             )
                             # concluded_effect_list.append('<li>{0}: {1} </li>'
                             # .format(effect, lovd_effect_count[feat][effect]))
-                html += ',<tr> \
-<td class="w3-left-align" id="lovd_r_feature" \
-style="vertical-align:middle;">LOVD Effect Reported:</td> \
-<td class="w3-center" style="vertical-align:middle;">\
-    <div class="w3-row w3-center">{0}</div><br /></td> \
-<td class="w3-left-align" id="lovd_r_feature" \
-style="vertical-align:middle;"> \
-    <em class="w3-small">Effects reported by \
-LOVD submitters</em></td> \
-</tr>,<tr> \
-<td class="w3-left-align" id="lovd_c_description" \
-style="vertical-align:middle;">LOVD Effect Concluded:</td> \
-<td class="w3-center" style="vertical-align:middle;">\
-    <div class="w3-row w3-center">{1}</div><br /></td>\
-<td class="w3-left-align" id="lovd_c_description" \
-style="vertical-align:middle;"> \
-    <em class="w3-small">Effects concluded by \
-LOVD curators</em></td> \
-</tr>'.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
+                html += """
+                ,<tr>
+                <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
+                    LOVD Effect Reported:
+                </td>
+                <td class="w3-center" style="vertical-align:middle;">
+                    <div class="w3-row w3-center">{0}</div><br />
+                </td>
+                <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
+                    <em class="w3-small">Effects reported by LOVD submitters</em>
+                </td>
+                </tr>,<tr>
+                <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">
+                    LOVD Effect Concluded:
+                </td>
+                <td class="w3-center" style="vertical-align:middle;">
+                    <div class="w3-row w3-center">{1}</div><br />
+                </td>
+                <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">
+                    <em class="w3-small">Effects concluded by LOVD curators</em></td>
+                </tr>
+                """.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
             return html
         else:
             md_utilities.send_error_email(
@@ -567,8 +612,9 @@ LOVD curators</em></td> \
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
-                '<p>LOVD API call failed in {0} with args: \
-a mandatory argument is missing</p>'.format(
+                """
+                <p>LOVD API call failed in {0} with args: a mandatory argument is missing</p>
+                """.format(
                     os.path.basename(__file__)
                 )
             ),
@@ -610,32 +656,50 @@ def modif_class():
         # get all variant_features and gene info
         try:
             curs.execute(
-                "SELECT class_date FROM class_history WHERE \
-                variant_feature_id = %s AND acmg_class = %s \
-                AND mobiuser_id = %s",
+                """
+                SELECT class_date
+                FROM class_history
+                WHERE variant_feature_id = %s AND acmg_class = %s AND mobiuser_id = %s
+                """,
                 (variant_id, acmg_select, g.user['id'])
             )
             res = curs.fetchone()
             if res:
                 if str(res['class_date']) == str(date):
                     # print(("{0}-{1}").format(res['class_date'], date))
-                    tr_html = "<tr id='already_classified'><td>\
-You already classified this variant with the same class today. \
-If you just want to modify comments, remove the previous classification \
-and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
+                    tr_html = """
+                    <tr id='already_classified'>
+                        <td>You already classified this variant with the same class today.
+                        If you just want to modify comments, remove the previous classification
+                        and start from scratch.
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    """
                     close_db()
                     return tr_html
                 curs.execute(
-                    "UPDATE class_history SET class_date  = %s, comment = %s WHERE \
-                    variant_feature_id = %s AND acmg_class = %s AND mobiuser_id = %s",
+                    """
+                    UPDATE class_history
+                    SET class_date  = %s, comment = %s
+                    WHERE variant_feature_id = %s
+                        AND acmg_class = %s
+                        AND mobiuser_id = %s
+                    """,
                     (date, acmg_comment, variant_id, acmg_select, g.user['id'])
                 )
             else:
                 # if first classification and current owner ==
                 # mobidetails => user become owner
                 curs.execute(
-                    "SELECT acmg_class FROM class_history WHERE \
-                    variant_feature_id = %s",
+                    """
+                    SELECT acmg_class
+                    FROM class_history
+                    WHERE variant_feature_id = %s
+                    """,
                     (variant_id,)
                 )
                 res_acmg = curs.fetchone()
@@ -643,8 +707,11 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                 if not res_acmg:
                     semaph = 1
                     curs.execute(
-                        "SELECT creation_user FROM variant_feature \
-                        WHERE id = %s",
+                        """
+                        SELECT creation_user
+                        FROM variant_feature
+                        WHERE id = %s
+                        """,
                         (variant_id,)
                     )
                     res_user = curs.fetchone()
@@ -657,21 +724,27 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     if res_user and \
                             res_user['creation_user'] == mobidetails_id:
                         curs.execute(
-                            "UPDATE variant_feature SET creation_user = %s \
-                            WHERE id = %s",
+                            """
+                            UPDATE variant_feature
+                            SET creation_user = %s
+                            WHERE id = %s
+                            """,
                             (g.user['id'], variant_id)
                         )
                 curs.execute(
-                    "INSERT INTO class_history \
-                    (variant_feature_id, acmg_class, mobiuser_id, \
-                    class_date, comment) VALUES \
-                        (%s, %s, %s, %s, %s )",
+                    """
+                    INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment)
+                    VALUES (%s, %s, %s, %s, %s )
+                    """,
                     (variant_id, acmg_select, g.user['id'], date, acmg_comment)
                 )
             db.commit()
             curs.execute(
-                "SELECT html_code, acmg_translation, lovd_translation \
-                FROM valid_class WHERE acmg_class = %s",
+                """
+                SELECT html_code, acmg_translation, lovd_translation
+                FROM valid_class
+                WHERE acmg_class = %s
+                """,
                 (acmg_select,)
             )
             acmg_details = curs.fetchone()
@@ -679,28 +752,32 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
             # gene symbol and refseq acc version
             genome_version = 'hg19'
             curs.execute(
-                "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
-                b.g_name, d.hgnc_id, c.ncbi_name FROM \
-                variant_feature a, variant b, chromosomes c, gene d WHERE \
-                a.id = b.feature_id AND b.genome_version = \
-                c.genome_version AND b.chr = c.name \
-                AND a.gene_name = d.name AND a.id = %s \
-                AND b.genome_version = %s",
+                """
+                SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name
+                FROM variant_feature a, variant b, chromosomes c, gene d
+                WHERE a.id = b.feature_id
+                    AND b.genome_version = c.genome_version
+                    AND b.chr = c.name
+                    AND a.gene_name = d.name
+                    AND a.id = %s AND b.genome_version = %s
+                """,
                 (variant_id, genome_version)
             )
             res_var = curs.fetchone()
-            tr_html = "<tr id='{0}-{1}-{2}'> \
-<td class='w3-left-align'>{3}(<em>{4}</em>):c.{5}</td> \
-<td class='w3-left-align'>{6}</td> \
-<td class='w3-left-align'>{7}</td> \
-<td class='w3-left-align'> \
-    <span style='color:{8};'>Class {1} ({9})</span>\
-</td> \
-<td> \
-    <div class='w3-cell-row'> \
-    <span class='w3-container w3-left-align w3-cell'>\
-{10}</span>\
-                </tr>".format(
+            tr_html = """
+            <tr id='{0}-{1}-{2}'>
+                <td class='w3-left-align'>{3}(<em>{4}</em>):c.{5}</td>
+                <td class='w3-left-align'>{6}</td>
+                <td class='w3-left-align'>{7}</td>
+                <td class='w3-left-align'>
+                    <span style='color:{8};'>Class {1} ({9})</span>
+                </td>
+                <td>
+                    <div class='w3-cell-row'>
+                        <span class='w3-container w3-left-align w3-cell'> {10}</span>
+                    </div>
+                </td>
+            </tr>""".format(
                     g.user['id'],
                     escape(acmg_select),
                     escape(variant_id),
@@ -726,18 +803,6 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     lovd_json = json.load(json_file)
                 # get HGVS genomic, cDNA, protein HGNC
                 # gene symbol and refseq acc version
-                # genome_version = 'hg19'
-                # curs.execute(
-                #     "SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, \
-                #     b.g_name, d.hgnc_id, c.ncbi_name FROM \
-                #     variant_feature a, variant b, chromosomes c, gene d WHERE \
-                #     a.id = b.feature_id AND b.genome_version = \
-                #     c.genome_version AND b.chr = c.name \
-                #     AND a.gene_name = d.name AND a.id = %s \
-                #     AND b.genome_version = %s",
-                #     (variant_id, genome_version)
-                # )
-                # res_var = curs.fetchone()
                 lovd_json['lsdb']['variant'][0]['ref_seq']['@accession'] = res_var['ncbi_name']
                 lovd_json['lsdb']['variant'][0]['name']['#text'] = 'g.{}'.format(res_var['g_name'])
 
@@ -758,8 +823,11 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                 else:
                     # build ACMG class for LOVD update
                     curs.execute(
-                        "SELECT acmg_class FROM class_history WHERE \
-                            variant_feature_id = %s",
+                        """
+                        SELECT acmg_class
+                        FROM class_history
+                        WHERE variant_feature_id = %s
+                        """,
                         (variant_id,)
                     )
                     res_acmg = curs.fetchall()
@@ -769,7 +837,6 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
                     else:
                         # we should never get in there
                         lovd_json['lsdb']['variant'][0]['pathogenicity']['@term'] = acmg_details['lovd_translation']
-
                 # send request to LOVD API
                 # headers
                 header = md_utilities.api_agent
@@ -796,16 +863,19 @@ and start from scratch.</td><td></td><td></td><td></td><td></td></tr>"
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Variant class modification failed for variant \
-{0} with args: {1}</p>'.format(variant_id, e.args)
+                    """
+                    <p>Variant class modification failed for variant {0} with args: {1}</p>
+                    """.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
             close_db()
             return md_utilities.danger_panel(
                 '',
-                'Sorry, something went wrong with the addition of \
-this annotation. An admin has been warned.')
+                """
+                Sorry, something went wrong with the addition of
+                this annotation. An admin has been warned.
+                """)
 
     else:
         md_utilities.send_error_email(
@@ -822,8 +892,10 @@ this annotation. An admin has been warned.')
         )
         return md_utilities.danger_panel(
             '',
-            'Sorry, something went wrong with the addition of \
-this annotation. An admin has been warned.')
+            """
+            Sorry, something went wrong with the addition of
+            this annotation. An admin has been warned.
+            """)
     # return redirect(url_for('md.index'))
 
 
@@ -847,9 +919,13 @@ def remove_class():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         try:
             curs.execute(
-                "DELETE FROM class_history WHERE \
-                    variant_feature_id = %s AND acmg_class = %s \
-                    AND mobiuser_id = %s",
+                """
+                DELETE
+                FROM class_history
+                WHERE variant_feature_id = %s
+                AND acmg_class = %s
+                AND mobiuser_id = %s
+                """,
                 (variant_id, acmg_class, g.user['id'])
             )
             db.commit()
@@ -858,16 +934,18 @@ def remove_class():
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Variant class deletion failed for \
-{0} with args: {1}</p>'.format(variant_id, e.args)
+                    """
+                    <p>Variant class deletion failed for {0} with args: {1}</p>
+                    """.format(variant_id, e.args)
                 ),
                 '[MobiDetails - MD variant class Error]'
             )
         close_db()
     return md_utilities.danger_panel(
         '',
-        'Sorry, something went wrong with the deletion of \
-this annotation. An admin has been warned.')
+        """
+        Sorry, something went wrong with the deletion of this annotation. An admin has been warned.
+        """)
 
 # -------------------------------------------------------------------
 # web app - ajax to contact other users
@@ -893,14 +971,20 @@ def send_var_message():
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # get username and email
             curs.execute(
-                "SELECT id, username, email FROM mobiuser WHERE id = %s",
+                """
+                SELECT id, username, email
+                FROM mobiuser
+                WHERE id = %s
+                """,
                 (receiver['id'],)
             )
             # res = curs.fetchall()
             receiver = curs.fetchone()
             message.replace("\n", "<br />")
-            message += "<br /><br /><p>You can contact \
-user {0} directly at {1}</p>".format(
+            message += """
+            <br /><br />
+            <p>You can contact user {0} directly at {1}</p>
+            """.format(
                     g.user['username'],
                     g.user['email']
                 )
@@ -926,19 +1010,22 @@ user {0} directly at {1}</p>".format(
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
             'MobiDetails error',
-            '<p>An email was not sent from {0} to {1}<br />Variant \
-was {2}<br />Message was:<br />{3}</p>'.format(
+            """
+            <p>An email was not sent from {0} to {1}<br />Variant was {2}<br />Message was:<br />{3}</p>
+            """.format(
                 g.user['sender_id'],
                 request.form['receiver_id'],
                 request.form['variant_mes'],
-                request.form['message'])
+                request.form['message']
+            )
         ),
         '[MobiDetails - Email Error]'
     )
     return md_utilities.danger_panel(
         '',
-        'Sorry, something went wrong with this message. \
-An admin has been warned.')
+        """
+        Sorry, something went wrong with this message. An admin has been warned.
+        """)
 
 # -------------------------------------------------------------------
 # web app - ajax for variant creation via VV API
@@ -982,8 +1069,12 @@ def create():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, c_name as nm FROM variant_feature WHERE \
-            c_name = %s AND gene_name[2] = %s",
+            """
+            SELECT id, c_name as nm
+            FROM variant_feature
+            WHERE c_name = %s
+                AND gene_name[2] = %s
+            """,
             (new_variant.replace("c.", ""), acc_no)
         )
         res = curs.fetchone()
@@ -1006,8 +1097,11 @@ def create():
             if not vv_base_url:
                 close_db()
                 return md_utilities.danger_panel(
-                        new_variant, 'Variant Validator did not answer our call, status: Service Unavailable. \
-                        I have been informed by email. Please retry later.')
+                        new_variant,
+                        """
+                        Variant Validator did not answer our call, status: Service Unavailable.
+                        I have been informed by email. Please retry later.
+                        """)
 
             if not alt_nm or \
                     acc_no == request.form['acc_no']:
@@ -1031,8 +1125,10 @@ def create():
                 close_db()
                 return md_utilities.danger_panel(
                     new_variant,
-                    'Variant Validator did not return any value for the variant.\
-                    Either it is down or your nomenclature is very odd!'
+                    """
+                    Variant Validator did not return any value for the variant.
+                    Either it is down or your nomenclature is very odd!
+                    """
                 )
             if re.search('[di][neu][psl]', new_variant):
                 # need to redefine vv_key_var for indels as the variant name
@@ -1048,8 +1144,9 @@ def create():
             close_db()
             return md_utilities.danger_panel(
                 new_variant,
-                'Please provide the variant name as HGVS \
-c. nomenclature (including c.)'
+                """
+                Please provide the variant name as HGVS c. nomenclature (including c.)
+                """
             )
 
         # print('--- 4- {} seconds ---'.format((time.time() - start_time)))
@@ -1057,14 +1154,22 @@ c. nomenclature (including c.)'
         # main isoform?
         can_output = None
         curs.execute(
-            "SELECT canonical FROM gene WHERE name[2] = %s",
+            """
+            SELECT canonical
+            FROM gene
+            WHERE name[2] = %s
+            """,
             (acc_no,)
         )
         res_main = curs.fetchone()
         if res_main['canonical'] is False:
             curs.execute(
-                "SELECT name FROM gene \
-                WHERE name[1] = %s and canonical = 't'",
+                """
+                SELECT name
+                FROM gene
+                WHERE name[1] = %s
+                    AND canonical = 't'
+                """,
                 (gene,)
             )
             res_can = curs.fetchone()
@@ -1077,12 +1182,16 @@ c. nomenclature (including c.)'
             if isinstance(can_output, int):
                 # get variant c_name
                 curs.execute(
-                    "SELECT c_name, gene_name[2] as nm FROM variant_feature WHERE id = %s",
+                    """
+                    SELECT c_name, gene_name[2] as nm
+                    FROM variant_feature
+                    WHERE id = %s
+                    """,
                     (can_output,)
                 )
                 var_c_name = curs.fetchone()
                 can_output = md_utilities.info_panel(
-                    "Successfully annotated the variant on the canonical isoform",
+                    'Successfully annotated the variant on the canonical isoform',
                     '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
                     can_output,
                     'w3-pale-green'
@@ -1096,12 +1205,16 @@ c. nomenclature (including c.)'
         if isinstance(output, int):
             # get variant c_name
             curs.execute(
-                "SELECT c_name, gene_name[2] as nm FROM variant_feature WHERE id = %s",
+                """
+                SELECT c_name, gene_name[2] as nm
+                FROM variant_feature
+                WHERE id = %s
+                """,
                 (output,)
             )
             var_c_name = curs.fetchone()
             output = md_utilities.info_panel(
-                "Successfully annotated the variant",
+                'Successfully annotated the variant',
                 '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
                 output,
                 'w3-pale-green'
@@ -1149,8 +1262,9 @@ def toggle_prefs():
     md_utilities.send_error_email(
         md_utilities.prepare_email_html(
             'MobiDetails error',
-            '<p>MD failed to modify a user prefs for \
-{0}. User id: {1} to {2}</p>'.format(
+            """
+            <p>MD failed to modify a user prefs for {0}. User id: {1} to {2}</p>
+            """.format(
                 request.form['field'],
                 g.user['id'],
                 request.form['pref_value']
@@ -1160,8 +1274,10 @@ def toggle_prefs():
     )
     return md_utilities.danger_panel(
         '',
-        'Sorry, something went wrong when trying to update your preferences.\
-An admin has been warned. Please try again later.'
+        """
+        Sorry, something went wrong when trying to update your preferences.
+        An admin has been warned. Please try again later.
+        """
     )
 
 
@@ -1180,8 +1296,12 @@ def favourite():
     if re.search(r'^\d+$', request.form['vf_id']):
         vf_id = request.form['vf_id']
         if vf_id is None:
-            flash('Cannot mark a variant without id! \
-Please contact us.', 'w3-pale-red')
+            flash(
+                """
+                Cannot mark a variant without id! Please contact us.
+                """,
+                'w3-pale-red'
+            )
             return 'notok'
         # print(vf_id)
         # g.user['id']
@@ -1189,22 +1309,31 @@ Please contact us.', 'w3-pale-red')
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         if request.form['marker'] == 'mark':
             curs.execute(
-                "INSERT INTO mobiuser_favourite (mobiuser_id, feature_id) \
-                VALUES (%s, %s)",
+                """
+                INSERT INTO mobiuser_favourite (mobiuser_id, feature_id)
+                VALUES (%s, %s)
+                """,
                 (g.user['id'], vf_id)
             )
         else:
             curs.execute(
-                "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s \
-                AND feature_id = %s",
+                """
+                DELETE FROM mobiuser_favourite
+                WHERE mobiuser_id = %s
+                    AND feature_id = %s
+                """,
                 (g.user['id'], vf_id)
             )
         db.commit()
         close_db()
         return 'ok'
     else:
-        flash('Cannot mark a variant without id! \
-Please contact us.', 'w3-pale-red')
+        flash(
+            """
+            Cannot mark a variant without id! Please contact us.
+            """,
+            'w3-pale-red'
+        )
         return 'notok'
 
 # -------------------------------------------------------------------
@@ -1222,7 +1351,10 @@ def empty_favourite_list():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "DELETE FROM mobiuser_favourite WHERE mobiuser_id = %s",
+        """
+        DELETE FROM mobiuser_favourite
+        WHERE mobiuser_id = %s
+        """,
         (g.user['id'],)
     )
     db.commit()
@@ -1248,16 +1380,24 @@ def toggle_lock_variant_list(list_name):
         # check whether list exists and belongs to user
         # and get lock status
         curs.execute(
-            "SELECT lock FROM variants_groups WHERE \
-            mobiuser_id = %s AND list_name = %s",
+            """
+            SELECT lock
+            FROM variants_groups
+            WHERE mobiuser_id = %s
+                AND list_name = %s
+            """,
             (g.user['id'], list_name)
         )
         res = curs.fetchone()
         if res:
             new_lock = 'f' if res['lock'] is True else 't'
             curs.execute(
-                "UPDATE variants_groups set lock = %s WHERE \
-                mobiuser_id = %s AND list_name = %s",
+                """
+                UPDATE variants_groups
+                SET lock = %s
+                WHERE mobiuser_id = %s
+                    AND list_name = %s
+                """,
                 (new_lock, g.user['id'], list_name)
             )
             db.commit()
@@ -1287,9 +1427,13 @@ def create_unique_url():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT a.id FROM variant_feature a, mobiuser_favourite b \
-                WHERE  a.id = b.feature_id AND b.mobiuser_id = %s \
-                ORDER BY a.gene_name, a.ng_name",
+                """
+                SELECT a.id
+                FROM variant_feature a, mobiuser_favourite b
+                WHERE  a.id = b.feature_id
+                    AND b.mobiuser_id = %s
+                ORDER BY a.gene_name, a.ng_name
+                """,
                 (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
@@ -1297,8 +1441,12 @@ def create_unique_url():
             variants_favourite_list = [id for [id] in variants_favourite]
             # check we do not already have the same list of variants or name
             curs.execute(
-                "SELECT tinyurl, list_name FROM variants_groups WHERE \
-                variant_ids = %s OR list_name = %s",
+                """
+                SELECT tinyurl, list_name
+                FROM variants_groups
+                WHERE variant_ids = %s
+                    OR list_name = %s
+                """,
                 (variants_favourite_list, list_name)
             )
             control = curs.fetchone()
@@ -1306,8 +1454,9 @@ def create_unique_url():
                 close_db()
                 return md_utilities.danger_panel(
                     '',
-                    'This list already exists with the name \'{0}\' and short URL: \
-                    <a href="{1}" target="_blank">{1}</a>'.format(
+                    """
+                    This list already exists with the name \'{0}\' and short URL: <a href="{1}" target="_blank">{1}</a>
+                    """.format(
                         control['list_name'], control['tinyurl']
                     )
                 )
@@ -1345,29 +1494,39 @@ def create_unique_url():
                 md_utilities.send_error_email(
                     md_utilities.prepare_email_html(
                         'MobiDetails error',
-                        '<p>TinyURL service failed for \
-                        {0} with args: {1}, json sent: {2}</p>'.format(g.user['id'], e.args, tinyurl_json)
+                        """
+                        <p>TinyURL service failed for {0} with args: {1}, json sent: {2}</p>
+                        """.format(g.user['id'], e.args, tinyurl_json)
                     ),
                     '[MobiDetails - MD tinyurl Error]'
                 )
                 close_db()
                 return md_utilities.danger_panel(
                     '',
-                    'Sorry, something already went wrong with the creation of \
-                    your list. An admin has been warned.')
+                    """
+                    Sorry, something went wrong with the creation of your list. An admin has been warned.
+                    """
+                )
             curs.execute(
-                "INSERT INTO variants_groups(list_name, tinyurl, mobiuser_id, creation_date, variant_ids) \
-                VALUES(%s, %s, %s, %s, %s)",
+                """
+                INSERT INTO variants_groups(list_name, tinyurl, mobiuser_id, creation_date, variant_ids)
+                VALUES(%s, %s, %s, %s, %s)
+                """,
                 (list_name, tinyurl, g.user['id'], creation_date, variants_favourite_list)
             )
             db.commit()
             close_db()
             # return 'ok'
             return md_utilities.info_panel(
-                '<div>Your list \'{0}\' was successfully created:<br /><ul> \
-                <li>Unique tiny URL: <a href="{1}" target="_blank">{1}</a></li> \
-                <li>Unique full URL: <a href="{2}" target="_blank">{2}</a></li></ul> \
-                <span>You will have to reload the page to see it in your list of variants section.</div>'.format(
+                """
+                <div>Your list \'{0}\' was successfully created:<br />
+                    <ul>
+                        <li>Unique tiny URL: <a href="{1}" target="_blank">{1}</a></li>
+                        <li>Unique full URL: <a href="{2}" target="_blank">{2}</a></li>
+                    </ul>
+                    <span>You will have to reload the page to see it in your list of variants section.</span>
+                </div>
+                """.format(
                     list_name,
                     tinyurl,
                     url_for('auth.variant_list', list_name=list_name, _external=True)
@@ -1385,8 +1544,10 @@ def create_unique_url():
             )
             return md_utilities.danger_panel(
                 '',
-                'Sorry, something already went wrong with the creation of \
-                your list. An admin has been warned.')
+                """
+                Sorry, something went wrong with the creation of your list. An admin has been warned.
+                """
+            )
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
@@ -1398,8 +1559,10 @@ def create_unique_url():
         )
         return md_utilities.danger_panel(
             '',
-            'Sorry, something already went wrong with the creation of \
-            your list. An admin has been warned.')
+            """
+            Sorry, something went wrong with the creation of your list. An admin has been warned.
+            """
+        )
 
 # -------------------------------------------------------------------
 # web app - ajax to generate a unique URL corresponding to a list of favourite variants
@@ -1418,7 +1581,11 @@ def delete_variant_list(list_name):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "DELETE FROM variants_groups WHERE list_name = %s AND mobiuser_id = %s",
+            """
+            DELETE FROM variants_groups
+            WHERE list_name = %s
+                AND mobiuser_id = %s
+            """,
             (list_name, g.user['id'])
         )
         db.commit()
@@ -1442,8 +1609,13 @@ def autocomplete():
         if match_obj:
             md_query = match_obj.group(1)
             curs.execute(
-                "SELECT dbsnp_id FROM variant_feature WHERE \
-                dbsnp_id LIKE '{}%' ORDER BY dbsnp_id LIMIT 10".format(md_query)
+                """
+                SELECT dbsnp_id
+                FROM variant_feature
+                WHERE dbsnp_id LIKE '{}%'
+                ORDER BY dbsnp_id
+                LIMIT 10
+                """.format(md_query)
             )
             res = curs.fetchall()
             result = []
@@ -1458,10 +1630,12 @@ def autocomplete():
         if match_object:
             md_query = match_object.group(1)
             curs.execute(
-                "SELECT DISTINCT(c_name) as name, gene_name[2] as nm, \
-                FROM variant_feature WHERE \
-                c_name LIKE '{}%' ORDER BY \
-                c_name LIMIT 10".format(md_query)
+                """
+                SELECT DISTINCT(c_name) as name, gene_name[2] as nm
+                FROM variant_feature
+                WHERE c_name LIKE '{}%'
+                ORDER BY c_name LIMIT 10
+                """.format(md_query)
             )
             res = curs.fetchall()
             result = []
@@ -1493,8 +1667,13 @@ def autocomplete():
             close_db()
             return ('', 204)
         curs.execute(
-            "SELECT DISTINCT name[1] FROM gene WHERE name[{0}] LIKE \
-            '%{1}%' ORDER BY name[1] LIMIT 5".format(i, query)
+            """
+            SELECT DISTINCT name[1]
+            FROM gene
+            WHERE name[{0}] LIKE \'%{1}%'
+            ORDER BY name[1]
+            LIMIT 5
+            """.format(i, query)
         )
         res = curs.fetchall()
         result = []
@@ -1529,8 +1708,14 @@ def autocomplete_var():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT c_name FROM variant_feature WHERE gene_name[2] = '{0}' \
-                AND c_name LIKE '{1}%' ORDER BY c_name LIMIT 10".format(
+                """
+                SELECT c_name
+                FROM variant_feature
+                WHERE gene_name[2] = '{0}'
+                    AND c_name LIKE '{1}%'
+                ORDER BY c_name
+                LIMIT 10
+                """.format(
                     acc_no, md_query
                 )
             )
@@ -1565,27 +1750,30 @@ def is_panelapp_entity():
                             ).data.decode('utf-8')
                         )
         except Exception:
-            return '<span class="w3-padding">Unable to \
-    perform the PanelApp query</span>'
+            return """
+            <span class="w3-padding">Unable to perform the PanelApp query</span>
+            """
         # panelapp = None
         md_utilities.urls['panel_app'] = None
         if panelapp is not None and \
                 str(panelapp['count']) != '0':
             # we can propose the link
-            return '<span class="w3-button" onclick=\
-"window.open(\'{0}\', \'_blank\')">PanelApp</span>'.format(
-                            '{0}panels/entities/{1}'.format(
-                                    md_utilities.urls['panelapp'],
-                                    escape(gene_symbol)
-                                )
+            return """
+            <span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>
+            """.format(
+                    '{0}panels/entities/{1}'.format(
+                            md_utilities.urls['panelapp'],
+                            escape(gene_symbol)
                         )
-
+                )
         else:
-            return '<span class="w3-padding">No entry in \
-panelApp for this gene</span>'
+            return """
+            <span class="w3-padding">No entry in panelApp for this gene</span>
+            """
     else:
-        return '<span class="w3-padding">Unable to \
-perform the PanelApp query</span>'
+        return """
+        <span class="w3-padding">Unable to perform the PanelApp query</span>
+        """
 
 
 # -------------------------------------------------------------------
@@ -1661,8 +1849,9 @@ def spliceai_lookup():
                             ).data.decode('utf-8')
                         )
             except Exception:
-                return '<span class="w3-padding">Unable to \
-         run spliceAI lookup API - Error returned</span>'
+                return """
+                <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
+                """
             # print('{0}{1}'.format(
             #     md_utilities.urls['spliceai_api'],
             #     variant))
@@ -1684,10 +1873,14 @@ def spliceai_lookup():
                             spliceai_score[4],
                             spliceai_score[8]
                         )
-            return '<span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>'.format(transcript)
+            return """
+            <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
+            """.format(transcript)
         else:
-            return '<span class="w3-padding">Unable to \
-run spliceAI lookup API (wrong parameter)</span>'
+            return """
+            <span class="w3-padding">Unable to run spliceAI lookup API (wrong parameter)</span>
+            """
     else:
-        return '<span class="w3-padding">Unable to \
-run spliceAI lookup API (wrong parameter)</span>'
+        return """
+        <span class="w3-padding">Unable to run spliceAI lookup API (wrong parameter)</span>
+        """

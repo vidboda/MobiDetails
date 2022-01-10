@@ -80,7 +80,11 @@ def file_upload():
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
-                            "SELECT nm_version FROM gene WHERE name[2] = %s",
+                            """
+                            SELECT nm_version
+                            FROM gene
+                            WHERE name[2] = %s
+                            """,
                             (match_obj_c.group(1),)
                         )
                         res_nm = curs.fetchone()
@@ -127,7 +131,11 @@ def file_upload():
                     if match_obj_g:
                         # check NM number and version
                         curs.execute(
-                            "SELECT nm_version FROM gene WHERE name[1] = %s",
+                            """
+                            SELECT nm_version
+                            FROM gene
+                            WHERE name[1] = %s
+                            """,
                             (match_obj_g.group(2),)
                         )
                         res_nm = curs.fetchone()
@@ -226,9 +234,11 @@ def file_upload():
                                 )
                             )
 
-                    message = 'Dear {0},<br /><p>Your batch job returned the following results:\
-</p><ul>{1}</ul><p>You can have a direct acces to the successfully annotated variants at your \
-<a href="{2}{3}">profile page</a>.'.format(
+                    message = """
+                    Dear {0},<br /><p>Your batch job returned the following results:
+                    </p><ul>{1}</ul><p>You can have a direct acces to the successfully annotated variants at your
+                    <a href="{2}{3}">profile page</a>.
+                    """.format(
                         g.user['username'],
                         result_list,
                         request.host_url[:-1],

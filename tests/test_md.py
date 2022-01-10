@@ -1,5 +1,5 @@
 import pytest
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 # def test_homepage(client):
@@ -15,11 +15,16 @@ def test_gene_page(client, app):
         db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT name[1] FROM gene LIMIT 50",
+            """
+            SELECT name[1]
+            FROM gene
+            LIMIT 50
+            """,
         )
         res = curs.fetchall()
         for name in res:
             assert client.get('/gene/{}'.format(name[0])).status_code == 200
+        db.close()
 #             gene_page_result(client, name)
 # def gene_page_result(client, name):
 #     assert client.get('/gene/{}'.format(name[0])).status_code == 200
@@ -92,9 +97,16 @@ def test_variant_page(client, app):
         db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 1000"  #  LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
+            """
+            SELECT id
+            FROM variant_feature
+            WHERE c_name <> 'c.2del'
+            ORDER BY random()
+            LIMIT 1000
+            """  #  LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
         for variant_id in res:
             print(variant_id)
             assert client.get('/api/variant/{}/browser/'.format(variant_id[0])).status_code == 200
+        db.close()

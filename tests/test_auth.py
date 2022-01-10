@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 # from flask import g, session
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 def test_register(client, app):
@@ -24,6 +24,7 @@ def test_register(client, app):
         )
         res = curs.fetchone()
         assert res is not None
+        db.close()
 
 # multiple tests to check known username and email returns a message
 
@@ -122,7 +123,7 @@ def test_forgot_pass(client, mobiuser_email, message):
         '/auth/forgot_pass',
         data={'email': mobiuser_email}
     )
-    # print(response.get_data())
+    print(response.get_data())
     assert message in response.get_data()
 
 # test reset password

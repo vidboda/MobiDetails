@@ -8,7 +8,7 @@ import certifi
 import json
 import secrets
 from . import (
-    config, md_utilities
+    configuration, md_utilities
 )
 from flask import (
     Blueprint, flash, g, redirect, render_template,
@@ -54,8 +54,9 @@ def register():
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix at least \
-letters (upper and lower case) and numbers.'
+            error = """
+            Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
+            """
         elif not country or re.match('--', country):
             error = 'Country is required.'
         elif not institute:
@@ -74,11 +75,10 @@ letters (upper and lower case) and numbers.'
             )
             # try:
             # read api key for mailboxvalidator
-            apikey = config.mdconfig(section='email_check')['apikey']
-            mv_url = 'https://api.mailboxvalidator.com/v1/validation/\
-single?key={0}&format=json&email={1}'.format(
-                            apikey, email
-                        )
+            apikey = configuration.mdconfig(section='email_check')['apikey']
+            mv_url = 'https://api.mailboxvalidator.com/v1/validation/single?key={0}&format=json&email={1}'.format(
+                apikey, email
+            )
             try:
                 mv_json = json.loads(
                     http.request(
@@ -94,14 +94,16 @@ single?key={0}&format=json&email={1}'.format(
                             if (mv_json['is_high_risk'] == "True" or
                                     mv_json['is_suppressed'] == "True" or
                                     mv_json['is_catchall'] == "True"):
-                                error = 'The email address is reported as risky or suppressed. \
-If this is not the case, please send \
-us an email directly to \
-&#109;&#111;&#098;&#105;&#100;&#101;\
-&#116;&#097;&#105;&#108;&#115;\
-&#046;&#105;&#117;&#114;&#099;&#064;\
-&#103;&#109;&#097;&#105;&#108;&#046;\
-&#099;&#111;&#109;.'
+                                error = """
+                                The email address is reported as risky or suppressed.
+                                If this is not the case, please send
+                                us an email directly to
+                                &#109;&#111;&#098;&#105;&#100;&#101;
+                                &#116;&#097;&#105;&#108;&#115;
+                                &#046;&#105;&#117;&#114;&#099;&#064;
+                                &#103;&#109;&#097;&#105;&#108;&#046;
+                                &#099;&#111;&#109;.
+                                """
                             # else:valid adressese such as
                             # d-baux@chu-montpellier.fr are reported as False
                     else:
@@ -116,9 +118,9 @@ us an email directly to \
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails email validation error',
-                            '<p>mailboxvalidator validation failed: \
-<br/> {0} <br /> - from {1} with args: {2}\
-</p>'.format(
+                            """
+                            <p>mailboxvalidator validation failed: <br/> {0} <br /> - from {1} with args: {2}</p>
+                            """.format(
                                 mv_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -128,12 +130,11 @@ us an email directly to \
                     )
             # 2nd check https://www.stopforumspam.com/
             # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
-            sfs_url = 'https://www.stopforumspam.com/\
-api?ip={0}&email={1}&username={2}&f=json'.format(
-                            request.remote_addr,
-                            email,
-                            username
-                        )
+            sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(
+                request.remote_addr,
+                email,
+                username
+            )
             # print(sfs_url)
             try:
                 sfs_json = json.loads(
@@ -150,22 +151,25 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
                         # username won't be rejected but a warning will be sent
                         if sfs_json['ip']['appears'] == 1 or \
                                 sfs_json['email']['appears'] == 1:
-                            error = 'Sorry, your input data is reported as risky. \
-    If this is not the case, please send \
-    us an email directly to \
-    &#109;&#111;&#098;&#105;&#100;&#101;\
-    &#116;&#097;&#105;&#108;&#115;\
-    &#046;&#105;&#117;&#114;&#099;\
-    &#064;&#103;&#109;&#097;&#105;&#108;\
-    &#046;&#099;&#111;&#109;.'
+                            error = """
+                            Sorry, your input data is reported as risky.
+                            If this is not the case, please send
+                            us an email directly to
+                            &#109;&#111;&#098;&#105;&#100;&#101;
+                            &#116;&#097;&#105;&#108;&#115;
+                            &#046;&#105;&#117;&#114;&#099;
+                            &#064;&#103;&#109;&#097;&#105;&#108;
+                            &#046;&#099;&#111;&#109;.
+                            """
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails stop forum spam \
                                     username validation error',
-                                    '<p>Stop forum spam username validation failed (user created but to follow): \
-<br/> {0} <br /> - from {1} with url: {2}\
-</p>'.format(
+                                    """
+                                    <p>Stop forum spam username validation failed (user created but to follow):
+                                    <br/> {0} <br /> - from {1} with url: {2}</p>
+                                    """.format(
                                         sfs_json,
                                         os.path.basename(__file__),
                                         sfs_url
@@ -177,8 +181,9 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
                                 'MobiDetails stop forum spam validation error',
-                                '<p>Stop forum spam validation failed:<br/> {0} \
-<br /> - from {1} with url: {2}</p>'.format(
+                                """
+                                <p>Stop forum spam validation failed:<br/> {0}<br /> - from {1} with url: {2}</p>
+                                """.format(
                                     sfs_json,
                                     os.path.basename(__file__),
                                     sfs_url
@@ -190,8 +195,9 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails stop forum spam validation error',
-                            '<p>Stop forum spam validation failed:<br/> {0} \
-<br /> - from {1} with args: {2}</p>'.format(
+                            """
+                            <p>Stop forum spam validation failed:<br/> {0}<br /> - from {1} with args: {2}</p>
+                            """.format(
                                 sfs_json,
                                 os.path.basename(__file__),
                                 e.args
@@ -205,7 +211,11 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
             #        OR email = '{1}'".format(username, email)
             # )
             curs.execute(
-                "SELECT id FROM mobiuser WHERE username = %s OR email = %s",
+                """
+                SELECT id
+                FROM mobiuser
+                WHERE username = %s OR email = %s
+                """,
                 (username, email)
             )
             if curs.fetchone() is not None:
@@ -217,9 +227,11 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
         if error is None:
             key = secrets.token_urlsafe(32)
             curs.execute(
-                "INSERT INTO mobiuser (username, password, country,\
-                 institute, email, api_key, activated)\
-                 VALUES (%s, %s, %s, %s, %s, %s, 'f') RETURNING id",
+                """
+                INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated)
+                VALUES (%s, %s, %s, %s, %s, %s, 'f')
+                RETURNING id
+                """,
                 (username,
                  generate_password_hash(password),
                  country,
@@ -232,17 +244,18 @@ api?ip={0}&email={1}&username={2}&f=json'.format(
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
-                    'Dear {0},\
-<p>thank you for registering in MobiDetails. \
- We hope you will find this website useful.</p>\
-<p>Please follow the link below to activate \
- your MobiDetails account:</p>\
-<p><a href="{1}{2}" title="Activate your MD account">\
-Activate your MD account</a></p>\
-<p>If you do not know why you receive this email, \
-do not follow the link and please alert \
-mobidetails.iurc@gmail.com.</p><br />\
-                    '.format(
+                    """
+                    Dear {0},
+                    <p>thank you for registering in MobiDetails.
+                     We hope you will find this website useful.</p>
+                    <p>Please follow the link below to activate
+                     your MobiDetails account:</p>
+                    <p><a href="{1}{2}" title="Activate your MD account">
+                    Activate your MD account</a></p>
+                    <p>If you do not know why you receive this email,
+                    do not follow the link and please alert
+                    mobidetails.iurc@gmail.com.</p><br />
+                    """.format(
                         username,
                         request.host_url.rstrip('/'),
                         url_for(
@@ -257,30 +270,24 @@ mobidetails.iurc@gmail.com.</p><br />\
                 [email],
                 [app.config["MAIL_ERROR_RECIPIENT"]]
             )
-            # md_utilities.send_error_email(
-            #     md_utilities.prepare_email_html(
-            #         'MobiDetails Info',
-            #         'A new registration has been made:<br /><ul><li>\
-            #           Email:{0}</li><li>Institute:{1}</li><li>Country:{2}</li></ul>'.format(
-            #             email, institute, country
-            #         )
-            #     ),
-            #     '[MobiDetails - New Registration]'
-            # )
-            flash('<br /><p>Your account has been created but requires an activation step. \
-An email has been sent to {} \
-with an activation link.</p><br />'.format(email),
-                  'w3-pale-green'
-                  )
+            flash(
+                """
+                <br /><p>Your account has been created but requires an activation step.
+                An email has been sent to {} with an activation link.</p><br />
+                """.format(email),
+                'w3-pale-green'
+            )
             close_db()
             return redirect(url_for('md.index'), code=302)
 
         flash(error, 'w3-pale-red')
         if error is not None and not app.config['TESTING']:
-            message_body = '<p>{0}</p><p>Originated from :</p><ul><li>\
-Remote IP: {1}</li><li>Username: {2}</li>\
-<li>Country: {3}</li><li>Institute: {4}</li>\
-<li>Email: {5}</li></ul>'.format(
+            message_body = """
+            <p>{0}</p><p>Originated from :</p><ul><li>
+            Remote IP: {1}</li><li>Username: {2}</li>
+            <li>Country: {3}</li><li>Institute: {4}</li>
+            <li>Email: {5}</li></ul>
+            """.format(
                 error, request.remote_addr, username, country, institute, email
             )
             md_utilities.send_error_email(
@@ -331,11 +338,12 @@ def login():
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
-        # curs.execute(
-        #     "SELECT * FROM mobiuser WHERE email = '{}'".format(email)
-        # )
         curs.execute(
-            "SELECT * FROM mobiuser WHERE email = %s",
+            """
+            SELECT *
+            FROM mobiuser
+            WHERE email = %s
+            """,
             (email,)
         )
         user = curs.fetchone()
@@ -344,21 +352,24 @@ def login():
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
         elif user['activated'] is False:
-            error = 'This account is not activated. \
-An email to activate your account \
-has been sent to {}'.format(user['email'])
+            error = """
+            This account is not activated.
+            An email to activate your account
+            has been sent to {}
+            """.format(user['email'])
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Account activation',
-                    'Dear {0},<p>please follow the link below \
-to activate your MobiDetails account:</p>\
-<p><a href="{1}{2}" title="Activate your MD account">\
-Activate your MD account</a></p>\
-<p>If you do not know why you receive this email, \
-do not follow the link and please alert \
-mobidetails.iurc@gmail.com.</p><br />\
-                    '.format(
+                    """
+                    Dear {0},
+                    <p>please follow the link below to activate your MobiDetails account:</p>
+                    <p><a href="{1}{2}" title="Activate your MD account">
+                    Activate your MD account</a></p>
+                    <p>If you do not know why you receive this email,
+                    do not follow the link and please alert
+                    mobidetails.iurc@gmail.com.</p><br />
+                    """.format(
                         user['username'],
                         request.host_url.rstrip('/'),
                         url_for(
@@ -381,16 +392,6 @@ mobidetails.iurc@gmail.com.</p><br />\
                     user["username"]), 'w3-pale-green'
                 )
             session['user_id'] = user['id']
-            # werkzeug url class
-            # https://werkzeug.palletsprojects.com/en/1.0.x/urls/#werkzeug.urls.URL
-            # URL(scheme='http', netloc='10.34.20.79:5001', \
-            # path='/gene/HSP90B2P', query='', fragment='')>
-            # print(
-            #     url_parse(referrer_page),
-            #     url_parse(referrer_page).host,
-            #     url_parse(referrer_page).port,
-            #     url_parse(referrer_page).decode_netloc
-            # )
             if referrer_page is None or \
                     (url_parse(referrer_page).host !=
                         url_parse(request.base_url).host or
@@ -452,16 +453,19 @@ def activate(mobiuser_id, api_key):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, api_key, activated FROM \
-            mobiuser WHERE id = %s AND api_key = %s",
+            """
+            SELECT id, api_key, activated
+            FROM mobiuser WHERE id = %s AND api_key = %s
+            """,
             (mobiuser_id, api_key)
         )
         user = curs.fetchone()
         if user is None:
-            message_body = '<p>Account activation exception</p><p>Recived API key: {0} and \
-mobiuser_id: {1} from {2}'.format(
-                            api_key, mobiuser_id, request.remote_addr
-                        )
+            message_body = """
+            <p>Account activation exception</p><p>Recived API key: {0} and mobiuser_id: {1} from {2}
+            """.format(
+                    api_key, mobiuser_id, request.remote_addr
+                )
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
@@ -469,8 +473,10 @@ mobiuser_id: {1} from {2}'.format(
                 ),
                 '[MobiDetails - Activation Error]'
             )
-            flash('API key and user id do not seem to fit. \
-An admin has been warned', 'w3-pale-red')
+            flash(
+                'API key and user id do not seem to fit. An admin has been warned',
+                'w3-pale-red'
+            )
             close_db()
             return render_template('md/index.html')
         else:
@@ -483,8 +489,10 @@ An admin has been warned', 'w3-pale-red')
                     (user['id'], user['api_key'])
                 )
                 db.commit()
-                flash('Your account has been activated, \
-you may now log in using your email address.', 'w3-pale-green')
+                flash(
+                    'Your account has been activated, you may now log in using your email address.',
+                    'w3-pale-green'
+                )
                 close_db()
                 return render_template('auth/login.html')
     return render_template('md/unknown.html')
@@ -515,8 +523,11 @@ def profile(mobiuser_id=0):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, username, email, institute, country, api_key, \
-            email_pref, lovd_export, academic FROM mobiuser  WHERE id = %s",
+            """
+            SELECT id, username, email, institute, country, api_key, email_pref, lovd_export, academic
+            FROM mobiuser
+            WHERE id = %s
+            """,
             (user_id,)
         )
         mobiuser = curs.fetchone()
@@ -544,17 +555,24 @@ def profile(mobiuser_id=0):
             #     (g.user['id'],)
             # )
             curs.execute(
-                "SELECT a.id, a.c_name, a.gene_name, a.p_name, a.creation_date, b.mobiuser_id \
-                FROM variant_feature a LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id WHERE\
-                a.creation_user = %s ORDER BY a.creation_date DESC",
+                """
+                SELECT a.id, a.c_name, a.gene_name, a.p_name, a.creation_date, b.mobiuser_id
+                FROM variant_feature a
+                LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
+                WHERE a.creation_user = %s
+                ORDER BY a.creation_date DESC
+                """,
                 (g.user['id'],)
             )
             variants = curs.fetchall()
             num_var = curs.rowcount
 
             curs.execute(
-                "SELECT * FROM variants_groups WHERE \
-                mobiuser_id = %s ORDER BY creation_date DESC",
+                """
+                SELECT * FROM variants_groups
+                WHERE mobiuser_id = %s
+                ORDER BY creation_date DESC
+                """,
                 (g.user['id'],)
             )
             variant_groups = curs.fetchall()
@@ -563,10 +581,12 @@ def profile(mobiuser_id=0):
             clean_username = re.sub(r'[^\w]', '_', mobiuser['username'])
 
             curs.execute(
-                "SELECT a.id, a.c_name, a.ng_name, a.gene_name, \
-                a.p_name FROM variant_feature a, mobiuser_favourite b \
-                WHERE a.id = b.feature_id AND b.mobiuser_id = %s \
-                ORDER BY a.gene_name, a.ng_name",
+                """
+                SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name
+                FROM variant_feature a, mobiuser_favourite b
+                WHERE a.id = b.feature_id AND b.mobiuser_id = %s
+                ORDER BY a.gene_name, a.ng_name
+                """,
                 (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
@@ -689,22 +709,24 @@ def forgot_pass():
             )
             user = curs.fetchone()
             if user is None:
-                error = 'Your email address {} seems to be \
-unknown by the system.'.format(email)
+                error = """
+                Your email address {} seems to be unknown by the system.
+                """.format(email)
                 flash(error, 'w3-pale-red')
                 return render_template('auth/forgot_pass.html')
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails - Reset your password',
-                    'Dear {0},<p>please follow the link below \
-to reset your MobiDetails password:</p>\
-<p><a href="{1}{2}" title="Reset your MD password">\
-Reset your MD password</a></p>\
-<p>If you do not know why you receive this email, \
-do not follow the link and please alert \
-mobidetails.iurc@gmail.com.</p><br />\
-                    '.format(
+                    """
+                    Dear {0},
+                    <p>please follow the link below to reset your MobiDetails password:</p>
+                    <p><a href="{1}{2}" title="Reset your MD password">
+                    Reset your MD password</a></p>
+                    <p>If you do not know why you receive this email,
+                    do not follow the link and please alert
+                    mobidetails.iurc@gmail.com.</p><br />
+                    """.format(
                         user['username'],
                         request.host_url.rstrip('/'),
                         url_for(
@@ -719,9 +741,14 @@ mobidetails.iurc@gmail.com.</p><br />\
                 '[MobiDetails - Password reset]',
                 [email]
             )
-            flash('Please check your e-mail inbox. \
-You should have received a message with a link \
-to reset your password', 'w3-pale-green')
+            flash(
+                """
+                Please check your e-mail inbox.
+                You should have received a message with a link
+                to reset your password
+                """
+                , 'w3-pale-green'
+            )
             close_db()
             return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
@@ -750,22 +777,30 @@ def reset_password():
                float(float(datetime.timestamp(
                 datetime.now())
                     ) - float(original_timestamp)) < 0:
-                flash('This link is outdated. \
-                    Please try again the procedure.', 'w3-pale-red')
+                flash(
+                    """
+                    This link is outdated. Please try again the procedure.
+                    """
+                    , 'w3-pale-red'
+                )
                 return render_template('auth/login.html')
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT id, api_key, activated FROM \
-                mobiuser WHERE id = %s AND api_key = %s",
+                """
+                SELECT id, api_key, activated
+                FROM mobiuser
+                WHERE id = %s AND api_key = %s
+                """,
                 (mobiuser_id, api_key)
             )
             user = curs.fetchone()
             if user is None:
-                message_body = '<p>Password reset exception</p><p>Received API key: {0} and \
-mobiuser_id: {1} from {2}'.format(
-                                api_key, mobiuser_id, request.remote_addr
-                            )
+                message_body = """
+                <p>Password reset exception</p><p>Received API key: {0} and mobiuser_id: {1} from {2}
+                """.format(
+                            api_key, mobiuser_id, request.remote_addr
+                        )
                 md_utilities.send_error_email(
                     md_utilities.prepare_email_html(
                         'MobiDetails error',
@@ -773,8 +808,12 @@ mobiuser_id: {1} from {2}'.format(
                     ),
                     '[MobiDetails - Password reset Error]'
                 )
-                flash('API key and user id do not seem to fit. \
-An admin has been warned', 'w3-pale-red')
+                flash(
+                    """
+                    API key and user id do not seem to fit. An admin has been warned
+                    """
+                    , 'w3-pale-red'
+                )
                 close_db()
                 return render_template('auth/forgot_pass.html')
             else:
@@ -785,12 +824,13 @@ An admin has been warned', 'w3-pale-red')
                     api_key=api_key
                 )
         else:
-            message_body = '<p>Password reset exception</p><p>Received timestamp: {0} and \
-mobiuser_id: {1} from {2}'.format(
-                             request.args.get('ts'),
-                             request.args.get('mobiuser_id'),
-                             request.remote_addr
-                         )
+            message_body = """
+            <p>Password reset exception</p><p>Received timestamp: {0} and mobiuser_id: {1} from {2}
+            """.format(
+                    request.args.get('ts'),
+                    request.args.get('mobiuser_id'),
+                    request.remote_addr
+                )
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
@@ -798,8 +838,12 @@ mobiuser_id: {1} from {2}'.format(
                 ),
                 '[MobiDetails - Password reset Error]'
             )
-            flash('Some parameters are not legal. \
-An admin has been warned', 'w3-pale-red')
+            flash(
+                """
+                Some parameters are not legal. An admin has been warned
+                """
+                , 'w3-pale-red'
+            )
             return render_template('auth/forgot_pass.html')
     elif request.method == 'POST':
         mobiuser_id = request.form['mobiuser_id']
@@ -810,14 +854,18 @@ An admin has been warned', 'w3-pale-red')
                 not re.search(r'[a-z]', password) or \
                 not re.search(r'[A-Z]', password) or \
                 not re.search(r'[0-9]', password):
-            error = 'Password should be at least 8 characters and mix at least \
-letters (upper and lower case) and numbers.'
+            error = """
+                Password should be at least 8 characters and mix at least
+                letters (upper and lower case) and numbers.
+            """
         else:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "UPDATE mobiuser SET password= %s WHERE \
-                id = %s AND api_key = %s",
+                """
+                UPDATE mobiuser SET password= %s
+                WHERE id = %s AND api_key = %s
+                """,
                 (generate_password_hash(password), mobiuser_id, api_key)
             )
             db.commit()
@@ -844,8 +892,11 @@ def variant_list(list_name):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT a.variant_ids, b.username, a.creation_date, a.list_name FROM variants_groups a, mobiuser b WHERE \
-            a.mobiuser_id = b.id AND list_name = %s",
+            """
+            SELECT a.variant_ids, b.username, a.creation_date, a.list_name
+            FROM variants_groups a, mobiuser b
+            WHERE a.mobiuser_id = b.id AND list_name = %s
+            """,
             (list_name,)
         )
         res = curs.fetchone()
@@ -858,9 +909,11 @@ def variant_list(list_name):
             res_ids_string += ")"
             # print(res_ids_string)
             curs.execute(
-                "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.nm_version, c.username \
-                FROM variant_feature a, gene b, mobiuser c \
-                WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.id IN {}".format(res_ids_string)
+                """
+                SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.username
+                FROM variant_feature a, mobiuser b
+                WHERE  a.creation_user = b.id AND a.id IN {0}
+                """.format(res_ids_string)
             )
             variants = curs.fetchall()
             return render_template('md/variant_multiple.html', variants=variants, unique_url_info=res)

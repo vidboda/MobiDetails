@@ -1,10 +1,10 @@
 import re
 import pytest
 import psycopg2
-import json
+# import json
 from flask import g
 from MobiDetailsApp import md_utilities
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
@@ -753,8 +753,11 @@ def test_check_api_key(app, api_key, result):
         if api_key == '':
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT api_key FROM mobiuser \
-                WHERE email = 'mobidetails.iurc@gmail.com'"
+                """
+                SELECT api_key
+                FROM mobiuser
+                WHERE email = 'mobidetails.iurc@gmail.com'
+                """
             )
             res = curs.fetchone()
             if res is not None:
@@ -765,6 +768,7 @@ def test_check_api_key(app, api_key, result):
         else:
             print(check['mobiuser'])
             assert result == check['mobiuser'][4]
+        db.close()
 
 
 @pytest.mark.parametrize(('caller', 'result'), (
@@ -775,15 +779,17 @@ def test_check_api_key(app, api_key, result):
     ('cli', 'Valid caller')
 ))
 def test_check_caller(caller, result):
-        assert md_utilities.check_caller(caller) == result
+    assert md_utilities.check_caller(caller) == result
 
 
 def test_get_api_key(app):
     with app.app_context():
         db = get_db()
-        curs =  db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         g.user = None
         assert md_utilities.get_api_key(g, curs) is not None
+        db.close()
+
 
 @pytest.mark.parametrize(('criterion', 'color'), (
     ('PVS1', 'w3-red'),
@@ -797,7 +803,7 @@ def test_get_api_key(app):
     ('BBR', None)
 ))
 def test_get_acmg_criterion_color(criterion, color):
-        assert md_utilities.get_acmg_criterion_color(criterion) == color
+    assert md_utilities.get_acmg_criterion_color(criterion) == color
 
 
 # @pytest.mark.parametrize(('gene_symbol', 'nm_acc', 'c_name', 'prediction'), (
@@ -808,7 +814,13 @@ def test_run_spip(app):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, gene_name, c_name FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 15"
+            """
+            SELECT id, gene_name, c_name
+            FROM variant_feature
+            WHERE c_name <> 'c.2del'
+            ORDER BY random(
+            LIMIT 15
+            """
         )
         res = curs.fetchall()
         for var in res:
@@ -820,6 +832,7 @@ def test_run_spip(app):
             dict_spip = md_utilities.format_spip_result(spip_results, 'cli')
             print(dict_spip)
             assert isinstance(dict_spip, dict)
+        db.close()
 
 
 def test_get_running_mode(app):

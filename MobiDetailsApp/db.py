@@ -2,18 +2,20 @@ import os
 import psycopg2
 import psycopg2.extras
 # requires MobiDetails config module + database.ini file
-from . import config, md_utilities
+from . import md_utilities, configuration
 import click
-from flask import g
+from flask import g, current_app as app
 from flask.cli import with_appcontext
 
 
 def get_db():
     if 'db' not in g:
+        # print('App:{0}'.format(app.config))
         try:
             # read connection parameters
-            params = config.mdconfig()
-            g.db = psycopg2.connect(**params)
+            g.db = app.config['POSTGRESQL_POOL'].getconn()
+            # params = configuration.mdconfig()
+            # g.db = psycopg2.connect(**params)
         except (Exception, psycopg2.DatabaseError) as error:
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
@@ -32,7 +34,8 @@ def get_db():
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
-        db.close()
+        app.config['POSTGRESQL_POOL'].putconn(db)
+        # db.close()
 
 
 def init_db():

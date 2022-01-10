@@ -1,7 +1,5 @@
-import pytest
-import psycopg2
+# import pytest
 from io import BytesIO
-from MobiDetailsApp.db import get_db
 # test file upload
 
 test_vars = b'NM_206933.2:c.2276G>T\nNC_000001.11:g.40817273del;KCNQ4\nrs1052030\nrs10520305\nNM_206933.2:c.2276C>T\nlhdsfqirhg\nrs534370897'

@@ -2,22 +2,21 @@ import os
 import tempfile
 
 import pytest
-import flask
-from flask_wtf.csrf import generate_csrf
-from flask.testing import FlaskClient as BaseFlaskClient
+# import flask
+# from psycopg2 import pool
+# from flask_wtf.csrf import generate_csrf
+# from flask.testing import FlaskClient as BaseFlaskClient
 from MobiDetailsApp import create_app
-from MobiDetailsApp.db import get_db, init_db
+from MobiDetailsApp.db import init_db
 
-with open(os.path.join(os.path.dirname(__file__), 'md_test.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
-
-
+# with open(os.path.join(os.path.dirname(__file__), 'md_test.sql'), 'rb') as f:
+#     _data_sql = f.read().decode('utf8')
 
 
 @pytest.fixture
 def app():
     db_fd, db_path = tempfile.mkstemp()
-
+    # params = configuration.mdconfig()
     app = create_app({
         'TESTING': True,
         'DATABASE': db_path,
