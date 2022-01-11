@@ -529,12 +529,12 @@ def test_get_segment_size_from_vv_cigar(cigar, result):
 
 
 @pytest.mark.parametrize(('gene_symbol', 'transcript', 'ncbi_chr', 'exon_number', 'start_result'), (
-    ('A2ML1', 'NM_144670.6', ['NC_000012.12'], '27', '8860881'),
-    ('A2ML1', 'NM_144670.6', ['NC_000012.13'], '27', 'transcript_error'),
-    ('A2ML1', 'NM_001282424.3', ['NC_000012.12'], '27', 'transcript_error'),
-    ('ABCA4', 'NM_000350.3', ['NC_000001.11'], '22', '94042898'),
-    ('ABCA4', 'NM_000350.3', ['NC_000001.11'], '82', 'transcript_error'),
-    ('ABCA4', 'NM_000350.7', ['NC_000001.11'], '22', 'transcript_error'),
+    ('A2ML1', 'NM_144670.6', 'NC_000012.12', '27', '8860881'),
+    ('A2ML1', 'NM_144670.6', 'NC_000012.13', '27', 'transcript_error'),
+    ('A2ML1', 'NM_001282424.3', 'NC_000012.12', '27', 'transcript_error'),
+    ('ABCA4', 'NM_000350.3', 'NC_000001.11', '22', '94042898'),
+    ('ABCA4', 'NM_000350.3', 'NC_000001.11', '82', 'transcript_error'),
+    ('ABCA4', 'NM_000350.7', 'NC_000001.11', '22', 'transcript_error'),
 ))
 def test_get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number, start_result):
     positions = md_utilities.get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number)
@@ -704,12 +704,12 @@ def test_maxentscan(w, y, seq, scan_type, result):
 
 
 @pytest.mark.parametrize(('chrom', 'strand', 'scan_type', 'positions', 'result'), (
-    (11, '+', 3, {'segment_start': 77201448,'segment_end': 77201638}, [5.40, 'cactcacctctgctctacagCAG']),
-    (11, '+', 5, {'segment_start': 77201448,'segment_end': 77201638}, [7.64, 'GTGgtatgt']),
-    (1, '-', 3, {'segment_start': 216247226,'segment_end': 216246585}, [8.95, 'taaatatattttatctttagGGC']),
-    (1, '-', 5, {'segment_start': 216247226,'segment_end': 216246585}, [10.77, 'CAGgtaaga']),
-    (5, '-', 3, {'segment_start': 34005899,'segment_end': 34005756}, [7.95, 'atcgttacttttctcttaagGTG']),
-    (5, '-', 5, {'segment_start': 34005899,'segment_end': 34005756}, [9.80, 'CAGgtatgt'])
+    (11, '+', 3, {'segment_start': 77201448, 'segment_end': 77201638}, [5.40, 'cactcacctctgctctacagCAG']),
+    (11, '+', 5, {'segment_start': 77201448, 'segment_end': 77201638}, [7.64, 'GTGgtatgt']),
+    (1, '-', 3, {'segment_start': 216247226, 'segment_end': 216246585}, [8.95, 'taaatatattttatctttagGGC']),
+    (1, '-', 5, {'segment_start': 216247226, 'segment_end': 216246585}, [10.77, 'CAGgtaaga']),
+    (5, '-', 3, {'segment_start': 34005899, 'segment_end': 34005756}, [7.95, 'atcgttacttttctcttaagGTG']),
+    (5, '-', 5, {'segment_start': 34005899, 'segment_end': 34005756}, [9.80, 'CAGgtatgt'])
 ))
 def test_get_maxent_natural_sites_scores(chrom, strand, scan_type, positions, result):
     maxent_natural = md_utilities.get_maxent_natural_sites_scores(chrom, strand, scan_type, positions)
@@ -723,23 +723,21 @@ def test_lovd_error_html():
 
 @pytest.mark.parametrize(('record', 'result'), (
     ('hsa-miR-548j-3p;hsa-miR-548j-3p;hsa-miR-548x-3p;hsa-miR-548ah-3p;\
-hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p\
-</a><br />"),
-    ('hsa-miR-548o-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p\
-</a><br />"),
+hsa-miR-548am-3p', """
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p</a><br />
+                """),
+    ('hsa-miR-548o-3p', """
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p</a><br />
+                """),
     ('.', '.')
 ))
 def test_format_mirs(record, result):
     totest = md_utilities.format_mirs(record)
-    assert result == totest
+    print('-{}'.format(totest))
+    assert re.split(r'\s+', result) == re.split(r'\s+', totest)
 
 
 @pytest.mark.parametrize(('api_key', 'result'), (
@@ -818,7 +816,7 @@ def test_run_spip(app):
             SELECT id, gene_name, c_name
             FROM variant_feature
             WHERE c_name <> 'c.2del'
-            ORDER BY random(
+            ORDER BY random()
             LIMIT 15
             """
         )

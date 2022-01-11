@@ -26,8 +26,10 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
     # Initiate database connection pool
     params = configuration.mdconfig()
+    pool_params = configuration.mdconfig(section='psycopg2')
     app.config['POSTGRESQL_POOL'] = pool.ThreadedConnectionPool(
-        1, 100,
+        pool_params['min_pool_conn'],
+        pool_params['max_pool_conn'],
         user=params['user'],
         password=params['password'],
         host=params['host'],

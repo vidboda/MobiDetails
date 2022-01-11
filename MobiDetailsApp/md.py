@@ -366,13 +366,16 @@ def gene(gene_name=None):
             if no_vv_file == 0:
                 transcript_road_signs = {}
                 vv_json = json.load(json_file)
-                if 'error' in vv_json:
+                if 'error' in vv_json \
+                    or ('message' in vv_json and
+                        vv_json['message'] == 'Internal Server Error'):
                     no_vv_file = 1
                     curs.execute(
                         """
                         UPDATE gene
                         SET variant_creation = 'not_in_vv_json'
                         WHERE name[1] = %s
+                            AND variant_creation <> 'not_in_vv_json'
                         """,
                         (gene_name,)
                     )
@@ -645,8 +648,17 @@ def search_engine():
             sql_table = 'gene'
             query_type = 'name[2]'
             col_names = 'name'
-            match_object = re.search(rf'^({ncbi_transcript_regexp})', query_engine)
-            pattern = match_object.group(1)
+            match_object = re.search(rf'^(^[Nn][Mm]_\d+)', query_engine)
+            if match_object:
+                col_names = 'partial_name'
+                pattern = match_object.group(1)
+            # match_object = re.search(rf'^({ncbi_transcript_regexp})', query_engine)
+            # if match_object:
+            #     pattern = match_object.group(1)
+            # match_object = re.search(r'^([Nn][Mm]_\d+)\.?$', query_engine)
+            # if match_object:
+            #     col_names = 'incomplete_name'
+            #     pattern = match_object.group(1)
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -774,15 +786,27 @@ def search_engine():
                         )
                     )
                 else:
-                    curs.execute(
-                        """
-                        SELECT {0}
-                        FROM {1}
-                        WHERE {2} = '{3}'
-                        """.format(
-                            col_names, sql_table, query_type, pattern
+                    if col_names == 'partial_name':
+                        col_names = 'name'
+                        curs.execute(
+                            """
+                            SELECT {0}
+                            FROM {1}
+                            WHERE {2} LIKE '{3}%'
+                            """.format(
+                                col_names, sql_table, query_type, pattern
+                            )
                         )
-                    )
+                    else:
+                        curs.execute(
+                            """
+                            SELECT {0}
+                            FROM {1}
+                            WHERE {2} = '{3}'
+                            """.format(
+                                col_names, sql_table, query_type, pattern
+                            )
+                        )
                 result = None
             if sql_table == 'gene':
                 result = curs.fetchone()
