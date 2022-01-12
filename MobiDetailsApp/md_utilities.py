@@ -851,7 +851,7 @@ def vv_internal_server_error(caller, vv_data, vv_key_var):
                 """
             )
         elif caller == 'cli':
-            return jsonify(mobidetails_error='VariantValidator returned an Internal Server Error for {0}'.format(vv_key_var))
+            return {'mobidetails_error': 'VariantValidator returned an Internal Server Error for {0}'.format(vv_key_var)}
     return 'vv_ok'
 
 

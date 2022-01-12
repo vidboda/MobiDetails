@@ -1474,7 +1474,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 vv_error = md_utilities.vv_internal_server_error(caller, vv_data, vv_key_var)
                 if vv_error != 'vv_ok':
                     if caller == 'cli':
-                        return vv_error
+                        return jsonify(vv_error)
                     else:
                         flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
@@ -1731,7 +1731,11 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 return redirect(url_for('md.index'), code=302)
                         vv_error = md_utilities.vv_internal_server_error(caller, vv_data, variant_ghgvs)
                         if vv_error != 'vv_ok':
-                            return vv_error
+                            if caller == 'cli':
+                                return jsonify(vv_error)
+                            else:
+                                flash(vv_error)
+                                return redirect(url_for('md.index'), code=302)
                         # look for gene acc #
                         # print(vv_data)
                         new_variant = None
