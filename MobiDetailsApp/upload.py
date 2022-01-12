@@ -76,29 +76,29 @@ def file_upload():
                         continue
                     line = line.replace(' ', '')
                     variant_regexp = md_utilities.regexp['variant']
-                    match_obj_c = re.search(rf'^([Nn][Mm]_\d+)\.(\d+)\(*[A-Za-z0-9-]*\)*:(c\.{variant_regexp})$', line)
+                    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+                    match_obj_c = re.search(rf'^({ncbi_transcript_regexp})\(*[\w-]*\)*:(c\.{variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(
                             """
-                            SELECT nm_version
+                            SELECT name
                             FROM gene
                             WHERE name[2] = %s
                             """,
                             (match_obj_c.group(1),)
                         )
-                        res_nm = curs.fetchone()
-                        if res_nm:
+                        res_gene = curs.fetchone()
+                        if res_gene:
                             # send var to api
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
                             # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
                             # print(md_api_url)
                             data = {
                                 'variant_chgvs': urllib.parse.quote(
-                                    '{0}.{1}:{2}'.format(
+                                    '{0}:{1}'.format(
                                         match_obj_c.group(1),
-                                        match_obj_c.group(2),
-                                        match_obj_c.group(3)
+                                        match_obj_c.group(2)
                                     )
                                 ),
                                 'caller': 'cli',
@@ -127,19 +127,20 @@ def file_upload():
                             result.append({'variant': line, 'error': 'Unknown NCBI NM accession number'})
                         continue
                     # genomic format
-                    match_obj_g = re.search(rf'^([Nn][Cc]_\d+\.\d+:g\.{variant_regexp});([\w-]+)$', line)
+                    ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
+                    match_obj_g = re.search(rf'^({ncbi_chrom_regexp}:g\.{variant_regexp});([\w-]+)$', line)
                     if match_obj_g:
-                        # check NM number and version
+                        # check gene is available
                         curs.execute(
                             """
-                            SELECT nm_version
+                            SELECT name
                             FROM gene
                             WHERE name[1] = %s
                             """,
                             (match_obj_g.group(2),)
                         )
-                        res_nm = curs.fetchone()
-                        if res_nm:
+                        res_gene = curs.fetchone()
+                        if res_gene:
                             # send var to api
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                             # print(md_api_url)

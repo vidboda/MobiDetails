@@ -1088,12 +1088,8 @@ def create():
 
         if re.search(r'c\..+', new_variant):
             # is vv alive?
-
-            # vv_alive = None
-            # print('--- 1- {} seconds ---'.format((time.time() - start_time)))
             vv_base_url = md_utilities.get_vv_api_url()
             # print('--- 2- {} seconds ---'.format((time.time() - start_time)))
-
             if not vv_base_url:
                 close_db()
                 return md_utilities.danger_panel(
@@ -1102,7 +1098,6 @@ def create():
                         Variant Validator did not answer our call, status: Service Unavailable.
                         I have been informed by email. Please retry later.
                         """)
-
             if not alt_nm or \
                     acc_no == request.form['acc_no']:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/{1}?content-type=application/json".format(
@@ -1130,6 +1125,9 @@ def create():
                     Either it is down or your nomenclature is very odd!
                     """
                 )
+            vv_error = md_utilities.vv_internal_server_error('browser', vv_data, vv_key_var)
+            if vv_error != 'vv_ok':
+                return vv_error
             if re.search('[di][neu][psl]', new_variant):
                 # need to redefine vv_key_var for indels as the variant name
                 # returned by vv is likely to be different form the user's
@@ -1176,7 +1174,7 @@ def create():
             can_output = md_utilities.create_var_vv(
                 vv_key_var, gene, res_can['name'][1], new_variant,
                 original_variant,
-                vv_data, 'webApp', db, g
+                vv_data, 'browser', db, g
             )
             # if non_can_output is a number => success => just get the text to display
             if isinstance(can_output, int):
@@ -1199,7 +1197,7 @@ def create():
         output = md_utilities.create_var_vv(
             vv_key_var, gene, acc_no, new_variant,
             original_variant,
-            vv_data, 'webApp', db, g
+            vv_data, 'browser', db, g
         )
         # if output is a number => success => just get the text to display
         if isinstance(output, int):

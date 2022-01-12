@@ -12,7 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 from flask import (
-    url_for, request, render_template, current_app as app
+    url_for, request, render_template, jsonify, current_app as app
 )
 from flask_mail import Message
 from werkzeug.urls import url_parse
@@ -832,17 +832,9 @@ def get_vv_api_url():
     return None
 
 
-def create_var_vv(
-        vv_key_var, gene, acc_no, new_variant,
-        original_variant, vv_data, caller, db, g):
-    vf_d = {}
-    # deal with various warnings
-    # docker up?
-
-    if caller == 'webApp':
-        print('Creating variant: {0} - {1}'.format(gene, original_variant))
+def vv_internal_server_error(caller, vv_data, vv_key_var):
     if 'message' in vv_data and vv_data['message'] == 'Internal Server Error':
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
@@ -858,10 +850,24 @@ def create_var_vv(
                 VariantValidator returned an Internal Server Error. Sorry for the inconvenience. Please retry later.
                 """
             )
-        elif caller == 'api':
-            return {'mobidetails_error': 'VariantValidator returned an Internal Server Error for {0}'.format(vv_key_var)}
+        elif caller == 'cli':
+            return jsonify(mobidetails_error='VariantValidator returned an Internal Server Error for {0}'.format(vv_key_var))
+    return 'vv_ok'
+
+
+def create_var_vv(
+        vv_key_var, gene, acc_no, new_variant,
+        original_variant, vv_data, caller, db, g):
+    vf_d = {}
+    # deal with various warnings
+    # docker up?
+    if caller == 'browser':
+        print('Creating variant: {0} - {1}'.format(gene, original_variant))
+    vv_error = vv_internal_server_error(caller, vv_data, vv_key_var)
+    if vv_error != 'vv_ok':
+        return vv_error
     if 'flag' not in vv_data:
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
@@ -877,10 +883,10 @@ def create_var_vv(
                 VariantValidator looks down!! Sorry for the inconvenience. Please retry later.
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {'mobidetails_error': 'VariantValidator looks down'}
     elif vv_data['flag'] is None:
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 """
@@ -888,7 +894,7 @@ def create_var_vv(
                 Of course this may also come from the gene and not from you!
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -896,7 +902,7 @@ def create_var_vv(
                 """
             }
     elif re.search('Major error', vv_data['flag']):
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
@@ -913,7 +919,7 @@ def create_var_vv(
                 Sorry for the inconvenience. Please retry later.
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 'A major validation error has occurred in VariantValidator'
@@ -940,7 +946,7 @@ def create_var_vv(
     try:
         print('First level key: {}'.format(first_level_key))
     except UnboundLocalError as e:
-        if caller == 'webApp':
+        if caller == 'browser':
             print(vv_data)
             send_error_email(
                 prepare_email_html(
@@ -963,7 +969,7 @@ def create_var_vv(
                 It may work if you try again.<br />I am aware of this bug and actively tracking it.
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -994,9 +1000,9 @@ def create_var_vv(
                      """.format(
                         match_obj.group(1), original_variant
                     )
-                    if caller == 'webApp':
+                    if caller == 'browser':
                         return danger_panel(vv_key_var, return_text)
-                    elif caller == 'api':
+                    elif caller == 'cli':
                         return {'mobidetails_error': '{}'.format(return_text)}
                 else:
                     danger_panel(vv_key_var, warning)
@@ -1009,9 +1015,9 @@ def create_var_vv(
                 if match_obj.group(1) and \
                         match_obj.group(1) == vv_key_var:
                     next
-                elif caller == 'webApp':
+                elif caller == 'browser':
                     return danger_panel(vv_key_var, warning)
-                elif caller == 'api':
+                elif caller == 'cli':
                     return {'mobidetails_error': '{}'.format(warning)}
             elif re.search('A more recent version of', warning) or \
                     re.search('LRG_', warning) or \
@@ -1024,9 +1030,9 @@ def create_var_vv(
                     message = """
                     {0}. Your variant is not located inside the gene genomic boundaries, therefore MD cannot treat it.
                     """.format(match_obj.group(1))
-                if caller == 'webApp':
+                if caller == 'browser':
                     return danger_panel(vv_key_var, message)
-                elif caller == 'api':
+                elif caller == 'cli':
                     return {'mobidetails_error': '{}'.format(message)}
             else:
                 if 'Removing redundant reference bases from variant description' in warning:
@@ -1062,7 +1068,7 @@ def create_var_vv(
                         # we have a correct mapping
                         # print('going out')
                         break
-                if caller == 'webApp':
+                if caller == 'browser':
                     if len(
                         vv_data[first_level_key]['validation_warnings']
                     ) > 1:
@@ -1074,7 +1080,7 @@ def create_var_vv(
                         )
                     else:
                         return danger_panel(vv_key_var, warning)
-                elif caller == 'api':
+                elif caller == 'cli':
                     if len(
                         vv_data[first_level_key]['validation_warnings']
                     ) > 1:
@@ -1091,16 +1097,16 @@ def create_var_vv(
     try:
         hg38_d = get_genomic_values('hg38', vv_data, vv_key_var)
         if 'mobidetails_error' in hg38_d:
-            if caller == 'webApp':
+            if caller == 'browser':
                 return danger_panel(
                     'MobiDetails error',
                     hg38_d['mobidetails_error']
                 )
-            elif caller == 'api':
+            elif caller == 'cli':
                 return hg38_d
     except Exception:
         # print(vv_data)
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 """
@@ -1109,7 +1115,7 @@ def create_var_vv(
                 It is therefore impossible to create a variant.
                 """.format(acc_no, gene)
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {'mobidetails_error':  """
             Transcript {0} for gene {1} does not seem to map correctly to hg38.
             Currently, MobiDetails requires proper mapping on hg38 and hg19.
@@ -1133,13 +1139,13 @@ def create_var_vv(
     # )
     # res = curs.fetchone()
     if res is not None:
-        if caller == 'webApp':
+        if caller == 'browser':
             return info_panel(
                 'Variant already in MobiDetails: ',
                 '{0}:{1}'.format(acc_no, new_variant),
                 res['id']
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_id': res['id'],
                 'url': '{0}{1}'.format(
@@ -1157,15 +1163,15 @@ def create_var_vv(
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
-            if caller == 'webApp':
+            if caller == 'browser':
                 return danger_panel(
                     'MobiDetails error',
                     hg19_d['mobidetails_error']
                 )
-            elif caller == 'api':
+            elif caller == 'cli':
                 return hg19_d
     except Exception:
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 """
@@ -1174,7 +1180,7 @@ def create_var_vv(
                 It is therefore impossible to create a variant.
                 """.format(acc_no, gene)
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -1207,26 +1213,26 @@ def create_var_vv(
     elif re.search('inv', vf_d['c_name']):
         vf_d['dna_type'] = 'inversion'
     elif re.search('=', vf_d['c_name']):
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 """
                 Reference should not be equal to alternative to define a variant.
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
                 Reference should not be equal to alternative to define a variant."""
             }
     else:
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 'No proper DNA type found for the variant.'
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 'No proper DNA type found for the variant.'
@@ -1255,13 +1261,13 @@ def create_var_vv(
     )
     res_strand = curs.fetchone()
     if res_strand is None:
-        if caller == 'webApp':
+        if caller == 'browser':
             return danger_panel(
                 vv_key_var,
                 """
                 No strand for gene {}, impossible to create a variant, please contact us
                 """.format(gene))
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -1325,7 +1331,7 @@ def create_var_vv(
             vf_d['end_segment_type'] == 'segment_type_error' or \
             vf_d['start_segment_number'] == 'segment_number_error' or \
             vf_d['end_segment_number'] == 'segment_number_error':
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
@@ -1348,7 +1354,7 @@ def create_var_vv(
                 Sorry, an issue occured with the variant position and intron/exon definition. An admin has been warned
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -1515,11 +1521,11 @@ def create_var_vv(
             vf_d['wt_seq'] = "{0} {1}{2} {3}".format(begin, middle, exp, end)
             vf_d['mt_seq'] = "{0} {1}{1} {2}".format(begin, middle, end)
     mobiuser = 'mobidetails'
-    if caller == 'webApp':
+    if caller == 'browser':
         if g.user is not None:
             mobiuser = g.user['username']
         vf_d['creation_user'] = get_user_id(mobiuser, db)
-    elif caller == 'api':
+    elif caller == 'cli':
         vf_d['creation_user'] = g.user['id']
 
     today = datetime.datetime.now()
@@ -1545,13 +1551,13 @@ def create_var_vv(
         curs.execute(insert_variant_feature)
         vf_id = curs.fetchone()[0]
     except Exception as e:
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
                     """
-                    <p>Insertion failed for variant features for {0} with args {1}</p>
-                    """.format(vv_key_var, e.args)
+                    <p>Insertion failed for variant features for {0} with args {1}, {2}</p>
+                    """.format(vv_key_var, e.args, insert_variant_feature)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1561,7 +1567,7 @@ def create_var_vv(
                 Sorry, an issue occured with variant features. An admin has been warned
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -1579,13 +1585,13 @@ def create_var_vv(
     try:
         curs.execute(insert_variant_38)
     except Exception as e:
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
                     """
-                    <p>Insertion failed for variant hg38 for {0} with args: {1}</p>
-                    """.format(vv_key_var, e.args)
+                    <p>Insertion failed for variant hg38 for {0} with args: {1}, {2}</p>
+                    """.format(vv_key_var, e.args, insert_variant_38)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1595,7 +1601,7 @@ def create_var_vv(
                 Sorry, an issue occured with variant mapping in hg38. An admin has been warned
                 """
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """
@@ -1613,13 +1619,13 @@ def create_var_vv(
     try:
         curs.execute(insert_variant_19)
     except Exception as e:
-        if caller == 'webApp':
+        if caller == 'browser':
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
                     """
-                    <p>Insertion failed for variant hg19 for {0} with args {1}</p>
-                    """.format(vv_key_var, e.args)
+                    <p>Insertion failed for variant hg19 for {0} with args {1}, {2}</p>
+                    """.format(vv_key_var, e.args, insert_variant_19)
                 ),
                 '[MobiDetails - MD variant creation Error]'
             )
@@ -1627,31 +1633,12 @@ def create_var_vv(
                 'MobiDetails error {}'.format(vv_key_var),
                 """Sorry, an issue occured with variant mapping in hg19. An admin has been warned"""
             )
-        elif caller == 'api':
+        elif caller == 'cli':
             return {
                 'mobidetails_error':
                 """Impossible to insert variant (hg19) for {}""".format(vv_key_var)}
     db.commit()
-    # if remapper is True and caller == 'webApp':
-    #     return info_panel(
-    #         "Successfully annotated variant (remapped to canonical isoform)",
-    #         vf_d['c_name'],
-    #         vf_id,
-    #         'w3-pale-green'
-    #     )
-    # elif caller == 'webApp':
     return vf_id
-    # if caller == 'webApp':
-    #     return info_panel(
-    #         "Successfully annotated variant",
-    #         vf_d['c_name'],
-    #         vf_id,
-    #         'w3-pale-green'
-    #     )
-    # if caller == 'api':
-    #     return {'mobidetails_id': vf_id, 'url': '{0}{1}'.format(
-    #         request.host_url[:-1], url_for('api.variant', variant_id=vf_id, caller='browser')
-    #     )}
 
 
 def get_segment_type_from_vv(vv_expr):

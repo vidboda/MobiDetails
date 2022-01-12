@@ -649,6 +649,11 @@ class fake_g_obj:
     user = dict(username='mobidetails')
 
 
+def test_vv_internal_server_error():
+    vv_error = {'message': 'Internal Server Error'}
+    assert 'mobidetails_error' in md_utilities.vv_internal_server_error('cli', vv_error, 'NM_001322246.2:c.2del')
+
+
 def test_create_var_vv(client, app):
     with app.app_context():
         g = fake_g_obj()

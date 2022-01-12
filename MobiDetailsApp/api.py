@@ -1440,11 +1440,10 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash('Variant Validator looks down!', 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/all?content-type=application/json".format(
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:c.{2}/all?content-type=application/json".format(
                     vv_base_url, acc_no, new_variant
                 )
                 vv_key_var = "{0}:c.{1}".format(acc_no, new_variant)
-                # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                 try:
                     vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                 except Exception:
@@ -1471,6 +1470,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                 """,
                                 'w3-pale-red'
                             )
+                        return redirect(url_for('md.index'), code=302)
+                vv_error = md_utilities.vv_internal_server_error(caller, vv_data, vv_key_var)
+                if vv_error != 'vv_ok':
+                    if caller == 'cli':
+                        return vv_error
+                    else:
+                        flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
                 if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned
@@ -1516,12 +1522,12 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             md_utilities.create_var_vv(
                                 vv_key_var_can, res_gene['gene'], res_can['nm'],
                                 'c.{}'.format(new_variant_can), original_variant_can,
-                                vv_full_data, 'api', db, g
+                                vv_full_data, caller, db, g
                             )
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene'], acc_no,
                     'c.{}'.format(new_variant), original_variant,
-                    vv_data, 'api', db, g
+                    vv_data, caller, db, g
                 )
                 if isinstance(creation_dict, int):
                     # success
@@ -1723,6 +1729,9 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                         'w3-pale-red'
                                     )
                                 return redirect(url_for('md.index'), code=302)
+                        vv_error = md_utilities.vv_internal_server_error(caller, vv_data, variant_ghgvs)
+                        if vv_error != 'vv_ok':
+                            return vv_error
                         # look for gene acc #
                         # print(vv_data)
                         new_variant = None
@@ -1762,7 +1771,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             creation_dict = md_utilities.create_var_vv(
                                 vv_key_var, res_gene['name'][0], res_gene['name'][1],
                                 'c.{}'.format(new_variant), new_variant,
-                                vv_data, 'api', db, g
+                                vv_data, caller, db, g
                             )
                             if isinstance(creation_dict, int):
                                 # success
