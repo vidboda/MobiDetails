@@ -1420,7 +1420,7 @@ def create_unique_url():
             run_mode=md_utilities.get_running_mode()
         )
     if request.form['list_name']:
-        if re.search(r'[\w]+$', request.form['list_name']):
+        if re.search(r'^[\w]+$', request.form['list_name']):
             list_name = request.form['list_name']
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -1575,7 +1575,7 @@ def delete_variant_list(list_name):
             run_mode=md_utilities.get_running_mode()
         )
     if list_name and \
-            re.search(r'[\w]+$', list_name):
+            re.search(r'^[\w]+$', list_name):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
