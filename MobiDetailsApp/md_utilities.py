@@ -12,7 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 from flask import (
-    url_for, request, render_template, jsonify, current_app as app
+    url_for, request, render_template, current_app as app
 )
 from flask_mail import Message
 from werkzeug.urls import url_parse
@@ -1323,6 +1323,36 @@ def create_var_vv(
     #     "start_exon": "20i"
     # },
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+    if not ncbi_chr[0] in vv_data[vv_key_var]['variant_exonic_positions']:
+        # error
+        if caller == 'browser':
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails error',
+                    """
+                    <p>Insertion failed for variant features for {0} with args no chr:
+                    {1}</p>
+                    """.format(
+                        vv_key_var,
+                        ncbi_chr[0]
+                    )
+                ),
+                '[MobiDetails - MD variant creation Error]'
+            )
+            return danger_panel(
+                'MobiDetails error {}'.format(vv_key_var),
+                """
+                Sorry, an issue occured with the variant mapping. An admin has been warned.
+                """
+            )
+        elif caller == 'cli':
+            return {
+                'mobidetails_error':
+                """
+                Sorry, an issue occured with the variant mapping for {}.
+                """.format(vv_key_var)
+            }
+
     vf_d['start_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
     vf_d['start_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
     vf_d['end_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])

@@ -357,7 +357,7 @@ def gene(gene_name=None):
             # get refseq select, mane, etc from vv json file
             no_vv_file = 0
             try:
-                json_file = open('{0}{1}.json'.format(
+                json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
                     md_utilities.local_files['variant_validator']['abs_path'],
                     gene_name
                 ))

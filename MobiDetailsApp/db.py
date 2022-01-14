@@ -2,7 +2,7 @@ import os
 import psycopg2
 import psycopg2.extras
 # requires MobiDetails config module + database.ini file
-from . import md_utilities, configuration
+from . import md_utilities
 import click
 from flask import g, current_app as app
 from flask.cli import with_appcontext
@@ -35,6 +35,7 @@ def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         app.config['POSTGRESQL_POOL'].putconn(db)
+        # print('rendered back db connection')
         # db.close()
 
 
