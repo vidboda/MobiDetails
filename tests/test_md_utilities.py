@@ -136,10 +136,10 @@ def test_is_valid_ncbi_chr(client, chr_name, valid):
 
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
-    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, ['acceptor', 304]),
-    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, ['donor', 94]),
-    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, ['donor', 44]),
-    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, ['acceptor', 26])
+    (216422237, {'segment_start': 216422540, 'segment_end': 216421852, 'segment_size': 689}, ['acceptor', 304]),
+    (34007866, {'segment_start': 34008050, 'segment_end': 34007773, 'segment_size': 278}, ['donor', 94]),
+    (77201595, {'segment_start': 77201448, 'segment_end': 77201638, 'segment_size': 191}, ['donor', 44]),
+    (77183093, {'segment_start': 77183068, 'segment_end': 77183157, 'segment_size': 90}, ['acceptor', 26])
 ))
 def test_get_pos_splice_site(pos, positions, result):
     dist = md_utilities.get_pos_splice_site(pos, positions)
@@ -159,10 +159,10 @@ def test_get_pos_splice_site_intron(client, app, name, return_value):
 
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
-    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, [288, 689]),
-    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, [333, 278]),
-    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, [355, 191]),
-    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, [258, 90])
+    (216422237, {'segment_start': 216422540, 'segment_end': 216421852, 'segment_size': 689}, [288, 689]),
+    (34007866, {'segment_start': 34008050, 'segment_end': 34007773, 'segment_size': 278}, [333, 278]),
+    (77201595, {'segment_start': 77201448, 'segment_end': 77201638, 'segment_size': 191}, [355, 191]),
+    (77183093, {'segment_start': 77183068, 'segment_end': 77183157, 'segment_size': 90}, [258, 90])
 ))
 def test_get_pos_exon_canvas(pos, positions, result):
     canvas = md_utilities.get_pos_exon_canvas(pos, positions)
@@ -170,11 +170,11 @@ def test_get_pos_exon_canvas(pos, positions, result):
 
 
 @pytest.mark.parametrize(('positions', 'result'), (
-    ({'gene_name':['AMACR', 'NM_001167595.2'], 'number':1}, ["5'", "UTR", "intron", 1]),
-    ({'gene_name':['USH2A', 'NM_206933.4'], 'number':13}, ["intron", 12, "intron", 13]),
-    ({'gene_name':['MYO7A', 'NM_000260.4'], 'number':49}, ["intron", 48, "3'", "UTR"]),
-    ({'gene_name':['GJB2', 'NM_004004.6'], 'number':2}, ["intron", 1, "3'", "UTR"]),
-    ({'gene_name':['CDH23', 'NM_022124.6'], 'number':69}, ["intron", 68, "intron", 69])
+    ({'gene_name': ['AMACR', 'NM_001167595.2'], 'number': 1}, ["5'", "UTR", "intron", 1]),
+    ({'gene_name': ['USH2A', 'NM_206933.4'], 'number': 13}, ["intron", 12, "intron", 13]),
+    ({'gene_name': ['MYO7A', 'NM_000260.4'], 'number': 49}, ["intron", 48, "3'", "UTR"]),
+    ({'gene_name': ['GJB2', 'NM_004004.6'], 'number': 2}, ["intron", 1, "3'", "UTR"]),
+    ({'gene_name': ['CDH23', 'NM_022124.6'], 'number': 69}, ["intron", 68, "intron", 69])
 ))
 def test_get_exon_neighbours(app, positions, result):
     with app.app_context():
@@ -239,6 +239,7 @@ def test_get_aa_position(variant_in, aa_pos):
     aa = md_utilities.get_aa_position(variant_in)
     assert aa == aa_pos
 
+
 @pytest.mark.parametrize(('username', 'user_id'), (
     ('mobidetails', 10),
     ('davidbaux', 1),
@@ -279,6 +280,7 @@ def test_define_lovd_class(app, acmg_classes, lovd_class):
      with app.app_context():
         assert md_utilities.define_lovd_class(acmg_classes, get_db()) == lovd_class
 
+
 @pytest.mark.parametrize(('acmg_class', 'lovd_class'), (
     (1, 'Benign'),
     (2, 'Likely benign'),
@@ -293,6 +295,7 @@ def test_define_lovd_class(app, acmg_classes, lovd_class):
 def test_acmg2lovd(app, acmg_class, lovd_class):
     with app.app_context():
         assert lovd_class == md_utilities.acmg2lovd(acmg_class, get_db())
+
 
 var = {
     'chr': '1',
@@ -604,6 +607,20 @@ vv_dict = {
       "refseqgene": "https://www.ncbi.nlm.nih.gov/nuccore/NG_009497.1",
       "protein": "https://www.ncbi.nlm.nih.gov/nuccore/NP_996816.2",
       "transcript": "https://www.ncbi.nlm.nih.gov/nuccore/NM_206933.4"
+    },
+    "variant_exonic_positions": {
+      "NC_000001.10": {
+        "end_exon": "2",
+        "start_exon": "2"
+      },
+      "NC_000001.11": {
+        "end_exon": "2",
+        "start_exon": "2"
+      },
+      "NG_009497.2": {
+        "end_exon": "2",
+        "start_exon": "2"
+      }
     }
   },
   "metadata": {
@@ -638,6 +655,15 @@ hg19_test_d = {
 def test_get_genomic_values(genome, var, test_d, vv_dict):
     var_dict = md_utilities.get_genomic_values(genome, vv_dict, var)
     assert var_dict == test_d
+
+
+@pytest.mark.parametrize(('vv_dict'), (
+    (vv_dict),
+))
+def test_check_vv_variant_data(vv_dict):
+    verif_data = md_utilities.check_vv_variant_data('NM_206933.4:c.100_101delinsA', vv_dict)
+    print(verif_data)
+    assert verif_data is True
 
 
 def test_get_vv_api_url():

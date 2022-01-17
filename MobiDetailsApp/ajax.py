@@ -209,7 +209,7 @@ def intervar():
             return 'No wintervar for indels'
         if ref == alt:
             return 'hg19 reference is equal to variant: no wIntervar query'
-        intervar_url = "{0}{1}_updated.v.201904&chr={2}&pos={3}\
+        intervar_url = "{0}{1}_updated.v.202107&chr={2}&pos={3}\
 &ref={4}&alt={5}".format(
             md_utilities.urls['intervar_api'], genome, chrom,
             pos, ref, alt

@@ -947,7 +947,6 @@ def create_var_vv(
         print('First level key: {}'.format(first_level_key))
     except UnboundLocalError as e:
         if caller == 'browser':
-            print(vv_data)
             send_error_email(
                 prepare_email_html(
                     'MobiDetails error',
@@ -1092,6 +1091,32 @@ def create_var_vv(
                         }
                     else:
                         return {'mobidetails_error':  '{}'.format(warning)}
+    if check_vv_variant_data(vv_key_var, vv_data) is False:
+        if caller == 'browser':
+            send_error_email(
+                prepare_email_html(
+                    'MobiDetails error',
+                    """
+                    <p>VV check failed for variant {0} with args: {1}.
+                    """.format(
+                        vv_key_var,
+                        vv_data
+                    )
+                ),
+                '[MobiDetails - MD variant creation Error: VV check]'
+            )
+            return danger_panel(
+                vv_key_var,
+                """
+                VariantValidator did not return a valid value for this variant. An admin has been warned.
+                """
+            )
+        elif caller == 'cli':
+            return {
+                'mobidetails_error':
+                """
+                VariantValidator did not return a valid value for the variant {0}
+                """.format(vv_key_var)}
     genome = 'hg38'
     # hg38
     try:
@@ -1323,7 +1348,7 @@ def create_var_vv(
     #     "start_exon": "20i"
     # },
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
-    if not ncbi_chr[0] in vv_data[vv_key_var]['variant_exonic_positions']:
+    if ncbi_chr[0] not in vv_data[vv_key_var]['variant_exonic_positions']:
         # error
         if caller == 'browser':
             send_error_email(
@@ -1773,6 +1798,59 @@ def get_genomic_values(genome, vv_data, vv_key_var):
             'pos_ref': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref'],
             'pos_alt': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']
         }
+
+
+def check_vv_variant_data(vv_key_var, vv_data):
+    # checks whether a variant VV json contains all the required fields
+    if vv_key_var in vv_data:
+        for vv_field in vv_data[vv_key_var]:
+            if 'primary_assembly_loci' not in vv_data[vv_key_var]:
+                return False
+            if 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci'] or \
+                    'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
+                return False
+            if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
+                    'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+                return False
+            if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
+                    'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+                return False
+            if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                    'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+                return True
+            if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                    'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+                return True
+            if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                    'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+                return False
+            if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                    'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+                return False
+            if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
+                return False
+            if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
+                return False
+            if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
+                return False
+            if 'variant_exonic_positions' not in vv_data[vv_key_var]:
+                return False
+            else:
+                ncbi_chrom_regexp = regexp['ncbi_chrom']
+                variant_regexp = regexp['variant']
+                match_obj = re.search(
+                    rf'^({ncbi_chrom_regexp}):g\.{variant_regexp}$',
+                    vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
+                )
+                if match_obj:
+                    ncbi_chr = match_obj.group(1)
+                    if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
+                        return False
+                    if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
+                            'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
+                        return False
+        return True
+    return False
 
 
 def prepare_email_html(title, message, send_url=True):

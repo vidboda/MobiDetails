@@ -1478,6 +1478,33 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
+                if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
+                    if caller == 'browser':
+                        md_utilities.send_error_email(
+                            md_utilities.prepare_email_html(
+                                'MobiDetails error',
+                                """
+                                <p>VV check failed for variant {0} with args: {1}.
+                                """.format(
+                                    vv_key_var,
+                                    vv_data
+                                )
+                            ),
+                            '[MobiDetails - MD variant creation Error: VV check]'
+                        )
+                        flash(
+                            """
+                            VariantValidator did not return a valid value for the variant {0}. An admin has been warned.
+                            """.format(vv_key_var)
+                        )
+                        return redirect(url_for('md.index'), code=302)
+                    elif caller == 'cli':
+                        return jsonify(
+                            mobidetails_error=
+                            """
+                            VariantValidator did not return a valid value for the variant {0}
+                            """.format(vv_key_var)
+                        )
                 if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned
                     # by vv is likely to be different form the user's
