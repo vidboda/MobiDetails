@@ -1803,52 +1803,51 @@ def get_genomic_values(genome, vv_data, vv_key_var):
 def check_vv_variant_data(vv_key_var, vv_data):
     # checks whether a variant VV json contains all the required fields
     if vv_key_var in vv_data:
-        for vv_field in vv_data[vv_key_var]:
-            if 'primary_assembly_loci' not in vv_data[vv_key_var]:
-                return False
-            if 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci'] or \
-                    'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
-                return False
-            if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
-                    'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
-                return False
-            if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
-                    'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
-                return False
-            if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                    'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-                return True
-            if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                    'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-                return True
-            if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                    'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-                return False
-            if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                    'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-                return False
-            if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
-                return False
-            if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
-                return False
-            if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
-                return False
-            if 'variant_exonic_positions' not in vv_data[vv_key_var]:
-                return False
-            else:
-                ncbi_chrom_regexp = regexp['ncbi_chrom']
-                variant_regexp = regexp['variant']
-                match_obj = re.search(
-                    rf'^({ncbi_chrom_regexp}):g\.{variant_regexp}$',
-                    vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
-                )
-                if match_obj:
-                    ncbi_chr = match_obj.group(1)
-                    if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
-                        return False
-                    if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
-                            'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
-                        return False
+        if 'primary_assembly_loci' not in vv_data[vv_key_var]:
+            return False
+        if 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci'] or \
+                'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
+            return False
+        if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
+                'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+            return False
+        if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
+                'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+            return False
+        if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+            return False
+        if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+            return False
+        if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+            return False
+        if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
+                'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+            return False
+        if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
+            return False
+        if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
+            return False
+        if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
+            return False
+        if 'variant_exonic_positions' not in vv_data[vv_key_var]:
+            return False
+        else:
+            ncbi_chrom_regexp = regexp['ncbi_chrom']
+            variant_regexp = regexp['variant']
+            match_obj = re.search(
+                rf'^({ncbi_chrom_regexp}):g\.{variant_regexp}$',
+                vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
+            )
+            if match_obj:
+                ncbi_chr = match_obj.group(1)
+                if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
+                    return False
+                if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
+                        'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
+                    return False
         return True
     return False
 
