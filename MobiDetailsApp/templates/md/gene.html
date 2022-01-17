@@ -105,65 +105,67 @@
 				</thead>
 				<tbody>
 					{% for iso in res %}
-						{% if iso.variant_creation != 'ok' %}
-							<tr style="opacity:0.2;">
-						{% else %}
-							<tr>
+						{% if iso.variant_creation != 'not_in_vv_json' %}
+							{% if iso.variant_creation != 'ok' %}
+								<tr style="opacity:0.2;">
+							{% else %}
+								<tr>
+							{% endif %}
+								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}', '_blank')" title="click to open Genbank in new tab">
+									<strong><span>{{ iso.name[1] }}
+										{% if iso.canonical == 1 %}
+											<div class="w3-tag w3-round w3-green" style="padding:3px">
+												<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+													MD canonical
+												</div>
+											</div>
+										{% endif %}
+										{% if iso.variant_creation != 'ok' %}
+											<div class="w3-tag w3-round w3-red" style="padding:3px">
+												<div class="w3-tag w3-round w3-red w3-border w3-border-white">
+													disabled: {{ iso.variant_creation|replace('_', ' ') }}
+												</div>
+											</div>
+										{% endif %}
+									</span></strong>
+									{% if iso.name[1] in transcript_road_signs %}
+										{% if transcript_road_signs[iso.name[1]].refseq_select %}
+											<div class="w3-tag w3-round w3-green" style="padding:3px">
+												<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+													RefSeqSelect
+												</div>
+											</div>
+										{% endif %}
+										{% if transcript_road_signs[iso.name[1]].mane_select %}
+											<div class="w3-tag w3-round w3-green" style="padding:3px">
+												<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+													MANESelect
+												</div>
+											</div>
+										{% endif %}
+										{% if transcript_road_signs[iso.name[1]].mane_plus_clinical %}
+											<div class="w3-tag w3-round w3-green" style="padding:3px">
+												<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+													MANEPlusClinical
+												</div>
+											</div>
+										{% endif %}
+									{% endif %}
+								</td>
+								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
+									<span>{{ iso.enst }}</span>
+								</td>
+								<td>
+									<span>{{ iso.number_of_exons }}</span>
+								</td>
+								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
+									<span>{{ iso.np }}</span>
+								</td>
+								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
+									<span>{{ iso.uniprot_id }}</span>
+								</td>
+							</tr>
 						{% endif %}
-							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.name[1] }}', '_blank')" title="click to open Genbank in new tab">
-								<strong><span>{{ iso.name[1] }}
-									{% if iso.canonical == 1 %}
-										<div class="w3-tag w3-round w3-green" style="padding:3px">
-											<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-												MD canonical
-											</div>
-										</div>
-									{% endif %}
-									{% if iso.variant_creation != 'ok' %}
-										<div class="w3-tag w3-round w3-red" style="padding:3px">
-											<div class="w3-tag w3-round w3-red w3-border w3-border-white">
-												disabled: {{ iso.variant_creation|replace('_', ' ') }}
-											</div>
-										</div>
-									{% endif %}
-								</span></strong>
-								{% if iso.name[1] in transcript_road_signs %}
-									{% if transcript_road_signs[iso.name[1]].refseq_select %}
-										<div class="w3-tag w3-round w3-green" style="padding:3px">
-											<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-												RefSeqSelect
-											</div>
-										</div>
-									{% endif %}
-									{% if transcript_road_signs[iso.name[1]].mane_select %}
-										<div class="w3-tag w3-round w3-green" style="padding:3px">
-											<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-												MANESelect
-											</div>
-										</div>
-									{% endif %}
-									{% if transcript_road_signs[iso.name[1]].mane_plus_clinical %}
-										<div class="w3-tag w3-round w3-green" style="padding:3px">
-											<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-												MANEPlusClinical
-											</div>
-										</div>
-									{% endif %}
-								{% endif %}
-							</td>
-							<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
-								<span>{{ iso.enst }}</span>
-							</td>
-							<td>
-								<span>{{ iso.number_of_exons }}</span>
-							</td>
-							<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
-								<span>{{ iso.np }}</span>
-							</td>
-							<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
-								<span>{{ iso.uniprot_id }}</span>
-							</td>
-						</tr>
 					{% endfor %}
 				</tbody>
 			</table>
