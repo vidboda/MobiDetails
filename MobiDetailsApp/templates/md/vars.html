@@ -50,7 +50,7 @@
 		{% set div_content = namespace(missense=vars_class_table('missense', 'Missense'), ptc=vars_class_table('ptc', 'PTCs'), silent=vars_class_table('silent', 'Silent'), intronic=vars_class_table('intronic', 'Intronic'), inframe_indels=vars_class_table('inframe', 'In frame indels'), all=vars_class_table('all_vars', 'All')) %}
 		{% for variant in variants|sort(attribute='pos') %}
 			{% set count.all = count.all + 1 %}
-			{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s.%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.nm_version, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+			{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 			{#{% set div_content.all = div_content.all + "<li><a href='' target='_blank'>" + {{ gene_info.name[1] }} + ":c." + {{ variant.c_name }} + "</a><span> - " + {{ variant.p_name }} + " - (exon X)</span></li>" %}#}
 			{% if variant.ivs_name is none %}
 				{% if variant.prot_type == 'nonsense' or variant.prot_type == 'frameshift' %}

@@ -87,8 +87,8 @@ def get_generic_api_key():
 
 # test variant creation
 @pytest.mark.parametrize(('variant_id', 'key', 'value'), (
-    (323887, 'cName', 'c.1771T>C'),
-    (323866, 'hg19PseudoVCF', '1-216420460-C-A'),
+    (220783, 'cName', 'c.1771T>C'),
+    (8, 'hg19PseudoVCF', '1-216420460-C-A'),
 ))
 def test_api_variant(client, variant_id, key, value):
     json_response = json.loads(client.get('/api/variant/{}/clispip/'.format(variant_id)).data.decode('utf8'))

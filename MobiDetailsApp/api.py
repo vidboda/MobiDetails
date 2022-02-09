@@ -730,6 +730,25 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['VCF']['hg38']['ncbiChr'],
                         internal_data['positions']['neighbourExonNumber']
                     )
+                    if isinstance(positions_neighb_exon, str):
+                        # error
+                        if caller == 'cli':
+                            return jsonify(mobidetails_error='Error in retrieving the exon genomic positions')
+                        else:
+                            flash(
+                                """
+                                Error in retrieving the exon genomic positions. An admin has been warned.
+                                """,
+                                'w3-pale-red'
+                            )
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails API error',
+                                    '<p>Error with MDAPI exon definition for variant {0}'.format(variant_id)
+                                ),
+                                '[MobiDetails - MDAPI Error]'
+                            )
+                            return redirect(url_for('md.index'), code=302)
                     # print(positions_neighb_exon)
                     # print(internal_data['positions']['neighbourExonNumber'])
                     # curs.execute(

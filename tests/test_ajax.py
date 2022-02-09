@@ -399,7 +399,7 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.4:c.100C>A", "NM_001197104.2:c.100C>G", "NM_206933.4:c.100C>G", "NM_206933.4:c.100C>T"]'),
+    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
     ('USH2', b'["USH2A"]'),
     ('blabla', b'[]'),
     ('c.blabla', b'')
@@ -414,7 +414,7 @@ def test_autocomplete(client, app, query, return_value):
 
 
 @pytest.mark.parametrize(('query', 'acc_no', 'return_value', 'http_code'), (
-    ('c.100C>', 'NM_206933.4', b'["c.100C>A", "c.100C>G", "c.100C>T"]', 200),
+    ('c.100C>', 'NM_206933.2', b'["c.100C>A", "c.100C>G", "c.100C>T"]', 200),
     ('USH2', 'NM_206933.4', b'', 204),
     ('blabla', 'NM_206933.4', b'', 204),
     ('c.blabla', 'NM_206933.4', b'', 204),
