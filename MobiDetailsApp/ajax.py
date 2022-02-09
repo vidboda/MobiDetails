@@ -428,7 +428,6 @@ def lovd():
                 return md_utilities.lovd_error_html(
                     "No match in LOVD public instances"
                 )
-                # return 'No match in LOVD public instances'
             lovd_data.remove('"hg_build"\t"g_position"\t"gene_id"\t\"nm_accession"\t"DNA"\t"url"')
             lovd_urls = []
             i = 1
@@ -451,7 +450,7 @@ def lovd():
                     #     url_parse(url).host,
                     #     url_parse(url).path
                     # )
-                    # we don't require to match the scheme
+                    # we don't need to match the scheme
                     lovd_base_url = 'https://{0}{1}'.format(
                         url_parse(url).host,
                         url_parse(url).path
@@ -512,6 +511,14 @@ def lovd():
                         'effect_concluded': {}
                     }
                     for var in lovd_effect:
+                        if var['owned_by'][0] == 'MobiDetails' and \
+                                len(lovd_urls) == 1:
+                            return md_utilities.lovd_error_html(
+                                """
+                                No match in LOVD public instances except a MobiDetails\' previous submission to \
+                                <a href={} target='_blank'>GV LOVD Shared</a>
+                                """.format(lovd_urls[0])
+                            )
                         if var['effect_reported'][0] not in \
                                 lovd_effect_count['effect_reported']:
                             lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
