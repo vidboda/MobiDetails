@@ -450,15 +450,14 @@ def genes():
         """
     )
     genes = curs.fetchall()
+    close_db()
     if genes:
-        close_db()
         return render_template(
             'md/genes.html',
             run_mode=md_utilities.get_running_mode(),
             genes=genes
         )
     else:
-        close_db()
         return render_template(
             'md/unknown.html',
             run_mode=md_utilities.get_running_mode()
@@ -668,6 +667,7 @@ def search_engine():
             # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
             pattern = match_object.group(2)
+            close_db()
             # res_common = md_utilities.get_common_chr_name(db, )
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
             # API call
@@ -877,6 +877,8 @@ def search_engine():
                             variants = curs.fetchall()
                         close_db()
                         return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=variants)
+            if 'db' in locals():
+                close_db()
     else:
         error = 'Please type something for the search engine to work.'
     flash(error, 'w3-pale-red')
