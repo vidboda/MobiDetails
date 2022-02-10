@@ -5,30 +5,43 @@ from MobiDetailsApp import configuration
 
 
 def get_db():
-    db = None
+    # db = None
     try:
         # read connection parameters
         params = configuration.mdconfig()
-        db = psycopg2.connect(**params)
+        db_pool = psycopg2.pool.ThreadedConnectionPool(
+            1,
+            5,
+            user=params['user'],
+            password=params['password'],
+            host=params['host'],
+            port=params['port'],
+            database=params['database']
+        )
+        # db = psycopg2.connect(**params)
     except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    return db
+        log('ERROR', error)
+    return db_pool, db_pool.getconn()
+    # db = psycopg2.connect(**params)
+    # except (Exception, psycopg2.DatabaseError) as error:
+    #     print(error)
+    # return db
 
 
 # get generic mobidetails password
 
 
 def get_generic_password():
-    db = get_db()
+    db_pool, db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
         "SELECT email, password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
     )
     res = curs.fetchone()
     if res is not None:
-        db.close()
+        db_pool.putconn(db)
         return res['email'], res['password']
-    db.close()
+    db_pool.putconn(db)
 
 
 email, password = get_generic_password()
@@ -38,7 +51,7 @@ email, password = get_generic_password()
 def test_litvar(client, app):
     assert client.get('/litVar').status_code == 405
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
@@ -69,7 +82,7 @@ def test_litvar(client, app):
             assert any(test in response.get_data() for test in possible)
             # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
             # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()
-        db.close()
+        db_pool.putconn(db)
 
 # test defgen
 
@@ -77,7 +90,7 @@ def test_litvar(client, app):
 def test_defgen(client, app):
     assert client.get('/defgen').status_code == 405
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
@@ -92,14 +105,14 @@ def test_defgen(client, app):
             response = client.post('/defgen', data=data_dict)
             assert response.status_code == 200
             assert b'Export Variant data to DEFGEN' in response.get_data()
-        db.close()
+        db_pool.putconn(db)
 # test intervar
 
 
 def test_intervar(client, app):
     assert client.get('/intervar').status_code == 405
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             r"""
@@ -125,7 +138,7 @@ def test_intervar(client, app):
             print(res)
             print(response.get_data())
             assert any(test in response.get_data() for test in possible)
-        db.close()
+        db_pool.putconn(db)
 
 # test lovd
 
@@ -133,7 +146,7 @@ def test_intervar(client, app):
 def test_lovd(client, app):
     assert client.get('/lovd').status_code == 405
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
@@ -147,7 +160,7 @@ def test_lovd(client, app):
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
             assert client.post('/lovd', data=data_dict).status_code == 200
-        db.close()
+        db_pool.putconn(db)
 
 # test modif_class
 
@@ -399,8 +412,12 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
 
 
 @pytest.mark.parametrize(('query', 'return_value'), (
-    ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
-    ('USH2', b'["USH2A"]'),
+    # ('c.100C>', b'["NM_206933.2:c.100C>A", "NM_001197104.1:c.100C>G", "NM_206933.2:c.100C>G", "NM_206933.2:c.100C>T"]'),
+    # ('USH2', b'["USH2A"]'),
+    # ('blabla', b'[]'),
+    # ('c.blabla', b'')
+    ('c.100C>', b'NM_206933.2:c.100C>A'),
+    ('USH2', b'USH2A'),
     ('blabla', b'[]'),
     ('c.blabla', b'')
 ))
@@ -408,7 +425,7 @@ def test_autocomplete(client, app, query, return_value):
     assert client.get('/autocomplete').status_code == 405
     response = client.post('/autocomplete', data=dict(query_engine=query))
     print(response.get_data())
-    assert return_value == response.get_data()
+    assert return_value in response.get_data()
 
 # test autocomplete_var
 

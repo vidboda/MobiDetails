@@ -855,11 +855,28 @@ def search_engine():
                     You can annotate it directly at the corresponding gene page.
                     """.format(query_engine)
                 else:
-                    close_db()
                     if len(result) == 1:
+                        close_db()
                         return redirect(url_for('api.variant', variant_id=result[0][0], caller='browser'))
                     else:
-                        return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=result)
+                        variants = result
+                        if query_type == 'g_name':
+                            # coming from a query type: NC_000001.11:g.216422237G>A
+                            id_tuple = []
+                            for feature_id in result:
+                                id_tuple.append(feature_id['feature_id'])
+                            curs.execute(
+                                """
+                                SELECT id, c_name, p_name, gene_name
+                                FROM variant_feature
+                                WHERE id IN %s
+                                ORDER BY id
+                                """,
+                                (tuple(id_tuple),)
+                            )
+                            variants = curs.fetchall()
+                        close_db()
+                        return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=variants)
     else:
         error = 'Please type something for the search engine to work.'
     flash(error, 'w3-pale-red')

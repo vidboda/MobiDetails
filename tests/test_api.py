@@ -69,7 +69,7 @@ def test_api_gene(client, gene, key, response):
 
 
 def get_generic_api_key():
-    db = get_db()
+    db_pool, db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
         """
@@ -80,9 +80,9 @@ def get_generic_api_key():
     )
     res = curs.fetchone()
     if res is not None:
-        db.close()
+        db_pool.putconn(db)
         return res['api_key']
-    db.close()
+    db_pool.putconn(db)
 
 
 # test variant creation
@@ -99,7 +99,7 @@ def test_api_variant(client, variant_id, key, value):
 
 def test_api_variant2(app, client):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor()
         curs.execute(
             """
@@ -115,12 +115,12 @@ def test_api_variant2(app, client):
             print(variant_id)
             json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id[0])).data.decode('utf8'))
             assert 'nomenclatures' in json_response
-    db.close()
+    db_pool.putconn(db)
 
 
 @pytest.mark.parametrize(('new_variant', 'api_key', 'return_key', 'message'), (
     ('NM_206933.0:c.100C>T', 'random', 'mobidetails_error', 'Invalid API key'),
-    ('NM_206933.4:c.100C>T', '', 'mobidetails_id', 323875),
+    ('NM_206933.4:c.100C>T', '', 'mobidetails_id', 334419),
     ('NM_206933.10:c.100C>T', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
     ('M_206933.4:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
     ('NM_206933.9:c.10000C>T', '', 'mobidetails_error', 'It seems that your transcript version'),
@@ -148,11 +148,11 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
 
 @pytest.mark.parametrize(('variant_ghgvs', 'api_key', 'gene', 'caller', 'return_key', 'message'), (
     ('NC_000001.11:g.40817273T>G', 'random', 'KCNQ4', 'cli', 'mobidetails_error', 'Invalid API key'),
-    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 323877),
-    ('NC_000001.11:g.40817273T>G', '', 6298, 'cli', 'mobidetails_id', 323877),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 334420),
+    ('NC_000001.11:g.40817273T>G', '', 6298, 'cli', 'mobidetails_id', 334420),
     # ('NC_000001.11:g.40817273T>G', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'KCNQ4', 'browser', 'mobidetails_error', 'Unknown API key'),
     # ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
-    ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 323877),
+    ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 334420),
     ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
     ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Malformed query'),
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'is currently not available for variant annotation in MobiDetails'),
@@ -179,7 +179,7 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
 
 @pytest.mark.parametrize(('rs_id', 'api_key', 'caller', 'return_key', 'message'), (
     ('rs10012946', 'random', 'cli', 'mobidetails_error', 'Invalid API key'),
-    ('rs10012946', '', 'cli', 'NM_006005.3:c.631+256T>C', 323879),
+    ('rs10012946', '', 'cli', 'NM_006005.3:c.631+256T>C', 1672),
     # ('rs10012946', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'browser', 'mobidetails_error', 'Invalid API key'),
     # ('rs10012946', '', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('sdgg5456', '', 'cli', 'mobidetails_error', 'Invalid rs id provided'),

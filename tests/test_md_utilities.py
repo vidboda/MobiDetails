@@ -778,7 +778,7 @@ def test_format_mirs(record, result):
 ))
 def test_check_api_key(app, api_key, result):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         if api_key == '':
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -797,7 +797,7 @@ def test_check_api_key(app, api_key, result):
         else:
             print(check['mobiuser'])
             assert result == check['mobiuser'][4]
-        db.close()
+        db_pool.putconn(db)
 
 
 @pytest.mark.parametrize(('caller', 'result'), (
@@ -813,11 +813,11 @@ def test_check_caller(caller, result):
 
 def test_get_api_key(app):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         g.user = None
         assert md_utilities.get_api_key(g, curs) is not None
-        db.close()
+        db_pool.putconn(db)
 
 
 @pytest.mark.parametrize(('criterion', 'color'), (
@@ -840,7 +840,7 @@ def test_get_acmg_criterion_color(criterion, color):
 # ))
 def test_run_spip(app):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
@@ -861,7 +861,7 @@ def test_run_spip(app):
             dict_spip = md_utilities.format_spip_result(spip_results, 'cli')
             print(dict_spip)
             assert isinstance(dict_spip, dict)
-        db.close()
+        db_pool.putconn(db)
 
 
 def test_get_running_mode(app):
