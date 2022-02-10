@@ -1229,7 +1229,6 @@ def create():
         close_db()
         return output
     else:
-        close_db()
         return md_utilities.danger_panel(
             'variant creation attempt',
             'A mandatory argument is lacking or is malformed.'

@@ -425,7 +425,7 @@ def login():
                         ),
                         code=302
                     )
-
+        close_db()
         flash(error, 'w3-pale-red')
     # not coming from mobidetails
     # rebuild redirect URL
@@ -709,6 +709,7 @@ def forgot_pass():
             )
             user = curs.fetchone()
             if user is None:
+                close_db()
                 error = """
                 Your email address {} seems to be unknown by the system.
                 """.format(email)
@@ -916,8 +917,10 @@ def variant_list(list_name):
                 """.format(res_ids_string)
             )
             variants = curs.fetchall()
+            close_db()
             return render_template('md/variant_multiple.html', variants=variants, unique_url_info=res)
         else:
+            close_db()
             return render_template('errors/404.html'), 404
     else:
         return render_template('errors/404.html'), 404
