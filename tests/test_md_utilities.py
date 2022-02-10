@@ -69,7 +69,9 @@ def test_three2one_fct(client, variant_in, variant_out):
 ))
 def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        ncbi_test = md_utilities.get_ncbi_chr_name(get_db(), chr_name, genome)
+        db_pool, db = get_db()
+        ncbi_test = md_utilities.get_ncbi_chr_name(db, chr_name, genome)
+        db_pool.putconn(db)
         assert ncbi_test[0] == ncbi_name
 
 
@@ -81,7 +83,9 @@ def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
 ))
 def test_get_common_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        res_test = md_utilities.get_common_chr_name(get_db(), ncbi_name)
+        db_pool, db = get_db()
+        res_test = md_utilities.get_common_chr_name(db, ncbi_name)
+        db_pool.putconn(db)
         assert res_test == [chr_name, genome]
 
 
@@ -178,7 +182,9 @@ def test_get_pos_exon_canvas(pos, positions, result):
 ))
 def test_get_exon_neighbours(app, positions, result):
     with app.app_context():
-        neighbours = md_utilities.get_exon_neighbours(get_db(), positions)
+        db_pool, db = get_db()
+        neighbours = md_utilities.get_exon_neighbours(db, positions)
+        db_pool.putconn(db)
         assert neighbours == result
 
 
@@ -247,7 +253,9 @@ def test_get_aa_position(variant_in, aa_pos):
 ))
 def test_get_user_id(app, username, user_id):
     with app.app_context():
-        test_user_id = md_utilities.get_user_id(username, get_db())
+        db_pool, db = get_db()
+        test_user_id = md_utilities.get_user_id(username, db)
+        db_pool.putconn(db)
         print(test_user_id)
         assert test_user_id == user_id
 
@@ -277,8 +285,11 @@ def test_get_user_id(app, username, user_id):
     (1, None)
 ))
 def test_define_lovd_class(app, acmg_classes, lovd_class):
-     with app.app_context():
-        assert md_utilities.define_lovd_class(acmg_classes, get_db()) == lovd_class
+    with app.app_context():
+        db_pool, db = get_db()
+        test_lovd_class = md_utilities.define_lovd_class(acmg_classes, db)
+        db_pool.putconn(db)
+        assert test_lovd_class == lovd_class
 
 
 @pytest.mark.parametrize(('acmg_class', 'lovd_class'), (
@@ -294,7 +305,10 @@ def test_define_lovd_class(app, acmg_classes, lovd_class):
 ))
 def test_acmg2lovd(app, acmg_class, lovd_class):
     with app.app_context():
-        assert lovd_class == md_utilities.acmg2lovd(acmg_class, get_db())
+        db_pool, db = get_db()
+        test_lovd_class = md_utilities.acmg2lovd(acmg_class, db)
+        db_pool.putconn(db)
+        assert test_lovd_class == lovd_class
 
 
 var = {
@@ -683,11 +697,13 @@ def test_vv_internal_server_error():
 def test_create_var_vv(client, app):
     with app.app_context():
         g = fake_g_obj()
+        db_pool, db = get_db()
         error_dict = md_utilities.create_var_vv(
             'NM_206933.4:c.100_101delinsA', 'USH2A', 'NM_206933.4',
             'c.100_101delinsA', 'c.100_101delinsA', vv_dict,
-            'test', get_db(), g
+            'test', db, g
         )
+        db_pool.putconn(db)
         assert isinstance(error_dict['mobidetails_id'], int)
 
 
@@ -816,8 +832,8 @@ def test_get_api_key(app):
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         g.user = None
-        assert md_utilities.get_api_key(g, curs) is not None
         db_pool.putconn(db)
+        assert md_utilities.get_api_key(g, curs) is not None
 
 
 @pytest.mark.parametrize(('criterion', 'color'), (
