@@ -132,6 +132,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             api_key != ',':
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
+            close_db()
             if caller != 'browser':
                 return jsonify(res_check_api_key)
             else:
@@ -618,6 +619,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     )
                     if isinstance(positions, str):
                         # error
+                        close_db()
                         if caller == 'cli':
                             return jsonify(mobidetails_error='Error in retrieving the exon genomic positions')
                         else:
@@ -732,6 +734,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     )
                     if isinstance(positions_neighb_exon, str):
                         # error
+                        close_db()
                         if caller == 'cli':
                             return jsonify(mobidetails_error='Error in retrieving the exon genomic positions')
                         else:
@@ -1347,6 +1350,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
         # mobiuser_id = None
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
+            close_db()
             if caller == 'cli':
                 return jsonify(res_check_api_key)
             else:
@@ -1355,6 +1359,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
         else:
             g.user = res_check_api_key['mobiuser']
         if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+            close_db()
             if caller == 'cli':
                 return jsonify(mobidetails_error='Invalid caller submitted')
             else:
@@ -1382,6 +1387,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
             )
             res = curs.fetchone()
             if res is not None:
+                close_db()
                 if caller == 'cli':
                     return jsonify(
                         mobidetails_id=res['id'],
@@ -1492,12 +1498,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return redirect(url_for('md.index'), code=302)
                 vv_error = md_utilities.vv_internal_server_error(caller, vv_data, vv_key_var)
                 if vv_error != 'vv_ok':
+                    close_db()
                     if caller == 'cli':
                         return jsonify(vv_error)
                     else:
                         flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
                 if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
+                    close_db()
                     if caller == 'browser':
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
@@ -1776,6 +1784,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 return redirect(url_for('md.index'), code=302)
                         vv_error = md_utilities.vv_internal_server_error(caller, vv_data, variant_ghgvs)
                         if vv_error != 'vv_ok':
+                            close_db()
                             if caller == 'cli':
                                 return jsonify(vv_error)
                             else:
@@ -1835,6 +1844,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                     )
                                 else:
                                     return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
+                            close_db()
                             if caller == 'cli':
                                 return jsonify(creation_dict)
                             else:

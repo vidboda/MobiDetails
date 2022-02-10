@@ -107,7 +107,7 @@ def test_variant_page(client, app):
             FROM variant_feature
             WHERE c_name <> 'c.2del'
             ORDER BY random()
-            LIMIT 1000
+            LIMIT 100
             """
             # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
