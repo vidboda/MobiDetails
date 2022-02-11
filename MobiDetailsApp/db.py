@@ -27,7 +27,6 @@ def get_db():
                 ),
                 '[MobiDetails - DB Error]'
             )
-            print(error)
         return g.db
 
 

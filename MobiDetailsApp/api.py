@@ -600,7 +600,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         internal_data['episignature']['Description'] = record[int(md_utilities.external_tools['EpiSignature']['Description'])]
                         internal_data['episignature']['ExpertACMGClassification'] = record[int(md_utilities.external_tools['EpiSignature']['expert_ACMG_classification_value_col'])]
                         curs.execute(
-                            'SELECT html_code, acmg_translation FROM valid_class WHERE acmg_class = %s',
+                            """
+                            SELECT html_code, acmg_translation \
+                            FROM valid_class \
+                            WHERE acmg_class = %s
+                            """,
                             (internal_data['episignature']['ExpertACMGClassification'],)
                         )
                         res_code = curs.fetchone()
@@ -677,8 +681,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['positions']['aaPositionStart'] = aa_pos[0]
                         external_data['positions']['aaPositionEnd'] = aa_pos[1]
                         curs.execute(
-                            "SELECT * FROM uniprot_domain WHERE uniprot_id = '{0}' AND (('{1}' \
-                            BETWEEN aa_start AND aa_end) OR ('{2}' BETWEEN aa_start AND aa_end));".format(
+                            """
+                            SELECT * FROM uniprot_domain \
+                            WHERE uniprot_id = '{0}' \
+                                AND (('{1}' BETWEEN aa_start AND aa_end) \
+                                OR ('{2}' BETWEEN aa_start AND aa_end))
+                            """.format(
                                 variant_features['uniprot_id'], aa_pos[0], aa_pos[1]
                             )
                         )

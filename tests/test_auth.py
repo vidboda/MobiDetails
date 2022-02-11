@@ -23,8 +23,8 @@ def test_register(client, app):
             "SELECT * FROM mobiuser WHERE username = 'davidbaux'",
         )
         res = curs.fetchone()
-        assert res is not None
         db_pool.putconn(db)
+        assert res is not None
 
 # multiple tests to check known username and email returns a message
 

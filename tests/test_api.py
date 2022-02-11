@@ -111,11 +111,11 @@ def test_api_variant2(app, client):
             """  # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for variant_id in res:
             print(variant_id)
             json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id[0])).data.decode('utf8'))
             assert 'nomenclatures' in json_response
-    db_pool.putconn(db)
 
 
 @pytest.mark.parametrize(('new_variant', 'api_key', 'return_key', 'message'), (

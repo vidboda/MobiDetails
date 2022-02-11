@@ -65,6 +65,7 @@ def test_litvar(client, app):
         # https://stackoverflow.com/questions/5297396/quick-random-row-selection-in-postgres
         # discussion on how to select random rows in postgresql
         res = curs.fetchall()
+        db_pool.putconn(db)
         for values in res:
             response = client.post(
                 '/litVar',
@@ -82,7 +83,6 @@ def test_litvar(client, app):
             assert any(test in response.get_data() for test in possible)
             # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
             # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()
-        db_pool.putconn(db)
 
 # test defgen
 
@@ -100,12 +100,13 @@ def test_defgen(client, app):
             """
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for values in res:
             data_dict = dict(vfid=values['feature_id'], genome=values['genome_version'])
             response = client.post('/defgen', data=data_dict)
             assert response.status_code == 200
             assert b'Export Variant data to DEFGEN' in response.get_data()
-        db_pool.putconn(db)
+
 # test intervar
 
 
@@ -157,10 +158,10 @@ def test_lovd(client, app):
             """
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
             assert client.post('/lovd', data=data_dict).status_code == 200
-        db_pool.putconn(db)
 
 # test modif_class
 

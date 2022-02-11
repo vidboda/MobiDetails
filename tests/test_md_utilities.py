@@ -808,12 +808,12 @@ def test_check_api_key(app, api_key, result):
             if res is not None:
                 api_key = res['api_key']
         check = md_utilities.check_api_key(db, api_key)
+        db_pool.putconn(db)
         if 'mobidetails_error' in check:
             assert result == check['mobidetails_error']
         else:
             print(check['mobiuser'])
             assert result == check['mobiuser'][4]
-        db_pool.putconn(db)
 
 
 @pytest.mark.parametrize(('caller', 'result'), (
@@ -869,6 +869,7 @@ def test_run_spip(app):
         )
         res = curs.fetchall()
         for var in res:
+            db_pool.putconn(db)
             spip_results = md_utilities.run_spip(
                 var['gene_name'][0], var['gene_name'][1], var['c_name'], var['id']
             )
@@ -877,7 +878,6 @@ def test_run_spip(app):
             dict_spip = md_utilities.format_spip_result(spip_results, 'cli')
             print(dict_spip)
             assert isinstance(dict_spip, dict)
-        db_pool.putconn(db)
 
 
 def test_get_running_mode(app):

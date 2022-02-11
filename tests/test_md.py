@@ -22,9 +22,9 @@ def test_gene_page(client, app):
             """,
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for name in res:
             assert client.get('/gene/{}'.format(name[0])).status_code == 200
-        db_pool.putconn(db)
 #             gene_page_result(client, name)
 # def gene_page_result(client, name):
 #     assert client.get('/gene/{}'.format(name[0])).status_code == 200
@@ -107,12 +107,12 @@ def test_variant_page(client, app):
             FROM variant_feature
             WHERE c_name <> 'c.2del'
             ORDER BY random()
-            LIMIT 100
+            LIMIT 10
             """
             # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for variant_id in res:
             print(variant_id)
             assert client.get('/api/variant/{}/browser/'.format(variant_id[0])).status_code == 200
-        db_pool.putconn(db)
