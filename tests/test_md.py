@@ -55,7 +55,7 @@ def test_basic_variant_page(client):
     ('chr1:g.216595579G>A', b'api/variant/334419/browser/', 200),
     ('chr1:g.216422237G>A', b'api/variant/334419/browser/', 200),
     ('chr1:g.216422237g>A', b'api/variant/334419/browser/', 200),
-    ('NC_000001.11:g.216422237G>A', b'api/variant/334419/browser/', 200),
+    # ('NC_000001.11:g.216422237G>A', b'api/variant/334419/browser/', 200),
     ('NC_000004.12:g.76311072A>C;STBD1', 'api/variant/create_g?variant_ghgvs=NC_000004.12%3Ag.76311072A%3EC&gene_hgnc=STBD1&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', 302),
     ('USH2A', 'gene/USH2A', 302),
     ('c.2447_2461delGAGGGGAAGTAGAGG', 'api/variant/71/browser/', 302),
@@ -93,6 +93,8 @@ def test_search_engine(client, app, t_search, url, status_code):
     elif status_code == 302:
         print(response.headers['Location'] + 'http://localhost/{}'.format(url))
         assert 'http://localhost/{}'.format(url) == response.headers['Location']
+    else:
+        assert status_code == response.status_code
 
 # test all variants in dev db except c.1A>T (too numerous as used to test variant creation)
 
@@ -107,12 +109,12 @@ def test_variant_page(client, app):
             FROM variant_feature
             WHERE c_name <> 'c.2del'
             ORDER BY random()
-            LIMIT 10
+            LIMIT 100
             """
             # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
         db_pool.putconn(db)
         for variant_id in res:
-            print(variant_id)
+            print(variant_id[0])
             assert client.get('/api/variant/{}/browser/'.format(variant_id[0])).status_code == 200

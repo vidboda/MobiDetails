@@ -2123,7 +2123,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
                         except Exception as e:
-                            close_db()
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = {
                                 'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)
                             }

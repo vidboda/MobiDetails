@@ -686,7 +686,7 @@ def test_get_vv_api_url():
 
 
 class fake_g_obj:
-    user = dict(username='mobidetails')
+    user = dict(username='mobidetails', id=1)
 
 
 def test_vv_internal_server_error():
@@ -704,6 +704,7 @@ def test_create_var_vv(client, app):
             'test', db, g
         )
         db_pool.putconn(db)
+        print(error_dict)
         assert isinstance(error_dict['mobidetails_id'], int)
 
 
@@ -868,8 +869,8 @@ def test_run_spip(app):
             """
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for var in res:
-            db_pool.putconn(db)
             spip_results = md_utilities.run_spip(
                 var['gene_name'][0], var['gene_name'][1], var['c_name'], var['id']
             )

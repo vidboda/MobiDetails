@@ -426,7 +426,6 @@ def gene(gene_name=None):
                 query=gene_name
             )
     else:
-        print('ouhou')
         close_db()
         return render_template(
             'md/unknown.html',

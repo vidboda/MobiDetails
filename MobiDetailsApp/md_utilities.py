@@ -1602,6 +1602,7 @@ def create_var_vv(
         t.join(map(str, vf_d.values()))
     ).replace("'NULL'", "NULL")
     # print(insert_variant_feature)
+    vf_id = ''
     try:
         curs.execute(insert_variant_feature)
         vf_id = curs.fetchone()[0]
@@ -1629,8 +1630,6 @@ def create_var_vv(
                 Impossible to insert variant_features for {}
                 """.format(vv_key_var)
             }
-    # print(vf_id)
-    # vf_id = 55
     insert_variant_38 = "INSERT INTO variant (feature_id, {0}) \
         VALUES ('{1}', '{2}')".format(
             s.join(hg38_d.keys()),

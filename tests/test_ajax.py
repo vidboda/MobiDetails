@@ -20,7 +20,7 @@ def get_db():
         )
         # db = psycopg2.connect(**params)
     except (Exception, psycopg2.DatabaseError) as error:
-        log('ERROR', error)
+        print(error)
     return db_pool, db_pool.getconn()
     # db = psycopg2.connect(**params)
     # except (Exception, psycopg2.DatabaseError) as error:
