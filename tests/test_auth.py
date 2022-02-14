@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 # from flask import g, session
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 def test_register(client, app):
@@ -17,12 +17,13 @@ def test_register(client, app):
 
     # test db returns a value
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor()
         curs.execute(
             "SELECT * FROM mobiuser WHERE username = 'davidbaux'",
         )
         res = curs.fetchone()
+        db_pool.putconn(db)
         assert res is not None
 
 # multiple tests to check known username and email returns a message
@@ -88,7 +89,7 @@ def test_profile(client, app, auth, mobiuser_id, message):
         response = client.get('/auth/profile/{}'.format(mobiuser_id), follow_redirects=True)
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         # following does not work - as if login does not work properly?
-        # db = get_db()
+        # db_pool, db = get_db()
         # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # curs.execute(
         #     "SELECT password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
@@ -122,7 +123,7 @@ def test_forgot_pass(client, mobiuser_email, message):
         '/auth/forgot_pass',
         data={'email': mobiuser_email}
     )
-    # print(response.get_data())
+    print(response.get_data())
     assert message in response.get_data()
 
 # test reset password

@@ -132,7 +132,7 @@
 			<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 				<div class="w3-container w3-blue">
 					<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>
-					<br /><span class="w3-xlarge" id="main_text">Run a variant ({{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }})
+					<br /><span class="w3-xlarge" id="main_text">Run a variant ({{ main_iso.name[1] }})
 					{% if num_iso > 1 %}
 						<span onclick="new_isoform();" class="w3-button w3-sand" id="alt_span">Choose an isoform</span>
 					{% endif %}
@@ -141,9 +141,9 @@
 				<div class="w3-container">
 					<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
 						<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
-						<input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" />
+						<!-- <input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ main_iso.name[1] }}" /> -->
 						<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
-						<input for="creation_form" id="acc_version" name="acc_version" type="hidden" value="{{ main_iso.nm_version }}" />
+						<!-- <input for="creation_form" id="acc_version" name="acc_version" type="hidden" value="{{ main_iso.nm_version }}" /> -->
 						<!--<input for="creation_form" id="ng_accno" name="ng_accno" type="hidden" value="{{ main_iso.ng }}" />-->
 						<div class="w3-panel w3-large w3-row-padding" id="new_var_div">
 							<div class="w3-third">
@@ -159,6 +159,12 @@
 								}
 							</style>
 							<script type="text/javascript">
+								// var acc_no = '{{ main_iso.name[1] }}';
+								// {% if num_iso > 1 %}
+								// if ($("#alt_iso").val() !== "") {
+								// 	acc_no = $("#alt_iso").val();
+								// }acc_no: $("#alt_iso").val() !== "" ? $("#alt_iso").val() : '{{ main_iso.name[1] }}'
+								// {% endif %}
 								$('#new_variant').autocomplete({
 									source : function(request, response){
 										//send header for flask-wtf crsf security
@@ -177,7 +183,7 @@
 											appendTo: '#new_variant',
 											data: {
 												query_engine: request.term,
-												gene: '{{ gene }}'
+												acc_no: $("#alt_iso").val() ? $("#alt_iso").val() : '{{ main_iso.name[1] }}'
 											},
 											success: response
 										});
@@ -195,13 +201,13 @@
 								<!--<div class="w3-twothird">-->
 									<select  for="creation_form" name="alt_iso" id="alt_iso" class="w3-select">
 										<option value="" selected="selected" disabled="disabled">Select an isoform</option>
-										<option value="{{ "%s.%s"|format(main_iso.name[1], main_iso.nm_version) }}" >{{ "%s.%s (canonical)"|format(main_iso.name[1], main_iso.nm_version) }}</option>
+										<option value="{{ main_iso.name[1] }}" >{{ main_iso.name[1] }}</option>
 										{% for iso in res %}
 											{% if iso.name[1] != main_iso.name[1] %}
 												{% if iso.variant_creation == 'ok' %}
-													<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}</option>
+													<option value="{{ iso.name[1] }}">{{ iso.name[1] }}</option>
 												{% else %}
-													<option value="{{ "%s.%s"|format(iso.name[1], iso.nm_version) }}" disabled="disabled">{{ "%s.%s"|format(iso.name[1], iso.nm_version) }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
+													<option value="{{ iso.name[1] }}" disabled="disabled">{{ iso.name[1] }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
 												{% endif %}
 											{% endif %}
 										{% endfor %}
@@ -236,11 +242,7 @@
 			<div class="w3-container">
 					<p>To annotate a new variant, you need to fill in the form with the HGVS 'c.' nomenclature. <strong>By default, the canonical isoform is selected</strong>.</p>
 					<p>If your gene of interest has several isoforms in MobiDetails, please consider to use the canonical to create your variant.
-					If you select an alternative isoform,  <strong>MobiDetails will try to enforce the mapping on the canonical isoform</strong>.</p>
-					<ul>
-						<li>If this is possible, the variant will be attached to the canonical isoform. The variant HGVS DNA nomenclature may therefore change (you will be notified).</li>
-						<li>If not, the variant will be created with the isoform you selected.</li>
-					</ul>
+					If you select an alternative isoform, MobiDetails will in addition annotate the variant on the canonical isoform. <strong>Both annotations will be available.</strong></p>
 					<p>In the 'Get variants' tab, variants are shown attached to their isoform.</p>
 			</div>
 		</div>

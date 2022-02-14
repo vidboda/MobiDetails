@@ -1,5 +1,5 @@
 import os
-from . import config
+from . import configuration  # lgtm [py/import-own-module]
 from flask import Flask, render_template
 from flask_mail import Mail
 from flask_cors import CORS
@@ -9,6 +9,7 @@ from flask_wtf.csrf import CSRFProtect
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
 # import logging
+from psycopg2 import pool
 
 mail = Mail()
 csrf = CSRFProtect()
@@ -20,32 +21,21 @@ def create_app(test_config=None):
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('sql/md.cfg', silent=False)
-        # app.config.from_object('config.Config')
-        # app.config.update(
-        #     SECRET_KEY = os.urandom(24),
-        #     SESSION_COOKIE_SECURE = False,
-        #     WTF_CSRF_TIME_LIMIT = None
-        # )
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
-    # # config flaskmail
-    # params = config.mdconfig(section='email_auth')
-    # flask_params = config.mdconfig(section='flask')
-    # app.config.update(
-    #     # FLASK SETTINGS
-    #     DEBUG = flask_params['debug'],
-
-    #     # EMAIL SETTINGS
-    #     MAIL_SERVER = params['mail_server'],
-    #     MAIL_PORT = params['mail_port'],
-    #     MAIL_USE_TLS = params['mail_use_tls'],
-    #     MAIL_USERNAME = params['mail_username'],
-    #     MAIL_PASSWORD = params['mail_password'],
-    #     MAIL_DEFAULT_SENDER = params['mail_default_sender'],
-    #     # CSRF tokens config
-    #     WTF_CSRF_TIME_LIMIT = None
-    # )
+    # Initiate database connection pool
+    params = configuration.mdconfig()
+    pool_params = configuration.mdconfig(section='psycopg2')
+    app.config['POSTGRESQL_POOL'] = pool.ThreadedConnectionPool(
+        pool_params['min_pool_conn'],
+        pool_params['max_pool_conn'],
+        user=params['user'],
+        password=params['password'],
+        host=params['host'],
+        port=params['port'],
+        database=params['database']
+    )
     mail.init_app(app)
     csrf.init_app(app)
     paranoid = Paranoid(app)
@@ -61,13 +51,7 @@ def create_app(test_config=None):
     app.register_error_handler(405, not_allowed_error)
     app.register_error_handler(413, reques_entity_too_large_error)
     # define custom jinja filters
-    app.jinja_env.filters['match'] = config.match
-    # if test_config is None:
-    #     # load the instance config, if it exists, when not testing
-    #     app.config.from_pyfile('config.py', silent=True)
-    # else:
-    #     # load the test config if passed in
-    #     app.config.from_mapping(test_config)
+    app.jinja_env.filters['match'] = configuration.match
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
@@ -91,26 +75,6 @@ def create_app(test_config=None):
     # from . import error
     # app.register_blueprint(error.bp)
     app.add_url_rule('/', endpoint='index')
-    # a simple page that says hello
-    # @app.route('/factory_test')
-    # def hello():
-    #     return 'Flask factory ok!'
-    # if not app.debug:
-    #     # logging into a file
-    #     # (from https://blog.miguelgrinberg.com/post/
-    #       the-flask-mega-tutorial-part-vii-error-handling)
-    #     if not os.path.exists('logs'):
-    #         os.mkdir('logs')
-    #     file_handler =
-    #       RotatingFileHandler('logs/mobidetails.log', maxBytes=10240,
-    #                                        backupCount=10)
-    #     file_handler.setFormatter(logging.Formatter(
-    #         '%(asctime)s %(levelname)s:
-    #       %(message)s [in %(pathname)s:%(lineno)d]'))
-    #     file_handler.setLevel(logging.INFO)
-    #     app.logger.addHandler(file_handler)
-    #     app.logger.setLevel(logging.INFO)
-    #     app.logger.info('Mobidetails startup')
     if app.debug:
         print(app.config)
     return app

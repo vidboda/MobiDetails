@@ -27,7 +27,7 @@ function create_var(create_url, csrf_token) {
 		type: "POST",
 		url: create_url,
 		data: {
-			gene: $("#gene").val(), acc_no: $("#acc_no").val(), new_variant: new_variant, acc_version: $("#acc_version").val(), alt_iso: $("#alt_iso").val()
+			gene: $("#gene").val(), acc_no: $("#acc_no").val(), new_variant: new_variant, alt_iso: $("#alt_iso").val()
 		}
 	})
 	.done(function(html) {

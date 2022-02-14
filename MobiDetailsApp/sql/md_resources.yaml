@@ -8,7 +8,7 @@
   'nochr_chrom': '[\dXYM]{1,2}'
   'nochr_captured': '\d{1,2}|[XYM]'
   'ncbi_chrom': 'NC_0{4}\d{1,2}\.\d{1,2}'
-  'ncbi_transcript': 'NM_\d+'
+  'ncbi_transcript': 'NM_\d+\.\d{1,2}'
   'amino_acid': 'ACDEFGHIKLMNPQRSTVXWYacdefghiklmnpqrstvwyx'
 'ext_exe':
   'perl': '/usr/bin/perl'
@@ -113,6 +113,7 @@
   'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
   'mutalyzer_api_json': 'https://mutalyzer.nl/json/'
   'mupit': 'https://mupit.icm.jhu.edu/MuPIT_Interactive'
+  'mygene.info': 'https://mygene.info/v3/'
   'ncbi': 'https://www.ncbi.nlm.nih.gov/'
   'ncbi_nuccore':  'https://www.ncbi.nlm.nih.gov/nuccore/'
   'ncbi_prot': 'https://www.ncbi.nlm.nih.gov/protein/'
@@ -143,7 +144,7 @@
   'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF'
   'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html'
   'uniprot_id': 'http://www.uniprot.org/uniprot/'
-  'variant_validator': ' https://variantvalidator.org/service/validate/?variant='
+  'variant_validator': 'https://variantvalidator.org/service/validate/?variant='
   # uncomment below to use genuine VV web API VV2 - 2021
   'variant_validator_api': 'https://rest.variantvalidator.org/'
   # uncomment below to use VV2 IURC
@@ -236,6 +237,11 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
+  'hgnc_full_set':
+    'rel_path': '/static/resources/hgnc/hgnc_complete_set.txt'
+    'name': 'Human genome sequence'
+    'description': 'Human genome nomenclature committee dataset'
+    'short_name': 'hgnc_full_set'
   'human_genome_hg38':
     'rel_path': '/static/resources/genome/hg38'
     'name': 'Human genome sequence'
@@ -286,6 +292,16 @@
     'name': 'spliceAI Indels'
     'description': 'Dataset of splicing predictions'
     'short_name': 'spliceai'
+  'uniprot':
+    'rel_path': '/static/resources/uniprot/'
+    'name': 'UNIPROT'
+    'description': 'Storage of UNIPROT GFFs'
+    'short_name': 'uniprot'
+  'variant_validator':
+    'rel_path': '/static/resources/VariantValidator/genes/'
+    'name': 'VariantValidator'
+    'description': 'Storage of VV genes JSONs'
+    'short_name': 'VV'
 'hidden_external_tools':
   'FatHMM-MKL':
     'dbNSFP_value_col': '121'
@@ -476,6 +492,12 @@
     'paper': '18000842'
     'version': 'API'
     'short_name': 'mutalyzer'
+  'mygene.info':
+    'firstauthor': 'Xin'
+    'year': '2016'
+    'paper': ' 27154141'
+    'version': 'API'
+    'short_name': 'mygene.info'
   'Polyphen-2':
     'firstauthor': 'Adzhubei'
     'year': '2010'

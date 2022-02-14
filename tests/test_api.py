@@ -1,7 +1,7 @@
 import pytest
 import psycopg2
 import json
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 # test api key
 
@@ -18,7 +18,10 @@ def test_check_api_key(client, app, api_key, api_key_pass_check, api_key_status)
         if api_key == '':
             api_key = get_generic_api_key()
     json_response = json.loads(
-        client.post('/api/service/check_api_key', data={'api_key':api_key}).data.decode('utf8')
+        client.post(
+            '/api/service/check_api_key',
+            data={'api_key':api_key}
+        ).data.decode('utf8')
     )
     print(json_response)
     assert api_key_pass_check == json_response['api_key_pass_check']
@@ -52,8 +55,8 @@ def test_api_variant_exists(client, variant, key, response):
 
 
 @pytest.mark.parametrize(('gene', 'key', 'response'), (
-    ('USH2A', 'HGNC Name', 'USH2A'),
-    (12601, 'HGNC Name', 'USH2A'),
+    ('USH2A', 'HGNCSymbol', 'USH2A'),
+    (12601, 'HGNCSymbol', 'USH2A'),
     ('USH2', 'mobidetails_warning', 'Unknown gene'),
     ('--%USH2A', 'mobidetails_error', 'Invalid gene submitted')
 ))
@@ -66,14 +69,20 @@ def test_api_gene(client, gene, key, response):
 
 
 def get_generic_api_key():
-    db = get_db()
+    db_pool, db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT api_key FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        """
+        SELECT api_key
+        FROM mobiuser
+        WHERE email = 'mobidetails.iurc@gmail.com'
+        """
     )
     res = curs.fetchone()
     if res is not None:
+        db_pool.putconn(db)
         return res['api_key']
+    db_pool.putconn(db)
 
 
 # test variant creation
@@ -90,12 +99,19 @@ def test_api_variant(client, variant_id, key, value):
 
 def test_api_variant2(app, client):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 100"  #  LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
+            """
+            SELECT id
+            FROM variant_feature
+            WHERE c_name <> 'c.2del'
+            ORDER BY random()
+            LIMIT 100
+            """  # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for variant_id in res:
             print(variant_id)
             json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id[0])).data.decode('utf8'))
@@ -104,10 +120,10 @@ def test_api_variant2(app, client):
 
 @pytest.mark.parametrize(('new_variant', 'api_key', 'return_key', 'message'), (
     ('NM_206933.0:c.100C>T', 'random', 'mobidetails_error', 'Invalid API key'),
-    ('NM_206933.2:c.100C>T', '', 'mobidetails_id', 5),
+    ('NM_206933.4:c.100C>T', '', 'mobidetails_id', 334419),
     ('NM_206933.10:c.100C>T', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
-    ('M_206933.2:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
-    ('NM_206933.3:c.10000C>T', '', 'mobidetails_error', 'The RefSeq accession number submitted'),
+    ('M_206933.4:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
+    ('NM_206933.9:c.10000C>T', '', 'mobidetails_error', 'It seems that your transcript version'),
 ))
 def test_api_create(client, app, new_variant, api_key, return_key, message):
     with app.app_context():
@@ -132,11 +148,11 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
 
 @pytest.mark.parametrize(('variant_ghgvs', 'api_key', 'gene', 'caller', 'return_key', 'message'), (
     ('NC_000001.11:g.40817273T>G', 'random', 'KCNQ4', 'cli', 'mobidetails_error', 'Invalid API key'),
-    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
-    ('NC_000001.11:g.40817273T>G', '', 6298, 'cli', 'mobidetails_id', 117),
+    ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 334420),
+    ('NC_000001.11:g.40817273T>G', '', 6298, 'cli', 'mobidetails_id', 334420),
     # ('NC_000001.11:g.40817273T>G', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'KCNQ4', 'browser', 'mobidetails_error', 'Unknown API key'),
     # ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
-    ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 117),
+    ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 334420),
     ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
     ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Malformed query'),
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'is currently not available for variant annotation in MobiDetails'),
@@ -196,7 +212,7 @@ def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, 
     (1, 0, 'test', 'mobidetails_error', 'Invalid API key'),
     (1, 1, '', 'mobidetails_error', 'Invalid variant id submitted'),
     (8, 0, '', 'mobidetails_error', 'Invalid ACMG class submitted'),
-    (8, 3, '', 'mobidetails_error', 'ACMG class already submitted by this user for this variant'),
+    (323866, 5, '', 'mobidetails_error', 'ACMG class already submitted by this user for this variant'),
 ))
 def test_api_update_acmg(client, app, variant_id, acmg_class, api_key, return_key, message):
     with app.app_context():

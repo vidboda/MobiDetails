@@ -21,7 +21,10 @@ bp = Blueprint('md', __name__)
 # https://stackoverflow.com/questions/10342114/how-to-set-pythonpath-on-web-server
 # https://flask.palletsprojects.com/en/1.1.x/deploying/mod_wsgi/
 # create a poolmanager
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+http = urllib3.PoolManager(
+    cert_reqs='CERT_REQUIRED',
+    ca_certs=certifi.where()
+)
 # -------------------------------------------------------------------
 # web app - index
 
@@ -41,12 +44,16 @@ def index():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) as \
-        transcript FROM gene WHERE variant_creation = 'ok'"
+        """
+        SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) AS transcript
+        FROM gene
+        WHERE variant_creation = 'ok'
+        """
     )
     res = curs.fetchone()
     if res is None:
-        error = "There is a problem with the number of genes."
+        close_db()
+        error = 'There is a problem with the number of genes.'
         flash(error, 'w3-pale-red')
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
@@ -112,20 +119,16 @@ def gene(gene_name=None):
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT * FROM gene WHERE name[1] = %s \
-            ORDER BY number_of_exons DESC",
+            """
+            SELECT *
+            FROM gene
+            WHERE name[1] = %s
+            ORDER BY number_of_exons DESC
+            """,
             (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
-        # in panelApp ?
-        # we check  if the gene is in panelApp, if it is, we propose a link
-        # https://panelapp.genomicsengland.co.uk/api/v1/genes/F91/
-        # http = urllib3.PoolManager(
-        #     cert_reqs='CERT_REQUIRED',
-        #     ca_certs=certifi.where()
-        # )
-
         # get metadome json?
         enst_ver = {}
         # if not json metadome file on filesystem, create it in
@@ -174,8 +177,9 @@ def gene(gene_name=None):
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>MetaDome first block code failed for \
-gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    """
+                                    <p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
+                                    """.format(
                                         gene_name,
                                         gene['enst'],
                                         os.path.basename(__file__),
@@ -212,8 +216,9 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                     md_utilities.send_error_email(
                         md_utilities.prepare_email_html(
                             'MobiDetails API error',
-                            '<p>MetaDome second block code failed for gene \
-{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                            """
+                            <p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
+                            """.format(
                                 gene_name,
                                 enst,
                                 os.path.basename(__file__),
@@ -260,8 +265,9 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome submission for \
-{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    """
+                                    <p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>
+                                    """.format(
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__),
@@ -313,8 +319,9 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                             md_utilities.send_error_email(
                                 md_utilities.prepare_email_html(
                                     'MobiDetails API error',
-                                    '<p>Error with metadome file writing for \
-{0} ({1})<br /> - from {2} with args: {3}</p>'.format(
+                                    """
+                                    <p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>
+                                    """.format(
                                         gene_name,
                                         enst,
                                         os.path.basename(__file__),
@@ -328,17 +335,76 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
         if result_all is not None:
             # get annotations
             curs.execute(
-                "SELECT * FROM gene_annotation WHERE gene_name[1] = %s",
+                """
+                SELECT *
+                FROM gene_annotation
+                WHERE gene_name[1] = %s
+                """,
                 (gene_name,)
             )
             annot = curs.fetchone()
             if annot is None:
                 annot = {'nognomad': 'No values in gnomAD'}
             curs.execute(
-                "SELECT MAX(prot_size) as size FROM gene WHERE name[1] = %s",
+                """
+                SELECT MAX(prot_size) AS size
+                FROM gene
+                WHERE name[1] = %s
+                """,
                 (gene_name,)
             )
             res_size = curs.fetchone()
+            # get refseq select, mane, etc from vv json file
+            no_vv_file = 0
+            try:
+                json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
+                    md_utilities.local_files['variant_validator']['abs_path'],
+                    gene_name
+                ))
+            except IOError:
+                no_vv_file = 1
+            if no_vv_file == 0:
+                transcript_road_signs = {}
+                vv_json = json.load(json_file)
+                if 'error' in vv_json \
+                    or ('message' in vv_json and
+                        vv_json['message'] == 'Internal Server Error'):
+                    no_vv_file = 1
+                    curs.execute(
+                        """
+                        UPDATE gene
+                        SET variant_creation = 'not_in_vv_json'
+                        WHERE name[1] = %s
+                            AND variant_creation <> 'not_in_vv_json'
+                        """,
+                        (gene_name,)
+                    )
+                    db.commit()
+                    curs.execute(
+                        """
+                        SELECT *
+                        FROM gene
+                        WHERE name[1] = %s
+                        ORDER BY number_of_exons DESC
+                        """,
+                        (gene_name,)
+                    )  # get all isoforms
+                    result_all = curs.fetchall()
+                    num_iso = len(result_all)
+                if no_vv_file == 0:
+                    for vv_transcript in vv_json['transcripts']:
+                        for res in result_all:
+                            # need to check vv isoforms against MD isoforms to keep only relevant ones
+                            if vv_transcript['reference'] == res['name'][1]:
+                                if 'mane_select' in vv_transcript['annotations'] and \
+                                        'mane_plus_clinical' in vv_transcript['annotations'] and \
+                                        'refseq_select' in vv_transcript['annotations']:
+                                    transcript_road_signs[res['name'][1]] = {
+                                        'mane_select': vv_transcript['annotations']['mane_select'],
+                                        'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                        'refseq_select': vv_transcript['annotations']['refseq_select']
+                                    }
+                # print(transcript_road_signs)
             close_db()
             return render_template(
                 'md/gene.html',
@@ -349,7 +415,8 @@ gene {0} ({1})<br /> - from {2} with args: {3}</p>'.format(
                 main_iso=main,
                 res=result_all,
                 annotations=annot,
-                max_prot_size=res_size['size']
+                max_prot_size=res_size['size'],
+                transcript_road_signs=transcript_road_signs
             )
         else:
             close_db()
@@ -375,18 +442,21 @@ def genes():
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT DISTINCT(name[1]) AS hgnc FROM gene ORDER BY name[1]"
+        """
+        SELECT DISTINCT(name[1]) AS hgnc
+        FROM gene
+        ORDER BY name[1]
+        """
     )
     genes = curs.fetchall()
+    close_db()
     if genes:
-        close_db()
         return render_template(
             'md/genes.html',
             run_mode=md_utilities.get_running_mode(),
             genes=genes
         )
     else:
-        close_db()
         return render_template(
             'md/unknown.html',
             run_mode=md_utilities.get_running_mode()
@@ -407,28 +477,44 @@ def vars(gene_name=None):
     # error = None
     # main isoform?
     curs.execute(
-        "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
+        """
+        SELECT *
+        FROM gene
+        WHERE name[1] = %s
+            AND canonical = 't'
+        """,
         (gene_name,)
     )
     main = curs.fetchone()
     if main is not None:
         curs.execute(
-            "SELECT name, nm_version, variant_creation FROM gene WHERE name[1] = %s",
+            """
+            SELECT name, variant_creation
+            FROM gene
+            WHERE name[1] = %s
+            """,
             (gene_name,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
         curs.execute(
-            "SELECT *, a.id as vf_id, d.nm_version FROM variant_feature a, \
-            variant b, mobiuser c, gene d WHERE a.id = b.feature_id AND \
-            a.creation_user = c.id  AND a.gene_name = d.name \
-            AND a.gene_name[1] = %s AND \
-            b.genome_version = 'hg38'",
+            """
+            SELECT *, a.id as vf_id
+            FROM variant_feature a, variant b, mobiuser c
+            WHERE a.id = b.feature_id
+                AND a.creation_user = c.id
+                AND a.gene_name[1] = %s
+                AND b.genome_version = 'hg38'
+            """,
             (gene_name,)
         )
         variants = curs.fetchall()
         curs.execute(
-            "SELECT MAX(prot_size) as size FROM gene WHERE name[1] = %s",
+            """
+            SELECT MAX(prot_size) AS size
+            FROM gene
+            WHERE name[1] = %s
+            """,
             (gene_name,)
         )
         res_size = curs.fetchone()
@@ -460,7 +546,7 @@ def vars(gene_name=None):
 
 @bp.route('/variant/<int:variant_id>', methods=['GET', 'POST'])
 def variant(variant_id=None):
-    # kept for backward compatiobility of URLs
+    # kept for backward compatibility of URLs
     return redirect(url_for('api.variant', variant_id=variant_id, caller='browser'))
 
 # -------------------------------------------------------------------
@@ -477,6 +563,7 @@ def search_engine():
     variant_regexp_flexible = md_utilities.regexp['variant_flexible']
     amino_acid_regexp = md_utilities.regexp['amino_acid']
     nochr_captured_regexp = md_utilities.regexp['nochr_captured']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
 
     if query_engine is not None and \
             query_engine != '':
@@ -493,10 +580,16 @@ def search_engine():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 curs.execute(
-                    "SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.nm_version, c.username from variant_feature a, gene b, mobiuser c \
-                    WHERE a.gene_name = b.name AND a.creation_user = c.id AND a.creation_date > CURRENT_DATE - 7 ORDER BY creation_date DESC"
+                    """
+                    SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.username
+                    FROM variant_feature a, mobiuser b
+                    WHERE a.creation_user = b.id
+                        AND a.creation_date > CURRENT_DATE - 7
+                    ORDER BY creation_date DESC
+                    """
                 )
                 variants = curs.fetchall()
+                close_db()
                 return render_template('md/variant_multiple.html', variants=variants)
         match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
@@ -529,23 +622,41 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^[Nn][Mm]_\d+\.\d+:c\.{variant_regexp}$', query_engine) or \
-                re.search(rf'^[Nn][Mm]_\d+\.\d+\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
+        elif re.search(rf'^{ncbi_transcript_regexp}:c\.{variant_regexp}$', query_engine) or \
+                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # API call
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Mm]_\d+\.\d+)\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
+            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
             if api_key is not None:
-                return redirect(url_for('api.api_variant_create', variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)), caller='browser', api_key=api_key), code=307)
+                close_db()
+                return redirect(
+                    url_for(
+                        'api.api_variant_create',
+                        variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)),
+                        caller='browser',
+                        api_key=api_key
+                    ),
+                    code=307
+                )
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
             query_type = 'name[2]'
             col_names = 'name'
-            match_object = re.search(r'^([Nn][Mm]_\d+)\.?\d?', query_engine)
-            pattern = match_object.group(1)
+            match_object = re.search(rf'^(^[Nn][Mm]_\d+)', query_engine)
+            if match_object:
+                col_names = 'partial_name'
+                pattern = match_object.group(1)
+            # match_object = re.search(rf'^({ncbi_transcript_regexp})', query_engine)
+            # if match_object:
+            #     pattern = match_object.group(1)
+            # match_object = re.search(r'^([Nn][Mm]_\d+)\.?$', query_engine)
+            # if match_object:
+            #     col_names = 'incomplete_name'
+            #     pattern = match_object.group(1)
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -555,6 +666,7 @@ def search_engine():
             # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
             pattern = match_object.group(2)
+            close_db()
             # res_common = md_utilities.get_common_chr_name(db, )
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
             # API call
@@ -564,7 +676,17 @@ def search_engine():
             api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
             if api_key is not None:
-                return redirect(url_for('api.api_variant_g_create', variant_ghgvs=match_obj.group(1), gene_hgnc=match_obj.group(2), caller='browser', api_key=api_key), code=307)
+                close_db()
+                return redirect(
+                    url_for(
+                        'api.api_variant_g_create',
+                        variant_ghgvs=match_obj.group(1),
+                        gene_hgnc=match_obj.group(2),
+                        caller='browser',
+                        api_key=api_key
+                    ),
+                    code=307
+                )
         elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -586,20 +708,34 @@ def search_engine():
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                r"SELECT {0} FROM {1} WHERE c_name ~ '^{2}[^\d]' OR c_name ~ '_{2}[^\d]' OR p_name ~ '^{2}[^\d]' OR p_name ~ '_{2}[^\d]'".format(
+                r"""
+                SELECT {0}
+                FROM {1}
+                WHERE c_name ~ '^{2}[^\d]'
+                    OR c_name ~ '_{2}[^\d]'
+                    OR p_name ~ '^{2}[^\d]'
+                    OR p_name ~ '_{2}[^\d]'
+                """.format(
                     col_names, sql_table, pattern
                 )
             )
             semaph_query = 1
+            close_db()
         elif re.search(r'^\d{2,}$', query_engine):  # only numbers: get matching variants (partial match, at least 2 numbers) - specific query
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT {0} FROM {1} WHERE c_name LIKE '%{2}%' OR p_name LIKE '%{2}%'".format(
+                """
+                SELECT {0}
+                FROM {1}
+                WHERE c_name LIKE '%{2}%'
+                    OR p_name LIKE '%{2}%'
+                """.format(
                     col_names, sql_table, query_engine
                 )
             )
             semaph_query = 1
+            close_db()
         elif re.search(r'^[A-Za-z0-9-]+$', query_engine):  # genes
             sql_table = 'gene'
             query_type = 'name[1]'
@@ -632,22 +768,44 @@ def search_engine():
                     if var_match:
                         pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
                     else:
+                        close_db()
                         error = 'You submitted a forbidden character in "{}".'.format(pattern)
                         flash(error, 'w3-pale-red')
                         return render_template('md/unknown.html', run_mode=app.config['RUN_MODE'])
                     # print(pattern)
                 if pattern == 'g_name':
                     curs.execute(
-                        "SELECT {0} FROM {1} WHERE chr = {2} AND {3} = '{4}'".format(
+                        """
+                        SELECT {0}
+                        FROM {1}
+                        WHERE chr = {2}
+                            AND {3} = '{4}'
+                        """.format(
                             col_names, sql_table, chrom, query_type, pattern
                         )
                     )
                 else:
-                    curs.execute(
-                        "SELECT {0} FROM {1} WHERE {2} = '{3}'".format(
-                            col_names, sql_table, query_type, pattern
+                    if col_names == 'partial_name':
+                        col_names = 'name'
+                        curs.execute(
+                            """
+                            SELECT {0}
+                            FROM {1}
+                            WHERE {2} LIKE '{3}%'
+                            """.format(
+                                col_names, sql_table, query_type, pattern
+                            )
                         )
-                    )
+                    else:
+                        curs.execute(
+                            """
+                            SELECT {0}
+                            FROM {1}
+                            WHERE {2} = '{3}'
+                            """.format(
+                                col_names, sql_table, query_type, pattern
+                            )
+                        )
                 result = None
             if sql_table == 'gene':
                 result = curs.fetchone()
@@ -655,17 +813,24 @@ def search_engine():
                     query_type = 'second_name'
                     # https://www.postgresql.org/docs/9.3/functions-matching.html#POSIX-ESCAPE-SEQUENCES
                     curs.execute(
-                        "SELECT {0} FROM {1} WHERE {2} ~* '\m[;,]?{3}[;,]?\M'".format(
+                        r"""
+                        SELECT {0}
+                        FROM {1}
+                        WHERE {2} ~* '\m[;,]?{3}[;,]?\M'
+                        """.format(
                             col_names, sql_table, query_type, pattern
                         )
                     )
                     result_second = curs.fetchone()
+                    close_db()
                     if result_second is None:
-                        close_db()
-                        error = 'Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).'.format(query_engine)
+                        error = """
+                        Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).
+                        """.format(query_engine)
                     else:
                         return redirect(url_for('md.gene', gene_name=result_second[col_names][0]))
                 else:
+                    close_db()
                     return redirect(url_for('md.gene', gene_name=result[col_names][0]))
             else:
                 result = curs.fetchall()
@@ -675,15 +840,44 @@ def search_engine():
                         api_key = md_utilities.get_api_key(g, curs)
                         if api_key is not None:
                             close_db()
-                            return redirect(url_for('api.api_variant_create_rs', rs_id='rs{}'.format(pattern), caller='browser', api_key=api_key), code=307)
-                    error = 'Sorry the variant or gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).<br /> \
-                            You can annotate it directly at the corresponding gene page.'.format(query_engine)
+                            return redirect(
+                                url_for(
+                                    'api.api_variant_create_rs',
+                                    rs_id='rs{}'.format(pattern),
+                                    caller='browser',
+                                    api_key=api_key
+                                ),
+                                code=307
+                            )
+                    error = """
+                    Sorry the variant or gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).<br />
+                    You can annotate it directly at the corresponding gene page.
+                    """.format(query_engine)
                 else:
-                    close_db()
                     if len(result) == 1:
+                        close_db()
                         return redirect(url_for('api.variant', variant_id=result[0][0], caller='browser'))
                     else:
-                        return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=result)
+                        variants = result
+                        if query_type == 'g_name':
+                            # coming from a query type: NC_000001.11:g.216422237G>A
+                            id_tuple = []
+                            for feature_id in result:
+                                id_tuple.append(feature_id['feature_id'])
+                            curs.execute(
+                                """
+                                SELECT id, c_name, p_name, gene_name
+                                FROM variant_feature
+                                WHERE id IN %s
+                                ORDER BY id
+                                """,
+                                (tuple(id_tuple),)
+                            )
+                            variants = curs.fetchall()
+                        close_db()
+                        return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=variants)
+            if 'db' in locals():
+                close_db()
     else:
         error = 'Please type something for the search engine to work.'
     flash(error, 'w3-pale-red')

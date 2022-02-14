@@ -1,10 +1,10 @@
 import re
 import pytest
 import psycopg2
-import json
+# import json
 from flask import g
 from MobiDetailsApp import md_utilities
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
@@ -69,7 +69,9 @@ def test_three2one_fct(client, variant_in, variant_out):
 ))
 def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        ncbi_test = md_utilities.get_ncbi_chr_name(get_db(), chr_name, genome)
+        db_pool, db = get_db()
+        ncbi_test = md_utilities.get_ncbi_chr_name(db, chr_name, genome)
+        db_pool.putconn(db)
         assert ncbi_test[0] == ncbi_name
 
 
@@ -81,7 +83,9 @@ def test_get_ncbi_chr_name(client, app, chr_name, genome, ncbi_name):
 ))
 def test_get_common_chr_name(client, app, chr_name, genome, ncbi_name):
     with app.app_context():
-        res_test = md_utilities.get_common_chr_name(get_db(), ncbi_name)
+        db_pool, db = get_db()
+        res_test = md_utilities.get_common_chr_name(db, ncbi_name)
+        db_pool.putconn(db)
         assert res_test == [chr_name, genome]
 
 
@@ -136,10 +140,10 @@ def test_is_valid_ncbi_chr(client, chr_name, valid):
 
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
-    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, ['acceptor', 304]),
-    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, ['donor', 94]),
-    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, ['donor', 44]),
-    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, ['acceptor', 26])
+    (216422237, {'segment_start': 216422540, 'segment_end': 216421852, 'segment_size': 689}, ['acceptor', 304]),
+    (34007866, {'segment_start': 34008050, 'segment_end': 34007773, 'segment_size': 278}, ['donor', 94]),
+    (77201595, {'segment_start': 77201448, 'segment_end': 77201638, 'segment_size': 191}, ['donor', 44]),
+    (77183093, {'segment_start': 77183068, 'segment_end': 77183157, 'segment_size': 90}, ['acceptor', 26])
 ))
 def test_get_pos_splice_site(pos, positions, result):
     dist = md_utilities.get_pos_splice_site(pos, positions)
@@ -159,10 +163,10 @@ def test_get_pos_splice_site_intron(client, app, name, return_value):
 
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (
-    (216422237, {'segment_start':216422540, 'segment_end':216421852 ,'segment_size':689}, [288, 689]),
-    (34007866, {'segment_start':34008050, 'segment_end':34007773 ,'segment_size':278}, [333, 278]),
-    (77201595, {'segment_start':77201448, 'segment_end':77201638 ,'segment_size':191}, [355, 191]),
-    (77183093, {'segment_start':77183068, 'segment_end':77183157 ,'segment_size':90}, [258, 90])
+    (216422237, {'segment_start': 216422540, 'segment_end': 216421852, 'segment_size': 689}, [288, 689]),
+    (34007866, {'segment_start': 34008050, 'segment_end': 34007773, 'segment_size': 278}, [333, 278]),
+    (77201595, {'segment_start': 77201448, 'segment_end': 77201638, 'segment_size': 191}, [355, 191]),
+    (77183093, {'segment_start': 77183068, 'segment_end': 77183157, 'segment_size': 90}, [258, 90])
 ))
 def test_get_pos_exon_canvas(pos, positions, result):
     canvas = md_utilities.get_pos_exon_canvas(pos, positions)
@@ -170,24 +174,26 @@ def test_get_pos_exon_canvas(pos, positions, result):
 
 
 @pytest.mark.parametrize(('positions', 'result'), (
-    ({'gene_name':['AMACR', 'NM_001167595'], 'number':1}, ["5'", "UTR", "intron", 1]),
-    ({'gene_name':['USH2A', 'NM_206933'], 'number':13}, ["intron", 12, "intron", 13]),
-    ({'gene_name':['MYO7A', 'NM_000260'], 'number':49}, ["intron", 48, "3'", "UTR"]),
-    ({'gene_name':['GJB2', 'NM_004004'], 'number':2}, ["intron", 1, "3'", "UTR"]),
-    ({'gene_name':['CDH23', 'NM_022124'], 'number':69}, ["intron", 68, "intron", 69])
+    ({'gene_name': ['AMACR', 'NM_001167595.2'], 'number': 1}, ["5'", "UTR", "intron", 1]),
+    ({'gene_name': ['USH2A', 'NM_206933.4'], 'number': 13}, ["intron", 12, "intron", 13]),
+    ({'gene_name': ['MYO7A', 'NM_000260.4'], 'number': 49}, ["intron", 48, "3'", "UTR"]),
+    ({'gene_name': ['GJB2', 'NM_004004.6'], 'number': 2}, ["intron", 1, "3'", "UTR"]),
+    ({'gene_name': ['CDH23', 'NM_022124.6'], 'number': 69}, ["intron", 68, "intron", 69])
 ))
 def test_get_exon_neighbours(app, positions, result):
     with app.app_context():
-        neighbours = md_utilities.get_exon_neighbours(get_db(), positions)
+        db_pool, db = get_db()
+        neighbours = md_utilities.get_exon_neighbours(db, positions)
+        db_pool.putconn(db)
         assert neighbours == result
 
 
 @pytest.mark.parametrize(('positions', 'chrom', 'strand', 'result'), (
-    ({'gene_name':['AMACR', 'NM_001167595'], 'number':1, 'segment_start': 34008050, 'segment_end':34007773}, '5', '-', 'AGTTTCCTTCAGCGGGGCACTGGGAAGCGCCATGGCACTGCAGGGCATCTCGGTCGTGGAGCTGTCCGGCCTGGCCCCGGGCCCGTTCTGTGCTATGGTCCTGGCTGACTTCGGGGCGCGTGTGGTACGCGTGGACCGGCCCGGCTCCCGCTACGACGTGAGCCGCTTGGGCCGGGGCAAGCGCTCGCTAGTGCTGGACCTGAAGCAGCCGCGGGGAGCCGCCGTGCTGCGGCGTCTGTGCAAGCGGTCGGATGTGCTGCTGGAGCCCTTCCGCCGCG'),
-    ({'gene_name':['USH2A', 'NM_206933'], 'number':13, 'segment_start': 216247226, 'segment_end':216246585}, '1', '-', 'GGCTTAGGTGTGATCATTGCAATTTTGGATTTAAATTTCTCCGAAGCTTTAATGATGTTGGATGTGAGCCCTGCCAGTGTAACCTCCATGGCTCAGTGAACAAATTCTGCAATCCTCACTCTGGGCAGTGTGAGTGCAAAAAAGAAGCCAAAGGACTTCAGTGTGACACCTGCAGAGAAAACTTTTATGGGTTAGATGTCACCAATTGTAAGGCCTGTGACTGTGACACAGCTGGATCCCTCCCTGGGACTGTCTGTAATGCTAAGACAGGGCAGTGCATCTGCAAGCCCAATGTTGAAGGGAGACAGTGCAATAAATGTTTGGAGGGAAACTTCTACCTACGGCAAAATAATTCTTTCCTCTGTCTGCCTTGCAACTGTGATAAGACTGGGACAATAAATGGCTCTCTGCTGTGTAACAAATCAACAGGACAATGTCCTTGCAAATTAGGGGTAACAGGTCTTCGCTGTAATCAGTGTGAGCCTCACAGGTACAATTTGACCATTGACAATTTTCAACACTGCCAGATGTGTGAGTGTGATTCCTTGGGGACATTACCTGGGACCATTTGTGACCCAATCAGTGGCCAGTGCCTGTGTGTGCCTAATCGTCAAGGAAGAAGGTGTAATCAGTGTCAACCAG'),
-    ({'gene_name':['MYO7A', 'NM_000260'], 'number':49, 'segment_start': 77214607, 'segment_end':77215241},'11', '+', 'GGCTACAAGATGGATGACCTCCTGACTTCCTACATTAGCCAGATGCTCACAGCCATGAGCAAACAGCGGGGCTCCAGGAGCGGCAAGTGAACAGTCACGGGGAGGTGCTGGTTCCATGCCTGCTCTCGAGGCAGCAGTGGGTTCAGGCCCATCAGCTACCCCTGCAGCTGGGGAAGACTTATGCCATCCCGGCAGCGAGGCTGGGCTGGCCAGCCACCACTGACTATACCAACTGGGCCTCTGATGTTCTTCCAGTGAGGCATCTCTCTGGGATGCAGAACTTCCCTCCATCCACCCCTCTGGCACCTGGGTTGGTCTAATCCTAGTTTGCTGTGGCCTTCCCGGTTGTGAGAGCCTGTGATCCTTAGATGTGTCTCCTGTTTCAGACCAGCCCCACCATGCAACTTCCTTTGACTTTCTGTGTACCACTGGGATAGAGGAATCAAGAGGACAATCTAGCTCTCCATACTTTGAACAACCAAATGTGCATTGAATACTCTGAAACCGAAGGGACTGGATCTGCAGGTGGGATGAGGGAGACAGACCACTTTTCTATATTGCAGTGTGAATGCTGGGCCCCTGCTCAAGTCTACCCTGATCACCTCAGGGCATAAAGCATGTTTCATTCTCTGGCC'),
-    ({'gene_name':['GJB2', 'NM_004004'], 'number':2, 'segment_start': 20189603, 'segment_end':20187470}, '13', '-', 'AGCAAACCGCCCAGAGTAGAAGATGGATTGGGGCACGCTGCAGACGATCCTGGGGGGTGTGAACAAACACTCCACCAGCATTGGAAAGATCTGGCTCACCGTCCTCTTCATTTTTCGCATTATGATCCTCGTTGTGGCTGCAAAGGAGGTGTGGGGAGATGAGCAGGCCGACTTTGTCTGCAACACCCTGCAGCCAGGCTGCAAGAACGTGTGCTACGATCACTACTTCCCCATCTCCCACATCCGGCTATGGGCCCTGCAGCTGATCTTCGTGTCCACGCCAGCGCTCCTAGTGGCCATGCACGTGGCCTACCGGAGACATGAGAAGAAGAGGAAGTTCATCAAGGGGGAGATAAAGAGTGAATTTAAGGACATCGAGGAGATCAAAACCCAGAAGGTCCGCATCGAAGGCTCCCTGTGGTGGACCTACACAAGCAGCATCTTCTTCCGGGTCATCTTCGAAGCCGCCTTCATGTACGTCTTCTATGTCATGTACGACGGCTTCTCCATGCAGCGGCTGGTGAAGTGCAACGCCTGGCCTTGTCCCAACACTGTGGACTGCTTTGTGTCCCGGCCCACGGAGAAGACTGTCTTCACAGTGTTCATGATTGCAGTGTCTGGAATTTGCATCCTGCTGAATGTCACTGAATTGTGTTATTTGCTAATTAGATATTGTTCTGGGAAGTCAAAAAAGCCAGTTTAACGCATTGCCCAGTTGTTAGATTAAGAAATAGACAGCATGAGAGGGATGAGGCAACCCGTGCTCAGCTGTCAAGGCTCAGTCGCTAGCATTTCCCAACACAAAGATTCTGACCTTAAATGCAACCATTTGAAACCCCTGTAGGCCTCAGGTGAAACTCCAGATGCCACAATGGAGCTCTGCTCCCCTAAAGCCTCAAAACAAAGGCCTAATTCTATGCCTGTCTTAATTTTCTTTCACTTAAGTTAGTTCCACTGAGACCCCAGGCTGTTAGGGGTTATTGGTGTAAGGTACTTTCATATTTTAAACAGAGGATATCGGCATTTGTTTCTTTCTCTGAGGACAAGAGAAAAAAGCCAGGTTCCACAGAGGACACAGAGAAGGTTTGGGTGTCCTCCTGGGGTTCTTTTTGCCAACTTTCCCCACGTTAAAGGTGAACATTGGTTCTTTCATTTGCTTTGGAAGTTTTAATCTCTAACAGTGGACAAAGTTACCAGTGCCTTAAACTCTGTTACACTTTTTGGAAGTGAAAACTTTGTAGTATGATAGGTTATTTTGATGTAAAGATGTTCTGGATACCATTATATGTTCCCCCTGTTTCAGAGGCTCAGATTGTAATATGTAAATGGTATGTCATTCGCTACTATGATTTAATTTGAAATATGGTCTTTTGGTTATGAATACTTTGCAGCACAGCTGAGAGGCTGTCTGTTGTATTCATTGTGGTCATAGCACCTAACAACATTGTAGCCTCAATCGAGTGAGACAGACTAGAAGTTCCTAGTGATGGCTTATGATAGCAAATGGCCTCATGTCAAATATTTAGATGTAATTTTGTGTAAGAAATACAGACTGGATGTACCACCAACTACTACCTGTAATGACAGGCCTGTCCAACACATCTCCCTTTTCCATGACTGTGGTAGCCAGCATCGGAAAGAACGCTGATTTAAAGAGGTCGCTTGGGAATTTTATTGACACAGTACCATTTAATGGGGAGGACAAAATGGGGCAGGGGAGGGAGAAGTTTCTGTCGTTAAAAACAGATTTGGAAAGACTGGACTCTAAAGTCTGTTGATTAAAGATGAGCTTTGTCTACTTCAAAAGTTTGTTTGCTTACCCCTTCAGCCTCCAATTTTTTAAGTGAAAATATAGCTAATAACATGTGAAAAGAATAGAAGCTAAGGTTTAGATAAATATTGAGCAGATCTATAGGAAGATTGAACCTGAATATTGCCATTATGCTTGACATGGTTTCCAAAAAATGGTACTCCACATATTTCAGTGAGGGTAAGTATTTTCCTGTTGTCAAGAATAGCATTGTAAAAGCATTTTGTAATAATAAAGAATAGCTTTAATGATATGCTTGTAACTAAAATAATTTTGTAATGTATCAAATACATTTAAAACATTAAAATATAATCTCTATAATAA'),
-    ({'gene_name':['CDH23', 'NM_022124'], 'number':69, 'segment_start': 71813244, 'segment_end':71813348}, '10', '+', 'GGCTCGCTGCTGAAGGTGGTCCTGGAGGATTACCTGCGGCTCAAAAAGCTCTTTGCACAGCGGATGGTGCAAAAAGCCTCCTCCTGCCACTCCTCCATCTCTGAG')
+    ({'gene_name':['AMACR', 'NM_001167595.2'], 'number':1, 'segment_start': 34008050, 'segment_end':34007773}, '5', '-', 'AGTTTCCTTCAGCGGGGCACTGGGAAGCGCCATGGCACTGCAGGGCATCTCGGTCGTGGAGCTGTCCGGCCTGGCCCCGGGCCCGTTCTGTGCTATGGTCCTGGCTGACTTCGGGGCGCGTGTGGTACGCGTGGACCGGCCCGGCTCCCGCTACGACGTGAGCCGCTTGGGCCGGGGCAAGCGCTCGCTAGTGCTGGACCTGAAGCAGCCGCGGGGAGCCGCCGTGCTGCGGCGTCTGTGCAAGCGGTCGGATGTGCTGCTGGAGCCCTTCCGCCGCG'),
+    ({'gene_name':['USH2A', 'NM_206933.4'], 'number':13, 'segment_start': 216247226, 'segment_end':216246585}, '1', '-', 'GGCTTAGGTGTGATCATTGCAATTTTGGATTTAAATTTCTCCGAAGCTTTAATGATGTTGGATGTGAGCCCTGCCAGTGTAACCTCCATGGCTCAGTGAACAAATTCTGCAATCCTCACTCTGGGCAGTGTGAGTGCAAAAAAGAAGCCAAAGGACTTCAGTGTGACACCTGCAGAGAAAACTTTTATGGGTTAGATGTCACCAATTGTAAGGCCTGTGACTGTGACACAGCTGGATCCCTCCCTGGGACTGTCTGTAATGCTAAGACAGGGCAGTGCATCTGCAAGCCCAATGTTGAAGGGAGACAGTGCAATAAATGTTTGGAGGGAAACTTCTACCTACGGCAAAATAATTCTTTCCTCTGTCTGCCTTGCAACTGTGATAAGACTGGGACAATAAATGGCTCTCTGCTGTGTAACAAATCAACAGGACAATGTCCTTGCAAATTAGGGGTAACAGGTCTTCGCTGTAATCAGTGTGAGCCTCACAGGTACAATTTGACCATTGACAATTTTCAACACTGCCAGATGTGTGAGTGTGATTCCTTGGGGACATTACCTGGGACCATTTGTGACCCAATCAGTGGCCAGTGCCTGTGTGTGCCTAATCGTCAAGGAAGAAGGTGTAATCAGTGTCAACCAG'),
+    ({'gene_name':['MYO7A', 'NM_000260.4'], 'number':49, 'segment_start': 77214607, 'segment_end':77215241},'11', '+', 'GGCTACAAGATGGATGACCTCCTGACTTCCTACATTAGCCAGATGCTCACAGCCATGAGCAAACAGCGGGGCTCCAGGAGCGGCAAGTGAACAGTCACGGGGAGGTGCTGGTTCCATGCCTGCTCTCGAGGCAGCAGTGGGTTCAGGCCCATCAGCTACCCCTGCAGCTGGGGAAGACTTATGCCATCCCGGCAGCGAGGCTGGGCTGGCCAGCCACCACTGACTATACCAACTGGGCCTCTGATGTTCTTCCAGTGAGGCATCTCTCTGGGATGCAGAACTTCCCTCCATCCACCCCTCTGGCACCTGGGTTGGTCTAATCCTAGTTTGCTGTGGCCTTCCCGGTTGTGAGAGCCTGTGATCCTTAGATGTGTCTCCTGTTTCAGACCAGCCCCACCATGCAACTTCCTTTGACTTTCTGTGTACCACTGGGATAGAGGAATCAAGAGGACAATCTAGCTCTCCATACTTTGAACAACCAAATGTGCATTGAATACTCTGAAACCGAAGGGACTGGATCTGCAGGTGGGATGAGGGAGACAGACCACTTTTCTATATTGCAGTGTGAATGCTGGGCCCCTGCTCAAGTCTACCCTGATCACCTCAGGGCATAAAGCATGTTTCATTCTCTGGCC'),
+    ({'gene_name':['GJB2', 'NM_004004.6'], 'number':2, 'segment_start': 20189603, 'segment_end':20187470}, '13', '-', 'AGCAAACCGCCCAGAGTAGAAGATGGATTGGGGCACGCTGCAGACGATCCTGGGGGGTGTGAACAAACACTCCACCAGCATTGGAAAGATCTGGCTCACCGTCCTCTTCATTTTTCGCATTATGATCCTCGTTGTGGCTGCAAAGGAGGTGTGGGGAGATGAGCAGGCCGACTTTGTCTGCAACACCCTGCAGCCAGGCTGCAAGAACGTGTGCTACGATCACTACTTCCCCATCTCCCACATCCGGCTATGGGCCCTGCAGCTGATCTTCGTGTCCACGCCAGCGCTCCTAGTGGCCATGCACGTGGCCTACCGGAGACATGAGAAGAAGAGGAAGTTCATCAAGGGGGAGATAAAGAGTGAATTTAAGGACATCGAGGAGATCAAAACCCAGAAGGTCCGCATCGAAGGCTCCCTGTGGTGGACCTACACAAGCAGCATCTTCTTCCGGGTCATCTTCGAAGCCGCCTTCATGTACGTCTTCTATGTCATGTACGACGGCTTCTCCATGCAGCGGCTGGTGAAGTGCAACGCCTGGCCTTGTCCCAACACTGTGGACTGCTTTGTGTCCCGGCCCACGGAGAAGACTGTCTTCACAGTGTTCATGATTGCAGTGTCTGGAATTTGCATCCTGCTGAATGTCACTGAATTGTGTTATTTGCTAATTAGATATTGTTCTGGGAAGTCAAAAAAGCCAGTTTAACGCATTGCCCAGTTGTTAGATTAAGAAATAGACAGCATGAGAGGGATGAGGCAACCCGTGCTCAGCTGTCAAGGCTCAGTCGCTAGCATTTCCCAACACAAAGATTCTGACCTTAAATGCAACCATTTGAAACCCCTGTAGGCCTCAGGTGAAACTCCAGATGCCACAATGGAGCTCTGCTCCCCTAAAGCCTCAAAACAAAGGCCTAATTCTATGCCTGTCTTAATTTTCTTTCACTTAAGTTAGTTCCACTGAGACCCCAGGCTGTTAGGGGTTATTGGTGTAAGGTACTTTCATATTTTAAACAGAGGATATCGGCATTTGTTTCTTTCTCTGAGGACAAGAGAAAAAAGCCAGGTTCCACAGAGGACACAGAGAAGGTTTGGGTGTCCTCCTGGGGTTCTTTTTGCCAACTTTCCCCACGTTAAAGGTGAACATTGGTTCTTTCATTTGCTTTGGAAGTTTTAATCTCTAACAGTGGACAAAGTTACCAGTGCCTTAAACTCTGTTACACTTTTTGGAAGTGAAAACTTTGTAGTATGATAGGTTATTTTGATGTAAAGATGTTCTGGATACCATTATATGTTCCCCCTGTTTCAGAGGCTCAGATTGTAATATGTAAATGGTATGTCATTCGCTACTATGATTTAATTTGAAATATGGTCTTTTGGTTATGAATACTTTGCAGCACAGCTGAGAGGCTGTCTGTTGTATTCATTGTGGTCATAGCACCTAACAACATTGTAGCCTCAATCGAGTGAGACAGACTAGAAGTTCCTAGTGATGGCTTATGATAGCAAATGGCCTCATGTCAAATATTTAGATGTAATTTTGTGTAAGAAATACAGACTGGATGTACCACCAACTACTACCTGTAATGACAGGCCTGTCCAACACATCTCCCTTTTCCATGACTGTGGTAGCCAGCATCGGAAAGAACGCTGATTTAAAGAGGTCGCTTGGGAATTTTATTGACACAGTACCATTTAATGGGGAGGACAAAATGGGGCAGGGGAGGGAGAAGTTTCTGTCGTTAAAAACAGATTTGGAAAGACTGGACTCTAAAGTCTGTTGATTAAAGATGAGCTTTGTCTACTTCAAAAGTTTGTTTGCTTACCCCTTCAGCCTCCAATTTTTTAAGTGAAAATATAGCTAATAACATGTGAAAAGAATAGAAGCTAAGGTTTAGATAAATATTGAGCAGATCTATAGGAAGATTGAACCTGAATATTGCCATTATGCTTGACATGGTTTCCAAAAAATGGTACTCCACATATTTCAGTGAGGGTAAGTATTTTCCTGTTGTCAAGAATAGCATTGTAAAAGCATTTTGTAATAATAAAGAATAGCTTTAATGATATGCTTGTAACTAAAATAATTTTGTAATGTATCAAATACATTTAAAACATTAAAATATAATCTCTATAATAA'),
+    ({'gene_name':['CDH23', 'NM_022124.6'], 'number':69, 'segment_start': 71813244, 'segment_end':71813348}, '10', '+', 'GGCTCGCTGCTGAAGGTGGTCCTGGAGGATTACCTGCGGCTCAAAAAGCTCTTTGCACAGCGGATGGTGCAAAAAGCCTCCTCCTGCCACTCCTCCATCTCTGAG')
 ))
 def test_get_exon_sequence(positions, chrom, strand, result):
     sequence = md_utilities.get_exon_sequence(positions, chrom, strand)
@@ -239,6 +245,7 @@ def test_get_aa_position(variant_in, aa_pos):
     aa = md_utilities.get_aa_position(variant_in)
     assert aa == aa_pos
 
+
 @pytest.mark.parametrize(('username', 'user_id'), (
     ('mobidetails', 10),
     ('davidbaux', 1),
@@ -246,7 +253,9 @@ def test_get_aa_position(variant_in, aa_pos):
 ))
 def test_get_user_id(app, username, user_id):
     with app.app_context():
-        test_user_id = md_utilities.get_user_id(username, get_db())
+        db_pool, db = get_db()
+        test_user_id = md_utilities.get_user_id(username, db)
+        db_pool.putconn(db)
         print(test_user_id)
         assert test_user_id == user_id
 
@@ -276,8 +285,12 @@ def test_get_user_id(app, username, user_id):
     (1, None)
 ))
 def test_define_lovd_class(app, acmg_classes, lovd_class):
-     with app.app_context():
-        assert md_utilities.define_lovd_class(acmg_classes, get_db()) == lovd_class
+    with app.app_context():
+        db_pool, db = get_db()
+        test_lovd_class = md_utilities.define_lovd_class(acmg_classes, db)
+        db_pool.putconn(db)
+        assert test_lovd_class == lovd_class
+
 
 @pytest.mark.parametrize(('acmg_class', 'lovd_class'), (
     (1, 'Benign'),
@@ -292,7 +305,11 @@ def test_define_lovd_class(app, acmg_classes, lovd_class):
 ))
 def test_acmg2lovd(app, acmg_class, lovd_class):
     with app.app_context():
-        assert lovd_class == md_utilities.acmg2lovd(acmg_class, get_db())
+        db_pool, db = get_db()
+        test_lovd_class = md_utilities.acmg2lovd(acmg_class, db)
+        db_pool.putconn(db)
+        assert test_lovd_class == lovd_class
+
 
 var = {
     'chr': '1',
@@ -498,9 +515,55 @@ def test_compute_pos_end(g_name, pos_end):
     assert pos == pos_end
 
 
+@pytest.mark.parametrize(('vv_expr', 'result'), (
+    ('8i', 'intron'),
+    ('72', 'exon'),
+    ('xc', 'segment_type_error'),
+))
+def test_get_segment_type_from_vv(vv_expr, result):
+    segment_type = md_utilities.get_segment_type_from_vv(vv_expr)
+    assert segment_type == result
+
+
+@pytest.mark.parametrize(('vv_expr', 'result'), (
+    ('8i', '8'),
+    ('72', '72'),
+    ('xc', 'segment_number_error'),
+))
+def test_get_segment_number_from_vv(vv_expr, result):
+    segment_number = md_utilities.get_segment_number_from_vv(vv_expr)
+    assert segment_number == result
+
+
+@pytest.mark.parametrize(('cigar', 'result'), (
+    ('8=', '8'),
+    ('72258=', '72258'),
+    ('xc', 'cigar_error'),
+))
+def test_get_segment_size_from_vv_cigar(cigar, result):
+    segment_size = md_utilities.get_segment_size_from_vv_cigar(cigar)
+    assert segment_size == result
+
+
+@pytest.mark.parametrize(('gene_symbol', 'transcript', 'ncbi_chr', 'exon_number', 'start_result'), (
+    ('A2ML1', 'NM_144670.6', 'NC_000012.12', '27', '8860881'),
+    ('A2ML1', 'NM_144670.6', 'NC_000012.13', '27', 'transcript_error'),
+    ('A2ML1', 'NM_001282424.3', 'NC_000012.12', '27', 'transcript_error'),
+    ('ABCA4', 'NM_000350.3', 'NC_000001.11', '22', '94042898'),
+    ('ABCA4', 'NM_000350.3', 'NC_000001.11', '82', 'transcript_error'),
+    ('ABCA4', 'NM_000350.7', 'NC_000001.11', '22', 'transcript_error'),
+))
+def test_get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number, start_result):
+    positions = md_utilities.get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number)
+    if isinstance(positions, str):
+        assert positions == start_result
+    else:
+        assert positions['segment_start'] == start_result
+
+
 vv_dict = {
   "flag": "gene_variant",
-  "NM_206933.2:c.100_101delinsA": {
+  "NM_206933.4:c.100_101delinsA": {
     "hgvs_lrg_transcript_variant": "",
     "validation_warnings": [],
     "refseqgene_context_intronic_sequence": "",
@@ -511,10 +574,10 @@ vv_dict = {
       "tlr": "NP_996816.2:p.(Arg34LysfsTer111)",
       "slr": "NP_996816.2:p.(R34Kfs*111)"
     },
-    "submitted_variant": "NM_206933.2:c.100_101delCGinsA",
+    "submitted_variant": "NM_206933.4:c.100_101delCGinsA",
     "genome_context_intronic_sequence": "",
     "hgvs_lrg_variant": "",
-    "hgvs_transcript_variant": "NM_206933.2:c.100_101delinsA",
+    "hgvs_transcript_variant": "NM_206933.4:c.100_101delinsA",
     "hgvs_refseqgene_variant": "NG_009497.1:g.6160_6161delinsA",
     "primary_assembly_loci": {
       "hg19": {
@@ -557,7 +620,21 @@ vv_dict = {
     "reference_sequence_records": {
       "refseqgene": "https://www.ncbi.nlm.nih.gov/nuccore/NG_009497.1",
       "protein": "https://www.ncbi.nlm.nih.gov/nuccore/NP_996816.2",
-      "transcript": "https://www.ncbi.nlm.nih.gov/nuccore/NM_206933.2"
+      "transcript": "https://www.ncbi.nlm.nih.gov/nuccore/NM_206933.4"
+    },
+    "variant_exonic_positions": {
+      "NC_000001.10": {
+        "end_exon": "2",
+        "start_exon": "2"
+      },
+      "NC_000001.11": {
+        "end_exon": "2",
+        "start_exon": "2"
+      },
+      "NG_009497.2": {
+        "end_exon": "2",
+        "start_exon": "2"
+      }
     }
   },
   "metadata": {
@@ -586,12 +663,21 @@ hg19_test_d = {
 
 
 @pytest.mark.parametrize(('genome', 'var', 'test_d', 'vv_dict'), (
-    ('hg38', 'NM_206933.2:c.100_101delinsA', hg38_test_d, vv_dict),
-    ('hg19', 'NM_206933.2:c.100_101delinsA', hg19_test_d, vv_dict)
+    ('hg38', 'NM_206933.4:c.100_101delinsA', hg38_test_d, vv_dict),
+    ('hg19', 'NM_206933.4:c.100_101delinsA', hg19_test_d, vv_dict)
 ))
 def test_get_genomic_values(genome, var, test_d, vv_dict):
     var_dict = md_utilities.get_genomic_values(genome, vv_dict, var)
     assert var_dict == test_d
+
+
+@pytest.mark.parametrize(('vv_dict'), (
+    (vv_dict),
+))
+def test_check_vv_variant_data(vv_dict):
+    verif_data = md_utilities.check_vv_variant_data('NM_206933.4:c.100_101delinsA', vv_dict)
+    print(verif_data)
+    assert verif_data is True
 
 
 def test_get_vv_api_url():
@@ -600,17 +686,25 @@ def test_get_vv_api_url():
 
 
 class fake_g_obj:
-    user = dict(username='mobidetails')
+    user = dict(username='mobidetails', id=1)
+
+
+def test_vv_internal_server_error():
+    vv_error = {'message': 'Internal Server Error'}
+    assert 'mobidetails_error' in md_utilities.vv_internal_server_error('cli', vv_error, 'NM_001322246.2:c.2del')
 
 
 def test_create_var_vv(client, app):
     with app.app_context():
         g = fake_g_obj()
+        db_pool, db = get_db()
         error_dict = md_utilities.create_var_vv(
-            'NM_206933.2:c.100_101delinsA', 'USH2A', 'NM_206933',
-            'c.100_101delinsA', 'c.100_101delinsA', '2', vv_dict,
-            'test', get_db(), g
+            'NM_206933.4:c.100_101delinsA', 'USH2A', 'NM_206933.4',
+            'c.100_101delinsA', 'c.100_101delinsA', vv_dict,
+            'test', db, g
         )
+        db_pool.putconn(db)
+        print(error_dict)
         assert isinstance(error_dict['mobidetails_id'], int)
 
 
@@ -658,12 +752,12 @@ def test_maxentscan(w, y, seq, scan_type, result):
 
 
 @pytest.mark.parametrize(('chrom', 'strand', 'scan_type', 'positions', 'result'), (
-    (11, '+', 3, {'segment_start': 77201448,'segment_end': 77201638}, [5.40, 'cactcacctctgctctacagCAG']),
-    (11, '+', 5, {'segment_start': 77201448,'segment_end': 77201638}, [7.64, 'GTGgtatgt']),
-    (1, '-', 3, {'segment_start': 216247226,'segment_end': 216246585}, [8.95, 'taaatatattttatctttagGGC']),
-    (1, '-', 5, {'segment_start': 216247226,'segment_end': 216246585}, [10.77, 'CAGgtaaga']),
-    (5, '-', 3, {'segment_start': 34005899,'segment_end': 34005756}, [7.95, 'atcgttacttttctcttaagGTG']),
-    (5, '-', 5, {'segment_start': 34005899,'segment_end': 34005756}, [9.80, 'CAGgtatgt'])
+    (11, '+', 3, {'segment_start': 77201448, 'segment_end': 77201638}, [5.40, 'cactcacctctgctctacagCAG']),
+    (11, '+', 5, {'segment_start': 77201448, 'segment_end': 77201638}, [7.64, 'GTGgtatgt']),
+    (1, '-', 3, {'segment_start': 216247226, 'segment_end': 216246585}, [8.95, 'taaatatattttatctttagGGC']),
+    (1, '-', 5, {'segment_start': 216247226, 'segment_end': 216246585}, [10.77, 'CAGgtaaga']),
+    (5, '-', 3, {'segment_start': 34005899, 'segment_end': 34005756}, [7.95, 'atcgttacttttctcttaagGTG']),
+    (5, '-', 5, {'segment_start': 34005899, 'segment_end': 34005756}, [9.80, 'CAGgtatgt'])
 ))
 def test_get_maxent_natural_sites_scores(chrom, strand, scan_type, positions, result):
     maxent_natural = md_utilities.get_maxent_natural_sites_scores(chrom, strand, scan_type, positions)
@@ -677,23 +771,21 @@ def test_lovd_error_html():
 
 @pytest.mark.parametrize(('record', 'result'), (
     ('hsa-miR-548j-3p;hsa-miR-548j-3p;hsa-miR-548x-3p;hsa-miR-548ah-3p;\
-hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p\
-</a><br /><a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?\
-acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p\
-</a><br />"),
-    ('hsa-miR-548o-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl\
-?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p\
-</a><br />"),
+hsa-miR-548am-3p', """
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548j-3p' target='_blank' title='Link to miRBase'>miR-548j-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548x-3p' target='_blank' title='Link to miRBase'>miR-548x-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548ah-3p' target='_blank' title='Link to miRBase'>miR-548ah-3p</a><br />
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548am-3p' target='_blank' title='Link to miRBase'>miR-548am-3p</a><br />
+                """),
+    ('hsa-miR-548o-3p', """
+                <a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=hsa-miR-548o-3p' target='_blank' title='Link to miRBase'>miR-548o-3p</a><br />
+                """),
     ('.', '.')
 ))
 def test_format_mirs(record, result):
     totest = md_utilities.format_mirs(record)
-    assert result == totest
+    print('-{}'.format(totest))
+    assert re.split(r'\s+', result) == re.split(r'\s+', totest)
 
 
 @pytest.mark.parametrize(('api_key', 'result'), (
@@ -703,17 +795,21 @@ def test_format_mirs(record, result):
 ))
 def test_check_api_key(app, api_key, result):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         if api_key == '':
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT api_key FROM mobiuser \
-                WHERE email = 'mobidetails.iurc@gmail.com'"
+                """
+                SELECT api_key
+                FROM mobiuser
+                WHERE email = 'mobidetails.iurc@gmail.com'
+                """
             )
             res = curs.fetchone()
             if res is not None:
                 api_key = res['api_key']
         check = md_utilities.check_api_key(db, api_key)
+        db_pool.putconn(db)
         if 'mobidetails_error' in check:
             assert result == check['mobidetails_error']
         else:
@@ -729,15 +825,17 @@ def test_check_api_key(app, api_key, result):
     ('cli', 'Valid caller')
 ))
 def test_check_caller(caller, result):
-        assert md_utilities.check_caller(caller) == result
+    assert md_utilities.check_caller(caller) == result
 
 
 def test_get_api_key(app):
     with app.app_context():
-        db = get_db()
-        curs =  db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        db_pool, db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         g.user = None
+        db_pool.putconn(db)
         assert md_utilities.get_api_key(g, curs) is not None
+
 
 @pytest.mark.parametrize(('criterion', 'color'), (
     ('PVS1', 'w3-red'),
@@ -751,7 +849,7 @@ def test_get_api_key(app):
     ('BBR', None)
 ))
 def test_get_acmg_criterion_color(criterion, color):
-        assert md_utilities.get_acmg_criterion_color(criterion) == color
+    assert md_utilities.get_acmg_criterion_color(criterion) == color
 
 
 # @pytest.mark.parametrize(('gene_symbol', 'nm_acc', 'c_name', 'prediction'), (
@@ -759,12 +857,19 @@ def test_get_acmg_criterion_color(criterion, color):
 # ))
 def test_run_spip(app):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
-            "SELECT id, gene_name, c_name FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 15"
+            """
+            SELECT id, gene_name, c_name
+            FROM variant_feature
+            WHERE c_name <> 'c.2del'
+            ORDER BY random()
+            LIMIT 15
+            """
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for var in res:
             spip_results = md_utilities.run_spip(
                 var['gene_name'][0], var['gene_name'][1], var['c_name'], var['id']

@@ -1,5 +1,5 @@
 import pytest
-from MobiDetailsApp.db import get_db
+from test_ajax import get_db
 
 
 # def test_homepage(client):
@@ -12,12 +12,17 @@ def test_about(client):
 
 def test_gene_page(client, app):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT name[1] FROM gene LIMIT 50",
+            """
+            SELECT name[1]
+            FROM gene
+            LIMIT 50
+            """,
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for name in res:
             assert client.get('/gene/{}'.format(name[0])).status_code == 200
 #             gene_page_result(client, name)
@@ -37,64 +42,79 @@ def test_basic_variant_page(client):
     assert client.get('/variant/5').status_code == 302
 
 
-@pytest.mark.parametrize(('t_search', 'url'), (
-    ('R34X', 'api/variant/5/browser/'),
-    ('R34*', 'api/variant/5/browser/'),
-    ('p.Arg34*', 'api/variant/5/browser/'),
-    ('p.(Arg34Ter)', 'api/variant/5/browser/'),
-    ('p.(Arg34*)', 'api/variant/5/browser/'),
-    ('c.100C>T', 'api/variant/5/browser/'),
-    ('c.100c>t', 'api/variant/5/browser/'),
-    ('c.100c>T', 'api/variant/5/browser/'),
-    ('g.6160C>T', 'api/variant/5/browser/'),
-    ('chr1:g.216595579G>A', 'api/variant/5/browser/'),
-    ('chr1:g.216422237G>A', 'api/variant/5/browser/'),
-    ('chr1:g.216422237g>A', 'api/variant/5/browser/'),
-    ('NC_000001.11:g.216422237G>A', 'api/variant/5/browser/'),
-    ('NC_000004.12:g.76311072A>C;STBD1', 'api/variant/create_g?variant_ghgvs=NC_000004.12%3Ag.76311072A%3EC&gene_hgnc=STBD1&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs'),
-    ('USH2A', 'gene/USH2A'),
-    ('c.2447_2461delGAGGGAGGGGAAGTA', 'api/variant/71/browser/'),
-    ('c.2447_2461del', 'api/variant/71/browser/'),
-    ('p.Gly816_Glu820del', 'api/variant/71/browser/'),
-    ('p.G816_E820del', 'api/variant/71/browser/'),
-    ('p.Leu1278del', 'api/variant/68208/browser/'),
-    ('p.L1278del', 'api/variant/68208/browser/'),
-    ('NM_206933.2:c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs')),
-    ('NM_206933.2(USH2A):c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs')),
-    ('MYO7A', 'gene/MYO7A'),
-    ('myo7a', 'gene/MYO7A'),
-    ('mYo7A', 'gene/MYO7A'),
-    ('NM_206933', 'gene/USH2A'),
-    ('NM_206933.', 'gene/USH2A'),
-    ('NM_206933.3', 'gene/USH2A'),
-    ('NM_206933.33', 'gene/USH2A'),
-    ('GPR98', 'gene/ADGRV1'),
-    ('c12ORF65', 'gene/C12orf65'),
-    ('C12oRf65', 'gene/C12orf65'),
-    ('C12orf65', 'gene/C12orf65'),
-    ('rs1057516028', 'api/variant/51689/browser/'),
-    ('S100G', 'gene/S100G'),
-    ('S100g', 'gene/S100G'),
+@pytest.mark.parametrize(('t_search', 'url', 'status_code'), (
+    ('R34X', b'api/variant/334419/browser/', 200),
+    ('R34*', b'api/variant/334419/browser/', 200),
+    ('p.Arg34*', b'api/variant/334419/browser/', 200),
+    ('p.(Arg34Ter)', b'api/variant/334419/browser/', 200),
+    ('p.(Arg34*)', b'api/variant/334419/browser/', 200),
+    ('c.100C>T', b'api/variant/334419/browser/', 200),
+    ('c.100c>t', b'api/variant/334419/browser/', 200),
+    ('c.100c>T', b'api/variant/334419/browser/', 200),
+    ('g.6212C>T', 'api/variant/334419/browser/', 302),
+    ('chr1:g.216595579G>A', b'api/variant/334419/browser/', 200),
+    ('chr1:g.216422237G>A', b'api/variant/334419/browser/', 200),
+    ('chr1:g.216422237g>A', b'api/variant/334419/browser/', 200),
+    # ('NC_000001.11:g.216422237G>A', b'api/variant/334419/browser/', 200),
+    ('NC_000004.12:g.76311072A>C;STBD1', 'api/variant/create_g?variant_ghgvs=NC_000004.12%3Ag.76311072A%3EC&gene_hgnc=STBD1&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', 302),
+    ('USH2A', 'gene/USH2A', 302),
+    ('c.2447_2461delGAGGGGAAGTAGAGG', 'api/variant/71/browser/', 302),
+    ('c.2447_2461del', 'api/variant/71/browser/', 302),
+    ('p.Gly816_Glu820del', 'api/variant/71/browser/', 302),
+    ('p.G816_E820del', 'api/variant/71/browser/', 302),
+    ('p.Leu1278del', 'api/variant/68208/browser/', 302),
+    ('p.L1278del', 'api/variant/68208/browser/', 302),
+    ('NM_206933.2:c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs'), 302),
+    ('NM_206933.2(USH2A):c.2299del', ('api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs'), 302),
+    ('MYO7A', 'gene/MYO7A', 302),
+    ('myo7a', 'gene/MYO7A', 302),
+    ('mYo7A', 'gene/MYO7A', 302),
+    ('NM_206933', 'gene/USH2A', 302),
+    ('NM_206933.', 'gene/USH2A', 302),
+    ('NM_206933.3', 'gene/USH2A', 302),
+    ('NM_206933.33', 'gene/USH2A', 302),
+    ('GPR98', 'gene/ADGRV1', 302),
+    ('c12ORF4', 'gene/C12orf4', 302),
+    ('C12oRf4', 'gene/C12orf4', 302),
+    ('C12orf4', 'gene/C12orf4', 302),
+    ('rs1057516028', 'api/variant/51689/browser/', 302),
+    ('S100G', 'gene/S100G', 302),
+    ('S100g', 'gene/S100G', 302),
     ))
-def test_search_engine(client, app, t_search, url):
+def test_search_engine(client, app, t_search, url, status_code):
     response = client.post(
         '/search_engine',
         data={'search': t_search}
     )
-    print(response.headers['Location'] + 'http://localhost/{}'.format(url))
-    assert 'http://localhost/{}'.format(url) == response.headers['Location']
+    print(response.status_code)
+    if status_code == 200:
+        print(response.get_data())
+        assert url in response.get_data()
+    elif status_code == 302:
+        print(response.headers['Location'] + 'http://localhost/{}'.format(url))
+        assert 'http://localhost/{}'.format(url) == response.headers['Location']
+    else:
+        assert status_code == response.status_code
 
 # test all variants in dev db except c.1A>T (too numerous as used to test variant creation)
 
 
 def test_variant_page(client, app):
     with app.app_context():
-        db = get_db()
+        db_pool, db = get_db()
         curs = db.cursor()
         curs.execute(
-            "SELECT id FROM variant_feature WHERE c_name <> 'c.1A>T' ORDER BY random() LIMIT 100"  #  LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
+            """
+            SELECT id
+            FROM variant_feature
+            WHERE c_name <> 'c.2del'
+            ORDER BY random()
+            LIMIT 100
+            """
+            # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
         res = curs.fetchall()
+        db_pool.putconn(db)
         for variant_id in res:
-            print(variant_id)
+            print(variant_id[0])
             assert client.get('/api/variant/{}/browser/'.format(variant_id[0])).status_code == 200
