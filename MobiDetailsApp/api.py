@@ -1540,16 +1540,16 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             VariantValidator did not return a valid value for the variant {0}
                             """.format(vv_key_var)
                         )
-                if re.search('[di][neu][psl]', new_variant):
+                # if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned
                     # by vv is likely to be different form the user's
-                    for key in vv_data.keys():
-                        if re.search(acc_no, key):
-                            vv_key_var = key
-                            # print(key)
-                            var_obj = re.search(r':c\.(.+)$', key)
-                            if var_obj is not None:
-                                new_variant = var_obj.group(1)
+                for key in vv_data.keys():
+                    if re.search(acc_no, key):
+                        vv_key_var = key
+                        # print(key)
+                        var_obj = re.search(r':c\.(.+)$', key)
+                        if var_obj is not None:
+                            new_variant = var_obj.group(1)
                 # check if the transcript is canonical - if not, send 2 requests, one for the canonical, the other for the asked trancript
                 # returns only the results for the asked transcript (retrocompatibility)
                 if res_gene['canonical'] is False:
@@ -1604,6 +1604,10 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         )
                     else:
                         return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
+                elif isinstance(creation_dict, str):
+                    close_db()
+                    flash(creation_dict, '')
+                    return redirect(url_for('md.index'), code=302)
                 if 'mobidetails_error' in creation_dict:
                     close_db()
                     if caller == 'cli':
