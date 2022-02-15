@@ -980,20 +980,19 @@ def create_var_vv(
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])
             # print(warning)
+            variant_regexp = regexp['variant']
             if re.search(r'RefSeqGene record not available', warning):
                 vf_d['ng_name'] = 'NULL'
             elif re.search(r'automapped to NC_0000', warning):
                 continue
             elif re.search(
-                    r'automapped to {0}:c\..+'
-                    .format(acc_no),
+                    rf'automapped to {acc_no}:c\.{variant_regexp}',
                     warning):
                 match_obj = re.search(
-                    r'automapped to {0}:(c\..+)'
-                    .format(acc_no),
+                    rf'automapped to {acc_no}:(c\.{variant_regexp})',
                     warning
                 )
-                if match_obj.group(1):
+                if match_obj:
                     return_text = """
                      VariantValidator reports that your variant should be {0} instead of {1}
                      """.format(
@@ -1007,8 +1006,7 @@ def create_var_vv(
                     danger_panel(vv_key_var, warning)
             elif re.search('normalized', warning):
                 match_obj = re.search(
-                    r'normalized to ({0}:c\..+)'
-                    .format(acc_no),
+                    rf'normalized to ({acc_no}:c\..+)',
                     warning
                 )
                 if match_obj.group(1) and \
@@ -1801,6 +1799,18 @@ def get_genomic_values(genome, vv_data, vv_key_var):
 
 def check_vv_variant_data(vv_key_var, vv_data):
     # checks whether a variant VV json contains all the required fields
+    # but if VV automapped, vv_key_var won't be found anymore
+    # need to get at least the right transcript
+    if vv_key_var not in vv_data:
+        variant_regexp = regexp['variant']
+        ncbi_transcript_regexp = regexp['ncbi_transcript']
+        nm_match = re.search(rf'({ncbi_transcript_regexp}):c\.{variant_regexp}', vv_key_var)
+        if nm_match:
+            current_nm = nm_match.group(1)
+            for vv_key in vv_data:
+                vv_nm_match = re.search(rf'{current_nm}:c\.{variant_regexp}', vv_key)
+                if vv_nm_match:
+                    vv_key_var = vv_key
     if vv_key_var in vv_data:
         if 'primary_assembly_loci' not in vv_data[vv_key_var]:
             return False
