@@ -1215,7 +1215,7 @@ def create_var_vv(
                 """.format(acc_no, gene)}
     positions = compute_start_end_pos(hg38_d['g_name'])
     if 'c_name' not in vf_d:
-        var_obj = re.search(r'c\.(.+)$', new_variant)
+        var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
     if 'ng_name' not in vf_d:
         ng_name_obj = re.search(
