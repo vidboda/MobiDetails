@@ -4,14 +4,20 @@ import psycopg2.extras
 # requires MobiDetails config module + database.ini file
 from . import md_utilities
 import click
+import threading
 from flask import g, current_app as app
 from flask.cli import with_appcontext
+
+# semaphore is used in case the max_conn param is raised: we wait for a conn to come back
+poolSemaphore = threading.Semaphore(4)
 
 
 def get_db():
     if 'db' not in g:
         # print('App:{0}'.format(app.config))
         try:
+            # use the Semaphore
+            poolSemaphore.acquire(blocking=True)
             # read connection parameters
             g.db = app.config['POSTGRESQL_POOL'].getconn()
             # params = configuration.mdconfig()
@@ -34,6 +40,7 @@ def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         app.config['POSTGRESQL_POOL'].putconn(db)
+        poolSemaphore.release()
         # print('rendered back db connection')
         # db.close()
 

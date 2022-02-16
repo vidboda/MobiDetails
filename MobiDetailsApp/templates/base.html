@@ -128,7 +128,7 @@
 		{% endif %}
 		{% for category, message in get_flashed_messages(with_categories=true) %}
 			{% autoescape false %}
-				{% if message|match('X') %}
+				{% if message|match_multiline('.+w3-display-container') %}
 				{{ message }}
 				{% else %}
 				<br />

@@ -52,6 +52,7 @@ def create_app(test_config=None):
     app.register_error_handler(413, reques_entity_too_large_error)
     # define custom jinja filters
     app.jinja_env.filters['match'] = configuration.match
+    app.jinja_env.filters['match_multiline'] = configuration.match_multiline
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

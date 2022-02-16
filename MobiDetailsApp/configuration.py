@@ -25,3 +25,7 @@ def mdconfig(filename=dir_path + init_file, section='postgresql'):
 
 def match(value, regexp):
     return re.match(regexp, value)
+
+
+def match_multiline(value, regexp):
+    return re.match(regexp, value, re.DOTALL)
