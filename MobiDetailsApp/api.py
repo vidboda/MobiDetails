@@ -1530,7 +1530,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         flash(
                             """
                             VariantValidator did not return a valid value for the variant {0}. An admin has been warned.
-                            """.format(vv_key_var)
+                            """.format(vv_key_var),
+                            'w3-pale-red'
                         )
                         return redirect(url_for('md.index'), code=302)
                     elif caller == 'cli':
