@@ -1591,9 +1591,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     'c.{}'.format(new_variant), original_variant,
                     vv_data, caller, db, g
                 )
+                close_db()
                 if isinstance(creation_dict, int):
                     # success
-                    close_db()
                     if caller == 'cli':
                         return jsonify(
                             mobidetails_id=creation_dict,
@@ -1605,14 +1605,12 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
                 elif isinstance(creation_dict, str):
-                    close_db()
                     if caller == 'cli':
                         return jsonify(mobidetails_error=creation_dict)
                     else:
                         flash(creation_dict, '')
                         return redirect(url_for('md.index'), code=302)
                 if 'mobidetails_error' in creation_dict:
-                    close_db()
                     if caller == 'cli':
                         return jsonify(creation_dict)
                     else:
@@ -1846,9 +1844,9 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 'c.{}'.format(new_variant), new_variant,
                                 vv_data, caller, db, g
                             )
+                            close_db()
                             if isinstance(creation_dict, int):
                                 # success
-                                close_db()
                                 if caller == 'cli':
                                     return jsonify(
                                         mobidetails_id=creation_dict,
@@ -1859,11 +1857,22 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                     )
                                 else:
                                     return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
-                            close_db()
-                            if caller == 'cli':
-                                return jsonify(creation_dict)
-                            else:
-                                return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
+                            elif isinstance(creation_dict, str):
+                                if caller == 'cli':
+                                    return jsonify(mobidetails_error=creation_dict)
+                                else:
+                                    flash(creation_dict, '')
+                                    return redirect(url_for('md.index'), code=302)
+                            if 'mobidetails_error' in creation_dict:
+                                if caller == 'cli':
+                                    return jsonify(creation_dict)
+                                else:
+                                    flash(creation_dict['mobidetails_error'], 'w3-pale-red')
+                                    return redirect(url_for('md.index'), code=302)
+                            # if caller == 'cli':
+                            #     return jsonify(creation_dict)
+                            # else:
+                            #     return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
                         else:
                             close_db()
                             if caller == 'cli':

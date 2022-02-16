@@ -633,7 +633,7 @@
 			<div id="spip">{{ info('MobiDetails is running SPiPv2 (may last up to 20s)... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
 				<!--dbscSNV / spliceAI-->
-				{{ info('This last table present dbscSNV and spliceAi scores (max distance: 50 bp), when available. Anyway you can run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large indels. ')|format(urls.spliceai_lookup) }}
+				{{ info('This last table presents dbscSNV and spliceAi scores (max distance: 50 bp), when available. Anyway you can run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large indels. ')|format(urls.spliceai_lookup) }}
 				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="splicing_table">
 					<thead>
