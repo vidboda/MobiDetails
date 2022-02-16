@@ -698,14 +698,14 @@ def test_create_var_vv(client, app):
     with app.app_context():
         g = fake_g_obj()
         db_pool, db = get_db()
-        error_dict = md_utilities.create_var_vv(
+        res_id = md_utilities.create_var_vv(
             'NM_206933.4:c.100_101delinsA', 'USH2A', 'NM_206933.4',
             'c.100_101delinsA', 'c.100_101delinsA', vv_dict,
             'test', db, g
         )
         db_pool.putconn(db)
-        print(error_dict)
-        assert isinstance(error_dict['mobidetails_id'], int)
+        print(res_id)
+        assert isinstance(res_id, int)
 
 
 @pytest.mark.parametrize(('name', 'result'), (
