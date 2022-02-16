@@ -2,14 +2,15 @@ import os
 import psycopg2
 import psycopg2.extras
 # requires MobiDetails config module + database.ini file
-from . import md_utilities
+from . import md_utilities, configuration
 import click
 import threading
 from flask import g, current_app as app
 from flask.cli import with_appcontext
 
+pool_params = configuration.mdconfig(section='psycopg2')
 # semaphore is used in case the max_conn param is raised: we wait for a conn to come back
-poolSemaphore = threading.Semaphore(4)
+poolSemaphore = threading.Semaphore(int(pool_params['max_pool_conn']))
 
 
 def get_db():
