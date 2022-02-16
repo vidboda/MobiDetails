@@ -1170,7 +1170,7 @@ def create():
         if res_main['canonical'] is False:
             curs.execute(
                 """
-                SELECT name
+                SELECT name[2] as nm
                 FROM gene
                 WHERE name[1] = %s
                     AND canonical = 't'
@@ -1178,11 +1178,29 @@ def create():
                 (gene,)
             )
             res_can = curs.fetchone()
-            can_output = md_utilities.create_var_vv(
-                vv_key_var, gene, res_can['name'][1], new_variant,
-                original_variant,
-                vv_data, 'browser', db, g
-            )
+            # get variant name for this transcript
+            # need another call to VV
+            if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
+                    vv_base_url,
+                    vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
+                )
+                vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                vv_key_var_can = None
+                for key in vv_full_data.keys():
+                    # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
+                    if re.search(res_can['nm'], key):
+                        vv_key_var_can = key
+                        var_obj = re.search(r':c\.(.+)$', key)
+                        if var_obj is not None:
+                            new_variant_can = var_obj.group(1)
+                            original_variant_can = new_variant_can
+                if vv_key_var_can:
+                    can_output = md_utilities.create_var_vv(
+                        vv_key_var_can, gene, res_can['nm'], new_variant_can,
+                        original_variant_can,
+                        vv_full_data, 'browser', db, g
+                    )
             # if non_can_output is a number => success => just get the text to display
             if isinstance(can_output, int):
                 # get variant c_name

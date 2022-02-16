@@ -62,7 +62,7 @@
 				{% elif variant.prot_type == 'silent' %}
 					{% set count.silent = count.silent + 1 %}
 					{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
-				{# match is a custom filter for regexp - see md_utilities.py, and loaded in __init__.py #}
+				{# match is a custom filter for regexp - see configuration.py, and loaded in __init__.py #}
 				{% elif variant.prot_type|match('inframe') %}
 					{% set count.inframe_indels = count.inframe_indels + 1 %}
 					{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}

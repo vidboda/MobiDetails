@@ -21,7 +21,7 @@
 		<title>
 		{% block title %}
 			{% if external_data is defined %}
-				{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
+			{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
 			{% endif %}
 		{% endblock %} - MobiDetails</title>
 	</head>
@@ -65,37 +65,37 @@
 					</div>
 					{# for variant page #}
 					{% if external_data is defined %}
-						<!--left menu-->
-						<div>
-							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="openNav" onclick="w3_open()" style="visibility:hidden" title="Open the menu of useful external links">
-								<i class="fa fa-bars w3-xxlarge"></i>
-							</span>
-						</div>
-						<!--export tables as pdf-->
-						<div>
-							<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="ExportPdf" title="Export the tables as pdf file">
-								<i class="fa fa-file-pdf-o w3-xxlarge"></i>
-							</span>
-						</div>
-						<!--page title-->
-						<div>
-							<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
-						</div>
-						<div>
-							{% if g.user and favourite == True %}
-								<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:block;" title="This variant is marked as one of your favourites.">
-							{% else %}
-								<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:none;" title="This variant is marked as one of your favourites.">
-							{% endif %}
-								<i class="fa fa-star-o w3-xxlarge"></i>
-							</span>
-						</div>
-						{#{% else %}#}
-							<!--<span class="w3-bar-item w3-xlarge" id="app_desc">Online DNA Variants Interpretation</span>-->
+					<!--left menu-->
+					<div>
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="openNav" onclick="w3_open()" style="visibility:hidden" title="Open the menu of useful external links">
+							<i class="fa fa-bars w3-xxlarge"></i>
+						</span>
+					</div>
+					<!--export tables as pdf-->
+					<div>
+						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="ExportPdf" title="Export the tables as pdf file">
+							<i class="fa fa-file-pdf-o w3-xxlarge"></i>
+						</span>
+					</div>
+					<!--page title-->
+					<div>
+						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
+					</div>
+					<div>
+						{% if g.user and favourite == True %}
+							<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:block;" title="This variant is marked as one of your favourites.">
+						{% else %}
+							<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:none;" title="This variant is marked as one of your favourites.">
+						{% endif %}
+							<i class="fa fa-star-o w3-xxlarge"></i>
+						</span>
+					</div>
+					{#{% else %}#}
+						<!--<span class="w3-bar-item w3-xlarge" id="app_desc">Online DNA Variants Interpretation</span>-->
 					{% endif %}
 					<!--auth-->
 					<div>
-					{% if g.user %}
+						{% if g.user %}
 						<!--profile-->
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="show_loader();window.location='{{ url_for('auth.logout') }}';" title="Log out">
 							<i class="fa fa-user-times w3-xxlarge"></i>
@@ -104,14 +104,14 @@
 							<i class="fa fa-id-card-o w3-xxlarge"></i>
 						</span>
 						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
-					{% else %}
+						{% else %}
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
 							<i class="fa fa fa-user-plus w3-xxlarge"></i>
 						</span>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.login') }}';" title="Log in">
 							<i class="fa fa fa-user w3-xxlarge"></i>
 						</span>
-					{% endif %}
+						{% endif %}
 					</div>
 				</div>
 			</div>
@@ -121,21 +121,21 @@
 			{% block header %}{% endblock %}
 		</header>
 		{% if run_mode and run_mode == 'maintenance' %}
-			<br />
-			<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
-				<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
-			</div>
+		<br />
+		<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
+			<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
+		</div>
 		{% endif %}
 		{% for category, message in get_flashed_messages(with_categories=true) %}
 			{% autoescape false %}
-				{% if message | match('w3-button w3-ripple w3-display-topright w3-large') %}
+				{% if message|match_multiline('.+w3-display-container') %}
+				{{ message }}
+				{% else %}
 				<br />
 				<div class="w3-margin w3-panel w3-leftbar w3-display-container {{ category }}">
 					<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none'">X</span>
 					<p><strong>{{ message }}</strong></p>
 				</div>
-				{% else %}
-				{{ message }}
 				{% endif %}
 			{% endautoescape %}
 		{% endfor %}

@@ -1162,27 +1162,29 @@ def create_var_vv(
     # )
     # res = curs.fetchone()
     if res is not None:
-        if caller == 'browser':
-            return info_panel(
-                'Variant already in MobiDetails: ',
-                '{0}:{1}'.format(acc_no, new_variant),
-                res['id']
-            )
-        elif caller == 'cli':
-            return {
-                'mobidetails_id': res['id'],
-                'url': '{0}{1}'.format(
-                    request.host_url[:-1],
-                    url_for(
-                        'api.variant',
-                        variant_id=res['id'],
-                        caller='browser'
-                    )
-                )
-            }
-        elif caller == 'test':
-            # for unit tests
-            return {'mobidetails_id': res['id']}
+        # now returns only id
+        return res['id']
+        # if caller == 'browser':
+        #     return info_panel(
+        #         'Variant already in MobiDetails: ',
+        #         '{0}:{1}'.format(acc_no, new_variant),
+        #         res['id']
+        #     )
+        # elif caller == 'cli':
+        #     return {
+        #         'mobidetails_id': res['id'],
+        #         'url': '{0}{1}'.format(
+        #             request.host_url[:-1],
+        #             url_for(
+        #                 'api.variant',
+        #                 variant_id=res['id'],
+        #                 caller='browser'
+        #             )
+        #         )
+        #     }
+        # elif caller == 'test':
+        #     # for unit tests
+        #     return {'mobidetails_id': res['id']}
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
@@ -1213,7 +1215,7 @@ def create_var_vv(
                 """.format(acc_no, gene)}
     positions = compute_start_end_pos(hg38_d['g_name'])
     if 'c_name' not in vf_d:
-        var_obj = re.search(r'c\.(.+)$', new_variant)
+        var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
     if 'ng_name' not in vf_d:
         ng_name_obj = re.search(

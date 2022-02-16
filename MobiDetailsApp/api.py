@@ -1606,8 +1606,11 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return redirect(url_for('api.variant', variant_id=creation_dict, caller='browser'), code=302)
                 elif isinstance(creation_dict, str):
                     close_db()
-                    flash(creation_dict, '')
-                    return redirect(url_for('md.index'), code=302)
+                    if caller == 'cli':
+                        return jsonify(mobidetails_error=creation_dict)
+                    else:
+                        flash(creation_dict, '')
+                        return redirect(url_for('md.index'), code=302)
                 if 'mobidetails_error' in creation_dict:
                     close_db()
                     if caller == 'cli':
