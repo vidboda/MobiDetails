@@ -37,12 +37,13 @@ ext_exe['maxentscan3'] = '{0}{1}'.format(
 )
 
 
-def get_clinvar_current_version(clinvar_dir):
-    files = os.listdir(clinvar_dir)
+def get_resource_current_version(resource_dir, regexp):
+    files = os.listdir(resource_dir)
     dates = []
     for current_file in files:
         # print(current_file)
-        match_obj = re.search(r'clinvar_(\d+).vcf.gz$', current_file)
+        # match_obj = re.search(rf'clinvar_(\d+).vcf.gz$', current_file)
+        match_obj = re.search(rf'{regexp}$', current_file)
         if match_obj:
             dates.append(match_obj.group(1))
     return max(dates)
@@ -61,12 +62,25 @@ local_files['cadd_indels']['abs_path'] = '{0}{1}'.format(
 local_files['clinpred']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['clinpred']['rel_path']
 )
+clingen_version = get_resource_current_version(
+    '{0}{1}'.format(app_path, local_files['clingen_criteria_specification']['rel_path']),
+    r'clingenCriteriaSpec_(\d+).json'
+)
+local_files['clingen_criteria_specification']['abs_path'] = '{0}{1}clingenCriteriaSpec_last.json'.format(
+    app_path, local_files['clingen_criteria_specification']['rel_path']
+)
+local_files['clingen_criteria_specification_index'] = {}
+local_files['clingen_criteria_specification_index']['abs_path'] = '{0}{1}clingenCriteriaSpec_last.txt'.format(
+    app_path, local_files['clingen_criteria_specification']['rel_path']
+)
+clinvar_version = get_resource_current_version(
+    '{0}{1}'.format(app_path, local_files['clinvar_hg38']['rel_path']),
+    r'clinvar_(\d+).vcf.gz'
+)
 local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
     app_path,
     local_files['clinvar_hg38']['rel_path'],
-    get_clinvar_current_version('{0}{1}'.format(
-        app_path, local_files['clinvar_hg38']['rel_path'])
-    )
+    clinvar_version
 )
 
 local_files['dbmts']['abs_path'] = '{0}{1}'.format(
@@ -142,10 +156,10 @@ for tool in external_tools:
             urls['ncbi_pubmed'], external_tools[tool]['paper']
         )
 external_tools['ClinVar']['version'] = 'v{}'.format(
-    get_clinvar_current_version('{0}{1}'.format(
-            app_path, local_files['clinvar_hg38']['rel_path']
-        )
-    )
+    clinvar_version
+)
+external_tools['ClinGenSpecificationRegistry']['version'] = 'v{}'.format(
+    clingen_version
 )
 acmg_criteria = resources['acmg']
 lovd_effect = resources['lovd_effect']

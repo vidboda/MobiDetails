@@ -175,6 +175,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'hgncName': None,
             'proteinSize': None,
             'uniprotId': None,
+            'clingenCriteriaSpec': None
         },
         'nomenclatures': {
             'cName': None,
@@ -467,6 +468,24 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['gene']['hgncName'] = variant_features['hgnc_name']
         external_data['gene']['proteinSize'] = variant_features['prot_size']
         external_data['gene']['uniprotId'] = variant_features['uniprot_id']
+        # get clingen spec?
+        clingen_index = open(md_utilities.local_files['clingen_criteria_specification_index']['abs_path'], 'r')
+        current_gene_symbol = external_data['gene']['symbol']
+        # if the list becomes too long, store id directly in DB
+        for gene_symbol in clingen_index:
+            if re.search(f'^{current_gene_symbol}$', gene_symbol):
+                # get clingen spec page id in json
+                with open(md_utilities.local_files['clingen_criteria_specification']['abs_path'], 'r') as clingen_file:
+                    clingen_json = json.load(clingen_file)
+                clingen_file.close()
+                if 'data' in clingen_json:
+                    for rule in clingen_json['data']:
+                        if 'genes' in rule:
+                            for gene in rule['genes']:
+                                if 'label' in gene and \
+                                        gene['label'] == external_data['gene']['symbol']:
+                                    # we're in
+                                    external_data['gene']['clingenCriteriaSpec'] = rule['svi']['id']
 
         external_data['positions']['DNAType'] = variant_features['dna_type']
         external_data['positions']['RNAType'] = variant_features['rna_type']
