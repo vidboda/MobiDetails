@@ -411,9 +411,9 @@
 					<tr><!-- ClinGen Specification Registry -->
 						<td class="w3-left-align">ClinGen criteria:</td>
 						<td class="w3-left-align">
-							<a href={{ "%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific AMCG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
+							<a href={{ "%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
 						</td>
-						<td class="w3-left-align"><em class="w3-small">ClinGen AMCG specific rules for {{ external_data.gene.symbol }}</em></td>
+						<td class="w3-left-align"><em class="w3-small">ClinGen ACMG specific rules for {{ external_data.gene.symbol }}</em></td>
 					</tr>
 					{% endif %}
 					{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
