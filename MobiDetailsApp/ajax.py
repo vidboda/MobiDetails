@@ -1134,6 +1134,7 @@ def create():
                 )
             vv_error = md_utilities.vv_internal_server_error('browser', vv_data, vv_key_var)
             if vv_error != 'vv_ok':
+                close_db()
                 return vv_error
             if re.search('[di][neu][psl]', new_variant):
                 # need to redefine vv_key_var for indels as the variant name
@@ -1145,6 +1146,15 @@ def create():
                         var_obj = re.search(r':(c\..+)$', key)
                         if var_obj:
                             new_variant = var_obj.group(1)
+            if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
+                close_db()
+                return md_utilities.danger_panel(
+                    new_variant,
+                    """
+                    Variant Validator did not return a valid value for the variant.
+                    There may be an issue with the selected transcript or the wild-type nucleotides submitted
+                    """
+                )
         else:
             close_db()
             return md_utilities.danger_panel(
