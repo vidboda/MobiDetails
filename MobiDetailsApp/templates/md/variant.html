@@ -72,7 +72,7 @@
 		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% endif %}
 		{% if external_data.gene.clingenCriteriaSpec %}
-		{{ link("%s%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
+		{{ link("%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
 		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
@@ -411,7 +411,7 @@
 					<tr><!-- ClinGen Specification Registry -->
 						<td class="w3-left-align">ClinGen criteria:</td>
 						<td class="w3-left-align">
-							<a href={{ "%s%s/"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific AMCG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
+							<a href={{ "%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific AMCG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
 						</td>
 						<td class="w3-left-align"><em class="w3-small">ClinGen AMCG specific rules for {{ external_data.gene.symbol }}</em></td>
 					</tr>
