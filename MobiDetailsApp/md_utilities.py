@@ -2374,7 +2374,7 @@ def get_clingen_criteria_specification_id(current_gene_symbol):
     for gene_symbol in clingen_index:
         if re.search(f'^{current_gene_symbol}$', gene_symbol):
             # get clingen spec page id in json
-            with open(local_files['clingen_criteria_specification']['abs_path'], 'r') as clingen_file:
+            with open(local_files['clingen_criteria_specification']['abs_path'], 'r', encoding='utf-8') as clingen_file:
                 clingen_json = json.load(clingen_file)
             clingen_file.close()
             if 'data' in clingen_json:
