@@ -2368,6 +2368,25 @@ def build_redirect_url(incoming_url=None):
         # return incoming_url
 
 
+def get_clingen_criteria_specification_id(current_gene_symbol):
+    clingen_index = open(local_files['clingen_criteria_specification_index']['abs_path'], 'r')
+    # if the list becomes too long, store id directly in DB
+    for gene_symbol in clingen_index:
+        if re.search(f'^{current_gene_symbol}$', gene_symbol):
+            # get clingen spec page id in json
+            with open(local_files['clingen_criteria_specification']['abs_path'], 'r') as clingen_file:
+                clingen_json = json.load(clingen_file)
+            clingen_file.close()
+            if 'data' in clingen_json:
+                for rule in clingen_json['data']:
+                    if 'genes' in rule:
+                        for gene in rule['genes']:
+                            if 'label' in gene and \
+                                    gene['label'] == current_gene_symbol:
+                                # we're in
+                                return rule['svi']['id']
+    return None
+
 # def api_end_according_to_caller(
 #    caller, return_obj=None, message=None, url=None):
 #     if return_obj:

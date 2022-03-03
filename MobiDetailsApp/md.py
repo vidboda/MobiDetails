@@ -406,6 +406,7 @@ def gene(gene_name=None):
                                     }
                 # print(transcript_road_signs)
             close_db()
+            clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_name)
             return render_template(
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),
@@ -416,6 +417,7 @@ def gene(gene_name=None):
                 res=result_all,
                 annotations=annot,
                 max_prot_size=res_size['size'],
+                clingen_criteria_specification_id=clingen_criteria_specification_id,
                 transcript_road_signs=transcript_road_signs
             )
         else:
@@ -520,6 +522,7 @@ def vars(gene_name=None):
         res_size = curs.fetchone()
         # if vars_type is not None:
         close_db()
+        clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_name)
         return render_template(
             'md/vars.html',
             run_mode=md_utilities.get_running_mode(),
@@ -529,7 +532,8 @@ def vars(gene_name=None):
             variants=variants,
             gene_info=main,
             res=result_all,
-            max_prot_size=res_size['size']
+            max_prot_size=res_size['size'],
+            clingen_criteria_specification_id=clingen_criteria_specification_id
         )
     else:
         close_db()

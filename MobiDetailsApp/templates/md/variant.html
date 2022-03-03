@@ -58,11 +58,11 @@
 			{# {{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }} #}
 			{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "gnomAD v3")}}
 			{% if external_data.positions.DNAType == 'substitution' %}
-				{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CADD")}}
+			{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CADD")}}
 				{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
-					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
+				{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
 				{% else %}
-					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
+				{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
 				{% endif %}
 			{% endif %}
 		</div>
@@ -70,6 +70,9 @@
 		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 		{% elif not external_data.gene.proteinSize %}
 		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+		{% endif %}
+		{% if external_data.gene.clingenCriteriaSpec %}
+		{{ link("%s%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
 		{% endif %}
 		{{ link(url_for('md.gene', gene_name=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 		{% if g.user %}
@@ -404,11 +407,20 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
+					{% if external_data.gene.clingenCriteriaSpec %}
+					<tr><!-- ClinGen Specification Registry -->
+						<td class="w3-left-align">ClinGen criteria:</td>
+						<td class="w3-left-align">
+							<a href={{ "%s%s/"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific AMCG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
+						</td>
+						<td class="w3-left-align"><em class="w3-small">ClinGen AMCG specific rules for {{ external_data.gene.symbol }}</em></td>
+					</tr>
+					{% endif %}
 					{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 						<tr id="intervar_tr" onmouseout="$('#acmg_info').text('');"><!--intervar-->
 							<td class="w3-left-align"><a href={{ "%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td>
 							<td class="w3-left-align">
-								<span  id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+								<span id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 							</td>
 							<td class="w3-left-align"><em class="w3-small">Semi-automated ACMG classification - click on the intervar link to adjust<br /> - passing the mouse over a criterion will display the definition</em>
 							</td>
@@ -417,7 +429,7 @@
 					<tr><!--LOVD matches-->
 						<td class="w3-left-align" id="lovd_feature">LOVD matches:</td>
 						<td class="w3-left-align">
-							<span  id='lovd_data'>Searching LOVD...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+							<span id='lovd_data'>Searching LOVD...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 						</td>
 						<td class="w3-left-align" id="lovd_description"><em class="w3-small">LOVD match in public instances</em></td>
 					</tr>

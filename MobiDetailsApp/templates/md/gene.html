@@ -49,7 +49,7 @@
 				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }}</p>
 			</div>
 		{% endif %}
-		{{ gene_redirection(gene, max_prot_size, main_iso.uniprot_id, urls) }}
+		{{ gene_redirection(gene, max_prot_size, clingen_criteria_specification_id, main_iso.uniprot_id, urls) }}
 		{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		{#{{ danger("WARNING: currently, you can only create variants in canonical isoforms.") }}#}
 		<div id="created_var"></div>

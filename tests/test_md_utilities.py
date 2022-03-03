@@ -924,6 +924,12 @@ def test_build_redirect_url(incoming_url, outcoming_url):
     assert outcoming_url == md_utilities.build_redirect_url(incoming_url)
 
 
+@pytest.mark.parametrize(('gene_symbol', 'result'), (
+    ('USH2A', 'GN005'),
+    ('TTN', None),
+))
+def test_get_clingen_criteria_specification_id(gene_symbol, result):
+    assert md_utilities.get_clingen_criteria_specification_id(gene_symbol) == result
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

@@ -36,7 +36,7 @@
 			{% else %}
 				<p align="center">Please wait for the end of the maintenance to annotate a new variant</p>
 			{% endif %}
-			{{ gene_redirection(gene, max_prot_size, gene_info.uniprot_id, urls) }}
+			{{ gene_redirection(gene, max_prot_size, clingen_criteria_specification_id, gene_info.uniprot_id, urls) }}
 			{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		</p><br />
 	<!--</div>-->

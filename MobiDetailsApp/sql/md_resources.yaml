@@ -83,6 +83,7 @@
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'clinpred': 'https://sites.google.com/site/clinpred/home'
+  'clingen_gene_spec_web': 'https://cspec.genome.network/cspec/ui/svi/doc/'
   'dbmts': 'http://www.liulab.science/dbmts.html'
   'dbscsnv': 'http://www.liulab.science/dbscsnv.html'
   'dbnsfp': 'https://sites.google.com/site/jpopgen/dbNSFP'
