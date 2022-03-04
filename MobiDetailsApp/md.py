@@ -109,12 +109,13 @@ def gene(gene_name=None):
         return render_template('md/unknown.html', query='No gene provided')
     elif re.search(r'[^\w-]', gene_name):
         return render_template('md/unknown.html', query=gene_name)
+    gene_symbol = re.escape(gene_name)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform? now canonical is stored in db
     curs.execute(
         "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
-        (gene_name,)
+        (gene_symbol,)
     )
     main = curs.fetchone()
     if main is not None:
@@ -125,7 +126,7 @@ def gene(gene_name=None):
             WHERE name[1] = %s
             ORDER BY number_of_exons DESC
             """,
-            (gene_name,)
+            (gene_symbol,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
@@ -180,7 +181,7 @@ def gene(gene_name=None):
                                     """
                                     <p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
                                     """.format(
-                                        gene_name,
+                                        gene_symbol,
                                         gene['enst'],
                                         os.path.basename(__file__),
                                         e.args
@@ -219,7 +220,7 @@ def gene(gene_name=None):
                             """
                             <p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
                             """.format(
-                                gene_name,
+                                gene_symbol,
                                 enst,
                                 os.path.basename(__file__),
                                 e.args
@@ -268,7 +269,7 @@ def gene(gene_name=None):
                                     """
                                     <p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>
                                     """.format(
-                                        gene_name,
+                                        gene_symbol,
                                         enst,
                                         os.path.basename(__file__),
                                         e.args
@@ -322,7 +323,7 @@ def gene(gene_name=None):
                                     """
                                     <p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>
                                     """.format(
-                                        gene_name,
+                                        gene_symbol,
                                         enst,
                                         os.path.basename(__file__),
                                         e.args
@@ -340,7 +341,7 @@ def gene(gene_name=None):
                 FROM gene_annotation
                 WHERE gene_name[1] = %s
                 """,
-                (gene_name,)
+                (gene_symbol,)
             )
             annot = curs.fetchone()
             if annot is None:
@@ -351,7 +352,7 @@ def gene(gene_name=None):
                 FROM gene
                 WHERE name[1] = %s
                 """,
-                (gene_name,)
+                (gene_symbol,)
             )
             res_size = curs.fetchone()
             # get refseq select, mane, etc from vv json file
@@ -359,7 +360,7 @@ def gene(gene_name=None):
             try:
                 json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
                     md_utilities.local_files['variant_validator']['abs_path'],
-                    gene_name
+                    gene_symbol
                 ))
             except IOError:
                 no_vv_file = 1
@@ -377,7 +378,7 @@ def gene(gene_name=None):
                         WHERE name[1] = %s
                             AND variant_creation <> 'not_in_vv_json'
                         """,
-                        (gene_name,)
+                        (gene_symbol,)
                     )
                     db.commit()
                     curs.execute(
@@ -387,7 +388,7 @@ def gene(gene_name=None):
                         WHERE name[1] = %s
                         ORDER BY number_of_exons DESC
                         """,
-                        (gene_name,)
+                        (gene_symbol,)
                     )  # get all isoforms
                     result_all = curs.fetchall()
                     num_iso = len(result_all)
@@ -406,12 +407,12 @@ def gene(gene_name=None):
                                     }
                 # print(transcript_road_signs)
             close_db()
-            clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_name)
+            clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_symbol)
             return render_template(
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),
                 urls=md_utilities.urls,
-                gene=gene_name,
+                gene=gene_symbol,
                 num_iso=num_iso,
                 main_iso=main,
                 res=result_all,
@@ -425,14 +426,14 @@ def gene(gene_name=None):
             return render_template(
                 'md/unknown.html',
                 run_mode=md_utilities.get_running_mode(),
-                query=gene_name
+                query=gene_symbol
             )
     else:
         close_db()
         return render_template(
             'md/unknown.html',
             run_mode=md_utilities.get_running_mode(),
-            query=gene_name
+            query=gene_symbol
         )
 
 # -------------------------------------------------------------------
@@ -474,6 +475,7 @@ def vars(gene_name=None):
         return render_template('md/unknown.html', query='No gene provided')
     elif re.search(r'[^\w-]', gene_name):
         return render_template('md/unknown.html', query=gene_name)
+    gene_symbol = re.escape(gene_name)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # error = None
@@ -485,7 +487,7 @@ def vars(gene_name=None):
         WHERE name[1] = %s
             AND canonical = 't'
         """,
-        (gene_name,)
+        (gene_symbol,)
     )
     main = curs.fetchone()
     if main is not None:
@@ -495,7 +497,7 @@ def vars(gene_name=None):
             FROM gene
             WHERE name[1] = %s
             """,
-            (gene_name,)
+            (gene_symbol,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
@@ -508,7 +510,7 @@ def vars(gene_name=None):
                 AND a.gene_name[1] = %s
                 AND b.genome_version = 'hg38'
             """,
-            (gene_name,)
+            (gene_symbol,)
         )
         variants = curs.fetchall()
         curs.execute(
@@ -517,17 +519,17 @@ def vars(gene_name=None):
             FROM gene
             WHERE name[1] = %s
             """,
-            (gene_name,)
+            (gene_symbol,)
         )
         res_size = curs.fetchone()
         # if vars_type is not None:
         close_db()
-        clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_name)
+        clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_symbol)
         return render_template(
             'md/vars.html',
             run_mode=md_utilities.get_running_mode(),
             urls=md_utilities.urls,
-            gene=gene_name,
+            gene=gene_symbol,
             num_iso=num_iso,
             variants=variants,
             gene_info=main,
@@ -540,7 +542,7 @@ def vars(gene_name=None):
         return render_template(
             'md/unknown.html',
             run_mode=md_utilities.get_running_mode(),
-            query=gene_name
+            query=gene_symbol
         )
 
 
