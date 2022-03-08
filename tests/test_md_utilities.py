@@ -133,10 +133,70 @@ def test_is_valid_chr(client, chr_name, valid):
     ('NC_000024.10', True),
 ))
 def test_is_valid_ncbi_chr(client, chr_name, valid):
-    valid_test = md_utilities.is_valid_ncbi_chr(chr_name)
-    assert valid_test == valid
+    # valid_test = md_utilities.is_valid_ncbi_chr(chr_name)
+    assert md_utilities.is_valid_ncbi_chr(chr_name) == valid
 
+
+@pytest.mark.parametrize(('genome_version', 'result'), (
+    ('hg19', 'hg19'),
+    ('hg38', 'hg38'),
+    ('GRCh37', 'hg19'),
+    ('GRCh38', 'hg38'),
+    ('csjfkze', 'wrong_genome_input'),
+    ('hg12', 'wrong_genome_input'),
+    ('GRCH38', 'wrong_genome_input'),
+))
+def test_translate_genome_version(genome_version, result):
+    assert md_utilities.translate_genome_version(genome_version) == result
+
+
+@pytest.mark.parametrize(('vcf_str', 'chr', 'pos', 'ref', 'alt'), (
+    ('1-216247118-C-A', '1', 216247118, 'C', 'A'),
+    ('1-216247118-C-', None, None, None, None),
+    ('chr1-216247118-C-A', '1', 216247118, 'C', 'A'),
+    ('ChR1-216247118-C-a', '1', 216247118, 'C', 'A'),
+    ('1-216247118-C-1', None, None, None, None),
+    ('1-216247118-C-TAGCTA', '1', 216247118, 'C', 'TAGCTA'),
+    ('1-216247118-C-TagcTa', '1', 216247118, 'C', 'TAGCTA'),
+))
+def test_decompose_vcf_str(vcf_str, chr, pos, ref, alt):
+    test_chr, test_pos, test_ref, test_alt = md_utilities.decompose_vcf_str(vcf_str)
+    assert test_chr == chr
+    assert test_pos == pos
+    assert test_ref == ref
+    assert test_alt == alt
 # pytest tests/test_md_utilities.py::test_get_pos_splice_site
+
+
+@pytest.mark.parametrize(('var', 'result'), (
+    ('*145C>T', 'exon'),
+    ('145del', 'exon'),
+    ('145dup', 'exon'),
+    ('145-3C>T', 'intron'),
+    ('145+3C>T', 'intron'),
+    ('-145C>T', '5UTR'),
+    ('145_148del', 'exon'),
+    ('145dup', 'exon'),
+    ('145-18_145-8del', 'intron'),
+    ('-145_-112del', '5UTR'),
+))
+def test_get_var_genic_csq(var, result):
+    assert md_utilities.get_var_genic_csq(var) == result
+
+
+@pytest.mark.parametrize(('new_csq', 'old_csq', 'result'), (
+    ('exon', 'exon', True),
+    ('exon', 'intron', True),
+    ('exon', '5UTR', True),
+    ('intron', 'exon', False),
+    ('intron', '5UTR', True),
+    ('5UTR', '5UTR', True),
+    ('intron', 'intron', True),
+    ('5UTR', 'exon', False),
+    ('5UTR', 'intron', False),
+))
+def test_is_higher_genic_csq(new_csq, old_csq, result):
+    assert md_utilities.is_higher_genic_csq(new_csq, old_csq) == result
 
 
 @pytest.mark.parametrize(('pos', 'positions', 'result'), (

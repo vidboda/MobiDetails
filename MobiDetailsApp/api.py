@@ -2205,8 +2205,248 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             flash('Invalid parameter', 'w3-pale-red')
             return redirect(url_for('md.index'), code=302)
             # return jsonify(mobidetails_error='Invalid rs id provided')
+# -------------------------------------------------------------------
+# api - variant create from VCF string
 
 
+@bp.route('/api/variant/create_vcf_str', methods=['POST'])
+def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key=None):
+    # get params
+    vcf_str = md_utilities.get_post_param(request, 'vcf_str')
+    caller = md_utilities.get_post_param(request, 'caller')
+    api_key = md_utilities.get_post_param(request, 'api_key')
+    if md_utilities.get_post_param(request, 'genome_version'):
+        genome_version = md_utilities.translate_genome_version(md_utilities.get_post_param(request, 'genome_version'))
+        if genome_version == 'wrong_genome_input':
+            if caller == 'cli':
+                return jsonify(mobidetails_error='The genome version provided as input is invalid.')
+            else:
+                flash('The genome version provided as input is invalid.', 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
+    if (md_utilities.get_running_mode() == 'maintenance'):
+        if caller == 'cli':
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+        else:
+            return redirect(url_for('md.index'), code=302)
+    if genome_version and \
+            vcf_str and \
+            caller and \
+            api_key:
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # check api key
+        res_check_api_key = md_utilities.check_api_key(db, api_key)
+        if 'mobidetails_error' in res_check_api_key:
+            close_db()
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
+        else:
+            g.user = res_check_api_key['mobiuser']
+        # check caller
+        if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+            close_db()
+            if caller == 'cli':
+                return jsonify(mobidetails_error='Invalid caller submitted')
+            else:
+                flash('Invalid caller submitted to the API.', 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
+        # submit vcf_str to VV
+        # then get NMXXX hgvs
+        # check if NM avail in MD (and store if canonical)
+        # if not canonical get 'worse nomenclature' exon>intron>UTR
+        # submit vv_data to create_var_vv
+
+        # check if variant exists
+        chr, pos, ref, alt = md_utilities.decompose_vcf_str(vcf_str)
+        curs.execute(
+            """
+            SELECT a.feature_id, c.canonical, b.c_name, b.gene_name[2] AS nm
+            FROM variant a, variant_feature b, gene c
+            WHERE a.feature_id = b.id
+                AND b.gene_name = c.name
+                AND a.genome_version = %s
+                AND a.chr = %s
+                AND a.pos = %s
+                AND a.pos_ref = %s
+                AND a.pos_alt = %s
+            """,
+            (genome_version, chr, pos, ref, alt)
+        )
+        res_vcf = curs.fetchall()
+        if res_vcf:
+            vars_vcf = {}
+            for var in res_vcf:
+                current_var = '{0}:c.{1}'.format(var['nm'], var['c_name'])
+                vars_vcf[current_var] = {
+                    'mobidetails_id': var['feature_id'],
+                    'url': '{0}{1}'.format(
+                        request.host_url[:-1],
+                        url_for('api.variant', variant_id=var['feature_id'], caller='browser')
+                    )
+                }
+            close_db()
+            if caller == 'cli':
+                return jsonify(vars_vcf)
+            else:
+                if len(vars_vcf) == 1:
+                    return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
+                else:
+                    return redirect(url_for('md.variant_multiple', vars_vcf=vars_vcf), code=302)
+        else:
+            # creation
+            vv_base_url = md_utilities.get_vv_api_url()
+            if not vv_base_url:
+                close_db()
+                if caller == 'cli':
+                    return jsonify(mobidetails_error='Variant Validator looks down!')
+                else:
+                    flash('Variant Validator looks down!', 'w3-pale-red')
+                    return redirect(url_for('md.index'), code=302)
+            genome_vv = 'GRCh38'
+            if genome_version == 'hg19' or \
+                    genome_version == 'GRCh37':
+                genome_vv = 'GRCh37'
+                # weird VV seems to work better with 'GRCh37' than with 'hg19'
+            vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
+                vv_base_url, genome_vv, vcf_str
+            )
+            try:
+                vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+            except Exception:
+                close_db()
+                if caller == 'cli':
+                    return jsonify(mobidetails_error='Variant Validator did not return any value for the variant {}.'.format(urllib.parse.unquote(vcf_str)))
+                else:
+                    try:
+                        flash(
+                            """
+                            There has been a issue with the annotation of the variant via VariantValidator.
+                            The error is the following: {}
+                            """.format(vv_data['validation_warning_1']['validation_warnings']),
+                            'w3-pale-red'
+                        )
+                    except Exception:
+                        flash(
+                            """
+                            There has been a issue with the annotation of the variant via VariantValidator.
+                            Sorry for the inconvenience. You may want to try again in a few minutes.
+                            """,
+                            'w3-pale-red'
+                        )
+                    return redirect(url_for('md.index'), code=302)
+            vv_error = md_utilities.vv_internal_server_error(caller, vv_data, vcf_str)
+            if vv_error != 'vv_ok':
+                close_db()
+                if caller == 'cli':
+                    return jsonify(vv_error)
+                else:
+                    flash(vv_error)
+                    return redirect(url_for('md.index'), code=302)
+            # look for gene acc #
+            # print(vv_data)
+            var_dict = {}
+            # {gene_symbol: [hgvs_expression, can(True/False), csq(exon/intron)]}
+            # we look for at least variant in a canonical isoform
+            # if no canonical isoforms are found, map the variant in the "worst" isoform exon>intron>UTR
+            # we must also find the gene(s)
+            for key in vv_data.keys():
+                variant_regexp = md_utilities.regexp['variant']
+                ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+                match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
+                if match_obj:
+                    new_variant = match_obj.group(2)
+                    # get the gene symbol
+                    curs.execute(
+                        """
+                        SELECT name[1] AS symbol, canonical
+                        FROM gene
+                        WHERE name[2] = %s
+                        """,
+                        (match_obj.group(1),)
+                    )
+                    res_gene = curs.fetchone()
+                    if res_gene['canonical'] is True:
+                        var_dict[res_gene['symbol']] = {
+                            'vv_key_var': key,
+                            'canonical': res_gene['canonical'],
+                            'genic_csq': md_utilities.get_var_genic_csq(new_variant),
+                            'RefSeq_NM': match_obj.group(1),
+                            'new_variant': new_variant
+                        }
+                    else:
+                        if (res_gene['symbol'] not in var_dict) or \
+                                (
+                                    res_gene['symbol'] in var_dict and
+                                    var_dict[res_gene['symbol']]['canonical'] is False and
+                                    md_utilities.is_higher_genic_csq(
+                                        res_gene['start_segment_type'],
+                                        var_dict[res_gene['symbol']]['genic_csq']
+                                    ) is True
+                                ):
+                            var_dict[res_gene['symbol']] = {
+                                'vv_key_var': key,
+                                'canonical': res_gene['canonical'],
+                                'genic_csq': md_utilities.get_var_genic_csq(new_variant),
+                                'RefSeq_NM': match_obj.group(1),
+                                'new_variant': new_variant
+                            }
+            if var_dict:
+                vars_vcf = {}
+                for gene in var_dict:
+                    creation_dict = md_utilities.create_var_vv(
+                        var_dict[gene]['vv_key_var'], gene, var_dict[gene]['RefSeq_NM'],
+                        'c.{}'.format(new_variant), new_variant,
+                        vv_data, caller, db, g
+                    )
+                    if isinstance(creation_dict, int):
+                        # success
+                        vars_vcf[var_dict[gene]['vv_key_var']] = {
+                            'mobidetails_id': creation_dict,
+                            'url': '{0}{1}'.format(
+                                request.host_url[:-1],
+                                url_for('api.variant', variant_id=creation_dict, caller='browser')
+                            )
+                        }
+                    elif isinstance(creation_dict, str):
+                        vars_vcf[var_dict[gene]['vv_key_var']] = {
+                            'mobidetails_error': creation_dict
+                        }
+                    elif 'mobidetails_error' in creation_dict:
+                        vars_vcf[var_dict[gene]['vv_key_var']] = creation_dict
+                if caller == 'cli':
+                    close_db()
+                    return jsonify(vars_vcf)
+                else:
+                    close_db()
+                    if len(vars_vcf) == 1:
+                        return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
+                    else:
+                        return redirect(url_for('md.variant_multiple', vars_vcf=vars_vcf), code=302)
+            else:
+                close_db()
+                if caller == 'cli':
+                    return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes, or simply the VariantValidator API is full - you may want to try again later).'.format(urllib.parse.unquote(vcf_str)), variant_validator_output=vv_data)
+                else:
+                    try:
+                        flash(
+                            """
+                            There has been a issue with the annotation of the variant via VariantValidator.
+                            The error is the following: {}
+                            """.format(vv_data['validation_warning_1']['validation_warnings']),
+                            'w3-pale-red'
+                        )
+                    except Exception:
+                        flash(
+                            """
+                            There has been a issue with the annotation of the variant via VariantValidator.
+                            Sorry for the inconvenience. You may want to try again in a few minutes.
+                            """,
+                            'w3-pale-red'
+                        )
+                    return redirect(url_for('md.index'), code=302)
 # -------------------------------------------------------------------
 # api - gene
 

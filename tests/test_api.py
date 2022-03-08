@@ -205,6 +205,35 @@ def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, 
         except Exception:
             assert message in client.post('/api/variant/create_rs', data=data).get_data()
 
+
+@pytest.mark.parametrize(('vcf_str', 'genome_version', 'api_key', 'caller', 'return_key', 'message'), (
+    ('1-216247118-C-TAGCTA', 'GRCh38', 'random', 'cli', 'mobidetails_error', 'Invalid API key'),
+    ('1-216247118-C-TAGCTA', 'hg38', 'random', 'cli', 'mobidetails_error', 'Invalid API key'),
+    ('1-216247118-C-TAGCTA', 'GRCh38', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 334683),
+    ('1-216247118-C-TAGCTA', 'hg38', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 334683),
+    ('1-216420460-C-TAGCTA', 'hg19', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 334683),
+))
+def test_api_variant_create_vcf_str(client, app, genome_version, vcf_str, api_key, caller, return_key, message):
+    with app.app_context():
+        if api_key == '':
+            api_key = get_generic_api_key()
+        data = {
+            'genome_version': genome_version,
+            'vcf_str': vcf_str,
+            'caller': caller,
+            'api_key': api_key
+        }
+        try:
+            json_response = json.loads(client.post('/api/variant/create_vcf_str', data=data).data.decode('utf8'))
+            print(json_response)
+            if 'mobidetails_id' in json_response[return_key] and \
+                    isinstance(json_response[return_key]['mobidetails_id'], int):
+                assert json_response[return_key]['mobidetails_id'] == message
+            else:
+                assert message in json_response[return_key]
+        except Exception:
+            assert message in client.post('/api/variant/create_vcf_str', data=data).get_data()
+
 # test variant acmg class update
 
 

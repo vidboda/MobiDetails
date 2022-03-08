@@ -303,6 +303,51 @@ def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
     return False
 
 
+def translate_genome_version(genome_version):
+    if genome_version == 'GRCh38':
+        return 'hg38'
+    elif genome_version == 'GRCh37':
+        return 'hg19'
+    elif re.search(r'^hg[13][98]$', genome_version):
+        return genome_version
+    else:
+        return 'wrong_genome_input'
+
+
+def decompose_vcf_str(vcf_str):
+    chr_regexp = regexp['nochr_captured']
+    match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
+    if match_obj:
+        return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
+    else:
+        return None, None, None, None
+
+
+def get_var_genic_csq(var):
+    # linked to function below => quick assessment of csq
+    if re.search(r'^\d+[\+-]', var):
+        return 'intron'
+    elif re.search(r'^\*?\d+[^\+-]', var):
+        return 'exon'
+    elif re.search(r'^-', var):
+        return '5UTR'
+
+
+def is_higher_genic_csq(new_csq, old_csq):
+    # function to assess exon>intron>5UTR (designed originally for vcf_str api endpoint but not used)
+    if new_csq == 'exon' or \
+            new_csq == old_csq:
+        return True
+    elif new_csq != 'exon' and \
+            old_csq == 'exon':
+        return False
+    elif new_csq == '5UTR' and \
+            old_csq == 'intron':
+        return False
+    else:
+        return True
+
+
 def get_pos_splice_site(pos, positions):
     # compute position relative to nearest splice site
     if positions is not None:
