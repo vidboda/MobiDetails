@@ -315,8 +315,10 @@ def translate_genome_version(genome_version):
 
 
 def decompose_vcf_str(vcf_str):
-    chr_regexp = regexp['nochr_captured']
-    match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
+    # chr_regexp = regexp['nochr_captured']
+    vcf_str_regexp = regexp['vcf_str_captured']
+    match_obj = re.search(rf'^{vcf_str_regexp}$', vcf_str)
+    # match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
     if match_obj:
         return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
     else:

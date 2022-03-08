@@ -10,6 +10,7 @@
   'ncbi_chrom': 'NC_0{4}\d{1,2}\.\d{1,2}'
   'ncbi_transcript': 'NM_\d+\.\d{1,2}'
   'amino_acid': 'ACDEFGHIKLMNPQRSTVXWYacdefghiklmnpqrstvwyx'
+  'vcf_str_captured': '[Cc]?[Hh]?[Rr]?(\d{1,2}|[XYM])[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)'
 'ext_exe':
   'perl': '/usr/bin/perl'
   'Rscript': '/usr/bin/Rscript'

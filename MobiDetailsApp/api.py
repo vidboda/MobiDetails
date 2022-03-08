@@ -2003,7 +2003,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     if len(res_rs) == 1:
                         return redirect(url_for('api.variant', variant_id=res_rs['id'], caller='browser'), code=302)
                     else:
-                        return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
+                        return render_template('md/variant_multiple.html', vars_rs=vars_rs)
+                        # return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
             # use mutalyzer to get HGVS nomenclatures
             mutalyzer_url = "{0}getdbSNPDescriptions?rs_id={1}".format(
                 md_utilities.urls['mutalyzer_api_json'], rs_id
@@ -2261,6 +2262,13 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
 
         # check if variant exists
         chr, pos, ref, alt = md_utilities.decompose_vcf_str(vcf_str)
+        if chr is None:
+            close_db()
+            if caller == 'cli':
+                return jsonify(mobidetails_error='Invalid VCF string submission')
+            else:
+                flash('Invalid VCF string submission.', 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
         curs.execute(
             """
             SELECT a.feature_id, c.canonical, b.c_name, b.gene_name[2] AS nm
@@ -2294,7 +2302,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 if len(vars_vcf) == 1:
                     return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
                 else:
-                    return redirect(url_for('md.variant_multiple', vars_vcf=vars_vcf), code=302)
+                    return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
+                    # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
         else:
             # creation
             vv_base_url = md_utilities.get_vv_api_url()
@@ -2359,6 +2368,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 if match_obj:
                     new_variant = match_obj.group(2)
                     # get the gene symbol
+                    # test for 2 genes: 1-45340253-A-C hg38 (MUTYH, TOE1)
                     curs.execute(
                         """
                         SELECT name[1] AS symbol, canonical
@@ -2382,7 +2392,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                                     res_gene['symbol'] in var_dict and
                                     var_dict[res_gene['symbol']]['canonical'] is False and
                                     md_utilities.is_higher_genic_csq(
-                                        res_gene['start_segment_type'],
+                                        md_utilities.get_var_genic_csq(new_variant),
                                         var_dict[res_gene['symbol']]['genic_csq']
                                     ) is True
                                 ):
@@ -2424,7 +2434,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     if len(vars_vcf) == 1:
                         return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
                     else:
-                        return redirect(url_for('md.variant_multiple', vars_vcf=vars_vcf), code=302)
+                        return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
+                        # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
             else:
                 close_db()
                 if caller == 'cli':
