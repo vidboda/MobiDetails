@@ -2001,7 +2001,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     return jsonify(vars_rs)
                 else:
                     if len(res_rs) == 1:
-                        return redirect(url_for('api.variant', variant_id=res_rs['id'], caller='browser'), code=302)
+                        for var in res_rs:
+                            return redirect(url_for('api.variant', variant_id=var['id'], caller='browser'), code=302)
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=vars_rs)
                         # return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
@@ -2300,7 +2301,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 return jsonify(vars_vcf)
             else:
                 if len(vars_vcf) == 1:
-                    return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
+                    for var in res_vcf:
+                        return redirect(url_for('api.variant', variant_id=var['feature_id'], caller='browser'), code=302)
                 else:
                     return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
                     # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
@@ -2432,7 +2434,9 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 else:
                     close_db()
                     if len(vars_vcf) == 1:
-                        return redirect(url_for('api.variant', variant_id=res_vcf['feature_id'], caller='browser'), code=302)
+                        for var in vars_vcf:
+                            print(var)
+                            return redirect(url_for('api.variant', variant_id=vars_vcf[var]['mobidetails_id'], caller='browser'), code=302)
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
                         # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
