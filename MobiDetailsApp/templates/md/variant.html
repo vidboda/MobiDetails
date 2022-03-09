@@ -962,15 +962,19 @@
 				{% endif %}
 				{% if external_data.missensePredictions.polyphen2HvarPred == 'no prediction' %}
 					{% set missense_pred.pphvar = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.polyphen2HdivPred == 'no prediction' %}
 					{% set missense_pred.pphdiv = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.revelPred == 'no prediction' %}
 					{% set missense_pred.revel = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.clinpredPred == 'no prediction' %}
 					{% set missense_pred.clinpred = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.fathmmPred == 'no prediction' %}
 					{% set missense_pred.fathmm = 10.64 %}

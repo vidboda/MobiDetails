@@ -2321,8 +2321,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     genome_version == 'GRCh37':
                 genome_vv = 'GRCh37'
                 # weird VV seems to work better with 'GRCh37' than with 'hg19'
-            vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
-                vv_base_url, genome_vv, vcf_str
+            vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/all?content-type=application/json".format(
+                vv_base_url, genome_vv, chr, pos, ref, alt
             )
             try:
                 vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
@@ -2436,8 +2436,11 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     close_db()
                     if len(vars_vcf) == 1:
                         for var in vars_vcf:
-                            print(var)
-                            return redirect(url_for('api.variant', variant_id=vars_vcf[var]['mobidetails_id'], caller='browser'), code=302)
+                            if 'mobidetails_id' in vars_vcf[var]:
+                                return redirect(url_for('api.variant', variant_id=vars_vcf[var]['mobidetails_id'], caller='browser'), code=302)
+                            elif 'mobidetails_error' in vars_vcf[var]:
+                                flash(vars_vcf[var]['mobidetails_error'])
+                                return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
                         # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
