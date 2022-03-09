@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import info %}
+{% from "macros.html" import info, search_engine_manual %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
@@ -48,7 +48,8 @@
 		<p>You can also create an account (top right of all pages, icon <i class='fa fa fa-user-plus'></i>), which will allow you to quickly retrieve all the variants you annotated and all your favourite variants.<br /> \
 		You can mark a variant as favourite in the variant page when you're logged in (<i class='fa fa fa-user'></i>) by cliking on the star <i class='fa fa-star'></i> at the bottom of the left menu. You can retrieve your variants using the 'identity card' <i class='fa fa-id-card-o'></i> on the top right menu when you're logged in.<br /> \
 		Registered users can in addition add an ACMG class to the variants and also contact each others via the application.</p>") }}
-		{{ info("<p><strong>Search engine:</strong><br /> \
+		{{ search_engine_manual() }}
+		<!-- {{ info("<p><strong>Search engine:</strong><br /> \
 		The search engine has two main functions:</p> \
 		<ul> \
 			<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
@@ -69,7 +70,7 @@
 					<li>rs772808534 (can take up to 30-40s)</li> \
 				</ul> \
 			</li> \
-		</ul>") }}
+		</ul>") }} -->
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
 		<span class="w3-xxlarge">References</span>

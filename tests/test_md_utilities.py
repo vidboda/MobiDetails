@@ -139,12 +139,13 @@ def test_is_valid_ncbi_chr(client, chr_name, valid):
 
 @pytest.mark.parametrize(('genome_version', 'result'), (
     ('hg19', 'hg19'),
-    ('hg38', 'hg38'),
+    ('Hg19', 'hg19'),
+    ('hG38', 'hg38'),
     ('GRCh37', 'hg19'),
-    ('GRCh38', 'hg38'),
+    ('GrCH38', 'hg38'),
     ('csjfkze', 'wrong_genome_input'),
     ('hg12', 'wrong_genome_input'),
-    ('GRCH38', 'wrong_genome_input'),
+    ('GRCHx38', 'wrong_genome_input'),
 ))
 def test_translate_genome_version(genome_version, result):
     assert md_utilities.translate_genome_version(genome_version) == result

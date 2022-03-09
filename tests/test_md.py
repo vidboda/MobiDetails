@@ -80,6 +80,12 @@ def test_basic_variant_page(client):
     ('rs1057516028', 'api/variant/51689/browser/', 302),
     ('S100G', 'gene/S100G', 302),
     ('S100g', 'gene/S100G', 302),
+    ('S100g', 'gene/S100G', 302),
+    ('1-216422237:G-A', b'api/variant/334419/browser/', 307),
+    ('hg38-1-216422237-G-A', b'api/variant/334419/browser/', 307),
+    ('grCh38:1-216422237-G-A', b'api/variant/334419/browser/', 307),
+    ('Hg19:1:216595579-G-A', b'api/variant/334419/browser/', 307),
+    ('GrcH37:1-216422237-G-A', b'api/variant/334419/browser/', 307),
     ))
 def test_search_engine(client, app, t_search, url, status_code):
     response = client.post(

@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info %}
+{% from 'macros.html' import danger, info, search_engine_manual %}
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block more_head %}
@@ -87,7 +87,8 @@
 	//]]>
 	</script>.</strong></p>
 	</div>-->
-	{{ info("<p><strong>Search engine:</strong><br /> \
+	{{ search_engine_manual() }}
+	<!-- {{ info("<p><strong>Search engine:</strong><br /> \
 		The search engine has two main functions:</p> \
 		<ul> \
 			<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
@@ -108,7 +109,7 @@
 					<li>rs772808534 (can take up to 30-40s)</li> \
 				</ul> \
 			</li> \
-		</ul>") }}
+		</ul>") }} -->
 	<div class="w3-margin w3-panel w3-sand w3-leftbar">
 		<p>Links for:</p>
 		<ul>

@@ -2380,24 +2380,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                         (match_obj.group(1),)
                     )
                     res_gene = curs.fetchone()
-                    if res_gene['canonical'] is True:
-                        var_dict[res_gene['symbol']] = {
-                            'vv_key_var': key,
-                            'canonical': res_gene['canonical'],
-                            'genic_csq': md_utilities.get_var_genic_csq(new_variant),
-                            'RefSeq_NM': match_obj.group(1),
-                            'new_variant': new_variant
-                        }
-                    else:
-                        if (res_gene['symbol'] not in var_dict) or \
-                                (
-                                    res_gene['symbol'] in var_dict and
-                                    var_dict[res_gene['symbol']]['canonical'] is False and
-                                    md_utilities.is_higher_genic_csq(
-                                        md_utilities.get_var_genic_csq(new_variant),
-                                        var_dict[res_gene['symbol']]['genic_csq']
-                                    ) is True
-                                ):
+                    if res_gene:
+                        if res_gene['canonical'] is True:
                             var_dict[res_gene['symbol']] = {
                                 'vv_key_var': key,
                                 'canonical': res_gene['canonical'],
@@ -2405,6 +2389,23 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                                 'RefSeq_NM': match_obj.group(1),
                                 'new_variant': new_variant
                             }
+                        else:
+                            if (res_gene['symbol'] not in var_dict) or \
+                                    (
+                                        res_gene['symbol'] in var_dict and
+                                        var_dict[res_gene['symbol']]['canonical'] is False and
+                                        md_utilities.is_higher_genic_csq(
+                                            md_utilities.get_var_genic_csq(new_variant),
+                                            var_dict[res_gene['symbol']]['genic_csq']
+                                        ) is True
+                                    ):
+                                var_dict[res_gene['symbol']] = {
+                                    'vv_key_var': key,
+                                    'canonical': res_gene['canonical'],
+                                    'genic_csq': md_utilities.get_var_genic_csq(new_variant),
+                                    'RefSeq_NM': match_obj.group(1),
+                                    'new_variant': new_variant
+                                }
             if var_dict:
                 vars_vcf = {}
                 for gene in var_dict:

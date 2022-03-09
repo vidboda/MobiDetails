@@ -570,7 +570,7 @@ def search_engine():
     amino_acid_regexp = md_utilities.regexp['amino_acid']
     nochr_captured_regexp = md_utilities.regexp['nochr_captured']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-    vcf_str_regexp = md_utilities.regexp['vcf_str_captured']
+    vcf_str_regexp = md_utilities.regexp['vcf_str']
 
     if query_engine is not None and \
             query_engine != '':
@@ -598,23 +598,47 @@ def search_engine():
                 variants = curs.fetchall()
                 close_db()
                 return render_template('md/variant_multiple.html', variants=variants)
-        match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
+        match_object = re.search(rf'^([Gg]*[rR]*[hHcC][gGhH][13][978])[:-]({vcf_str_regexp})$', query_engine)
+        # match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
         if match_object:
-            if 'db' not in locals():
-                db = get_db()
-                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            api_key = md_utilities.get_api_key(g, curs)
-            if api_key is not None:
-                close_db()
-                return redirect(
-                    url_for(
-                        'api.api_create_vcf_str',
-                        vcf_str=query_engine,
-                        caller='browser',
-                        api_key=api_key
-                    ),
-                    code=307
-                )
+            genome_version = md_utilities.translate_genome_version(match_object.group(1))
+            if genome_version != 'wrong_genome_input':
+                if 'db' not in locals():
+                    db = get_db()
+                    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                api_key = md_utilities.get_api_key(g, curs)
+                if api_key is not None:
+                    close_db()
+                    return redirect(
+                        url_for(
+                            'api.api_create_vcf_str',
+                            genome_version=genome_version,
+                            vcf_str=match_object.group(2),
+                            caller='browser',
+                            api_key=api_key
+                        ),
+                        code=307
+                    )
+            else:
+                error = 'Your genome version looks suspicious ({}). Supported are hg19, hg38, GRCh37, GRCh38'.format(match_object.group(1))
+        else:
+            match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
+            if match_object:
+                if 'db' not in locals():
+                    db = get_db()
+                    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                api_key = md_utilities.get_api_key(g, curs)
+                if api_key is not None:
+                    close_db()
+                    return redirect(
+                        url_for(
+                            'api.api_create_vcf_str',
+                            vcf_str=query_engine,
+                            caller='browser',
+                            api_key=api_key
+                        ),
+                        code=307
+                    )
         match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
             confusing_genes = ['C1R', 'C8G', 'S100G', 'F11R', 'C1S', 'A2M', 'C1D', 'S100P', 'F2R', 'C8A', 'C4A']
@@ -670,7 +694,7 @@ def search_engine():
             sql_table = 'gene'
             query_type = 'name[2]'
             col_names = 'name'
-            match_object = re.search(rf'^(^[Nn][Mm]_\d+)', query_engine)
+            match_object = re.search(r'^(^[Nn][Mm]_\d+)', query_engine)
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)

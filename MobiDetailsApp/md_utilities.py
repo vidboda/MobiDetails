@@ -304,12 +304,12 @@ def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
 
 
 def translate_genome_version(genome_version):
-    if genome_version == 'GRCh38':
+    if genome_version.upper() == 'GRCH38':
         return 'hg38'
-    elif genome_version == 'GRCh37':
+    elif genome_version.upper() == 'GRCH37':
         return 'hg19'
-    elif re.search(r'^hg[13][98]$', genome_version):
-        return genome_version
+    elif re.search(r'^[hH][gG][13][98]$', genome_version):
+        return genome_version.lower()
     else:
         return 'wrong_genome_input'
 
