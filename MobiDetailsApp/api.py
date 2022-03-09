@@ -2440,7 +2440,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                                 return redirect(url_for('api.variant', variant_id=vars_vcf[var]['mobidetails_id'], caller='browser'), code=302)
                             elif 'mobidetails_error' in vars_vcf[var]:
                                 flash(vars_vcf[var]['mobidetails_error'])
-                                return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
+                            return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=vars_vcf)
                         # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
