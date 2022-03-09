@@ -944,7 +944,7 @@
 						<header class="w3-container w3-blue">
 							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>
 							<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
-							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.</p>
+							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.<span id="total_missense_scores"></span></p>
 						</header>
 						<div class="w3-container">
 							<div class="chart-container" style="position: relative;">
@@ -991,18 +991,23 @@
 						Chart.defaults.global.defaultFontSize=12;
 						point_font_size = 12;
 					}
-
+					// normalisation function for scores not [0;1]
 					function normalizeData(val, my_array) {
 						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
-						return new_val;
+						return parseFloat(new_val);
 					}
+					var normalisedFathmm = 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64])
+					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3])
+					var totalNormalisedScores = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} (normalisedFathmm) + (normalisedMetasvm) + ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(2)
+					$('#total_missense_scores').html('<br/>Cumulated scores of all predictors ("area"): ' + totalNormalisedScores)
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
 							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'FATHMM', 'MetaSVM', 'MetaLR', 'Mistic'],
 							datasets: [{
 								label:'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %}1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+								// data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %}1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]), normalizeData({{ missense_pred.metasvm }}, [-2,3]), {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %}normalisedFathmm, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
 								fill: true,
 								backgroundColor:'rgb(255, 99, 132, 0.2)',
 								borderColor:'rgb(255, 99, 132)',
