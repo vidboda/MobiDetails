@@ -954,9 +954,11 @@
 					</div>
 				</div>
 				{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore) %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca=9, num_non_aca=5) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.polyphen2HvarPred == 'no prediction' %}
 					{% set missense_pred.pphvar = 0 %}
@@ -972,15 +974,23 @@
 				{% endif %}
 				{% if external_data.missensePredictions.fathmmPred == 'no prediction' %}
 					{% set missense_pred.fathmm = 10.64 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.metaSVMPred == 'no prediction' %}
 					{% set missense_pred.metasvm = -2 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.metaLRPred == 'no prediction' %}
 					{% set missense_pred.metalr = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.misticPred == 'no prediction' %}
 					{% set missense_pred.mistic = 0 %}
+					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
 				{% endif %}
 				<script>
 					//var ctx = document.getElementById("missense_radar").getContext('2d')
@@ -996,10 +1006,12 @@
 						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 						return parseFloat(new_val);
 					}
-					var normalisedFathmm = 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64])
-					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3])
-					var totalNormalisedScores = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} (normalisedFathmm) + (normalisedMetasvm) + ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(2)
-					$('#total_missense_scores').html('<br/>Cumulated scores of all predictors ("area"): ' + totalNormalisedScores)
+					var normalisedFathmm = 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]);
+					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
+					var numberOfScores = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca }} {% else %} {{ missense_pred.num_non_aca }} {% endif %};
+					var totalNormalisedScores = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} (normalisedFathmm) + (normalisedMetasvm) + ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3);
+					var meanNormalisedScores = (totalNormalisedScores / numberOfScores).toFixed(3);
+					$('#total_missense_scores').html('<br/>Mean normalised score of all predictors: ' + meanNormalisedScores + ' (' + totalNormalisedScores + ' / ' + numberOfScores + ')');
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
