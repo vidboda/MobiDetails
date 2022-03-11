@@ -86,6 +86,8 @@ def test_basic_variant_page(client):
     ('grCh38:1-216422237-G-A', b'api/variant/334419/browser/', 307),
     ('Hg19:1:216595579-G-A', b'api/variant/334419/browser/', 307),
     ('GrcH37:1-216422237-G-A', b'api/variant/334419/browser/', 307),
+    ('GrcH37_1_216422237_G_A', b'api/variant/334419/browser/', 307),
+    ('GrcH37:1_216422237-G-A', b'api/variant/334419/browser/', 307),
     ))
 def test_search_engine(client, app, t_search, url, status_code):
     response = client.post(

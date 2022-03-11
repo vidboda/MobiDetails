@@ -598,7 +598,7 @@ def search_engine():
                 variants = curs.fetchall()
                 close_db()
                 return render_template('md/variant_multiple.html', variants=variants)
-        match_object = re.search(rf'^([Gg]*[rR]*[hHcC][gGhH][13][978])[:-]({vcf_str_regexp})$', query_engine)
+        match_object = re.search(rf'^([Gg]*[rR]*[hHcC][gGhH][13][978])[:_-]({vcf_str_regexp})$', query_engine)
         # match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
         if match_object:
             genome_version = md_utilities.translate_genome_version(match_object.group(1))

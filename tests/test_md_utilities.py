@@ -159,6 +159,8 @@ def test_translate_genome_version(genome_version, result):
     ('1-216247118-C-1', None, None, None, None),
     ('1-216247118-C-TAGCTA', '1', 216247118, 'C', 'TAGCTA'),
     ('1-216247118-C-TagcTa', '1', 216247118, 'C', 'TAGCTA'),
+    ('1_216247118_C_TAGCTA', '1', 216247118, 'C', 'TAGCTA'),
+    ('1-216247118:C_TagcTa', '1', 216247118, 'C', 'TAGCTA'),
 ))
 def test_decompose_vcf_str(vcf_str, chr, pos, ref, alt):
     test_chr, test_pos, test_ref, test_alt = md_utilities.decompose_vcf_str(vcf_str)
