@@ -890,12 +890,14 @@
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
 							</tr>
+						{% endif %}
 							<tr><!--FATHMM-->
 								<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
 							</tr>
+						{% if g.user['academic'] or not g.user %}
 							<tr><!--REVEL-->
 								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}</td>
