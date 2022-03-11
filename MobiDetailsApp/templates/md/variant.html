@@ -875,57 +875,57 @@
 							<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G">SIFT</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftScore, internal_data.missensePredictions.siftColor) }}{{ internal_data.missensePredictions.siftStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftPred, internal_data.missensePredictions.siftColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging - single score</em></td>
 						</tr>
 						{% if g.user['academic'] or not g.user %}
 							<tr><!--PH2 HDIV-->
 								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging</em></td>
+								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
 							</tr>
 							<tr><!--PH2 HVAR-->
 								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging</em></td>
+								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
+							</tr>
+							<tr><!--FATHMM-->
+								<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
+								<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
 							</tr>
 							<tr><!--REVEL-->
 								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging</em></td>
+								<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - meta score</em></td>
 							</tr>
 							<tr><!--ClinPred-->
 								<td class="w3-left-align"><a href="{{ urls.clinpred }}" target="_blank" title="Visit ClinPred">ClinPred</a>:</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredScore, internal_data.missensePredictions.clinpredColor) }}{{ internal_data.missensePredictions.clinpredStar }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredPred, internal_data.missensePredictions.clinpredColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging</em></td>
+								<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging - meta score</em></td>
 							</tr>
 						{% endif %}
-						<tr><!--FATHMM-->
-							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging</em></td>
-						</tr>
 						<tr><!--Meta SVM-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMScore, internal_data.missensePredictions.metaSVMColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMPred, internal_data.missensePredictions.metaSVMColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
 						</tr>
 						<tr><!--Meta LR-->
 							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRScore, internal_data.missensePredictions.metaLRColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRPred, internal_data.missensePredictions.metaLRColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
 						</tr>
 						<tr><!--Mistic-->
 							<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic">Mistic</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - meta score</em></td>
 						</tr>
 					</tbody>
 				</table>
@@ -954,47 +954,47 @@
 					</div>
 				</div>
 				{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca=9, num_non_aca=5) %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=4, num_non_aca_single=2, num_aca_meta=5, num_non_aca_meta=3) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
-					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
+					{% set missense_pred.num_non_aca_single = missense_pred.num_non_aca_single - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.polyphen2HvarPred == 'no prediction' %}
 					{% set missense_pred.pphvar = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.polyphen2HdivPred == 'no prediction' %}
 					{% set missense_pred.pphdiv = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.revelPred == 'no prediction' %}
 					{% set missense_pred.revel = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.clinpredPred == 'no prediction' %}
 					{% set missense_pred.clinpred = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
+					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.fathmmPred == 'no prediction' %}
 					{% set missense_pred.fathmm = 10.64 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
-					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
+					{% set missense_pred.num_non_aca_single = missense_pred.num_non_aca_single - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.metaSVMPred == 'no prediction' %}
 					{% set missense_pred.metasvm = -2 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
-					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
+					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
+					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.metaLRPred == 'no prediction' %}
 					{% set missense_pred.metalr = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
-					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
+					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
+					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.misticPred == 'no prediction' %}
 					{% set missense_pred.mistic = 0 %}
-					{% set missense_pred.num_aca = missense_pred.num_aca - 1 %}
-					{% set missense_pred.num_non_aca = missense_pred.num_non_aca - 1 %}
+					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
+					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
 				{% endif %}
 				<script>
 					//var ctx = document.getElementById("missense_radar").getContext('2d')
@@ -1012,10 +1012,16 @@
 					}
 					var normalisedFathmm = 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]);
 					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
-					var numberOfScores = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca }} {% else %} {{ missense_pred.num_non_aca }} {% endif %};
-					var totalNormalisedScores = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} (normalisedFathmm) + (normalisedMetasvm) + ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3);
-					var meanNormalisedScores = (totalNormalisedScores / numberOfScores).toFixed(3);
-					$('#total_missense_scores').html('<br/>Mean normalised score of all predictors: ' + meanNormalisedScores + ' (' + totalNormalisedScores + ' / ' + numberOfScores + ')');
+					// var numberOfScores = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca }} {% else %} {{ missense_pred.num_non_aca }} {% endif %};
+					var numberOfScoresSingle = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_single }} {% else %} {{ missense_pred.num_non_aca_single }} {% endif %};
+					var numberOfScoresMeta = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_meta }} {% else %} {{ missense_pred.num_non_aca_meta }} {% endif %};
+					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmm)).toFixed(3);
+					var totalNormalisedScoresMeta = ((normalisedMetasvm) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3)
+					// var totalNormalisedScores = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} (normalisedFathmm) + (normalisedMetasvm) + ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3);
+					//var meanNormalisedScores = (totalNormalisedScores / numberOfScores).toFixed(3);
+					var meanNormalisedScoresSingle = (totalNormalisedScoresSingle / numberOfScoresSingle).toFixed(3);
+					var meanNormalisedScoresMeta = (totalNormalisedScoresMeta / numberOfScoresMeta).toFixed(3);
+					$('#total_missense_scores').html('<br/>Mean normalised score of all single predictors: ' + meanNormalisedScoresSingle + ' (' + totalNormalisedScoresSingle + ' / ' + numberOfScoresSingle + ') - for meta predictors: ' + meanNormalisedScoresMeta + ' (' + totalNormalisedScoresMeta + ' / ' + numberOfScoresMeta + ')');
 					var myRadarChart = new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
