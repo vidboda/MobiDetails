@@ -131,6 +131,7 @@
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
+  'regulomedb': 'https://regulomedb.org'
   'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
   'revel': 'https://sites.google.com/site/revelgenomics/'
   'spice': 'https://sourceforge.net/p/spicev2-1/wiki/SPICE%20wiki/'
@@ -512,6 +513,12 @@
     'paper': ' 27154141'
     'version': 'API'
     'short_name': 'mygene.info'
+  'panelApp':
+    'firstauthor': 'Stark'
+    'year': '2021'
+    'paper': '34329581'
+    'version': 'API'
+    'short_name': 'panelapp'
   'Polyphen-2':
     'firstauthor': 'Adzhubei'
     'year': '2010'
@@ -522,6 +529,12 @@
     'dbNSFP_pred_col_hdiv': '44'
     'dbNSFP_value_col_hvar': '45'
     'dbNSFP_pred_col_hvar': '47'
+  'regulomeDB':
+    'firstauthor': 'Boyle'
+    'year': '2012'
+    'paper': '22955989'
+    'version': 'Live web site'
+    'short_name': 'regulomedb'
   'REVEL':
     'firstauthor': 'Ioannidis'
     'year': '2016'
