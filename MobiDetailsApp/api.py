@@ -2411,7 +2411,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 for gene in var_dict:
                     creation_dict = md_utilities.create_var_vv(
                         var_dict[gene]['vv_key_var'], gene, var_dict[gene]['RefSeq_NM'],
-                        'c.{}'.format(new_variant), new_variant,
+                        'c.{}'.format(var_dict[gene]['new_variant']), var_dict[gene]['new_variant'],
                         vv_data, caller, db, g
                     )
                     if isinstance(creation_dict, int):
