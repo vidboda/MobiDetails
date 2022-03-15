@@ -1680,7 +1680,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                 flash('Invalid caller submitted to API.', 'w3-pale-red')
                 return redirect(url_for('md.index'), code=302)
 
-        # check gene exists
+        # check if gene exists
         if re.search(r'^\d+$', gene):
             # HGNC id submitted
             curs.execute(
@@ -1822,6 +1822,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             (gene,)
                         )
                         res_gene_non_can = curs.fetchall()
+                        gene_symbol = gene
+                        transcript = res_gene['name'][1]
                         for transcript in res_gene_non_can:
                             res_gene_non_can_list.append(transcript['name'][1])
                         for key in vv_data.keys():
@@ -1829,21 +1831,37 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
                             match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
                             if match_obj:
-                                new_variant = match_obj.group(2)
                                 if match_obj.group(1) == res_gene['name'][1]:
                                     # treat canonical as priority
+                                    new_variant = match_obj.group(2)
                                     vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
                                     break
                                 elif not vv_key_var:
                                     # take into account non canonical isoforms
-                                    # print('{0}.{1}'.format(match_obj.group(1), match_obj.group(2)))
-                                    # print(res_gene_non_can_list)
+                                    # print('{0}:c.{1}'.format(match_obj.group(1), match_obj.group(2)))
                                     if match_obj.group(1) in res_gene_non_can_list:
-                                        vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
+                                        transcript = match_obj.group(1)
+                                        # check gene in case it is different from the asked one
+                                        curs.execute(
+                                            """
+                                            SELECT name
+                                            FROM gene
+                                            WHERE name[2] = %s
+                                            """,
+                                            (transcript,)
+                                        )
+                                        res_symbol = curs.fetchone()
+                                        if res_symbol:
+                                            vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
+                                            gene_symbol = res_symbol['name'][0]
+                                            new_variant = match_obj.group(2)
                         if vv_key_var:
-                            # print(vv_key_var)
+                            print(vv_key_var)
+                            print(gene_symbol)
+                            print(transcript)
+                            print(new_variant)
                             creation_dict = md_utilities.create_var_vv(
-                                vv_key_var, res_gene['name'][0], res_gene['name'][1],
+                                vv_key_var, gene_symbol, transcript,
                                 'c.{}'.format(new_variant), new_variant,
                                 vv_data, caller, db, g
                             )
