@@ -382,7 +382,7 @@ function spliceai_lookup_html(spliceai_str) {
   return spliceai_str;
 }
 
-function submit_create_var_g(create_g_url, api_key, csrf_token) {
+function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
   // send header for flask-wtf crsf security
 	$.ajaxSetup({
 		beforeSend: function(xhr, settings) {
@@ -399,12 +399,15 @@ function submit_create_var_g(create_g_url, api_key, csrf_token) {
 		}
 	})
   .done(function(var_json) {
-      if (var_json.mobidetails_error) {
-        $('#result_display').html(var_json.mobidetails_error)
-      }
-      else {
-        $('#result_display').html("<a href='" + var_json.url + "' target='_blank'>Check this variant on the canonical isoform</a>")
-      }
+    if (var_json.mobidetails_error) {
+      $('#result_display').html(var_json.mobidetails_error)
+    }
+    else if (parseInt(current_id) !== parseInt(var_json.mobidetails_id)) {
+      $('#result_display').html("<a href='" + var_json.url + "' target='_blank'>Check this variant on the canonical isoform</a>")
+    }
+    else {
+      $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + $('#gene_name').text() + "</em> is not possible.");
+    }
     }
   );
 }
