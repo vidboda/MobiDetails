@@ -1856,10 +1856,10 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                             gene_symbol = res_symbol['name'][0]
                                             new_variant = match_obj.group(2)
                         if vv_key_var:
-                            print(vv_key_var)
-                            print(gene_symbol)
-                            print(transcript)
-                            print(new_variant)
+                            # print(vv_key_var)
+                            # print(gene_symbol)
+                            # print(transcript)
+                            # print(new_variant)
                             creation_dict = md_utilities.create_var_vv(
                                 vv_key_var, gene_symbol, transcript,
                                 'c.{}'.format(new_variant), new_variant,

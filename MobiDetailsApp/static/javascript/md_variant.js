@@ -406,7 +406,7 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
       $('#result_display').html("<a href='" + var_json.url + "' target='_blank'>Check this variant on the canonical isoform</a>")
     }
     else {
-      $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + $('#gene_name').text() + "</em> is not possible.");
+      $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + encodeURIComponent($('#gene_name').text()) + "</em> is not possible.");
     }
     }
   );
