@@ -504,9 +504,10 @@ def vars(gene_name=None):
         curs.execute(
             """
             SELECT *, a.id as vf_id
-            FROM variant_feature a, variant b, mobiuser c
+            FROM variant_feature a, variant b, mobiuser c, gene d
             WHERE a.id = b.feature_id
                 AND a.creation_user = c.id
+                AND a.gene_name = d.name
                 AND a.gene_name[1] = %s
                 AND b.genome_version = 'hg38'
             """,
