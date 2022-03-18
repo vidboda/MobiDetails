@@ -1871,19 +1871,29 @@ def spliceai_lookup():
             variant = match_obj_variant.group(1)
             transcript = match_obj_transcript.group(1).split(".")[0]
             try:
-                http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
                 spliceai500 = json.loads(
-                            http_dangerous.request(
-                                'GET',
-                                '{0}{1}'.format(
-                                    md_utilities.urls['spliceai_api'],
-                                    variant)
-                            ).data.decode('utf-8')
-                        )
-            except Exception:
-                return """
-                <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
-                """
+                    http.request(
+                        'GET',
+                        '{0}{1}'.format(
+                            md_utilities.urls['spliceai_api'],
+                            variant)
+                    ).data.decode('utf-8')
+                )
+            except urllib3.exceptions.MaxRetryError:
+                try:
+                    http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
+                    spliceai500 = json.loads(
+                                http_dangerous.request(
+                                    'GET',
+                                    '{0}{1}'.format(
+                                        md_utilities.urls['spliceai_api'],
+                                        variant)
+                                ).data.decode('utf-8')
+                            )
+                except Exception:
+                    return """
+                    <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
+                    """
             # print('{0}{1}'.format(
             #     md_utilities.urls['spliceai_api'],
             #     variant))
