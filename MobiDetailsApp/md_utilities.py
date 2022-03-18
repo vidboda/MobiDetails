@@ -1152,24 +1152,33 @@ def create_var_vv(
                         return {'mobidetails_error':  '{}'.format(warning)}
     if check_vv_variant_data(vv_key_var, vv_data) is False:
         if caller == 'browser':
-            send_error_email(
-                prepare_email_html(
-                    'MobiDetails error',
+            vv_warning = return_vv_validation_warnings(vv_data)
+            if vv_warning == '':
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        """
+                        <p>VV check failed for variant {0} with args: {1}.
+                        """.format(
+                            vv_key_var,
+                            vv_data
+                        )
+                    ),
+                    '[MobiDetails - MD variant creation Error: VV check]'
+                )
+                return danger_panel(
+                    vv_key_var,
                     """
-                    <p>VV check failed for variant {0} with args: {1}.
-                    """.format(
-                        vv_key_var,
-                        vv_data
-                    )
-                ),
-                '[MobiDetails - MD variant creation Error: VV check]'
-            )
-            return danger_panel(
-                vv_key_var,
-                """
-                VariantValidator did not return a valid value for this variant. An admin has been warned.
-                """
-            )
+                    VariantValidator did not return a valid value for this variant. An admin has been warned.
+                    """
+                )
+            else:
+                return danger_panel(
+                    vv_key_var,
+                    """
+                    VariantValidator did not return a valid value for this variant: {0}
+                    """.format(vv_warning)
+                )
         elif caller == 'cli':
             return {
                 'mobidetails_error':
@@ -1922,6 +1931,30 @@ def check_vv_variant_data(vv_key_var, vv_data):
                     return False
         return True
     return False
+
+
+def return_vv_validation_warnings(vv_data):
+    # when check_vv_variant_data is False, check if errors need to be returned
+    # we need to deal with most errors here, e.g.:
+    # - Variant reference (G) does not agree with reference sequence (C)
+    # - Using a transcript reference sequence to specify a variant position that
+    # lies outside of the reference sequence is not HGVS-compliant
+    # - base start position must be <= end position
+    for key in vv_data:
+        if key == 'validation_warning_1':
+            for field in vv_data[key]:
+                if field == 'validation_warnings':
+                    for warning in vv_data[key][field]:
+                        if re.search('does not agree with reference sequence', warning):
+                            return warning
+                        if re.search('base start position must be <= end position:', warning):
+                            return warning
+                        if re.search('Removing redundant reference bases from variant description', warning):
+                            return warning
+                        match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
+                        if match_obj:
+                            return match_obj.group(1)
+    return ''
 
 
 def prepare_email_html(title, message, send_url=True):

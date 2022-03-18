@@ -1517,24 +1517,33 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
                     close_db()
                     if caller == 'browser':
-                        md_utilities.send_error_email(
-                            md_utilities.prepare_email_html(
-                                'MobiDetails error',
+                        vv_warning = md_utilities.return_vv_validation_warnings(vv_data)
+                        if vv_warning == '':
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails error',
+                                    """
+                                    <p>VV check failed for variant {0} with args: {1}.
+                                    """.format(
+                                        vv_key_var,
+                                        vv_data
+                                    )
+                                ),
+                                '[MobiDetails - MD variant creation Error: VV check]'
+                            )
+                            flash(
                                 """
-                                <p>VV check failed for variant {0} with args: {1}.
-                                """.format(
-                                    vv_key_var,
-                                    vv_data
-                                )
-                            ),
-                            '[MobiDetails - MD variant creation Error: VV check]'
-                        )
-                        flash(
-                            """
-                            VariantValidator did not return a valid value for the variant {0}. An admin has been warned.
-                            """.format(vv_key_var),
-                            'w3-pale-red'
-                        )
+                                VariantValidator did not return a valid value for the variant {0}. An admin has been warned.
+                                """.format(vv_key_var),
+                                'w3-pale-red'
+                            )
+                        else:
+                            flash(
+                                """
+                                VariantValidator did not return a valid value for the variant {0}: {1}
+                                """.format(vv_key_var, vv_warning),
+                                'w3-pale-red'
+                            )
                         return redirect(url_for('md.index'), code=302)
                     elif caller == 'cli':
                         return jsonify(

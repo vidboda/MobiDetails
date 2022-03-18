@@ -743,6 +743,23 @@ def test_check_vv_variant_data(vv_dict):
     assert verif_data is True
 
 
+vv_warning1 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_000059.3:c.68-7_68-8delinsAA', 'transcript_description': '', 'validation_warnings': ['base start position must be <= end position: Did you mean NM_000059.3:c.68-8_68-7delinsAA?'], 'variant_exonic_positions': None}}
+
+vv_warning2 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_001292063.2:c.71_78delAGTCCCTG*', 'transcript_description': '', 'validation_warnings': ['Removing redundant reference bases from variant description', 'NM_001292063.2:c.71_78del*: char 34: expected EOF'], 'variant_exonic_positions': None}}
+
+vv_warning3 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_021175.4:c.*203G>T', 'transcript_description': '', 'validation_warnings': ['Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant: Instead re-submit NC_000019.10:g.35285245G>T'], 'variant_exonic_positions': None}}
+
+
+@pytest.mark.parametrize(('vv_data', 'return_warning'), (
+    (vv_warning1, 'base start position must be <= end position: Did you mean NM_000059.3:c.68-8_68-7delinsAA?'),
+    (vv_warning2, 'Removing redundant reference bases from variant description'),
+    (vv_warning3, 'Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant'),
+    (vv_dict, ''),
+))
+def test_return_vv_validation_warnings(vv_data, return_warning):
+    assert md_utilities.return_vv_validation_warnings(vv_data) == return_warning
+
+
 def test_get_vv_api_url():
     api_url = md_utilities.get_vv_api_url()
     assert 'http' in api_url

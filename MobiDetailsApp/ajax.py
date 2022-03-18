@@ -1152,8 +1152,8 @@ def create():
                     new_variant,
                     """
                     Variant Validator did not return a valid value for the variant.
-                    There may be an issue with the selected transcript or the wild-type nucleotides submitted
-                    """
+                    {0}
+                    """.format(md_utilities.return_vv_validation_warnings(vv_data))
                 )
         else:
             close_db()
