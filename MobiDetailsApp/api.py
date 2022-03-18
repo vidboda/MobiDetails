@@ -1832,7 +1832,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         )
                         res_gene_non_can = curs.fetchall()
                         gene_symbol = gene
-                        transcript = res_gene['name'][1]
+                        nm_transcript = res_gene['name'][1]
                         for transcript in res_gene_non_can:
                             res_gene_non_can_list.append(transcript['name'][1])
                         for key in vv_data.keys():
@@ -1843,13 +1843,14 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 if match_obj.group(1) == res_gene['name'][1]:
                                     # treat canonical as priority
                                     new_variant = match_obj.group(2)
+                                    nm_transcript = res_gene['name'][1]
+                                    gene_symbol = gene
                                     vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
                                     break
                                 elif not vv_key_var:
                                     # take into account non canonical isoforms
                                     # print('{0}:c.{1}'.format(match_obj.group(1), match_obj.group(2)))
                                     if match_obj.group(1) in res_gene_non_can_list:
-                                        transcript = match_obj.group(1)
                                         # check gene in case it is different from the asked one
                                         curs.execute(
                                             """
@@ -1857,20 +1858,21 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                             FROM gene
                                             WHERE name[2] = %s
                                             """,
-                                            (transcript,)
+                                            (match_obj.group(1),)
                                         )
                                         res_symbol = curs.fetchone()
                                         if res_symbol:
-                                            vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
-                                            gene_symbol = res_symbol['name'][0]
                                             new_variant = match_obj.group(2)
+                                            nm_transcript = match_obj.group(1)
+                                            gene_symbol = res_symbol['name'][0]
+                                            vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
                         if vv_key_var:
                             # print(vv_key_var)
                             # print(gene_symbol)
-                            # print(transcript)
+                            # print(nm_transcript)
                             # print(new_variant)
                             creation_dict = md_utilities.create_var_vv(
-                                vv_key_var, gene_symbol, transcript,
+                                vv_key_var, gene_symbol, nm_transcript,
                                 'c.{}'.format(new_variant), new_variant,
                                 vv_data, caller, db, g
                             )
