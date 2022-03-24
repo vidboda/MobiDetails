@@ -1195,7 +1195,17 @@ def create():
                     vv_base_url,
                     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
                 )
-                vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                try:
+                    vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                except Exception:
+                    close_db()
+                    return md_utilities.danger_panel(
+                        vv_key_var,
+                        """
+                        Variant Validator did not return any value for the variant.
+                        Either it is down or your nomenclature is very odd!
+                        """
+                    )
                 vv_key_var_can = None
                 for key in vv_full_data.keys():
                     # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
