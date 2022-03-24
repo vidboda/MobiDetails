@@ -1132,7 +1132,7 @@ def create_var_vv(
                     ) > 1:
                         return danger_panel(
                             vv_key_var,
-                            ' '.join(
+                            '<br />'.join(
                                 vv_data[first_level_key]['validation_warnings']
                             )
                         )
