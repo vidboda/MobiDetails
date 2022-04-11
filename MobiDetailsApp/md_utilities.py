@@ -1784,8 +1784,8 @@ def get_segment_size_from_vv_cigar(cigar):
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
     # we will find the exon start and end in the VV json file
-    print(ncbi_chr)
-    print(exon_number)
+    # print(ncbi_chr)
+    # print(exon_number)
     try:
         json_file = open('{0}{1}.json'.format(
             local_files['variant_validator']['abs_path'],
