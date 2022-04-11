@@ -8,7 +8,6 @@ from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
-# import logging
 from psycopg2 import pool
 
 mail = Mail()
