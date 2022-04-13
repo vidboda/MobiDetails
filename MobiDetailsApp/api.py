@@ -1582,9 +1582,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             vv_base_url,
                             vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
                         )
-                        vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
-                        if vv_full_data:
-                            # if not, ok we move on
+                        try:
+                            vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                             vv_key_var_can = None
                             for key in vv_full_data.keys():
                                 # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
@@ -1600,6 +1599,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                     'c.{}'.format(new_variant_can), original_variant_can,
                                     vv_full_data, caller, db, g
                                 )
+                        except json.decoder.JSONDecodeError:
+                            # empty JSON, move on
+                            pass
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene'], acc_no,
                     'c.{}'.format(new_variant), original_variant,
