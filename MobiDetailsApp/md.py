@@ -580,7 +580,6 @@ def search_engine():
         sql_table = 'variant_feature'
         col_names = 'id, c_name, gene_name, p_name'
         semaph_query = 0
-        # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
         query_engine = re.sub(r"'", '', query_engine)
         if re.search(r'^last$', query_engine):

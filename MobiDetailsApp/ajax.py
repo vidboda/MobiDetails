@@ -1644,6 +1644,8 @@ def delete_variant_list(list_name):
 def autocomplete():
     if 'query_engine' in request.form:
         query = request.form['query_engine']
+        query = re.sub(r'\s', '', query)
+        query = re.sub(r"'", '', query)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
@@ -1736,6 +1738,8 @@ def autocomplete_var():
     if 'query_engine' in request.form and \
             'acc_no' in request.form:
         query = request.form['query_engine']
+        query = re.sub(r'\s', '', query)
+        query = re.sub(r"'", '', query)
         # match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', request.form['gene'])
         ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
         match_obj_nm = re.search(rf'^({ncbi_transcript_regexp})$', request.form['acc_no'])
