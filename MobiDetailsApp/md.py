@@ -582,6 +582,7 @@ def search_engine():
         semaph_query = 0
         # deal w/ protein names
         query_engine = re.sub(r'\s', '', query_engine)
+        query_engine = re.sub(r"'", '', query_engine)
         if re.search(r'^last$', query_engine):
             # get variant annotated the last 7 days
             if 'db' not in locals():
