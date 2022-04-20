@@ -1942,6 +1942,7 @@ def return_vv_validation_warnings(vv_data):
     # - Using a transcript reference sequence to specify a variant position that
     # lies outside of the reference sequence is not HGVS-compliant
     # - base start position must be <= end position
+    # - lacking characters
     for key in vv_data:
         if key == 'validation_warning_1':
             for field in vv_data[key]:
@@ -1952,6 +1953,10 @@ def return_vv_validation_warnings(vv_data):
                         if re.search('base start position must be <= end position:', warning):
                             return warning
                         if re.search('Removing redundant reference bases from variant description', warning):
+                            return warning
+                        if re.search('expected one of', warning):
+                            return warning
+                        if re.search('end of input', warning):
                             return warning
                         if re.search('start or end or both are beyond the bounds of transcript record', warning):
                             return warning
