@@ -1958,6 +1958,8 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('end of input', warning):
                             return warning
+                        if re.search('is not formatted following the HGVS guidelines', warning):
+                            return warning
                         if re.search('start or end or both are beyond the bounds of transcript record', warning):
                             return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
