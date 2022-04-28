@@ -513,17 +513,19 @@ $(document).ready(function() {
   }
 
   // check MuPIT for available 3D structure
-  // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
-  $.ajax({
-	  type: "GET",
-	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
-	})
-	.done(function(mupit_results) {
-    // alert(mupit_results.hit);
-    if (mupit_results.hit === true) {
-        $('#mupit_link').show();
-    }
-  });
+  if ($('#missense').length) {
+    // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
+    $.ajax({
+  	  type: "GET",
+  	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
+  	})
+  	.done(function(mupit_results) {
+      // alert(mupit_results.hit);
+      if (mupit_results.hit === true) {
+          $('#mupit_link').show();
+      }
+    });
+  }
 
   // trick to force charts.js script execution and to get canvas in pdf export
   // charts are displayed by default and then quickly hidden
