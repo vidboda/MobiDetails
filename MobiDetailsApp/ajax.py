@@ -13,7 +13,9 @@ import psycopg2.extras
 import json
 import urllib3
 import certifi
+import requests
 import datetime
+import twobitreader
 
 bp = Blueprint('ajax', __name__)
 
@@ -362,6 +364,86 @@ def intervar():
         return "<span>Bad request</span>"
 
 # -------------------------------------------------------------------
+# web app - ajax for spliceaivisual
+
+
+@bp.route('/spliceaivisual', methods=['POST'])
+def spliceaivisual():
+    chrom = pos = ref = alt = ncbi_transcript = strand = variant_id = None
+    nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    # print(request.form)
+    if re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
+            re.search(rf'^\d+$', request.form['pos']) and \
+            re.search(rf'^[ATGCatgc]+$', request.form['ref']) and \
+            re.search(rf'^[ATGCatgc]+$', request.form['alt']) and \
+            re.search(rf'^{ncbi_transcript_regexp}$', request.form['ncbi_transcript']) and \
+            re.search(rf'^[\+-]$', request.form['strand']) and \
+            re.search(rf'^\d+$', request.form['variant_id']):
+        chrom = request.form['chrom']
+        pos = request.form['pos']
+        ref = request.form['ref'].upper()
+        alt = request.form['alt'].upper()
+        ncbi_transcript = request.form['ncbi_transcript']
+        strand = request.form['strand']
+        variant_id = request.form['variant_id']
+        # do we have the wt bedgraph
+        if os.path.exists(
+            '{0}/bedgraphs/{1}.bedGraph'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+                ncbi_transcript
+            )
+        ):
+            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+        elif os.path.exists(
+            '{0}/bedgraphs/{1}.txt'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+                ncbi_transcript
+            )
+        ):
+            # build new bedgraph from .txt
+            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+        else:
+            # build new bedgraph from scratch
+            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+        # get mutant spliceai predictions
+        # build mt sequence
+        offset = 25
+        genome = twobitreader.TwoBitFile(
+            '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
+        )
+        current_chrom = genome['chr{}'.format(chrom)]
+        # seq_start = int(pos) - offset
+        # seq_end = int(pos) + offset + 1
+        # wt_seq = current_chrom[seq_start-1:seq_end].upper()
+        if len(ref) == len(alt):
+            # substitutions
+            mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
+        elif len(ref) > len(alt) and \
+            len(alt) == 1:
+            # deletions
+            mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(ref) - 1].upper()
+        elif len(alt) > len(ref) and \
+            len(ref) == 1:
+            # insertions / duplications
+            mt_seq = current_chrom[int(pos) - offset:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset + len(alt) - 1].upper()
+        elif len(ref) > 1 and \
+                len(alt) > 1:
+            # indels
+            mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(alt) - 1].upper()
+            print(mt_seq)
+        else:
+            mt_seq = None
+        if strand == '-':
+            mt_seq = md_utilities.reverse_complement(mt_seq)
+        # spliceai call
+
+        return spliceai_folder_path
+    else:
+        return '<p style="color:red">Bad params for spliceaivisual.</p>'
+
+
+# -------------------------------------------------------------------
 # web app - ajax for LOVD API
 
 
@@ -377,8 +459,6 @@ def lovd():
             re.search(rf'^{variant_regexp}$', request.form['g_name']) and \
             re.search(rf'^c\.{variant_regexp}$', request.form['c_name']) and \
             'gene' in request.form:
-        # and \
-        #    'pos' in request.form:
         genome = request.form['genome']
         chrom = request.form['chrom']
         g_name = request.form['g_name']
