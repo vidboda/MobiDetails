@@ -113,7 +113,7 @@ function intervar(intervar_url, csrf_token) {
 			}
 		})
 		.done(function(html) {
-			$("#intervar_data").replaceWith(html);
+			$('#intervar_data').replaceWith(html);
       $('#population_table').DataTable().destroy();
       datatable = $('#population_table').DataTable({
           responsive: true,
@@ -127,7 +127,68 @@ function intervar(intervar_url, csrf_token) {
 		});
 	}
 }
-
+function spliceaivisual(spliceaivisual_url, csrf_token) {
+  // ajax for spliceaivisual
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      }
+    }
+  });
+  $.ajax({
+    type: "POST",
+    url: spliceaivisual_url,
+    data: {
+      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript:$('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val()
+    }
+  })
+  .done(function(spliceai_path) {
+    // $('#igv_div').html(html);
+    // var igvDiv = document.getElementById("igv-div");
+    if (spliceai_path == '<p style="color:red">Bad params for spliceaivisual.</p>') {
+      $('#igv_div').html(spliceai_path);
+    }
+    else {
+      var options =
+        {
+          showNavigation: true,
+          showRuler: true,
+          showCenterGuide: true,
+          showCursorTrackingGuide: true,
+          genome: 'hg38',
+          locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+          tracks: [
+            {
+              name: 'SpliceAI WT ' + $('#nm_acc').text(),
+              format: 'bedGraph',
+              url: spliceai_path + 'bedgraphs/' + $('#nm_acc').text() + '.bedGraph',
+              indexed: false,
+              label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+              roi: [{
+                name: $('#variant_id').text(),
+                url: spliceai_path + 'beds/' + $('#variant_id').val() + '.bed',
+                indexed: false,
+                color: "rgba(220, 20, 60, 0.25)"
+              }]
+            },
+            {
+              name: 'SpliceAI MT ' + $('#nm_acc').text(),
+              format: 'bedGraph',
+              url: spliceai_path + 'bedgraphs/' + $('#nm_acc').text() + '.' + $('#variant_id').val() + '.bedGraph',
+              indexed: false,
+              label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+            }
+          ]
+        };
+      igv.createBrowser($('#igv_div'), options)
+        .then(function (browser) {
+            console.log("Created IGV browser");
+        })
+    }
+  });
+}
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	// ajax to modify variant class
   $('html').css('cursor', 'progress');

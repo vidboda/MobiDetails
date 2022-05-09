@@ -131,6 +131,9 @@ local_files['mistic']['abs_path'] = '{0}{1}'.format(
 local_files['spip']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spip']['rel_path']
 )
+local_files['spliceai_folder']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['spliceai_folder']['rel_path']
+)
 local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_snvs']['rel_path']
 )
@@ -852,8 +855,6 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 
 def get_vv_api_url():
     # try remote VV rest api and if not functional, switch on local
-    # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
-    # ca_certs=certifi.where())
     try:
         hello = json.loads(http.request(
             'GET',
@@ -1225,36 +1226,9 @@ def create_var_vv(
         (new_variant.replace("c.", ""), acc_no)
     )
     res = curs.fetchone()
-    # curs.execute(
-    #     "SELECT feature_id FROM variant \
-    #     WHERE genome_version = %s AND g_name = %s AND chr = %s",
-    #     (genome, hg38_d['g_name'], hg38_d['chr'])
-    # )
-    # res = curs.fetchone()
     if res is not None:
         # now returns only id
         return res['id']
-        # if caller == 'browser':
-        #     return info_panel(
-        #         'Variant already in MobiDetails: ',
-        #         '{0}:{1}'.format(acc_no, new_variant),
-        #         res['id']
-        #     )
-        # elif caller == 'cli':
-        #     return {
-        #         'mobidetails_id': res['id'],
-        #         'url': '{0}{1}'.format(
-        #             request.host_url[:-1],
-        #             url_for(
-        #                 'api.variant',
-        #                 variant_id=res['id'],
-        #                 caller='browser'
-        #             )
-        #         )
-        #     }
-        # elif caller == 'test':
-        #     # for unit tests
-        #     return {'mobidetails_id': res['id']}
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
@@ -1340,11 +1314,6 @@ def create_var_vv(
             vf_d['variant_size'] = int(positions[1]) - int(positions[0]) + 1
 
     # we need strand later
-    # curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    # curs.execute(
-    #     "SELECT strand FROM gene \
-    #       WHERE name = '{{\"{0}\",\"{1}\"}}'".format(gene, acc_no)
-    # )
     curs.execute(
         """
         SELECT strand
@@ -2477,6 +2446,20 @@ def get_clingen_criteria_specification_id(current_gene_symbol):
                                 # we're in
                                 return rule['svi']['id']
     return None
+
+
+def spliceai_internal_api_hello():
+    try:
+        hello = json.loads(http.request(
+            'GET',
+            '{0}/hello'.format(urls['spliceai_internal_server'])).data.decode('utf-8')
+        )
+        if hello['spliceai_mtp_status'] == "running":
+            return True
+        else:
+            raise Exception
+    except Exception:
+        return False
 
 # def api_end_according_to_caller(
 #    caller, return_obj=None, message=None, url=None):

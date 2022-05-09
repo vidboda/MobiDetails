@@ -139,6 +139,7 @@
   'spliceai': 'https://github.com/Illumina/SpliceAI'
   'spliceai_lookup': 'https://spliceailookup-api.broadinstitute.org/'
   'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=1&variant='
+  'spliceai_internal_server': 'http://194.167.35.157:80'
   'sift': 'https://sift.bii.a-star.edu.sg/'
   'tinyurl_api': 'https://api.tinyurl.com/create'
   'togows': 'http://togows.org'
@@ -291,6 +292,11 @@
     'name': 'Cache for SPiP results'
     'description': 'Storage of SPiP .txt result files'
     'short_name': 'spip'
+  'spliceai_folder':
+    'rel_path': '/static/resources/spliceai/'
+    'name': 'spliceAI raw predictions for MANE transcripts, and snv/indels files'
+    'description': 'Dataset of splicing predictions'
+    'short_name': 'spliceai'
   'spliceai_snvs':
     'rel_path': '/static/resources/spliceai/hg38/spliceai_scores.raw.snv.hg38.vcf.gz'
     'name': 'spliceAI SNVs'

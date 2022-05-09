@@ -1326,7 +1326,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         return render_template(
             'md/variant.html',
             run_mode=md_utilities.get_running_mode(),
-            favourite=favourite, urls=md_utilities.urls,
+            favourite=favourite,
+            urls=md_utilities.urls,
             external_tools=md_utilities.external_tools,
             thresholds=md_utilities.predictor_thresholds,
             class_history=class_history,
@@ -2586,8 +2587,6 @@ def api_gene(gene_hgnc=None):
 # api - update class
 
 
-# @bp.route('/api/variant/update_acmg/<int:variant_id>/<int:acmg_id>/<string:api_key>')
-# def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
 @bp.route('/api/variant/update_acmg', methods=['POST'])
 def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
     if (md_utilities.get_running_mode() == 'maintenance'):
@@ -2596,20 +2595,6 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
     variant_id = md_utilities.get_post_param(request, 'variant_id')
     acmg_id = md_utilities.get_post_param(request, 'acmg_id')
     api_key = md_utilities.get_post_param(request, 'api_key')
-    # if request.args.get('variant_id') and \
-    #         request.args.get('acmg_id') and \
-    #         request.args.get('api_key'):
-    #     variant_id = request.args.get('variant_id', type=int)
-    #     acmg_id = request.args.get('acmg_id', type=int)
-    #     api_key = request.args.get('api_key', type=str)
-    # elif 'variant_id' in request.form and \
-    #         'acmg_id' in request.form and \
-    #         'api_key' in request.form:
-    #     variant_id = request.form['variant_id']
-    #     acmg_id = request.form['acmg_id']
-    #     api_key = request.form['api_key']
-    # else:
-    #     return jsonify(mobidetails_error='I cannot fetch the right parameters')
     if variant_id and \
             acmg_id and \
             api_key:
