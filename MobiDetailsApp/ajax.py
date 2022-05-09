@@ -408,7 +408,7 @@ def spliceaivisual():
             spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
         # get mutant spliceai predictions
         # build mt sequence
-        offset = 25
+        offset = 10000
         genome = twobitreader.TwoBitFile(
             '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
         )
@@ -444,9 +444,23 @@ def spliceaivisual():
         if req_results.status_code == 200:
             spliceai_results = json.loads(req_results.content)
             if spliceai_results['spliceai_return_code'] == 0 and \
-                    spliceai_results['error'] is None:
+                    spliceai_results['error'] is None and \
+                    not os.path.exists(
+                        '{0}/bedgraphs/{1}.{2}.bedGraph'.format(
+                            md_utilities.local_files['spliceai_folder']['abs_path'],
+                            ncbi_transcript,
+                            variant_id
+                        )
+                    ):
                 # build bedgraph
-                with open(r'{0}{1}.{2}.txt'.format(md_utilities.local_files['spliceai_folder']['abs_path'], ncbi_transcript, variant_id), 'w') as bedgraph_file:
+                with open(
+                    r'{0}bedgraphs/{1}.{2}.bedGraph'.format(
+                        md_utilities.local_files['spliceai_folder']['abs_path'],
+                        ncbi_transcript,
+                        variant_id
+                    ),
+                    'w'
+                ) as bedgraph_file:
                     header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
                     header2 = 'track name="    ALT allele" type=bedGraph description="spliceAI_ALT     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
                     bedgraph_file.writelines([header1, header2])
@@ -456,11 +470,27 @@ def spliceaivisual():
                     if strand == '-':
                         mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                         mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
-                        abs_pos = int(pos) + offset + len(alt) - 1
+                        # abs_pos = int(pos) + offset + len(alt) - 1
+                    # print(mt_donor_scores)
+                    i = len(mt_acceptor_scores)
                     for rel_pos in mt_acceptor_scores:
-                        sai_score = mt_acceptor_scores['rel_pos'] if float(mt_acceptor_scores['rel_pos']) > float(mt_donor_scores['rel_pos']) else - (float(mt_donor_scores['rel_pos']))
-                        bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, abs_pos + int(rel_pos) - 1, abs_pos + int(rel_pos), sai_score))
+                        rel_pos_genome = rel_pos
+                        if strand == '-':
+                            rel_pos_genome = len(mt_acceptor_scores) - i
+                            i -= 1
+                        sai_score = mt_acceptor_scores[rel_pos][1] if float(mt_acceptor_scores[rel_pos][1]) > float(mt_donor_scores[rel_pos][1]) else - float(mt_donor_scores[rel_pos][1])
+                        bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, abs_pos + int(rel_pos_genome) - 1, abs_pos + int(rel_pos_genome), sai_score))
                 bedgraph_file.close()
+                # create bed file
+                with open(
+                    r'{0}beds/{1}.bed'.format(
+                        md_utilities.local_files['spliceai_folder']['abs_path'],
+                        variant_id
+                    ),
+                    'w'
+                ) as bed_file:
+                    bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, pos))
+                bed_file.close()
         return spliceai_folder_path
     else:
         return '<p style="color:red">Bad params for spliceaivisual.</p>'
