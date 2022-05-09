@@ -396,12 +396,12 @@ def spliceaivisual():
         ):
             spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
         elif os.path.exists(
-            '{0}/bedgraphs/{1}.txt'.format(
+            '{0}/bedgraphs/{1}.txt.gz'.format(
                 md_utilities.local_files['spliceai_folder']['abs_path'],
                 ncbi_transcript
             )
         ):
-            # build new bedgraph from .txt
+            # build new bedgraph from .txt.gz
             spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
         else:
             # build new bedgraph from scratch
@@ -416,20 +416,24 @@ def spliceaivisual():
         # seq_start = int(pos) - offset
         # seq_end = int(pos) + offset + 1
         # wt_seq = current_chrom[seq_start-1:seq_end].upper()
+        variant_type = 'substitution'
         if len(ref) == len(alt):
             # substitutions
             mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
         elif len(ref) > len(alt) and \
             len(alt) == 1:
             # deletions
-            mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(ref) - 1].upper()
+            variant_type = 'deletion'
+            mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:int(pos) + offset + len(ref) - 1].upper()
         elif len(alt) > len(ref) and \
             len(ref) == 1:
             # insertions / duplications
+            variant_type = 'insertion'
             mt_seq = current_chrom[int(pos) - offset:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset + len(alt) - 1].upper()
         elif len(ref) > 1 and \
                 len(alt) > 1:
             # indels
+            variant_type = 'indel'
             mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(alt) - 1].upper()
             print(mt_seq)
         else:
@@ -466,20 +470,29 @@ def spliceaivisual():
                     bedgraph_file.writelines([header1, header2])
                     mt_acceptor_scores = spliceai_results['result']['mt_acceptor_scores']
                     mt_donor_scores = spliceai_results['result']['mt_donor_scores']
-                    abs_pos = int(pos) - offset - 1
+                    abs_pos = int(pos) - offset
                     if strand == '-':
                         mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                         mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
                         # abs_pos = int(pos) + offset + len(alt) - 1
                     # print(mt_donor_scores)
                     i = len(mt_acceptor_scores)
-                    for rel_pos in mt_acceptor_scores:
-                        rel_pos_genome = rel_pos
+                    for relative_pos in mt_acceptor_scores:
+                        rel_pos_genome = relative_pos
                         if strand == '-':
                             rel_pos_genome = len(mt_acceptor_scores) - i
                             i -= 1
-                        sai_score = mt_acceptor_scores[rel_pos][1] if float(mt_acceptor_scores[rel_pos][1]) > float(mt_donor_scores[rel_pos][1]) else - float(mt_donor_scores[rel_pos][1])
-                        bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, abs_pos + int(rel_pos_genome) - 1, abs_pos + int(rel_pos_genome), sai_score))
+                        sai_score = mt_acceptor_scores[relative_pos][1] if float(mt_acceptor_scores[relative_pos][1]) > float(mt_donor_scores[relative_pos][1]) else - float(mt_donor_scores[relative_pos][1])
+                        current_pos = abs_pos + int(rel_pos_genome)
+                        if variant_type == 'substitution':
+                            bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
+                        elif variant_type == 'deletion':
+                            if current_pos <= int(pos) - 1:
+                                bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
+                            else:
+                                bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
+                            if current_pos == int(pos):
+                                print(relative_pos)
                 bedgraph_file.close()
                 # create bed file
                 with open(
@@ -489,7 +502,10 @@ def spliceaivisual():
                     ),
                     'w'
                 ) as bed_file:
-                    bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, pos))
+                    if variant_type == 'substitution':
+                        bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, pos))
+                    elif variant_type == 'deletion':
+                        bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(ref) - 1))
                 bed_file.close()
         return spliceai_folder_path
     else:
