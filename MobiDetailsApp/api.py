@@ -414,6 +414,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'dbmts': None,
             'spliceai': None,
             'episignature': None
+        },
+        'files': {
+            'mane_transcripts': md_utilities.local_files['mane_transcripts']['rel_path']
         }
     }
 

@@ -127,7 +127,7 @@ function intervar(intervar_url, csrf_token) {
 		});
 	}
 }
-function spliceaivisual(spliceaivisual_url, csrf_token) {
+function spliceaivisual(spliceaivisual_url, mane_transcripts_path, csrf_token) {
   // ajax for spliceaivisual
   // send header for flask-wtf crsf security
   $.ajaxSetup({
@@ -147,8 +147,9 @@ function spliceaivisual(spliceaivisual_url, csrf_token) {
   .done(function(spliceai_path) {
     // $('#igv_div').html(html);
     // var igvDiv = document.getElementById("igv-div");
+    $('#igv_com').replaceWith('<span></span>');
     if (spliceai_path == '<p style="color:red">Bad params for spliceaivisual.</p>') {
-      $('#igv_div').html(spliceai_path);
+      $('#igv_com').replaceWith(spliceai_path);
     }
     else {
       var options =
@@ -185,6 +186,12 @@ function spliceaivisual(spliceaivisual_url, csrf_token) {
                 indexed: false,
                 color: "rgba(220, 20, 60, 0.25)"
               }]
+            },
+            {
+              name: 'MANE transcripts',
+              url: mane_transcripts_path,
+              indexed: false,
+              label: 'MANE transcripts',
             }
           ]
         };

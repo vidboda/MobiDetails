@@ -229,7 +229,7 @@ def intervar():
             ]
         except Exception:
             try:
-                # intervar can return mutliple json objects, e.g.:
+                # intervar can return multiple json objects, e.g.:
                 # {"Intervar":"Uncertain significance","Chromosome":1,
                 # "Position_hg19":151141512,"Ref_allele":"T","Alt_allele":"A"
                 # ,"Gene":"SCNM1","PVS1":0,"PS1":0,"PS2":0,"PS3":0,"PS4":0,
@@ -375,12 +375,12 @@ def spliceaivisual():
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     # print(request.form)
     if re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(rf'^\d+$', request.form['pos']) and \
-            re.search(rf'^[ATGCatgc]+$', request.form['ref']) and \
-            re.search(rf'^[ATGCatgc]+$', request.form['alt']) and \
+            re.search(r'^\d+$', request.form['pos']) and \
+            re.search(r'^[ATGCatgc]+$', request.form['ref']) and \
+            re.search(r'^[ATGCatgc]+$', request.form['alt']) and \
             re.search(rf'^{ncbi_transcript_regexp}$', request.form['ncbi_transcript']) and \
-            re.search(rf'^[\+-]$', request.form['strand']) and \
-            re.search(rf'^\d+$', request.form['variant_id']):
+            re.search(r'^[\+-]$', request.form['strand']) and \
+            re.search(r'^\d+$', request.form['variant_id']):
         chrom = request.form['chrom']
         pos = request.form['pos']
         ref = request.form['ref'].upper()
@@ -455,7 +455,7 @@ def spliceaivisual():
             # indels
             variant_type = 'indel'
             mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(alt) - 1].upper()
-            print(mt_seq)
+            # print(mt_seq)
         else:
             mt_seq = None
         if strand == '-':
@@ -486,8 +486,9 @@ def spliceaivisual():
                     bedgraph_file.writelines([header1, header2])
                     mt_acceptor_scores = spliceai_results['result']['mt_acceptor_scores']
                     mt_donor_scores = spliceai_results['result']['mt_donor_scores']
-                    abs_pos = int(pos) - offset
+                    abs_pos = int(pos) - offset - 1
                     if strand == '-':
+                        abs_pos += 1
                         mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                         mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
                         # abs_pos = int(pos) + offset + len(alt) - 1
@@ -510,26 +511,57 @@ def spliceaivisual():
                         elif variant_type == 'insertion':
                             if current_pos <= int(pos) - 1:
                                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                            elif current_pos > int(pos) - 1 and \
-                                    current_pos < int(pos) - 1 + len(alt) - 1:
+                            elif current_pos > int(pos) and \
+                                    current_pos < int(pos) + len(alt):
                                 # need to inspect scores or put them in comment somewhere in igv track
                                 print(current_pos)
                             else:
-                                bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt), current_pos - len(alt) + 1, sai_score))
+                                bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
+                        elif variant_type == 'indel':
+                            if current_pos <= int(pos) - 1:
+                                bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
+                            # elif len(ref) >= len(alt):
+                            elif current_pos >= int(pos) and \
+                                    current_pos < int(pos) + len(alt):
+                                # need to inspect scores or put them in comment somewhere in igv track
+                                print(current_pos)
+                            else:
+                                if len(ref) >= len(alt):
+                                    bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
+                                else:
+                                    bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - (len(alt) - len(ref)) - 1, current_pos - (len(alt) - len(ref)), sai_score))
+                            # else:
+                            #     if current_pos >= int(pos) and \
+                            #             current_pos < int(pos) + len(alt):
+                            #         # need to inspect scores or put them in comment somewhere in igv track
+                            #         print(current_pos)
+                            #     else:
+                            #         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
+
                 bedgraph_file.close()
-                # create bed file
-                with open(
-                    r'{0}beds/{1}.bed'.format(
+                # create bed file if necessary
+                if not os.path.exists(
+                    '{0}beds/{1}.bed'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
                         variant_id
-                    ),
-                    'w'
-                ) as bed_file:
-                    if variant_type == 'substitution':
-                        bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, pos))
-                    elif variant_type == 'deletion':
-                        bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(ref) - 1))
-                bed_file.close()
+                    )
+                ):
+                    with open(
+                        '{0}beds/{1}.bed'.format(
+                            md_utilities.local_files['spliceai_folder']['abs_path'],
+                            variant_id
+                        ),
+                        'w'
+                    ) as bed_file:
+                        if variant_type == 'substitution':
+                            bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, pos))
+                        elif variant_type == 'deletion':
+                            bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(ref) - 1))
+                        elif variant_type == 'insertion':
+                            bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + 1))
+                        if variant_type == 'indel':
+                            bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(ref) - 1))
+                    bed_file.close()
         return spliceai_folder_path
     else:
         return '<p style="color:red">Bad params for spliceaivisual.</p>'

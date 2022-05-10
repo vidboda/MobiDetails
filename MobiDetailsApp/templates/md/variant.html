@@ -734,10 +734,6 @@
 					</div>
 				</div>
 				<br />
-				<!--spliceaivisual in igv.js-->
-				<div id="igv_div">
-				</div>
-				<br />
 				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
 					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
 						<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
@@ -785,6 +781,17 @@
 					</script>
 				{% endif %}
 			{% endif %}
+			<!--spliceaivisual in igv.js-->
+			<br />
+			<div>
+				{{ info('SpliceAIVisual bedgraphs are displayed below as tracks in igv.js.<ul><li>Green and red highlights show the variation site on the wild-type and mutant track, respectively</li><li>Positive orange bars represent predictied acceptor sites, and negative blue bars donor sites.</li><li>The first track is the spliceai prediction for the entire MANE transcript.</li><li>The second track is the prediction for the variant, +/- 10kb.</li></ul>') }}
+			</div>
+			<div id="igv_com">
+				{{ info('MobiDetails is running spliceai to bring you spliceaivisual... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}
+			</div>
+			<div id="igv_div">
+			</div>
+			<br />
 			{# {% endif %} #}
 		</div>
 		{# {{ modal_js('radar_splicing_modal') }} #}
@@ -1386,7 +1393,7 @@
 			lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}');
 			intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
-			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ csrf_token() }}')
+			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ internal_data.files.mane_transcripts }}', '{{ csrf_token() }}')
 		});
 	</script>
 {% endblock %}
