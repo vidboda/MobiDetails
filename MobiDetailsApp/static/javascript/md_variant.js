@@ -164,12 +164,12 @@ function spliceaivisual(spliceaivisual_url, mane_transcripts_path, csrf_token) {
             {
               name: 'SpliceAI WT ' + $('#nm_acc').text(),
               format: 'bedGraph',
-              url: spliceai_path + 'bedgraphs/' + $('#nm_acc').text() + '.bedGraph',
+              url: spliceai_path + 'transcripts/' + $('#nm_acc').text() + '.bedGraph',
               indexed: false,
               label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
               roi: [{
                 name: $('#variant_id').text(),
-                url: spliceai_path + 'beds/' + $('#variant_id').val() + '.bed',
+                url: spliceai_path + 'variants/' + $('#variant_id').val() + '.bed',
                 indexed: false,
                 color: "rgba(0, 150, 50, 0.25)"
               }]
@@ -177,15 +177,22 @@ function spliceaivisual(spliceaivisual_url, mane_transcripts_path, csrf_token) {
             {
               name: 'SpliceAI MT ' + $('#nm_acc').text(),
               format: 'bedGraph',
-              url: spliceai_path + 'bedgraphs/' + $('#nm_acc').text() + '.' + $('#variant_id').val() + '.bedGraph',
+              url: spliceai_path + 'variants/' + $('#variant_id').val() + '.bedGraph',
               indexed: false,
               label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
               roi: [{
                 name: $('#variant_id').text(),
-                url: spliceai_path + 'beds/' + $('#variant_id').val() + '.bed',
+                url: spliceai_path + 'variants/' + $('#variant_id').val() + '.bed',
                 indexed: false,
                 color: "rgba(220, 20, 60, 0.25)"
               }]
+            },
+            {
+              name: 'Insertion track',
+              format: 'bedGraph',
+              url: spliceai_path + 'variants/' + $('#variant_id').val() + '_ins.bedGraph',
+              indexed: false,
+              label: 'Insertion track',
             },
             {
               name: 'MANE transcripts',

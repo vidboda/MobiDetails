@@ -389,7 +389,7 @@ def spliceaivisual():
         strand = request.form['strand']
         variant_id = request.form['variant_id']
 
-        file_basename = '{0}/bedgraphs/{1}'.format(
+        transcript_file_basename = '{0}/transcripts/{1}'.format(
             md_utilities.local_files['spliceai_folder']['abs_path'],
             ncbi_transcript
         )
@@ -397,19 +397,19 @@ def spliceaivisual():
         header2 = 'track name="    ALT allele" type=bedGraph description="spliceAI_ALT     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
         # do we have the wt bedgraph
         if os.path.exists(
-            '{0}.bedGraph'.format(file_basename)
+            '{0}.bedGraph'.format(transcript_file_basename)
         ):
             spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
         elif os.path.exists(
-            '{0}.txt.gz'.format(file_basename)
+            '{0}.txt.gz'.format(transcript_file_basename)
         ):
             # build new bedgraph from .txt.gz
             with gzip.open(
-                '{0}.txt.gz'.format(file_basename),
+                '{0}.txt.gz'.format(transcript_file_basename),
                 'rt'
             ) as spliceai_raw_file:
                 with open(
-                    '{0}.bedGraph'.format(file_basename),
+                    '{0}.bedGraph'.format(transcript_file_basename),
                     'w'
                 ) as bedgraph_file:
                     bedgraph_file.writelines([header1, header2])
@@ -467,18 +467,21 @@ def spliceaivisual():
         )
         if req_results.status_code == 200:
             spliceai_results = json.loads(req_results.content)
+            variant_file_basename = '{0}/variants/'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+            )
             if spliceai_results['spliceai_return_code'] == 0 and \
                     spliceai_results['error'] is None and \
                     not os.path.exists(
-                        '{0}.{1}.bedGraph'.format(
-                            file_basename,
+                        '{0}{1}.bedGraph'.format(
+                            variant_file_basename,
                             variant_id
                         )
                     ):
                 # build bedgraph
                 with open(
-                    '{0}.{1}.bedGraph'.format(
-                        file_basename,
+                    '{0}{1}.bedGraph'.format(
+                        variant_file_basename,
                         variant_id
                     ),
                     'w'
@@ -494,6 +497,8 @@ def spliceaivisual():
                         # abs_pos = int(pos) + offset + len(alt) - 1
                     # print(mt_donor_scores)
                     i = len(mt_acceptor_scores)
+                    # bed_insertion = '# bed file required to display spliceai scores of inserted nucleotides\n'
+                    bedgraph_insertion = 'track name="Insertion allele" type=bedGraph description="spliceAI prediction for inserted nucleotides     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
                     for relative_pos in mt_acceptor_scores:
                         rel_pos_genome = relative_pos
                         if strand == '-':
@@ -514,6 +519,8 @@ def spliceaivisual():
                             elif current_pos > int(pos) and \
                                     current_pos < int(pos) + len(alt):
                                 # need to inspect scores or put them in comment somewhere in igv track
+                                # bed_insertion = '{0}{1}\t{2}\t{3}\t{4}\t{5}\n'.format(bed_insertion, chrom, current_pos, current_pos + 1, mt_acceptor_scores[relative_pos][0], sai_score)
+                                bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
                                 print(current_pos)
                             else:
                                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
@@ -524,7 +531,8 @@ def spliceaivisual():
                             elif current_pos >= int(pos) and \
                                     current_pos < int(pos) + len(alt):
                                 # need to inspect scores or put them in comment somewhere in igv track
-                                print(current_pos)
+                                # bed_insertion = '{0}{1}\t{2}\t{3}\t{4}\t{5}\n'.format(bed_insertion, chrom, current_pos, current_pos + 1, mt_acceptor_scores[relative_pos][0], sai_score)
+                                bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                             else:
                                 if len(ref) >= len(alt):
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
@@ -540,17 +548,13 @@ def spliceaivisual():
 
                 bedgraph_file.close()
                 # create bed file if necessary
-                if not os.path.exists(
-                    '{0}beds/{1}.bed'.format(
-                        md_utilities.local_files['spliceai_folder']['abs_path'],
-                        variant_id
-                    )
-                ):
+                bed_file_basename = '{0}variants/{1}.bed'.format(
+                    md_utilities.local_files['spliceai_folder']['abs_path'],
+                    variant_id
+                )
+                if not os.path.exists(bed_file_basename):
                     with open(
-                        '{0}beds/{1}.bed'.format(
-                            md_utilities.local_files['spliceai_folder']['abs_path'],
-                            variant_id
-                        ),
+                        bed_file_basename,
                         'w'
                     ) as bed_file:
                         if variant_type == 'substitution':
@@ -562,6 +566,17 @@ def spliceaivisual():
                         if variant_type == 'indel':
                             bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(ref) - 1))
                     bed_file.close()
+                bed_ins_file_basename = '{0}variants/{1}_ins.bedGraph'.format(
+                    md_utilities.local_files['spliceai_folder']['abs_path'],
+                    variant_id
+                )
+                if not os.path.exists(bed_ins_file_basename):
+                    with open(
+                        bed_ins_file_basename,
+                        'w'
+                    ) as bed_insertion_file:
+                        bed_insertion_file.write(bedgraph_insertion)
+                    bed_insertion_file.close()
         return spliceai_folder_path
     else:
         return '<p style="color:red">Bad params for spliceaivisual.</p>'
