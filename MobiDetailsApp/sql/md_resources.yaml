@@ -140,7 +140,7 @@
   'spliceai_lookup': 'https://spliceailookup-api.broadinstitute.org/'
   'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=1&variant='
   'spliceai_internal_server': 'http://194.167.35.157:80'
-  'spliceaivisual': 'https://colab.research.google.com/drive/1jFCZSpZ1gt4YVcR2uiCCb4BTQh8HOInD?usp=sharing#scrollTo=TZQQe6zr6zc_'
+  'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
   'tinyurl_api': 'https://api.tinyurl.com/create'
   'togows': 'http://togows.org'
@@ -581,7 +581,7 @@
     'paper': 'None'
     'version': 'API'
     'short_name': 'spliceai_lookup'
-  'spliceAIVisual':
+  'SpliceAI-visual':
     'firstauthor': 'De Sainte Agathe'
     'year': '2022'
     'paper': 'None'
