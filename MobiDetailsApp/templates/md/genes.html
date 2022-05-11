@@ -1,8 +1,8 @@
 {% from 'macros.html' import danger, info %}
 {% extends "base.html" %}
 {% block more_head %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
-	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
+	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_genes.js') }}" type="text/javascript"></script>
 {% endblock %}
 {% block title %}All genes{% endblock %}

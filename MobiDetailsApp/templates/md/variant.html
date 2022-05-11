@@ -1,11 +1,13 @@
 {% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, fa %}
 {% extends "base.html" %}
 {% block more_head %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
-	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
+	<!-- <link rel="stylesheet" href="//cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css"> -->
+	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.nopdfmake.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/pdfmake.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
-	<!-- <script src="{{ url_for('static', filename='javascript/jspdf.min.js') }}" type="text/javascript"></script> -->
-	<script src="{{ url_for('static', filename='javascript/igv.2.10.0.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/igv.2.12.2.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20220505" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
@@ -53,8 +55,9 @@
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
 		<div class="w3-show" id="hg38_acc">
-			<span style="display:none;" id="mupit_url">{{ urls.mupit }}</span>
-			<span style="display:none;" id="mupit_link">{{ link("%s?gm=chr%s:%s"|format(urls.mupit, external_data.VCF.chr, external_data.VCF.hg38.pos), "MuPIT") }}</span>
+			<!-- removed MuPit 20220511 -->
+			{# <span style="display:none;" id="mupit_url">{{ urls.mupit }}</span>
+			<span style="display:none;" id="mupit_link">{{ link("%s?gm=chr%s:%s"|format(urls.mupit, external_data.VCF.chr, external_data.VCF.hg38.pos), "MuPIT") }}</span> #}
 			{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg38.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
 			{# {{ link("%shg38&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg38 Map2PDB") }} #}
 			{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "gnomAD v3")}}

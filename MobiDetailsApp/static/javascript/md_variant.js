@@ -202,9 +202,10 @@ function spliceaivisual(spliceaivisual_url, mane_transcripts_path, csrf_token) {
             }
           ]
         };
-      igv.createBrowser($('#igv_div'), options)
+      igv.createBrowser(document.getElementById('igv_div'), options)
         .then(function (browser) {
             console.log("Created IGV browser");
+            igv.browser = browser;
         })
     }
   });
@@ -593,20 +594,20 @@ $(document).ready(function() {
     $('#splicing_table').DataTable().destroy();
   }
 
-  // check MuPIT for available 3D structure
-  if ($('#missense').length) {
-    // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
-    $.ajax({
-  	  type: "GET",
-  	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
-  	})
-  	.done(function(mupit_results) {
-      // alert(mupit_results.hit);
-      if (mupit_results.hit === true) {
-          $('#mupit_link').show();
-      }
-    });
-  }
+  // check MuPIT for available 3D structure - removed 20220511
+  // if ($('#missense').length) {
+  //   // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
+  //   $.ajax({
+  // 	  type: "GET",
+  // 	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
+  // 	})
+  // 	.done(function(mupit_results) {
+  //     // alert(mupit_results.hit);
+  //     if (mupit_results.hit === true) {
+  //         $('#mupit_link').show();
+  //     }
+  //   });
+  // }
 
   // trick to force charts.js script execution and to get canvas in pdf export
   // charts are displayed by default and then quickly hidden
@@ -873,6 +874,17 @@ $(document).ready(function() {
     if ($.fn.DataTable.isDataTable('#splicing_table')) {
       doc = convert_dt(config, "splicing_table", "dbscSNV and SpliceAI", "table_subtitle", doc);
     }
+    if ($('#igv_div').length) {
+      // var igv_svg = igv.browser.toSVG();
+      doc['content'].push(
+        " ",
+        {text: "SpliceAI-visual IGV view", style: "table_subtitle", tocItem: true},
+        " ",
+        " ",
+        {svg: igv.browser.toSVG(), width: 500, alignment: 'center'},
+        " ",
+      );
+    }
     if ($('#missense_table').length) {
       doc['content'].push(
         " ",
@@ -962,6 +974,7 @@ $(document).ready(function() {
 		}
 
     // console.log(doc.content )
+    //pdfmake comes with datatables
 		pdfMake.createPdf(doc).download($('#nm_var').text() + '.pdf');
 		//'{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}_{{ variant_features.c_name }}.pdf'
 	});

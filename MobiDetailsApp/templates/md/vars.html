@@ -1,8 +1,8 @@
 {% from 'macros.html' import danger, info, gene_redirection, create_variant, info_create_variant, modal_js, vars_class_table %}
 {% extends "base.html" %}
 {% block more_head %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.min.css') }}">
-	<script src="{{ url_for('static', filename='javascript/datatables.min.js') }}" type="text/javascript"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
+	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.nopdfmake.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}?200812" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_vars.js') }}?211123" type="text/javascript"></script>
 {% endblock %}
