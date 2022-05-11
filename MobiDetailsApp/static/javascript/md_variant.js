@@ -188,7 +188,7 @@ function spliceaivisual(spliceaivisual_url, mane_transcripts_path, csrf_token) {
               }]
             },
             {
-              name: 'Insertion track',
+              name: 'Inserted nucleotides',
               format: 'bedGraph',
               url: spliceai_path + 'variants/' + $('#variant_id').val() + '_ins.bedGraph',
               indexed: false,
