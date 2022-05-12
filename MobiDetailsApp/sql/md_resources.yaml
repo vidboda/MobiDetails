@@ -273,11 +273,11 @@
     'name': 'LOVD JSON file'
     'description': 'LOVD JSON file for API calls and variant submission'
     'short_name': 'lovd_api_json'
-  'mane_transcripts':
-    'rel_path': '/static/resources/mane/MANE.GRCh38.v1.0.refseq.bb'
-    'name': 'MANE transcripts'
-    'description': 'Genomic coordinates of MANE transcripts'
-    'short_name': 'mane'
+  # 'mane_transcripts':
+  #   'rel_path': '/static/resources/mane/MANE.GRCh38.v1.0.refseq.bb'
+  #   'name': 'MANE transcripts'
+  #   'description': 'Genomic coordinates of MANE transcripts'
+  #   'short_name': 'mane'
   'maxentscan':
     'rel_path': '/static/resources/maxentscan/'
     'name': 'MaxEntScan'

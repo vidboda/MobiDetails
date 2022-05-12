@@ -1403,7 +1403,8 @@
 			intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			{% if external_data.gene.canonical %}
-				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ internal_data.files.mane_transcripts }}', '{{ csrf_token() }}')
+				{# spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ internal_data.files.mane_transcripts }}', '{{ url_for('static') }}', '{{ csrf_token() }}') #}
+				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', '{{ csrf_token() }}')
 			{% endif %}
 		});
 	</script>
