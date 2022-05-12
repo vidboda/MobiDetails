@@ -144,12 +144,12 @@ function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
       chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript:$('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val()
     }
   })
-  .done(function(spliceai_path) {
+  .done(function(spliceaivisual_response) {
     // $('#igv_div').html(html);
     // var igvDiv = document.getElementById("igv-div");
     $('#igv_com').replaceWith('<span></span>');
-    if (spliceai_path == '<p style="color:red">Bad params for spliceaivisual.</p>') {
-      $('#igv_com').replaceWith(spliceai_path);
+    if (spliceaivisual_response == '<p style="color:red">Bad params for spliceaivisual.</p>') {
+      $('#igv_com').replaceWith(spliceaivisual_response);
     }
     else {
       var options =

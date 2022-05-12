@@ -399,7 +399,7 @@ def spliceaivisual():
         if os.path.exists(
             '{0}.bedGraph'.format(transcript_file_basename)
         ):
-            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+            response = 'ok'
         elif os.path.exists(
             '{0}.txt.gz'.format(transcript_file_basename)
         ):
@@ -420,10 +420,10 @@ def spliceaivisual():
                             bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
             spliceai_raw_file.close()
             bedgraph_file.close()
-            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+            response = 'ok'
         else:
             # build new bedgraph from scratch
-            spliceai_folder_path = md_utilities.local_files['spliceai_folder']['rel_path']
+            response = 'ok'
             # currently return error
             return '<p style="color:red">Bad params for spliceaivisual.</p>'
         # get mutant spliceai predictions
@@ -577,7 +577,7 @@ def spliceaivisual():
                     ) as bed_insertion_file:
                         bed_insertion_file.write(bedgraph_insertion)
                     bed_insertion_file.close()
-        return spliceai_folder_path
+        return response
     else:
         return '<p style="color:red">Bad params for spliceaivisual.</p>'
 
