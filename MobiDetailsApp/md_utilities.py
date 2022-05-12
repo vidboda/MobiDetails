@@ -810,7 +810,7 @@ def compute_start_end_pos(name):
     if match_object is not None:
         return match_object.group(1), match_object.group(2)
     else:
-        match_object = re.search(r'^(\d+)[ATGC][>=]', name)
+        match_object = re.search(r'^(\d+)[ATGC]>', name)
         if match_object is not None:
             return match_object.group(1), match_object.group(1)
         else:
@@ -818,6 +818,10 @@ def compute_start_end_pos(name):
             match_object = re.search(r'^(\d+)[d]', name)
             if match_object is not None:
                 return match_object.group(1), match_object.group(1)
+            else:
+                # case where NM wt disagree with genomic wt
+                if re.search(r'^\d+=', name):
+                    return '-1', '-1'
 
 
 def danger_panel(var, warning):  # to be used in create_var_vv
@@ -1200,21 +1204,18 @@ def create_var_vv(
                 return hg38_d
     except Exception:
         # print(vv_data)
+        error_text = """
+        Transcript {0} for gene {1} does not seem to map correctly to hg38.
+        Currently, MobiDetails requires proper mapping on hg38 and hg19.
+        It is therefore impossible to create a variant.
+        """.format(acc_no, gene)
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
-                """
-                Transcript {0} for gene {1} does not seem to map correctly to hg38.
-                Currently, MobiDetails requires proper mapping on hg38 and hg19.
-                It is therefore impossible to create a variant.
-                """.format(acc_no, gene)
+                error_text
             )
         elif caller == 'cli':
-            return {'mobidetails_error':  """
-            Transcript {0} for gene {1} does not seem to map correctly to hg38.
-            Currently, MobiDetails requires proper mapping on hg38 and hg19.
-            It is therefore impossible to create a variant.
-            """.format(acc_no, gene)}
+            return {'mobidetails_error':  error_text}
     # check again if variant exist for this transcript
     curs.execute(
         """
@@ -1240,24 +1241,32 @@ def create_var_vv(
             elif caller == 'cli':
                 return hg19_d
     except Exception:
+        error_text = """
+        Transcript {0} for gene {1} does not seem to map correctly to hg19.
+        Currently, MobiDetails requires proper mapping on hg38 and hg19.
+        It is therefore impossible to create a variant.
+        """.format(acc_no, gene)
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
-                """
-                Transcript {0} for gene {1} does not seem to map correctly to hg19.
-                Currently, MobiDetails requires proper mapping on hg38 and hg19.
-                It is therefore impossible to create a variant.
-                """.format(acc_no, gene)
+                error_text
             )
         elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """
-                Transcript {0} for gene {1} does not seem to map correctly to hg19.
-                Currently, MobiDetails requires proper mapping on hg38 and hg19.
-                It is therefore impossible to create a variant.
-                """.format(acc_no, gene)}
+            return {'mobidetails_error': error_text}
     positions = compute_start_end_pos(hg38_d['g_name'])
+    if positions[0] == '-1':
+        error_text = """
+        The wild-type nucleotide is discordant between the RefSeq transcript and the human genome.
+        It may occur with frequent variants.
+        As the genome reference would be equal to the variant nucleotide ({0}), it is therefore impossible to generate correct annotations.
+        """.format(hg38_d['g_name'])
+        if caller == 'browser':
+            return danger_panel(
+                vv_key_var,
+                error_text
+            )
+        elif caller == 'cli':
+            return {'mobidetails_error': error_text}
     if 'c_name' not in vf_d:
         var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
@@ -1282,30 +1291,25 @@ def create_var_vv(
     elif re.search('inv', vf_d['c_name']):
         vf_d['dna_type'] = 'inversion'
     elif re.search('=', vf_d['c_name']):
+        error_text = """
+        Reference should not be equal to alternative to define a variant.
+        """
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
-                """
-                Reference should not be equal to alternative to define a variant.
-                """
+                error_text
             )
         elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """
-                Reference should not be equal to alternative to define a variant."""
-            }
+            return {'mobidetails_error': error_text}
     else:
+        error_text = 'No proper DNA type found for the variant.'
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
-                'No proper DNA type found for the variant.'
+                error_text
             )
         elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                'No proper DNA type found for the variant.'
-            }
+            return {'mobidetails_error':error_text}
     if 'variant_size' not in vf_d:
         if not re.search('_', vf_d['c_name']):
             # one bp del or dup
@@ -1325,18 +1329,16 @@ def create_var_vv(
     )
     res_strand = curs.fetchone()
     if res_strand is None:
+        error_text = """
+        No strand for gene {}, impossible to create a variant, please contact us
+        """.format(gene)
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
-                """
-                No strand for gene {}, impossible to create a variant, please contact us
-                """.format(gene))
+                error_text
+            )
         elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """
-                No strand for gene {}, impossible to create a variant, please contact us
-                """.format(gene)}
+            return {'mobidetails_error':error_text}
 
     # p_name
     p_obj = re.search(
