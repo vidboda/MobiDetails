@@ -504,3 +504,19 @@ def test_spliceai_lookup(client, variant, transcript, return_value):
     print(response.get_data())
     print(response.status_code)
     assert return_value in response.get_data()
+
+# test spliceai visual
+
+
+@pytest.mark.parametrize(('chrom', 'pos', 'ref', 'alt', 'variant_id', 'strand', 'ncbi_transcript', 'return_value'), (
+    ('1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.4', b'ok'),
+    ('1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.2', b'<p style="color:red">Bad params for spliceaivisual.</p>'),
+    ('2', '178599063', 'CT', 'GA', 334804, '-', 'NM_001267550.2', b'ok'),
+))
+def test_spliceaivisual(client, chrom, pos, ref, alt, variant_id, strand, ncbi_transcript, return_value):
+    assert client.get('/spliceaivisual').status_code == 405
+    data_dict = dict(chrom=chrom, pos=pos, ref=ref, alt=alt, variant_id=variant_id, strand=strand, ncbi_transcript=ncbi_transcript)
+    response = client.post('/spliceaivisual', data=data_dict)
+    print(response.get_data())
+    print(response.status_code)
+    assert return_value in response.get_data()
