@@ -374,20 +374,39 @@ def spliceaivisual():
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     # print(request.form)
-    if re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(r'^\d+$', request.form['pos']) and \
-            re.search(r'^[ATGCatgc]+$', request.form['ref']) and \
-            re.search(r'^[ATGCatgc]+$', request.form['alt']) and \
-            re.search(rf'^{ncbi_transcript_regexp}$', request.form['ncbi_transcript']) and \
-            re.search(r'^[\+-]$', request.form['strand']) and \
-            re.search(r'^\d+$', request.form['variant_id']):
-        chrom = request.form['chrom']
-        pos = request.form['pos']
-        ref = request.form['ref'].upper()
-        alt = request.form['alt'].upper()
-        ncbi_transcript = request.form['ncbi_transcript']
-        strand = request.form['strand']
-        variant_id = request.form['variant_id']
+    chr_match = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
+    pos_match = re.search(r'^(\d+)$', request.form['pos'])
+    ref_match = re.search(r'^([ATGCatgc]+)$', request.form['ref'])
+    alt_match = re.search(r'^([ATGCatgc]+)$', request.form['alt'])
+    ncbi_transcript_match = re.search(rf'^({ncbi_transcript_regexp})$', request.form['ncbi_transcript'])
+    strand_match = re.search(r'^([\+-])$', request.form['strand'])
+    variant_id_match = re.search(r'^(\d+)$', request.form['variant_id'])
+    if chr_match and \
+            pos_match and \
+            ref_match and \
+            alt_match and \
+            strand_match and \
+            variant_id_match:
+        # if re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
+        #         re.search(r'^\d+$', request.form['pos']) and \
+        #         re.search(r'^[ATGCatgc]+$', request.form['ref']) and \
+        #         re.search(r'^[ATGCatgc]+$', request.form['alt']) and \
+        #         re.search(rf'^{ncbi_transcript_regexp}$', request.form['ncbi_transcript']) and \
+        #         re.search(r'^[\+-]$', request.form['strand']) and \
+        #         re.search(r'^\d+$', request.form['variant_id']):
+        chrom = chr_match.group(1)
+        pos = pos_match.group(1)
+        ref = ref_match.group(1).upper()
+        alt = alt_match.group(1).upper()
+        ncbi_transcript = ncbi_transcript_match.group(1)
+        variant_id = variant_id_match.group(1)
+        # chrom = request.form['chrom']
+        # pos = request.form['pos']
+        # ref = request.form['ref'].upper()
+        # alt = request.form['alt'].upper()
+        # ncbi_transcript = request.form['ncbi_transcript']
+        # strand = request.form['strand']
+        # variant_id = request.form['variant_id']
 
         transcript_file_basename = '{0}/transcripts/{1}'.format(
             md_utilities.local_files['spliceai_folder']['abs_path'],
@@ -423,7 +442,7 @@ def spliceaivisual():
             response = 'ok'
         else:
             # build new bedgraph from scratch
-            response = 'ok'
+            # response = 'ok'
             # currently return error
             return '<p style="color:red">Bad params for spliceaivisual.</p>'
         # get mutant spliceai predictions
@@ -519,9 +538,8 @@ def spliceaivisual():
                             elif current_pos > int(pos) and \
                                     current_pos < int(pos) + len(alt):
                                 # need to inspect scores or put them in comment somewhere in igv track
-                                # bed_insertion = '{0}{1}\t{2}\t{3}\t{4}\t{5}\n'.format(bed_insertion, chrom, current_pos, current_pos + 1, mt_acceptor_scores[relative_pos][0], sai_score)
                                 bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
-                                print(current_pos)
+                                # print(current_pos)
                             else:
                                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
                         elif variant_type == 'indel':
@@ -531,21 +549,12 @@ def spliceaivisual():
                             elif current_pos >= int(pos) and \
                                     current_pos < int(pos) + len(alt):
                                 # need to inspect scores or put them in comment somewhere in igv track
-                                # bed_insertion = '{0}{1}\t{2}\t{3}\t{4}\t{5}\n'.format(bed_insertion, chrom, current_pos, current_pos + 1, mt_acceptor_scores[relative_pos][0], sai_score)
                                 bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                             else:
                                 if len(ref) >= len(alt):
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - (len(alt) - len(ref)) - 1, current_pos - (len(alt) - len(ref)), sai_score))
-                            # else:
-                            #     if current_pos >= int(pos) and \
-                            #             current_pos < int(pos) + len(alt):
-                            #         # need to inspect scores or put them in comment somewhere in igv track
-                            #         print(current_pos)
-                            #     else:
-                            #         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
-
                 bedgraph_file.close()
                 # create bed file if necessary
                 bed_file_basename = '{0}variants/{1}.bed'.format(
