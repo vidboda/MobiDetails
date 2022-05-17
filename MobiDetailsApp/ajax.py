@@ -373,7 +373,6 @@ def spliceaivisual():
     chrom = pos = ref = alt = ncbi_transcript = strand = variant_id = None
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-    # print(request.form)
     chr_match = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
     pos_match = re.search(r'^(\d+)$', request.form['pos'])
     ref_match = re.search(r'^([ATGCatgc]+)$', request.form['ref'])
@@ -399,6 +398,7 @@ def spliceaivisual():
         ref = ref_match.group(1).upper()
         alt = alt_match.group(1).upper()
         ncbi_transcript = ncbi_transcript_match.group(1)
+        strand = strand_match.group(1)
         variant_id = variant_id_match.group(1)
         # chrom = request.form['chrom']
         # pos = request.form['pos']
@@ -479,6 +479,7 @@ def spliceaivisual():
             mt_seq = None
         if strand == '-':
             mt_seq = md_utilities.reverse_complement(mt_seq)
+        # print(mt_seq)
         # spliceai call
         req_results = requests.get(
             '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
