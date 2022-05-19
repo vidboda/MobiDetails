@@ -1443,9 +1443,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         close_db()
                         if caller == 'cli':
                             return jsonify(
-                                mobidetails_error="""
-                                It seems that your transcript version ({0}) does not match MobiDetails ({1}).
-                                """.format(acc_no, ','.join(version['nm'] for version in res_version))
+                                mobidetails_error="It seems that your transcript version ({0}) does not match MobiDetails ({1}).".format(
+                                    acc_no, ','.join(version['nm'] for version in res_version)
+                                )
                             )
                         else:
                             flash(
@@ -1458,9 +1458,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     if caller == 'cli':
                         close_db()
                         return jsonify(
-                            mobidetails_error="""
-                            The transcript corresponding to {} is not  available for variant annotation in MobiDetails.
-                            """.format(acc_no)
+                            mobidetails_error="The transcript corresponding to {} is not  available for variant annotation in MobiDetails.".format(acc_no)
                         )
                     else:
                         flash(
@@ -1489,9 +1487,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     close_db()
                     if caller == 'cli':
                         return jsonify(
-                            mobidetails_error="""
-                            Variant Validator did not return any value for the variant {}.
-                            """.format(new_variant)
+                            mobidetails_error="Variant Validator did not return any value for the variant {}.".format(new_variant)
                         )
                     else:
                         try:
@@ -1552,9 +1548,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     elif caller == 'cli':
                         return jsonify(
                             mobidetails_error=
-                            """
-                            VariantValidator did not return a valid value for the variant {0}
-                            """.format(vv_key_var)
+                            "VariantValidator did not return a valid value for the variant {0}".format(vv_key_var)
                         )
                 # if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned
