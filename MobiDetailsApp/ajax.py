@@ -385,6 +385,7 @@ def spliceaivisual():
             pos_match and \
             ref_match and \
             alt_match and \
+            ncbi_transcript_match and \
             strand_match and \
             variant_id_match and \
             gene_symbol_match:

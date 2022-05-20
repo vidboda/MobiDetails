@@ -508,14 +508,15 @@ def test_spliceai_lookup(client, variant, transcript, return_value):
 # test spliceai visual
 
 
-@pytest.mark.parametrize(('chrom', 'pos', 'ref', 'alt', 'variant_id', 'strand', 'ncbi_transcript', 'return_value'), (
-    ('1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.4', b'ok'),
-    ('1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.2', b'<p style="color:red">Bad params for spliceaivisual.</p>'),
-    ('2', '178599063', 'CT', 'GA', 334804, '-', 'NM_001267550.2', b'ok'),
+@pytest.mark.parametrize(('gene', 'chrom', 'pos', 'ref', 'alt', 'variant_id', 'strand', 'ncbi_transcript', 'return_value'), (
+    ('USH2A', '1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.4', b'ok'),
+    ('USH2A', '1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.2', b'<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'),
+    ('USH2A', '1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.X', b'<p style="color:red">Bad params for SpliceAI-visual.</p>'),
+    ('TTN', '2', '178599063', 'CT', 'GA', 334804, '-', 'NM_001267550.2', b'ok'),
 ))
-def test_spliceaivisual(client, chrom, pos, ref, alt, variant_id, strand, ncbi_transcript, return_value):
+def test_spliceaivisual(client, gene, chrom, pos, ref, alt, variant_id, strand, ncbi_transcript, return_value):
     assert client.get('/spliceaivisual').status_code == 405
-    data_dict = dict(chrom=chrom, pos=pos, ref=ref, alt=alt, variant_id=variant_id, strand=strand, ncbi_transcript=ncbi_transcript)
+    data_dict = dict(chrom=chrom, pos=pos, ref=ref, alt=alt, variant_id=variant_id, strand=strand, ncbi_transcript=ncbi_transcript, gene_symbol=gene)
     response = client.post('/spliceaivisual', data=data_dict)
     print(response.get_data())
     print(response.status_code)
