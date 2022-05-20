@@ -8,7 +8,7 @@
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/igv.2.12.2.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20220505" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20220520" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -786,20 +786,20 @@
 			{% endif %}
 			<!--spliceaivisual in igv.js-->
 			<br />
-			{% if external_data.gene.canonical %}
-				<div>
-					{{ info('SpliceAI-visual bedgraphs are displayed below as tracks in igv.js.<ul><li>Green and red highlights show the variation site on the wild-type and mutant track, respectively</li><li>Positive orange bars represent predictied acceptor sites ([0;1]), and negative blue bars donor sites ([-1;0]), the spliceai raw score being the absolute value.</li><li>The first track is the spliceai prediction for the entire MANE transcript.</li><li>The second track is the prediction for the variant, +/- 10kb.</li><li>The "inserted nucleotides" track is used to display the scores of the nucleotides being part of the insertion (empty if no insertion)</li></ul>') }}
-				</div>
-				<div id="igv_com">
-					{{ info('MobiDetails is running spliceai to bring you SpliceAI-visual... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}
-				</div>
-				<div id="igv_div">
-				</div>
-			{% else %}
+			{# {% if external_data.gene.canonical %} #}
+			<div>
+				{{ info('SpliceAI-visual bedgraphs are displayed below as tracks in igv.js.<ul><li>Green and red highlights show the variation site on the wild-type and mutant track, respectively</li><li>Positive orange bars represent predictied acceptor sites ([0;1]), and negative blue bars donor sites ([-1;0]), the spliceai raw score being the absolute value.</li><li>The first track is the spliceai prediction for the entire MANE transcript.</li><li>The second track is the prediction for the variant, +/- 10kb.</li><li>The "inserted nucleotides" track is used to display the scores of the nucleotides being part of the insertion (empty if no insertion)</li></ul>') }}
+			</div>
+			<div id="igv_com">
+				{{ info('MobiDetails is running spliceai to bring you SpliceAI-visual... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}
+			</div>
+			<div id="igv_div">
+			</div>
+			{# {% else %}
 				<div>
 					{{ info('SpliceAIVisual is currenlty available only for MANE transcripts.') }}
 				</div>
-			{% endif %}
+			{% endif %} #}
 			<br />
 			{# {% endif %} #}
 		</div>
@@ -1402,10 +1402,10 @@
 			lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}');
 			intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
-			{% if external_data.gene.canonical %}
-				{# spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ internal_data.files.mane_transcripts }}', '{{ url_for('static') }}', '{{ csrf_token() }}') #}
-				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', '{{ csrf_token() }}')
-			{% endif %}
+			{# {% if external_data.gene.canonical %}
+				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ internal_data.files.mane_transcripts }}', '{{ url_for('static') }}', '{{ csrf_token() }}') #}
+			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', '{{ csrf_token() }}')
+			{# {% endif %} #}
 		});
 	</script>
 {% endblock %}

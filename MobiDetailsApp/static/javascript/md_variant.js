@@ -141,7 +141,7 @@ function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
     type: "POST",
     url: spliceaivisual_url,
     data: {
-      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript:$('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val()
+      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript:$('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val(), gene_symbol: $('#gene_name').text()
     }
   })
   .done(function(spliceaivisual_response) {

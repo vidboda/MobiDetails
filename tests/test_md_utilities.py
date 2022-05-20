@@ -624,6 +624,20 @@ def test_get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon
         assert positions['segment_start'] == start_result
 
 
+@pytest.mark.parametrize(('gene_symbol', 'transcript', 'ncbi_chr', 'strand', 'start_result', 'end_result'), (
+    ('A2ML1', 'NM_144670.6', 'NC_000012.12', '+', 8822621, 8876787),
+    ('A2ML1', 'NM_144670.6', 'NC_000012.12', '-', -2, -2),
+    ('A2ML1', 'NM_144670.1', 'NC_000012.12', '+', -1, -1),
+    ('GJB2', 'NM_004004.6', 'NC_000013.11', '-', 20187470, 20192938),
+    ('GJB2', 'NM_004004.6', 'NC_000013.11', '+', -2, -2),
+    ('GJB2', 'NM_004004.1', 'NC_000013.11', '-', -1, -1),
+))
+def test_get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand, start_result, end_result):
+    start, end = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand)
+    print('start: {0}, end: {1}'.format(start, end))
+    assert start == start_result and end == end_result
+
+
 vv_dict = {
   "flag": "gene_variant",
   "NM_206933.4:c.100_101delinsA": {

@@ -380,19 +380,14 @@ def spliceaivisual():
     ncbi_transcript_match = re.search(rf'^({ncbi_transcript_regexp})$', request.form['ncbi_transcript'])
     strand_match = re.search(r'^([\+-])$', request.form['strand'])
     variant_id_match = re.search(r'^(\d+)$', request.form['variant_id'])
+    gene_symbol_match = re.search(r'^([\w\.-]+)$', request.form['gene_symbol'])
     if chr_match and \
             pos_match and \
             ref_match and \
             alt_match and \
             strand_match and \
-            variant_id_match:
-        # if re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-        #         re.search(r'^\d+$', request.form['pos']) and \
-        #         re.search(r'^[ATGCatgc]+$', request.form['ref']) and \
-        #         re.search(r'^[ATGCatgc]+$', request.form['alt']) and \
-        #         re.search(rf'^{ncbi_transcript_regexp}$', request.form['ncbi_transcript']) and \
-        #         re.search(r'^[\+-]$', request.form['strand']) and \
-        #         re.search(r'^\d+$', request.form['variant_id']):
+            variant_id_match and \
+            gene_symbol_match:
         chrom = chr_match.group(1)
         pos = pos_match.group(1)
         ref = ref_match.group(1).upper()
@@ -400,13 +395,7 @@ def spliceaivisual():
         ncbi_transcript = ncbi_transcript_match.group(1)
         strand = strand_match.group(1)
         variant_id = variant_id_match.group(1)
-        # chrom = request.form['chrom']
-        # pos = request.form['pos']
-        # ref = request.form['ref'].upper()
-        # alt = request.form['alt'].upper()
-        # ncbi_transcript = request.form['ncbi_transcript']
-        # strand = request.form['strand']
-        # variant_id = request.form['variant_id']
+        gene_symbol = gene_symbol_match.group(1)
 
         transcript_file_basename = '{0}/transcripts/{1}'.format(
             md_utilities.local_files['spliceai_folder']['abs_path'],
@@ -441,10 +430,46 @@ def spliceaivisual():
             bedgraph_file.close()
             response = 'ok'
         else:
+            # check whether we have pre-computed chr-start-end-strand
+            # we need ncbi chr
+            db = get_db()
+            ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
+            start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
+            print('gene: {0}, transcript: {1}, chr: {2}, strand: {3}, start: {4}, end: {5}'.format(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand, start_g, end_g))
+            spliceai_strand = 'plus' if strand == '+' else 'minus'
+
+            position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+                'chr{0}'.format(chrom),
+                start_g,
+                end_g,
+                spliceai_strand
+            )
+            if os.path.exists(
+                '{0}.txt.gz'.format(position_file_basename)
+            ):
+                # build new bedgraph from .txt.gz
+                with gzip.open(
+                    '{0}.txt.gz'.format(position_file_basename),
+                    'rt'
+                ) as spliceai_raw_file:
+                    with open(
+                        '{0}.bedGraph'.format(transcript_file_basename),
+                        'w'
+                    ) as bedgraph_file:
+                        bedgraph_file.writelines([header1, header2])
+                        for line in spliceai_raw_file:
+                            if re.search(rf'^chr{nochr_chrom_regexp}', line):
+                                line_list = re.split('\t', line)
+                                spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                                bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
+                spliceai_raw_file.close()
+                bedgraph_file.close()
+                response = 'ok'
             # build new bedgraph from scratch
             # response = 'ok'
             # currently return error
-            return '<p style="color:red">Bad params for spliceaivisual.</p>'
+            # return '<p style="color:red">Bad params for spliceaivisual.</p>'
         # get mutant spliceai predictions
         # build mt sequence
         offset = 10000

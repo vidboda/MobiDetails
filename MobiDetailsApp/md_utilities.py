@@ -1806,6 +1806,46 @@ def get_segment_number_from_vv(vv_expr):
         return 'segment_number_error'
 
 
+def get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand):
+    try:
+        json_file = open('{0}{1}.json'.format(
+            local_files['variant_validator']['abs_path'],
+            gene_symbol
+        ))
+    except IOError:
+        # print('file_not_found_error')
+        return 'file_not_found_error'
+    vv_json = json.load(json_file)
+    start = end = vv_strand = None
+    for vv_transcript in vv_json['transcripts']:
+        if vv_transcript['reference'] == transcript:
+            if 'genomic_spans' in vv_transcript and \
+                    ncbi_chr in vv_transcript['genomic_spans']:
+                if 'start_position' in vv_transcript['genomic_spans'][ncbi_chr] and \
+                        'end_position' in vv_transcript['genomic_spans'][ncbi_chr] and \
+                        'orientation' in vv_transcript['genomic_spans'][ncbi_chr]:
+                    start = vv_transcript['genomic_spans'][ncbi_chr]['start_position']
+                    end = vv_transcript['genomic_spans'][ncbi_chr]['end_position']
+                    vv_strand = '+' if vv_transcript['genomic_spans'][ncbi_chr]['orientation'] == 1 else '-'
+                    if vv_strand == strand:
+                        return start, end
+                    else:
+                        # send_error_email(
+                        #     prepare_email_html(
+                        #         'MobiDetails error',
+                        #         """
+                        #         <p>Strand does not match between VV and MD for {0}({1})</p>
+                        #         """.format(
+                        #             transcript,
+                        #             gene_symbol
+                        #         )
+                        #     ),
+                        #     '[MobiDetails - Tabix Error]'
+                        # )
+                        return -2, -2
+    return -1, -1
+
+
 def get_genomic_values(genome, vv_data, vv_key_var):
     if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
         g_name_obj = re.search(
