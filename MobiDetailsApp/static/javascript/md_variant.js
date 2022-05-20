@@ -145,13 +145,16 @@ function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
     }
   })
   .done(function(spliceaivisual_response) {
-    // $('#igv_div').html(html);
-    // var igvDiv = document.getElementById("igv-div");
-    $('#igv_com').replaceWith('<span></span>');
-    if (spliceaivisual_response == '<p style="color:red">Bad params for SpliceAI-visual.</p>' || spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>') {
+    // $('#igv_com').replaceWith('<span></span>');
+    if (spliceaivisual_response == '<p style="color:red">Bad params for SpliceAI-visual.</p>') {
+      $('#igv_com').replaceWith(spliceaivisual_response);
+    }
+    else if (spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>') {
       $('#igv_com').replaceWith(spliceaivisual_response);
     }
     else {
+      $('#igv_com').replaceWith('<span></span>');
+      $('#igv_desc').show();
       var options =
         {
           showNavigation: true,
