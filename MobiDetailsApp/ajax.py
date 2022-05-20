@@ -466,10 +466,11 @@ def spliceaivisual():
                 spliceai_raw_file.close()
                 bedgraph_file.close()
                 response = 'ok'
-            # build new bedgraph from scratch
-            # response = 'ok'
-            # currently return error
-            # return '<p style="color:red">Bad params for spliceaivisual.</p>'
+            else:
+                # build new bedgraph from scratch
+                # response = 'ok'
+                # currently return error
+                return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
         # get mutant spliceai predictions
         # build mt sequence
         offset = 10000
@@ -614,7 +615,7 @@ def spliceaivisual():
                     bed_insertion_file.close()
         return response
     else:
-        return '<p style="color:red">Bad params for spliceaivisual.</p>'
+        return '<p style="color:red">Bad params for SpliceAI-visual.</p>'
 
 
 # -------------------------------------------------------------------
