@@ -436,7 +436,7 @@ def spliceaivisual():
             db = get_db()
             ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
             start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
-            print('gene: {0}, transcript: {1}, chr: {2}, strand: {3}, start: {4}, end: {5}'.format(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand, start_g, end_g))
+            # print('gene: {0}, transcript: {1}, chr: {2}, strand: {3}, start: {4}, end: {5}'.format(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand, start_g, end_g))
             spliceai_strand = 'plus' if strand == '+' else 'minus'
 
             position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
