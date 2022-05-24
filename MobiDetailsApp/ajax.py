@@ -468,7 +468,7 @@ def spliceaivisual():
                 bedgraph_file.close()
                 response = 'ok'
             else:
-                # build new bedgraph from scratch
+                # build new bedgraph from scratch ? How many cases?
                 # response = 'ok'
                 # currently return error
                 return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
