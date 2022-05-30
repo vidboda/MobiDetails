@@ -107,9 +107,12 @@ def changelog():
 def gene(gene_name=None):
     if gene_name is None:
         return render_template('md/unknown.html', query='No gene provided')
-    elif re.search(r'[^\w-]', gene_name):
+    gene_match_obj = re.search(r'^([\w-]+)$', gene_name)
+    if not gene_match_obj:
+        # elif re.search(r'[^\w-]', gene_name):
         return render_template('md/unknown.html', query=gene_name)
-    gene_symbol = re.escape(gene_name)
+    # gene_symbol = re.escape(gene_name)
+    gene_symbol = gene_match_obj.group(1)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform? now canonical is stored in db
