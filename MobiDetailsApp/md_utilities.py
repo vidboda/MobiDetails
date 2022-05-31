@@ -2246,9 +2246,7 @@ def format_mirs(record):
                 match_obj = re.search('^hsa-(.+)$', mir)
                 if match_obj:
                     mir_small = match_obj.group(1)
-                mir_html = """
-                {0}<a href='{1}{2}' target='_blank' title='Link to miRBase'>{3}</a><br />
-                """.format(
+                mir_html = "{0}<a href='{1}{2}' target='_blank' title='Link to miRBase'>{3}</a><br />".format(
                     mir_html, urls['mirbase'], mir, mir_small
                 )
         else:
