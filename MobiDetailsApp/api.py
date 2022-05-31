@@ -1514,7 +1514,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
-                vv_variant_data_check = check_vv_variant_data(vv_key_var, vv_data)
+                vv_variant_data_check = md_utilities.check_vv_variant_data(vv_key_var, vv_data)
                 # if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is not True:
                 if vv_variant_data_check is not True:
                     close_db()
