@@ -1514,7 +1514,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     else:
                         flash(vv_error)
                         return redirect(url_for('md.index'), code=302)
-                if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
+                vv_variant_data_check = check_vv_variant_data(vv_key_var, vv_data)
+                # if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is not True:
+                if vv_variant_data_check is not True:
                     close_db()
                     if caller == 'browser':
                         vv_warning = md_utilities.return_vv_validation_warnings(vv_data)
@@ -1523,32 +1525,33 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                 md_utilities.prepare_email_html(
                                     'MobiDetails error',
                                     """
-                                    <p>VV check failed for variant {0} with args: {1}.
+                                    <p>VV check failed for variant {0} with args: {1} {2}.
                                     """.format(
                                         vv_key_var,
-                                        vv_data
+                                        vv_data,
+                                        vv_variant_data_check
                                     )
                                 ),
                                 '[MobiDetails - MD variant creation Error: VV check]'
                             )
                             flash(
                                 """
-                                VariantValidator did not return a valid value for the variant {0}. An admin has been warned.
-                                """.format(vv_key_var),
+                                VariantValidator did not return a valid value for the variant {0} {1}. An admin has been warned.
+                                """.format(vv_key_var, vv_variant_data_check),
                                 'w3-pale-red'
                             )
                         else:
                             flash(
                                 """
-                                VariantValidator did not return a valid value for the variant {0}: {1}
-                                """.format(vv_key_var, vv_warning),
+                                VariantValidator did not return a valid value for the variant {0}: {1} {2}
+                                """.format(vv_key_var, vv_warning, vv_variant_data_check),
                                 'w3-pale-red'
                             )
                         return redirect(url_for('md.index'), code=302)
                     elif caller == 'cli':
                         return jsonify(
                             mobidetails_error=
-                            "VariantValidator did not return a valid value for the variant {0}".format(vv_key_var)
+                            "VariantValidator did not return a valid value for the variant {0} {1}".format(vv_key_var, vv_variant_data_check)
                         )
                 # if re.search('[di][neu][psl]', new_variant):
                     # need to redefine vv_key_var for indels as the variant name returned

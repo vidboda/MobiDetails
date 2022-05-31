@@ -1402,14 +1402,16 @@ def create():
                         var_obj = re.search(r':(c\..+)$', key)
                         if var_obj:
                             new_variant = var_obj.group(1)
-            if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is False:
+            vv_variant_data_check = md_utilities.check_vv_variant_data(vv_key_var, vv_data)
+            # if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is not True:
+            if vv_variant_data_check is not True:
                 close_db()
                 return md_utilities.danger_panel(
                     new_variant,
                     """
                     Variant Validator did not return a valid value for the variant.
-                    {0}
-                    """.format(md_utilities.return_vv_validation_warnings(vv_data))
+                    {0} {1}
+                    """.format(vv_variant_data_check, md_utilities.return_vv_validation_warnings(vv_data))
                 )
         else:
             close_db()

@@ -1059,9 +1059,7 @@ def create_var_vv(
                     warning
                 )
                 if match_obj:
-                    return_text = """
-                     VariantValidator reports that your variant should be {0} instead of {1}
-                     """.format(
+                    return_text = "VariantValidator reports that your variant should be {0} instead of {1}".format(
                         match_obj.group(1), original_variant
                     )
                     if caller == 'browser':
@@ -1090,9 +1088,7 @@ def create_var_vv(
                 match_obj = re.search(r'^(.+is not HGVS-compliant)', warning)
                 message = warning
                 if match_obj:
-                    message = """
-                    {0}. Your variant is not located inside the gene genomic boundaries, therefore MD cannot treat it.
-                    """.format(match_obj.group(1))
+                    message = "{0}. Your variant is not located inside the gene genomic boundaries, therefore MD cannot treat it.".format(match_obj.group(1))
                 if caller == 'browser':
                     return danger_panel(vv_key_var, message)
                 elif caller == 'cli':
@@ -1155,7 +1151,9 @@ def create_var_vv(
                         }
                     else:
                         return {'mobidetails_error':  '{}'.format(warning)}
-    if check_vv_variant_data(vv_key_var, vv_data) is False:
+    vv_variant_data_check = check_vv_variant_data(vv_key_var, vv_data)
+    # if check_vv_variant_data(vv_key_var, vv_data) is not True:
+    if vv_variant_data_check is not True:
         if caller == 'browser':
             vv_warning = return_vv_validation_warnings(vv_data)
             if vv_warning == '':
@@ -1163,10 +1161,11 @@ def create_var_vv(
                     prepare_email_html(
                         'MobiDetails error',
                         """
-                        <p>VV check failed for variant {0} with args: {1}.
+                        <p>VV check failed for variant {0} with args: {1} {2}.
                         """.format(
                             vv_key_var,
-                            vv_data
+                            vv_data,
+                            vv_variant_data_check
                         )
                     ),
                     '[MobiDetails - MD variant creation Error: VV check]'
@@ -1174,22 +1173,19 @@ def create_var_vv(
                 return danger_panel(
                     vv_key_var,
                     """
-                    VariantValidator did not return a valid value for this variant. An admin has been warned.
-                    """
+                    VariantValidator did not return a valid value for this variant. An admin has been warned. {0}
+                    """.format(vv_variant_data_check)
                 )
             else:
                 return danger_panel(
                     vv_key_var,
                     """
-                    VariantValidator did not return a valid value for this variant: {0}
-                    """.format(vv_warning)
+                    VariantValidator did not return a valid value for this variant: {0} {1}
+                    """.format(vv_warning, vv_variant_data_check)
                 )
         elif caller == 'cli':
             return {
-                'mobidetails_error':
-                """
-                VariantValidator did not return a valid value for the variant {0}
-                """.format(vv_key_var)}
+                'mobidetails_error': "VariantValidator did not return a valid value for the variant {0} {1}".format(vv_key_var, vv_variant_data_check)}
     genome = 'hg38'
     # hg38
     try:
@@ -1204,11 +1200,7 @@ def create_var_vv(
                 return hg38_d
     except Exception:
         # print(vv_data)
-        error_text = """
-        Transcript {0} for gene {1} does not seem to map correctly to hg38.
-        Currently, MobiDetails requires proper mapping on hg38 and hg19.
-        It is therefore impossible to create a variant.
-        """.format(acc_no, gene)
+        error_text = "Transcript {0} for gene {1} does not seem to map correctly to hg38. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.".format(acc_no, gene)
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
@@ -1897,37 +1889,37 @@ def check_vv_variant_data(vv_key_var, vv_data):
                 if vv_nm_match:
                     vv_key_var = vv_key
     if vv_key_var in vv_data:
-        if 'primary_assembly_loci' not in vv_data[vv_key_var]:
-            return False
-        if 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci'] or \
-                'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
-            return False
+        if 'primary_assembly_loci' not in vv_data[vv_key_var] or \
+                'hg38' not in vv_data[vv_key_var]['primary_assembly_loci']:
+            return 'The variant does not seem to map properly on hg38, which is mandatory for MD to treat it.'
+        if 'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
+            return 'The variant does not seem to map properly on hg19, which is mandatory for MD to treat it.'
         if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
                 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
-            return False
+            return 'The variant is lacking proper genomic description in the variant validation.'
         if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
                 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
-            return False
+            return 'The variant is lacking VCF description in the variant validation.'
         if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
                 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-            return False
+            return 'The variant is lacking chr description in the variant validation.'
         if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
                 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-            return False
+            return 'The variant is lacking position description in the variant validation.'
         if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
                 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-            return False
+            return 'The variant is lacking reference description in the variant validation.'
         if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
                 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
-            return False
+            return 'The variant is lacking alternative description in the variant validation.'
         if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
-            return False
+            return 'The variant is lacking RefSeqGene description in the variant validation.'
         if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
-            return False
+            return 'The variant is lacking protein description in the variant validation.'
         if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
-            return False
+            return 'The variant is lacking protein description in the variant validation.'
         if 'variant_exonic_positions' not in vv_data[vv_key_var]:
-            return False
+            return 'The variant is lacking exonic description in the variant validation.'
         else:
             ncbi_chrom_regexp = regexp['ncbi_chrom']
             variant_regexp = regexp['variant']
@@ -1938,10 +1930,10 @@ def check_vv_variant_data(vv_key_var, vv_data):
             if match_obj:
                 ncbi_chr = match_obj.group(1)
                 if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
-                    return False
+                    return 'The variant is lacking chromosomic description in the variant validation.'
                 if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
                         'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
-                    return False
+                    return 'The variant is lacking exonic description in the variant validation.'
         return True
     return False
 
