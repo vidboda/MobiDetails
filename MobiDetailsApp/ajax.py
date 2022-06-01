@@ -483,16 +483,18 @@ def spliceaivisual():
         # seq_end = int(pos) + offset + 1
         # wt_seq = current_chrom[seq_start-1:seq_end].upper()
         variant_type = 'substitution'
-        if len(ref) == len(alt):
+        if len(ref) == len(alt) and \
+                len(ref) == 1 and \
+                len(alt) == 1:
             # substitutions
             mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
         elif len(ref) > len(alt) and \
-            len(alt) == 1:
+                len(alt) == 1:
             # deletions
             variant_type = 'deletion'
             mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:int(pos) + offset + len(ref) - 1].upper()
         elif len(alt) > len(ref) and \
-            len(ref) == 1:
+                len(ref) == 1:
             # insertions / duplications
             variant_type = 'insertion'
             mt_seq = current_chrom[int(pos) - offset:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset + len(alt) - 1].upper()
@@ -553,7 +555,9 @@ def spliceaivisual():
                             i -= 1
                         sai_score = mt_acceptor_scores[relative_pos][1] if float(mt_acceptor_scores[relative_pos][1]) > float(mt_donor_scores[relative_pos][1]) else - float(mt_donor_scores[relative_pos][1])
                         current_pos = abs_pos + int(rel_pos_genome)
-                        if variant_type == 'substitution':
+                        if variant_type == 'substitution' or \
+                                (variant_type == 'indel' and
+                                    len(ref) == len(alt)):
                             bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
                         elif variant_type == 'deletion':
                             if current_pos <= int(pos) - 1:
