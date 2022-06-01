@@ -483,8 +483,7 @@ def spliceaivisual():
         # seq_end = int(pos) + offset + 1
         # wt_seq = current_chrom[seq_start-1:seq_end].upper()
         variant_type = 'substitution'
-        if len(ref) == len(alt) and \
-                len(ref) == 1 and \
+        if len(ref) == 1 and \
                 len(alt) == 1:
             # substitutions
             mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
