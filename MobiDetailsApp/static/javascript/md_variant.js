@@ -877,7 +877,7 @@ $(document).ready(function() {
     if ($.fn.DataTable.isDataTable('#splicing_table')) {
       doc = convert_dt(config, "splicing_table", "dbscSNV and SpliceAI", "table_subtitle", doc);
     }
-    if ($('#igv_div').length) {
+    if ($('#igv_div').length && igv.browser) {
       // var igv_svg = igv.browser.toSVG();
       doc['content'].push(
         " ",
