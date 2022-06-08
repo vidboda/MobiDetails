@@ -403,7 +403,7 @@ def spliceaivisual():
             ncbi_transcript
         )
         header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
-        header2 = 'track name="    ALT allele" type=bedGraph description="spliceAI_ALT     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
+        header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(ncbi_transcript)
         # do we have the wt bedgraph
         if os.path.exists(
             '{0}.bedGraph'.format(transcript_file_basename)
@@ -473,6 +473,7 @@ def spliceaivisual():
                 # currently return error
                 return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
         # get mutant spliceai predictions
+        header2 = 'track name="ALT allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI predictions for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
         # build mt sequence
         offset = 10000
         genome = twobitreader.TwoBitFile(
@@ -546,7 +547,7 @@ def spliceaivisual():
                     # print(mt_donor_scores)
                     i = len(mt_acceptor_scores)
                     # bed_insertion = '# bed file required to display spliceai scores of inserted nucleotides\n'
-                    bedgraph_insertion = 'track name="Insertion allele" type=bedGraph description="spliceAI prediction for inserted nucleotides     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
+                    bedgraph_insertion = 'track name="Insertion allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI prediction for inserted nucleotides for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
                     for relative_pos in mt_acceptor_scores:
                         rel_pos_genome = relative_pos
                         if strand == '-':
