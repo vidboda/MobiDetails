@@ -195,7 +195,7 @@ def file_upload():
                                 ).data.decode('utf-8')
                             )
                             for var in md_response:
-                                print(md_response[var])
+                                # print(md_response[var])
                                 if 'mobidetails_error' in md_response[var]:
                                     result.append(
                                         {'variant': '{0} - {1}'.format(line, var),
