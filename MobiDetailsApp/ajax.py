@@ -404,6 +404,10 @@ def spliceaivisual():
         )
         header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
         header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(ncbi_transcript)
+        db = get_db()
+        ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
+        start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
+
         # do we have the wt bedgraph
         if os.path.exists(
             '{0}.bedGraph'.format(transcript_file_basename)
@@ -433,9 +437,9 @@ def spliceaivisual():
         else:
             # check whether we have pre-computed chr-start-end-strand
             # we need ncbi chr
-            db = get_db()
-            ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
-            start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
+            # db = get_db()
+            # ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
+            # start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
             # print('gene: {0}, transcript: {1}, chr: {2}, strand: {3}, start: {4}, end: {5}'.format(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand, start_g, end_g))
             spliceai_strand = 'plus' if strand == '+' else 'minus'
 
@@ -475,40 +479,81 @@ def spliceaivisual():
         # get mutant spliceai predictions
         header2 = 'track name="ALT allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI predictions for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
         # build mt sequence
+        # we cannot add intergenic sequence (to be replaced with NNNs)
         offset = 10000
         genome = twobitreader.TwoBitFile(
             '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
         )
         current_chrom = genome['chr{}'.format(chrom)]
-        # seq_start = int(pos) - offset
-        # seq_end = int(pos) + offset + 1
-        # wt_seq = current_chrom[seq_start-1:seq_end].upper()
         variant_type = 'substitution'
+        extreme_positions = []
         if len(ref) == 1 and \
                 len(alt) == 1:
             # substitutions
-            mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
+            extreme_positions.append(int(pos) - offset - 1)
+            extreme_positions.append(int(pos) + offset)
+            mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
+            # mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset].upper()
         elif len(ref) > len(alt) and \
                 len(alt) == 1:
             # deletions
             variant_type = 'deletion'
-            mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:int(pos) + offset + len(ref) - 1].upper()
+            extreme_positions.append(int(pos) - offset)
+            extreme_positions.append(int(pos) + offset + len(ref) - 1)
+            mt_seq = current_chrom[extreme_positions[0]:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:extreme_positions[1]].upper()
+            # mt_seq = current_chrom[int(pos) - offset:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:int(pos) + offset + len(ref) - 1].upper()
         elif len(alt) > len(ref) and \
                 len(ref) == 1:
             # insertions / duplications
             variant_type = 'insertion'
-            mt_seq = current_chrom[int(pos) - offset:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset + len(alt) - 1].upper()
+            extreme_positions.append(int(pos) - offset)
+            extreme_positions.append(int(pos) + offset + len(alt) - 1)
+            mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
+            # mt_seq = current_chrom[int(pos) - offset:int(pos) - 1].upper() + alt + current_chrom[int(pos):int(pos) + offset + len(alt) - 1].upper()
         elif len(ref) > 1 and \
                 len(alt) > 1:
             # indels
             variant_type = 'indel'
-            mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(alt) - 1].upper()
+            extreme_positions.append(int(pos) - offset - 1)
+            extreme_positions.append(int(pos) + offset + len(alt) - 1)
+            mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
+            # mt_seq = current_chrom[int(pos) - offset - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:int(pos) + offset + len(alt) - 1].upper()
             # print(mt_seq)
         else:
             mt_seq = None
+        if mt_seq:
+            # ok replace intergenic sequences with NNNs
+            # print('{0}-{1}'.format(start_g, end_g))
+            # print(extreme_positions)
+            if extreme_positions[0] < start_g:
+                # we are in an intergenic region
+                # ------------<exon 1>----
+                # ATCGACATCGACATCGGCTCGCTC
+                # should become
+                # NNNNNNNNNNNNATCGGCTCGCTC
+                nt2remove_pos = start_g - extreme_positions[0]
+                # print(nt2remove_pos)
+                tmp_list = list(mt_seq)
+                for i in range(nt2remove_pos):
+                    tmp_list[i] = 'N'
+                mt_seq = "".join(tmp_list)
+            if extreme_positions[1] > end_g:
+                # we are in an intergenic region
+                # ------------<last exon>----
+                # ATCGACATCGACATCGGCTCGCTCTAG
+                # should become
+                # ATCGACATCGACATCGGCTCGCTNNNN
+                nt2remove_pos = len(mt_seq) - (extreme_positions[1] - end_g)
+                # print(nt2remove_pos)
+                # print(len(mt_seq))
+                tmp_list = list(mt_seq)
+                for i in range(nt2remove_pos, len(mt_seq)):
+                    # print(i)
+                    tmp_list[i] = 'N'
+                mt_seq = "".join(tmp_list)
         if strand == '-':
             mt_seq = md_utilities.reverse_complement(mt_seq)
-        # print(mt_seq)
+        print(mt_seq)
         # spliceai call
         req_results = requests.get(
             '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
@@ -2146,6 +2191,9 @@ def spliceai_lookup():
                 match_obj_transcript:
             variant = match_obj_variant.group(1)
             transcript = match_obj_transcript.group(1).split(".")[0]
+            print('{0}{1}'.format(
+                md_utilities.urls['spliceai_api'],
+                variant))
             try:
                 spliceai500 = json.loads(
                     http.request(
@@ -2170,9 +2218,9 @@ def spliceai_lookup():
                     return """
                     <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
                     """
-            # print('{0}{1}'.format(
-            #     md_utilities.urls['spliceai_api'],
-            #     variant))
+            print('{0}{1}'.format(
+                md_utilities.urls['spliceai_api'],
+                variant))
             if spliceai500 and \
                     spliceai500['variant'] == variant and \
                     'error' not in spliceai500:

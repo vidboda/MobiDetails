@@ -9,6 +9,8 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2022-06-09] - Bug fix : \
+			SpliceAI only predicts on genic regions. Then if the 10kbs around the variants fall within intergenic regions, nucleotides are replaced with Ns.") }}
 		{{ info("[2022-05-28] - New predictor : \
 			Bedgraph tracks representing spliceai raw scores are displayed in an igv.js browser. This functionality called 'SpliceAI-visual' is based on an original idea and code from Jean-Madeleine de Sainte Agathe and has been built in collaboration with him.") }}
 		{{ info("[2022-04-28] - Minor : \
