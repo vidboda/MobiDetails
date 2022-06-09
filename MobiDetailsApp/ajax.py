@@ -523,7 +523,8 @@ def spliceaivisual():
             mt_seq = None
         if mt_seq:
             # ok replace intergenic sequences with NNNs
-            if extreme_positions[0] < start_g:
+            if extreme_positions[0] < start_g and \
+                    start_g > 0:
                 # we are in an intergenic region
                 # ------------<exon 1>----
                 # ATCGACATCGACATCGGCTCGCTC
@@ -534,7 +535,8 @@ def spliceaivisual():
                 for i in range(nt2remove_pos):
                     tmp_list[i] = 'N'
                 mt_seq = "".join(tmp_list)
-            if extreme_positions[1] > end_g:
+            if extreme_positions[1] > end_g and \
+                    end_g > 0:
                 # we are in an intergenic region
                 # ------------<last exon>----
                 # ATCGACATCGACATCGGCTCGCTCTAG

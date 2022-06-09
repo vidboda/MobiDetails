@@ -1822,18 +1822,18 @@ def get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_
                     if vv_strand == strand:
                         return start, end
                     else:
-                        # send_error_email(
-                        #     prepare_email_html(
-                        #         'MobiDetails error',
-                        #         """
-                        #         <p>Strand does not match between VV and MD for {0}({1})</p>
-                        #         """.format(
-                        #             transcript,
-                        #             gene_symbol
-                        #         )
-                        #     ),
-                        #     '[MobiDetails - Tabix Error]'
-                        # )
+                        send_error_email(
+                            prepare_email_html(
+                                'MobiDetails error',
+                                """
+                                <p>Strand does not match between VV and MD for {0}({1})</p>
+                                """.format(
+                                    transcript,
+                                    gene_symbol
+                                )
+                            ),
+                            '[MobiDetails - Strand Error]'
+                        )
                         return -2, -2
     return -1, -1
 
