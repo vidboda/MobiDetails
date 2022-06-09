@@ -2185,9 +2185,9 @@ def spliceai_lookup():
                 match_obj_transcript:
             variant = match_obj_variant.group(1)
             transcript = match_obj_transcript.group(1).split(".")[0]
-            print('{0}{1}'.format(
-                md_utilities.urls['spliceai_api'],
-                variant))
+            # print('{0}{1}'.format(
+            #     md_utilities.urls['spliceai_api'],
+            #     variant))
             try:
                 spliceai500 = json.loads(
                     http.request(
