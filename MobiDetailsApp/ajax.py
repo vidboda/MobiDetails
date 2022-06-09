@@ -523,8 +523,6 @@ def spliceaivisual():
             mt_seq = None
         if mt_seq:
             # ok replace intergenic sequences with NNNs
-            # print('{0}-{1}'.format(start_g, end_g))
-            # print(extreme_positions)
             if extreme_positions[0] < start_g:
                 # we are in an intergenic region
                 # ------------<exon 1>----
@@ -532,7 +530,6 @@ def spliceaivisual():
                 # should become
                 # NNNNNNNNNNNNATCGGCTCGCTC
                 nt2remove_pos = start_g - extreme_positions[0]
-                # print(nt2remove_pos)
                 tmp_list = list(mt_seq)
                 for i in range(nt2remove_pos):
                     tmp_list[i] = 'N'
@@ -544,16 +541,13 @@ def spliceaivisual():
                 # should become
                 # ATCGACATCGACATCGGCTCGCTNNNN
                 nt2remove_pos = len(mt_seq) - (extreme_positions[1] - end_g)
-                # print(nt2remove_pos)
-                # print(len(mt_seq))
                 tmp_list = list(mt_seq)
                 for i in range(nt2remove_pos, len(mt_seq)):
-                    # print(i)
                     tmp_list[i] = 'N'
                 mt_seq = "".join(tmp_list)
         if strand == '-':
             mt_seq = md_utilities.reverse_complement(mt_seq)
-        print(mt_seq)
+        # print(mt_seq)
         # spliceai call
         req_results = requests.get(
             '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
