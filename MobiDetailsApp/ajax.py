@@ -2214,9 +2214,6 @@ def spliceai_lookup():
                     return """
                     <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
                     """
-            print('{0}{1}'.format(
-                md_utilities.urls['spliceai_api'],
-                variant))
             if spliceai500 and \
                     spliceai500['variant'] == variant and \
                     'error' not in spliceai500:
