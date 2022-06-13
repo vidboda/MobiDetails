@@ -1971,6 +1971,8 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('base start position must be <= end position', warning):
                             return warning
+                        if re.search('The given coordinate is outside the bounds of the reference sequence.', warning):
+                            return warning
                         if re.search('Interval end position', warning):
                             return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
