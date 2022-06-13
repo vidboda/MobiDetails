@@ -45,6 +45,7 @@ def test_check_vv_instance(client):
     ('nc_000001.11:g.216422237G>A', 'mobidetails_id', '5'),
     ('NC_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
     ('nc_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
+    ('NC_000007.11:g.216422237G>A', 'mobidetails_error', 'does not exist'),
     ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'Malformed query')
 ))
 def test_api_variant_exists(client, variant, key, response):

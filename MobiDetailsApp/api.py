@@ -81,35 +81,39 @@ def api_variant_exists(variant_ghgvs=None):
         # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
         # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
         chrom, genome_version = md_utilities.get_common_chr_name(db, match_object.group(1).upper())
-        pattern = match_object.group(2)
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        curs.execute(
-            """
-            SELECT feature_id
-            FROM variant
-            WHERE chr = %s
-                AND g_name = %s
-                AND genome_version = %s
-            """,
-            (chrom, pattern, genome_version)
-        )
-        res = curs.fetchone()
-        if res is not None:
-            close_db()
-            return jsonify(
-                mobidetails_id=res['feature_id'],
-                url='{0}{1}'.format(
-                    request.host_url[:-1],
-                    url_for(
-                        'api.variant',
-                        variant_id=res['feature_id'],
-                        caller='browser'
+        if chrom and \
+            genome_version:
+            pattern = match_object.group(2)
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                """
+                SELECT feature_id
+                FROM variant
+                WHERE chr = %s
+                    AND g_name = %s
+                    AND genome_version = %s
+                """,
+                (chrom, pattern, genome_version)
+            )
+            res = curs.fetchone()
+            if res is not None:
+                close_db()
+                return jsonify(
+                    mobidetails_id=res['feature_id'],
+                    url='{0}{1}'.format(
+                        request.host_url[:-1],
+                        url_for(
+                            'api.variant',
+                            variant_id=res['feature_id'],
+                            caller='browser'
+                        )
                     )
                 )
-            )
+            else:
+                close_db()
+                return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
         else:
-            close_db()
-            return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
+            return jsonify(mobidetails_error='The chromosome {} does not exist in MD'.format(match_object.group(1)))
     else:
         return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
 

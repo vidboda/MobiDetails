@@ -275,6 +275,8 @@ def get_common_chr_name(db, ncbi_name):
         res = curs.fetchone()
         if res is not None:
             return res
+        else:
+            return None, None
 
 
 def is_valid_full_chr(chr_name):  # chr name is valid?
