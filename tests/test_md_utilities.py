@@ -632,10 +632,11 @@ def test_get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon
     ('GJB2', 'NM_004004.6', 'NC_000013.11', '+', -2, -2),
     ('GJB2', 'NM_004004.1', 'NC_000013.11', '-', -1, -1),
 ))
-def test_get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand, start_result, end_result):
-    start, end = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand)
-    print('start: {0}, end: {1}'.format(start, end))
-    assert start == start_result and end == end_result
+def test_get_genomic_transcript_positions_from_vv_json(app, gene_symbol, transcript, ncbi_chr, strand, start_result, end_result):
+    with app.test_request_context('/'):
+        start, end = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand)
+        print('start: {0}, end: {1}'.format(start, end))
+        assert start == start_result and end == end_result
 
 
 vv_dict = {
