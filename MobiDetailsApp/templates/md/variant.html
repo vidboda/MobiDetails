@@ -1131,7 +1131,8 @@
 					<tr>
 						<td class="w3-left-align">Reference Article</td>
 						<td class="w3-left-align">
-							{% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %}
+							{# {% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %} #}
+							{% if internal_data.episignature.pubmedID %}
 									<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank">{{ internal_data.episignature.referenceArticle }}</a>
 							{% else %}
 								{{ internal_data.episignature.referenceArticle }}
