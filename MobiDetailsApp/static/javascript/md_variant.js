@@ -127,7 +127,7 @@ function intervar(intervar_url, csrf_token) {
 		});
 	}
 }
-function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
+function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
   // ajax for spliceaivisual
   // send header for flask-wtf crsf security
   $.ajaxSetup({
@@ -141,7 +141,7 @@ function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
     type: "POST",
     url: spliceaivisual_url,
     data: {
-      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript:$('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val(), gene_symbol: $('#gene_name').text()
+      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript: $('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val(), gene_symbol: $('#gene_name').text(), caller: caller
     }
   })
   .done(function(spliceaivisual_response) {
@@ -155,61 +155,90 @@ function spliceaivisual(spliceaivisual_url, static_path, csrf_token) {
     else {
       $('#igv_com').replaceWith('<span></span>');
       $('#igv_desc').show();
-      var options =
-        {
-          showNavigation: true,
-          showRuler: true,
-          showCenterGuide: true,
-          showCursorTrackingGuide: true,
-          genome: 'hg38',
-          locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
-          tracks: [
-            {
-              name: 'SpliceAI WT ' + $('#nm_acc').text(),
-              format: 'bedGraph',
-              url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-              indexed: false,
-              label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-              roi: [{
-                name: $('#variant_id').text(),
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+      if (caller === 'automatic') {
+        var options =
+          {
+            showNavigation: true,
+            showRuler: true,
+            showCenterGuide: true,
+            showCursorTrackingGuide: true,
+            genome: 'hg38',
+            locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            tracks: [
+              {
+                name: 'SpliceAI WT ' + $('#nm_acc').text(),
+                format: 'bedGraph',
+                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
                 indexed: false,
-                color: "rgba(0, 150, 50, 0.25)"
-              }]
-            },
-            {
-              name: 'SpliceAI MT ' + $('#nm_acc').text(),
-              format: 'bedGraph',
-              url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph',
-              indexed: false,
-              label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-              roi: [{
-                name: $('#variant_id').text(),
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                removable: false,
+                label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                  indexed: false,
+                  color: "rgba(0, 150, 50, 0.25)"
+                }]
+              },
+              {
+                name: 'SpliceAI MT ' + $('#nm_acc').text(),
+                format: 'bedGraph',
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph',
                 indexed: false,
-                color: "rgba(220, 20, 60, 0.25)"
-              }]
-            },
-            {
-              name: 'Inserted nucleotides',
-              format: 'bedGraph',
-              url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
-              indexed: false,
-              label: 'Insertion track',
-            },
-            {
-              name: 'MANE transcripts',
-              url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
-              indexed: false,
-              label: 'MANE transcripts',
-            }
-          ]
-        };
-      igv.createBrowser(document.getElementById('igv_div'), options)
-        .then(function (browser) {
-            console.log("Created IGV browser");
-            igv.browser = browser;
-        })
+                removable: false,
+                label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                  indexed: false,
+                  color: "rgba(220, 20, 60, 0.25)"
+                }]
+              },
+              {
+                name: 'Inserted nucleotides',
+                format: 'bedGraph',
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
+                indexed: false,
+                label: 'Insertion track',
+              },
+              {
+                name: 'MANE transcripts',
+                url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
+                indexed: false,
+                label: 'MANE transcripts',
+              }
+            ]
+          };
+        igv.createBrowser(document.getElementById('igv_div'), options)
+          .then(function (browser) {
+              console.log("Created IGV browser");
+              igv.browser = browser;
+          })
+      }
+      else if ($('#igv_div').length && igv.browser) {
+        igv.browser.loadTrack({
+          name: 'FULL MT SpliceAI ' + $('#nm_acc').text(),
+          format: 'bedGraph',
+          url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph',
+          indexed: false,
+          label: 'SpliceAI raw scores for full mutant ' + $('#nm_acc').text(),
+          removable: false,
+          order: 3,
+          roi: [{
+            name: $('#variant_id').text(),
+            url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+            indexed: false,
+            color: "rgba(220, 20, 60, 0.25)"
+          }]
+        });
+        $('#spliceai_visual_full_wheel').html('<span></span>');
+        $('html').css('cursor', 'default');
+      }
+      if ($('#spliceai_visual_full_gene').is(':hidden')) {
+        $('#spliceai_visual_full_gene').show();
+      }
+      else {
+        $('#spliceai_visual_full_gene').hide();
+      }
     }
   });
 }
