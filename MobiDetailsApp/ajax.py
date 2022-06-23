@@ -595,12 +595,35 @@ def spliceaivisual():
                         mt_donor_scores = spliceai_results['result']['mt_donor_scores']
                         # abs_pos = start_g
                         # if caller == 'automatic':
-                        abs_pos=(int(pos) - offset - 1) if caller == 'automatic' else start_g
+                        abs_pos = (int(pos) - offset - 1) if caller == 'automatic' else start_g
+                        # Positions for full transcripts:
+                        #   variant_type    |   strand +    |   strand -
+                        #   substitution    |   ok          |   needs +1
+                        #   deletions       |   needs -1    |   ok
+                        #   insertions      |   needs -1    |   ok
+                        #   indel alt > ref |   ok          |   needs +1
+                        #   indel alt = ref |   ok          |   needs +1
+                        #   indel alt < ref |   needs -1    |   ok
+                        # reason not established, even if there is a symmetry
                         if strand == '-':
-                            if caller == 'automatic':
-                                abs_pos += 1
                             mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                             mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
+                            if caller == 'automatic':
+                                abs_pos += 1
+                            else:
+                                # empirical for full transcripts
+                                if variant_type == 'substitution' or \
+                                    (variant_type == 'indel' and
+                                        (len(alt) > len(ref) or
+                                            len(ref) == len(alt))):
+                                    abs_pos += 1
+                        elif caller != 'automatic':
+                            # empirical for full transcripts
+                            if variant_type == 'deletion' or \
+                                variant_type == 'insertion' or \
+                                (variant_type == 'indel' and
+                                    len(ref) > len(alt)):
+                                abs_pos -= 1
                             # abs_pos = int(pos) + offset + len(alt) - 1
                         # print(mt_donor_scores)
                         i = len(mt_acceptor_scores)
@@ -678,6 +701,9 @@ def spliceaivisual():
                             bed_insertion_file.write(bedgraph_insertion)
                         bed_insertion_file.close()
                     response = 'ok'
+                if caller == 'automatic' and \
+                        os.path.exists(full_variant_file):
+                    response = 'full'
                 if spliceai_results['spliceai_return_code'] != 0 or \
                         spliceai_results['error']:
                     return '<p style="color:red">Bad params for SpliceAI-visual.</p>'

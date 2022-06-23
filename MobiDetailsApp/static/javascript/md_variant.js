@@ -155,7 +155,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
     else {
       $('#igv_com').replaceWith('<span></span>');
       $('#igv_desc').show();
-      if (caller === 'automatic') {
+      if (caller == 'automatic') {
         var options =
           {
             showNavigation: true,
@@ -210,30 +210,17 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
           };
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
-              console.log("Created IGV browser");
               igv.browser = browser;
-          })
+              if (spliceaivisual_response == 'full') {
+                // load full transcript track
+                add_full_gene_track(static_path);
+              }
+          });
       }
       else if ($('#igv_div').length && igv.browser) {
-        igv.browser.loadTrack({
-          name: 'FULL MT SpliceAI ' + $('#nm_acc').text(),
-          format: 'bedGraph',
-          url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph',
-          indexed: false,
-          label: 'SpliceAI raw scores for full mutant ' + $('#nm_acc').text(),
-          removable: false,
-          order: 3,
-          roi: [{
-            name: $('#variant_id').text(),
-            url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-            indexed: false,
-            color: "rgba(220, 20, 60, 0.25)"
-          }]
-        });
-        $('#spliceai_visual_full_wheel').html('<span></span>');
-        $('html').css('cursor', 'default');
+        add_full_gene_track(static_path)
       }
-      if ($('#spliceai_visual_full_gene').is(':hidden')) {
+      if ($('#spliceai_visual_full_gene').is(':hidden') && spliceaivisual_response == 'ok') {
         $('#spliceai_visual_full_gene').show();
       }
       else {
@@ -241,6 +228,26 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
       }
     }
   });
+}
+async function add_full_gene_track(static_path) {
+  igv.browser.loadTrack({
+    name: 'FULL MT SpliceAI ' + $('#nm_acc').text(),
+    format: 'bedGraph',
+    url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph',
+    indexed: false,
+    label: 'SpliceAI raw scores for full mutant ' + $('#nm_acc').text(),
+    removable: false,
+    order: 3,
+    roi: [{
+      name: $('#variant_id').text(),
+      url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+      indexed: false,
+      color: "rgba(220, 20, 60, 0.25)"
+    }]
+  });
+  $('#full_transcript_download').html(' or <a href="' + static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph" target="_blank">full mutant transcript</a>');
+  $('#spliceai_visual_full_wheel').html('<span></span>');
+  $('html').css('cursor', 'default');
 }
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	// ajax to modify variant class
