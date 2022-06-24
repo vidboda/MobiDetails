@@ -410,6 +410,7 @@ def spliceaivisual():
         db = get_db()
         ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
         start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
+        # start_g, end_g = 1-based
         if caller == 'automatic':
             # caller = automatic or spliceaivisual_full_button
             # if automatic we need to get the WT transcript
@@ -487,6 +488,7 @@ def spliceaivisual():
         # build mt sequence
         # we cannot add intergenic sequence (to be replaced with NNNs)
         offset = 10000
+        # 0-based
         genome = twobitreader.TwoBitFile(
             '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
         )
@@ -501,20 +503,22 @@ def spliceaivisual():
                 extreme_positions.append(int(pos) + offset)
                 mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
             else:
-                mt_seq = current_chrom[start_g:int(pos) - 1].upper() + alt + current_chrom[int(pos):end_g].upper()
+                mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):end_g - 1].upper()
         elif len(ref) > len(alt) and \
                 len(alt) == 1:
             # deletions
+            # start differs as: TGGCGGCGGC-T => pos remains ref contrary to subs and indels
             variant_type = 'deletion'
             if caller == 'automatic':
                 extreme_positions.append(int(pos) - offset)
                 extreme_positions.append(int(pos) + offset + len(ref) - 1)
                 mt_seq = current_chrom[extreme_positions[0]:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:extreme_positions[1]].upper()
             else:
-                 mt_seq = current_chrom[start_g:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
+                mt_seq = current_chrom[start_g:int(pos)].upper() + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
         elif len(alt) > len(ref) and \
                 len(ref) == 1:
             # insertions / duplications
+            # start differs as: T-TGGC => pos remains ref contrary to subs and indels
             variant_type = 'insertion'
             if caller == 'automatic':
                 extreme_positions.append(int(pos) - offset)
@@ -531,7 +535,7 @@ def spliceaivisual():
                 extreme_positions.append(int(pos) + offset + len(alt) - 1)
                 mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
             else:
-                mt_seq = current_chrom[start_g:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:end_g].upper()
+                mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
             # print(mt_seq)
         else:
             mt_seq = None
@@ -571,6 +575,7 @@ def spliceaivisual():
                 '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                 json={'mt_seq': mt_seq}
             )
+            # 1-based
             if req_results.status_code == 200:
                 spliceai_results = json.loads(req_results.content)
                 variant_file_basename = '{0}/variants/'.format(
@@ -595,12 +600,13 @@ def spliceaivisual():
                         mt_donor_scores = spliceai_results['result']['mt_donor_scores']
                         # abs_pos = start_g
                         # if caller == 'automatic':
-                        abs_pos = (int(pos) - offset - 1) if caller == 'automatic' else start_g
-                        # Positions for full transcripts:
+                        # 0-based
+                        abs_pos = (int(pos) - offset - 1) if caller == 'automatic' else start_g - 1
+                        # Positions for full transcripts: DEPRECATED corrected before with correct start-end positions
                         #   variant_type    |   strand +    |   strand -
                         #   substitution    |   ok          |   needs +1
-                        #   deletions       |   needs -1    |   ok
-                        #   insertions      |   needs -1    |   ok
+                        #   deletions       |   ok          |   ok
+                        #   insertions      |   ok          |   ok
                         #   indel alt > ref |   ok          |   needs +1
                         #   indel alt = ref |   ok          |   needs +1
                         #   indel alt < ref |   needs -1    |   ok
@@ -608,22 +614,22 @@ def spliceaivisual():
                         if strand == '-':
                             mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                             mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
-                            if caller == 'automatic':
-                                abs_pos += 1
-                            else:
-                                # empirical for full transcripts
-                                if variant_type == 'substitution' or \
-                                    (variant_type == 'indel' and
-                                        (len(alt) > len(ref) or
-                                            len(ref) == len(alt))):
-                                    abs_pos += 1
-                        elif caller != 'automatic':
-                            # empirical for full transcripts
-                            if variant_type == 'deletion' or \
-                                variant_type == 'insertion' or \
-                                (variant_type == 'indel' and
-                                    len(ref) > len(alt)):
-                                abs_pos -= 1
+                            # if caller == 'automatic':
+                            abs_pos += 1
+                        #     else:
+                        #         # empirical for full transcripts
+                        #         if variant_type == 'substitution' or \
+                        #             (variant_type == 'indel' and
+                        #                 (len(alt) > len(ref) or
+                        #                     len(ref) == len(alt))):
+                        #             abs_pos += 1
+                        # elif caller != 'automatic':
+                        #     # empirical for full transcripts
+                        #     if variant_type == 'deletion' or \
+                        #         variant_type == 'insertion' or \
+                        #         (variant_type == 'indel' and
+                        #             len(ref) > len(alt)):
+                        #         abs_pos -= 1
                             # abs_pos = int(pos) + offset + len(alt) - 1
                         # print(mt_donor_scores)
                         i = len(mt_acceptor_scores)
