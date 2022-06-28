@@ -245,7 +245,7 @@ async function add_full_gene_track(static_path) {
       color: "rgba(220, 20, 60, 0.25)"
     }]
   });
-  $('#full_transcript_download').html(' or <a href="' + escape(static_path) + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph" target="_blank">full mutant transcript</a>');
+  $('#full_transcript_download').html(' or <a href="' + escape(static_path) + 'resources/spliceai/variants/' + escape($('#variant_id').val()) + '_full_transcript.bedGraph" target="_blank">full mutant transcript</a>');
   $('#spliceai_visual_full_wheel').html('<span></span>');
   $('html').css('cursor', 'default');
 }
