@@ -388,7 +388,7 @@ def gene(gene_symbol=None):
                         """
                         SELECT *
                         FROM gene
-                        WHERE gene_symbol] = %s
+                        WHERE gene_symbol = %s
                         ORDER BY number_of_exons DESC
                         """,
                         (gene_symbol,)
@@ -399,11 +399,11 @@ def gene(gene_symbol=None):
                     for vv_transcript in vv_json['transcripts']:
                         for res in result_all:
                             # need to check vv isoforms against MD isoforms to keep only relevant ones
-                            if vv_transcript['reference'] == res['gene_symbol']:
+                            if vv_transcript['reference'] == res['refseq']:
                                 if 'mane_select' in vv_transcript['annotations'] and \
                                         'mane_plus_clinical' in vv_transcript['annotations'] and \
                                         'refseq_select' in vv_transcript['annotations']:
-                                    transcript_road_signs[res['gene_symbol']] = {
+                                    transcript_road_signs[res['refseq']] = {
                                         'mane_select': vv_transcript['annotations']['mane_select'],
                                         'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
                                         'refseq_select': vv_transcript['annotations']['refseq_select']
