@@ -958,7 +958,7 @@ def test_run_spip(app):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
-            SELECT id, gene_name, c_name
+            SELECT id, gene_symbol, refseq, c_name
             FROM variant_feature
             WHERE c_name <> 'c.2del'
             ORDER BY random()
@@ -969,7 +969,7 @@ def test_run_spip(app):
         db_pool.putconn(db)
         for var in res:
             spip_results = md_utilities.run_spip(
-                var['gene_name'][0], var['gene_name'][1], var['c_name'], var['id']
+                var['gene_symbol'], var['refseq'], var['c_name'], var['id']
             )
             print(spip_results)
             assert 'Interpretation' in spip_results

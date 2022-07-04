@@ -1210,7 +1210,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             """
             SELECT a.variant_feature_id, a.acmg_class, a.class_date,
             a.comment, b.id, b.email, b.email_pref, b.username,
-            c.html_code, c.acmg_translation, d.c_name, d.gene_name
+            c.html_code, c.acmg_translation, d.c_name, d.gene_symbol, d.refseq
             FROM class_history a, mobiuser b, valid_class c, variant_feature d
             WHERE a.mobiuser_id = b.id
                 AND a.acmg_class = c.acmg_class
@@ -2499,13 +2499,13 @@ def api_gene(gene_hgnc=None):
     if re.search(r'[^\w\.-]', gene_hgnc):
         return jsonify(mobidetails_error='Invalid gene submitted ({})'.format(gene_hgnc))
     research = gene_hgnc
-    search_id = 1
+    search_id = 'gene_symbol'
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     match_obj = re.search(rf'({ncbi_transcript_regexp})', gene_hgnc)
     if match_obj:
         # we have a RefSeq accession number
         research = match_obj.group(1)
-        search_id = 2
+        search_id = 'refseq'
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if re.search(r'^\d+$', research):
@@ -2518,13 +2518,20 @@ def api_gene(gene_hgnc=None):
             (research,)
         )
     else:
+        # curs.execute(
+        #     """
+        #     SELECT *
+        #     FROM gene
+        #     WHERE %s = %s
+        #     """,
+        #     (search_id, research)
+        # )
         curs.execute(
             """
             SELECT *
             FROM gene
-            WHERE name[%s] = %s
-            """,
-            (search_id, research)
+            WHERE {0} = '{1}'
+            """.format(search_id, research)
         )
     res = curs.fetchall()
     d_gene = {}

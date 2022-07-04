@@ -650,8 +650,8 @@ def search_engine():
             # list of genes that look like the query
             if query_engine.upper() in confusing_genes:
                 sql_table = 'gene'
-                query_type = 'name[1]'
-                col_names = 'name'
+                query_type = 'gene_symbol'
+                col_names = 'gene_symbol'
                 pattern = query_engine.upper()
             else:
                 query_type = 'p_name'
@@ -697,19 +697,12 @@ def search_engine():
                 )
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
-            query_type = 'name[2]'
-            col_names = 'name'
+            query_type = 'refseq'
+            col_names = 'gene_symbol'
             match_object = re.search(r'^(^[Nn][Mm]_\d+)', query_engine)
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)
-            # match_object = re.search(rf'^({ncbi_transcript_regexp})', query_engine)
-            # if match_object:
-            #     pattern = match_object.group(1)
-            # match_object = re.search(r'^([Nn][Mm]_\d+)\.?$', query_engine)
-            # if match_object:
-            #     col_names = 'incomplete_name'
-            #     pattern = match_object.group(1)
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -791,8 +784,8 @@ def search_engine():
             close_db()
         elif re.search(r'^[A-Za-z0-9-]+$', query_engine):  # genes
             sql_table = 'gene'
-            query_type = 'name[1]'
-            col_names = 'name'
+            query_type = 'gene_symbol'
+            col_names = 'gene_symbol'
             pattern = query_engine
             if not re.search(r'[oO][rR][fF]', pattern):
                 pattern = pattern.upper()
@@ -839,7 +832,7 @@ def search_engine():
                     )
                 else:
                     if col_names == 'partial_name':
-                        col_names = 'name'
+                        col_names = 'gene_symbol'
                         curs.execute(
                             """
                             SELECT {0}
@@ -881,10 +874,10 @@ def search_engine():
                         Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).
                         """.format(query_engine)
                     else:
-                        return redirect(url_for('md.gene', gene_symbol=result_second[col_names][0]))
+                        return redirect(url_for('md.gene', gene_symbol=result_second[col_names]))
                 else:
                     close_db()
-                    return redirect(url_for('md.gene', gene_symbol=result[col_names][0]))
+                    return redirect(url_for('md.gene', gene_symbol=result[col_names]))
             else:
                 result = curs.fetchall()
                 if not result:

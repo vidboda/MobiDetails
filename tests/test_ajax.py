@@ -117,14 +117,14 @@ def test_intervar(client, app):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             r"""
-            SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_name[1] as gene FROM variant a,
+            SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_symbol FROM variant a,
             variant_feature b WHERE a.feature_id = b.id AND a.genome_version = 'hg19' AND b.dna_type = 'substitution'
             AND b.start_segment_type = 'exon' AND c_name !~ '^[\*-]' AND p_name !~ '\?' ORDER BY random() LIMIT 5
             """
         )
         res = curs.fetchall()
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene'])
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene_symbol'])
             response = client.post('/intervar', data=data_dict)
             assert response.status_code == 200
             possible = [
