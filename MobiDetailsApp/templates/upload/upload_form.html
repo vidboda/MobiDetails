@@ -13,7 +13,7 @@
     Or \
     <ul> \
       <li>NC_000001.11:g.40817273T>G;KCNQ4</li> \
-      <li>i.e. NCBI_chromosome:hgvs_genomic_nomenclature;hgnc_gene_name - hg38/hg19</li> \
+      <li>i.e. NCBI_chromosome:hgvs_genomic_nomenclature;hgnc_gene_symbol - hg38/hg19</li> \
     </ul> \
     Or \
     <ul> \
@@ -30,7 +30,6 @@
     //]]>
     </script>.</p>
   </div>
-  {# {{ danger("This is a beta version. Please report any bug you might encounter.") }} #}
 	<div align = "center">
   {% if run_mode  and run_mode == 'on' %}
     <form method="post" action="{{ url_for('upload.file_upload') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:60%" id="login_form" enctype="multipart/form-data" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">

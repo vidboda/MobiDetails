@@ -82,9 +82,9 @@ def file_upload():
                         # check NM number and version
                         curs.execute(
                             """
-                            SELECT name
+                            SELECT gene_symbol
                             FROM gene
-                            WHERE name[2] = %s
+                            WHERE refseq = %s
                             """,
                             (match_obj_c.group(1),)
                         )
@@ -133,9 +133,9 @@ def file_upload():
                         # check gene is available
                         curs.execute(
                             """
-                            SELECT name
+                            SELECT gene_symbol
                             FROM gene
-                            WHERE name[1] = %s
+                            WHERE refseq = %s
                             """,
                             (match_obj_g.group(2),)
                         )

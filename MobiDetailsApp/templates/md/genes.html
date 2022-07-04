@@ -3,7 +3,7 @@
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_genes.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_genes.js') }}?20220704" type="text/javascript"></script>
 {% endblock %}
 {% block title %}All genes{% endblock %}
 {% block header %}
@@ -24,11 +24,11 @@
 				</tr>
 			</thead>
 			<tbody>
-				{% for gene_name in genes %}
+				{% for gene in genes %}
 					<tr>
-						<td><em>{{ gene_name.hgnc }}</em></td>
-						<td><a href="{{ url_for('md.gene', gene_name=gene_name.hgnc) }}" target="_blank" rel="noopener noreferrer" title="Go to {{ gene_name.hgnc }} main page">General Info</a></td>
-						<td><a href="{{ url_for('md.vars', gene_name=gene_name.hgnc) }}" target="_blank" rel="noopener noreferrer" title="Go to {{ gene_name.hgnc }} variants page">All Variants</a></td>
+						<td><em>{{ gene.gene_symbol }}</em></td>
+						<td><a href="{{ url_for('md.gene', gene_symbol=gene.gene_symbol) }}" target="_blank" rel="noopener noreferrer" title="Go to {{ gene.gene_symbol }} main page">General Info</a></td>
+						<td><a href="{{ url_for('md.vars', gene_symbol=gene.gene_symbol) }}" target="_blank" rel="noopener noreferrer" title="Go to {{ gene.gene_symbol }} variants page">All Variants</a></td>
 					</tr>
 				{% endfor %}
 			</tbody>

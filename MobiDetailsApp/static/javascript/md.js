@@ -74,24 +74,6 @@ function hide_params() {
 		$('html').css('cursor', 'progress');
 		return true;
 }
-//function encode_vars(id) {
-//    // function to specifically encode params before forms submissions ( because '>' are not encoded)
-//		// and encodeURIComponent triggers mod_security mutliple encodings
-//		// DEPRECATED 04/2020
-//		var inter = $('#' + id).val();
-//		$('#' + id).val(inter.replace(/>/g,"%3E"));
-//		return true;
-//}
-//function encode_params(input_id) {
-//    // function to encode params before forms submissions (e.g. because '>' are not encoded)
-//		// DEPRECATED 04/2020
-//		var inter = $('#' + input_id).val();
-//		//$('#' + input_id).css('visibility', 'hidden');
-//		//$('html').css('cursor', 'progress');
-//		$('#' + input_id).val(encodeURIComponent(inter));
-//		// alert($('#' + input_id).val());
-//		return true;
-//}
 // used in gene.html and vars.html
 function panelapp(panelapp_url, gene_symbol, csrf_token) {
 	//ajax for PanelApp
@@ -154,9 +136,8 @@ function favourite(vf_id, fav_url, csrf_token) {
 				$('#favour_star').show();
 			}
 			else {
-				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + encodeURIComponent($("#md_variant_url_" + vf_id).text()) + '\')" title="Visit the variant page"><span><em>' + encodeURIComponent($("#gene_" + vf_id).text()) + '</em>:c.' + encodeURIComponent($("#c_name_" + vf_id).text()) + ' - p.(' + encodeURIComponent($("#p_name_" + vf_id).text()) + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
-				// returns https://lgtm.com/rules/1511866576920/ in LGTM if not encoded
-				// $('#favourite_ul').append(encodeURIComponent('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + $("#md_variant_url_" + vf_id).text() + '\')" title="Visit the variant page"><span><em>' + $("#gene_" + vf_id).text() + '</em>:c.' + $("#c_name_" + vf_id).text() + ' - p.(' + $("#p_name_" + vf_id).text() + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>'));
+				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + escape($("#md_variant_url_" + vf_id).text()) + '\')" title="Visit the variant page"><span><em>' + escape($("#gene_" + vf_id).text()) + '</em>:c.' + escapeHtml($("#c_name_" + vf_id).text()) + ' - p.(' + escapeHtml($("#p_name_" + vf_id).text()) + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
+				// returns https://lgtm.com/rules/1511866576920/ in LGTM if not encoded - encodeURIComponent
 				$('#favourite_vars').show();
 				$('#variant_list').show();
 				if ($('#num_favourite').length) {
@@ -190,6 +171,14 @@ function favourite(vf_id, fav_url, csrf_token) {
 		}
 
 	});
+}
+function escapeHtml(unsafe) {
+	return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
 }
 $(document).ready(function(){
 	// $('#loader').hide();

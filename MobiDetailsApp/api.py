@@ -426,7 +426,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         """
         SELECT a.*, b.*, a.id as var_id, c.id AS mobiuser_id, c.email, c.username, d.so_accession
         FROM variant_feature a, gene b, mobiuser c, valid_prot_type d
-        WHERE a.gene_name = b.name
+        WHERE a.gene_symbol = b.gene_symbol
+            AND a.refseq = b.refseq
             AND a.creation_user = c.id
             AND a.prot_type = d.prot_type
             AND a.id = %s
@@ -457,8 +458,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
 
-        external_data['gene']['symbol'] = variant_features['gene_name'][0]
-        external_data['gene']['RefSeqTranscript'] = variant_features['gene_name'][1]
+        external_data['gene']['symbol'] = variant_features['gene_symbol']
+        external_data['gene']['RefSeqTranscript'] = variant_features['refseq']
         external_data['gene']['RefSeqNg'] = variant_features['ng']
         external_data['gene']['RefSeqNp'] = variant_features['np']
         external_data['gene']['ENST'] = variant_features['enst']
@@ -546,10 +547,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # same variant mapped on other isoforms
                 curs.execute(
                     """
-                    SELECT a.feature_id, b.gene_name, b.c_name, c.canonical
+                    SELECT a.feature_id, b.gene_symbol, b.refseq, b.c_name, c.canonical
                     FROM variant a, variant_feature b, gene c
                     WHERE a.feature_id = b.id
-                        AND b.gene_name = c.name
+                        AND b.gene_symbol = c.gene_symbol
+                        AND b.refseq = c.refseq
                         AND a.chr = %s
                         AND pos = %s
                         AND a.pos_ref = %s
@@ -578,9 +580,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # get canonical iso
                     curs.execute(
                         """
-                        SELECT name[2] as canonical
+                        SELECT refseq as canonical
                         FROM gene
-                        WHERE name[1] = %s
+                        WHERE gene_symbol = %s
                             AND canonical = 't'
                         """,
                         (external_data['gene']['symbol'],)
@@ -590,7 +592,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         internal_data['admin']['mappedCanonical'] = res_canon['canonical']
                 # episignature
                 # if this developps, need to identify target genes
-                if variant_features['gene_name'][0] == 'KMT2A':
+                if variant_features['gene_symbol'] == 'KMT2A':
                     record = md_utilities.get_value_from_tabix_file(
                         'EpiSign',
                         md_utilities.local_files['episignature']['abs_path'],
@@ -766,14 +768,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 '[MobiDetails - MDAPI Error]'
                             )
                             return redirect(url_for('md.index'), code=302)
-                    # print(positions_neighb_exon)
-                    # print(internal_data['positions']['neighbourExonNumber'])
-                    # curs.execute(
-                    #     "SELECT * FROM segment WHERE genome_version = %s\
-                    #     AND gene_name[1] = %s and gene_name[2] = %s AND type = 'exon' AND number = %s",
-                    #     (var['genome_version'], variant_features['gene_name'][0], variant_features['gene_name'][1], internal_data['positions']['neighbourExonNumber'])
-                    # )
-                    # positions_neighb_exon = curs.fetchone()
                     if sign == '+':
                         internal_data['canvas']['preceedingSegmentType'] = None
                         internal_data['canvas']['preceedingSegmentNumber'] = None
@@ -963,7 +957,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             except Exception:
                                 pass
 
-                        # REVEL
+                            # REVEL
                             external_data['missensePredictions']['revelScore'], external_data['missensePredictions']['revelPred'], internal_data['missensePredictions']['revelStar'] = md_utilities.getdbNSFP_results(
                                 transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                             )
@@ -1052,7 +1046,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['miRNATargetSitesPredictions']['RNAHybridAltBestScore'] = record[int(md_utilities.external_tools['dbMTS']['rnahybrid_altbestscore_col'])]
                         except Exception:
                             internal_data['noMatch']['dbmts'] = "{0} {1}".format(record, md_utilities.external_tools['dbMTS']['version'])
-
                 # CADD
                 if academic is True:
                     if variant_features['dna_type'] == 'substitution':
@@ -1116,12 +1109,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                     elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
                                         external_data['overallPredictions']['mpaScore'] = 6
                                         external_data['overallPredictions']['mpaImpact'] = 'Low splice'
-
             elif var['genome_version'] == 'hg19':
                 # ncbi chr
                 curs.execute(
-                    "SELECT ncbi_name \
-                    FROM chromosomes WHERE name = %s and genome_version = %s",
+                    """
+                    SELECT ncbi_name
+                    FROM chromosomes
+                    WHERE name = %s
+                    AND genome_version = %s
+                    """,
                     (var['chr'], var['genome_version'])
                 )
                 res_chr = curs.fetchone()
@@ -1246,7 +1242,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         # print(pos_splice_site )
         scores5wt, seq5wt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['wt_seq'], 5)
         scores5mt, seq5mt_html = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
-        # scores5mt = md_utilities.maxentscan(9, variant_features['variant_size'], variant_features['mt_seq'], 5)
         signif_scores5 = md_utilities.select_mes_scores(
             re.split('\n', scores5wt),
             seq5wt_html,
@@ -1396,7 +1391,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 SELECT id
                 FROM variant_feature
                 WHERE c_name = %s
-                    AND gene_name[2] = %s
+                    AND refseq = %s
                 """,
                 (new_variant, acc_no)
             )
@@ -1419,9 +1414,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 # get gene
                 curs.execute(
                     """
-                    SELECT name[1] AS gene, canonical
+                    SELECT gene_symbol, canonical
                     FROM gene
-                    WHERE name[2] = %s
+                    WHERE refseq = %s
                         AND variant_creation = 'ok'
                     """,
                     (acc_no,)
@@ -1432,9 +1427,9 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     refseq, submitted_version = acc_no.split(".")
                     curs.execute(
                         """
-                        SELECT name[1] AS gene, name[2] AS nm
+                        SELECT refseq
                         FROM gene
-                        WHERE name[2] LIKE %s
+                        WHERE refseq LIKE %s
                             AND variant_creation = 'ok'
                         """,
                         ('{0}%'.format(refseq),)
@@ -1445,14 +1440,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         if caller == 'cli':
                             return jsonify(
                                 mobidetails_error="It seems that your transcript version ({0}) does not match MobiDetails ({1}).".format(
-                                    acc_no, ','.join(version['nm'] for version in res_version)
+                                    acc_no, ','.join(version['refseq'] for version in res_version)
                                 )
                             )
                         else:
                             flash(
                                 """
                                 It seems that your transcript version ({0}) does not match MobiDetails ({1}).
-                                """.format(acc_no, ','.join(version['nm'] for version in res_version)),
+                                """.format(acc_no, ','.join(version['refseq'] for version in res_version)),
                                 'w3-pale-red'
                             )
                             return redirect(url_for('md.index'), code=302)
@@ -1569,12 +1564,12 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 if res_gene['canonical'] is False:
                     curs.execute(
                         """
-                        SELECT name[2] AS nm
+                        SELECT refseq
                         FROM gene
-                        WHERE name[1] = %s
+                        WHERE gene_symbol = %s
                         AND canonical = 't'
                         """,
-                        (res_gene['gene'],)
+                        (res_gene['gene_symbol'],)
                     )
                     res_can = curs.fetchone()
                     # get variant name for this transcript
@@ -1588,7 +1583,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
                             vv_key_var_can = None
                             for key in vv_full_data.keys():
-                                if re.search(res_can['nm'], key):
+                                if re.search(res_can['refseq'], key):
                                     vv_key_var_can = key
                                     var_obj = re.search(r':c\.(.+)$', key)
                                     if var_obj is not None:
@@ -1596,7 +1591,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                         original_variant_can = new_variant_can
                             if vv_key_var_can:
                                 md_utilities.create_var_vv(
-                                    vv_key_var_can, res_gene['gene'], res_can['nm'],
+                                    vv_key_var_can, res_gene['gene_symbol'], res_can['refseq'],
                                     'c.{}'.format(new_variant_can), original_variant_can,
                                     vv_full_data, caller, db, g
                                 )
@@ -1604,7 +1599,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             # empty JSON, move on
                             pass
                 creation_dict = md_utilities.create_var_vv(
-                    vv_key_var, res_gene['gene'], acc_no,
+                    vv_key_var, res_gene['gene_symbol'], acc_no,
                     'c.{}'.format(new_variant), original_variant,
                     vv_data, caller, db, g
                 )
@@ -1699,7 +1694,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
             # HGNC id submitted
             curs.execute(
                 """
-                SELECT name
+                SELECT gene_symbol, refseq
                 FROM gene
                 WHERE hgnc_id = %s
                     AND canonical = 't'
@@ -1711,9 +1706,9 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
             # search for gene symbol
             curs.execute(
                 """
-                SELECT name
+                SELECT gene_symbol, refseq
                 FROM gene
-                WHERE name[1] = %s
+                WHERE gene_symbol = %s
                     AND canonical = 't'
                     AND variant_creation = 'ok'
                 """,
@@ -1747,8 +1742,9 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         SELECT b.feature_id
                         FROM variant_feature a, variant b, gene c
                         WHERE a.id = b.feature_id
-                            AND a.gene_name = c.name
-                            AND a.gene_name[1] = %s
+                            AND a.gene_symbol = c.gene_symbol
+                            AND a.refseq = c.refseq
+                            AND a.gene_symbol = %s
                             AND b.genome_version = %s
                             AND b.g_name = %s
                             AND b.chr = %s
@@ -1828,54 +1824,52 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         # we still need a list of non canonical NM for the gene of interest
                         curs.execute(
                             """
-                            SELECT name
+                            SELECT refseq
                             FROM gene
-                            WHERE name[1] = %s
+                            WHERE gene_symbol = %s
                                 AND canonical = 'f'
                             """,
                             (gene,)
                         )
                         res_gene_non_can = curs.fetchall()
                         gene_symbol = gene
-                        nm_transcript = res_gene['name'][1]
+                        nm_transcript = res_gene['refseq']
                         for transcript in res_gene_non_can:
-                            res_gene_non_can_list.append(transcript['name'][1])
+                            res_gene_non_can_list.append(transcript['refseq'])
                         for key in vv_data.keys():
                             variant_regexp = md_utilities.regexp['variant']
                             ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
                             match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
                             if match_obj:
-                                if match_obj.group(1) == res_gene['name'][1]:
+                                vv_refseq = match_obj.group(1)
+                                vv_variant = match_obj.group(2)
+                                if vv_refseq == res_gene['refseq']:
                                     # treat canonical as priority
-                                    new_variant = match_obj.group(2)
-                                    nm_transcript = res_gene['name'][1]
+                                    new_variant = vv_variant
+                                    nm_transcript = res_gene['refseq']
                                     gene_symbol = gene
-                                    vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
+                                    vv_key_var = "{0}:c.{1}".format(vv_refseq, vv_variant)
                                     break
                                 elif not vv_key_var:
                                     # take into account non canonical isoforms
                                     # print('{0}:c.{1}'.format(match_obj.group(1), match_obj.group(2)))
-                                    if match_obj.group(1) in res_gene_non_can_list:
+                                    if vv_refseq in res_gene_non_can_list:
                                         # check gene in case it is different from the asked one
                                         curs.execute(
                                             """
-                                            SELECT name
+                                            SELECT gene_symbol
                                             FROM gene
-                                            WHERE name[2] = %s
+                                            WHERE refseq = %s
                                             """,
-                                            (match_obj.group(1),)
+                                            (vv_refseq,)
                                         )
                                         res_symbol = curs.fetchone()
                                         if res_symbol:
-                                            new_variant = match_obj.group(2)
-                                            nm_transcript = match_obj.group(1)
-                                            gene_symbol = res_symbol['name'][0]
-                                            vv_key_var = "{0}:c.{1}".format(match_obj.group(1), match_obj.group(2))
+                                            new_variant = vv_variant
+                                            nm_transcript = vv_refseq
+                                            gene_symbol = res_symbol['gene_symbol']
+                                            vv_key_var = "{0}:c.{1}".format(vv_refseq, vv_variant)
                         if vv_key_var:
-                            # print(vv_key_var)
-                            # print(gene_symbol)
-                            # print(nm_transcript)
-                            # print(new_variant)
                             creation_dict = md_utilities.create_var_vv(
                                 vv_key_var, gene_symbol, nm_transcript,
                                 'c.{}'.format(new_variant), new_variant,
@@ -1906,10 +1900,6 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 else:
                                     flash(creation_dict['mobidetails_error'], 'w3-pale-red')
                                     return redirect(url_for('md.index'), code=302)
-                            # if caller == 'cli':
-                            #     return jsonify(creation_dict)
-                            # else:
-                            #     return redirect(url_for('api.variant', variant_id=creation_dict['mobidetails_id'], caller='browser'), code=302)
                         else:
                             close_db()
                             if caller == 'cli':
@@ -1932,7 +1922,6 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                         'w3-pale-red'
                                     )
                                 return redirect(url_for('md.index'), code=302)
-
                 else:
                     close_db()
                     if caller == 'cli':
@@ -2012,7 +2001,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # check if rsid exists
             curs.execute(
                 """
-                SELECT c_name, id, gene_name[2] AS nm
+                SELECT c_name, id, refseq
                 FROM variant_feature
                 WHERE dbsnp_id = %s
                 """,
@@ -2022,7 +2011,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             if res_rs:
                 vars_rs = {}
                 for var in res_rs:
-                    current_var = '{0}:c.{1}'.format(var['nm'], var['c_name'])
+                    current_var = '{0}:c.{1}'.format(var['refseq'], var['c_name'])
                     vars_rs[current_var] = {
                         'mobidetails_id': var['id'],
                         'url': '{0}{1}'.format(
@@ -2075,10 +2064,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
                 # https://www.python.org/dev/peps/pep-0498/
                 match_nc = re.search(rf'^({ncbi_chrom_regexp}):g\.({variant_regexp})$', hgvs)
-                # match_nc = re.search(rf'^(NC_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', hgvs)
                 if match_nc:
-                    # and \
-                    #     not md_response:
                     # if hg38, we keep it in a variable that can be useful later
                     curs.execute(
                         """
@@ -2092,7 +2078,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     if res_chr and \
                             res_chr['genome_version'] == 'hg38':
                         hgvs_nc.append(hgvs)
-                        # look for gene name
+                        # look for gene symbol
                         positions = md_utilities.compute_start_end_pos(match_nc.group(2))
                         if not gene_symbols:
                             # we want gene names spanning the genomic position
@@ -2149,9 +2135,9 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                         # now we check if gene symbol can be foud in MD
                                         curs.execute(
                                             """
-                                            SELECT name[1] AS gene_symbol
+                                            SELECT gene_symbol
                                             FROM gene
-                                            WHERE name[1] = %s
+                                            WHERE gene_symbol = %s
                                             """,
                                             (hit['symbol'],)
                                         )
@@ -2306,10 +2292,11 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 return redirect(url_for('md.index'), code=302)
         curs.execute(
             """
-            SELECT a.feature_id, c.canonical, b.c_name, b.gene_name[2] AS nm
+            SELECT a.feature_id, c.canonical, b.c_name, b.refseq
             FROM variant a, variant_feature b, gene c
             WHERE a.feature_id = b.id
-                AND b.gene_name = c.name
+                AND b.gene_symbol = c.gene_symbol
+                AND b.refseq = c.refseq
                 AND a.genome_version = %s
                 AND a.chr = %s
                 AND a.pos = %s
@@ -2322,7 +2309,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
         if res_vcf:
             vars_vcf = {}
             for var in res_vcf:
-                current_var = '{0}:c.{1}'.format(var['nm'], var['c_name'])
+                current_var = '{0}:c.{1}'.format(var['refseq'], var['c_name'])
                 vars_vcf[current_var] = {
                     'mobidetails_id': var['feature_id'],
                     'url': '{0}{1}'.format(
@@ -2403,41 +2390,42 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
                 if match_obj:
                     new_variant = match_obj.group(2)
+                    vv_refseq = match_obj.group(1)
                     # get the gene symbol
                     # test for 2 genes: 1-45340253-A-C hg38 (MUTYH, TOE1)
                     curs.execute(
                         """
-                        SELECT name[1] AS symbol, canonical
+                        SELECT gene_symbol, canonical
                         FROM gene
-                        WHERE name[2] = %s
+                        WHERE refseq = %s
                         """,
-                        (match_obj.group(1),)
+                        (vv_refseq,)
                     )
                     res_gene = curs.fetchone()
                     if res_gene:
                         if res_gene['canonical'] is True:
-                            var_dict[res_gene['symbol']] = {
+                            var_dict[res_gene['gene_symbol']] = {
                                 'vv_key_var': key,
                                 'canonical': res_gene['canonical'],
                                 'genic_csq': md_utilities.get_var_genic_csq(new_variant),
-                                'RefSeq_NM': match_obj.group(1),
+                                'RefSeq_NM': vv_refseq,
                                 'new_variant': new_variant
                             }
                         else:
-                            if (res_gene['symbol'] not in var_dict) or \
+                            if (res_gene['gene_symbol'] not in var_dict) or \
                                     (
-                                        res_gene['symbol'] in var_dict and
-                                        var_dict[res_gene['symbol']]['canonical'] is False and
+                                        res_gene['gene_symbol'] in var_dict and
+                                        var_dict[res_gene['gene_symbol']]['canonical'] is False and
                                         md_utilities.is_higher_genic_csq(
                                             md_utilities.get_var_genic_csq(new_variant),
-                                            var_dict[res_gene['symbol']]['genic_csq']
+                                            var_dict[res_gene['gene_symbol']]['genic_csq']
                                         ) is True
                                     ):
-                                var_dict[res_gene['symbol']] = {
+                                var_dict[res_gene['gene_symbol']] = {
                                     'vv_key_var': key,
                                     'canonical': res_gene['canonical'],
                                     'genic_csq': md_utilities.get_var_genic_csq(new_variant),
-                                    'RefSeq_NM': match_obj.group(1),
+                                    'RefSeq_NM': vv_refseq,
                                     'new_variant': new_variant
                                 }
             if var_dict:
@@ -2545,7 +2533,7 @@ def api_gene(gene_hgnc=None):
             if 'HGNC Name' not in d_gene:
                 d_gene['HGNCName'] = transcript['hgnc_name']
             if 'HGNC Symbol' not in d_gene:
-                d_gene['HGNCSymbol'] = transcript['name'][0]
+                d_gene['HGNCSymbol'] = transcript['gene_symbol']
                 d_gene['clingenCriteriaSpec'] = md_utilities.get_clingen_criteria_specification_id(d_gene['HGNCSymbol'])
             if 'HGNC ID' not in d_gene:
                 d_gene['HGNCID'] = transcript['hgnc_id']
@@ -2558,25 +2546,25 @@ def api_gene(gene_hgnc=None):
                     d_gene['RefGene'] = 'No RefGene in MobiDetails'
                 else:
                     d_gene['RefGene'] = transcript['ng']
-            d_gene[transcript['name'][1]] = {
+            d_gene[transcript['refseq']] = {
                 'canonical': transcript['canonical'],
                 'numberOfExons': transcript['number_of_exons']
             }
-            if 'RefProtein' not in d_gene[transcript['name'][1]]:
+            if 'RefProtein' not in d_gene[transcript['refseq']]:
                 if transcript['np'] == 'NP_000000.0':
-                    d_gene[transcript['name'][1]]['RefProtein'] = 'No RefProtein in MobiDetails'
+                    d_gene[transcript['refseq']]['RefProtein'] = 'No RefProtein in MobiDetails'
                 else:
-                    d_gene[transcript['name'][1]]['RefProtein'] = transcript['np']
-            if 'UNIPROT' not in d_gene[transcript['name'][1]]:
-                d_gene[transcript['name'][1]]['UNIPROT'] = transcript['uniprot_id']
-            if 'proteinSize' not in d_gene[transcript['name'][1]]:
-                d_gene[transcript['name'][1]]['proteinSize'] = transcript['prot_size']
-            if 'variantCreationTag' not in d_gene[transcript['name'][1]]:
-                d_gene[transcript['name'][1]]['variantCreationTag'] = transcript['variant_creation']
-            if 'ensemblTranscript' not in d_gene[transcript['name'][1]]:
-                d_gene[transcript['name'][1]]['ensemblTranscript'] = transcript['enst']
-            if 'ensemblProtein' not in d_gene[transcript['name'][1]]:
-                d_gene[transcript['name'][1]]['ensemblProtein'] = transcript['ensp']
+                    d_gene[transcript['refseq']]['RefProtein'] = transcript['np']
+            if 'UNIPROT' not in d_gene[transcript['refseq']]:
+                d_gene[transcript['refseq']]['UNIPROT'] = transcript['uniprot_id']
+            if 'proteinSize' not in d_gene[transcript['refseq']]:
+                d_gene[transcript['refseq']]['proteinSize'] = transcript['prot_size']
+            if 'variantCreationTag' not in d_gene[transcript['refseq']]:
+                d_gene[transcript['refseq']]['variantCreationTag'] = transcript['variant_creation']
+            if 'ensemblTranscript' not in d_gene[transcript['refseq']]:
+                d_gene[transcript['refseq']]['ensemblTranscript'] = transcript['enst']
+            if 'ensemblProtein' not in d_gene[transcript['refseq']]:
+                d_gene[transcript['refseq']]['ensemblProtein'] = transcript['ensp']
         close_db()
         return jsonify(d_gene)
     else:

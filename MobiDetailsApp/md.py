@@ -45,7 +45,7 @@ def index():
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
         """
-        SELECT COUNT(DISTINCT(name[1])) AS gene, COUNT(name) AS transcript
+        SELECT COUNT(DISTINCT(gene_symbol)) AS gene, COUNT(refseq) AS transcript
         FROM gene
         WHERE variant_creation = 'ok'
         """
@@ -103,30 +103,33 @@ def changelog():
 # web app - gene
 
 
-@bp.route('/gene/<string:gene_name>', methods=['GET', 'POST'])
-def gene(gene_name=None):
-    if gene_name is None:
+@bp.route('/gene/<string:gene_symbol>', methods=['GET', 'POST'])
+def gene(gene_symbol=None):
+    if gene_symbol is None:
         return render_template('md/unknown.html', query='No gene provided')
-    gene_match_obj = re.search(r'^([\w-]+)$', gene_name)
+    gene_match_obj = re.search(r'^([\w-]+)$', gene_symbol)
     if not gene_match_obj:
-        # elif re.search(r'[^\w-]', gene_name):
-        return render_template('md/unknown.html', query=gene_name)
-    # gene_symbol = re.escape(gene_name)
+        return render_template('md/unknown.html', query=gene_symbol)
     gene_symbol = gene_match_obj.group(1)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # main isoform? now canonical is stored in db
     curs.execute(
-        "SELECT * FROM gene WHERE name[1] = %s AND canonical = 't'",
+        """
+        SELECT *
+        FROM gene
+        WHERE gene_symbol = %s
+            AND canonical = 't'
+        """,
         (gene_symbol,)
     )
     main = curs.fetchone()
-    if main is not None:
+    if main:
         curs.execute(
             """
             SELECT *
             FROM gene
-            WHERE name[1] = %s
+            WHERE gene_symbol = %s
             ORDER BY number_of_exons DESC
             """,
             (gene_symbol,)
@@ -156,15 +159,12 @@ def gene(gene_name=None):
                         # get enst versions in a dict
                         metad_ts = None
                         try:
-                            # print('{0}get_transcripts/{1}'
-                            # .format(md_utilities.urls['metadome_api'],
-                            # gene['name'][0]))
                             metad_ts = json.loads(
                                         http.request(
                                             'GET',
                                             '{0}get_transcripts/{1}'.format(
                                                 md_utilities.urls['metadome_api'],
-                                                gene['name'][0]
+                                                gene['gene_symbol']
                                             )
                                         ).data.decode('utf-8')
                             )
@@ -342,7 +342,7 @@ def gene(gene_name=None):
                 """
                 SELECT *
                 FROM gene_annotation
-                WHERE gene_name[1] = %s
+                WHERE gene_symbol = %s
                 """,
                 (gene_symbol,)
             )
@@ -353,7 +353,7 @@ def gene(gene_name=None):
                 """
                 SELECT MAX(prot_size) AS size
                 FROM gene
-                WHERE name[1] = %s
+                WHERE gene_symbol = %s
                 """,
                 (gene_symbol,)
             )
@@ -378,7 +378,7 @@ def gene(gene_name=None):
                         """
                         UPDATE gene
                         SET variant_creation = 'not_in_vv_json'
-                        WHERE name[1] = %s
+                        WHERE gene_symbol = %s
                             AND variant_creation <> 'not_in_vv_json'
                         """,
                         (gene_symbol,)
@@ -388,7 +388,7 @@ def gene(gene_name=None):
                         """
                         SELECT *
                         FROM gene
-                        WHERE name[1] = %s
+                        WHERE gene_symbol] = %s
                         ORDER BY number_of_exons DESC
                         """,
                         (gene_symbol,)
@@ -399,11 +399,11 @@ def gene(gene_name=None):
                     for vv_transcript in vv_json['transcripts']:
                         for res in result_all:
                             # need to check vv isoforms against MD isoforms to keep only relevant ones
-                            if vv_transcript['reference'] == res['name'][1]:
+                            if vv_transcript['reference'] == res['gene_symbol']:
                                 if 'mane_select' in vv_transcript['annotations'] and \
                                         'mane_plus_clinical' in vv_transcript['annotations'] and \
                                         'refseq_select' in vv_transcript['annotations']:
-                                    transcript_road_signs[res['name'][1]] = {
+                                    transcript_road_signs[res['gene_symbol']] = {
                                         'mane_select': vv_transcript['annotations']['mane_select'],
                                         'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
                                         'refseq_select': vv_transcript['annotations']['refseq_select']
@@ -415,7 +415,7 @@ def gene(gene_name=None):
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),
                 urls=md_utilities.urls,
-                gene=gene_symbol,
+                gene_symbol=gene_symbol,
                 num_iso=num_iso,
                 main_iso=main,
                 res=result_all,
@@ -449,9 +449,9 @@ def genes():
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
         """
-        SELECT DISTINCT(name[1]) AS hgnc
+        SELECT DISTINCT(gene_symbol)
         FROM gene
-        ORDER BY name[1]
+        ORDER BY gene_symbol
         """
     )
     genes = curs.fetchall()
@@ -472,13 +472,13 @@ def genes():
 # web app - variants in genes
 
 
-@bp.route('/vars/<string:gene_name>', methods=['GET', 'POST'])
-def vars(gene_name=None):
-    if gene_name is None:
+@bp.route('/vars/<string:gene_symbol>', methods=['GET', 'POST'])
+def vars(gene_symbol=None):
+    if gene_symbol is None:
         return render_template('md/unknown.html', query='No gene provided')
-    elif re.search(r'[^\w-]', gene_name):
-        return render_template('md/unknown.html', query=gene_name)
-    gene_symbol = re.escape(gene_name)
+    elif re.search(r'[^\w-]', gene_symbol):
+        return render_template('md/unknown.html', query=gene_symbol)
+    gene_symbol = re.escape(gene_symbol)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # error = None
@@ -487,7 +487,7 @@ def vars(gene_name=None):
         """
         SELECT *
         FROM gene
-        WHERE name[1] = %s
+        WHERE gene_symbol = %s
             AND canonical = 't'
         """,
         (gene_symbol,)
@@ -496,9 +496,9 @@ def vars(gene_name=None):
     if main is not None:
         curs.execute(
             """
-            SELECT name, variant_creation
+            SELECT gene_symbol, refseq, variant_creation
             FROM gene
-            WHERE name[1] = %s
+            WHERE gene_symbol = %s
             """,
             (gene_symbol,)
         )  # get all isoforms
@@ -510,8 +510,9 @@ def vars(gene_name=None):
             FROM variant_feature a, variant b, mobiuser c, gene d
             WHERE a.id = b.feature_id
                 AND a.creation_user = c.id
-                AND a.gene_name = d.name
-                AND a.gene_name[1] = %s
+                AND a.gene_symbol = d.gene_symbol
+                AND a.refseq = d.refseq
+                AND a.gene_symbol = %s
                 AND b.genome_version = 'hg38'
             """,
             (gene_symbol,)
@@ -521,7 +522,7 @@ def vars(gene_name=None):
             """
             SELECT MAX(prot_size) AS size
             FROM gene
-            WHERE name[1] = %s
+            WHERE gene_symbol = %s
             """,
             (gene_symbol,)
         )
@@ -533,7 +534,7 @@ def vars(gene_name=None):
             'md/vars.html',
             run_mode=md_utilities.get_running_mode(),
             urls=md_utilities.urls,
-            gene=gene_symbol,
+            gene_symbol=gene_symbol,
             num_iso=num_iso,
             variants=variants,
             gene_info=main,
@@ -581,7 +582,7 @@ def search_engine():
         pattern = ''
         query_type = ''
         sql_table = 'variant_feature'
-        col_names = 'id, c_name, gene_name, p_name'
+        col_names = 'id, c_name, gene_symbol, refseq, p_name'
         semaph_query = 0
         query_engine = re.sub(r'\s', '', query_engine)
         query_engine = re.sub(r"'", '', query_engine)
@@ -592,7 +593,7 @@ def search_engine():
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 curs.execute(
                     """
-                    SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.username
+                    SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq, a.creation_user, a.creation_date, b.username
                     FROM variant_feature a, mobiuser b
                     WHERE a.creation_user = b.id
                         AND a.creation_date > CURRENT_DATE - 7
@@ -880,10 +881,10 @@ def search_engine():
                         Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).
                         """.format(query_engine)
                     else:
-                        return redirect(url_for('md.gene', gene_name=result_second[col_names][0]))
+                        return redirect(url_for('md.gene', gene_symbol=result_second[col_names][0]))
                 else:
                     close_db()
-                    return redirect(url_for('md.gene', gene_name=result[col_names][0]))
+                    return redirect(url_for('md.gene', gene_symbol=result[col_names][0]))
             else:
                 result = curs.fetchall()
                 if not result:
@@ -918,7 +919,7 @@ def search_engine():
                                 id_tuple.append(feature_id['feature_id'])
                             curs.execute(
                                 """
-                                SELECT id, c_name, p_name, gene_name
+                                SELECT id, c_name, p_name, gene_symbol, refseq
                                 FROM variant_feature
                                 WHERE id IN %s
                                 ORDER BY id

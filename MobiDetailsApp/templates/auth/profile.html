@@ -140,7 +140,7 @@
 					{% for var in variants_favourite %}
 						<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 							<span>
-								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+								<em>{{ var.gene_symbol }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
 							<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
 							<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
@@ -234,7 +234,7 @@
 					{% for var in variants %}
 						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 							<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
-								<em>{{ var.gene_name[0] }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+								<em>{{ var.gene_symbol }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
@@ -249,7 +249,7 @@
 								{% endif %}
 								<!-- to be used in js favourite function -->
 								<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('api.variant', variant_id=var.id, caller='browser') }}</span>
-								<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_name[0] }}</span>
+								<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_symbol }}</span>
 								<span id="c_name_{{ var.id }}" style="display:none;">{{ var.c_name }}</span>
 								<span id="p_name_{{ var.id }}" style="display:none;">{{ var.p_name }}</span>
 							</span>
