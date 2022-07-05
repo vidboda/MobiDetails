@@ -504,16 +504,27 @@ def vars(gene_symbol=None):
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
+        # curs.execute(
+        #     """
+        #     SELECT d.variant_creation, d.refseq, b.pos, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
+        #     FROM variant_feature a, variant b, mobiuser c, gene d
+        #     WHERE a.id = b.feature_id
+        #         AND a.gene_symbol = d.gene_symbol
+        #         AND a.refseq = d.refseq
+        #         AND a.creation_user = c.id
+        #         AND b.genome_version = 'hg38'
+        #         AND a.gene_symbol = %s
+        #     """,
+        #     (gene_symbol,)
+        # )
         curs.execute(
             """
-            SELECT *, a.id as vf_id
-            FROM variant_feature a, variant b, mobiuser c, gene d
-            WHERE a.id = b.feature_id
-                AND a.creation_user = c.id
-                AND a.gene_symbol = d.gene_symbol
+            SELECT d.variant_creation, d.refseq, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
+            FROM variant_feature a, mobiuser c, gene d
+            WHERE a.gene_symbol = d.gene_symbol
                 AND a.refseq = d.refseq
+                AND a.creation_user = c.id
                 AND a.gene_symbol = %s
-                AND b.genome_version = 'hg38'
             """,
             (gene_symbol,)
         )
