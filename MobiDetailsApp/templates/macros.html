@@ -80,7 +80,6 @@
 			<div class="w3-container">
 				<ul class="w3-ul w3-padding-small w3-hoverable">
 					<li class="w3-padding-small">
-						<!--<span class="w3-button" onclick="window.open('{{ urls.gnomad }}awesome?query={{ gene_name }}', '_blank')">gnomAD browser</span>-->
 						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r2_1', '_blank')">gnomADv2</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r3', '_blank')">gnomADv3 browser</span>
 					</li>
@@ -91,7 +90,6 @@
 						<span class="w3-button" onclick="window.open('{{ urls.omim }}search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_symbol }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank')">OMIM</span>
 					</li>
 					<li class="w3-padding-small">
-						<!--<span class="w3-button" onclick="window.open('http://genome-euro.ucsc.edu/cgi-bin/hgTracks?clade=mammal&amp;org=Human&amp;db=hg19&amp;position={{ gene_name }}&amp;hgt.positionInput={{ gene_name }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC</span>-->
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
 					</li>
@@ -117,7 +115,7 @@
 						</li>
 					{% endif %}
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_name=gene_symbol) }}', '_self')">MD Gene page</span>
+						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_symbol=gene_symbol) }}', '_self')">MD Gene page</span>
 					</li>
 				</ul>
 			</div>
@@ -137,7 +135,7 @@
 			<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
 				<div class="w3-container w3-blue">
 					<span class="w3-button w3-display-topright w3-xlarge" onclick="document.getElementById('var_modal').style.display='none'">&times;</span>
-					<br /><span class="w3-xlarge" id="main_text">Run a variant ({{ main_iso.name[1] }})
+					<br /><span class="w3-xlarge" id="main_text">Run a variant ({{ main_iso.refseq }})
 					{% if num_iso > 1 %}
 						<span onclick="new_isoform();" class="w3-button w3-sand" id="alt_span">Choose an isoform</span>
 					{% endif %}
@@ -146,10 +144,7 @@
 				<div class="w3-container">
 					<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="creation_form">
 						<input for="creation_form" id="gene" name="gene" type="hidden" value="{{ gene }}" />
-						<!-- <input for="creation_form" id="isoform" name="isoform" type="hidden" value=" {{ main_iso.name[1] }}" /> -->
-						<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.name[1] }}" />
-						<!-- <input for="creation_form" id="acc_version" name="acc_version" type="hidden" value="{{ main_iso.nm_version }}" /> -->
-						<!--<input for="creation_form" id="ng_accno" name="ng_accno" type="hidden" value="{{ main_iso.ng }}" />-->
+						<input for="creation_form" id="acc_no" name="acc_no" type="hidden" value="{{ main_iso.refseq }}" />
 						<div class="w3-panel w3-large w3-row-padding" id="new_var_div">
 							<div class="w3-third">
 								<label for="new_variantblue">New variant (HGVS DNA):</label>
@@ -164,12 +159,6 @@
 								}
 							</style>
 							<script type="text/javascript">
-								// var acc_no = '{{ main_iso.name[1] }}';
-								// {% if num_iso > 1 %}
-								// if ($("#alt_iso").val() !== "") {
-								// 	acc_no = $("#alt_iso").val();
-								// }acc_no: $("#alt_iso").val() !== "" ? $("#alt_iso").val() : '{{ main_iso.name[1] }}'
-								// {% endif %}
 								$('#new_variant').autocomplete({
 									source : function(request, response){
 										//send header for flask-wtf crsf security
@@ -188,7 +177,7 @@
 											appendTo: '#new_variant',
 											data: {
 												query_engine: request.term,
-												acc_no: $("#alt_iso").val() ? $("#alt_iso").val() : '{{ main_iso.name[1] }}'
+												acc_no: $("#alt_iso").val() ? $("#alt_iso").val() : '{{ main_iso.refseq }}'
 											},
 											success: response
 										});
@@ -200,19 +189,15 @@
 						</div>
 						{% if num_iso > 1 %}
 							<div class="w3-panel w3-large" id ="iso_form" style="display:none;">
-								<!--<div class="w3-third">
-									<label for="alt_iso">Select an isoform:</label>
-								</div>-->
-								<!--<div class="w3-twothird">-->
 									<select  for="creation_form" name="alt_iso" id="alt_iso" class="w3-select">
 										<option value="" selected="selected" disabled="disabled">Select an isoform</option>
-										<option value="{{ main_iso.name[1] }}" >{{ main_iso.name[1] }}</option>
+										<option value="{{ main_iso.refseq }}" >{{ main_iso.refseq }}</option>
 										{% for iso in res %}
-											{% if iso.name[1] != main_iso.name[1] %}
+											{% if iso.refseq != main_iso.refseq %}
 												{% if iso.variant_creation == 'ok' %}
-													<option value="{{ iso.name[1] }}">{{ iso.name[1] }}</option>
+													<option value="{{ iso.refseq }}">{{ iso.refseq }}</option>
 												{% else %}
-													<option value="{{ iso.name[1] }}" disabled="disabled">{{ iso.name[1] }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
+													<option value="{{ iso.refseq }}" disabled="disabled">{{ iso.refseq }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
 												{% endif %}
 											{% endif %}
 										{% endfor %}
@@ -293,7 +278,7 @@
 {%- endmacro %}
 <!-- not used because is displayed before the table in vars-->
 {% macro vars_tr(variant) -%}
-	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
+	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.id, caller='browser'), variant.gene_symbol, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
 {%- endmacro %}
 <!--create links for variants view-->
 {% macro link(link, text) -%}

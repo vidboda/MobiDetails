@@ -430,9 +430,9 @@ def get_exon_neighbours(db, positions):
         """
         SELECT number_of_exons
         FROM gene
-        WHERE name[2] = %s
+        WHERE refseq = %s
         """,
-        (positions['gene_name'][1],)
+        (positions['refseq'],)
     )
     res_nm = curs.fetchone()
     if res_nm['number_of_exons'] == positions['number']:
@@ -447,7 +447,7 @@ def get_exon_neighbours(db, positions):
 def get_exon_sequence(positions, chrom, strand):
     # get DNA sequence for a given exon
     if isinstance(positions['number'], int) and \
-            re.search(r'^NM_\d+\.\d+$', positions['gene_name'][1]) and \
+            re.search(r'^NM_\d+\.\d+$', positions['refseq']) and \
             re.search(r'^\d+$', chrom) and \
             re.search(r'^[\+-]+', strand):
         genome = twobitreader.TwoBitFile(
@@ -1216,7 +1216,7 @@ def create_var_vv(
         SELECT id, c_name AS nm
         FROM variant_feature
         WHERE c_name = %s
-            AND gene_name[2] = %s
+            AND refseq = %s
         """,
         (new_variant.replace("c.", ""), acc_no)
     )
@@ -1316,8 +1316,8 @@ def create_var_vv(
         """
         SELECT strand
         FROM gene
-        WHERE name[1] = %s
-            AND name[2] = %s
+        WHERE gene_symbol = %s
+            AND refseq = %s
         """,
         (gene, acc_no)
     )
@@ -1332,7 +1332,7 @@ def create_var_vv(
                 error_text
             )
         elif caller == 'cli':
-            return {'mobidetails_error':error_text}
+            return {'mobidetails_error': error_text}
 
     # p_name
     p_obj = re.search(
@@ -1626,16 +1626,26 @@ def create_var_vv(
     s = ", "
     # attributes =
     t = "', '"
+    vf_d['gene_symbol'] = gene
+    vf_d['refseq'] = acc_no
     insert_variant_feature = """
-    INSERT INTO variant_feature (gene_name, {0})
-    VALUES ('{{\"{1}\",\"{2}\"}}', '{3}')
-    RETURNING id
+        INSERT INTO variant_feature ({0})
+        VALUES ('{1}')
+        RETURNING id
     """.format(
         s.join(vf_d.keys()),
-        gene,
-        acc_no,
         t.join(map(str, vf_d.values()))
     ).replace("'NULL'", "NULL")
+    # insert_variant_feature = """
+    # INSERT INTO variant_feature (gene_symbol, refseq, {0})
+    # VALUES ('{1}', '{2}', '{3}')
+    # RETURNING id
+    # """.format(
+    #     s.join(vf_d.keys()),
+    #     gene,
+    #     acc_no,
+    #     t.join(map(str, vf_d.values()))
+    # ).replace("'NULL'", "NULL")
     # print(insert_variant_feature)
     vf_id = ''
     try:
@@ -1665,12 +1675,14 @@ def create_var_vv(
                 Impossible to insert variant_features for {}
                 """.format(vv_key_var)
             }
-    insert_variant_38 = "INSERT INTO variant (feature_id, {0}) \
-        VALUES ('{1}', '{2}')".format(
-            s.join(hg38_d.keys()),
-            vf_id,
-            t.join(map(str, hg38_d.values()))
-        )
+    insert_variant_38 = """
+        INSERT INTO variant (feature_id, {0})
+        VALUES ('{1}', '{2}')
+    """.format(
+        s.join(hg38_d.keys()),
+        vf_id,
+        t.join(map(str, hg38_d.values()))
+    )
     try:
         curs.execute(insert_variant_38)
     except Exception as e:
@@ -1698,8 +1710,8 @@ def create_var_vv(
                 """.format(vv_key_var)
             }
     insert_variant_19 = """
-    INSERT INTO variant (feature_id, {0})
-    VALUES ('{1}', '{2}')
+        INSERT INTO variant (feature_id, {0})
+        VALUES ('{1}', '{2}')
     """.format(
         s.join(hg19_d.keys()),
         vf_id,
@@ -1762,7 +1774,8 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
     vv_json = json.load(json_file)
     positions = {
         'number': int(exon_number),
-        'gene_name': [gene_symbol, transcript]
+        'gene_symbol': gene_symbol,
+        'refseq': transcript
     }
     for vv_transcript in vv_json['transcripts']:
         if vv_transcript['reference'] == transcript:
@@ -2033,30 +2046,19 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     # y = len(var)
     # z = len(resulting seq) must be = 9|23
     # w = len(seq required) = 9|23
-    # print('{0}-{1}-{2}-{3}'.format(w, y, seq, scantype))
     z = w
     seq = seq.replace(' ', '').replace('-', '')
-    # seq = seq.replace('-', '')
-    # html_seq = '{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'
-    # .format(seq[:25], seq[25:25+y], seq[25+y:])
-    # y = variant_features['variant_size']
     pos1 = pos2 = 0
     seqs = []
     seqs_html = []
-    #            a < y + w -1 and \
     while z == w and \
             pos2 < len(seq):
-        # pos1 = x - (w - y) + a
-        # pos2 = x + (a + y - 1)
         pos1 = x - w + a
         pos2 = pos1 + w - 1
         z = (pos2 - pos1 + 1)
-        # print('{0}-{1}'.format(pos1-1, pos2))
         # get substring
-        # seqs.append('>{0}{1}\n{2}\n'.format(seqtype, a, seq[pos1-1:pos2]))
         interest_seq = '{}\n'.format(seq[pos1-1:pos2])
         seqs.append(interest_seq)
-        # print(interest_seq)
         # we need to html highlight the mutant sequence so to retrieve it here
         # r is the beginning of the subseq and defined as
         # ((len(seq required 4 maxent; 9 or 23) - window position - 1) -
@@ -2072,8 +2074,6 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
             if s < 0:
                 s = 0
         # print('r: {0};s: {1}'.format(r, s))
-        # print('{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'
-        # .format(interest_seq[:r], interest_seq[r:s], interest_seq[s:]))
         seqs_html.append(
             '{0}<span class="w3-text-red"><strong>{1}</strong></span>{2}'
             .format(interest_seq[:r], interest_seq[r:s], interest_seq[s:])
@@ -2099,8 +2099,6 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
         ],
         stdout=subprocess.PIPE
     )
-    # print(result)
-    # print(str(result.stdout))
     if result.returncode == 0:
         return [str(result.stdout, 'utf-8'), seqs_html]
     else:
@@ -2115,12 +2113,8 @@ def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
         # a score is
         # CAAATTCTG\t-17.88
         if i < len(scoresmt):
-            # wt = re.split('\s+', scoreswt[i])
-            # mt = re.split('\s+', scoresmt[i])
             wt = scoreswt[i].split()
             mt = scoresmt[i].split()
-            # print(wt)
-            # print(mt)
             if len(wt) == 2 and \
                     len(mt) == 2 and \
                     wt[1] != '' and \
@@ -2334,17 +2328,13 @@ def get_acmg_criterion_color(criterion):
 
 def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     tf = tempfile.NamedTemporaryFile(suffix='.txt')
-    # tfout = tempfile.NamedTemporaryFile()
     # temp file replaced w/ real file to perform caching
-    # print(tf.name)
     tf.write(
         bytes('gene\tvarID\n{0}\t{1}:c.{2}'.format(
             gene_symbol, nm_acc, c_name
         ), encoding='utf-8')
     )
-    # tf.write(b"gene    varID\nUSH2A  NM_206933:c.2276G>T")
     tf.seek(0)
-    # print(tf.read()
     # SPiP v1:
     # '-f',
     # '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
@@ -2365,8 +2355,6 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
         stderr=subprocess.STDOUT
     )
     if result.returncode == 0:
-        # tfout.seek(0)
-        # result_file = str(tfout.read(), 'utf-8')
         # print('SPiP: {}'.format(result_file))
         spip_out = open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r")
         result_file = spip_out.read()
@@ -2504,17 +2492,3 @@ def spliceai_internal_api_hello():
             raise Exception
     except Exception:
         return False
-
-# def api_end_according_to_caller(
-#    caller, return_obj=None, message=None, url=None):
-#     if return_obj:
-#         if caller == 'cli':
-#             return jsonify(return_obj)
-#         else:
-#             return redirect(url)
-#     if message:
-#         if caller == 'cli':
-#             return jsonify(mobidetails_error=message)
-#         else:
-#             flash(message, 'w3-pale-red')
-#             return redirect(url_for('md.index'))

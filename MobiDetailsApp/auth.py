@@ -556,7 +556,7 @@ def profile(mobiuser_id=0):
             # )
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.gene_name, a.p_name, a.creation_date, b.mobiuser_id
+                SELECT a.id, a.c_name, a.gene_symbol, a.p_name, a.creation_date, b.mobiuser_id
                 FROM variant_feature a
                 LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
                 WHERE a.creation_user = %s
@@ -582,10 +582,10 @@ def profile(mobiuser_id=0):
 
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.ng_name, a.gene_name, a.p_name
+                SELECT a.id, a.c_name, a.ng_name, a.gene_symbol, a.p_name
                 FROM variant_feature a, mobiuser_favourite b
                 WHERE a.id = b.feature_id AND b.mobiuser_id = %s
-                ORDER BY a.gene_name, a.ng_name
+                ORDER BY a.gene_symbol, a.ng_name
                 """,
                 (g.user['id'],)
             )
@@ -911,7 +911,7 @@ def variant_list(list_name):
             # print(res_ids_string)
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.p_name, a.gene_name, a.creation_user, a.creation_date, b.username
+                SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq, a.creation_user, a.creation_date, b.username
                 FROM variant_feature a, mobiuser b
                 WHERE  a.creation_user = b.id AND a.id IN {0}
                 """.format(res_ids_string)

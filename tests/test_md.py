@@ -16,7 +16,7 @@ def test_gene_page(client, app):
         curs = db.cursor()
         curs.execute(
             """
-            SELECT name[1]
+            SELECT gene_symbol
             FROM gene
             LIMIT 50
             """,
@@ -24,10 +24,8 @@ def test_gene_page(client, app):
         res = curs.fetchall()
         db_pool.putconn(db)
         for name in res:
+            print(name[0])
             assert client.get('/gene/{}'.format(name[0])).status_code == 200
-#             gene_page_result(client, name)
-# def gene_page_result(client, name):
-#     assert client.get('/gene/{}'.format(name[0])).status_code == 200
 
 
 def test_genes_page(client):

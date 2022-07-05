@@ -3,13 +3,13 @@
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
 	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.nopdfmake.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}?200812" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_vars.js') }}?211123" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}??20220704" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_vars.js') }}??20220704" type="text/javascript"></script>
 {% endblock %}
 {% block header %}
 	<div class="w3-row">
 		<div class="w3-half w3-align-left">
-			<h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="$('#gene_modal').show();"><em>{% block title %}{{ gene }}{% endblock %}</em> gene page:</h1>
+			<h1 align="center" class="w3-text-blue w3-button w3-hover-sand" title="click to get somewhere" onclick="$('#gene_modal').show();"><em>{% block title %}{{ gene_symbol }}{% endblock %}</em> gene page:</h1>
 		</div>
 		<div class="w3-half w3-padding-32">
 			{{ info_create_variant() }}
@@ -20,23 +20,23 @@
 	<div class="w3-container">
 		<br />
 		<div class="w3-row">
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.gene', gene_name=gene) }}', '_self');">General features</span>
-			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="gene_loader();window.open({{ url_for('md.vars', gene_name=gene) }}, '_self');">Get variants</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.gene', gene_symbol=gene_symbol) }}', '_self');">General features</span>
+			<span class="w3-bottombar w3-hover-sand w3-padding w3-border-red w3-button" id="general_info" onclick="gene_loader();window.open('{{ url_for('md.vars', gene_symbol=gene_symbol) }}', '_self');">Get variants</span>
 		</div>
 	</div>
 	<div class="tab_content w3-padding" style="display:block;" />
 		<br /><p>
 			<h2 align="center" class="w3-text-red">
-				<span class="w3-button w3-hover-sand" onclick="$('#gene_modal').show();" title="click to get somewhere"><em>{{ gene }}</em> variants: </span>
+				<span class="w3-button w3-hover-sand" onclick="$('#gene_modal').show();" title="click to get somewhere"><em>{{ gene_symbol }}</em> variants: </span>
 			</h2>
 		</p>
 		<p align="center">
 			{% if run_mode  and run_mode == 'on' %}
-				{{ create_variant(gene, gene_info, num_iso, res) }}
+				{{ create_variant(gene_symbol, gene_info, num_iso, res) }}
 			{% else %}
 				<p align="center">Please wait for the end of the maintenance to annotate a new variant</p>
 			{% endif %}
-			{{ gene_redirection(gene, max_prot_size, clingen_criteria_specification_id, gene_info.uniprot_id, urls) }}
+			{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, gene_info.uniprot_id, urls) }}
 			{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		</p><br />
 		<div id="created_var"></div>
@@ -49,47 +49,47 @@
 		{% for variant in variants|sort(attribute='pos') %}
 			{% set count.all = count.all + 1 %}
 			{% if variant.variant_creation == 'ok' %}
-				{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 			{% else %}
-				{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+				{% set div_content.all = div_content.all + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 			{% endif %}
 			{% if variant.ivs_name is none %}
 				{% if variant.prot_type == 'nonsense' or variant.prot_type == 'frameshift' %}
 					{% set count.ptc = count.ptc + 1 %}
 					{% if variant.variant_creation == 'ok' %}
-						{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% else %}
-						{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.ptc = div_content.ptc + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% endif %}
 				{% elif variant.prot_type == 'missense' %}
 					{% set count.missense = count.missense + 1 %}
 					{% if variant.variant_creation == 'ok' %}
-						{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% else %}
-						{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.missense = div_content.missense + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% endif %}
 				{% elif variant.prot_type == 'silent' %}
 					{% set count.silent = count.silent + 1 %}
 					{% if variant.variant_creation == 'ok' %}
-						{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% else %}
-						{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% endif %}
 				{# match is a custom filter for regexp - see configuration.py, and loaded in __init__.py #}
 				{% elif variant.prot_type|match('inframe') %}
 					{% set count.inframe_indels = count.inframe_indels + 1 %}
 					{% if variant.variant_creation == 'ok' %}
-						{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% else %}
-						{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+						{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% endif %}
 				{% endif %}
 			{% elif variant.ivs_name is not none %}
 				{% set count.intronic = count.intronic + 1 %}
 				{% if variant.variant_creation == 'ok' %}
-					{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+					{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 				{% else %}
-					{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.gene_name[1], variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
+					{% set div_content.intronic = div_content.intronic + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 				{% endif %}
 			{% endif %}
 		{% endfor %}

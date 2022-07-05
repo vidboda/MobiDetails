@@ -1,4 +1,3 @@
-
 function defgen_export(genome, vf_id, defgen_url, csrf_token) {
 	// send header for flask-wtf crsf security
     $.ajaxSetup({
@@ -61,7 +60,7 @@ function lovd(lovd_url, csrf_token) {
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_name').text()
+			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_symbol').text()
 		}
         // pos: $('#pos_19').text(),
 	})
@@ -109,7 +108,7 @@ function intervar(intervar_url, csrf_token) {
 			type: "POST",
 			url: intervar_url,
 			data: {
-				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_name').text()
+				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_symbol').text()
 			}
 		})
 		.done(function(html) {
@@ -141,7 +140,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
     type: "POST",
     url: spliceaivisual_url,
     data: {
-      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript: $('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val(), gene_symbol: $('#gene_name').text(), caller: caller
+      chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), ncbi_transcript: $('#nm_acc').text(), strand: $('#strand').text(), variant_id: $('#variant_id').val(), gene_symbol: $('#gene_symbol').text(), caller: caller
     }
   })
   .done(function(spliceaivisual_response) {
@@ -413,7 +412,7 @@ function run_spip(url, variant_id, csrf_token) {
 		type: "POST",
 		url: url,
 		data: {
-			gene_symbol: $('#gene_name').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
+			gene_symbol: $('#gene_symbol').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
 		}
 	})
 	.done(function(spip_result) {
@@ -516,7 +515,7 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
 		type: "POST",
 		url: create_g_url,
 		data: {
-			variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_name').text(), caller: 'cli', api_key: api_key
+			variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_symbol').text(), caller: 'cli', api_key: api_key
 		}
 	})
   .done(function(var_json) {
@@ -527,7 +526,7 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
       $('#result_display').html("<a href='" + var_json.url + "' target='_blank'>Check this variant on the canonical isoform</a>")
     }
     else {
-      $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + encodeURIComponent($('#gene_name').text()) + "</em> is not possible.");
+      $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + encodeURIComponent($('#gene_symbol').text()) + "</em> is not possible.");
     }
     }
   );
@@ -1015,6 +1014,5 @@ $(document).ready(function() {
     // console.log(doc.content )
     //pdfmake comes with datatables
 		pdfMake.createPdf(doc).download($('#nm_var').text() + '.pdf');
-		//'{{ variant_features.gene_name[1] }}.{{ variant_features.nm_version }}_{{ variant_features.c_name }}.pdf'
 	});
 });

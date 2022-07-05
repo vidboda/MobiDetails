@@ -135,9 +135,15 @@ def defgen():
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
         curs.execute(
-            "SELECT * FROM variant_feature a, variant b, gene c WHERE \
-            a.id = b.feature_id AND a.gene_name = c.name AND a.id = '{0}'\
-            AND b.genome_version = '{1}'".format(variant_id, genome)
+            """
+            SELECT *
+            FROM variant_feature a, variant b, gene c
+            WHERE a.id = b.feature_id
+                AND a.gene_symbol = c.gene_symbol
+                AND a.refseq = c.refseq AND a.id = %s
+                AND b.genome_version = %s
+            """,
+            (variant_id, genome)
         )
         vf = curs.fetchone()
         file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
@@ -149,7 +155,7 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
             rsid = 'rs{0}'.format(vf['dbsnp_id'])
         file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
 ;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
-            vf['gene_name'][0], vf['gene_name'][1],
+            vf['gene_symbol'], vf['refseq'],
             vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
             rsid, vf['prot_type'], vf['chr'], genome,
             vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
@@ -165,7 +171,7 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
         return render_template(
             'ajax/defgen.html',
             variant="{0}:c.{1}".format(
-                vf['gene_name'][1], vf['c_name']
+                vf['refseq'], vf['c_name']
             ),
             defgen_file=file_loc,
             genome=genome
@@ -316,22 +322,16 @@ def intervar():
                                 key,
                                 md_utilities.acmg_criteria[key]
                             )
-#                             intervar_criteria = '{0}&nbsp;<div class="w3-col {1} w3-opacity-min \
-# w3-hover-shadow" style="width:50px;" onmouseover="$(\'#acmg_info\')\
-# .text(\'{2}: {3}\');">{2}</div>'.format(
-#                                     str(intervar_criteria),
-#                                     md_utilities.get_acmg_criterion_color(key),
-#                                     key,
-#                                     md_utilities.acmg_criteria[key]
-#                                 )
         if intervar_acmg is not None:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
-                "SELECT html_code FROM valid_class \
-                WHERE acmg_translation = '{}'".format(
-                    intervar_acmg.lower()
-                )
+                """
+                SELECT html_code
+                FROM valid_class
+                WHERE acmg_translation = %s
+                """,
+                (intervar_acmg.lower(),)
             )
             res = curs.fetchone()
             close_db()
@@ -341,10 +341,10 @@ def intervar():
             <div class='w3-row-padding w3-center'>{2}</div><br />
             <div id='acmg_info'></div>
             """.format(
-                                res['html_code'],
-                                intervar_acmg,
-                                intervar_criteria
-                            )
+                res['html_code'],
+                intervar_acmg,
+                intervar_criteria
+            )
         else:
             return "<span>No wintervar class</span>"
     else:
@@ -598,43 +598,14 @@ def spliceaivisual():
                         bedgraph_file.writelines([header1, header2])
                         mt_acceptor_scores = spliceai_results['result']['mt_acceptor_scores']
                         mt_donor_scores = spliceai_results['result']['mt_donor_scores']
-                        # abs_pos = start_g
-                        # if caller == 'automatic':
                         # 0-based
                         abs_pos = (int(pos) - offset - 1) if caller == 'automatic' else start_g - 1
-                        # Positions for full transcripts: DEPRECATED corrected before with correct start-end positions
-                        #   variant_type    |   strand +    |   strand -
-                        #   substitution    |   ok          |   needs +1
-                        #   deletions       |   ok          |   ok
-                        #   insertions      |   ok          |   ok
-                        #   indel alt > ref |   ok          |   needs +1
-                        #   indel alt = ref |   ok          |   needs +1
-                        #   indel alt < ref |   needs -1    |   ok
-                        # reason not established, even if there is a symmetry
                         if strand == '-':
                             mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
                             mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
-                            # if caller == 'automatic':
                             abs_pos += 1
-                        #     else:
-                        #         # empirical for full transcripts
-                        #         if variant_type == 'substitution' or \
-                        #             (variant_type == 'indel' and
-                        #                 (len(alt) > len(ref) or
-                        #                     len(ref) == len(alt))):
-                        #             abs_pos += 1
-                        # elif caller != 'automatic':
-                        #     # empirical for full transcripts
-                        #     if variant_type == 'deletion' or \
-                        #         variant_type == 'insertion' or \
-                        #         (variant_type == 'indel' and
-                        #             len(ref) > len(alt)):
-                        #         abs_pos -= 1
-                            # abs_pos = int(pos) + offset + len(alt) - 1
-                        # print(mt_donor_scores)
                         i = len(mt_acceptor_scores)
                         # print(i)
-                        # bed_insertion = '# bed file required to display spliceai scores of inserted nucleotides\n'
                         bedgraph_insertion = 'track name="Insertion allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI prediction for inserted nucleotides for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
                         for relative_pos in mt_acceptor_scores:
                             rel_pos_genome = relative_pos
@@ -659,13 +630,11 @@ def spliceaivisual():
                                         current_pos < int(pos) + len(alt):
                                     # need to inspect scores or put them in comment somewhere in igv track
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
-                                    # print(current_pos)
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
                             elif variant_type == 'indel':
                                 if current_pos <= int(pos) - 1:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
-                                # elif len(ref) >= len(alt):
                                 elif current_pos >= int(pos) and \
                                         current_pos < int(pos) + len(alt):
                                     # need to inspect scores or put them in comment somewhere in igv track
@@ -1027,7 +996,9 @@ def modif_class():
                 """
                 SELECT class_date
                 FROM class_history
-                WHERE variant_feature_id = %s AND acmg_class = %s AND mobiuser_id = %s
+                WHERE variant_feature_id = %s
+                    AND acmg_class = %s
+                    AND mobiuser_id = %s
                 """,
                 (variant_id, acmg_select, g.user['id'])
             )
@@ -1121,12 +1092,13 @@ def modif_class():
             genome_version = 'hg19'
             curs.execute(
                 """
-                SELECT a.c_name, a.gene_name, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name
+                SELECT a.c_name, a.gene_symbol, a.refseq, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name
                 FROM variant_feature a, variant b, chromosomes c, gene d
                 WHERE a.id = b.feature_id
                     AND b.genome_version = c.genome_version
                     AND b.chr = c.name
-                    AND a.gene_name = d.name
+                    AND a.gene_symbol = d.gene_symbol
+                    AND a.refseq = d.refseq
                     AND a.id = %s AND b.genome_version = %s
                 """,
                 (variant_id, genome_version)
@@ -1149,8 +1121,8 @@ def modif_class():
                     g.user['id'],
                     escape(acmg_select),
                     escape(variant_id),
-                    res_var['gene_name'][1],
-                    res_var['gene_name'][0],
+                    res_var['gene_symbol'],
+                    res_var['refseq'],
                     res_var['c_name'],
                     g.user['username'],
                     date,
@@ -1179,10 +1151,10 @@ def modif_class():
                 else:
                     lovd_json['lsdb']['variant'][0].pop('db_xref', None)
                 if res_var['hgnc_id'] == 0:
-                    lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_name'][0]
+                    lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['gene_symbol']
                 else:
                     lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['gene']['@accession'] = res_var['hgnc_id']
-                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = res_var['gene_name'][1]
+                lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['ref_seq']['@accession'] = res_var['refseq']
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'c.{}'.format(res_var['c_name'])
                 lovd_json['lsdb']['variant'][0]['seq_changes']['variant'][0]['seq_changes']['variant'][0]['name']['#text'] = 'p.({})'.format(res_var['p_name'])
                 if semaph == 1:
@@ -1291,8 +1263,8 @@ def remove_class():
                 DELETE
                 FROM class_history
                 WHERE variant_feature_id = %s
-                AND acmg_class = %s
-                AND mobiuser_id = %s
+                    AND acmg_class = %s
+                    AND mobiuser_id = %s
                 """,
                 (variant_id, acmg_class, g.user['id'])
             )
@@ -1441,7 +1413,7 @@ def create():
             SELECT id, c_name as nm
             FROM variant_feature
             WHERE c_name = %s
-                AND gene_name[2] = %s
+                AND refseq = %s
             """,
             (new_variant.replace("c.", ""), acc_no)
         )
@@ -1476,9 +1448,6 @@ def create():
                     vv_base_url, acc_no, new_variant
                 )
             vv_key_var = "{0}:{1}".format(acc_no, new_variant)
-
-            # print('--- 3- {} seconds ---'.format((time.time() - start_time)))
-
             try:
                 vv_data = json.loads(http.request(
                     'GET',
@@ -1535,7 +1504,7 @@ def create():
             """
             SELECT canonical
             FROM gene
-            WHERE name[2] = %s
+            WHERE refseq = %s
             """,
             (acc_no,)
         )
@@ -1543,9 +1512,9 @@ def create():
         if res_main['canonical'] is False:
             curs.execute(
                 """
-                SELECT name[2] as nm
+                SELECT refseq
                 FROM gene
-                WHERE name[1] = %s
+                WHERE gene_symbol = %s
                     AND canonical = 't'
                 """,
                 (gene,)
@@ -1572,7 +1541,7 @@ def create():
                 vv_key_var_can = None
                 for key in vv_full_data.keys():
                     # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
-                    if re.search(res_can['nm'], key):
+                    if re.search(res_can['refseq'], key):
                         vv_key_var_can = key
                         var_obj = re.search(r':c\.(.+)$', key)
                         if var_obj is not None:
@@ -1580,7 +1549,7 @@ def create():
                             original_variant_can = new_variant_can
                 if vv_key_var_can:
                     can_output = md_utilities.create_var_vv(
-                        vv_key_var_can, gene, res_can['nm'], new_variant_can,
+                        vv_key_var_can, gene, res_can['refseq'], new_variant_can,
                         original_variant_can,
                         vv_full_data, 'browser', db, g
                     )
@@ -1589,7 +1558,7 @@ def create():
                 # get variant c_name
                 curs.execute(
                     """
-                    SELECT c_name, gene_name[2] as nm
+                    SELECT c_name, refseq
                     FROM variant_feature
                     WHERE id = %s
                     """,
@@ -1598,7 +1567,7 @@ def create():
                 var_c_name = curs.fetchone()
                 can_output = md_utilities.info_panel(
                     'Successfully annotated the variant on the canonical isoform',
-                    '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
+                    '{0}:c.{1}'.format(var_c_name['refseq'], var_c_name['c_name']),
                     can_output,
                     'w3-pale-green'
                 )
@@ -1612,7 +1581,7 @@ def create():
             # get variant c_name
             curs.execute(
                 """
-                SELECT c_name, gene_name[2] as nm
+                SELECT c_name, refseq
                 FROM variant_feature
                 WHERE id = %s
                 """,
@@ -1621,7 +1590,7 @@ def create():
             var_c_name = curs.fetchone()
             output = md_utilities.info_panel(
                 'Successfully annotated the variant',
-                '{0}:c.{1}'.format(var_c_name['nm'], var_c_name['c_name']),
+                '{0}:c.{1}'.format(var_c_name['refseq'], var_c_name['c_name']),
                 output,
                 'w3-pale-green'
             )
@@ -1837,7 +1806,7 @@ def create_unique_url():
                 FROM variant_feature a, mobiuser_favourite b
                 WHERE  a.id = b.feature_id
                     AND b.mobiuser_id = %s
-                ORDER BY a.gene_name, a.ng_name
+                ORDER BY a.gene_symbol, a.ng_name
                 """,
                 (g.user['id'],)
             )
@@ -2038,7 +2007,7 @@ def autocomplete():
             md_query = match_object.group(1)
             curs.execute(
                 """
-                SELECT DISTINCT(c_name) as name, gene_name[2] as nm
+                SELECT DISTINCT(c_name) as name, refseq
                 FROM variant_feature
                 WHERE c_name LIKE '{}%'
                 ORDER BY c_name LIMIT 10
@@ -2049,7 +2018,7 @@ def autocomplete():
             for var in res:
                 result.append(
                     '{0}:c.{1}'.format(
-                        var['nm'],
+                        var['refseq'],
                         var['name']
                     )
                 )
@@ -2059,11 +2028,11 @@ def autocomplete():
                 return json.dumps(result)
             else:
                 return ('', 204)
-        i = 1
+        col = 'gene_symbol'
         match_obj_nm = re.search(r'^([Nn][Mm]_.+)$', query)
         match_obj_gene = re.search(r'^([A-Za-z0-9-]+)$', query)
         if match_obj_nm:
-            i = 2
+            col = 'refseq'
             query = match_obj_nm.group(1).upper()
         elif not re.search(r'orf', query) and \
                 match_obj_gene:
@@ -2075,12 +2044,12 @@ def autocomplete():
             return ('', 204)
         curs.execute(
             """
-            SELECT DISTINCT name[1]
+            SELECT DISTINCT gene_symbol
             FROM gene
-            WHERE name[{0}] LIKE \'%{1}%'
-            ORDER BY name[1]
+            WHERE {0} LIKE \'%{1}%'
+            ORDER BY gene_symbol
             LIMIT 5
-            """.format(i, query)
+            """.format(col, query)
         )
         res = curs.fetchall()
         result = []
@@ -2120,7 +2089,7 @@ def autocomplete_var():
                 """
                 SELECT c_name
                 FROM variant_feature
-                WHERE gene_name[2] = '{0}'
+                WHERE refseq = '{0}'
                     AND c_name LIKE '{1}%'
                 ORDER BY c_name
                 LIMIT 10
