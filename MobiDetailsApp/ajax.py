@@ -1133,10 +1133,11 @@ def modif_class():
             # Send data to LOVD if relevant
             # REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] \
             # WHEN LOVD FEATURE IS READY
-            if g.user['lovd_export'] is True and \
-                    url_parse(
-                        request.referrer
-                    ).host == md_utilities.host['prod']:
+            if g.user['lovd_export'] is True:
+                # and \
+                # url_parse(
+                #     request.referrer
+                # ).host == md_utilities.host['prod']:
                 with open(
                     md_utilities.local_files['lovd_api_json']['abs_path']
                 ) as json_file:
