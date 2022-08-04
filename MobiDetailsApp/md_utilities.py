@@ -1075,7 +1075,7 @@ def create_var_vv(
                     rf'normalized to ({acc_no}:c\..+)',
                     warning
                 )
-                if match_obj.group(1) and \
+                if match_obj and \
                         match_obj.group(1) == vv_key_var:
                     next
                 elif caller == 'browser':
