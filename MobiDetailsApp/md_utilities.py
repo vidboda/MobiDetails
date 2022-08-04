@@ -1269,7 +1269,10 @@ def create_var_vv(
             r':g\.(.+)$',
             vv_data[vv_key_var]['hgvs_refseqgene_variant']
         )
-        vf_d['ng_name'] = ng_name_obj.group(1)
+        if ng_name_obj:
+            vf_d['ng_name'] = ng_name_obj.group(1)
+        else:
+            vf_d['ng_name'] = 'NULL'
     # dna_type
     if re.search('>', vf_d['c_name']):
         vf_d['dna_type'] = 'substitution'
