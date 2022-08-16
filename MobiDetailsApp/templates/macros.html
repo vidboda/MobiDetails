@@ -3,8 +3,8 @@
 	<input type="{{ type }}" class="w3-input w3-border" name="{{ name }}" id="{{ id }}" required="required" placeholder="{{ placeholder|capitalize }}" value="{{ value }}"/>
 {%- endmacro %}
 <!--for fa in forms-->
-{% macro fa(name, size='50px') -%}
-	<div class="w3-col" style="width:{{ size }}"><i class="w3-xxlarge fa fa-{{ name }}"></i></div>
+{% macro fa(name, size='50px', w3_class='xxlarge') -%}
+	<div class="w3-col" style="width:{{ size }}"><i class="w3-{{ w3_class }} fa fa-{{ name }}"></i></div>
 {%- endmacro %}
 <!--info panel -->
 {% macro info() -%}

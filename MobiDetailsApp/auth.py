@@ -39,11 +39,13 @@ def register():
         country = request.form['country']
         institute = request.form['institute']
         email = request.form['email']
+        academic = request.form['acad']
 
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         error = None
 
+        academic_val = 't' if academic == 'academic' else 'f'
         if not username:
             error = 'Username is required.'
         elif len(username) < 5:
@@ -206,10 +208,6 @@ def register():
                         '[MobiDetails - Email Validation Error]'
                     )
         if error is None:
-            # curs.execute(
-            #     "SELECT id FROM mobiuser WHERE username = '{0}'\
-            #        OR email = '{1}'".format(username, email)
-            # )
             curs.execute(
                 """
                 SELECT id
@@ -228,8 +226,8 @@ def register():
             key = secrets.token_urlsafe(32)
             curs.execute(
                 """
-                INSERT INTO mobiuser (username, password, country, institute, email, api_key, activated)
-                VALUES (%s, %s, %s, %s, %s, %s, 'f')
+                INSERT INTO mobiuser (username, password, country, institute, email, api_key, academic, activated)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'f')
                 RETURNING id
                 """,
                 (username,
@@ -237,7 +235,8 @@ def register():
                  country,
                  institute,
                  email,
-                 key)
+                 key,
+                 academic_val)
             )
             user_id = curs.fetchone()[0]
             db.commit()

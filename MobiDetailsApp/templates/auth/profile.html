@@ -114,7 +114,10 @@
 						<ul class="w3-ul">
 							<!-- variants favourite delete -->
 							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants"><i class="fa fa-trash w3-xlarge"></i></button>
+								<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants">
+									<!-- <i class="fa fa-trash w3-xlarge"></i> -->
+									{{ fa('trash', w3_class='xlarge') }}
+								</button>
 							</li>
 							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 								<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
@@ -122,7 +125,10 @@
 							<!-- variants list URL generation -->
 							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 								<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
-								<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants"><i class="fa fa-magic w3-xlarge"></i></button>
+								<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants">
+									<!-- <i class="fa fa-magic w3-xlarge"></i> -->
+									{{ fa('magic', w3_class='xlarge') }}
+								</button>
 							</li>
 						</ul>
 					</div>
@@ -146,7 +152,10 @@
 							<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
 								<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
 							</span> -->
-							<span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span>
+							<span class="w3-right">
+								{{ fa('star', w3_class='xlarge') }}
+								<!-- <i class="fa fa-star w3-xxlarge"></i> -->
+							</span>
 						</li>
 					{% endfor %}
 				</ul>
@@ -191,13 +200,22 @@
 									{% endif %}
 										<div id="lock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.unlock }}">
 											<div>
-												<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list"><i class="fa fa-unlock w3-xlarge"></i></span>
+												<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list">
+													<!-- <i class="fa fa-unlock w3-xlarge"></i> -->
+													{{ fa('unlock', w3_class='xlarge') }}
+												</span>
 												&nbsp;&nbsp;&nbsp;&nbsp;
-												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list"><i class="fa fa-trash w3-xlarge"></i></span>
+												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list">
+													{{ fa('trash', w3_class='xlarge') }}
+													<!-- <i class="fa fa-trash w3-xlarge"></i> -->
+												</span>
 											</div>
 										</div>
 										<div id="unlock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.lock }}">
-											<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Unlock this list"><i class="fa fa-lock w3-xlarge"></i></span>
+											<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Unlock this list">
+												{{ fa('lock', w3_class='xlarge') }}
+												<!-- <i class="fa fa-lock w3-xlarge"></i> -->
+											</span>
 										</div>
 								{% endif %}
 								<ul>

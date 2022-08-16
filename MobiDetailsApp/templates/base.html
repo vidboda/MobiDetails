@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info %}
+{% from 'macros.html' import danger, info, fa %}
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -40,15 +40,19 @@
 					<!--home, about-->
 					<div class="w3-dropdown-hover">
 						<span class="w3-button w3-ripple w3-xlarge w3-black" onclick="show_loader();window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
-							<i class="fa fa-home w3-xxlarge"></i>
+							{{ fa('home') }}
+							<!-- <i class="fa fa-home w3-xxlarge"></i> -->
 						</span>
 						<div class="w3-dropdown-content w3-bar-block w3-card-4">
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('md.about') }}';">About</span>
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('upload.file_upload') }}';">Batch Variants Annotation</span>
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='{{ url_for('md.changelog') }}';">Change log</span>
 							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="show_loader();window.location='/MDAPI/';">Swagger API</span>
-							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.open('https://github.com/beboche/MobiDetails/discussions');"><i class="fa fa-github w3-large"></i>&nbsp;Discussions</span>
-							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.open('https://github.com/beboche/MobiDetails/issues?q=is%3Aissue');"><i class="fa fa-github w3-large"></i>&nbsp;Issues</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.open('https://github.com/beboche/MobiDetails/discussions');">
+								{{ fa('github', w3_class="large") }}Discussions</span>
+							<span class="w3-button w3-bar-item w3-ripple w3-large" onclick="window.open('https://github.com/beboche/MobiDetails/issues?q=is%3Aissue');">{{ fa('github', w3_class="large") }}
+								<!-- <i class="fa fa-github w3-large"></i>&nbsp; -->
+								Issues</span>
 						</div>
 					</div>
 					<!--about-->
@@ -60,7 +64,8 @@
 					<!--all genes-->
 					<div class="w3-dropdown-hover">
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" onclick="$('#loader').show();$('#content').hide();window.location='{{ url_for('md.genes') }}';" title="Show all genes">
-							<i class="fa fa-ioxhost w3-xxlarge"></i>
+							{{ fa('ioxhost') }}
+							<!-- <i class="fa fa-ioxhost w3-xxlarge"></i> -->
 						</span>
 					</div>
 					{# for variant page #}
@@ -68,13 +73,15 @@
 					<!--left menu-->
 					<div>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="openNav" onclick="w3_open()" style="visibility:hidden" title="Open the menu of useful external links">
-							<i class="fa fa-bars w3-xxlarge"></i>
+							{{ fa('bars') }}
+							<!-- <i class="fa fa-bars w3-xxlarge"></i> -->
 						</span>
 					</div>
 					<!--export tables as pdf-->
 					<div>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge" id="ExportPdf" title="Export the tables as pdf file">
-							<i class="fa fa-file-pdf-o w3-xxlarge"></i>
+							{{ fa('file-pdf-o') }}
+							<!-- <i class="fa fa-file-pdf-o w3-xxlarge"></i> -->
 						</span>
 					</div>
 					<!--page title-->
@@ -87,7 +94,8 @@
 						{% else %}
 							<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:none;" title="This variant is marked as one of your favourites.">
 						{% endif %}
-							<i class="fa fa-star-o w3-xxlarge"></i>
+							{{ fa('star') }}
+							<!-- <i class="fa fa-star-o w3-xxlarge"></i> -->
 						</span>
 					</div>
 					{#{% else %}#}
@@ -98,18 +106,22 @@
 						{% if g.user %}
 						<!--profile-->
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="show_loader();window.location='{{ url_for('auth.logout') }}';" title="Log out">
-							<i class="fa fa-user-times w3-xxlarge"></i>
+							{{ fa('user-times') }}
+							<!-- <i class="fa fa-user-times w3-xxlarge"></i> -->
 						</span>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="show_loader();window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
-							<i class="fa fa-id-card-o w3-xxlarge"></i>
+							{{ fa('id-card-o') }}
+							<!-- <i class="fa fa-id-card-o w3-xxlarge"></i> -->
 						</span>
 						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
 						{% else %}
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
-							<i class="fa fa fa-user-plus w3-xxlarge"></i>
+							{{ fa('user-plus') }}
+							<!-- <i class="fa fa fa-user-plus w3-xxlarge"></i> -->
 						</span>
 						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.login') }}';" title="Log in">
-							<i class="fa fa fa-user w3-xxlarge"></i>
+							{{ fa('user') }}
+							<!-- <i class="fa fa fa-user w3-xxlarge"></i> -->
 						</span>
 						{% endif %}
 					</div>
@@ -123,7 +135,7 @@
 		{% if run_mode and run_mode == 'maintenance' %}
 		<br />
 		<div class="w3-margin w3-panel w3-leftbar w3-display-container w3-pale-red">
-			<p><strong><i class="fa fa fa-cogs w3-xxlarge"></i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
+			<p><strong>{{ fa('cogs') }}</i> MobiDetails is currrently in maintenance mode, which means that you cannot annotate new variants, or classifiy existing ones as well as register, modify your preferences or your password. Sorry for the inconvenience. You can still browse existing variants, gene pages and so on.</strong></p>
 		</div>
 		{% endif %}
 		{% for category, message in get_flashed_messages(with_categories=true) %}
@@ -158,7 +170,7 @@
 								<input autofocus="autofocus" class="w3-input w3-border w3-xlarge w3-mobile" id="engine" maxlength="60" name="search" placeholder=" Ask MobiDetails:" size="30" style="width:250px;display:inline;" type="text"/>
 							</div>
 							<div class="w3-quarter">
-								<span onclick="$('#search_form').submit();" class="w3-button w3-bar-item w3-large"><i class="fa fa-search w3-xxlarge"></i></span>
+								<span onclick="$('#search_form').submit();" class="w3-button w3-bar-item w3-large">{{ fa('search') }}</i></span>
 								<!--<input class="w3-button w3-white w3-large w3-border w3-mobile" id="submit_a" type="submit" value="Submit" />-->
 							</div>
 						</div>

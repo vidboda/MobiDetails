@@ -5,7 +5,7 @@
   <h1 align="center" class="w3-text-blue">{% block title %}Register{% endblock %}</h1>
 {% endblock %}
 {#{% block more_head %}
-	<script src="{{ url_for('static', filename='javascript/auth_register.js') }}" type="text/javascript"></script>	
+	<script src="{{ url_for('static', filename='javascript/auth_register.js') }}" type="text/javascript"></script>
 {% endblock %}#}
 {% block content %}
 	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.") }}
@@ -15,7 +15,7 @@
 		<form method="post" action="{{ url_for('auth.register') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="register_form"  enctype="application/x-www-form-urlencoded" onsubmit="$('#onsubmitinfo').html('<p>Please wait while your data is being checked.</p>');$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
        <!--onsubmit="encode_params('username');encode_params('password');encode_params('country');encode_params('institute');encode_params('email');"-->
-			<span class="w3-xlarge">Please register using your academic email address (in the email field):</span><br/>
+			<span class="w3-xlarge">Please register using your academic email address if possible (in the <strong>email</strong> field):</span><br/>
 			<div class="w3-row w3-section" title="Username">
 				{{ fa('user') }}
 				<div class="w3-rest">{{ input('username', value=prev_username) }}</div>
@@ -31,7 +31,7 @@
           {% for country in countries %}
             <option value="{{ country }}">{{ country }}</option>
           {% endfor %}
-				</select></div>			
+				</select></div>
 				<!--<div class="w3-rest">{{ input('country') }}</div>-->
 			</div>
 			<div class="w3-row w3-section" title="Institution">
@@ -41,6 +41,15 @@
 			<div class="w3-row w3-section" title="Email">
 				{{ fa('envelope-o') }}
 				<div class="w3-rest">{{ input('email', value=prev_email) }}</div>
+			</div>
+      <div class="w3-row w3-section" title="Academic status">
+				{{ fa('graduation-cap') }}
+				<div class="w3-rest">
+          <input type="radio" id="academic" name="acad" value="academic" checked="checked">
+          <label for="academic">Academic</label>&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" id="non_academic" name="acad" value="non_academic">
+          <label for="non_academic">Non academic</label><br>
+        </div>
 			</div>
 			<p class="w3-center">
 				<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
