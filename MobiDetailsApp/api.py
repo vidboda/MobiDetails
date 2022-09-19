@@ -1345,6 +1345,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     caller = md_utilities.get_post_param(request, 'caller')
     variant_chgvs = md_utilities.get_post_param(request, 'variant_chgvs')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    header = md_utilities.api_agent
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(
@@ -1478,7 +1479,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 )
                 vv_key_var = "{0}:c.{1}".format(acc_no, new_variant)
                 try:
-                    vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                    vv_data = json.loads(
+                        http.request(
+                            'GET',
+                            vv_url,
+                            headers=header
+                        ).data.decode('utf-8')
+                    )
                 except Exception:
                     close_db()
                     if caller == 'cli':
@@ -1580,7 +1587,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
                         )
                         try:
-                            vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                            vv_full_data = json.loads(
+                                http.request(
+                                    'GET',
+                                    vv_url,
+                                    headers=header
+                                ).data.decode('utf-8')
+                            )
                             vv_key_var_can = None
                             for key in vv_full_data.keys():
                                 if re.search(res_can['refseq'], key):
@@ -1656,6 +1669,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
     variant_ghgvs = md_utilities.get_post_param(request, 'variant_ghgvs')
     gene = md_utilities.get_post_param(request, 'gene_hgnc')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    header = md_utilities.api_agent
 
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
@@ -1785,7 +1799,13 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                         try:
-                            vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                            vv_data = json.loads(
+                                http.request(
+                                    'GET',
+                                    vv_url,
+                                    headers=header
+                                ).data.decode('utf-8')
+                            )
                         except Exception:
                             close_db()
                             if caller == 'cli':
@@ -1964,6 +1984,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
     caller = md_utilities.get_post_param(request, 'caller')
     rs_id = md_utilities.get_post_param(request, 'rs_id')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    header = md_utilities.api_agent
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
@@ -2036,7 +2057,13 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             # returns sthg like
             # ["NC_000011.10:g.112088901C>T", "NC_000011.9:g.111959625C>T", "NG_012337.3:g.7055C>T", "NM_003002.4:c.204C>T", "NM_003002.3:c.204C>T", "NM_001276506.2:c.204C>T", "NM_001276506.1:c.204C>T", "NR_077060.2:n.239C>T", "NR_077060.1:n.288C>T", "NM_001276504.2:c.87C>T", "NM_001276504.1:c.87C>T", "NG_033145.1:g.2898G>A"]
             try:
-                mutalyzer_data = json.loads(http.request('GET', mutalyzer_url).data.decode('utf-8'))
+                mutalyzer_data = json.loads(
+                    http.request(
+                        'GET',
+                        mutalyzer_url,
+                        headers=header
+                    ).data.decode('utf-8')
+                )
             except Exception:
                 close_db()
                 if caller == 'cli':
@@ -2100,7 +2127,13 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             # and then check if the gene is available in MD
                             mygene_info_url = '{0}query?q=chr{1}:{2}-{3}&fields=symbol&species=human'.format(md_utilities.urls['mygene.info'], res_chr['name'], positions[0], positions[1])
                             try:
-                                mygene_response = json.loads(http.request('GET', mygene_info_url, headers=md_utilities.api_agent).data.decode('utf-8'))
+                                mygene_response = json.loads(
+                                    http.request(
+                                        'GET',
+                                        mygene_info_url,
+                                        headers=header
+                                    ).data.decode('utf-8')
+                                )
                             except Exception as e:
                                 close_db()
                                 if caller == 'cli':
@@ -2237,6 +2270,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
     vcf_str = md_utilities.get_post_param(request, 'vcf_str')
     caller = md_utilities.get_post_param(request, 'caller')
     api_key = md_utilities.get_post_param(request, 'api_key')
+    header = md_utilities.api_agent
     if md_utilities.get_post_param(request, 'genome_version'):
         genome_version = md_utilities.translate_genome_version(md_utilities.get_post_param(request, 'genome_version'))
         if genome_version == 'wrong_genome_input':
@@ -2346,7 +2380,13 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                 vv_base_url, genome_vv, chr, pos, ref, alt
             )
             try:
-                vv_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                vv_data = json.loads(
+                    http.request(
+                        'GET',
+                        vv_url,
+                        headers=header
+                    ).data.decode('utf-8')
+                )
             except Exception:
                 close_db()
                 if caller == 'cli':

@@ -862,9 +862,12 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 def get_vv_api_url():
     # try remote VV rest api and if not functional, switch on local
     try:
-        hello = json.loads(http.request(
-            'GET',
-            urls['variant_validator_api_hello']).data.decode('utf-8')
+        hello = json.loads(
+            http.request(
+                'GET',
+                urls['variant_validator_api_hello'],
+                headers=api_agent
+            ).data.decode('utf-8'),
         )
         if hello['status'] == "hello_world":
             return urls['variant_validator_api']
@@ -876,10 +879,12 @@ def get_vv_api_url():
                 'VV looks down - trying to switch on rescue docker {}'
                 .format(urls['variant_validator_api_hello_backup'])
             )
-            hello = json.loads(http.request(
-                'GET',
-                urls['variant_validator_api_hello_backup'])
-                    .data.decode('utf-8')
+            hello = json.loads(
+                http.request(
+                    'GET',
+                    urls['variant_validator_api_hello_backup'],
+                    headers=api_agent
+                ).data.decode('utf-8')
             )
             if hello['status'] == "hello_world":
                 return urls['variant_validator_api_backup']
@@ -2485,9 +2490,12 @@ def get_clingen_criteria_specification_id(current_gene_symbol):
 
 def spliceai_internal_api_hello():
     try:
-        hello = json.loads(http.request(
-            'GET',
-            '{0}/hello'.format(urls['spliceai_internal_server'])).data.decode('utf-8')
+        hello = json.loads(
+            http.request(
+                'GET',
+                '{0}/hello'.format(urls['spliceai_internal_server']),
+                headers=api_agent
+            ).data.decode('utf-8')
         )
         if hello['spliceai_mtp_status'] == "running":
             return True

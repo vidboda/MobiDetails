@@ -40,6 +40,7 @@ def register():
         institute = request.form['institute']
         email = request.form['email']
         academic = request.form['acad']
+        header = md_utilities.api_agent
 
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -84,7 +85,9 @@ def register():
             try:
                 mv_json = json.loads(
                     http.request(
-                        'GET', mv_url
+                        'GET',
+                        mv_url,
+                        headers=header
                     ).data.decode('utf-8')
                 )
             except Exception:
@@ -140,7 +143,11 @@ def register():
             # print(sfs_url)
             try:
                 sfs_json = json.loads(
-                    http.request('GET', sfs_url).data.decode('utf-8')
+                    http.request(
+                        'GET',
+                        sfs_url,
+                        headers=header
+                    ).data.decode('utf-8')
                 )
             except Exception:
                 sfs_json = None

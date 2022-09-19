@@ -37,7 +37,8 @@ def index():
     vv_instance = json.loads(
                     http.request(
                         'GET',
-                        md_api_url
+                        md_api_url,
+                        headers=md_utilities.api_agent
                     ).data.decode('utf-8')
                 )
     # count genes
@@ -138,6 +139,7 @@ def gene(gene_symbol=None):
         num_iso = len(result_all)
         # get metadome json?
         enst_ver = {}
+        header = md_utilities.api_agent
         # if not json metadome file on filesystem, create it in
         # radboud server, then next time get it - it will then be
         # available for future requests
@@ -165,7 +167,8 @@ def gene(gene_symbol=None):
                                             '{0}get_transcripts/{1}'.format(
                                                 md_utilities.urls['metadome_api'],
                                                 gene['gene_symbol']
-                                            )
+                                            ),
+                                            headers=header
                                         ).data.decode('utf-8')
                             )
                             if metad_ts is not None and \
@@ -213,7 +216,9 @@ def gene(gene_symbol=None):
                                         'GET',
                                         '{0}status/{1}/'.format(
                                             md_utilities.urls['metadome_api'],
-                                            enst_ver[enst])
+                                            enst_ver[enst]
+                                        ),
+                                        headers=header
                                     ).data.decode('utf-8')
                                 )
                 except Exception as e:
@@ -239,7 +244,7 @@ def gene(gene_symbol=None):
                         # find out how to get app object
                         try:
                             # enst_metadome = {transcript_id: enst_ver[enst]}
-                            header = md_utilities.api_agent
+                            # header = md_utilities.api_agent
                             header['Content-Type'] = 'application/json'
                             vis_request = json.loads(
                                             http.request(
@@ -291,7 +296,8 @@ def gene(gene_symbol=None):
                                                 '{0}result/{1}/'.format(
                                                     md_utilities.urls['metadome_api'],
                                                     enst_ver[enst]
-                                                )
+                                                ),
+                                                headers=md_utilities.api_agent
                                             ).data.decode('utf-8')
                                         )
                             # copy in file system

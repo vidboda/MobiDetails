@@ -34,15 +34,18 @@ http = urllib3.PoolManager(
 @bp.route('/litVar', methods=['POST'])
 def litvar():
     if re.search(r'^rs\d+$', request.form['rsid']):
+        header = md_utilities.api_agent
         rsid = request.form['rsid']
         litvar_data = None
         litvar_url = "{0}{1}".format(
             md_utilities.urls['ncbi_litvar_api'], rsid
         )
         try:
-            litvar_data = json.loads(http.request(
+            litvar_data = json.loads(
+                http.request(
                     'GET',
-                    litvar_url
+                    litvar_url,
+                    headers=header
                 ).data.decode('utf-8')
             )
         except Exception as e:
@@ -77,9 +80,11 @@ def litvar():
             togows_url = '{0}.json'.format(togows_url[:-1])
             # print(togows_url)
             try:
-                pubmeds = json.loads(http.request(
+                pubmeds = json.loads(
+                    http.request(
                         'GET',
-                        togows_url
+                        togows_url,
+                        headers=header
                     ).data.decode('utf-8')
                 )
                 for article in pubmeds:
@@ -214,6 +219,7 @@ def intervar():
         ref = request.form['ref']
         alt = request.form['alt']
         gene = request.form['gene']
+        header = md_utilities.api_agent
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
         if ref == alt:
@@ -228,9 +234,12 @@ def intervar():
             intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
             urllib3.disable_warnings()
             intervar_data = [
-                json.loads(intervar_http.request(
-                    'GET',
-                    intervar_url).data.decode('utf-8')
+                json.loads(
+                    intervar_http.request(
+                        'GET',
+                        intervar_url,
+                        headers=header
+                    ).data.decode('utf-8')
                 )
             ]
         except Exception:
@@ -251,7 +260,11 @@ def intervar():
                 # "BP7":0,"BS1":0,"BS2":0,"BS3":0,"BS4":0}
                 intervar_list = re.split(
                     '}{',
-                    http.request('GET', intervar_url).data.decode('utf-8')
+                    http.request(
+                        'GET',
+                        intervar_url,
+                        headers=header
+                    ).data.decode('utf-8')
                 )
                 i = 0
                 for obj in intervar_list:
@@ -723,6 +736,7 @@ def lovd():
         g_name = request.form['g_name']
         c_name = request.form['c_name']
         gene = request.form['gene']
+        header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
             return md_utilities.lovd_error_html(
@@ -746,7 +760,8 @@ def lovd():
                 '\n',
                 http.request(
                     'GET',
-                    lovd_url
+                    lovd_url,
+                    headers=header
                 ).data.decode('utf-8')
             )
         except Exception as e:
@@ -836,10 +851,13 @@ def lovd():
                 )
                 lovd_effect = None
                 try:
-                    lovd_effect = json.loads(http.request(
-                        'GET',
-                        lovd_api_url
-                    ).data.decode('utf-8'))
+                    lovd_effect = json.loads(
+                        http.request(
+                            'GET',
+                            lovd_api_url,
+                            headers=header
+                        ).data.decode('utf-8')
+                    )
                 except Exception:
                     pass
                 if lovd_effect is not None and \
@@ -1386,6 +1404,7 @@ def send_var_message():
 def create():
     # This method will have to be merged with /api/variant/create in a future version
     # start_time = time.time()
+    header = md_utilities.api_agent
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'md/index.html',
@@ -1459,10 +1478,13 @@ def create():
                 )
             vv_key_var = "{0}:{1}".format(acc_no, new_variant)
             try:
-                vv_data = json.loads(http.request(
-                    'GET',
-                    vv_url
-                ).data.decode('utf-8'))
+                vv_data = json.loads(
+                    http.request(
+                        'GET',
+                        vv_url,
+                        headers=header
+                    ).data.decode('utf-8')
+                )
             except Exception:
                 close_db()
                 return md_utilities.danger_panel(
@@ -1538,7 +1560,13 @@ def create():
                     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
                 )
                 try:
-                    vv_full_data = json.loads(http.request('GET', vv_url).data.decode('utf-8'))
+                    vv_full_data = json.loads(
+                        http.request(
+                            'GET',
+                            vv_url,
+                            headers=header
+                        ).data.decode('utf-8')
+                    )
                 except Exception:
                     close_db()
                     return md_utilities.danger_panel(
@@ -2134,7 +2162,9 @@ def is_panelapp_entity():
                                 'GET',
                                 '{0}genes/{1}/'.format(
                                     md_utilities.urls['panelapp_api'],
-                                    gene_symbol)
+                                    gene_symbol
+                                ),
+                                headers=md_utilities.api_agent
                             ).data.decode('utf-8')
                         )
         except Exception:
@@ -2222,6 +2252,7 @@ def spliceai_lookup():
         ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
         match_obj_variant = re.search(rf'(chr{nochr_chrom_regexp}-\d+-[ATGC]+-[ATGC]+$)', request.form['variant'])
         match_obj_transcript = re.search(rf'({ncbi_transcript_regexp})', request.form['transcript'])
+        header = md_utilities.api_agent
         if match_obj_variant and \
                 match_obj_transcript:
             variant = match_obj_variant.group(1)
@@ -2235,7 +2266,9 @@ def spliceai_lookup():
                         'GET',
                         '{0}{1}'.format(
                             md_utilities.urls['spliceai_api'],
-                            variant)
+                            variant
+                        ),
+                        headers=header
                     ).data.decode('utf-8')
                 )
             except urllib3.exceptions.MaxRetryError:
@@ -2246,7 +2279,9 @@ def spliceai_lookup():
                                     'GET',
                                     '{0}{1}'.format(
                                         md_utilities.urls['spliceai_api'],
-                                        variant)
+                                        variant
+                                    ),
+                                    headers=header
                                 ).data.decode('utf-8')
                             )
                 except Exception:
