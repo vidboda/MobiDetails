@@ -568,6 +568,26 @@ def spliceaivisual():
                 mt_seq = "".join(tmp_list)
         if mt_seq:
             response = None
+            # files paths
+            variant_file_basename = '{0}/variants/'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+            )
+            variant_file = '{0}{1}.bedGraph'.format(
+                variant_file_basename,
+                variant_id
+            )
+            full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
+                variant_file_basename,
+                variant_id
+            )
+            # files caches
+            if caller == 'automatic' and \
+                    os.path.exists(variant_file):
+                response = 'ok'
+                if os.path.exists(full_variant_file):
+                    response = 'full'
+                return response
+
             if strand == '-':
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
@@ -578,17 +598,6 @@ def spliceaivisual():
             # 1-based
             if req_results.status_code == 200:
                 spliceai_results = json.loads(req_results.content)
-                variant_file_basename = '{0}/variants/'.format(
-                    md_utilities.local_files['spliceai_folder']['abs_path'],
-                )
-                variant_file = '{0}{1}.bedGraph'.format(
-                    variant_file_basename,
-                    variant_id
-                )
-                full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
-                    variant_file_basename,
-                    variant_id
-                )
                 current_mt_file = variant_file if caller == 'automatic' else full_variant_file
                 if spliceai_results['spliceai_return_code'] == 0 and \
                         spliceai_results['error'] is None and \
