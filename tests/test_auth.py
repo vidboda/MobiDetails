@@ -10,7 +10,8 @@ def test_register(client, app):
     response = client.post(
         '/auth/register', data={
             'username': 'davidbaux', 'password': 'a',
-            'country': 'a', 'institute': 'a', 'email': 'david.baux@inserm.fr'
+            'country': 'a', 'institute': 'a', 'email': 'david.baux@inserm.fr',
+            'acad': 'academic'
         }
     )
     assert response.status_code == 200
@@ -40,7 +41,10 @@ def test_register(client, app):
 def test_register_validate_input(client, username, password, email, message):
     response = client.post(
         '/auth/register',
-        data={'username': username, 'password': password, 'country': 'a', 'institute': 'a', 'email': email}
+        data={
+            'username': username, 'password': password, 'country': 'a',
+            'institute': 'a', 'email': email, 'acad': 'academic'
+        }
     )
     print(response.get_data())
     assert message in response.get_data()
