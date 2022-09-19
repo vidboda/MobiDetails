@@ -70,7 +70,7 @@ def test_login_validate_input(client, email, password, message):
 @pytest.mark.parametrize(('mobiuser_id', 'api_key', 'message'), (
     (12, 'J9gKDvkEKktuv7t3dRB7tGopiusyCa9WQkwVEy1tDzc', b'API key and user id do not seem to fit'),
     (11, 'J9gKDvkEKktuv7t3dRB7tGopiusyCa9WQkwVEy1tDzc',  b'API key and user id do not seem to fit'),
-    (12, '_jO9AZj62Y71MUByR-W41tdHIwJOKeqTLOya8WBoFF0', b'MobiDetails does not understand this query.'),
+    (12, '_jO9AZj62Y71MUByR-W41tdHIwJOKeqTLOya8WBoFF0', b'Please Log in if already registered and if you want to trace your variants')
 ))
 def test_activate(client, mobiuser_id, api_key, message):
     response = client.get(
