@@ -496,6 +496,25 @@ def spliceaivisual():
                     # response = 'ok'
                     # currently return error
                     return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
+        # files paths
+        variant_file_basename = '{0}/variants/'.format(
+            md_utilities.local_files['spliceai_folder']['abs_path'],
+        )
+        variant_file = '{0}{1}.bedGraph'.format(
+            variant_file_basename,
+            variant_id
+        )
+        full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
+            variant_file_basename,
+            variant_id
+        )
+        # files caches
+        if caller == 'automatic' and \
+                os.path.exists(variant_file):
+            response = 'ok'
+            if os.path.exists(full_variant_file):
+                response = 'full'
+            return response
         # get mutant spliceai predictions
         header2 = 'track name="ALT allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI predictions for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
         # build mt sequence
@@ -581,32 +600,33 @@ def spliceaivisual():
                 mt_seq = "".join(tmp_list)
         if mt_seq:
             response = None
-            # files paths
-            variant_file_basename = '{0}/variants/'.format(
-                md_utilities.local_files['spliceai_folder']['abs_path'],
-            )
-            variant_file = '{0}{1}.bedGraph'.format(
-                variant_file_basename,
-                variant_id
-            )
-            full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
-                variant_file_basename,
-                variant_id
-            )
-            # files caches
-            if caller == 'automatic' and \
-                    os.path.exists(variant_file):
-                response = 'ok'
-                if os.path.exists(full_variant_file):
-                    response = 'full'
-                return response
+            # # files paths
+            # variant_file_basename = '{0}/variants/'.format(
+            #     md_utilities.local_files['spliceai_folder']['abs_path'],
+            # )
+            # variant_file = '{0}{1}.bedGraph'.format(
+            #     variant_file_basename,
+            #     variant_id
+            # )
+            # full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
+            #     variant_file_basename,
+            #     variant_id
+            # )
+            # # files caches
+            # if caller == 'automatic' and \
+            #         os.path.exists(variant_file):
+            #     response = 'ok'
+            #     if os.path.exists(full_variant_file):
+            #         response = 'full'
+            #     return response
 
             if strand == '-':
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
             req_results = requests.get(
                 '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
-                json={'mt_seq': mt_seq}
+                json={'mt_seq': mt_seq},
+                headers=md_utilities.api_agent
             )
             # 1-based
             if req_results.status_code == 200:

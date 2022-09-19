@@ -21,7 +21,7 @@
   'maxentscan3': '/static/resources/maxentscan/score3.pl'
 'api_agent':
   'Accept': 'application/json'
-  'User-Agent': 'python-requests/2.22.0 Python/3.6.8 MobiDetails https://mobidetails.iurc.montp.inserm.fr/MD/ - mobidetails.iurc@gmail.com'
+  'User-Agent': 'MobiDetails https://mobidetails.iurc.montp.inserm.fr/MD/ - mobidetails.iurc@gmail.com'
 'complement':
   'A': 'T'
   'C': 'G'
