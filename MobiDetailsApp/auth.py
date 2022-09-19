@@ -494,6 +494,10 @@ def activate(mobiuser_id, api_key):
                 )
                 close_db()
                 return render_template('auth/login.html')
+            if user['activated'] is True and \
+                    user['api_key'] == api_key and \
+                    user['id'] == mobiuser_id:
+                return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
 # -------------------------------------------------------------------
