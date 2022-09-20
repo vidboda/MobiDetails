@@ -1048,7 +1048,6 @@ def create_var_vv(
                 An unknown error has been caught during variant creation with VariantValidator.
                 It is possible that it works if you try again: {0}-{1}
                 """.format(acc_no, gene)}
-
     if 'validation_warnings' in vv_data[first_level_key]:
         for warning in vv_data[first_level_key]['validation_warnings']:
             # print(vv_data[first_level_key])

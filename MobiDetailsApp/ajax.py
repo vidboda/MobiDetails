@@ -1574,7 +1574,8 @@ def create():
             res_can = curs.fetchone()
             # get variant name for this transcript
             # need another call to VV
-            if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
+            if vv_key_var in vv_data and \
+                    vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
                     vv_base_url,
                     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
