@@ -484,7 +484,7 @@ def vars(gene_symbol=None):
         return render_template('md/unknown.html', query='No gene provided')
     elif re.search(r'[^\w-]', gene_symbol):
         return render_template('md/unknown.html', query=gene_symbol)
-    gene_symbol = re.escape(gene_symbol)
+    # gene_symbol = re.escape(gene_symbol)
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     # error = None
