@@ -1350,7 +1350,8 @@ def create_var_vv(
         vf_d['p_name'] = p_obj.group(1)
         if re.search(r'Ter$', vf_d['p_name']):
             vf_d['prot_type'] = 'nonsense'
-        elif re.search(r'fsTer\d+', vf_d['p_name']):
+        elif re.search(r'fsTer\d+', vf_d['p_name']) or \
+                re.search('fsTer\?', vf_d["p_name"]):
             vf_d['prot_type'] = 'frameshift'
         elif re.search(r'\w{3}\d+=', vf_d['p_name']):
             vf_d['prot_type'] = 'silent'
