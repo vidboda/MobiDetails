@@ -866,7 +866,6 @@ def get_vv_api_url():
             http.request(
                 'GET',
                 urls['variant_validator_api_hello'],
-                headers=api_agent
             ).data.decode('utf-8'),
         )
         if hello['status'] == "hello_world":
@@ -882,8 +881,7 @@ def get_vv_api_url():
             hello = json.loads(
                 http.request(
                     'GET',
-                    urls['variant_validator_api_hello_backup'],
-                    headers=api_agent
+                    urls['variant_validator_api_hello_backup']
                 ).data.decode('utf-8')
             )
             if hello['status'] == "hello_world":
