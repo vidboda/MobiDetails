@@ -1528,11 +1528,13 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                                 md_utilities.prepare_email_html(
                                     'MobiDetails error',
                                     """
-                                    <p>VV check failed for variant {0} with args: {1} {2}.
+                                    <p>VV check failed for variant {0} with args: {1} {2} {3} {4}.
                                     """.format(
                                         vv_key_var,
                                         vv_data,
-                                        vv_variant_data_check
+                                        vv_variant_data_check,
+                                        vv_url,
+                                        header
                                     )
                                 ),
                                 '[MobiDetails - MD variant creation Error: VV check]'
