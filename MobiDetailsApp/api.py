@@ -1483,7 +1483,6 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         http.request(
                             'GET',
                             vv_url,
-                            headers=header
                         ).data.decode('utf-8')
                     )
                 except Exception:
