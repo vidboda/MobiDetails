@@ -26,7 +26,7 @@
 			{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
 			{# {{ link("%shg37&chromosome=%s&pos=%s"|format(urls.map2pdb, vari.chr, vari.pos), "hg19 Map2PDB") }} #}
 			{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end), "ESP6500") }}
-			{{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, external_data.VCF.chr, positions.min, positions.max, internal_data.frequenciesDatabases.dbSNPrsid, external_data.VCF.hg19.pos, external_data.VCF.hg19.pos, internal_data.frequenciesDatabases.dbSNPrsid), "1000 genomes")}}
+			{# {{ link("%schr=%s&from=%s&to=%s&gts=rs%s&mk=%s:%s|rs%s"|format(urls.ncbi_1000g, external_data.VCF.chr, positions.min, positions.max, internal_data.frequenciesDatabases.dbSNPrsid, external_data.VCF.hg19.pos, external_data.VCF.hg19.pos, internal_data.frequenciesDatabases.dbSNPrsid), "1000 genomes")}} #}
 			{{ link("%svariant/%s-%s-%s-%s"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "gnomAD v2")}}
 			{% if external_data.positions.DNAType == 'substitution' %}
 				{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "CADD")}}
