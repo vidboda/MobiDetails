@@ -1137,14 +1137,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 else:
                     external_data['frequenciesDatabases']['gnomADv2Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomad ge
-                record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
-                if isinstance(record, str):
-                    external_data['frequenciesDatabases']['gnomADv2Genome'] = record
-                else:
-                    external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
-                # clinpred
-                if variant_features['prot_type'] == 'missense':
-                    # mistic
+                if external_data['gene']['chromosome'] != 'Y':
+                    record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record
+                    else:
+                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # mistic
+                if variant_features['prot_type'] == 'missense' and \
+                        external_data['gene']['chromosome'] != 'Y':
                     record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
                     if isinstance(record, str):
                         external_data['missensePredictions']['misticScore'] = record
