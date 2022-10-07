@@ -1424,7 +1424,7 @@ def send_var_message():
 def create():
     # This method will have to be merged with /api/variant/create in a future version
     # start_time = time.time()
-    header = md_utilities.api_agent
+    header = {'User-Agent': md_utilities.api_agent['User-Agent']}
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'md/index.html',
