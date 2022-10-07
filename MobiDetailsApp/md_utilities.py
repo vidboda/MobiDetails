@@ -1956,6 +1956,7 @@ def check_vv_variant_data(vv_key_var, vv_data):
                         'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
                     return 'The variant is lacking exonic description in the variant validation.'
         return True
+    print(vv_data)
     return False
 
 

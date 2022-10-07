@@ -700,7 +700,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         )
                         domains = curs.fetchall()
                         for domain in domains:
-                            external_data['positions']['proteinDomain'].append([domain['name'], domain['aa_start'], domain['aa_end']])
+                            external_data['positions']['proteinDomain'].append([urllib.parse.unquote(domain['name']), domain['aa_start'], domain['aa_end']])
 
                         # metadome data?
                         if variant_features['dna_type'] == 'substitution' and \

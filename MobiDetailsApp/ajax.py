@@ -1532,12 +1532,29 @@ def create():
             # if md_utilities.check_vv_variant_data(vv_key_var, vv_data) is not True:
             if vv_variant_data_check is not True:
                 close_db()
+                vv_warning = md_utilities.return_vv_validation_warnings(vv_data)
+                if vv_warning == '':
+                    md_utilities.send_error_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails error',
+                            """
+                            <p>VV check failed for variant {0} with args: {1} {2} {3} {4}.
+                            """.format(
+                                vv_key_var,
+                                vv_data,
+                                vv_variant_data_check,
+                                vv_url,
+                                header
+                            )
+                        ),
+                        '[MobiDetails - MD variant creation Error: VV check]'
+                    )
                 return md_utilities.danger_panel(
                     new_variant,
                     """
                     Variant Validator did not return a valid value for the variant.
                     {0} {1}
-                    """.format(vv_variant_data_check, md_utilities.return_vv_validation_warnings(vv_data))
+                    """.format(vv_variant_data_check, vv_warning)
                 )
         else:
             close_db()
