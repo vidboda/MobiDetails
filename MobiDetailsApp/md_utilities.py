@@ -1997,6 +1997,10 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('Interval end position', warning):
                             return warning
+                        if re.search('An insertion must be provided with the two positions between which the insertion has taken place', warning):
+                            return warning
+                        if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
+                            return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
                         if match_obj:
                             return match_obj.group(1)
