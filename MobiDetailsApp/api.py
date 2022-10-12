@@ -2239,13 +2239,13 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         return render_template('md/variant_multiple.html', vars_rs=md_response)
             close_db()
             if caller == 'cli':
-                return jsonify(mobidetails_error='Using Mutalyzer, we did not find any suitable variant corresponding to your request {}'.format(rs_id))
+                return jsonify(mobidetails_error='Using Mutalyzer, we did not find any suitable variant corresponding to your request rs{}'.format(trunc_rs_id))
             else:
                 flash(
                     """
-                    Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id={0}", target="_blank">Mutalyzer</a>,
-                    we did not find any suitable variant corresponding to your request {0}
-                    """.format(rs_id),
+                    Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id=rs{0}", target="_blank">Mutalyzer</a>,
+                    we did not find any suitable variant corresponding to your request rs{0}
+                    """.format(trunc_rs_id),
                     'w3-pale-red'
                 )
                 return redirect(url_for('md.index'), code=302)
