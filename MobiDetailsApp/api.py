@@ -2540,7 +2540,7 @@ def api_gene(gene_hgnc=None):
     if gene_hgnc is None:
         return jsonify(mobidetails_error='No gene submitted')
     if re.search(r'[^\w\.-]', gene_hgnc):
-        return jsonify(mobidetails_error='Invalid gene submitted ({})'.format(gene_hgnc))
+        return jsonify(mobidetails_error='Invalid gene submitted')
     research = gene_hgnc
     search_id = 'gene_symbol'
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
@@ -2561,14 +2561,6 @@ def api_gene(gene_hgnc=None):
             (research,)
         )
     else:
-        # curs.execute(
-        #     """
-        #     SELECT *
-        #     FROM gene
-        #     WHERE %s = %s
-        #     """,
-        #     (search_id, research)
-        # )
         curs.execute(
             """
             SELECT *
@@ -2619,7 +2611,7 @@ def api_gene(gene_hgnc=None):
         return jsonify(d_gene)
     else:
         close_db()
-        return jsonify(mobidetails_warning='Unknown gene ({})'.format(gene_hgnc))
+        return jsonify(mobidetails_warning='Unknown gene symbol')
 
 # -------------------------------------------------------------------
 # api - update class
