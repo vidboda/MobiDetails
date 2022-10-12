@@ -2264,20 +2264,25 @@ def check_api_key(db, api_key):  # in api
     if len(api_key) != 43:
         return {'mobidetails_error': 'Invalid API key'}
     else:
-        curs.execute(
-            """
-            SELECT *
-            FROM mobiuser
-            WHERE api_key = %s
-                AND activated = 't'
-            """,
-            (api_key,)
-        )
-        res = curs.fetchone()
-        if res is None:
-            return {'mobidetails_error': 'Unknown API key or unactivated account'}
+        api_match = re.search('^([\w-]+)$', api_key)
+        if api_match:
+            key_regexp_checked = api_match.group(1)
+            curs.execute(
+                """
+                SELECT *
+                FROM mobiuser
+                WHERE api_key = %s
+                    AND activated = 't'
+                """,
+                (key_regexp_checked,)
+            )
+            res = curs.fetchone()
+            if res is None:
+                return {'mobidetails_error': 'Unknown API key or unactivated account'}
+            else:
+                return {'mobiuser': res}
         else:
-            return {'mobiuser': res}
+            return {'mobidetails_error': 'Bad chars in API key'}
 
 
 def check_caller(caller):  # in api

@@ -887,7 +887,8 @@ def test_format_mirs(record, result):
 
 @pytest.mark.parametrize(('api_key', 'result'), (
     ('random', 'Invalid API key'),
-    ('ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'Unknown API key or unactivated account'),
+    ('ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'Bad chars in API key'),
+    ('ahkgs69jforjsgeghefqvx5vggdlzmpdtshenicldje', 'Unknown API key or unactivated account'),
     ('', 'mobidetails'),
 ))
 def test_check_api_key(app, api_key, result):

@@ -37,8 +37,8 @@ def check_api_key(api_key=None):
     if 'mobiuser' in response:
         close_db()
         if response['mobiuser']['activated'] is True:
-            return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='active')
-        return jsonify(api_key_submitted=api_key, api_key_pass_check=True, api_key_status='inactive')
+            return jsonify(api_key_submitted=response['mobiuser']['api_key'] , api_key_pass_check=True, api_key_status='active')
+        return jsonify(api_key_submitted=response['mobiuser']['api_key'] , api_key_pass_check=True, api_key_status='inactive')
     close_db()
     return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
 
