@@ -75,7 +75,7 @@ def check_vv_instance():
 def api_variant_exists(variant_ghgvs=None):
     if variant_ghgvs is None:
         return jsonify(mobidetails_error='No variant submitted')
-    match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', urllib.parse.unquote(variant_ghgvs))
+    match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)$', urllib.parse.unquote(variant_ghgvs))
     if match_object:
         db = get_db()
         # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
@@ -111,11 +111,12 @@ def api_variant_exists(variant_ghgvs=None):
                 )
             else:
                 close_db()
-                return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(variant_ghgvs))
+                checked_var_ghgvs = '{0}:g.{1}'.format(match_object.group(1).upper(), match_object.group(2))
+                return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(checked_var_ghgvs))
         else:
             return jsonify(mobidetails_error='The chromosome {} does not exist in MD'.format(match_object.group(1)))
     else:
-        return jsonify(mobidetails_error='Malformed query {}'.format(variant_ghgvs))
+        return jsonify(mobidetails_error='Malformed query, please check your input')
 
 # -------------------------------------------------------------------
 # api - variant
