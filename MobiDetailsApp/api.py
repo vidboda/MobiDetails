@@ -1962,7 +1962,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
         else:
             close_db()
             if caller == 'cli':
-                return jsonify(mobidetails_error='The gene {} is currently not available for variant annotation in MobiDetails'.format(gene))
+                return jsonify(mobidetails_error='The submitted gene is currently not available for variant annotation in MobiDetails')
             else:
                 flash(
                     """
@@ -2054,8 +2054,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                         return render_template('md/variant_multiple.html', vars_rs=vars_rs)
                         # return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
             # use mutalyzer to get HGVS nomenclatures
-            mutalyzer_url = "{0}getdbSNPDescriptions?rs_id={1}".format(
-                md_utilities.urls['mutalyzer_api_json'], rs_id
+            mutalyzer_url = "{0}getdbSNPDescriptions?rs_id=rs{1}".format(
+                md_utilities.urls['mutalyzer_api_json'], trunc_rs_id
             )
             # returns sthg like
             # ["NC_000011.10:g.112088901C>T", "NC_000011.9:g.111959625C>T", "NG_012337.3:g.7055C>T", "NM_003002.4:c.204C>T", "NM_003002.3:c.204C>T", "NM_001276506.2:c.204C>T", "NM_001276506.1:c.204C>T", "NR_077060.2:n.239C>T", "NR_077060.1:n.288C>T", "NM_001276504.2:c.87C>T", "NM_001276504.1:c.87C>T", "NG_033145.1:g.2898G>A"]
@@ -2070,12 +2070,12 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             except Exception:
                 close_db()
                 if caller == 'cli':
-                    return jsonify(mobidetails_error='Mutalyzer did not return any value for the variant {}.'.format(rs_id))
+                    return jsonify(mobidetails_error='Mutalyzer did not return any value for the variant rs{}.'.format(trunc_rs_id))
                 else:
                     flash(
                         """
-                        Mutalyzer did not return any value for the variant {}
-                        """.format(rs_id),
+                        Mutalyzer did not return any value for the variant rs{}
+                        """.format(trunc_rs_id),
                         'w3-pale-red'
                     )
                     return redirect(url_for('md.index'), code=302)
