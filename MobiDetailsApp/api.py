@@ -1,7 +1,7 @@
 import re
 import os
 from flask import (
-    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template
+    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template, escape
 )
 import psycopg2
 import psycopg2.extras
@@ -40,7 +40,7 @@ def check_api_key(api_key=None):
             return jsonify(api_key_submitted=response['mobiuser']['api_key'] , api_key_pass_check=True, api_key_status='active')
         return jsonify(api_key_submitted=response['mobiuser']['api_key'] , api_key_pass_check=True, api_key_status='inactive')
     close_db()
-    return jsonify(api_key_submitted=api_key, api_key_pass_check=False, api_key_status='irrelevant')
+    return jsonify(api_key_submitted=escape(api_key), api_key_pass_check=False, api_key_status='irrelevant')
 
 # -------------------------------------------------------------------
 # api - check which VV is running
