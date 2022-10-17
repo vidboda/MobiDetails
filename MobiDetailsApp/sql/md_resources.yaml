@@ -128,6 +128,9 @@
   'ncbi_pubmed': 'https://pubmed.ncbi.nlm.nih.gov/'
   'ncbi_litvar': 'https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query='
   'ncbi_litvar_api': 'https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1/public/rsids2pmids?rsids='
+  'ncbi_litvar2': 'https://www.ncbi.nlm.nih.gov/research/litvar2/'
+  'ncbi_litvar_apiv2': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar%40'
+  'ncbi_litvar_apiv2_sensor': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/sensor/'
   'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
@@ -239,11 +242,6 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
-  #'gnomad_3':
-  #  'rel_path': '/static/resources/gnomad/gnomad.genomes.r3.0.sites.vcf.bgz'
-  #  'name': 'gnomAD genome'
-  #  'description': 'Large dataset of variants population frequencies'
-  #  'short_name': 'gnomad'
   'gnomad_3':
     'rel_path': '/static/resources/gnomad/hg38_gnomad30_genome_sorted.txt.gz'
     'name': 'gnomAD genome'
@@ -274,11 +272,6 @@
     'name': 'LOVD JSON file'
     'description': 'LOVD JSON file for API calls and variant submission'
     'short_name': 'lovd_api_json'
-  # 'mane_transcripts':
-  #   'rel_path': '/static/resources/mane/MANE.GRCh38.v1.0.refseq.bb'
-  #   'name': 'MANE transcripts'
-  #   'description': 'Genomic coordinates of MANE transcripts'
-  #   'short_name': 'mane'
   'maxentscan':
     'rel_path': '/static/resources/maxentscan/'
     'name': 'MaxEntScan'
@@ -461,12 +454,12 @@
     'paper': '28132688'
     'version': 'API'
     'short_name': 'intervar'
-  'LitVar':
+  'LitVar2':
     'firstauthor': 'Allot'
     'year': '2018'
     'paper': '29762787'
     'version': 'API'
-    'short_name': 'ncbi_litvar'
+    'short_name': 'ncbi_litvar2'
   'LOVD':
     'firstauthor': 'Fokkema'
     'year': '2011'

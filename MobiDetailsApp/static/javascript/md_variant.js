@@ -46,6 +46,36 @@ function litvar(litvar_url, csrf_token) {
 		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed requires a dbSNP identifier</div>');
 	}
 }
+
+
+function litvar2(litvar_url, csrf_token) {
+	//ajax for litvar
+	if ($('#dbsnp_id').text() !== '') {
+		// send header for flask-wtf crsf security
+		$.ajaxSetup({
+			beforeSend: function(xhr, settings) {
+				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+					xhr.setRequestHeader("X-CSRFToken", csrf_token);
+				}
+			}
+		});
+		$.ajax({
+			type: "POST",
+			url: litvar_url,
+			data: {
+				rsid: $('#dbsnp_id').text()
+			}
+		})
+		.done(function(html) {
+			$("#litvar_data").replaceWith(html);
+		});
+	}
+	else {
+		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar2 for Pubmed requires a dbSNP identifier</div>');
+	}
+}
+
+
 function lovd(lovd_url, csrf_token) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security

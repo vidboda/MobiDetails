@@ -1,7 +1,7 @@
 import os
 import re
 from flask import (
-    Blueprint, flash, g, render_template, request, escape, url_for
+    Blueprint, flash, g, render_template, request, escape, url_for, escape
 )
 from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
@@ -44,7 +44,7 @@ def litvar():
             litvar_data = json.loads(
                 http.request(
                     'GET',
-                    litvar_url,
+                    escape(litvar_url),
                     headers=header
                 ).data.decode('utf-8')
             )
@@ -116,6 +116,127 @@ def litvar():
         return """
             <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
                 No match in Pubmed using LitVar API
+            </div>
+        """
+
+######################################################################
+# web app - ajax for litvar2
+
+
+@bp.route('/litvar2', methods=['POST'])
+def litvar2():
+    if re.search(r'^rs\d+$', request.form['rsid']):
+        header = md_utilities.api_agent
+        rsid = request.form['rsid']
+        litvar_data = None
+        litvar_url = "{0}{1}%23%23/publications".format(
+            md_utilities.urls['ncbi_litvar_apiv2'], rsid
+        )
+        # print(litvar_url)
+        try:
+            litvar_data = json.loads(
+                http.request(
+                    'GET',
+                    escape(litvar_url),
+                    headers=header
+                ).data.decode('utf-8')
+            )
+        except Exception as e:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    '<p>Litvar2 API call failed in {0} with args: {1}</p>'
+                    .format(
+                        os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return """
+            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                The Litvar2 query failed
+            </div>
+            """
+        if litvar_data is not None:
+            if len(litvar_data) == 0 or \
+                (
+                    'detail' in litvar_data and 
+                    re.search('Variant not found', litvar_data['detail'])
+                ):
+                return """
+                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                    No match in Pubmed using LitVar2 API
+                </div>
+                """
+            pubmed_info = {}
+            togows_url = '{0}/entry/ncbi-pubmed/'.format(
+                md_utilities.urls['togows']
+            )
+            pubmed_count = litvar_data['pmids_count']
+            for pubmed_id in litvar_data['pmids']:
+                togows_url = '{0}{1},'.format(togows_url, pubmed_id)
+            togows_url = '{0}.json'.format(togows_url[:-1])
+            try:
+                # using togows to get details on publications
+                pubmeds = json.loads(
+                    http.request(
+                        'GET',
+                        togows_url,
+                        headers=header
+                    ).data.decode('utf-8')
+                )
+                for article in pubmeds:
+                    # print(article)
+                    if 'authors' in article and \
+                            len(article['authors']) > 0:
+                        pmid = int(article['pmid'])
+                        pubmed_info[pmid] = {}
+                        pubmed_info[pmid]['title'] = article['title']
+                        pubmed_info[pmid]['journal'] = article['journal']
+                        pubmed_info[pmid]['year'] = article['year']
+                        pubmed_info[pmid]['author'] = article['authors'][0]
+            except Exception:
+                for pubmed_id in litvar_data['pmids']:
+                    pmid = int(pubmed_id)
+                    pubmed_info[pmid] = {}
+                    pubmed_info[pmid]['title'] = ''
+            # get litvar direct link of rsid
+            litvar_sensor_url = "{0}{1}".format(
+                md_utilities.urls['ncbi_litvar_apiv2_sensor'], rsid
+            )
+            try:
+                litvar_sensor = json.loads(
+                    http.request(
+                        'GET',
+                        escape(litvar_url),
+                        headers=header
+                    ).data.decode('utf-8')
+                )
+            except Exception as e:
+                pass
+            litvar_link = None
+            if 'rsid' in litvar_sensor and \
+                litvar_sensor['rsid'] == rsid and \
+                'link' in litvar_sensor:
+                litvar_link = litvar_sensor['link']
+            return render_template(
+                'ajax/litvar.html',
+                urls=md_utilities.urls,
+                pmids=pubmed_info,
+                pubmed_count=pubmed_count,
+                rsid=rsid,
+                litvar_link=litvar_link
+            )
+        else:
+            return """
+                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                    No match in Pubmed using LitVar2 API
+                </div>
+            """
+    else:
+        return """
+            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+                No match in Pubmed using LitVar2 API
             </div>
         """
 

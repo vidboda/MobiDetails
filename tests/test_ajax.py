@@ -84,6 +84,45 @@ def test_litvar(client, app):
             # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
             # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()
 
+# test litvar2
+
+
+def test_litvar2(client, app):
+    assert client.get('/litvar2').status_code == 405
+    with app.app_context():
+        db_pool, db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
+            SELECT dbsnp_id
+            FROM variant_feature
+            WHERE dbsnp_id IS NOT NULL
+            ORDER BY random()
+            LIMIT 5
+            """
+        )
+        # https://stackoverflow.com/questions/5297396/quick-random-row-selection-in-postgres
+        # discussion on how to select random rows in postgresql
+        res = curs.fetchall()
+        db_pool.putconn(db)
+        for values in res:
+            response = client.post(
+                '/litvar2',
+                data=dict(rsid='rs{0}'.format(values['dbsnp_id']))
+            )
+            assert response.status_code == 200
+            possible = [
+                b'No match in Pubmed using LitVar2 API',
+                b'PubMed links of articles citing this variant',
+                b'The Litvar2 query failed'
+            ]
+            # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
+            print(values['dbsnp_id'])
+            print(response.get_data())
+            assert any(test in response.get_data() for test in possible)
+            # assert b'<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">No match in Pubmed using LitVar API</div>' \
+            # in response.get_data() or b'PubMed IDs of articles citing this variant' in response.get_data()
+
 # test defgen
 
 
