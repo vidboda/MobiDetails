@@ -122,7 +122,7 @@ def test_api_variant2(app, client):
 @pytest.mark.parametrize(('new_variant', 'api_key', 'return_key', 'message'), (
     ('NM_206933.0:c.100C>T', 'random', 'mobidetails_error', 'Invalid API key'),
     ('NM_206933.4:c.100C>T', '', 'mobidetails_id', 334419),
-    ('NM_206933.10:c.100C>T', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
+    ('NM_206933.10:c.100C>T', 'ahkgs60jforjsge0hefqvx0v00dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
     ('M_206933.4:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
     ('NM_206933.9:c.10000C>T', '', 'mobidetails_error', 'It seems that your transcript version'),
 ))

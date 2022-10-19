@@ -1118,9 +1118,10 @@ def lovd():
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
                 """
-                <p>LOVD API call failed in {0} with args: a mandatory argument is missing</p>
+                <p>LOVD API call failed in {0} with args: a mandatory argument is missing for {1}</p>
                 """.format(
-                    os.path.basename(__file__)
+                    os.path.basename(__file__),
+                    request.form['c_name']
                 )
             ),
             '[MobiDetails - API Error]'
