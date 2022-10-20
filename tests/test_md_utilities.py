@@ -430,12 +430,18 @@ var_dup_hg19 = {
     'pos_ref': 'A',
     'pos_alt': 'AG'
 }
-var_ss_hg19 = {
+var_ss = {
     'chr': '7',
-    'pos': '117120202',
+    'pos': '117480148',
     'pos_ref': 'G',
     'pos_alt': 'T'
 }
+# var_ss_hg19 = {
+#     'chr': '7',
+#     'pos': '117120202',
+#     'pos_ref': 'G',
+#     'pos_alt': 'T'
+# }
 var_ss_f = {
     'dna_type': 'substitution',
     'prot_type': 'unknown',
@@ -479,9 +485,9 @@ var_ss_f = {
     ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome', var_dup_f),
     ('gnomADv3', var, '0.0013', 5, 'gnomad_3', var_f),
     ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3', var_dup_f),
-    ('Mistic', var_hg19, '0.876', 4, 'mistic', var_f),
-    ('dbscSNV', var_ss_hg19, '0.9999', 14, 'dbscsnv', var_ss_f),
-    ('dbscSNV', var_ss_hg19, '0.928', 15, 'dbscsnv', var_ss_f)
+    ('Mistic', var, '0.876', 4, 'mistic', var_f),
+    ('dbscSNV', var_ss, '0.9999', 14, 'dbscsnv', var_ss_f),
+    ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f)
 ))
 def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
     record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)

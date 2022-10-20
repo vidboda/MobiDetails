@@ -76,7 +76,7 @@ function litvar2(litvar_url, csrf_token) {
 }
 
 
-function lovd(lovd_url, csrf_token) {
+function lovd(lovd_url, csrf_token, genome, chrom, g_name) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security
     $.ajaxSetup({
@@ -90,7 +90,7 @@ function lovd(lovd_url, csrf_token) {
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), g_name: $('#hg19_g_name').text(), c_name: $('#c_name').text(), gene:$('#gene_symbol').text()
+			genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene:$('#gene_symbol').text()
 		}
         // pos: $('#pos_19').text(),
 	})
@@ -123,6 +123,8 @@ function lovd(lovd_url, csrf_token) {
 
 	});
 }
+
+
 function intervar(intervar_url, csrf_token) {
 	// ajax for intervar
 	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {

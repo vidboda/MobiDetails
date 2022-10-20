@@ -218,7 +218,7 @@
     'description': 'Dataset of predictions for missense'
     'short_name': 'dbnsfp'
   'dbscsnv':
-    'rel_path': '/static/resources/dbscSNV/hg19/dbscSNV.txt.gz'
+    'rel_path': '/static/resources/dbscSNV/hg38/dbscSNV.txt.gz'
     'name': 'dbscSNV'
     'description': 'Dataset of splicing predictions'
     'short_name': 'dbscsnv'
@@ -283,7 +283,7 @@
     'description': 'Mutation tolerance at each position in a human protein'
     'short_name': 'metadome'
   'mistic':
-    'rel_path': '/static/resources/mistic/MISTIC_GRCh37.tsv.gz'
+    'rel_path': '/static/resources/mistic/MISTIC_GRCh38.tsv.gz'
     'name': 'Mistic scores'
     'description': 'Pre-computed Mistic scores for all possible human missense variant'
     'short_name': 'mistic'

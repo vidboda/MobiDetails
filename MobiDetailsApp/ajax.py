@@ -208,7 +208,7 @@ def litvar2():
                 litvar_sensor = json.loads(
                     http.request(
                         'GET',
-                        escape(litvar_url),
+                        escape(litvar_sensor_url),
                         headers=header
                     ).data.decode('utf-8')
                 )
@@ -216,8 +216,8 @@ def litvar2():
                 pass
             litvar_link = None
             if 'rsid' in litvar_sensor and \
-                litvar_sensor['rsid'] == rsid and \
-                'link' in litvar_sensor:
+                    litvar_sensor['rsid'] == rsid and \
+                    'link' in litvar_sensor:
                 litvar_link = litvar_sensor['link']
             return render_template(
                 'ajax/litvar.html',
@@ -344,8 +344,8 @@ def intervar():
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
         if ref == alt:
-            return 'hg19 reference is equal to variant: no wIntervar query'
-        intervar_url = "{0}{1}_updated.v.202107&chr={2}&pos={3}\
+            return 'hg38 reference is equal to variant: no wIntervar query'
+        intervar_url = "{0}{1}&chr={2}&pos={3}\
 &ref={4}&alt={5}".format(
             md_utilities.urls['intervar_api'], genome, chrom,
             pos, ref, alt

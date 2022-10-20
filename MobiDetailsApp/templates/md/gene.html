@@ -105,10 +105,10 @@
 				<tbody>
 					{% for iso in res %}
 						{% if iso.variant_creation != 'not_in_vv_json' %}
-							{% if iso.variant_creation != 'ok' %}
+							{% if iso.variant_creation != 'ok' and iso.variant_creation != 'hg19_mapping_default' %}
 								<tr style="opacity:0.2;">
 							{% else %}
-								<tr>
+								<tr>{{ iso.variant_creation }}
 							{% endif %}
 								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.refseq }}', '_blank')" title="click to open Genbank in new tab">
 									<strong><span>{{ iso.refseq }}
@@ -119,7 +119,7 @@
 												</div>
 											</div>
 										{% endif %}
-										{% if iso.variant_creation != 'ok' %}
+										{% if iso.variant_creation != 'ok' and iso.variant_creation != 'hg19_mapping_default' %}
 											<div class="w3-tag w3-round w3-red" style="padding:3px">
 												<div class="w3-tag w3-round w3-red w3-border w3-border-white">
 													disabled: {{ iso.variant_creation|replace('_', ' ') }}
@@ -160,7 +160,7 @@
 								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
 									<span>{{ iso.np }}</span>
 								</td>
-								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab"
+								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab">
 									<span>{{ iso.uniprot_id }}</span>
 								</td>
 							</tr>

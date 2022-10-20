@@ -194,7 +194,7 @@
 										<option value="{{ main_iso.refseq }}" >{{ main_iso.refseq }}</option>
 										{% for iso in res %}
 											{% if iso.refseq != main_iso.refseq %}
-												{% if iso.variant_creation == 'ok' %}
+												{% if iso.variant_creation == 'ok' or iso.variant_creation == 'hg19_mapping_default' %}
 													<option value="{{ iso.refseq }}">{{ iso.refseq }}</option>
 												{% else %}
 													<option value="{{ iso.refseq }}" disabled="disabled">{{ iso.refseq }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>

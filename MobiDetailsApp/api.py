@@ -167,7 +167,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         'gene': {
             'symbol': None,
             'RefSeqTranscript': None,
-            'RefSeqNg': None,
+            # 'RefSeqNg': None,
             'RefSeqNp': None,
             'ENST': None,
             'ENSP': None,
@@ -184,7 +184,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'nomenclatures': {
             'cName': None,
-            'ngName': None,
+            # 'ngName': None,
             'ivsName': None,
             'pName': None,
             'hg19gName': None,
@@ -331,7 +331,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'nomenclatures': {
             'cName': None,
-            'ngName': None,
+            # 'ngName': None,
             'pName': None,
         },
         'VCF': {
@@ -448,7 +448,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         # fill in dicts
         external_data['variantId'] = variant_features['var_id']
         external_data['nomenclatures']['cName'] = 'c.{}'.format(variant_features['c_name'])
-        external_data['nomenclatures']['ngName'] = 'g.{}'.format(variant_features['ng_name'])
+        # external_data['nomenclatures']['ngName'] = 'g.{}'.format(variant_features['ng_name'])
         external_data['nomenclatures']['ivsName'] = variant_features['ivs_name']
         external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
         external_data['sequences']['wildType'] = variant_features['wt_seq']
@@ -456,12 +456,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
         # for HTML webpages
         internal_data['nomenclatures']['cName'] = var_cname
-        internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
+        # internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
 
         external_data['gene']['symbol'] = variant_features['gene_symbol']
         external_data['gene']['RefSeqTranscript'] = variant_features['refseq']
-        external_data['gene']['RefSeqNg'] = variant_features['ng']
+        # external_data['gene']['RefSeqNg'] = variant_features['ng']
         external_data['gene']['RefSeqNp'] = variant_features['np']
         external_data['gene']['ENST'] = variant_features['enst']
         external_data['gene']['ENSP'] = variant_features['ensp']
@@ -825,7 +825,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 else:
                     # print(record)
                     external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
-                # dbNSFP
+                # dbNSFP and others
                 if variant_features['prot_type'] == 'missense':
                     # CADD
                     record = md_utilities.get_value_from_tabix_file(
@@ -1004,6 +1004,22 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 external_data['overallPredictions']['mpaImpact'] = 'Moderate missense'
                             else:
                                 external_data['overallPredictions']['mpaImpact'] = 'Low missense'
+                    # mistic
+                    if variant_features['prot_type'] == 'missense' and \
+                            external_data['gene']['chromosome'] != 'Y':
+                        record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            external_data['missensePredictions']['misticScore'] = record
+                        else:
+                            external_data['missensePredictions']['misticScore'] = record[4]
+                        internal_data['missensePredictions']['misticColor'] = "#000000"
+                        external_data['missensePredictions']['misticPred'] = 'no prediction'
+                        if re.search(r'^[\d\.]+$', external_data['missensePredictions']['misticScore']):
+                            external_data['missensePredictions']['misticScore'] = format(float(external_data['missensePredictions']['misticScore']), '.2f')
+                            internal_data['missensePredictions']['misticColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['misticScore'], 'mistic')
+                            external_data['missensePredictions']['misticPred'] = 'Tolerated'
+                            if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
+                                external_data['missensePredictions']['misticPred'] = 'Damaging'
                 # dbMTS
                 if variant_features['dna_type'] == 'substitution' and \
                         re.search(r'^\*', variant_features['c_name']):
@@ -1065,6 +1081,46 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         else:
                             external_data['overallPredictions']['caddRaw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
                             external_data['overallPredictions']['caddPhred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+                if variant_features['dna_type'] == 'substitution':
+                    # dbscSNV
+                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                        external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                        if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                            splicing_radar_labels.append('dbscSNV ADA')
+                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                        if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                            splicing_radar_labels.append('dbscSNV RF')
+                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                    else:
+                        try:
+                            external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
+                            internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
+                            if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                                splicing_radar_labels.append('dbscSNV ADA')
+                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                        except Exception:
+                            # "score" is '.'
+                            external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                        try:
+                            external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
+                            internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
+                            if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                                splicing_radar_labels.append('dbscSNV RF')
+                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                        except Exception:
+                            # "score" is '.'
+                            external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                        # dbscsnv_mpa_threshold = 0.8
+                        if not external_data['overallPredictions']['mpaScore'] or \
+                                external_data['overallPredictions']['mpaScore'] < 10:
+                            if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
+                                float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
+                                (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
+                                 float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
+                                external_data['overallPredictions']['mpaScore'] = 10
+                                external_data['overallPredictions']['mpaImpact'] = 'High splice'
                 # spliceAI 1.3
                 # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
                 # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
@@ -1145,61 +1201,61 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     else:
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # mistic
-                if variant_features['prot_type'] == 'missense' and \
-                        external_data['gene']['chromosome'] != 'Y':
-                    record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
-                    if isinstance(record, str):
-                        external_data['missensePredictions']['misticScore'] = record
-                    else:
-                        external_data['missensePredictions']['misticScore'] = record[4]
-                    internal_data['missensePredictions']['misticColor'] = "#000000"
-                    external_data['missensePredictions']['misticPred'] = 'no prediction'
-                    if re.search(r'^[\d\.]+$', external_data['missensePredictions']['misticScore']):
-                        external_data['missensePredictions']['misticScore'] = format(float(external_data['missensePredictions']['misticScore']), '.2f')
-                        internal_data['missensePredictions']['misticColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['misticScore'], 'mistic')
-                        external_data['missensePredictions']['misticPred'] = 'Tolerated'
-                        if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
-                            external_data['missensePredictions']['misticPred'] = 'Damaging'
-                if variant_features['dna_type'] == 'substitution':
-                    # dbscSNV
-                    record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
-                    if isinstance(record, str):
-                        external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                        external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                        if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                            splicing_radar_labels.append('dbscSNV ADA')
-                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                        if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                            splicing_radar_labels.append('dbscSNV RF')
-                            splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                    else:
-                        try:
-                            external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
-                            internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
-                            if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                                splicing_radar_labels.append('dbscSNV ADA')
-                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                        except Exception:
-                            # "score" is '.'
-                            external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                        try:
-                            external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
-                            internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
-                            if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                                splicing_radar_labels.append('dbscSNV RF')
-                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                        except Exception:
-                            # "score" is '.'
-                            external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                        # dbscsnv_mpa_threshold = 0.8
-                        if not external_data['overallPredictions']['mpaScore'] or \
-                                external_data['overallPredictions']['mpaScore'] < 10:
-                            if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
-                                float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
-                                (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
-                                 float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
-                                external_data['overallPredictions']['mpaScore'] = 10
-                                external_data['overallPredictions']['mpaImpact'] = 'High splice'
+                # if variant_features['prot_type'] == 'missense' and \
+                #         external_data['gene']['chromosome'] != 'Y':
+                #     record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
+                #     if isinstance(record, str):
+                #         external_data['missensePredictions']['misticScore'] = record
+                #     else:
+                #         external_data['missensePredictions']['misticScore'] = record[4]
+                #     internal_data['missensePredictions']['misticColor'] = "#000000"
+                #     external_data['missensePredictions']['misticPred'] = 'no prediction'
+                #     if re.search(r'^[\d\.]+$', external_data['missensePredictions']['misticScore']):
+                #         external_data['missensePredictions']['misticScore'] = format(float(external_data['missensePredictions']['misticScore']), '.2f')
+                #         internal_data['missensePredictions']['misticColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['misticScore'], 'mistic')
+                #         external_data['missensePredictions']['misticPred'] = 'Tolerated'
+                #         if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
+                #             external_data['missensePredictions']['misticPred'] = 'Damaging'
+                # if variant_features['dna_type'] == 'substitution':
+                #     # dbscSNV
+                #     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
+                #     if isinstance(record, str):
+                #         external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                #         external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                #         if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                #             splicing_radar_labels.append('dbscSNV ADA')
+                #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                #         if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                #             splicing_radar_labels.append('dbscSNV RF')
+                #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                #     else:
+                #         try:
+                #             external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
+                #             internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
+                #             if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                #                 splicing_radar_labels.append('dbscSNV ADA')
+                #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                #         except Exception:
+                #             # "score" is '.'
+                #             external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                #         try:
+                #             external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
+                #             internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
+                #             if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                #                 splicing_radar_labels.append('dbscSNV RF')
+                #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                #         except Exception:
+                #             # "score" is '.'
+                #             external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                #         # dbscsnv_mpa_threshold = 0.8
+                #         if not external_data['overallPredictions']['mpaScore'] or \
+                #                 external_data['overallPredictions']['mpaScore'] < 10:
+                #             if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
+                #                 float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
+                #                 (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
+                #                  float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
+                #                 external_data['overallPredictions']['mpaScore'] = 10
+                #                 external_data['overallPredictions']['mpaImpact'] = 'High splice'
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info
@@ -1420,7 +1476,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                     SELECT gene_symbol, canonical
                     FROM gene
                     WHERE refseq = %s
-                        AND variant_creation = 'ok'
+                        AND variant_creation IN ('ok', 'hg19_mapping_default')
                     """,
                     (acc_no,)
                 )
@@ -1433,7 +1489,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         SELECT refseq
                         FROM gene
                         WHERE refseq LIKE %s
-                            AND variant_creation = 'ok'
+                            AND variant_creation IN ('ok', 'hg19_mapping_default')
                         """,
                         ('{0}%'.format(refseq),)
                     )

@@ -1051,9 +1051,9 @@ def create_var_vv(
             # print(vv_data[first_level_key])
             # print(warning)
             variant_regexp = regexp['variant']
-            if re.search(r'RefSeqGene record not available', warning):
-                vf_d['ng_name'] = 'NULL'
-            elif re.search(r'automapped to NC_0000', warning):
+            # if re.search(r'RefSeqGene record not available', warning):
+            #     vf_d['ng_name'] = 'NULL'
+            if re.search(r'automapped to NC_0000', warning):
                 continue
             elif re.search(
                     rf'automapped to {acc_no}:c\.{variant_regexp}',
@@ -1102,22 +1102,34 @@ def create_var_vv(
                     continue
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto
-                    # both genome versions
+                    # 
                     ncbi_chrom_regexp = regexp['ncbi_chrom']
                     # print(vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description'])
                     # print(vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description'])
+                    # if 'primary_assembly_loci' in vv_data[vv_key_var]\
+                    #     and \
+                    #     'hg19' in \
+                    #     vv_data[vv_key_var]['primary_assembly_loci']\
+                    #     and \
+                    #     'hgvs_genomic_description' in \
+                    #     vv_data[vv_key_var]['primary_assembly_loci']['hg19'] \
+                    #     and \
+                    #     re.search(
+                    #         rf'{ncbi_chrom_regexp}:g\.(.+)$',
+                    #         vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']
+                    #     ) and \
+                    #     'hg38' in \
+                    #     vv_data[vv_key_var]['primary_assembly_loci'] \
+                    #     and \
+                    #     'hgvs_genomic_description' in \
+                    #     vv_data[vv_key_var]['primary_assembly_loci']['hg38'] \
+                    #     and \
+                    #     re.search(
+                    #         rf'{ncbi_chrom_regexp}:g\.(.+)$',
+                    #         vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
+                    #         ):
                     if 'primary_assembly_loci' in vv_data[vv_key_var]\
                         and \
-                        'hg19' in \
-                        vv_data[vv_key_var]['primary_assembly_loci']\
-                        and \
-                        'hgvs_genomic_description' in \
-                        vv_data[vv_key_var]['primary_assembly_loci']['hg19'] \
-                        and \
-                        re.search(
-                            rf'{ncbi_chrom_regexp}:g\.(.+)$',
-                            vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']
-                        ) and \
                         'hg38' in \
                         vv_data[vv_key_var]['primary_assembly_loci'] \
                         and \
@@ -1203,8 +1215,17 @@ def create_var_vv(
             elif caller == 'cli':
                 return hg38_d
     except Exception:
-        # print(vv_data)
-        error_text = "Transcript {0} for gene {1} does not seem to map correctly to hg38. Currently, MobiDetails requires proper mapping on hg38 and hg19. It is therefore impossible to create a variant.".format(acc_no, gene)
+        # should not occur anymore but kept for safety
+        error_text = "Transcript {0} for gene {1} does not seem to map correctly to hg38. MobiDetails requires proper mapping on hg38. It is therefore impossible to create a variant.".format(acc_no, gene)
+        if caller == 'browser':
+            return danger_panel(
+                vv_key_var,
+                error_text
+            )
+        elif caller == 'cli':
+            return {'mobidetails_error':  error_text}
+    if not hg38_d:
+        error_text = "Transcript {0} for gene {1} does not seem to map correctly to hg38. MobiDetails requires proper mapping on hg38. It is therefore impossible to create a variant.".format(acc_no, gene)
         if caller == 'browser':
             return danger_panel(
                 vv_key_var,
@@ -1229,6 +1250,7 @@ def create_var_vv(
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
+            # should not happen, kept for safety
             if caller == 'browser':
                 return danger_panel(
                     'MobiDetails error',
@@ -1237,18 +1259,21 @@ def create_var_vv(
             elif caller == 'cli':
                 return hg19_d
     except Exception:
-        error_text = """
-        Transcript {0} for gene {1} does not seem to map correctly to hg19.
-        Currently, MobiDetails requires proper mapping on hg38 and hg19.
-        It is therefore impossible to create a variant.
-        """.format(acc_no, gene)
-        if caller == 'browser':
-            return danger_panel(
-                vv_key_var,
-                error_text
-            )
-        elif caller == 'cli':
-            return {'mobidetails_error': error_text}
+        # error_text = """
+        # Transcript {0} for gene {1} does not seem to map correctly to hg19.
+        # Currently, MobiDetails requires proper mapping on hg38 and hg19.
+        # It is therefore impossible to create a variant.
+        # """.format(acc_no, gene)
+        # if caller == 'browser':
+        #     return danger_panel(
+        #         vv_key_var,
+        #         error_text
+        #     )
+        # elif caller == 'cli':
+        #     return {'mobidetails_error': error_text}
+        # bad hg19 mapping
+        hg19_d = None
+        pass
     positions = compute_start_end_pos(hg38_d['g_name'])
     if positions[0] == '-1':
         error_text = """
@@ -1266,15 +1291,16 @@ def create_var_vv(
     if 'c_name' not in vf_d:
         var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
-    if 'ng_name' not in vf_d:
-        ng_name_obj = re.search(
-            r':g\.(.+)$',
-            vv_data[vv_key_var]['hgvs_refseqgene_variant']
-        )
-        if ng_name_obj:
-            vf_d['ng_name'] = ng_name_obj.group(1)
-        else:
-            vf_d['ng_name'] = 'NULL'
+    # NG name removed
+    # if 'ng_name' not in vf_d:
+    #     ng_name_obj = re.search(
+    #         r':g\.(.+)$',
+    #         vv_data[vv_key_var]['hgvs_refseqgene_variant']
+    #     )
+    #     if ng_name_obj:
+    #         vf_d['ng_name'] = ng_name_obj.group(1)
+    #     else:
+    #         vf_d['ng_name'] = 'NULL'
     # dna_type
     if re.search('>', vf_d['c_name']):
         vf_d['dna_type'] = 'substitution'
@@ -1715,35 +1741,36 @@ def create_var_vv(
                 Impossible to insert variant (hg38) for {}
                 """.format(vv_key_var)
             }
-    insert_variant_19 = """
-        INSERT INTO variant (feature_id, {0})
-        VALUES ('{1}', '{2}')
-    """.format(
-        s.join(hg19_d.keys()),
-        vf_id,
-        t.join(map(str, hg19_d.values()))
-    )
-    try:
-        curs.execute(insert_variant_19)
-    except Exception as e:
-        if caller == 'browser':
-            send_error_email(
-                prepare_email_html(
-                    'MobiDetails error',
-                    """
-                    <p>Insertion failed for variant hg19 for {0} with args {1}, {2}</p>
-                    """.format(vv_key_var, e.args, insert_variant_19)
-                ),
-                '[MobiDetails - MD variant creation Error]'
-            )
-            return danger_panel(
-                'MobiDetails error {}'.format(vv_key_var),
-                """Sorry, an issue occured with variant mapping in hg19. An admin has been warned"""
-            )
-        elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """Impossible to insert variant (hg19) for {}""".format(vv_key_var)}
+    if hg19_d:
+        insert_variant_19 = """
+            INSERT INTO variant (feature_id, {0})
+            VALUES ('{1}', '{2}')
+        """.format(
+            s.join(hg19_d.keys()),
+            vf_id,
+            t.join(map(str, hg19_d.values()))
+        )
+        try:
+            curs.execute(insert_variant_19)
+        except Exception as e:
+            if caller == 'browser':
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        """
+                        <p>Insertion failed for variant hg19 for {0} with args {1}, {2}</p>
+                        """.format(vv_key_var, e.args, insert_variant_19)
+                    ),
+                    '[MobiDetails - MD variant creation Error]'
+                )
+                return danger_panel(
+                    'MobiDetails error {}'.format(vv_key_var),
+                    """Sorry, an issue occured with variant mapping in hg19. An admin has been warned"""
+                )
+            elif caller == 'cli':
+                return {
+                    'mobidetails_error':
+                    """Impossible to insert variant (hg19) for {}""".format(vv_key_var)}
     db.commit()
     return vf_id
 
@@ -1860,7 +1887,7 @@ def get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_
 
 
 def get_genomic_values(genome, vv_data, vv_key_var):
-    if vv_data[vv_key_var]['primary_assembly_loci'][genome]:
+    if genome in vv_data[vv_key_var]['primary_assembly_loci']:
         g_name_obj = re.search(
             r':g\.(.+)$',
             vv_data[vv_key_var]['primary_assembly_loci'][genome]['hgvs_genomic_description']
@@ -1885,14 +1912,18 @@ def get_genomic_values(genome, vv_data, vv_key_var):
                 MobiDetails currently only accepts variants of length < 50 bp (SNVs ans small insertions/deletions)
                 """
             }
-        return {
-            'genome_version': genome,
-            'g_name': g_name_obj.group(1),
-            'chr': chr_obj.group(1),
-            'pos': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['pos'],
-            'pos_ref': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref'],
-            'pos_alt': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']
-        }
+        if chr_obj and \
+                g_name_obj:
+            return {
+                'genome_version': genome,
+                'g_name': g_name_obj.group(1),
+                'chr': chr_obj.group(1),
+                'pos': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['pos'],
+                'pos_ref': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['ref'],
+                'pos_alt': vv_data[vv_key_var]['primary_assembly_loci'][genome]['vcf']['alt']
+            }
+        return None
+    return None
 
 
 def check_vv_variant_data(vv_key_var, vv_data):
@@ -1913,25 +1944,31 @@ def check_vv_variant_data(vv_key_var, vv_data):
         if 'primary_assembly_loci' not in vv_data[vv_key_var] or \
                 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci']:
             return 'The variant does not seem to map properly on hg38, which is mandatory for MD to treat it.'
-        if 'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
-            return 'The variant does not seem to map properly on hg19, which is mandatory for MD to treat it.'
-        if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
-                'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+        # if 'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
+        #     return 'The variant does not seem to map properly on hg19, which is mandatory for MD to treat it.'
+        if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']:
+                #  or \
+                # 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
             return 'The variant is lacking proper genomic description in the variant validation.'
-        if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38'] or \
-                'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
+        if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']:
+                #  or \
+                # 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
             return 'The variant is lacking VCF description in the variant validation.'
-        if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+        if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
+            #  or \
+            #     'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking chr description in the variant validation.'
-        if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+        if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
+            #  or \
+            #     'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking position description in the variant validation.'
-        if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+        if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
+            #  or \
+            #     'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking reference description in the variant validation.'
-        if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf'] or \
-                'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
+        if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
+            #  or \
+            #     'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking alternative description in the variant validation.'
         if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
             return 'The variant is lacking RefSeqGene description in the variant validation.'
