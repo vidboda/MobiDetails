@@ -1771,7 +1771,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                 FROM gene
                 WHERE hgnc_id = %s
                     AND canonical = 't'
-                    AND variant_creation = 'ok'
+                    AND variant_creation IN ('ok', 'hg19_mapping_default')
                 """,
                 (gene,)
             )
@@ -1783,7 +1783,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                 FROM gene
                 WHERE gene_symbol = %s
                     AND canonical = 't'
-                    AND variant_creation = 'ok'
+                    AND variant_creation IN ('ok', 'hg19_mapping_default')
                 """,
                 (gene,)
             )

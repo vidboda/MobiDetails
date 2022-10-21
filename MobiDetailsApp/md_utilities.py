@@ -1273,7 +1273,6 @@ def create_var_vv(
         #     return {'mobidetails_error': error_text}
         # bad hg19 mapping
         hg19_d = None
-        pass
     positions = compute_start_end_pos(hg38_d['g_name'])
     if positions[0] == '-1':
         error_text = """

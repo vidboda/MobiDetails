@@ -108,7 +108,7 @@
 							{% if iso.variant_creation != 'ok' and iso.variant_creation != 'hg19_mapping_default' %}
 								<tr style="opacity:0.2;">
 							{% else %}
-								<tr>{{ iso.variant_creation }}
+								<tr>
 							{% endif %}
 								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.refseq }}', '_blank')" title="click to open Genbank in new tab">
 									<strong><span>{{ iso.refseq }}
