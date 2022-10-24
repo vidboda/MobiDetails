@@ -48,7 +48,7 @@ def index():
         """
         SELECT COUNT(DISTINCT(gene_symbol)) AS gene, COUNT(refseq) AS transcript
         FROM gene
-        WHERE variant_creation = 'ok'
+        WHERE variant_creation = 'ok' OR variant_creation = 'hg19_mapping_default'
         """
     )
     res = curs.fetchone()

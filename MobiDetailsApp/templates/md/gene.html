@@ -90,6 +90,7 @@
 			</table>
 		</div>
 		<br /><br />
+		{% set mapping_warning = namespace(hg38_warrantied='no') %}
 		<div class="w3-responsive" id="info_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
 				<caption>Transcript info table:</caption>
@@ -149,6 +150,14 @@
 												</div>
 											</div>
 										{% endif %}
+										{% if iso.variant_creation == 'hg19_mapping_default' %}
+											{% set mapping_warning.hg38_warrantied = 'yes' %}
+											<div class="w3-tag w3-round w3-orange" style="padding:3px">
+												<div class="w3-tag w3-round w3-orange w3-border w3-border-white">
+													hg38 warranted <sup>#</sup>
+												</div>
+											</div>
+										{% endif %}
 									{% endif %}
 								</td>
 								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
@@ -170,6 +179,9 @@
 			</table>
 		</div><br /><br />
 		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.") }}
+		{% if mapping_warning.hg38_warrantied == 'yes' %}
+			{{ info("<strong><sup>#</sup> this tag means that variants on this transcript will map onto hg38, but may or may not correctly map on hg19, depending on the transcript and on the variant localisation. If the variant fails to map on hg19, some functionalities will be disabled in the variant analysis page. Missense predictions in particular may be incomplete.</strong>") }}
+		{% endif %}
 		<br /><br />
 		<div id="created_variant"></div>
 {% endblock %}
