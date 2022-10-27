@@ -1259,6 +1259,19 @@ def modif_class():
             # get HGVS genomic, cDNA, protein HGNC
             # gene symbol and refseq acc version
             genome_version = 'hg19'
+            # swith to hg38 if hg38 only
+            curs.execute(
+                """
+                SELECT genome_version
+                FROM variant
+                WHERE feature_id = %s
+                    AND genome_version = %s
+                """,
+                (variant_id, genome_version)
+            )
+            res_genome = curs.fetchone()
+            if not res_genome:
+                genome_version = 'hg38'
             curs.execute(
                 """
                 SELECT a.c_name, a.gene_symbol, a.refseq, a.p_name, a.dbsnp_id, b.g_name, d.hgnc_id, c.ncbi_name
@@ -1302,7 +1315,8 @@ def modif_class():
             # Send data to LOVD if relevant
             # REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] \
             # WHEN LOVD FEATURE IS READY
-            if g.user['lovd_export'] is True:
+            if g.user['lovd_export'] is True and \
+                    genome_version == 'hg19':
                 # and \
                 # url_parse(
                 #     request.referrer
