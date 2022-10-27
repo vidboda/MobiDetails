@@ -500,7 +500,7 @@ def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name
 
 def test_getdbNSFP_results():
     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, var_f)
-    score, pred, star = md_utilities.getdbNSFP_results(0, 36, 38, ';', 'basic', 1.1, 'lt', record)
+    score, pred, star = md_utilities.getdbNSFP_results(0, 37, 39, ';', 'basic', 1.1, 'lt', record)
     assert score == '0.0'
     assert pred == 'Damaging'
     assert star == ''
