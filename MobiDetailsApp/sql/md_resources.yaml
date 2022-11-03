@@ -22,6 +22,7 @@
 'api_agent':
   'Accept': 'application/json'
   'User-Agent': 'MobiDetails (mobidetails.iurc@gmail.com)'
+'user_agent': 'MobiDetails (mobidetails.iurc@gmail.com)'
 'complement':
   'A': 'T'
   'C': 'G'
@@ -157,24 +158,12 @@
   'variant_validator': 'https://variantvalidator.org/service/validate/?variant='
   # uncomment below to use genuine VV web API VV2 - 2021
   'variant_validator_api': 'https://rest.variantvalidator.org/'
-  # uncomment below to use VV2 IURC
-  # 'variant_validator_api': 'http://194.167.35.195:8000/'
-  # uncomment below to use VV on monster
-  # 'variant_validator_api_backup': 'http://194.167.35.245:8000/'
-  # uncomment below to use VV on IURC Ovirt restvv
+  # VV on IURC Ovirt restvv
   'variant_validator_api_backup': 'http://194.167.35.195:8000/'
-  # uncomment below to use VV on genuine VV 2 - 2021
-  # 'variant_validator_api': 'https://www608.lamp.le.ac.uk/'
   # hello on genuine VV VV2 - 2021
   'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
-  # hello on genuine VV2 IURC
-  # 'variant_validator_api_hello': 'http://194.167.35.195:8000/hello/?content-type=application/json'
-  # hello on monster VV
-  # 'variant_validator_api_hello_backup': 'http://194.167.35.245:8000/hello/?content-type=application/json'
   # hello on IURC OVirt restvv
   'variant_validator_api_hello_backup': 'http://194.167.35.195:8000/hello/?content-type=application/json'
-  # hello on genuine VV dev
-  # 'variant_validator_api_hello': 'https://www608.lamp.le.ac.uk/hello/?content-type=application/json'
 # attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
 # 'internal_urls':
 #   'prod_prefix': '/MD/'

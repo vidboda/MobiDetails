@@ -997,6 +997,13 @@ def test_get_tinyurl_api_key(app):
         assert re.search(r'^\w+$', tinyurl_api_key)
 
 
+def test_get_vv_token(app):
+    with app.app_context():
+        vv_token = md_utilities.get_vv_token()
+        assert len(vv_token) == 119
+        assert re.search(r'^[\w\.-]+$', vv_token)
+
+
 @pytest.mark.parametrize(('p_name', 'aa1', 'ppos', 'aa2'), (
     ('Pro1239Phe', 'P', '1239', 'F'),
     ('Pro1239X', None, None, None),

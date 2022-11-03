@@ -24,7 +24,8 @@ def app():
         'WTF_CSRF_ENABLED': False,
         'ALLOWED_EXTENSIONS': '[txt]',
         'RUN_MODE': 'on',
-        'TINY_URL_API_KEY': '19d5ze3g8e4a68t4s699s4ed42e6r2t8yf7z8r9t5y4h7g8d5z2e1r4f87f6'
+        'TINY_URL_API_KEY': '19d5ze3g8e4a68t4s699s4ed42e6r2t8yf7z8r9t5y4h7g8d5z2e1r4f87f6',
+        'VV_TOKEN': 'eXObqceEgR2l4W6bNl9lkb.ruhyWVE3hBnrkL85qWFpyqU3mdD790ctIP6r4e-FakowUjFxuEp4CwpA7apILdGdjLOJVXeEpkKuFpNeV6wiSiiROfk0CbFD'
     })
     # app.test_client_class = FlaskClient
     with app.app_context():

@@ -1404,6 +1404,11 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     variant_chgvs = md_utilities.get_post_param(request, 'variant_chgvs')
     api_key = md_utilities.get_post_param(request, 'api_key')
     header = md_utilities.api_agent
+    vv_header = urllib3.make_headers(
+        basic_auth='{0}:'.format(md_utilities.get_vv_token()),
+        user_agent=md_utilities.user_agent
+    )
+    # basic_auth='{0}:'.format(md_utilities.get_vv_token()),
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(
@@ -1543,6 +1548,8 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                             vv_url,
                         ).data.decode('utf-8')
                     )
+                    # print(vv_header)
+                    # print(vv_url)
                 except Exception:
                     close_db()
                     if caller == 'cli':

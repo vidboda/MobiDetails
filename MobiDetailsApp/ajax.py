@@ -880,8 +880,9 @@ def lovd():
         header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
+            # TODO switch genome and retest
             return md_utilities.lovd_error_html(
-                "hg19 reference is equal to variant: no LOVD query"
+                "Genomic reference is equal to variant: no LOVD query"
             )
             # return 'hg19 reference is equal to variant: no LOVD query'
         positions = md_utilities.compute_start_end_pos(g_name)

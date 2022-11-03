@@ -27,6 +27,7 @@ host = resources['host']
 regexp = resources['regexp']
 
 api_agent = resources['api_agent']
+user_agent = resources['user_agent']
 
 ext_exe = resources['ext_exe']
 ext_exe['maxentscan5'] = '{0}{1}'.format(
@@ -2035,6 +2036,8 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('An insertion must be provided with the two positions between which the insertion has taken place', warning):
                             return warning
+                        if re.search('Variant start position and/or end position are beyond the CDS end position and likely also beyond the end of the selected reference sequence', warning):
+                            return warning
                         if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
                             return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
@@ -2482,6 +2485,10 @@ def get_running_mode():
 
 def get_tinyurl_api_key():
     return app.config['TINY_URL_API_KEY']
+
+
+def get_vv_token():
+    return app.config['VV_TOKEN']
 
 
 def build_redirect_url(incoming_url=None):
