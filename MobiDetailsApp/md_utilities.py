@@ -2016,6 +2016,8 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('Removing redundant reference bases from variant description', warning):
                             return warning
+                        if re.search('does not correspond with an exon boundary for transcript', warning):
+                            return warning
                         if re.search('expected one of', warning):
                             return warning
                         if re.search('end of input', warning):
@@ -2040,7 +2042,7 @@ def return_vv_validation_warnings(vv_data):
                             return warning
                         if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
                             return warning
-                        match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant):.*', warning)
+                        match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant)[:\.].*', warning)
                         if match_obj:
                             return match_obj.group(1)
     return ''
