@@ -230,6 +230,12 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
                 url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
                 indexed: false,
                 label: 'Insertion track',
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bed',
+                  indexed: false,
+                  color: "rgba(220, 20, 60, 0.25)"
+                }]
               },
               {
                 name: 'MANE transcripts',

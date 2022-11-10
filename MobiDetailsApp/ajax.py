@@ -629,6 +629,30 @@ def spliceaivisual():
             variant_file_basename,
             variant_id
         )
+        # bed file for inserted nucleotides track
+        # create bed file for inserted nucleotides if necessaery
+        bed_ins_file_basename = '{0}variants/{1}_ins.bed'.format(
+            md_utilities.local_files['spliceai_folder']['abs_path'],
+            variant_id
+        )
+        if not os.path.exists(bed_ins_file_basename):
+            with open(
+                bed_ins_file_basename,
+                'w'
+            ) as bed_ins_file:
+                if len(alt) > len(ref) and \
+                        len(ref) == 1:
+                    # insertions, duplications
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt) - 1))
+                elif len(ref) != len(alt) and \
+                        len(ref) > 1 and \
+                        len(alt) > 1:
+                    # deletions / insertions
+                    # not needed if len(ref) == len(alt)
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
+                else:
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, 1, 1))
+            bed_ins_file.close()
         # files caches
         if caller == 'automatic' and \
                 os.path.exists(variant_file):
@@ -792,7 +816,7 @@ def spliceaivisual():
                                 elif current_pos > int(pos) and \
                                         current_pos < int(pos) + len(alt):
                                     # need to inspect scores or put them in comment somewhere in igv track
-                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
+                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
                             elif variant_type == 'indel':
@@ -808,7 +832,7 @@ def spliceaivisual():
                                     else:
                                         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - (len(alt) - len(ref)) - 1, current_pos - (len(alt) - len(ref)), sai_score))
                     bedgraph_file.close()
-                    # create bed file if necessary
+                    # create bed file for wt and mt if necessaery
                     bed_file_basename = '{0}variants/{1}.bed'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
                         variant_id
@@ -827,7 +851,8 @@ def spliceaivisual():
                             if variant_type == 'indel':
                                 bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(ref) - 1))
                         bed_file.close()
-                    bed_ins_file_basename = '{0}variants/{1}_ins.bedGraph'.format(
+                    # create bed file for inserted nucleotides if necessaery
+                    bed_ins_file_basename = '{0}variants/{1}_ins.bed'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
                         variant_id
                     )
@@ -835,9 +860,21 @@ def spliceaivisual():
                         with open(
                             bed_ins_file_basename,
                             'w'
-                        ) as bed_insertion_file:
-                            bed_insertion_file.write(bedgraph_insertion)
-                        bed_insertion_file.close()
+                        ) as bed_ins_file:
+                            bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(alt) - 1))
+                        bed_ins_file.close()
+                    bedgraph_ins_file_basename = '{0}variants/{1}_ins.bedGraph'.format(
+                        md_utilities.local_files['spliceai_folder']['abs_path'],
+                        variant_id
+                    )
+                    # create bedgraph file for inserted nucleotides if necessary
+                    if not os.path.exists(bedgraph_ins_file_basename):
+                        with open(
+                            bedgraph_ins_file_basename,
+                            'w'
+                        ) as bedgraph_ins_file:
+                            bedgraph_ins_file.write(bedgraph_insertion)
+                        bedgraph_ins_file.close()
                     response = 'ok'
                 if caller == 'automatic' and \
                         os.path.exists(full_variant_file):
