@@ -183,6 +183,9 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
     else if (spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>') {
       $('#igv_com').replaceWith(spliceaivisual_response);
     }
+    else if (spliceaivisual_response == '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>') {
+      $('#igv_com').replaceWith(spliceaivisual_response);
+    }
     else {
       $('#igv_com').replaceWith('<span></span>');
       $('#igv_desc').show();

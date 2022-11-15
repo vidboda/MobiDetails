@@ -768,11 +768,14 @@ def spliceaivisual():
             if strand == '-':
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
-            req_results = requests.get(
-                '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
-                json={'mt_seq': mt_seq},
-                headers=md_utilities.api_agent
-            )
+            try:
+                req_results = requests.get(
+                    '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
+                    json={'mt_seq': mt_seq},
+                    headers=md_utilities.api_agent
+                )
+            except requests.exceptions.ConnectionError:
+                return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
             # 1-based
             if req_results.status_code == 200:
                 spliceai_results = json.loads(req_results.content)
