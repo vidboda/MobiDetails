@@ -441,7 +441,7 @@
 					{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 						<tr id="intervar_tr" onmouseout="$('#acmg_info').text('');"><!--intervar-->
 							{# <td class="w3-left-align"><a href={{ "%shg19_updated.v.202107&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">Intervar</a>:</td> #}
-							<td class="w3-left-align"><a href={{ "%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">hg38 Intervar</a>:</td>
+							<td class="w3-left-align"><a href={{ "%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Check and adjust ACMG class at intervar">hg38 InterVar</a>:</td>
 							<td class="w3-left-align">
 								<span id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 							</td>
