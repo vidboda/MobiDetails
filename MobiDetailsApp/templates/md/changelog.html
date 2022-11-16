@@ -9,6 +9,8 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2022-11-16] - Minor : \
+			Intervar is now queried in hg38 version, which makes it available for hg38_secure trancripts.") }}
 		{{ info("[2022-10-27] - New dataset : \
 			dbNSFP has been updated from v4.1 to v4.3.") }}
 		{{ info("[2022-10-27] - New feature : \
@@ -17,7 +19,7 @@
 			Transcripts that are reported by VariantValidator to poorly match to hg19 are now available for annotation in MobiDetails. Only hg38 linked resources are available. In addition, 43 genes and 3900+ transcripts have been unlocked. These transcripts are marked 'hg38 secured' as depending on the localisation of the variant on the transcript, or on the transcript itself, hg19 mapping may succeed or not. hg19 failed variants lack some annotations or links:
 			<ul>
 				<li>no EVS link</li>
-				<li>ni intervar link nor section (waiting for an update)</li>
+				<li>no intervar link nor section (waiting for an update)</li>
 				<li>no Regulome DB link</li>
 				<li>no hg19 nomenclatures</li>
 				<li>no gnomADv2</li>

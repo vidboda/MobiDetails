@@ -344,9 +344,8 @@ def intervar():
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
         if ref == alt:
-            return 'hg38 reference is equal to variant: no wIntervar query'
-        intervar_url = "{0}{1}&chr={2}&pos={3}\
-&ref={4}&alt={5}".format(
+            return '{0} reference is equal to variant: no wIntervar query'.format(genome)
+        intervar_url = "{0}{1}&chr={2}&pos={3}&ref={4}&alt={5}".format(
             md_utilities.urls['intervar_api'], genome, chrom,
             pos, ref, alt
         )

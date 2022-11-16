@@ -140,7 +140,8 @@ function intervar(intervar_url, csrf_token) {
 			type: "POST",
 			url: intervar_url,
 			data: {
-				genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_symbol').text()
+				// genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_symbol').text()
+        genome: $('#genome_38').text(), chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), gene:$('#gene_symbol').text()
 			}
 		})
 		.done(function(html) {
@@ -158,6 +159,8 @@ function intervar(intervar_url, csrf_token) {
 		});
 	}
 }
+
+
 function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
   // ajax for spliceaivisual
   // send header for flask-wtf crsf security
