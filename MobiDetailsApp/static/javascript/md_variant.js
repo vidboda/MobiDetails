@@ -261,7 +261,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
           });
       }
       else if ($('#igv_div').length && igv.browser) {
-        add_full_gene_track(static_path)
+        add_full_gene_track(static_path);
       }
       if ($('#spliceai_visual_full_gene').is(':hidden') && spliceaivisual_response == 'ok') {
         $('#spliceai_visual_full_gene').show();

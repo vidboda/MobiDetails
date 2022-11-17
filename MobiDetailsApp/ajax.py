@@ -334,7 +334,12 @@ def intervar():
             re.search(r'^[ATGC]+$', request.form['ref']) and \
             re.search(r'^[ATGC]+$', request.form['alt']) and \
             'gene' in request.form:
-        genome = request.form['genome']
+        genome_regexp = md_utilities.regexp['genome']
+        match_obj_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
+        if match_obj_genome:
+            genome = match_obj_genome.group(1)
+        else:
+            return 'Bad genome version'
         chrom = request.form['chrom']
         pos = request.form['pos']
         ref = request.form['ref']
