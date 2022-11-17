@@ -257,7 +257,8 @@
 			<div class="w3-row-padding">
 				<!--Mutalyzer-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ external_data.VCF.chr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span>
+					<!-- <span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ external_data.VCF.chr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span> -->
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_normalizer }}{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank');" title="Mutalyzer Normalizer" style="width:100%">Mutalyzer</span>
 				</div>
 				<!--VariantValidator-->
 				<div class="w3-col m4">
