@@ -131,6 +131,7 @@
   'ncbi_litvar2': 'https://www.ncbi.nlm.nih.gov/research/litvar2/'
   'ncbi_litvar_apiv2': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar%40'
   'ncbi_litvar_apiv2_sensor': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/sensor/'
+  'ncbi_snp_api': 'https://api.ncbi.nlm.nih.gov/variation/v0/refsnp/'
   'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
