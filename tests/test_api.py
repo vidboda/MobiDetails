@@ -184,7 +184,7 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
     # ('rs10012946', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'browser', 'mobidetails_error', 'Invalid API key'),
     # ('rs10012946', '', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('sdgg5456', '', 'cli', 'mobidetails_error', 'Invalid rs id provided'),
-    ('rs99195525555555', '', 'cli', 'mobidetails_error', 'Mutalyzer did not return any value for the variant')
+    ('rs99195525555555', '', 'cli', 'mobidetails_error', 'The NCBI API returned an error for the variant')
 ))
 def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, message):
     with app.app_context():

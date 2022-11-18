@@ -2174,6 +2174,18 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             hgvs_nc = []
             gene_symbols = []
             # can_nm = None
+            if 'error' in ncbi_api_data:
+                close_db()
+                if caller == 'cli':
+                    return jsonify(mobidetails_error='The NCBI API returned an error for the variant rs{0}: {1}'.format(trunc_rs_id, ncbi_api_data['error']['message']))
+                else:
+                    flash(
+                        """
+                        'The NCBI API returned an error for the variant rs{0}: {1}
+                        """.format(trunc_rs_id, ncbi_api_data['error']['message']),
+                        'w3-pale-red'
+                    )
+                    return redirect(url_for('md.index'), code=302)
             if 'primary_snapshot_data' in ncbi_api_data and \
                     'placements_with_allele' in ncbi_api_data['primary_snapshot_data']:
                 for seq_details in ncbi_api_data['primary_snapshot_data']['placements_with_allele']:
