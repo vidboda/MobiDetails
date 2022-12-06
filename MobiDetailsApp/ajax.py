@@ -644,16 +644,43 @@ def spliceaivisual():
                 bed_ins_file_basename,
                 'w'
             ) as bed_ins_file:
-                if len(alt) > len(ref) and \
+                # before 20221206
+                # if len(ref) != len(alt) and \
+                #         len(ref) > 1 and \
+                #         len(alt) > 1:
+                #     # complex deletions / insertions (indels) - general case
+                #     # not needed if len(ref) == len(alt)
+                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
+                # elif len(alt) > len(ref) and \
+                #         len(ref) == 1:
+                #     # insertions, duplications
+                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt) - 1))
+                if len(ref) != len(alt) and \
+                        ref[0:1] != alt[0:1]:
+                    # complex deletions / insertions (indels) - general case
+                    # not needed if len(ref) == len(alt)
+                    start_ins = pos if strand == '+' else int(pos) - len(alt)
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
+                    # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
+                elif len(alt) > len(ref) and \
                         len(ref) == 1:
                     # insertions, duplications
-                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt) - 1))
-                elif len(ref) != len(alt) and \
-                        len(ref) > 1 and \
-                        len(alt) > 1:
-                    # deletions / insertions
-                    # not needed if len(ref) == len(alt)
-                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
+                    start_ins = pos if strand == '+' else int(pos) - len(alt)
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
+                    # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt)))
+                # 20221206 attempt to take strand minus into account
+                # if len(ref) != len(alt) and \
+                #         len(ref) > 1 and \
+                #         len(alt) > 1:
+                #     # complex deletions / insertions
+                #     # not needed if len(ref) == len(alt)
+                #     start_ins = pos if strand == '+' else int(pos) - len(alt)
+                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
+                # elif len(alt) > len(ref) and \
+                #         len(ref) == 1:
+                #     # insertions, duplications
+                #     start_ins = pos if strand == '+' else int(pos) - len(alt) + 1
+                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
                 else:
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, 1, 1))
             bed_ins_file.close()
@@ -685,6 +712,17 @@ def spliceaivisual():
                 mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
             else:
                 mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos):end_g - 1].upper()
+        elif ((len(ref) > 1 and
+                len(alt) > 1) or
+                (ref[0:1] != alt[0:1])):
+            # complex deletions / insertions - indels pos ref and alt differ contrary to simple insertiosn or deletions
+            variant_type = 'indel'
+            if caller == 'automatic':
+                extreme_positions.append(int(pos) - offset - 1)
+                extreme_positions.append(int(pos) + offset + len(alt) - 1)
+                mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
+            else:
+                mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
         elif len(ref) > len(alt) and \
                 len(alt) == 1:
             # deletions
@@ -707,16 +745,16 @@ def spliceaivisual():
                 mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
             else:
                 mt_seq = current_chrom[start_g:int(pos) - 1].upper() + alt + current_chrom[int(pos):end_g].upper()
-        elif len(ref) > 1 and \
-                len(alt) > 1:
-            # indels
-            variant_type = 'indel'
-            if caller == 'automatic':
-                extreme_positions.append(int(pos) - offset - 1)
-                extreme_positions.append(int(pos) + offset + len(alt) - 1)
-                mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
-            else:
-                mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
+        # elif len(ref) > 1 and \
+        #         len(alt) > 1:
+        #     # complex indels
+        #     variant_type = 'indel'
+        #     if caller == 'automatic':
+        #         extreme_positions.append(int(pos) - offset - 1)
+        #         extreme_positions.append(int(pos) + offset + len(alt) - 1)
+        #         mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
+        #     else:
+        #         mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
             # print(mt_seq)
         else:
             mt_seq = None
@@ -749,26 +787,6 @@ def spliceaivisual():
                 mt_seq = "".join(tmp_list)
         if mt_seq:
             response = None
-            # # files paths
-            # variant_file_basename = '{0}/variants/'.format(
-            #     md_utilities.local_files['spliceai_folder']['abs_path'],
-            # )
-            # variant_file = '{0}{1}.bedGraph'.format(
-            #     variant_file_basename,
-            #     variant_id
-            # )
-            # full_variant_file = '{0}{1}_full_transcript.bedGraph'.format(
-            #     variant_file_basename,
-            #     variant_id
-            # )
-            # # files caches
-            # if caller == 'automatic' and \
-            #         os.path.exists(variant_file):
-            #     response = 'ok'
-            #     if os.path.exists(full_variant_file):
-            #         response = 'full'
-            #     return response
-
             if strand == '-':
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
@@ -820,10 +838,17 @@ def spliceaivisual():
                             elif variant_type == 'insertion':
                                 if current_pos <= int(pos) - 1:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                                elif current_pos > int(pos) and \
+                                elif current_pos >= int(pos) and \
                                         current_pos < int(pos) + len(alt):
-                                    # need to inspect scores or put them in comment somewhere in igv track
-                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
+                                    # current, working on strand +, but unstaisfying on strand -
+                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
+                                    ins_pos = current_pos if strand == '+' else current_pos - len(alt)
+                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
+                                    # before 20221206 version
+                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
+                                    # attempt 20221206 to take strand minus into account
+                                    # ins_pos = current_pos if strand == '+' else current_pos - len(alt)
+                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
                             elif variant_type == 'indel':
@@ -831,7 +856,12 @@ def spliceaivisual():
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
                                 elif current_pos >= int(pos) and \
                                         current_pos < int(pos) + len(alt):
-                                    # need to inspect scores or put them in comment somewhere in igv track
+                                    # print('{0}-{1}'.format(pos, current_pos))
+                                    # print('{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score))
+                                    # attempt 20221206 to take strand minus into account
+                                    ins_pos = current_pos + 1 if strand == '+' else current_pos - len(alt) + 1
+                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos - 1, ins_pos, sai_score)
+                                    # current, working on strand +, but unstaisfying on strand -
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                                 else:
                                     if len(ref) >= len(alt):
@@ -856,20 +886,8 @@ def spliceaivisual():
                             elif variant_type == 'insertion':
                                 bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + 1))
                             if variant_type == 'indel':
-                                bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(ref) - 1))
+                                bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(ref) - 1))
                         bed_file.close()
-                    # create bed file for inserted nucleotides if necessaery
-                    bed_ins_file_basename = '{0}variants/{1}_ins.bed'.format(
-                        md_utilities.local_files['spliceai_folder']['abs_path'],
-                        variant_id
-                    )
-                    if not os.path.exists(bed_ins_file_basename):
-                        with open(
-                            bed_ins_file_basename,
-                            'w'
-                        ) as bed_ins_file:
-                            bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) -1, int(pos) + len(alt) - 1))
-                        bed_ins_file.close()
                     bedgraph_ins_file_basename = '{0}variants/{1}_ins.bedGraph'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
                         variant_id
