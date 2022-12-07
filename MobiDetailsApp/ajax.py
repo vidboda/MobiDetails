@@ -836,13 +836,17 @@ def spliceaivisual():
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
                             elif variant_type == 'insertion':
-                                if current_pos <= int(pos) - 1:
+                                intermediate_pos = int(pos) - 1 if strand == '+' else int(pos) - 2
+                                # if current_pos <= int(pos) - 1:
+                                if current_pos <= intermediate_pos:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                                elif current_pos >= int(pos) and \
-                                        current_pos < int(pos) + len(alt):
+                                elif current_pos >= intermediate_pos + 1 and \
+                                        current_pos < intermediate_pos + 1 + len(alt):
+                                # elif current_pos >= int(pos) and \
+                                #         current_pos < int(pos) + len(alt):
                                     # current, working on strand +, but unstaisfying on strand -
                                     # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
-                                    ins_pos = current_pos if strand == '+' else current_pos - len(alt)
+                                    ins_pos = current_pos if strand == '+' else current_pos - len(alt) + 1
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
                                     # before 20221206 version
                                     # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
