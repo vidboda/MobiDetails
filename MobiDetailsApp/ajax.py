@@ -866,7 +866,7 @@ def spliceaivisual():
                                     ins_pos = current_pos + 1 if strand == '+' else current_pos - len(alt) + 1
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos - 1, ins_pos, sai_score)
                                     # current, working on strand +, but unstaisfying on strand -
-                                    bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
+                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                                 else:
                                     if len(ref) >= len(alt):
                                         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
