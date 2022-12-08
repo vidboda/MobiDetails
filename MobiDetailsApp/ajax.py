@@ -176,6 +176,7 @@ def litvar2():
             for pubmed_id in litvar_data['pmids']:
                 togows_url = '{0}{1},'.format(togows_url, pubmed_id)
             togows_url = '{0}.json'.format(togows_url[:-1])
+            print(togows_url)
             try:
                 # using togows to get details on publications
                 pubmeds = json.loads(
@@ -196,6 +197,11 @@ def litvar2():
                         pubmed_info[pmid]['year'] = article['year']
                         pubmed_info[pmid]['author'] = article['authors'][0]
             except Exception:
+                for pubmed_id in litvar_data['pmids']:
+                    pmid = int(pubmed_id)
+                    pubmed_info[pmid] = {}
+                    pubmed_info[pmid]['title'] = ''
+            if not pubmed_info:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
                     pubmed_info[pmid] = {}
