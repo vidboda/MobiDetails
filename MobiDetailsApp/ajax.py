@@ -659,7 +659,7 @@ def spliceaivisual():
                         ref[0:1] != alt[0:1]:
                     # complex deletions / insertions (indels) - general case
                     # not needed if len(ref) == len(alt)
-                    start_ins = pos if strand == '+' else int(pos) - len(alt)
+                    start_ins = int(pos) - 1 if strand == '+' else int(pos) + len(ref) - len(alt) - 1
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
                     # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
                 elif len(alt) > len(ref) and \
@@ -865,7 +865,8 @@ def spliceaivisual():
                                     # print('{0}-{1}'.format(pos, current_pos))
                                     # print('{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score))
                                     # attempt 20221206 to take strand minus into account
-                                    ins_pos = current_pos + 1 if strand == '+' else current_pos - len(alt) + 1
+                                    # ins_pos = current_pos + 1 if strand == '+' else current_pos - len(alt) + 1
+                                    ins_pos = current_pos if strand == '+' else current_pos + len(ref) - len(alt)
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos - 1, ins_pos, sai_score)
                                     # current, working on strand +, but unstaisfying on strand -
                                     # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
