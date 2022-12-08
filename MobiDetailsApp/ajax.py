@@ -665,8 +665,8 @@ def spliceaivisual():
                 elif len(alt) > len(ref) and \
                         len(ref) == 1:
                     # insertions, duplications
-                    start_ins = pos if strand == '+' else int(pos) - len(alt)
-                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
+                    start_ins = pos if strand == '+' else int(pos) - len(alt) + 1
+                    bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt) - 1))
                     # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt)))
                 # 20221206 attempt to take strand minus into account
                 # if len(ref) != len(alt) and \
@@ -836,12 +836,14 @@ def spliceaivisual():
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
                             elif variant_type == 'insertion':
-                                intermediate_pos = int(pos) - 1 if strand == '+' else int(pos) - 2
-                                # if current_pos <= int(pos) - 1:
-                                if current_pos <= intermediate_pos:
+                                # intermediate_pos = int(pos) - 1 if strand == '+' else int(pos) - 1
+                                if current_pos <= int(pos) - 1:
+                                # if current_pos <= intermediate_pos:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                                elif current_pos >= intermediate_pos + 1 and \
-                                        current_pos < intermediate_pos + 1 + len(alt):
+                                # elif current_pos >= intermediate_pos + 1 and \
+                                #         current_pos < intermediate_pos + len(alt):
+                                elif current_pos >=  int(pos) and \
+                                        current_pos <  int(pos) + len(alt) - 1:
                                 # elif current_pos >= int(pos) and \
                                 #         current_pos < int(pos) + len(alt):
                                     # current, working on strand +, but unstaisfying on strand -
