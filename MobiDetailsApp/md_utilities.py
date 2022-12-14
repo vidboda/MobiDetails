@@ -1056,6 +1056,10 @@ def create_var_vv(
             #     vf_d['ng_name'] = 'NULL'
             if re.search(r'automapped to NC_0000', warning):
                 continue
+            elif re.search(r'Trailing digits are not permitted in HGVS variant descriptions', warning):
+                continue
+            elif re.search(r'Refer to http://varnomen.hgvs.org/recommendations/DNA/variant/', warning):
+                continue
             elif re.search(
                     rf'automapped to {acc_no}:c\.{variant_regexp}',
                     warning):
@@ -2041,6 +2045,8 @@ def return_vv_validation_warnings(vv_data):
                         if re.search('Variant start position and/or end position are beyond the CDS end position and likely also beyond the end of the selected reference sequence', warning):
                             return warning
                         if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
+                            return warning
+                        if re.search('Length implied by coordinates must equal sequence deletion length', warning):
                             return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant)[:\.].*', warning)
                         if match_obj:
