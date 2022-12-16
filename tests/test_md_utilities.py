@@ -1046,6 +1046,16 @@ def test_get_clingen_criteria_specification_id(gene_symbol, result):
 def test_spliceai_internal_api_hello():
     print(md_utilities.spliceai_internal_api_hello())
     assert isinstance(md_utilities.spliceai_internal_api_hello(), bool)
+
+
+def test_build_bedgraph_from_raw_spliceai():
+    header1 = 'browser position chr1:215622891-216423448\n'
+    header2 = 'track name="spliceAI" type=bedGraph description="spliceAI predictions for NM_206933.4     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
+    file_basename = '{0}/transcripts/NM_206933.4'.format(
+        md_utilities.local_files['spliceai_folder']['abs_path']
+    )
+    assert md_utilities.build_bedgraph_from_raw_spliceai(1, header1, header2, file_basename) == 'ok'
+
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

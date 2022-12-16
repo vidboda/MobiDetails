@@ -11,6 +11,7 @@ import yaml
 import twobitreader
 import tempfile
 import subprocess
+import gzip
 from flask import (
     url_for, request, render_template, current_app as app
 )
@@ -245,7 +246,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if is_valid_full_chr(chr_name):
         short_chr = get_short_chr_name(chr_name)
-        if short_chr is not None:
+        if short_chr:
             curs.execute(
                 """
                 SELECT ncbi_name
@@ -257,7 +258,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
             )
             ncbi_name = curs.fetchone()
             # print(ncbi_name)
-            if ncbi_name is not None:
+            if ncbi_name:
                 return ncbi_name
 
 
@@ -2562,3 +2563,30 @@ def spliceai_internal_api_hello():
             raise Exception
     except Exception:
         return False
+
+
+def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basename, output_file_basename=False):
+    nochr_chrom_regexp = regexp['nochr_chrom']
+    # build new bedgraph from .txt.gz
+    chr_addition = ''
+    if output_file_basename is False:
+        output_file_basename = input_file_basename
+    else:
+        chr_addition = 'chr'
+    with gzip.open(
+        '{0}.txt.gz'.format(input_file_basename),
+        'rt'
+    ) as spliceai_raw_file:
+        with open(
+            '{0}.bedGraph'.format(output_file_basename),
+            'w'
+        ) as bedgraph_file:
+            bedgraph_file.writelines([header1, header2])
+            for line in spliceai_raw_file:
+                if re.search(rf'^{chr_addition}{nochr_chrom_regexp}', line):
+                    line_list = re.split('\t', line)
+                    spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                    bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
+    spliceai_raw_file.close()
+    bedgraph_file.close()
+    return 'ok'

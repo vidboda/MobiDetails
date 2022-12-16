@@ -544,7 +544,7 @@ def spliceaivisual():
         gene_symbol = gene_symbol_match.group(1)
         caller = caller_match.group(1)
 
-        transcript_file_basename = '{0}/transcripts/{1}'.format(
+        transcript_file_basename = '{0}transcripts/{1}'.format(
             md_utilities.local_files['spliceai_folder']['abs_path'],
             ncbi_transcript
         )
@@ -566,24 +566,25 @@ def spliceaivisual():
             elif os.path.exists(
                 '{0}.txt.gz'.format(transcript_file_basename)
             ):
+                response = md_utilities.build_bedgraph_from_raw_transcript(chrom, header1, header2, transcript_file_basename)
                 # build new bedgraph from .txt.gz
-                with gzip.open(
-                    '{0}.txt.gz'.format(transcript_file_basename),
-                    'rt'
-                ) as spliceai_raw_file:
-                    with open(
-                        '{0}.bedGraph'.format(transcript_file_basename),
-                        'w'
-                    ) as bedgraph_file:
-                        bedgraph_file.writelines([header1, header2])
-                        for line in spliceai_raw_file:
-                            if re.search(rf'^{nochr_chrom_regexp}', line):
-                                line_list = re.split('\t', line)
-                                spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
-                                bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
-                spliceai_raw_file.close()
-                bedgraph_file.close()
-                response = 'ok'
+                # with gzip.open(
+                #     '{0}.txt.gz'.format(transcript_file_basename),
+                #     'rt'
+                # ) as spliceai_raw_file:
+                #     with open(
+                #         '{0}.bedGraph'.format(transcript_file_basename),
+                #         'w'
+                #     ) as bedgraph_file:
+                #         bedgraph_file.writelines([header1, header2])
+                #         for line in spliceai_raw_file:
+                #             if re.search(rf'^{nochr_chrom_regexp}', line):
+                #                 line_list = re.split('\t', line)
+                #                 spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                #                 bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
+                # spliceai_raw_file.close()
+                # bedgraph_file.close()
+                # response = 'ok'
             else:
                 # check whether we have pre-computed chr-start-end-strand
                 # we need ncbi chr
@@ -604,23 +605,24 @@ def spliceaivisual():
                     '{0}.txt.gz'.format(position_file_basename)
                 ):
                     # build new bedgraph from .txt.gz
-                    with gzip.open(
-                        '{0}.txt.gz'.format(position_file_basename),
-                        'rt'
-                    ) as spliceai_raw_file:
-                        with open(
-                            '{0}.bedGraph'.format(transcript_file_basename),
-                            'w'
-                        ) as bedgraph_file:
-                            bedgraph_file.writelines([header1, header2])
-                            for line in spliceai_raw_file:
-                                if re.search(rf'^chr{nochr_chrom_regexp}', line):
-                                    line_list = re.split('\t', line)
-                                    spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
-                                    bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
-                    spliceai_raw_file.close()
-                    bedgraph_file.close()
-                    response = 'ok'
+                    response = md_utilities.build_bedgraph_from_raw_transcript(chrom, header1, header2, position_file_basename)
+                    # with gzip.open(
+                    #     '{0}.txt.gz'.format(position_file_basename),
+                    #     'rt'
+                    # ) as spliceai_raw_file:
+                    #     with open(
+                    #         '{0}.bedGraph'.format(transcript_file_basename),
+                    #         'w'
+                    #     ) as bedgraph_file:
+                    #         bedgraph_file.writelines([header1, header2])
+                    #         for line in spliceai_raw_file:
+                    #             if re.search(rf'^chr{nochr_chrom_regexp}', line):
+                    #                 line_list = re.split('\t', line)
+                    #                 spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                    #                 bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
+                    # spliceai_raw_file.close()
+                    # bedgraph_file.close()
+                    # response = 'ok'
                 else:
                     # build new bedgraph from scratch ? How many cases?
                     # response = 'ok'

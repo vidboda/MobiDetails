@@ -143,7 +143,7 @@
   'spip': 'https://github.com/raphaelleman/SPiP'
   'spliceai': 'https://github.com/Illumina/SpliceAI'
   'spliceai_lookup': 'https://spliceailookup-api.broadinstitute.org/'
-  'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=1&variant='
+  'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=0&variant='
   'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
