@@ -605,7 +605,7 @@ def spliceaivisual():
                     '{0}.txt.gz'.format(position_file_basename)
                 ):
                     # build new bedgraph from .txt.gz
-                    response = md_utilities.build_bedgraph_from_raw_transcript(chrom, header1, header2, position_file_basename)
+                    response = md_utilities.build_bedgraph_from_raw_spliceai(chrom, header1, header2, position_file_basename)
                     # with gzip.open(
                     #     '{0}.txt.gz'.format(position_file_basename),
                     #     'rt'
