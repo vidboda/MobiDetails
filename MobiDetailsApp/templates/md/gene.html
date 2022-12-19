@@ -105,10 +105,12 @@
 				showCenterGuide: true,
 				showCursorTrackingGuide: true,
 				reference: {
-					'id': 'hg38',
-					'name': 'Human (GRCh38/hg38)',
-					'fastaURL': '{{ url_for('static', filename='resources/genome/hg38.fa') }}',
-					'indexURL': '{{ url_for('static', filename='resources/genome/hg38.fa.fai') }}',
+					id: 'hg38',
+					name: 'Human (GRCh38/hg38)',
+					fastaURL: '{{ url_for('static', filename='resources/genome/hg38.fa.gz') }}',
+					indexURL: '{{ url_for('static', filename='resources/genome/hg38.fa.gz.fai') }}',
+					compressedIndexURL: '{{ url_for('static', filename='resources/genome/hg38.fa.gz.gzi') }}',
+					cytobandURL: '{{ url_for('static', filename='resources/genome/cytoBandIdeo.txt.gz') }}'
 				},
 				locus: '{{ gene_symbol }}',
 				tracks: [
@@ -127,6 +129,12 @@
 					url: '{{ url_for('static', filename='resources/mane/MANE.GRCh38.v1.0.refseq.bb') }}',
 					indexed: false,
 					label: 'MANE transcripts',
+				},
+				{
+					name: 'Refseq Genes',
+					url: '{{ url_for('static', filename='resources/genome/refGene.txt.gz') }}',
+					order: 1000000,
+					indexed: false
 				}
 				]
 			};

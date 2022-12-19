@@ -202,10 +202,12 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
             //genome: 'hg38',
             locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
             reference: {
-              "id": "hg38",
-              "name": "Human (GRCh38/hg38)",
-              "fastaURL": static_path + "resources/genome/hg38.fa",
-              "indexURL": static_path + "resources/genome/hg38.fa.fai",
+              id: "hg38",
+              name: "Human (GRCh38/hg38)",
+              fastaURL: static_path + "resources/genome/hg38.fa.gz",
+              indexURL: static_path + "resources/genome/hg38.fa.gz.fai",
+              compressedIndexURL: static_path + "resources/genome/hg38.fa.gz.gzi",
+              cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
               {
@@ -254,6 +256,12 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
                 url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
                 indexed: false,
                 label: 'MANE transcripts',
+              },
+              {
+                name: 'Refseq Genes',
+                url: static_path + 'resources/genome/refGene.txt.gz',
+                order: 1000000,
+                indexed: false
               }
             ]
           };
