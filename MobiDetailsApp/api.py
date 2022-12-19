@@ -835,7 +835,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record
                         external_data['frequenciesDatabases']['gnomADv2GenomeNonCancer'] = record
                     else:
-                        print(record)
+                        # print(record)
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                         external_data['frequenciesDatabases']['gnomADv2GenomeNonCancer'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_noncancer_col'])]
                 # gnomadv3
