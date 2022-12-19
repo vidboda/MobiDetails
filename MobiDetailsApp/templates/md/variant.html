@@ -375,9 +375,9 @@
 			<table class="w3-table w3-centered display compact" style="width:90%" id="population_table">
 				<thead>
 					<tr>
-						<th class="w3-left-align">Features</th>
-						<th class="w3-left-align" width="60%">Values</th>
-						<th class="w3-left-align">Descriptions</th>
+						<th class="w3-left-align" width="25%">Features</th>
+						<th class="w3-left-align" width="45%">Values</th>
+						<th class="w3-left-align" width="30%">Descriptions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -385,18 +385,28 @@
 					<tr><!--gnomAD exome-->
 						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> exome:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Exome }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v2.0.1 Exomes global MAF</em></td>
+						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Exomes <strong>global MAF</strong></em></td>
 					</tr>
 					<tr><!--gnomAD genome-->
 						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> genome:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Genome }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v2.0.1 Genomes global MAF</em></td>
+						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Genomes <strong>global MAF</strong></em></td>
+					</tr>
+					<tr><!--gnomAD exome non cancer-->
+						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> exome (non cancer):</td>
+						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2ExomeNonCancer }}</td>
+						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Exomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
+					</tr>
+					<tr><!--gnomAD genome non cancer-->
+						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> genome (non cancer):</td>
+						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2GenomeNonCancer }}</td>
+						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Genomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
 					</tr>
 					{% endif %}
 					<tr><!--gnomAD v3-->
 						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Visit gnomAD for this variant">gnomAD</a> v3:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv3 }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v3 Genomes global MAF</em></td>
+						<td class="w3-left-align"><em class="w3-small"> v3 Genomes <strong>global MAF</strong></em></td>
 					</tr>
 					<tr><!--dbSNP id-->
 						<td class="w3-left-align">dbSNP rsid:</td>

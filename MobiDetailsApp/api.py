@@ -237,8 +237,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'creationUserName': None,
         },
         'frequenciesDatabases': {
+            # 'gnomADv2Exomehg19': None,
+            # 'gnomADv2Genomehg19': None,
             'gnomADv2Exome': None,
             'gnomADv2Genome': None,
+            'gnomADv2ExomeNonCancer': None,
+            'gnomADv2GenomeNonCancer': None,
             'gnomADv3': None,
             'dbSNPrsid': None,
             'clinvarId': None,
@@ -816,6 +820,24 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             variant_features['prot_type'] == 'frameshift':
                         external_data['overallPredictions']['mpaScore'] = 10
                         external_data['overallPredictions']['mpaImpact'] = variant_features['prot_type']
+                # gnomadv2 ex + non cancer
+                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome_hg38']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record
+                    external_data['frequenciesDatabases']['gnomADv2ExomeNonCancer'] = record
+                else:
+                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                    external_data['frequenciesDatabases']['gnomADv2ExomeNonCancer'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_noncancer_col'])]
+                # gnomadv2 ge + non cancer
+                if external_data['gene']['chromosome'] != 'Y':
+                    record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome_hg38']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record
+                        external_data['frequenciesDatabases']['gnomADv2GenomeNonCancer'] = record
+                    else:
+                        print(record)
+                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                        external_data['frequenciesDatabases']['gnomADv2GenomeNonCancer'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_noncancer_col'])]
                 # gnomadv3
                 record = md_utilities.get_value_from_tabix_file(
                     'gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features
@@ -1186,20 +1208,19 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 external_data['nomenclatures']['hg19PseudoVCF'] = '{0}-{1}-{2}-{3}'.format(var['chr'], var['pos'], var['pos_ref'], var['pos_alt'])
                 external_data['nomenclatures']['hg19StrictgName'] = '{0}:g.{1}'.format(res_chr['ncbi_name'], var['g_name'])
                 external_data['nomenclatures']['hg19gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
-
-                # gnomad ex
-                record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome']['abs_path'], var, variant_features)
-                if isinstance(record, str):
-                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record
-                else:
-                    external_data['frequenciesDatabases']['gnomADv2Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
-                # gnomad ge
-                if external_data['gene']['chromosome'] != 'Y':
-                    record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome']['abs_path'], var, variant_features)
-                    if isinstance(record, str):
-                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record
-                    else:
-                        external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # # gnomad ex
+                # record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome_hg19']['abs_path'], var, variant_features)
+                # if isinstance(record, str):
+                #     external_data['frequenciesDatabases']['gnomADv2Exomehg19'] = record
+                # else:
+                #     external_data['frequenciesDatabases']['gnomADv2Exomehg19'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # # gnomad ge
+                # if external_data['gene']['chromosome'] != 'Y':
+                #     record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome_hg19']['abs_path'], var, variant_features)
+                #     if isinstance(record, str):
+                #         external_data['frequenciesDatabases']['gnomADv2Genomehg19'] = record
+                #     else:
+                #         external_data['frequenciesDatabases']['gnomADv2Genomehg19'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info

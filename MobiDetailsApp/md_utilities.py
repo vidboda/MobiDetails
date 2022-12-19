@@ -100,11 +100,17 @@ local_files['dbsnp']['abs_path'] = '{0}{1}'.format(
 local_files['episignature']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['episignature']['rel_path']
 )
-local_files['gnomad_exome']['abs_path'] = '{0}{1}'.format(
-    app_path, local_files['gnomad_exome']['rel_path']
+local_files['gnomad_exome_hg19']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_exome_hg19']['rel_path']
 )
-local_files['gnomad_genome']['abs_path'] = '{0}{1}'.format(
-    app_path, local_files['gnomad_genome']['rel_path']
+local_files['gnomad_genome_hg19']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_genome_hg19']['rel_path']
+)
+local_files['gnomad_exome_hg38']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_exome_hg38']['rel_path']
+)
+local_files['gnomad_genome_hg38']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_genome_hg38']['rel_path']
 )
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_3']['rel_path']
@@ -614,7 +620,6 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             '[MobiDetails - Tabix Error]'
         )
         return 'Match failed in {}'.format(text)
-
     i = 3
     if re.search(
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
