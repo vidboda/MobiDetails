@@ -144,6 +144,7 @@
   'spliceai': 'https://github.com/Illumina/SpliceAI'
   'spliceai_lookup': 'https://spliceailookup-api.broadinstitute.org/'
   'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=0&variant='
+  'splcieai_lookup_masked_link': 'https://spliceailookup.broadinstitute.org/#hg=38&distance=500&mask=1&precomputed=1&variant='
   'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
@@ -431,6 +432,7 @@
     'version': 'v2.0.1;v3'
     'short_name': 'gnomad'
     'annovar_format_af_col': '5'
+    'annovar_format_af_noncancer_col': '5'
   'HexoSplice':
     'firstauthor': 'Tubeuf'
     'year': '2020'
