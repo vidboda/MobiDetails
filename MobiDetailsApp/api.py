@@ -1200,62 +1200,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record
                     else:
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
-                # mistic
-                # if variant_features['prot_type'] == 'missense' and \
-                #         external_data['gene']['chromosome'] != 'Y':
-                #     record = md_utilities.get_value_from_tabix_file('Mistic', md_utilities.local_files['mistic']['abs_path'], var, variant_features)
-                #     if isinstance(record, str):
-                #         external_data['missensePredictions']['misticScore'] = record
-                #     else:
-                #         external_data['missensePredictions']['misticScore'] = record[4]
-                #     internal_data['missensePredictions']['misticColor'] = "#000000"
-                #     external_data['missensePredictions']['misticPred'] = 'no prediction'
-                #     if re.search(r'^[\d\.]+$', external_data['missensePredictions']['misticScore']):
-                #         external_data['missensePredictions']['misticScore'] = format(float(external_data['missensePredictions']['misticScore']), '.2f')
-                #         internal_data['missensePredictions']['misticColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['misticScore'], 'mistic')
-                #         external_data['missensePredictions']['misticPred'] = 'Tolerated'
-                #         if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
-                #             external_data['missensePredictions']['misticPred'] = 'Damaging'
-                # if variant_features['dna_type'] == 'substitution':
-                #     # dbscSNV
-                #     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
-                #     if isinstance(record, str):
-                #         external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                #         external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                #         if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                #             splicing_radar_labels.append('dbscSNV ADA')
-                #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                #         if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                #             splicing_radar_labels.append('dbscSNV RF')
-                #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                #     else:
-                #         try:
-                #             external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
-                #             internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
-                #             if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                #                 splicing_radar_labels.append('dbscSNV ADA')
-                #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                #         except Exception:
-                #             # "score" is '.'
-                #             external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                #         try:
-                #             external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
-                #             internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
-                #             if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                #                 splicing_radar_labels.append('dbscSNV RF')
-                #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                #         except Exception:
-                #             # "score" is '.'
-                #             external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                #         # dbscsnv_mpa_threshold = 0.8
-                #         if not external_data['overallPredictions']['mpaScore'] or \
-                #                 external_data['overallPredictions']['mpaScore'] < 10:
-                #             if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
-                #                 float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
-                #                 (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
-                #                  float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
-                #                 external_data['overallPredictions']['mpaScore'] = 10
-                #                 external_data['overallPredictions']['mpaImpact'] = 'High splice'
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info

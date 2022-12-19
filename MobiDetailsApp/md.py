@@ -1,5 +1,6 @@
 import re
 import os.path
+import time
 import urllib3
 import certifi
 import json
@@ -415,8 +416,60 @@ def gene(gene_symbol=None):
                                         'refseq_select': vv_transcript['annotations']['refseq_select']
                                     }
                 # print(transcript_road_signs)
-            close_db()
+            
             clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_symbol)
+            # get isoforms with precomputed spliceAI
+            # spliceai_transcript_list = []
+            # for iso in result_all:
+                # print(iso['refseq'])
+            transcript_file_basename = '{0}transcripts/{1}'.format(
+                md_utilities.local_files['spliceai_folder']['abs_path'],
+                main['refseq']
+            )
+            # if os.path.exists(
+            #             '{0}.bedGraph'.format(transcript_file_basename)
+            #         ) and os.path.getctime(
+            #             '{0}.bedGraph'.format(transcript_file_basename)
+            #         ) > 1672531200:
+            #    the file must have been created after 2023-01-01 to get correct browser positions
+            #    spliceai_transcript_list.append(main['refseq'])
+            # else:
+            if not os.path.exists(
+                        '{0}.bedGraph'.format(transcript_file_basename)
+                    ) or os.path.getctime(
+                        '{0}.bedGraph'.format(transcript_file_basename)
+                    ) < 1672531200:
+                # check whether we have pre-computed trancript
+                ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(main['chr']), 'hg38')
+                start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(main['gene_symbol'], main['refseq'], ncbi_chr['ncbi_name'], main['strand'])
+                header1 = 'browser position chr{0}:{1}-{2}\n'.format(main['chr'], start_g - 1, end_g)
+                header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(main['refseq'])
+                if os.path.exists(
+                    '{0}.txt.gz'.format(transcript_file_basename)
+                ):
+                    response = md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, transcript_file_basename)
+                    # if response == 'ok':
+                        # spliceai_transcript_list.append(main['refseq'])
+                    # else:
+                    #     # check whether we have pre-computed chr-start-end-strand
+                    #     # DEPRECATED we will diplay only the canonical (main)
+                    #     spliceai_strand = 'plus' if iso['strand'] == '+' else 'minus'
+                    #     position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
+                    #         md_utilities.local_files['spliceai_folder']['abs_path'],
+                    #         'chr{0}'.format(main['chr']),
+                    #         start_g,
+                    #         end_g,
+                    #         spliceai_strand
+                    #     )
+                    #     if os.path.exists(
+                    #         '{0}.txt.gz'.format(position_file_basename)
+                    #     ):
+                    #         # print(position_file_basename)
+                    #         response = md_utilities.build_bedgraph_from_raw_spliceai(iso['chr'], header1, header2, position_file_basename, transcript_file_basename)
+                    #         if response == 'ok':
+                    #             spliceai_transcript_list.append(iso['refseq'])
+            # print(spliceai_transcript_list)
+            close_db()
             return render_template(
                 'md/gene.html',
                 run_mode=md_utilities.get_running_mode(),
@@ -428,7 +481,8 @@ def gene(gene_symbol=None):
                 annotations=annot,
                 max_prot_size=res_size['size'],
                 clingen_criteria_specification_id=clingen_criteria_specification_id,
-                transcript_road_signs=transcript_road_signs
+                transcript_road_signs=transcript_road_signs,
+                # spliceai_transcript_list=spliceai_transcript_list
             )
         else:
             close_db()

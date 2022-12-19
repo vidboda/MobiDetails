@@ -5,6 +5,7 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_gene.js') }}??20220704" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_createvars.js') }}??20220704" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}" type="text/javascript"></script>
 {% endblock %}
 {% block header %}
 	<div class="w3-row">
@@ -90,6 +91,57 @@
 			</table>
 		</div>
 		<br /><br />
+		<!-- IGV browser -->
+		<div class="w3-margin w3-panel w3-sand w3-leftbar">
+			<p><strong>SpliceAI-visual pre-computed raw scores for <em>{{ gene_symbol }}</em>:</strong></p>
+		</div>
+		<br /> <br />
+		<div id="igv_div"></div>
+		<script type="text/javascript">
+			var options =
+			{
+				showNavigation: true,
+				showRuler: true,
+				showCenterGuide: true,
+				showCursorTrackingGuide: true,
+				reference: {
+					'id': 'hg38',
+					'name': 'Human (GRCh38/hg38)',
+					'fastaURL': '{{ url_for('static', filename='resources/genome/hg38.fa') }}',
+					'indexURL': '{{ url_for('static', filename='resources/genome/hg38.fa.fai') }}',
+				},
+				locus: '{{ gene_symbol }}',
+				tracks: [
+				{# {% for transcript in spliceai_transcript_list %} #}
+				{
+					name: 'SpliceAI {{ main_iso.refseq }}',
+					format: 'bedGraph',
+					url: '{{ url_for('static', filename='') }}resources/spliceai/transcripts/{{ main_iso.refseq }}.bedGraph',
+					indexed: false,
+					removable: false,
+					label: 'SpliceAI raw scores for {{ main_iso.refseq }}',
+				},
+				{# {% endfor %} #}
+				{
+					name: 'MANE transcripts',
+					url: '{{ url_for('static', filename='resources/mane/MANE.GRCh38.v1.0.refseq.bb') }}',
+					indexed: false,
+					label: 'MANE transcripts',
+				}
+				]
+			};
+			igv.createBrowser(document.getElementById('igv_div'), options)
+			.then(function (browser) {
+				igv.browser = browser;
+			});
+		</script>
+		<!-- End IGV browser -->
+		<br /> <br />
+		<!-- Transcript table -->
+		<div class="w3-margin w3-panel w3-sand w3-leftbar">
+			<p><strong>Transcript available for annotation in MobiDetails:</strong></p>
+		</div>
+		<br /> <br />
 		{% set mapping_warning = namespace(hg38_secured='no') %}
 		<div class="w3-responsive" id="info_table">
 			<table class="w3-table w3-striped w3-bordered w3-centered">
@@ -183,5 +235,5 @@
 			{{ info("<strong><sup>#</sup> this tag means that variants on this transcript will map onto hg38, but may or may not correctly map on hg19, depending on the transcript and on the variant localisation. If the variant fails to map on hg19, some functionalities will be disabled in the variant analysis page. Missense predictions in particular may be incomplete.</strong>") }}
 		{% endif %}
 		<br /><br />
-		<div id="created_variant"></div>
+		<!-- <div id="created_variant"></div> -->
 {% endblock %}

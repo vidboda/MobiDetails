@@ -671,7 +671,7 @@
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
 				<!--dbscSNV / spliceAI-->
 				{% if external_data.positions.DNAType != 'indel' %}
-					{{ info('This last table presents dbscSNV and spliceAi scores (max distance: 50 bp), when available. You can also (except for delins) run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. ')|format(urls.spliceai_lookup) }}
+					{{ info('This last table presents dbscSNV and <strong>SpliceAI raw delta scores (max distance: 50 bp)</strong>, when available. You can also (except for delins) run spliceAI via the <a href="%s" target="_blank">spliceAIlookup API</a> using a distance of 500 bp, and get also raw delta scores. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. <strong>Details on raw or masked delta scores are available <a href="https://github.com/Illumina/SpliceAI#frequently-asked-questions" target="_blank">here</a></strong>. While the authors state that masked scores are preferentially used for variant interprétation, raw scores (unmasked) seem to be more informative. <strong>You can get masked delta scores with a +/- 500 bp window with this <a href="%s%s-%s-%s-%s" target="_blank">link</a></strong>.')|format(urls.spliceai_lookup, urls.splcieai_lookup_masked_link, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}
 				{% endif %}
 				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
 				<table class="w3-table w3-centered display compact" style="width:90%;" id="splicing_table">
@@ -700,7 +700,7 @@
 								<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
 									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
-									<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+									<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact.</em></td>
 								</tr>
 								<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
