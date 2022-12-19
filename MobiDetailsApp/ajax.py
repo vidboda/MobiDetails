@@ -601,7 +601,6 @@ def spliceaivisual():
                     end_g,
                     spliceai_strand
                 )
-                print(position_file_basename)
                 if os.path.exists(
                     '{0}.txt.gz'.format(position_file_basename)
                 ):
