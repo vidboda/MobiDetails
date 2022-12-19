@@ -199,8 +199,14 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
             showRuler: true,
             showCenterGuide: true,
             showCursorTrackingGuide: true,
-            genome: 'hg38',
+            //genome: 'hg38',
             locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            reference: {
+              "id": "hg38",
+              "name": "Human (GRCh38/hg38)",
+              "fastaURL": static_path + "resources/genome/hg38.fa",
+              "indexURL": static_path + "resources/genome/hg38.fa.fai",
+            },
             tracks: [
               {
                 name: 'SpliceAI WT ' + $('#nm_acc').text(),
