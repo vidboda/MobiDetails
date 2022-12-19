@@ -104,7 +104,12 @@
 				showRuler: true,
 				showCenterGuide: true,
 				showCursorTrackingGuide: true,
-				genome: 'hg38',
+				reference: {
+					'id': 'hg38',
+					'name': 'Human (GRCh38/hg38)',
+					'fastaURL': '{{ url_for('static', filename='resources/genome/hg38.fa') }}',
+					'indexURL': '{{ url_for('static', filename='resources/genome/hg38.fa.fai') }}',
+				},
 				locus: '{{ gene_symbol }}',
 				tracks: [
 				{# {% for transcript in spliceai_transcript_list %} #}
