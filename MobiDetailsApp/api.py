@@ -466,7 +466,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         # internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
         internal_data['nomenclatures']['oneLetterpName'] = md_utilities.three2one_fct(variant_features['p_name'])
-        print(internal_data['nomenclatures']['oneLetterpName'])
 
         external_data['gene']['symbol'] = variant_features['gene_symbol']
         external_data['gene']['RefSeqTranscript'] = variant_features['refseq']
