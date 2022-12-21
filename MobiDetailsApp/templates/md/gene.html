@@ -45,7 +45,7 @@
 				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }}</p>
 			</div>
 		{% endif %}
-		{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, main_iso.uniprot_id, urls) }}
+		{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, main_iso.uniprot_id, oncokb_info, urls) }}
 		{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
 		{#{{ danger("WARNING: currently, you can only create variants in canonical isoforms.") }}#}
 		<div id="created_var"></div>
@@ -61,6 +61,8 @@
 						<th class="w3-left-align">Synonymous <br />obs/exp* (CI)</th>
 						<th class="w3-left-align">Missense <br />obs/exp* (CI)</th>
 						<th class="w3-left-align">Loss of function <br />obs/exp* (CI)</th>
+						<th class="w3-left-align">OncoKB*** <br />is oncogene?</th>
+						<th class="w3-left-align">OncoKB*** <br />is tumor suppressor?</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -69,22 +71,32 @@
 						<td><span>{{ main_iso.strand }}</span></td>
 						<td><span>{{ main_iso.hgnc_name }}</span></td>
 						{% if main_iso.ng != 'NG_000000.0' %}
-							<td><span><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></span></td>
+						<td><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></td>
 						{% else %}
-							<td><span>No NG accession number</span></td>
+						<td><span>No NG accession number</span></td>
 						{% endif %}
 						{% if annotations.nognomad != 'No values in gnomAD' %}
-							{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
-							<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
-							{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
-							<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>
-							{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
-							<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
-							</td>
+						{{ gnomad_oe(annotations.gnomad_syn_oe_avg, annotations.gnomad_syn_oe_max) }}
+						<span>{{ annotations.gnomad_syn_oe_avg }}<br />({{ annotations.gnomad_syn_oe_min }}-{{ annotations.gnomad_syn_oe_max }})</span></td>
+						{{ gnomad_oe(annotations.gnomad_mis_oe_avg, annotations.gnomad_mis_oe_max) }}
+						<span>{{ annotations.gnomad_mis_oe_avg }}<br />({{ annotations.gnomad_mis_oe_min }}-{{ annotations.gnomad_mis_oe_max }})</span></td>
+						{{ gnomad_oe(annotations.gnomad_lof_oe_avg, annotations.gnomad_lof_oe_max) }}
+						<span>{{ annotations.gnomad_lof_oe_avg }}<br />({{ annotations.gnomad_lof_oe_min }}-{{ annotations.gnomad_lof_oe_max }})</span>
+						</td>
 						{% else %}
-							<td>{{ annotations.nognomad }}</td>
-							<td>{{ annotations.nognomad }}</td>
-							<td>{{ annotations.nognomad }}</td>
+						<td>{{ annotations.nognomad }}</td>
+						<td>{{ annotations.nognomad }}</td>
+						<td>{{ annotations.nognomad }}</td>
+						{% endif %}
+						{% if oncokb_info.is_oncogene %}
+						<td><span><strong>Yes</strong></span></td>
+						{% else %}
+						<td><span>No</span></td>
+						{% endif %}
+						{% if oncokb_info.is_tumor_suppressor %}
+						<td><span><strong>Yes</strong></span></td>
+						{% else %}
+						<td><span>No</span></td>
 						{% endif %}
 					</tr>
 				</tbody>
@@ -238,7 +250,7 @@
 				</tbody>
 			</table>
 		</div><br /><br />
-		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.") }}
+		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.<br/>***Version of the OncoKB cancer gene list available at the <a href='%s' target='_blank'>about</a> page."| format(url_for('md.about'))) }}
 		{% if mapping_warning.hg38_secured == 'yes' %}
 			{{ info("<strong><sup>#</sup> this tag means that variants on this transcript will map onto hg38, but may or may not correctly map on hg19, depending on the transcript and on the variant localisation. If the variant fails to map on hg19, some functionalities will be disabled in the variant analysis page. Missense predictions in particular may be incomplete.</strong>") }}
 		{% endif %}

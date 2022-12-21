@@ -70,7 +70,7 @@
 	{% endif %}
 {%- endmacro %}
 <!--gene external sites-->
-{% macro gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, uniprot_id, urls) -%}
+{% macro gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, uniprot_id, oncokb_info, urls) -%}
 	<div class="w3-modal w3-animate-opacity" id="gene_modal" style="z-index:1000;">
 		<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile" style="width:500px;">
 			<div class="w3-container w3-blue">
@@ -93,7 +93,6 @@
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
 					</li>
-
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank')">MARRVEL</span>
 					</li>
@@ -101,18 +100,23 @@
 						<span class="w3-padding" id="panelapp">Searching for PanelApp entity... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 					</li>
 					{% if max_prot_size and max_prot_size < 2700 %}
-						<li class="w3-padding-small">
-							<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
-						</li>
+					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
+					</li>
 					{% elif not max_prot_size %}
-						<li class="w3-padding-small">
-							<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
-						</li>
+					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
+					</li>
 					{% endif %}
 					{% if clingen_criteria_specification_id %}
-						<li class="w3-padding-small">
-							<span class="w3-button" onclick="window.open('{{ urls.clingen_gene_spec_web }}doc/{{ clingen_criteria_specification_id }}', '_blank')">ClinGen ACMG specific rules for <em>{{ gene_symbol }}</em> </span>
-						</li>
+					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.clingen_gene_spec_web }}doc/{{ clingen_criteria_specification_id }}', '_blank')">ClinGen ACMG specific rules for <em>{{ gene_symbol }}</em> </span>
+					</li>
+					{% endif %}
+					{% if oncokb_info.is_oncogene or oncokb_info.is_tumor_suppressor %}
+					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.oncokb }}gene/{{ gene_symbol }}', '_blank')">OncoKB</span>
+					</li>
 					{% endif %}
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ url_for('md.gene', gene_symbol=gene_symbol) }}', '_self')">MD Gene page</span>

@@ -84,7 +84,6 @@ local_files['clinvar_hg38']['abs_path'] = '{0}{1}clinvar_{2}.vcf.gz'.format(
     local_files['clinvar_hg38']['rel_path'],
     clinvar_version
 )
-
 local_files['dbmts']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['dbmts']['rel_path']
 )
@@ -136,6 +135,15 @@ local_files['metadome']['abs_path'] = '{0}{1}'.format(
 local_files['mistic']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['mistic']['rel_path']
 )
+oncokb_genes_version = get_resource_current_version(
+    '{0}{1}'.format(app_path, local_files['oncokb_genes']['rel_path']),
+    r'cancerGeneList_(\d+).tsv'
+)
+local_files['oncokb_genes']['abs_path'] = '{0}{1}cancerGeneList_{2}.tsv'.format(
+    app_path,
+    local_files['oncokb_genes']['rel_path'],
+    oncokb_genes_version
+)
 local_files['spip']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spip']['rel_path']
 )
@@ -171,6 +179,9 @@ external_tools['ClinVar']['version'] = 'v{}'.format(
 )
 external_tools['ClinGenSpecificationRegistry']['version'] = 'v{}'.format(
     clingen_version
+)
+external_tools['OncoKBGenes']['version'] = 'v{}'.format(
+    oncokb_genes_version
 )
 acmg_criteria = resources['acmg']
 lovd_effect = resources['lovd_effect']
@@ -225,6 +236,11 @@ def three2one_fct(var):
             match_object.group(2) + \
             three2one[match_object.group(3)].capitalize() + \
             match_object.group(4)
+    match_object = re.search(r'^(\w{3})(\d+)\w{3}fsTer\d+$', var)
+    if match_object:
+        return three2one[match_object.group(1)].capitalize() + \
+            match_object.group(2) + \
+            'fs'
 
 
 def one2three_fct(var):
@@ -2595,3 +2611,31 @@ def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basenam
     spliceai_raw_file.close()
     bedgraph_file.close()
     return 'ok'
+
+
+def translate_yn_to_bool(yn_value):
+    if yn_value == 'Yes' or \
+            yn_value == 'yes' or \
+            yn_value == 'y':
+        return True
+    else:
+        return False
+
+
+def get_oncokb_genes_info(gene_symbol):
+    oncokb_genes = open(local_files['oncokb_genes']['abs_path'], 'r')
+    # if the list becomes too long, store id directly in DB
+    oncokb_dict = {
+        'is_oncogene': False,
+        'is_tumor_suppressor': False
+    }
+    for line in oncokb_genes:
+        if re.search(f'^{gene_symbol}', line):
+            # get data
+            oncokb_list = re.split('\t', line)
+            # print(oncokb_list[['external_tools']['OncoKBGenes']['is_cancer_gene_col']])
+            oncokb_dict['is_oncogene'] = translate_yn_to_bool(oncokb_list[int(external_tools['OncoKBGenes']['is_cancer_gene_col'])])
+            oncokb_dict['is_tumor_suppressor'] = translate_yn_to_bool(oncokb_list[int(external_tools['OncoKBGenes']['is_tumor_suppressor_gene_col'])])
+            return oncokb_dict
+    return oncokb_dict
+

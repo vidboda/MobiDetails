@@ -75,24 +75,37 @@
 			{% endif %}
 			{% endif %}
 		</div>
-		{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
-		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
-		{% elif not external_data.gene.proteinSize %}
-		{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
-		{% endif %}
-		{% if external_data.gene.clingenCriteriaSpec %}
-		{{ link("%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
-		{% endif %}
-		{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
-		{% if g.user %}
-			{% if favourite != True %}
-			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
-</span>
-			{% else %}
-			<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
-</span>
+		{# somatic #}
+		{% if (external_data.gene.isOncogene or external_data.gene.isTumorSuppressor) and (external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?') %}
+		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('somatic_acc', 'somatic_icon');">somatic <i class="fa fa-caret-down" id="somatic_icon"></i></button>
+		<div class="w3-show" id="somatic_acc">
+			{{ link("%sgene/%s/%s"|format(urls.oncokb, external_data.gene.symbol, internal_data.nomenclatures.oneLetterpName), "OncoKB")}}
+			{% if external_data.positions.proteinType == 'missense' %}
+			{{ link("%s%s&pos=%s&ref=%s&alt=%s"|format(urls.cancervar_api, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CancerVar")}}
 			{% endif %}
+		</div>
 		{% endif %}
+		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('bonus_acc', 'bonus_icon');">bonus <i class="fa fa-caret-down" id="bonus_icon"></i></button>
+		<div class="w3-show" id="bonus_acc">
+			{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
+			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+			{% elif not external_data.gene.proteinSize %}
+			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+			{% endif %}
+			{% if external_data.gene.clingenCriteriaSpec %}
+			{{ link("%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
+			{% endif %}
+			{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
+			{% if g.user %}
+				{% if favourite != True %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+	</span>
+				{% else %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+	</span>
+				{% endif %}
+			{% endif %}
+		</div>
 	</div>
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>

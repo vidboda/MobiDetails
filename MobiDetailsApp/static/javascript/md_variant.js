@@ -593,7 +593,6 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
 
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
-	// should be rewritten in jquery for consistency
 	var x = document.getElementById(acc_id);
 	if (x.className.indexOf("w3-show") == -1) {
 		// x.className += " w3-show";
@@ -645,10 +644,12 @@ $(document).ready(function() {
   $('#third_br').remove();
   if ($(window).width() < 600) {
   	$('#page_menu').remove();
-        $('#second_br').remove();
-        // hide left menu items
+    $('#second_br').remove();
+    // hide left menu items
   	myAccFunc('hg19_acc', 'hg19_icon');
   	myAccFunc('hg38_acc', 'hg38_icon');
+    myAccFunc('somatic_acc', 'somatic_icon');
+    myAccFunc('bonus_acc', 'bonus_icon');
   	$('#smart_menu').hide();
   	$('#openNav').css('visibility', 'visible');
   	$('#global_content').animate({marginLeft: '0%'});

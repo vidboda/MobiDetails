@@ -85,6 +85,8 @@
 'urls':
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'cadd': 'https://cadd.gs.washington.edu/'
+  'cancervar': 'https://cancervar.wglab.org/'
+  'cancervar_api': 'https://cancervar.wglab.org/results_new_pos.php?queryType=position&build=hg38&chr='
   'clinpred': 'https://sites.google.com/site/clinpred/home'
   'clingen_gene_spec_web': 'https://cspec.genome.network/cspec/ui/svi/'
   'dbmts': 'http://www.liulab.science/dbmts.html'
@@ -132,6 +134,7 @@
   'ncbi_litvar_apiv2': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar%40'
   'ncbi_litvar_apiv2_sensor': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/sensor/'
   'ncbi_snp_api': 'https://api.ncbi.nlm.nih.gov/variation/v0/refsnp/'
+  'oncokb': 'https://www.oncokb.org/'
   'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
@@ -287,6 +290,11 @@
     'name': 'Mistic scores'
     'description': 'Pre-computed Mistic scores for all possible human missense variant'
     'short_name': 'mistic'
+  'oncokb_genes':
+    'rel_path': '/static/resources/oncokb/'
+    'name': 'OncoKB cancer gene list'
+    'description': 'Genes considered to be cancer genes by OncoKB'
+    'short_name': 'oncokb_genes'
   'spip':
     'rel_path': '/static/resources/SPiP/cache/'
     'name': 'Cache for SPiP results'
@@ -520,6 +528,14 @@
     'paper': ' 27154141'
     'version': 'API'
     'short_name': 'mygene.info'
+  'OncoKBGenes':
+    'firstauthor': 'Chakravarty'
+    'year': '2017'
+    'paper': ' 28890946'
+    'version': 'v'
+    'short_name': 'oncokb_genes'
+    'is_cancer_gene_col': 8
+    'is_tumor_suppressor_gene_col': 9
   'panelApp':
     'firstauthor': 'Stark'
     'year': '2021'

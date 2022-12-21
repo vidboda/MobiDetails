@@ -50,6 +50,7 @@ def test_one2three_fct(client, variant_in, variant_out):
     ('p.(Arg34_Glu65del)', 'R34_E65del'),
     ('p.(Arg34=', 'R34='),
     ('p.Leu34del', 'L34del'),
+    ('p.(Met120SerfsTer40)', 'M120fs'),
 ))
 def test_three2one_fct(client, variant_in, variant_out):
     test_var = md_utilities.three2one_fct(variant_in)
@@ -479,10 +480,11 @@ var_ss_f = {
     ('CADD', var_dup, '17.69', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels', var_dup_f),
     ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs', var_f),
     ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels', var_dup_f),
-    ('gnomAD exome', var_hg19, '0.0009', 5, 'gnomad_exome', var_f),
-    ('gnomAD exome', var_dup_hg19, '1.0', 5, 'gnomad_exome', var_dup_f),
-    ('gnomAD genome', var_hg19, '0.0009', 5, 'gnomad_genome', var_f),
-    ('gnomAD genome', var_dup_hg19, '1.0', 5, 'gnomad_genome', var_dup_f),
+    ('gnomAD exome', var, '0.0010', 5, 'gnomad_exome_hg38', var_f),
+    ('gnomAD exome', var, '0.0021', 20, 'gnomad_exome_hg38', var_f),
+    ('gnomAD exome', var_dup, '1.0', 5, 'gnomad_exome_hg38', var_dup_f),
+    ('gnomAD genome', var, '0.0010', 5, 'gnomad_genome_hg38', var_f),
+    ('gnomAD genome', var_dup, '1.0', 5, 'gnomad_genome_hg38', var_dup_f),
     ('gnomADv3', var, '0.0013', 5, 'gnomad_3', var_f),
     ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3', var_dup_f),
     ('Mistic', var, '0.876', 4, 'mistic', var_f),
@@ -1055,6 +1057,29 @@ def test_build_bedgraph_from_raw_spliceai():
         md_utilities.local_files['spliceai_folder']['abs_path']
     )
     assert md_utilities.build_bedgraph_from_raw_spliceai(1, header1, header2, file_basename) == 'ok'
+
+
+@pytest.mark.parametrize(('yn_value', 'result'), (
+    ('Yes', True),
+    ('yes', True),
+    ('y', True),
+    ('No', False)
+))
+def test_translate_yn_to_bool(yn_value, result):
+    assert md_utilities.translate_yn_to_bool(yn_value) == result
+
+
+@pytest.mark.parametrize(('gene_symbol', 'is_oncogene', 'is_tumor_suppressor'), (
+    ('FBXW7', False, True),
+    ('NOTCH1', True, True),
+    ('USH2A', False, False)
+))
+def test_get_oncokb_genes_info(gene_symbol, is_oncogene, is_tumor_suppressor):
+    oncokb_dict =  md_utilities.get_oncokb_genes_info(gene_symbol)
+    print(oncokb_dict)
+    assert oncokb_dict['is_oncogene'] == is_oncogene
+    assert oncokb_dict['is_tumor_suppressor'] == is_tumor_suppressor
+
 
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (

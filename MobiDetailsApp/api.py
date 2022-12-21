@@ -180,7 +180,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'hgncName': None,
             'proteinSize': None,
             'uniprotId': None,
-            'clingenCriteriaSpec': None
+            'clingenCriteriaSpec': None,
+            'isOncogene': None,
+            'isTumorSuppressor': None
         },
         'nomenclatures': {
             'cName': None,
@@ -337,6 +339,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'cName': None,
             # 'ngName': None,
             'pName': None,
+            'oneLetterpName': None
         },
         'VCF': {
             'hg19': {
@@ -462,6 +465,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         internal_data['nomenclatures']['cName'] = var_cname
         # internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
         internal_data['nomenclatures']['pName'] = variant_features['p_name']
+        internal_data['nomenclatures']['oneLetterpName'] = md_utilities.three2one_fct(variant_features['p_name'])
+        print(internal_data['nomenclatures']['oneLetterpName'])
 
         external_data['gene']['symbol'] = variant_features['gene_symbol']
         external_data['gene']['RefSeqTranscript'] = variant_features['refseq']
@@ -480,6 +485,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['gene']['uniprotId'] = variant_features['uniprot_id']
         # get clingen spec
         external_data['gene']['clingenCriteriaSpec'] = md_utilities.get_clingen_criteria_specification_id(external_data['gene']['symbol'])
+        # get oncoKB data
+        oncokb_info = md_utilities.get_oncokb_genes_info(external_data['gene']['symbol'])
+        external_data['gene']['isOncogene'] = oncokb_info['is_oncogene']
+        external_data['gene']['isTumorSuppressor'] = oncokb_info['is_tumor_suppressor']
+
         external_data['positions']['DNAType'] = variant_features['dna_type']
         external_data['positions']['RNAType'] = variant_features['rna_type']
         external_data['positions']['proteinType'] = variant_features['prot_type']
