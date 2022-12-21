@@ -430,8 +430,8 @@ def gene(gene_symbol=None):
                         '{0}.bedGraph'.format(transcript_file_basename)
                     ) or os.path.getctime(
                         '{0}.bedGraph'.format(transcript_file_basename)
-                    ) < 1672531200:
-                # if bedgraph created before 2023
+                    ) < 1671580800:
+                # if bedgraph created before 20221221 - first online release
                 # check whether we have pre-computed trancript
                 ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(main['chr']), 'hg38')
                 start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(main['gene_symbol'], main['refseq'], ncbi_chr['ncbi_name'], main['strand'])
