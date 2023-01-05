@@ -507,7 +507,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['frequenciesDatabases']['dbSNPrsid'] = 'rs{}'.format(variant_features['dbsnp_id'])
         internal_data['frequenciesDatabases']['dbSNPrsid'] = variant_features['dbsnp_id']
 
-        if variant_features['dna_type'] == 'indel':
+        if variant_features['dna_type'] == 'indel' \
+                or variant_features['dna_type'] == 'insertion':
             match_obj = re.search(r'ins([ATGC]+)$', variant_features['c_name'])
             if match_obj:
                 internal_data['positions']['insSize'] = len(match_obj.group(1))
@@ -1160,11 +1161,18 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 if variant_features['dna_type'] == 'substitution':
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features)
                     spliceai_res = True
-                elif ((variant_features['dna_type'] == 'insertion' or
-                        variant_features['dna_type'] == 'duplication') and
-                        variant_features['variant_size'] == 1) or \
+                elif ((variant_features['dna_type'] == 'insertion' and
+                        internal_data['positions']['insSize'] == 1) or
+                        (variant_features['dna_type'] == 'duplication' and
+                        variant_features['variant_size'] == 1) or
                         (variant_features['dna_type'] == 'deletion' and
-                            variant_features['variant_size'] <= 4):
+                            variant_features['variant_size'] <= 4)):
+                # elif ((variant_features['dna_type'] == 'insertion' or
+                #         variant_features['dna_type'] == 'duplication') and
+                #         (variant_features['variant_size'] == 1) or
+                #         internal_data['positions']['insSize'] == 1) or \
+                #         (variant_features['dna_type'] == 'deletion' and
+                #             variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
                     # print(record)
                     spliceai_res = True
