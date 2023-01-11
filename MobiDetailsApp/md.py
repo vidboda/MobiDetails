@@ -446,21 +446,34 @@ def gene(gene_symbol=None):
                     # else:
                     #     # check whether we have pre-computed chr-start-end-strand
                     #     # DEPRECATED we will diplay only the canonical (main)
-                    #     spliceai_strand = 'plus' if iso['strand'] == '+' else 'minus'
-                    #     position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
-                    #         md_utilities.local_files['spliceai_folder']['abs_path'],
-                    #         'chr{0}'.format(main['chr']),
-                    #         start_g,
-                    #         end_g,
-                    #         spliceai_strand
-                    #     )
-                    #     if os.path.exists(
-                    #         '{0}.txt.gz'.format(position_file_basename)
-                    #     ):
-                    #         # print(position_file_basename)
-                    #         response = md_utilities.build_bedgraph_from_raw_spliceai(iso['chr'], header1, header2, position_file_basename, transcript_file_basename)
+                        # spliceai_strand = 'plus' if iso['strand'] == '+' else 'minus'
+                        # position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
+                        #     md_utilities.local_files['spliceai_folder']['abs_path'],
+                        #     'chr{0}'.format(main['chr']),
+                        #     start_g,
+                        #     end_g,
+                        #     spliceai_strand
+                        # )
+                        # if os.path.exists(
+                        #     '{0}.txt.gz'.format(position_file_basename)
+                        # ):
+                        #     # print(position_file_basename)
+                        #     response = md_utilities.build_bedgraph_from_raw_spliceai(iso['chr'], header1, header2, position_file_basename, transcript_file_basename)
                     #         if response == 'ok':
                     #             spliceai_transcript_list.append(iso['refseq'])
+                else:
+                    spliceai_strand = 'plus' if main['strand'] == '+' else 'minus'
+                    position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
+                        md_utilities.local_files['spliceai_folder']['abs_path'],
+                        'chr{0}'.format(main['chr']),
+                        start_g,
+                        end_g,
+                        spliceai_strand
+                    )
+                    if os.path.exists(
+                        '{0}.txt.gz'.format(position_file_basename)
+                    ):
+                        response = md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, position_file_basename, transcript_file_basename)
             # print(spliceai_transcript_list)
             # get oncoKB gene data
             oncokb_info = md_utilities.get_oncokb_genes_info(gene_symbol)
