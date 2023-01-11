@@ -246,7 +246,7 @@
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
   'gnomad_3':
-    'rel_path': '/static/resources/gnomad/hg38_gnomad30_genome_sorted.txt.gz'
+    'rel_path': '/static/resources/gnomad/hg38_gnomad312_genome_sorted.txt.gz'
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
@@ -447,7 +447,7 @@
     'firstauthor': 'Karczewski'
     'year': '2020'
     'paper': '32461654'
-    'version': 'v2.1.1;v3'
+    'version': 'v2.1.1;v3.1.2'
     'short_name': 'gnomad'
     'annovar_format_af_col': '5'
     'annovar_format_af_noncancer_col': '20'
