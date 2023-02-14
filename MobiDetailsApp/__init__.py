@@ -1,11 +1,11 @@
 import os
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, flash, redirect
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
 # https://flask-wtf.readthedocs.io/en/stable/csrf.html
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
 from psycopg2 import pool
@@ -48,7 +48,8 @@ def create_app(test_config=None):
     app.register_error_handler(404, not_found_error)
     app.register_error_handler(500, internal_error)
     app.register_error_handler(405, not_allowed_error)
-    app.register_error_handler(413, reques_entity_too_large_error)
+    app.register_error_handler(413, request_entity_too_large_error)
+    app.register_error_handler(CSRFError, csrf_error)
     # define custom jinja filters
     app.jinja_env.filters['match'] = configuration.match
     app.jinja_env.filters['match_multiline'] = configuration.match_multiline
@@ -97,5 +98,10 @@ def not_allowed_error(error):
     return render_template('errors/405.html'), 405
 
 
-def reques_entity_too_large_error(error):
+def request_entity_too_large_error(error):
     return render_template('errors/413.html'), 413
+
+def csrf_error(error):
+    # flash(f"{error.name} : {error.description} Please Retry.", 'w3-pale-red')
+    flash('{0} : {1} Please Retry.'.format(error.name, error.description), 'w3-pale-red')
+    return redirect(url_for('md.index'))
