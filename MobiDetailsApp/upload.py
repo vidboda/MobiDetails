@@ -135,7 +135,7 @@ def file_upload():
                             """
                             SELECT gene_symbol
                             FROM gene
-                            WHERE refseq = %s
+                            WHERE gene_symbol = %s
                             """,
                             (match_obj_g.group(2),)
                         )
