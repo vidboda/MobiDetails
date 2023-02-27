@@ -5,6 +5,8 @@
 
 ![md.gif](doc/img/md.gif)
 
+animated gif by [Char-Al](https://github.com/Char-Al)
+
 MobiDetails is a webapp which intends to aggregate data on DNA variants in order to help with their interpretation.
 
 It consists in a website where users can easily create variants and retrieve many information.
