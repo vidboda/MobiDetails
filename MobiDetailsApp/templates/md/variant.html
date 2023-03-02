@@ -1128,7 +1128,7 @@
 					});
 				</script>
 				{% if g.user %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% else %}
 					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 				{% endif %}
@@ -1139,9 +1139,9 @@
 			{{ info(internal_data.noMatch.dbnsfp) }}
 			{% if g.user %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% endif %}
 			{% else %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
@@ -1153,9 +1153,9 @@
 		{% elif external_data.splicingPredictions.spliceai_DS_AG is not none  %}
 			{% if g.user %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% endif %}
 			{% else %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
@@ -1167,9 +1167,9 @@
 		{% else %}
 			{% if g.user %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% else %}
-					{{ modal_js('pubmed', 'defgen_modal_hg38', 'modify_class_modal') }}
+					{{ modal_js('pubmed', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
 				{% endif %}
 			{% else %}
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
