@@ -20,32 +20,33 @@ function defgen_export(genome, vf_id, defgen_url, csrf_token) {
 	});
 }
 
-function litvar(litvar_url, csrf_token) {
-	//ajax for litvar
-	if ($('#dbsnp_id').text() !== '') {
-		// send header for flask-wtf crsf security
-		$.ajaxSetup({
-			beforeSend: function(xhr, settings) {
-				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-					xhr.setRequestHeader("X-CSRFToken", csrf_token);
-				}
-			}
-		});
-		$.ajax({
-			type: "POST",
-			url: litvar_url,
-			data: {
-				rsid: $('#dbsnp_id').text()
-			}
-		})
-		.done(function(html) {
-			$("#litvar_data").replaceWith(html);
-		});
-	}
-	else {
-		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed requires a dbSNP identifier</div>');
-	}
-}
+// deprecated replaced with litvar2
+// function litvar(litvar_url, csrf_token) {
+// 	//ajax for litvar
+// 	if ($('#dbsnp_id').text() !== '') {
+// 		// send header for flask-wtf crsf security
+// 		$.ajaxSetup({
+// 			beforeSend: function(xhr, settings) {
+// 				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+// 					xhr.setRequestHeader("X-CSRFToken", csrf_token);
+// 				}
+// 			}
+// 		});
+// 		$.ajax({
+// 			type: "POST",
+// 			url: litvar_url,
+// 			data: {
+// 				rsid: $('#dbsnp_id').text()
+// 			}
+// 		})
+// 		.done(function(html) {
+// 			$("#litvar_data").replaceWith(html);
+// 		});
+// 	}
+// 	else {
+// 		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar for Pubmed requires a dbSNP identifier</div>');
+// 	}
+// }
 
 
 function litvar2(litvar_url, csrf_token) {
@@ -76,7 +77,7 @@ function litvar2(litvar_url, csrf_token) {
 }
 
 
-function lovd(lovd_url, csrf_token, genome, chrom, g_name) {
+function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security
     $.ajaxSetup({
@@ -107,20 +108,7 @@ function lovd(lovd_url, csrf_token, genome, chrom, g_name) {
             .destroy();
         // add new tr and rebuilt datatable
         $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
-        datatable = $('#population_table').DataTable({
-            responsive: true,
-            dom: 't',
-            "order": [],
-            //scrollY: 600,
-            buttons: [
-                    'copy', 'excel', 'pdf'
-            ]
-        });
-
-        //$("#lovd_data").replaceWith(html);
-        //$("#lovd_feature").css("vertical-align", "middle");
-        //$("#lovd_description").css("vertical-align", "middle");
-
+        redraw_dt('population_table', false);
 	});
 }
 
@@ -146,16 +134,7 @@ function intervar(intervar_url, csrf_token) {
 		})
 		.done(function(html) {
 			$('#intervar_data').replaceWith(html);
-      $('#population_table').DataTable().destroy();
-      datatable = $('#population_table').DataTable({
-          responsive: true,
-          dom: 't',
-          "order": [],
-          //scrollY: 600,
-          buttons: [
-            'copy', 'excel', 'pdf'
-          ]
-      });
+      redraw_dt('population_table', true);
 		});
 	}
 }
@@ -286,6 +265,8 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
     }
   });
 }
+
+
 async function add_full_gene_track(static_path) {
   igv.browser.loadTrack({
     name: 'FULL MT SpliceAI ' + $('#nm_acc').text(),
@@ -306,6 +287,8 @@ async function add_full_gene_track(static_path) {
   $('#spliceai_visual_full_wheel').html('<span></span>');
   $('html').css('cursor', 'default');
 }
+
+
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	// ajax to modify variant class
   $('html').css('cursor', 'progress');
@@ -366,16 +349,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
         if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
           $("#owner_username").text($("#current_user").text());
         }
-
-        datatable = $('#class_table').DataTable({
-          responsive: true,
-          dom: 't',
-          "order": [],
-          //scrollY: 600,
-          buttons: [
-            'copy', 'excel', 'pdf'
-          ]
-        });
+        redraw_dt('class_table', false);
       }
 		  else {
 			     $("#message_return").html(tr_html);
@@ -487,11 +461,47 @@ function run_spip(url, variant_id, csrf_token) {
       datatable = $('#spip_full').DataTable({
         responsive: true,
         dom: 't',
-        "pageLength": 25,
+        pageLength: 25,
         "order": []
       });
     }
 	});
+}
+
+function redraw_dt(dtid, destroy) {
+  if (destroy) {
+    $('#' + dtid).DataTable().destroy();
+  } 
+  $('#' + dtid).DataTable({
+      responsive: true,
+      dom: 't',
+      "pageLength": 25,
+      "order": []
+  });
+}
+
+function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
+  $.ajax({
+		type: "GET",
+		url: clingen_evrepo_api_url + "interpretations?hgvs=" + encodeURIComponent(variant),
+  })
+	.done(function(jsonResponse) {
+    if ($.isEmptyObject(jsonResponse.variantInterpretations)) {
+      $('#clingen_evrepo').replaceWith("This variant has not yet been assessed by the ClinGen experts groups.");
+    }
+    else if (! $.isEmptyObject(jsonResponse.variantInterpretations[0].guidelines[0].outcome.label)) {
+      cligen_evrepo_url = jsonResponse.variantInterpretations[0]['@id']
+      $('#clingen_evrepo').replaceWith("<a href='" + cligen_evrepo_url.replace("/api/", "/ui/") + "' target='_blank'>" + jsonResponse.variantInterpretations[0].guidelines[0].outcome.label + "</a>");
+    }
+    else {
+      $('#clingen_evrepo').replaceWith("Error when parsing the data from ClinGen: you may want to warn an admin (<a href='" + contact_url + "' target = '_blank'>contact</a>)");
+    }
+    redraw_dt('population_table', true);
+  })
+  .fail(function() {
+    $('#clingen_evrepo').replaceWith("The ClinGen website is unreachable for some reason.");
+    redraw_dt('population_table', true);
+  });
 }
 
 function spliceai_lookup(spliceai_lookup_url, csrf_token) {
@@ -529,17 +539,11 @@ function spliceai_lookup(spliceai_lookup_url, csrf_token) {
       $("#spliceai_lookup_ag_tr").show();
     }
     if ($.fn.DataTable.isDataTable('#splicing_table')) {
-      $('#splicing_table').DataTable().destroy();
+      redraw_dt('splicing_table', true);
     }
-    datatable = $('#splicing_table').DataTable({
-      responsive: true,
-      dom: 't',
-      "order": [],
-      //scrollY: 600,
-      buttons: [
-        'copy', 'excel', 'pdf'
-      ]
-    });
+    else {
+      redraw_dt('splicing_table', false);
+    }
     $('#splicing_table').show();
     $('#spliceai_lookup_wheel').empty();
     $('#spliceai_lookup_button').hide();
@@ -758,15 +762,15 @@ $(document).ready(function() {
           else if (split_str[1] === '  	 		tolerant 	  ') {color_style = '#2E64FE'}
           else if (split_str[1] === '  	 		highly tolerant 	  ') {color_style = '#0404B4'}
         }
-        else if (table_title === 'Population frequencies and databases') {
-          var re = /Pathogenic/;
-          if (re.test(d)) {color_style = '#FF0000'}
-          re = /Benign/;
-          if (re.test(d)) {color_style = '#00A020'}
-          re = /Likely[\s_]pathogenic/;
-          if (re.test(d)) {color_style = '#FF6020'}
-          re = /Likely[\s_]benign/;
+        else if (table_title === 'Population frequencies and databases') {          
+          re = /Likely[\s_][Bb]enign/;
           if (re.test(d)) {color_style = '#0000A0'}
+          re = /^Benign$/;
+          if (re.test(d)) {color_style = '#00A020'}
+          re = /Likely[\s_][Pp]athogenic/;
+          if (re.test(d)) {color_style = '#FF6020'}
+          var re = /^Pathogenic$/;
+          if (re.test(d)) {color_style = '#FF0000'}
         }
         else if (table_title === 'Overall predictions'){
           if (d === 'High missense' || d === 'Clinvar pathogenic' || d === 'High splice' || d === 'nonsense' || d === 'frameshift') {color_style = '#FF0000'}

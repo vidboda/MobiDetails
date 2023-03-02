@@ -258,7 +258,7 @@ def register():
                      your MobiDetails account:</p>
                     <p><a href="{1}{2}" title="Activate your MD account">
                     Activate your MD account</a></p>
-                    <p>If you do not know why you receive this email,
+                    <p>If you do not know why you received this email,
                     do not follow the link and please alert
                     mobidetails.iurc@gmail.com.</p><br />
                     """.format(

@@ -67,7 +67,9 @@
 			{{ link("%s/region/chr%s:%s-%s"|format(urls.decaf, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.pos), "deCAF")}}
 			{% if external_data.positions.DNAType == 'substitution' %}
 			{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CADD")}}
+			{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 			{{ link("%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "hg38 InterVar")}}
+			{% endif %}
 			{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
 			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
 			{% else %}
@@ -454,9 +456,16 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
+					<tr><!-- ClinGen Evidence Repository -->
+						<td class="w3-left-align">ClinGen EvRepo:</td>
+						<td class="w3-left-align">
+							<span id="clingen_evrepo">Searching for ClinGen EvRepo data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+						</td>
+						<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.clingen_evrepo }}" target="_blank" title="Visit ClinGen EvRepo">ClinGen Evidence Repository</a> Classification for the variant</em></td>
+					</tr>
 					{% if external_data.gene.clingenCriteriaSpec %}
 					<tr><!-- ClinGen Specification Registry -->
-						<td class="w3-left-align">ClinGen criteria:</td>
+						<td class="w3-left-align">ClinGen Criteria:</td>
 						<td class="w3-left-align">
 							<a href={{ "%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant">{{ external_data.gene.clingenCriteriaSpec }}</a>
 						</td>
@@ -1474,14 +1483,15 @@
 	<script>
 		$(document).ready(function() {
 			litvar2('{{ url_for('ajax.litvar2') }}', '{{ csrf_token() }}');
+			clingen_evrepo('{{ urls.clingen_evrepo_api }}', $('#hgvs_strict_genomic_hg38').text(), '{{ url_for('md.about', _anchor='cite') }}');
 			{% if external_data.VCF.hg19.ncbiChr is not none %}
-				lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}', $('#genome_19').text(), $('#chrom_19').text(), $('#hg19_g_name').text());
+				lovd('{{ url_for('ajax.lovd') }}', $('#genome_19').text(), $('#chrom_19').text(), $('#hg19_g_name').text(), '{{ csrf_token() }}');
 				intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
 			{% else %}
-				lovd('{{ url_for('ajax.lovd') }}', '{{ csrf_token() }}', $('#genome_38').text(), $('#chrom_38').text(), $('#hg38_g_name').text());
+				lovd('{{ url_for('ajax.lovd') }}', $('#genome_38').text(), $('#chrom_38').text(), $('#hg38_g_name').text(), '{{ csrf_token() }}');
 			{% endif %}
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
-			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}')
+			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 		});
 	</script>
 {% endblock %}
