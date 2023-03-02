@@ -330,7 +330,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
     internal_data = {
         'admin': {
             'creationUser': None,
-            'creationUserEmail': None,
+            # 'creationUserEmail': None,
+            'creationUserEmailPref': None,
             'otherIds': None,
             'mappedCanonical': None,
             'apiKey': api_key
@@ -432,7 +433,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
     # get all variant_features and gene info
     curs.execute(
         """
-        SELECT a.*, b.*, a.id as var_id, c.id AS mobiuser_id, c.email, c.username, d.so_accession
+        SELECT a.*, b.*, a.id as var_id, c.id AS mobiuser_id, c.email, c.username, c.email_pref, d.so_accession
         FROM variant_feature a, gene b, mobiuser c, valid_prot_type d
         WHERE a.gene_symbol = b.gene_symbol
             AND a.refseq = b.refseq
@@ -501,7 +502,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
         external_data['admin']['creationDate'] = variant_features['creation_date']
         internal_data['admin']['creationUser'] = variant_features['mobiuser_id']
-        internal_data['admin']['creationUserEmail'] = variant_features['email']
+        # internal_data['admin']['creationUserEmail'] = variant_features['email']
+        internal_data['admin']['creationUserEmailPref'] = variant_features['email_pref']
         external_data['admin']['creationUserName'] = variant_features['username']
 
         external_data['frequenciesDatabases']['dbSNPrsid'] = 'rs{}'.format(variant_features['dbsnp_id'])
