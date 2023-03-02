@@ -1426,7 +1426,7 @@
 						<td class="w3-left-align">Creation user:</td>
 						{% if external_data.admin.creationUserName != 'mobidetails' and g.user %}
 						<td class="w3-left-align"><a href="{{ url_for('auth.profile', mobiuser_id=internal_data.admin.creationUser) }}" target="_blank" title="Click to see {{ external_data.admin.creationUserName }} profile"><span id="owner_username">{{ external_data.admin.creationUserName }}</span></a>
-							{% if internal_data.admin.creationUserEmailPref == true %}
+							{% if internal_data.admin.creationUserEmailPref == true and g.user['id'] != internal_data.admin.creationUser %}
 							&nbsp;&nbsp;<i class="w3-xlarge fa fa-envelope-o" onclick="$('#receiver_id').val('{{ internal_data.admin.creationUser }}');$('#receiver_username').html('{{ external_data.admin.creationUserName }}');$('#message_modal').show();" title="Send {{ external_data.admin.creationUserName }} a message via mobidetails" style="cursor:pointer;"></i>
 							{% endif %}
 						</td>
