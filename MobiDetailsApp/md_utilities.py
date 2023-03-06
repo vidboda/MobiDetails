@@ -25,6 +25,7 @@ app_path = os.path.dirname(os.path.realpath(__file__))
 resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 host = resources['host']
+user_agent_list = resources['user_agent_list']
 regexp = resources['regexp']
 
 api_agent = resources['api_agent']
@@ -884,6 +885,9 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 
 def get_vv_api_url():
     # try remote VV rest api and if not functional, switch on local
+    print(request.headers.get('User-Agent'))
+    if request.headers.get('User-Agent') in user_agent_list:
+        return urls['variant_validator_api_backup']
     try:
         hello = json.loads(
             http.request(
