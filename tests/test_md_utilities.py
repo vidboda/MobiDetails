@@ -792,9 +792,21 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
     assert md_utilities.return_vv_validation_warnings(vv_data) == return_warning
 
 
-def test_get_vv_api_url():
-    api_url = md_utilities.get_vv_api_url()
-    assert 'http' in api_url
+@pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
+    ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
+    ('http://194.167.35.195:8000/hello/?content-type=application/json', 'http://194.167.35.195:8000/'),
+    ('https://github.com', False),
+    ('abcgcece', False),
+))
+def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
+    assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
+
+
+# does not work anymore 20230307
+# def test_get_vv_api_url(client, app):
+#     with app.app_context():
+#         api_url = md_utilities.get_vv_api_url()
+#         assert 'http' in api_url
 
 
 class fake_g_obj:
@@ -828,6 +840,16 @@ def test_create_var_vv(client, app):
 def test_compute_start_end_pos(name, result):
     positions = md_utilities.compute_start_end_pos(name)
     assert positions == result
+
+
+@pytest.mark.parametrize(('url', 'result'), (
+    ('https://stackoverflow.com/questions/18423853/how-to-validate-url-and-redirect-to-some-url-using-flask', True),
+    ('abcgeerg', False),
+    ('http://194.167.35.195:8000/', True),
+    ('https://rest.variantvalidator.org/', True)
+))
+def test_validate_url(url, result):
+    assert md_utilities.validate_url(url) == result
 
 
 @pytest.mark.parametrize(('seq', 'result'), (

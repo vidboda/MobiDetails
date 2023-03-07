@@ -12,6 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 import gzip
+from urllib.parse import urlparse
 from flask import (
     url_for, request, render_template, current_app as app
 )
@@ -196,6 +197,15 @@ http = urllib3.PoolManager(
     ca_certs=certifi.where(),
     timeout=urllib3.Timeout(connect=1.0, read=5.0)
 )
+
+
+def validate_url(url):
+    try:
+        result = urlparse(url)
+        # return '{0}://{1}{2}'.format(result.scheme, result.netloc, result.path)
+        return all([result.scheme, result.netloc, result.path])
+    except:
+        return False
 
 
 def reverse_complement(seq):
@@ -883,20 +893,42 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
     """.format(color_class, text, link)
 
 
+def test_vv_api_url(vv_api_hello_url, vv_api_url):
+    checked_vv_api_hello_url = validate_url(vv_api_hello_url)
+    checked_vv_api_url = validate_url(vv_api_url)
+    if checked_vv_api_url and \
+            checked_vv_api_url:
+        try:
+            hello = json.loads(
+                http.request(
+                    'GET',
+                    vv_api_hello_url
+                ).data.decode('utf-8')
+            )
+            if hello['status'] == "hello_world":
+                return vv_api_url
+            else:
+                raise Exception
+        except Exception:
+            return None
+    return None
+
+
 def get_vv_api_url():
-    # try remote VV rest api and if not functional, switch on local
-    print(request.headers.get('User-Agent'))
+    # if identified intensive api usage, redirect to local VV
     if request.headers.get('User-Agent') in user_agent_list:
-        return urls['variant_validator_api_backup']
-    try:
-        hello = json.loads(
-            http.request(
-                'GET',
-                urls['variant_validator_api_hello'],
-            ).data.decode('utf-8'),
+        return test_vv_api_url(
+                urls['variant_validator_api_hello_backup'],
+                urls['variant_validator_api_backup']
         )
-        if hello['status'] == "hello_world":
-            return urls['variant_validator_api']
+    try:
+        # try remote VV rest api and if not functional, switch to local VV
+        checked_url = test_vv_api_url(
+                urls['variant_validator_api_hello'],
+                urls['variant_validator_api']
+        )
+        if checked_url:
+            return checked_url
         else:
             raise Exception
     except Exception:
@@ -905,17 +937,14 @@ def get_vv_api_url():
                 'VV looks down - trying to switch on rescue docker {}'
                 .format(urls['variant_validator_api_hello_backup'])
             )
-            hello = json.loads(
-                http.request(
-                    'GET',
-                    urls['variant_validator_api_hello_backup']
-                ).data.decode('utf-8')
+            checked_url = test_vv_api_url(
+                urls['variant_validator_api_hello_backup'],
+                urls['variant_validator_api_backup']
             )
-            if hello['status'] == "hello_world":
-                return urls['variant_validator_api_backup']
+            if checked_url:
+                return checked_url
             else:
                 raise Exception
-            # return urls['variant_validator_api_backup']
         except Exception:
             send_error_email(
                 prepare_email_html(

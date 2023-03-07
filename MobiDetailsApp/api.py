@@ -2466,6 +2466,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
         else:
             # creation
             vv_base_url = md_utilities.get_vv_api_url()
+            # print(vv_base_url)
             if not vv_base_url:
                 close_db()
                 if caller == 'cli':
