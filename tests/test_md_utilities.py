@@ -795,18 +795,24 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
     ('http://194.167.35.195:8000/hello/?content-type=application/json', 'http://194.167.35.195:8000/'),
-    ('https://github.com', False),
-    ('abcgcece', False),
+    ('https://github.com', None),
+    ('abcgcece', None),
 ))
 def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
     assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
 
 
-# does not work anymore 20230307
-# def test_get_vv_api_url(client, app):
-#     with app.app_context():
-#         api_url = md_utilities.get_vv_api_url()
-#         assert 'http' in api_url
+@pytest.mark.parametrize(('ua', 'vv_api_url'), (
+    ('MobiDetails (mobidetails.iurc@gmail.com)', 'https://rest.variantvalidator.org/'),
+    ('chu-bordeaux', 'http://194.167.35.195:8000/'),
+    ('CJP', 'http://194.167.35.195:8000/'),
+    ('abcgcece', 'https://rest.variantvalidator.org/'),
+))
+def test_get_vv_api_url(client, app, ua, vv_api_url):
+    with app.test_request_context(headers={'user-agent': ua}):
+        api_url = md_utilities.get_vv_api_url()
+        assert 'http' in api_url
+        assert api_url == vv_api_url
 
 
 class fake_g_obj:
