@@ -917,12 +917,20 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
 def get_vv_api_url():
     # if identified intensive api usage, redirect to local VV
     if request.headers.get('User-Agent') in user_agent_list:
-        return test_vv_api_url(
+        checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello_backup'],
                 urls['variant_validator_api_backup']
         )
-    try:
-        # try remote VV rest api and if not functional, switch to local VV
+        if checked_url:
+            return checked_url
+        else:
+            checked_url = test_vv_api_url(
+                urls['variant_validator_api_hello'],
+                urls['variant_validator_api']
+            )
+            return checked_url
+    else:
+        # the other way around
         checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello'],
                 urls['variant_validator_api']
@@ -930,13 +938,6 @@ def get_vv_api_url():
         if checked_url:
             return checked_url
         else:
-            raise Exception
-    except Exception:
-        try:
-            print(
-                'VV looks down - trying to switch on rescue docker {}'
-                .format(urls['variant_validator_api_hello_backup'])
-            )
             checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello_backup'],
                 urls['variant_validator_api_backup']
@@ -944,9 +945,7 @@ def get_vv_api_url():
             if checked_url:
                 return checked_url
             else:
-                raise Exception
-        except Exception:
-            send_error_email(
+                send_error_email(
                 prepare_email_html(
                     'MobiDetails VariantValidator error',
                     '<p>VariantValidator looks down!!<br /> - from {0}</p>'
@@ -957,6 +956,42 @@ def get_vv_api_url():
                 '[MobiDetails - VariantValidator Error]'
             )
     return None
+    # try:
+    #     # try remote VV rest api and if not functional, switch to local VV
+    #     checked_url = test_vv_api_url(
+    #             urls['variant_validator_api_hello'],
+    #             urls['variant_validator_api']
+    #     )
+    #     if checked_url:
+    #         return checked_url
+    #     else:
+    #         raise Exception
+    # except Exception:
+    #     try:
+    #         print(
+    #             'VV looks down - trying to switch on rescue docker {}'
+    #             .format(urls['variant_validator_api_hello_backup'])
+    #         )
+    #         checked_url = test_vv_api_url(
+    #             urls['variant_validator_api_hello_backup'],
+    #             urls['variant_validator_api_backup']
+    #         )
+    #         if checked_url:
+    #             return checked_url
+    #         else:
+    #             raise Exception
+    #     except Exception:
+    #         send_error_email(
+    #             prepare_email_html(
+    #                 'MobiDetails VariantValidator error',
+    #                 '<p>VariantValidator looks down!!<br /> - from {0}</p>'
+    #                 .format(
+    #                     os.path.basename(__file__)
+    #                 )
+    #             ),
+    #             '[MobiDetails - VariantValidator Error]'
+    #         )
+    # return None
 
 
 def vv_internal_server_error(caller, vv_data, vv_key_var):
