@@ -10,12 +10,12 @@
         <tr>
             <td class="w3-left-align">Interpretation</td>
             <td id="spip_interpretation" class="w3-left-align">{{ spip_results.Interpretation[0] }}</td>
-            <td class="w3-left-align">{{ spip_results.Interpretation[1] }}</td>
+            <td class="w3-left-align"><em class="w3-small">{{ spip_results.Interpretation[1] }}</em></td>
         </tr>
         <tr>
             <td class="w3-left-align">Risk</td>
             <td class="w3-left-align">{{ spip_results.Risk[0] }}</td>
-            <td class="w3-left-align">{{ spip_results.Risk[1] }}</td>
+            <td class="w3-left-align"><em class="w3-small">{{ spip_results.Risk[1] }}</em></td>
         </tr>
     </tbody>
 </table><br />
@@ -40,7 +40,7 @@
                   <tr>
                       <td class="w3-left-align">{{ feature }}</td>
                       <td class="w3-left-align">{{ spip_results[feature][0] }}</td>
-                      <td class="w3-left-align">{{ spip_results[feature][1] }}</td>
+                      <td class="w3-left-align"><em class="w3-small">{{ spip_results[feature][1] }}</em></td>
                   </tr>
               {% endif %}
           {% endfor %}

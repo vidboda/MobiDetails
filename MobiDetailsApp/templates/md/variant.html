@@ -711,7 +711,7 @@
 					<thead>
 						<tr>
 							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align" width="30%">Values</th>
 							<th class="w3-left-align">Descriptions</th>
 						</tr>
 					</thead>
@@ -720,12 +720,12 @@
 							<tr><!--dbscSNV ADA-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> ADA:</td>
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 							<tr><!--dbscSNV RF-->
 								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV">dbscSNV</a> RF:</td>
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score (0-1), threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
+								<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
 							</tr>
 						{% endif %}
 						{% if g.user['academic'] or not g.user %}
@@ -733,22 +733,22 @@
 								<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AG:</td>
 									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
-									<td class="w3-left-align"><em class="w3-small">Acceptor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact.</em></td>
+									<td class="w3-left-align"><em class="w3-small">Acceptor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 								</tr>
 								<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> AL:</td>
 									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
-									<td class="w3-left-align"><em class="w3-small">Acceptor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+									<td class="w3-left-align"><em class="w3-small">Acceptor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 								</tr>
 								<tr id='spliceai_dg_50_tr'><!--spliceAI DG-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DG:</td>
 									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
-									<td class="w3-left-align"><em class="w3-small">Donor Gain, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+									<td class="w3-left-align"><em class="w3-small">Donor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 								</tr>
 								<tr id='spliceai_dl_50_tr'><!--spliceAI DL-->
 									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI">spliceAI</a> DL:</td>
 									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
-									<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+									<td class="w3-left-align"><em class="w3-small">Donor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 								</tr>
 							{% elif internal_data.noMatch.spliceai is not none %}
 								<tr>
