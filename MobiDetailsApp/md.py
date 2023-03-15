@@ -42,7 +42,7 @@ def index():
                         headers=md_utilities.api_agent
                     ).data.decode('utf-8')
                 )
-    print(vv_instance)
+    # print(vv_instance)
     # count genes
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
