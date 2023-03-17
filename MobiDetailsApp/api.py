@@ -1001,29 +1001,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             internal_data['missensePredictions']['revelColor'] = "#000000"
                             external_data['missensePredictions']['revelPred'] = 'no prediction'
                             internal_data['missensePredictions']['revelStar'] = ''
-                            # dbNSFP way, but incomplete in 4.3
-                            # external_data['missensePredictions']['revelScore'], external_data['missensePredictions']['revelPred'], internal_data['missensePredictions']['revelStar'] = md_utilities.getdbNSFP_results(
-                            #     transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
-                            # )
-
                             # build revel pred
                             # if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
                             if isinstance(external_data['missensePredictions']['revelScore'], float):
                                 external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
                                 internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
-                                
-                            # if external_data['missensePredictions']['revelScore'] != '.' and \
-                            #         float(external_data['missensePredictions']['revelScore']) < 0.2:
-                            #     external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['B']
-                            # elif external_data['missensePredictions']['revelScore'] != '.' and \
-                            #         float(external_data['missensePredictions']['revelScore']) > 0.5:
-                            #     external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['D']
-                            # elif external_data['missensePredictions']['revelScore'] != '.':
-                            #     external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['U']
-                            # else:
-                            #     external_data['missensePredictions']['revelPred'] = 'no prediction'
-
-                            # internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
 
                         # meta SVM
                         external_data['missensePredictions']['metaSVMScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
@@ -1259,19 +1241,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
                         internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
                         internal_data['missensePredictions']['revelStar'] = '**'
-                # # gnomad ex
-                # record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome_hg19']['abs_path'], var, variant_features)
-                # if isinstance(record, str):
-                #     external_data['frequenciesDatabases']['gnomADv2Exomehg19'] = record
-                # else:
-                #     external_data['frequenciesDatabases']['gnomADv2Exomehg19'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
-                # # gnomad ge
-                # if external_data['gene']['chromosome'] != 'Y':
-                #     record = md_utilities.get_value_from_tabix_file('gnomAD genome', md_utilities.local_files['gnomad_genome_hg19']['abs_path'], var, variant_features)
-                #     if isinstance(record, str):
-                #         external_data['frequenciesDatabases']['gnomADv2Genomehg19'] = record
-                #     else:
-                #         external_data['frequenciesDatabases']['gnomADv2Genomehg19'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info
