@@ -392,6 +392,17 @@ var_hg19 = {
     'pos_ref': 'C',
     'pos_alt': 'A'
 }
+var_indel = {
+    'chr': '6',
+    'pos': '32830680',
+    'pos_ref': 'CC',
+    'pos_alt': 'TT'
+}
+var_indel_f = {
+    'dna_type': 'indel',
+    'prot_type': 'missense',
+    'p_name': 'Val467Ile'
+}
 var_3utr1 = {
     'chr': '1',
     'pos': '215625629',
@@ -466,7 +477,9 @@ var_ss_f = {
     ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_f),
-    # ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var_indel, '0.0006', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_indel_f),
+    ('dbnsfp', var_indel, '0.081', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_indel_f),
+    ('REVEL', var_indel, '0.193', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_indel_f),
     ('REVEL', var, '0.902', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_f),
     ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp', var_f),
@@ -495,6 +508,8 @@ var_ss_f = {
 def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
     record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)
     print(record)
+    print(record[record_number])
+    print(record_number)
     assert re.search(expected, record[record_number])
     # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
     # assert re.search('Pathogenic', record[7])
