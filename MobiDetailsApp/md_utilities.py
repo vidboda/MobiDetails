@@ -666,7 +666,14 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
-            return record
+            if re.search(r'revel', tabix_file):
+                # need to validate amino acids
+                aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+                if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
+                        aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
+                    return record
+            else:
+                return record
         elif re.search('dbNSFP', tabix_file) and \
                 variant_features['dna_type'] == 'indel' and \
                 variant_features['prot_type'] == 'missense':

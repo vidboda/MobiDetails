@@ -467,6 +467,7 @@ var_ss_f = {
     ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('REVEL', var, '0.902', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_f),
     ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp', var_f),
     ('dbmts', var_3utr1, '0.35', int(md_utilities.external_tools['Eigen']['dbMTS_value_col']), 'dbmts', var_3utr1_f),

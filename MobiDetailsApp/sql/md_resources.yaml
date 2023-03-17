@@ -577,8 +577,10 @@
     'year': '2016'
     'paper': '27666373'
     'version': '1.3'
-    'short_name': 'revel'
-    'value_col': '4'
+    'short_name': 'revel'    
+    'ref_aa_col': '4'
+    'alt_aa_col': '5'
+    'value_col': '6'
   'SIFT':
     'firstauthor': 'Ng'
     'year': '2003'
