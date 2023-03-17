@@ -298,6 +298,16 @@
     'name': 'OncoKB cancer gene list'
     'description': 'Genes considered to be cancer genes by OncoKB'
     'short_name': 'oncokb_genes'
+  'revel':
+    'rel_path': '/static/resources/revel/revel_hg38_1.3.txt.gz'
+    'name': 'REVEL scores'
+    'description': 'Pre-computed REVEL scores for all possible human missense variant (hg38 version)'
+    'short_name': 'revel'
+  'revel_hg19':
+    'rel_path': '/static/resources/revel/revel_hg19_1.3.txt.gz'
+    'name': 'REVEL scores'
+    'description': 'Pre-computed REVEL scores for all possible human missense variant (hg19 version)'
+    'short_name': 'revel_hg19'
   'spip':
     'rel_path': '/static/resources/SPiP/cache/'
     'name': 'Cache for SPiP results'
@@ -507,6 +517,7 @@
     'paper': '32735577'
     'version': 'v1'
     'short_name': 'mistic'
+    'value_col': '4'
   'MPA':
     'firstauthor': 'Yauy'
     'year': '2018'
@@ -565,10 +576,9 @@
     'firstauthor': 'Ioannidis'
     'year': '2016'
     'paper': '27666373'
-    'version': 'from dbNSFP'
+    'version': '1.3'
     'short_name': 'revel'
-    'dbNSFP_value_col': '82'
-    'dbNSFP_pred_col': '82'
+    'value_col': '4'
   'SIFT':
     'firstauthor': 'Ng'
     'year': '2003'

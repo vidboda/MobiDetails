@@ -146,6 +146,12 @@ local_files['oncokb_genes']['abs_path'] = '{0}{1}cancerGeneList_{2}.tsv'.format(
     local_files['oncokb_genes']['rel_path'],
     oncokb_genes_version
 )
+local_files['revel']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['revel']['rel_path']
+)
+local_files['revel_hg19']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['revel_hg19']['rel_path']
+)
 local_files['spip']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spip']['rel_path']
 )
@@ -649,7 +655,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         return 'Match failed in {}'.format(text)
     i = 3
     if re.search(
-            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
+            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
             tabix_file
             ):
         i -= 1
@@ -820,6 +826,19 @@ def get_metadome_colors(val):
         return ['tolerant', predictor_colors['tolerant']]
     else:
         return ['highly tolerant', predictor_colors['highly_tolerant']]
+
+
+def build_revel_pred(revel_score):
+    # get a score and returns a prediction depending on revel significance thresholds
+    if revel_score and \
+            revel_score != '.':
+        if float(revel_score) < 0.2:
+            return predictors_translations['revel']['B']
+        elif float(revel_score) > 0.5:
+            return predictors_translations['revel']['D']
+        return predictors_translations['revel']['U']
+    else:
+        return 'no prediction'
 
 
 def compute_pos_end(g_name):

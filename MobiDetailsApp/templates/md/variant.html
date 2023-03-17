@@ -983,7 +983,7 @@
 						{% if g.user['academic'] or not g.user %}
 							<tr><!--REVEL-->
 								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}{{ internal_data.missensePredictions.revelStar }}</td>
 								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - meta score</em></td>
 							</tr>
@@ -1016,6 +1016,9 @@
 				</table>
 				{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
 					<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
+				{% endif %}
+				{% if internal_data.missensePredictions.revelStar == '**' %}
+					<p>**The revel score has been retrieved in the hg19 dataset.</p>
 				{% endif %}
 				<br/><br/>
 				<div class="w3-row-padding">

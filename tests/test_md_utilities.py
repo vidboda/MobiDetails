@@ -466,7 +466,7 @@ var_ss_f = {
     ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_f),
-    ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    # ('dbnsfp', var, '0.902', int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.9471', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr']), 'dbnsfp', var_f),
     ('dbmts', var_3utr1, '0.35', int(md_utilities.external_tools['Eigen']['dbMTS_value_col']), 'dbmts', var_3utr1_f),
@@ -572,6 +572,19 @@ def test_get_preditor_double_threshold_color(client, value, result_color, predic
 ))
 def test_get_metadome_colors(val, result):
     res = md_utilities.get_metadome_colors(val)
+    assert res == result
+
+
+@pytest.mark.parametrize(('val', 'result'), (
+    ('0.1', 'Benign'),
+    ('0.2', 'Uncertain'),
+    ('0.6', 'Damaging'),
+    ('0.8', 'Damaging'),
+    ('.', 'no prediction'),
+    (None, 'no prediction'),
+))
+def test_build_revel_pred(val, result):
+    res = md_utilities.build_revel_pred(val)
     assert res == result
 
 

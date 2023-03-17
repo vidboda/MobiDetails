@@ -9,6 +9,8 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2022-12-19] - New dataset : \
+			The REVEL scores are no longer retrieved from dbNSFP, but directly from the <a href='{0}downloads' target='_blank'>REVEL pre-computed dataset</a>. When the hg38 position is not present in the dataset, MobiDetails checks the hg19 one.".format(urls.revel)) }}
 		{{ info("[2023-03-03] - New feature : \
 			Mobidetails now live queries the <a href='{0}' target='_blank'>ClinGen Evidence Repository</a> and displays the corresponding ACMG classification just below the ClinVar results (to date 4706 curated variants in 81 genes).".format(urls.clingen_evrepo)) }}
 		{{ info("[2022-12-19] - feature update : \
