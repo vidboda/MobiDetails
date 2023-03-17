@@ -997,18 +997,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             if isinstance(revel, str):
                                 external_data['missensePredictions']['revelScore'] = revel
                             else:
-                                external_data['missensePredictions']['revelScore'] = revel[int(md_utilities.external_tools['REVEL']['value_col'])]
+                                external_data['missensePredictions']['revelScore'] = float(revel[int(md_utilities.external_tools['REVEL']['value_col'])])
                             internal_data['missensePredictions']['revelColor'] = "#000000"
                             external_data['missensePredictions']['revelPred'] = 'no prediction'
+                            internal_data['missensePredictions']['revelStar'] = ''
                             # dbNSFP way, but incomplete in 4.3
                             # external_data['missensePredictions']['revelScore'], external_data['missensePredictions']['revelPred'], internal_data['missensePredictions']['revelStar'] = md_utilities.getdbNSFP_results(
                             #     transcript_index, int(md_utilities.external_tools['REVEL']['dbNSFP_value_col']), int(md_utilities.external_tools['REVEL']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                             # )
 
                             # build revel pred
-                            if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
+                            # if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
+                            if isinstance(external_data['missensePredictions']['revelScore'], float):
                                 external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
                                 internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
+                                
                             # if external_data['missensePredictions']['revelScore'] != '.' and \
                             #         float(external_data['missensePredictions']['revelScore']) < 0.2:
                             #     external_data['missensePredictions']['revelPred'] = md_utilities.predictors_translations['revel']['B']
