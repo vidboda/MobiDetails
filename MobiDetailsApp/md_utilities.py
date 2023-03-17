@@ -680,12 +680,18 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             # particular case delins resulting in missense e.g.
             # FLNC c.3715_3716delinsTT p.Pro1239Phe
             aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
-            i = 4
-            ppos_list = re.split(';', record[i+7])
-            if aa1 == record[i] and \
-                    aa2 == record[i+1] and \
-                    ppos in ppos_list:
-                return record
+            if re.search(r'revel', tabix_file):
+                # need to validate amino acids
+                if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
+                        aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
+                    return record
+            else:
+                i = 4
+                ppos_list = re.split(';', record[i+7])
+                if aa1 == record[i] and \
+                        aa2 == record[i+1] and \
+                        ppos in ppos_list:
+                    return record
     return 'No match in {}'.format(text)
 
 
