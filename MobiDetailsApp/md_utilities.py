@@ -659,27 +659,28 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             tabix_file
             ):
         i -= 1
+    aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     for record in records:
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
         # print(record)
         # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
-                var['pos_alt'] in alt_list:
-            aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+                var['pos_alt'] in alt_list:            
             if re.search(r'revel', tabix_file):
                 # need to validate amino acids                
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
             elif re.search(r'dbNSFP', tabix_file):
-                i = 4
-                ppos_list = re.split(';', record[i+7])
-                if aa1 == record[i] and \
-                        aa2 == record[i+1] and \
+                j = 4
+                ppos_list = re.split(';', record[j+7])
+                if aa1 == record[j] and \
+                        aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
-            return record
+            else:
+                return record
         elif re.search(r'(dbNSFP|revel)', tabix_file) and \
                 variant_features['dna_type'] == 'indel' and \
                 variant_features['prot_type'] == 'missense':
@@ -692,10 +693,10 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
             else:
-                i = 4
-                ppos_list = re.split(';', record[i+7])
-                if aa1 == record[i] and \
-                        aa2 == record[i+1] and \
+                j = 4
+                ppos_list = re.split(';', record[j+7])
+                if aa1 == record[j] and \
+                        aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
     return 'No match in {}'.format(text)
