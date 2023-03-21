@@ -41,7 +41,7 @@ ext_exe['maxentscan3'] = '{0}{1}'.format(
 )
 
 
-def get_resource_current_version(resource_dir, regexp):
+def get_resource_current_version(resource_dir, regexp, excluded_date=None):
     files = os.listdir(resource_dir)
     dates = []
     for current_file in files:
@@ -49,6 +49,9 @@ def get_resource_current_version(resource_dir, regexp):
         # match_obj = re.search(rf'clinvar_(\d+).vcf.gz$', current_file)
         match_obj = re.search(rf'{regexp}$', current_file)
         if match_obj:
+            if excluded_date and \
+                    excluded_date == match_obj.group(1):
+                continue
             dates.append(match_obj.group(1))
     return max(dates)
 

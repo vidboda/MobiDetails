@@ -1,3 +1,4 @@
+import os
 import re
 import pytest
 import psycopg2
@@ -5,6 +6,18 @@ import psycopg2
 from flask import g
 from MobiDetailsApp import md_utilities
 from test_ajax import get_db
+
+# app_path = os.path.dirname(os.path.realpath(__file__))
+
+@pytest.mark.parametrize(('resource_dir', 'regexp', 'excluded_date'), (
+    ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clingen_criteria_specification']['rel_path']), r'clingenCriteriaSpec_(\d+).json', None),
+    ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clingen_criteria_specification']['rel_path']), r'clingenCriteriaSpec_(\d+).json', 20230307),
+    ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clinvar_hg38']['rel_path']), r'clinvar_(\d+).vcf.gz', None),
+    ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clinvar_hg38']['rel_path']), r'clinvar_(\d+).vcf.gz', 20230311),
+))
+def test_get_resource_current_version(resource_dir, regexp, excluded_date):
+    assert re.search(r'^\d+$', md_utilities.get_resource_current_version(resource_dir, regexp, excluded_date))
+    assert re.search(r'^\d+$', md_utilities.get_resource_current_version(resource_dir, regexp))
 
 
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
