@@ -15,7 +15,7 @@
 		<link rel="shortcut icon" href="{{ url_for('static', filename='img/md.png') }}" type="image/x-icon">
 		<link rel="icon" href="{{ url_for('static', filename='img/md.png') }}" type="image/x-icon">
 		<script src="{{ url_for('static', filename='javascript/jquery-3.4.1.min.js') }}" type="text/javascript"></script>
-		<script src="{{ url_for('static', filename='javascript/md.js') }}?20220705" type="text/javascript"></script>
+		<script src="{{ url_for('static', filename='javascript/md.js') }}?20230327" type="text/javascript"></script>
 		<script src="{{ url_for('static', filename='javascript/jquery-ui.min.js') }}" type="text/javascript"></script>
 		{% block more_head %}{% endblock %}
 		<title>
@@ -88,42 +88,52 @@
 					<div>
 						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
 					</div>
+					{% endif %}
+					<!--star for favourites variants-->
+					{% if g.user %}
 					<div>
-						{% if g.user and favourite == True %}
-							<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:block;" title="This variant is marked as one of your favourites.">
+						{% if favourite is defined and (favourite.type == 1 or favourite.type == 3) %}
+						<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:block;" title="This variant is marked as one of your favourites.">
 						{% else %}
-							<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:none;" title="This variant is marked as one of your favourites.">
+						<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="favour_star" style="display:none;" title="This variant is marked as one of your favourites.">
 						{% endif %}
-							{{ fa('star') }}
-							<!-- <i class="fa fa-star-o w3-xxlarge"></i> -->
+						{{ fa('star') }}
+						<!-- <i class="fa fa-star-o w3-xxlarge"></i> -->
+						</span>						
+					</div>
+					<!--heart for clinvar watch variants-->
+					<div>
+						{% if favourite is defined and (favourite.type == 2 or favourite.type == 3) %}
+						<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="clinvar_watch_heart" style="display:block;" title="This variant is marked as one of your ClinVar watch list.">
+						{% else %}
+						<span class="w3-bar-item w3-ripple w3-xlarge star_fav" id="clinvar_watch_heart" style="display:none;" title="This variant is marked as one of your ClinVar watch list.">
+						{% endif %}
+						{{ fa('heart') }}
+						<!-- <i class="fa fa-star-o w3-xxlarge"></i> -->
 						</span>
 					</div>
-					{#{% else %}#}
-						<!--<span class="w3-bar-item w3-xlarge" id="app_desc">Online DNA Variants Interpretation</span>-->
-					{% endif %}
 					<!--auth-->
 					<div>
-						{% if g.user %}
-						<!--profile-->
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="show_loader();window.location='{{ url_for('auth.logout') }}';" title="Log out">
-							{{ fa('user-times') }}
-							<!-- <i class="fa fa-user-times w3-xxlarge"></i> -->
-						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="show_loader();window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
-							{{ fa('id-card-o') }}
-							<!-- <i class="fa fa-id-card-o w3-xxlarge"></i> -->
-						</span>
-						<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
-						{% else %}
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
-							{{ fa('user-plus') }}
-							<!-- <i class="fa fa fa-user-plus w3-xxlarge"></i> -->
-						</span>
-						<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.login') }}';" title="Log in">
-							{{ fa('user') }}
-							<!-- <i class="fa fa fa-user w3-xxlarge"></i> -->
-						</span>
-						{% endif %}
+					<!--profile-->
+					<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="logout" onclick="show_loader();window.location='{{ url_for('auth.logout') }}';" title="Log out">
+						{{ fa('user-times') }}
+						<!-- <i class="fa fa-user-times w3-xxlarge"></i> -->
+					</span>
+					<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" id="myprofile" onclick="show_loader();window.location='{{ url_for('auth.profile', mobiuser_id=0) }}';" title="Visit your page">
+						{{ fa('id-card-o') }}
+						<!-- <i class="fa fa-id-card-o w3-xxlarge"></i> -->
+					</span>
+					<span class="w3-bar-item w3-xlarge w3-right" id="login_name">Logged in as {{ g.user.username }}</span>
+					{% else %}
+					<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.register') }}';" title="Register">
+						{{ fa('user-plus') }}
+						<!-- <i class="fa fa fa-user-plus w3-xxlarge"></i> -->
+					</span>
+					<span class="w3-bar-item w3-button w3-ripple w3-xlarge w3-right" onclick="show_loader();window.location='{{ url_for('auth.login') }}';" title="Log in">
+						{{ fa('user') }}
+						<!-- <i class="fa fa fa-user w3-xxlarge"></i> -->
+					</span>
+					{% endif %}
 					</div>
 				</div>
 			</div>
@@ -152,7 +162,7 @@
 			{% endautoescape %}
 		{% endfor %}
 		<br />
-		{{ danger("IMPORTANT NOTICE:<br /> Due to a (yet another) planned power outage, MobiDetails won't be available from 7:45 to 10 am, GMT+2, on Tuesday, April 11th. In addition the SpliceAI-visual feature will be shut down on Monday, April 10th from 17-18 pm to the end of the power outage.") }}
+		{{ danger("IMPORTANT NOTICE:<br /> Due to a (yet another) planned power outage, MobiDetails won't be available from 7:45 to 10 am, GMT+2, on Tuesday, April 11th. In addition, the SpliceAI-visual feature wil be shut down shortly before and restored shortly after.") }}
 		{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails will be shut down from Monday, Frebruary, 13 around 17:30 Paris time (GMT+1) to Tuesday morning between 9:00 and 10:00 due to an intervention on the electrical network of the building.") }} # }}
 		{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is back! However due to major power instability in the building this service will be shut down from Friday November, 18, 17h Paris time to Monday morning, November 21.") }} # }}
 		{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is temporarily down. Sorry for the inconvenience. We're working on restoring it asap.") }} # }}

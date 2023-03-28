@@ -1900,15 +1900,13 @@ def create():
 @bp.route('/toggle_prefs', methods=['POST'])
 @login_required
 def toggle_prefs():
-    # if re.search(r'^\d+$', request.form['user_id']) and \
-    #        re.search(r'^[ft]$', request.form['pref_value']):
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
         )
     if re.search(r'^[ft]$', request.form['pref_value']) and \
-            re.search(r'^(email_pref|lovd_export)$', request.form['field']):
+            re.search(r'^(email_pref|lovd_export|clinvar_check|auto_add2clinvar_check)$', request.form['field']):
         # mobiuser_id = request.form['user_id']
         pref = request.form['pref_value']
         field = request.form['field']
@@ -1918,6 +1916,65 @@ def toggle_prefs():
             "UPDATE mobiuser SET {0} = '{1}' WHERE \
             id = '{2}'".format(field, pref, g.user['id'])
         )
+        if re.search(r'^clinvar_check$', request.form['field']):
+            # in addition we modify auto_add2clinvar_check the same as clinvar_check
+            curs.execute(
+                """
+                UPDATE mobiuser 
+                SET auto_add2clinvar_check = %s
+                WHERE id = %s
+                """,
+                (pref, g.user['id'])
+            )
+        if re.search(r'^auto_add2clinvar_check$', request.form['field']) and \
+                pref == 't':
+            # all variants attached to this user are added to mobiuser_favourite with type 2 or upgraded to 3 (if already in favourite)
+            curs.execute(
+                """
+                SELECT a.id
+                FROM variant_feature a, mobiuser b
+                WHERE a.creation_user = b.id
+                    AND b.id = %s
+                """,
+                (g.user['id'],)
+            )
+            # SELECT a.id, c.type 
+            #     FROM variant_feature a, mobiuser b, mobiuser_favourite c
+            #     WHERE a.creation_user = b.id
+            #         AND b.id = c.mobiuser_id
+            #         AND b.id = %s
+            variants = curs.fetchall()
+            if variants:
+                for var in variants:
+                    curs.execute(
+                        """
+                        SELECT type
+                        FROM mobiuser_favourite
+                        WHERE mobiuser_id = %s
+                        AND feature_id = %s
+                        """,
+                        (g.user['id'], var['id'])
+                    )
+                    fav = curs.fetchone()
+                    if fav:
+                        if fav['type'] == 1:
+                            curs.execute(
+                                """
+                                UPDATE mobiuser_favourite
+                                SET type = 3
+                                WHERE feature_id = %s
+                                    AND mobiuser_id = %s
+                                """,
+                                (var['id'], g.user['id'])
+                            )
+                    else:
+                        curs.execute(
+                            """
+                            INSERT INTO mobiuser_favourite(mobiuser_id, feature_id, type)
+                            VALUES (%s, %s, 2)
+                            """,
+                            (g.user['id'], var['id'])
+                        )
         db.commit()
         close_db()
         return 'ok'
@@ -1968,25 +2025,79 @@ def favourite():
             return 'notok'
         # print(vf_id)
         # g.user['id']
+        m_fav_type_insert = 1
+        m_fav_type_update = 2
+        if request.form['clinvar_watch'] and \
+                int(request.form['clinvar_watch']) == 1:
+            m_fav_type_insert = 2
+            m_fav_type_update = 1
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
+            SELECT type
+            FROM mobiuser_favourite
+            WHERE mobiuser_id = %s
+                AND feature_id = %s
+            """,
+            (g.user['id'], vf_id)
+        )
+        m_fav = curs.fetchone()
         if request.form['marker'] == 'mark':
-            curs.execute(
-                """
-                INSERT INTO mobiuser_favourite (mobiuser_id, feature_id)
-                VALUES (%s, %s)
-                """,
-                (g.user['id'], vf_id)
-            )
+            # depends on psql mobiuser_favourite.type
+            # type = 1 => favourite
+            # type = 2 => clinvar
+            # type = 3 => both
+            # if var exists and type in (1, 2) => becomes 3
+            # else insert with type = 1
+            if m_fav:
+                if m_fav['type'] == 2 or \
+                        m_fav['type'] == 1:
+                    curs.execute(
+                        """
+                        UPDATE mobiuser_favourite
+                        SET type = 3
+                        WHERE mobiuser_id = %s
+                            AND feature_id = %s
+                        """,
+                        (g.user['id'], vf_id)
+                    )
+            else:
+                curs.execute(
+                    """
+                    INSERT INTO mobiuser_favourite (mobiuser_id, feature_id, type)
+                    VALUES (%s, %s, %s)
+                    """,
+                    (g.user['id'], vf_id, m_fav_type_insert)
+                )
         else:
-            curs.execute(
-                """
-                DELETE FROM mobiuser_favourite
-                WHERE mobiuser_id = %s
-                    AND feature_id = %s
-                """,
-                (g.user['id'], vf_id)
-            )
+            # depends on psql mobiuser_favourite.type
+            # type = 1 => favourite
+            # type = 2 => clinvar
+            # type = 3 => both
+            # if var exists and type == 3 => type = 2 or  1 if coming from clinvar_watch
+            # else (if type in (1,2)) => delete
+            if m_fav:
+                # print(m_fav['type'])
+                if m_fav['type'] == 3:
+                    curs.execute(
+                        """
+                        UPDATE mobiuser_favourite
+                        SET type = %s
+                        WHERE mobiuser_id = %s
+                            AND feature_id = %s
+                        """,
+                        (m_fav_type_update, g.user['id'], vf_id)
+                    )
+                else:
+                    curs.execute(
+                        """
+                        DELETE FROM mobiuser_favourite
+                        WHERE mobiuser_id = %s
+                            AND feature_id = %s
+                        """,
+                        (g.user['id'], vf_id)
+                    )
         db.commit()
         close_db()
         return 'ok'

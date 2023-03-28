@@ -325,7 +325,10 @@ def test_create(client, new_variant, gene, acc_no, message1, message2):
     ('lovd_export', 'f', 200),
     ('email_pref', 't', 200),
     ('email_pref', None, 200),
-    ('email_pref', 'f', 200)
+    ('clinvar_check', 'f', 200),
+    ('clinvar_check', 't', 200),
+    ('auto_add2clinvar_check', 'f', 200),
+    ('auto_add2clinvar_check', None, 200)
 ))
 def test_toggle_prefs(client, app, auth, caller, pref, status_code):
     assert client.get('/toggle_prefs').status_code == 405

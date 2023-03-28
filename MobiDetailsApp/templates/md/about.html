@@ -50,28 +50,6 @@
 		You can mark a variant as favourite in the variant page when you're logged in (<i class='fa fa fa-user'></i>) by cliking on the star <i class='fa fa-star'></i> at the bottom of the left menu. You can retrieve your variants using the 'identity card' <i class='fa fa-id-card-o'></i> on the top right menu when you're logged in.<br /> \
 		Registered users can in addition add an ACMG class to the variants and also contact each others via the application.</p>") }}
 		{{ search_engine_manual() }}
-		<!-- {{ info("<p><strong>Search engine:</strong><br /> \
-		The search engine has two main functions:</p> \
-		<ul> \
-			<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
-				<ul> \
-					<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
-					<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
-					a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
-					<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li> \
-					<li>gene symbol, e.g. 'USH2A', including HGNC previous symbols and HGNC aliases</li> \
-					<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
-					<li>the keyword 'last' will return all variants annotated during the last 7 days</li> \
-				</ul> \
-			</li> \
-			<li><strong>Annotate new variants</strong> using the following formats: \
-				<ul> \
-					<li>NC_000001.11:g.216422237G>A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene symbol</li> \
-					<li>NM_206933.2:c.100C>T or NM_206933.2(USH2A):c.100C>T</li> \
-					<li>rs772808534 (can take up to 30-40s)</li> \
-				</ul> \
-			</li> \
-		</ul>") }} -->
 	</div>
 	<div class="w3-button w3-block w3-blue" onclick="accord('res_versions');" title="toggle section">
 		<span class="w3-xxlarge">References</span>
@@ -115,37 +93,10 @@
 			</table>
 		</div>
 	</div>
-<!--	<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:block">
-		<div class="w3-responsive w3-container">
-			<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
-				<caption>Links and versions of external resources used in MD:</caption>
-				<thead>
-					<tr>
-						<th class="w3-left-align">Resource</th>
-						<th class="w3-left-align">Version</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for resource in local_files %}
-						{% if local_files[resource]['name'] != 'Human genome sequence' %}
-							<tr>
-								<td class="w3-left-align">
-									<a href="{{ urls[local_files[resource]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ local_files[resource]['name'] }}">{{ local_files[resource]['name'] }}</a>
-								</td>
-								<td class="w3-left-align">{{ local_files[resource]['version'] }}</td>
-							</tr>
-						{% endif %}
-					{% endfor %}
-					<tr>
-						<td class="w3-left-align">
-							<a href="https://rest.variantvalidator.org/webservices/variantvalidator.html" target="_blank" title="Variant validator API">VariantValidator API</a>
-						</td>
-						<td class="w3-left-align">{#{{ vv_data.apiVersion }}#}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>-->
+	<div class="w3-container w3-padding-64" style="display:block">
+		<h3 id="clinvar_watch">ClinVar watch functionality / favourite variants:</h3>
+		{{ info("Authenticated users have the ability to mark any variant of interest. There are 2 types of marks in Mobidetails:<ul><li>Favourite variants: identified by a star icon <i class='fa fa-star'></i>. this list is useful to <ul><li>quickly retrieve a variant from your profile page</li><li>to create unique urls pointing to several variants which can be used in publications (e.g. <a href='https://tinyurl.com/n3emehns' target='_blank'>this list of <em>KMT2A</em> variants with episignature profile data</a>)</li></ul></li><li>ClinVar watch variants: identified by a heart icon <i class='fa fa-heart'></i>. This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you. Significant changes means:<ul><li>ACMG class 1 or 2 to any other class</li><li>class 3 to any other class</li><li>class 4 or 5 to any other class</li><li>Conflicting to any other or any to conflicting</li></ul></li></ul>") }}
+	</div>
 	<div class="w3-container w3-padding-64" style="display:block">
 		<h3 id="disclaimer">Disclaimer:</h3>
 		{{ info("<strong>This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free for academic use service on an 'as-is' basis, without any warranty for accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.</strong>") }}

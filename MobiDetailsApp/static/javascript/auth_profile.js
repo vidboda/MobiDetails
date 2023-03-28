@@ -8,6 +8,8 @@ function toggle_service(pref_url, csrf_token, caller) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
             }
+            // disable onclick
+            $("span#btn_" + caller ).off("click");
         }
     });
     var value_id = $("#value_to_send_" + caller).html();
@@ -24,6 +26,11 @@ function toggle_service(pref_url, csrf_token, caller) {
               // var label = 'Disable it';
               var title = 'contact service';
               if (caller == 'lovd_export') {title = 'LOVD export';}
+              else if (caller === 'clinvar_check') {
+                title = 'ClinVar follow-up';
+                $('#li_auto_add2clinvar_check').toggle();
+              }
+              else if (caller === 'auto_add2clinvar_check') {title = 'automatic ClinVar follow-up of the variants you generate';}
               var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
               var value_to_send = 'f';
               if (value_id == 'f') {
@@ -43,13 +50,17 @@ function toggle_service(pref_url, csrf_token, caller) {
               }
               $("#value_" + caller).html(txt);
               //$('#contact_box_label').html(label);
+              // enable onclick
+              $("span#btn_" + caller ).on("click");
               $('#btn_' +  + caller).css('cursor', 'default');
               $("html").css('cursor', 'default');
           }
           else{
               //$("#contact_box").prop( "checked", false);
               $("#error_messages").html(html_error);
-              $('#btn_' +  + caller).css('cursor', 'default');
+              // enable onclick
+              $("span#btn_" + caller ).on("click");
+              $('#btn_' +  caller).css('cursor', 'default');
               $("html").css('cursor', 'default');
           }
 
