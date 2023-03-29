@@ -9,6 +9,8 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2023-03-28] - New feature : \
+			Authenticated (logged-in) users can now mark the variants as 'to be added in their ClinVar watch list'. <a href='%s' target=_'blank'>More on this</a>.".format(url_for('md.about', anchor='clinvar_watch'))) }}
 		{{ info("[2022-12-19] - New dataset : \
 			The REVEL scores are no longer retrieved from dbNSFP, but directly from the <a href='{0}downloads' target='_blank'>REVEL pre-computed dataset</a>. When the hg38 position is not present in the dataset, MobiDetails checks the hg19 one.".format(urls.revel)) }}
 		{{ info("[2023-03-03] - New feature : \

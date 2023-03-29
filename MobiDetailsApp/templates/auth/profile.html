@@ -3,23 +3,23 @@
 {% block title %} {{ mobiuser.username }} profile{% endblock %}
 {% block header %}
 	{% if view == 'own' %}
-		<h1 align="center" class="w3-text-blue">Your profile</h1>
+	<h1 align="center" class="w3-text-blue">Your profile</h1>
 	{% else %}
-		<h1 align="center" class="w3-text-blue">{{ mobiuser.username }} profile</h1>
+	<h1 align="center" class="w3-text-blue">{{ mobiuser.username }} profile</h1>
 	{% endif %}
 {% endblock %}
 {% block more_head %}
-	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?210412" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/auth_profile.js') }}?20230322" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	{% if view == 'own' -%}
-		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-			<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
-			<p>Public users (not logged in) only see your username and cannot follow any link.</p>
-			<p>The email contact service is proposed by Mobidetails. It is triggered by a user who wants to get in touch because e.g. you classified a particular variant. The user must be logged in and cannot see your email address unless you answer his query. The first message comes from the address &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.</p>
-		</div>
-		<br />
-		<hr />
+	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+		<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
+		<p>Public users (not logged in) only see your username and cannot follow any link.</p>
+		<p>The email contact service is proposed by Mobidetails. It is triggered by a user who wants to get in touch because e.g. you classified a particular variant. The user must be logged in and cannot see your email address unless you answer his query. The first message comes from the address &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.</p>
+	</div>
+	<br />
+	<hr />
 	{%- endif %}
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile" style="width:98%">
 		<div class="w3-card w3-mobile">
@@ -28,125 +28,158 @@
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Institute: {{ mobiuser.institute }}</li>
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">Country: {{ mobiuser.country }}</li>
 				{% if view == 'own' %}
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">E-mail: {{ mobiuser.email }}</li>
-					<!-- email preferences -->
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
-						{% if mobiuser.email_pref == true %}
-							<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-green">enabled</strong>
-							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							{% if run_mode  and run_mode == 'on' %}
-								<!-- <button id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');">Disable it</button> -->
-								<span id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable contact service"></i></span>
-								<span id="value_to_send_email_pref" style="display:none;">f</span>
-							{% else %}
-								<span>Please wait for the end of the maintenance to modify this preference</span>
-							{% endif %}
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">E-mail: {{ mobiuser.email }}</li>
+				<!-- email preferences -->
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+					{% if mobiuser.email_pref == true %}
+					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-green">enabled</strong></span>
+						{% if run_mode  and run_mode == 'on' %}
+						<span id="btn_email_pref" name="email_pref" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable contact service"></i></span>
+						<span id="value_to_send_email_pref" style="display:none;">f</span>
 						{% else %}
-							<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-red">disabled</strong>
-							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							{% if run_mode  and run_mode == 'on' %}
-								<!-- <button id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');">Enable it</button> -->
-								<span id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable contact service"></i></span>
-								<span id="value_to_send_email_pref" style="display:none;">t</span>
-							{% else %}
-								<span>Please wait for the end of the maintenance to modify this preference</span>
-							{% endif %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
-					</li>
-					<!-- LOVD preferences -->
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
-						{% if mobiuser.lovd_export == true %}
-							<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-green">enabled</strong>
-							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							{% if run_mode and run_mode == 'on' %}
-								<!-- <button id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Disable it</button> -->
-								<span id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable LOVD export"></i></span>
-								<span id="value_to_send_lovd_export" style="display:none;">f</span>
-							{% else %}
-								<span>Please wait for the end of the maintenance to modify this preference</span>
-							{% endif %}
+					{% else %}
+					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-red">disabled</strong></span>
+						{% if run_mode  and run_mode == 'on' %}
+						<span id="btn_email_pref" name="email_pref" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable contact service"></i></span>
+						<span id="value_to_send_email_pref" style="display:none;">t</span>
 						{% else %}
-							<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong>
-							&nbsp;&nbsp;--&nbsp;&nbsp;</span>
-							{% if run_mode  and run_mode == 'on' %}
-								<!-- <button id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');">Enable it</button> -->
-								<span id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Enable LOVD export"></i></span>
-								<span id="value_to_send_lovd_export" style="display:none;">t</span>
-							{% else %}
-								<span>Please wait for the end of the maintenance to modify this preference</span>
-							{% endif %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
-					</li>
-					<!-- User academic or not -->
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">You are currently identified as
-						{% if mobiuser.academic %}
-							an
+					{% endif %}
+				</li>
+				<!-- LOVD preferences -->
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+					{% if mobiuser.lovd_export == true %}
+					<span style="vertical-align: middle;">LOVD export is <strong id="value_lovd_export" class="w3-text-green">enabled</strong></span>
+						{% if run_mode and run_mode == 'on' %}
+							<span id="btn_lovd_export" name="lovd_export" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable LOVD export"></i></span>
+							<span id="value_to_send_lovd_export" style="display:none;">f</span>
 						{% else %}
-							a non
+							<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
-						academic user
-					</li>
-					<!-- API key -->
-					<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" class="var_li" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+					{% else %}
+					<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong></span>
+						{% if run_mode  and run_mode == 'on' %}
+							<span id="btn_lovd_export" name="lovd_export" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable LOVD export"></i></span>
+							<span id="value_to_send_lovd_export" style="display:none;">t</span>
+						{% else %}
+							<span>Please wait for the end of the maintenance to modify this preference</span>
+						{% endif %}
+					{% endif %}
+				</li>
+				<!-- ClinVar follow up preferences -->
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+					{% if mobiuser.clinvar_check == true %}
+					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-green">enabled</strong></span>
+						{% if run_mode and run_mode == 'on' %}
+						<span id="btn_clinvar_check" name="clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" tyle="vertical-align: middle;" title="Disable ClinVar watch"></i></span>
+						<span id="value_to_send_clinvar_check" style="display:none;">f</span>
+						{% else %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
+						{% endif %}
+					{% else %}
+					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-red">disabled</strong></span>
+						{% if run_mode  and run_mode == 'on' %}
+						<span id="btn_clinvar_check" name="clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ClinVar watch"></i></span>
+						<span id="value_to_send_clinvar_check" style="display:none;">t</span>
+						{% else %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
+						{% endif %}
+					{% endif %}
+				</li>
+				<!-- Automated ClinVar follow up preferences -->
+				<li id="li_auto_add2clinvar_check" class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
+					{% if mobiuser.auto_add2clinvar_check == true %}
+						<span style="vertical-align: middle;">Automatic* ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-green" style="align-right">enabled</strong></span>
+						{% if run_mode and run_mode == 'on' %}
+						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable automatic ClinVar watch of the variants you generate"></i></span>
+						<span id="value_to_send_auto_add2clinvar_check" style="display:none;">f</span>
+						{% else %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
+						{% endif %}
+					{% else %}
+						<span style="vertical-align: middle;">Automatic ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-red">disabled</strong></span>
+						{% if run_mode  and run_mode == 'on' %}
+						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable automatic ClinVar watch of the variants you generate"></i></span>
+						<span id="value_to_send_auto_add2clinvar_check" style="display:none;">t</span>
+						{% else %}
+						<span>Please wait for the end of the maintenance to modify this preference</span>
+						{% endif %}
+					{% endif %}
+				</li>
+				<!-- User academic or not -->
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">You are currently identified as
+					{% if mobiuser.academic %}
+					an
+					{% else %}
+					a non
+					{% endif %}
+					academic user
+				</li>
+				<!-- API key -->
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/><button onclick="copy_text('api_key');" class="var_li w3-right" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>
 		</div>
 	</div>
 	<div id="error_message"></div>
 	{% if view == 'own' -%}
-		{{ info("Please consider that the API key is personal and identifies your account, therefore you should not share it.<br />You can explore the swagger <a href='/MDAPI/'>API</a> for programmatic access and learn <a href='https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation'>how</a> to use the API with <a href='https://github.com/beboche/MDUtils'>MDUtils</a> scripts to remotely create your lists of variants.") }}
-		<br />
-		<hr />
+	{{ info("<ul><li>The <strong>contact service</strong> allows other users to contact you via email through the MobiDetails system. They are not aware of your email adress unless you choose to respond directly. The first message comes from the address &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.</li><li>The <strong>LOVD export</strong> feature automatically sends data to the LOVD GVShared database when you classify a variant (<a href='%s' target='_blank'>more</a>).</li><li><a href='%s' target='_blank'>More</a> about the <strong>ClinVar watch</strong> feature.</li><li><strong>Automatic ClinVar watch of the variants you generate</strong>: This feature will automatically add the variants you generated while authenticated in the ClinVar watch list of variants. For users who already had an account before this feature has been released, enabling this option will add all the variants already attached to your account to the list of variants to be watched. <a href='%s' target='_blank' >How this works</a>.</li><li>Please consider that the <strong>API key</strong> is personal and identifies your account, therefore you should not share it. You can explore the swagger <a href='/MDAPI/'>API</a> for programmatic access and learn <a href='https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation'>how</a> to use the API with <a href='https://github.com/beboche/MDUtils'>MDUtils</a> scripts to remotely create your lists of variants.</li></ul>"|format(url_for('md.about', _anchor='data_sharing'), url_for('md.about', _anchor='clinvar_watch'), url_for('md.about', _anchor='clinvar_watch'))) }}
+	<br />
+	<hr />
 	{%- endif %}
 	<!-- variants favourite -->
-	{% if variants_favourite is defined and variants_favourite %}
+	{% if variants_favourite is defined %}
+		{% if num_var_fav > 0 %}
+		<!-- favourite variant -->
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-				<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite variants:</span>
+				<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite <i class="w3-xlarge fa fa-star"></i> variants:</span>
 			</div>
 		</div>
 		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 			{% if run_mode and run_mode == 'on' %}
-				{#{% if num_var_fav > 0 %}#}
-				<div id="variant_list_menu">
-					<div class="w3-card w3-mobile">
-						<ul class="w3-ul">
-							<!-- variants favourite delete -->
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants">
-									<!-- <i class="fa fa-trash w3-xlarge"></i> -->
-									{{ fa('trash', w3_class='xlarge') }}
-								</button>
-							</li>
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
-							</li>
-							<!-- variants list URL generation -->
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
-								<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants">
-									<!-- <i class="fa fa-magic w3-xlarge"></i> -->
-									{{ fa('magic', w3_class='xlarge') }}
-								</button>
-							</li>
-						</ul>
-					</div>
-					<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
-				</div><br />
-				{#{% endif %}#}
-				<div id="comment"></div>
+			<div id="variant_list_menu">
+				<div class="w3-card w3-mobile">
+					<ul class="w3-ul">
+						<!-- variants favourite delete -->
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants">
+								<!-- <i class="fa fa-trash w3-xlarge"></i> -->
+								{{ fa('trash', w3_class='xlarge') }}
+							</button>
+						</li>
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
+						</li>
+						<!-- variants list URL generation -->
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
+							<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants">
+								<!-- <i class="fa fa-magic w3-xlarge"></i> -->
+								{{ fa('magic', w3_class='xlarge') }}
+							</button>
+						</li>
+					</ul>
+				</div>
+				<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
+			</div><br />
+			<div id="comment"></div>
 			{% else %}
-				<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
+			<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
 			{% endif %}
 			<br /><br />
 			<!-- variants favourite list -->
 			<div id="variant_list" class="w3-card w3-mobile">
 				<ul id="favourite_ul" class="w3-ul">
 					{% for var in variants_favourite %}
+						{% if var.type == 1 or var.type == 3 %}
 						<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 							<span>
-								<em>{{ var.gene_symbol }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+								{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
 							<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
 							<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
@@ -157,132 +190,175 @@
 								<!-- <i class="fa fa-star w3-xxlarge"></i> -->
 							</span>
 						</li>
+						{% endif %}
 					{% endfor %}
 				</ul>
 			</div>
 		</div>
-	{% elif view == 'own' %}
+		{% elif view == 'own' %}
 		<!-- no favourites -->
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
 				<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
 			</div>
-			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
+			{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
 		</div>
 		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
 			<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
 				<ul id="favourite_ul" class="w3-ul"></ul>
 			</div>
 		</div>
-	{% endif %}
-	<hr />
-	<!-- variants groups -->
-	{% if variant_groups_number != None and variant_groups_number - 1 > 0 %}
+		{% endif %}	
+		{% if num_var_clinv > 0 %}
+		<!-- clinvar watch -->
 		<div class="w3-container w3-margin">
-			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#groups_vars').fadeToggle();">
-				<span class="w3-xlarge">Toggle your <span id="num_groups">{{ variant_groups_number - 1 }}</span> lists of variants:</span>
+			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#clinvar_watched_vars').fadeToggle();">
+				<span id="clinvar_watched_title" class="w3-xlarge">Toggle your <span id="num_clinvar_watched">{{ num_var_clinv }}</span> ClinVar watched  <i class="w3-xlarge fa fa-heart"></i> variants:</span>
 			</div>
 		</div>
-		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="groups_vars" style="display:none;">
-			{% if variant_groups_number > 0 %}
-			<div id="groups_list" class="w3-card w3-mobile">
-					<ul class="w3-ul">
-						{% for list in variant_groups %}
-							<li id="{{ list.list_name }}" class="w3-padding-large w3-large w3-light-grey w3-hover-border-blue">
-								<!-- 1st row -->
-								<!-- name, date, number of variants, actions -->
-								<span class="var_li" onclick="window.open('{{ url_for('auth.variant_list', list_name=list.list_name) }}')" title="Visit the variant list">List name: <strong>{{ list.list_name }}</strong> - ({{ list.creation_date }}) - ({{ list.variant_ids|length }} variants)</span>
-								{% if run_mode and run_mode == 'on' %}
-									{% set style_value = namespace(lock='block', unlock='none') %}
-									{% if  list.lock == 0 %}
-										{% set style_value.lock = 'none' %}
-										{% set style_value.unlock = 'block' %}
-									{% endif %}
-										<div id="lock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.unlock }}">
-											<div>
-												<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list">
-													<!-- <i class="fa fa-unlock w3-xlarge"></i> -->
-													{{ fa('unlock', w3_class='xlarge') }}
-												</span>
-												&nbsp;&nbsp;&nbsp;&nbsp;
-												<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list">
-													{{ fa('trash', w3_class='xlarge') }}
-													<!-- <i class="fa fa-trash w3-xlarge"></i> -->
-												</span>
-											</div>
-										</div>
-										<div id="unlock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.lock }}">
-											<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Unlock this list">
-												{{ fa('lock', w3_class='xlarge') }}
-												<!-- <i class="fa fa-lock w3-xlarge"></i> -->
-											</span>
-										</div>
-								{% endif %}
-								<ul>
-									<!-- 2nd row tinyURL -->
-									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-										<span>Tiny URL: <input id="{{ list.list_name }}_tinyurl" type="text" value="{{ list.tinyurl }}" size="50" maxlength="50"/></span>
-										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_tinyurl');" class="var_li" title="copy tiny URL key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
-									</li>
-									<!-- 3rd row fullURL -->
-									<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-										<span>Full URL: <input id="{{ list.list_name }}_fullurl" type="text" value="{{ url_for('auth.variant_list', list_name=list.list_name, _external=True) }}" size="80" maxlength="80"/></span>
-										&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_fullurl');" class="var_li" title="copy full URL to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
-									</li>
-								</ul>
-							</li>
-						{% endfor %}
-					</ul>
-			</div>
-			<div id="comment_list"></div>
-			{% endif %}
-		</div>
-	{% endif %}
-	<hr />
-	<!-- variants created -->
-	{% if variants is not none %}
-		<div class="w3-container w3-margin">
-			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
-				<span class="w3-xlarge">Toggle the {{ num_var }} variants you created:</span>
-			</div>
-		</div>
-		<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="created_vars" style="display:none;">
-			<div class=" w3-card w3-mobile">
-				<ul class="w3-ul">
-					{% for var in variants %}
-						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-							<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
-								<em>{{ var.gene_symbol }}</em>{{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+		<div id="clinvar_watched_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+			{{ info("To add/remove a variant from the ClinVar watch list, visit a variant's page then click on the heart on the left menu") }}
+			<!-- clinvar watched list -->
+			<div id="clinvar_watched_list" class="w3-card w3-mobile">
+				<ul id="clinvar_watched_ul" class="w3-ul">
+					{% for var in variants_favourite %}
+						{% if var.type == 2 or var.type == 3 %}
+						<li id="clinvar_watched_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+							<span>
+								{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 							</span>
 							<span class="w3-right">
-								{{ var.creation_date }}
-								{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] %}
-									<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
-										<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
-									</span>
-								{% else %}
-									<span id="favour_span_{{ var.id }}" name="mark" title="Mark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
-										<i id="favour_{{ var.id }}" class="fa fa-star-o w3-xxlarge"></i>
-									</span>
-								{% endif %}
-								<!-- to be used in js favourite function -->
-								<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('api.variant', variant_id=var.id, caller='browser') }}</span>
-								<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_symbol }}</span>
-								<span id="c_name_{{ var.id }}" style="display:none;">{{ var.c_name }}</span>
-								<span id="p_name_{{ var.id }}" style="display:none;">{{ var.p_name }}</span>
+								{{ fa('heart', w3_class='xlarge') }}
 							</span>
 						</li>
+						{% endif %}
 					{% endfor %}
 				</ul>
 			</div>
 		</div>
-	{% elif view == 'own' %}
+		{% else %}
+		<!-- no clinvar watch -->
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-				<span class="w3-xlarge">You have not created a variant yet.</span>
+				<span id="watch_title" class="w3-xlarge">You have no variants in your ClinVar watch list yet.</span>
 			</div>
-			{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
+			{{ info("To add a variant in your ClinVar watch list, visit a variant's page then click on the heart on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
 		</div>
+		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+			<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
+				<ul id="watch__ul" class="w3-ul"></ul>
+			</div>
+		</div>
+		{% endif %}
+	{% endif %}
+	<hr />
+	<!-- variants groups -->
+	{% if variant_groups_number != None and variant_groups_number - 1 > 0 %}
+	<div class="w3-container w3-margin">
+		<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#groups_vars').fadeToggle();">
+			<span class="w3-xlarge">Toggle your <span id="num_groups">{{ variant_groups_number - 1 }}</span> lists of variants:</span>
+		</div>
+	</div>
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="groups_vars" style="display:none;">
+		{% if variant_groups_number > 0 %}
+		<div id="groups_list" class="w3-card w3-mobile">
+			<ul class="w3-ul">
+			{% for list in variant_groups %}
+				<li id="{{ list.list_name }}" class="w3-padding-large w3-large w3-light-grey w3-hover-border-blue">
+					<!-- 1st row -->
+					<!-- name, date, number of variants, actions -->
+					<span class="var_li" onclick="window.open('{{ url_for('auth.variant_list', list_name=list.list_name) }}')" title="Visit the variant list">List name: <strong>{{ list.list_name }}</strong> - ({{ list.creation_date }}) - ({{ list.variant_ids|length }} variants)</span>
+					{% if run_mode and run_mode == 'on' %}
+						{% set style_value = namespace(lock='block', unlock='none') %}
+						{% if  list.lock == 0 %}
+							{% set style_value.lock = 'none' %}
+							{% set style_value.unlock = 'block' %}
+						{% endif %}
+						<div id="lock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.unlock }}">
+							<div>
+								<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Lock this list">
+									<!-- <i class="fa fa-unlock w3-xlarge"></i> -->
+									{{ fa('unlock', w3_class='xlarge') }}
+								</span>
+								&nbsp;&nbsp;&nbsp;&nbsp;
+								<span class="var_li" onclick="delete_list('{{ url_for('ajax.delete_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Delete this list">
+									{{ fa('trash', w3_class='xlarge') }}
+									<!-- <i class="fa fa-trash w3-xlarge"></i> -->
+								</span>
+							</div>
+						</div>
+						<div id="unlock_{{ list.list_name }}" class="w3-right" style="display:{{ style_value.lock }}">
+							<span class="var_li" onclick="toggle_lock('{{ url_for('ajax.toggle_lock_variant_list', list_name=list.list_name) }}', '{{ list.list_name }}', '{{ csrf_token() }}')" title="Unlock this list">
+								{{ fa('lock', w3_class='xlarge') }}
+								<!-- <i class="fa fa-lock w3-xlarge"></i> -->
+							</span>
+						</div>
+					{% endif %}
+					<ul>
+						<!-- 2nd row tinyURL -->
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span>Tiny URL: <input id="{{ list.list_name }}_tinyurl" type="text" value="{{ list.tinyurl }}" size="50" maxlength="50"/></span>
+							&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_tinyurl');" class="var_li" title="copy tiny URL key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+						</li>
+						<!-- 3rd row fullURL -->
+						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+							<span>Full URL: <input id="{{ list.list_name }}_fullurl" type="text" value="{{ url_for('auth.variant_list', list_name=list.list_name, _external=True) }}" size="80" maxlength="80"/></span>
+							&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('{{ list.list_name }}_fullurl');" class="var_li" title="copy full URL to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+						</li>
+					</ul>
+				</li>
+			{% endfor %}
+			</ul>
+		</div>
+		<div id="comment_list"></div>
+		{% endif %}
+	</div>
+	{% endif %}
+	<hr />
+	<!-- variants created -->
+	{% if variants is not none %}
+	<div class="w3-container w3-margin">
+		<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#created_vars').fadeToggle();">
+			<span class="w3-xlarge">Toggle the {{ num_var }} variants you created:</span>
+		</div>
+	</div>
+	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="created_vars" style="display:none;">
+		<div class=" w3-card w3-mobile">
+			<ul class="w3-ul">
+				{% for var in variants %}
+					<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+						<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+							{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+						</span>
+						<span class="w3-right">
+							{{ var.creation_date }}
+							{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] %}
+							<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
+								<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
+							</span>
+							{% else %}
+							<span id="favour_span_{{ var.id }}" name="mark" title="Mark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
+								<i id="favour_{{ var.id }}" class="fa fa-star-o w3-xxlarge"></i>
+							</span>
+							{% endif %}
+							<!-- to be used in js favourite function -->
+							<span id="md_variant_url_{{ var.id }}" style="display:none;">{{ url_for('api.variant', variant_id=var.id, caller='browser') }}</span>
+							<span id="gene_{{ var.id }}" style="display:none;">{{ var.gene_symbol }}</span>
+							<span id="c_name_{{ var.id }}" style="display:none;">{{ var.c_name }}</span>
+							<span id="p_name_{{ var.id }}" style="display:none;">{{ var.p_name }}</span>
+						</span>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+	{% elif view == 'own' %}
+	<div class="w3-container w3-margin">
+		<div class="w3-button w3-blue w3-hover-light-blue w3-block">
+			<span class="w3-xlarge">You have not created a variant yet.</span>
+		</div>
+		{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
+	</div>
 	{% endif %}
 	<br /><br /><br /><br />
 {% endblock %}

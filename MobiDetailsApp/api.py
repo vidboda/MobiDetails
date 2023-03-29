@@ -528,20 +528,23 @@ def variant(variant_id=None, caller='browser', api_key=None):
         aa_pos = None
         # pos_splice_site = None
         domain = None
-        # favourite var?
-        curs.execute(
-            """
-            SELECT mobiuser_id
-            FROM mobiuser_favourite
-            WHERE feature_id = %s
-            """,
-            (variant_id,)
-        )
-        favourite = curs.fetchone()
-        if favourite is not None and \
-                g.user is not None:
-            if favourite['mobiuser_id'] == g.user['id']:
-                favourite = True
+        favourite = None
+        if g.user:
+            # favourite var?
+            curs.execute(
+                """
+                SELECT type
+                FROM mobiuser_favourite
+                WHERE feature_id = %s
+                    AND mobiuser_id = %s
+                """,
+                (variant_id, g.user['id'])
+            )
+            favourite = curs.fetchone()
+            # if favourite is not None and \
+            #         g.user is not None:
+            #     if favourite['mobiuser_id'] == g.user['id']:
+            #         favourite = True
         splicing_radar_labels = []
         splicing_radar_values = []
         other_ids = None

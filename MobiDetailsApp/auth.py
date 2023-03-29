@@ -534,7 +534,7 @@ def profile(mobiuser_id=0):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
-            SELECT id, username, email, institute, country, api_key, email_pref, lovd_export, academic
+            SELECT *
             FROM mobiuser
             WHERE id = %s
             """,
@@ -566,7 +566,8 @@ def profile(mobiuser_id=0):
             # )
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.gene_symbol, a.p_name, a.creation_date, b.mobiuser_id
+                SELECT a.id, a.c_name, a.gene_symbol, a.refseq,
+                    a.p_name, a.creation_date, b.mobiuser_id
                 FROM variant_feature a
                 LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
                 WHERE a.creation_user = %s
@@ -592,14 +593,40 @@ def profile(mobiuser_id=0):
 
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.ng_name, a.gene_symbol, a.p_name
-                FROM variant_feature a, mobiuser_favourite b
-                WHERE a.id = b.feature_id AND b.mobiuser_id = %s
+                SELECT a.id, a.c_name, a.ng_name, a.gene_symbol,
+                    a.refseq, a.p_name, b.type
+                FROM variant_feature a
+                LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
+                WHERE b.mobiuser_id = %s
                 ORDER BY a.gene_symbol, a.ng_name
                 """,
                 (g.user['id'],)
             )
             variants_favourite = curs.fetchall()
+
+            # count favourites
+            curs.execute(
+                """
+                SELECT mobiuser_id
+                FROM mobiuser_favourite
+                WHERE mobiuser_id = %s
+                    AND type IN (1, 3)
+                """,
+                (g.user['id'],)
+            )
+            num_var_fav = curs.rowcount
+
+            # count clinvar watched
+            curs.execute(
+                """
+                SELECT mobiuser_id
+                FROM mobiuser_favourite
+                WHERE mobiuser_id = %s
+                    AND type IN (2, 3)
+                """,
+                (g.user['id'],)
+            )
+            num_var_clinv = curs.rowcount
 
             if error is None:
                 # num_var_fav = curs.rowcount
@@ -610,7 +637,8 @@ def profile(mobiuser_id=0):
                     mobiuser=mobiuser,
                     view='own',
                     num_var=num_var,
-                    num_var_fav=curs.rowcount,
+                    num_var_fav=num_var_fav,
+                    num_var_clinv=num_var_clinv,
                     variants=variants,
                     variants_favourite=variants_favourite,
                     variant_groups=variant_groups,

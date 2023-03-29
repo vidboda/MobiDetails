@@ -669,7 +669,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         # print(record)
         # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
-                var['pos_alt'] in alt_list:            
+                var['pos_alt'] in alt_list:
             if re.search(r'revel', tabix_file):
                 # need to validate amino acids                
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \

@@ -122,7 +122,7 @@ function favourite(vf_id, fav_url, csrf_token) {
 		type: "POST",
 		url: fav_url,
 		data: {
-			vf_id: vf_id, marker: $('#' + favour_span_id).attr('name')
+			vf_id: vf_id, marker: $('#' + favour_span_id).attr('name'), clinvar_watch: 0
 		}
 	})
 	.done(function() {

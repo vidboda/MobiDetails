@@ -7,8 +7,15 @@
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/pdfmake.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/Chart.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}??21311" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230302" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}??213151" type="text/javascript"></script>
+	<!-- 
+	igv.js update:
+	VERSION=2.13.10
+	wget -O igv.${VERSION}.min.js https://cdn.jsdelivr.net/npm/igv@${VERSION}/dist/igv.min.js
+	unlink igv.min.js
+	ln -s igv.${VERSION}.min.js igv.min.js
+	-->
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230327" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -99,12 +106,19 @@
 			{% endif %}
 			{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 			{% if g.user %}
-				{% if favourite != True %}
+				{% if favourite is none or favourite.type == 2 %}
 				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
-	</span>
+				</span>
 				{% else %}
 				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
-	</span>
+				</span>
+				{% endif %}
+				{% if favourite is none or favourite.type == 1 %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='mark' onclick="clinvar_watch('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Watch this variant!"><i id="clinvar_watch" class="fa fa-heart"></i>
+				</span>
+				{% else %}
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='unmark' onclick="clinvar_watch('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unwatch this variant!"><i id="clinvar_watch" class="fa fa-heart-o"></i>
+				</span>
 				{% endif %}
 			{% endif %}
 		</div>
@@ -157,7 +171,7 @@
 		</div>
 		{% endif %}
 		{% if internal_data.admin.mappedCanonical is not none %}
-		{{ danger('This variant may be annotated on the current canonicam isoform (%s) using the following expression, <br /> directly in the search engine at the bottom of the page or by using the blue button below: <br />
+		{{ danger('This variant may be annotated on the current canonical isoform (%s) using the following expression, <br /> directly in the search engine at the bottom of the page or by using the blue button below: <br />
 		%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
 		<div class="w3-margin w3-panel w3-pale-red w3-leftbar">
 			<p>
