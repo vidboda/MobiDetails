@@ -628,7 +628,6 @@ def profile(mobiuser_id=0):
             )
             num_var_clinv = curs.rowcount
 
-
             if error is None:
                 # num_var_fav = curs.rowcount
                 close_db()

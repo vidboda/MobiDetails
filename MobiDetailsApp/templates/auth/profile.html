@@ -32,19 +32,17 @@
 				<!-- email preferences -->
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 					{% if mobiuser.email_pref == true %}
-					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-green">enabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-green">enabled</strong></span>
 						{% if run_mode  and run_mode == 'on' %}
-						<span id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable contact service"></i></span>
+						<span id="btn_email_pref" name="email_pref" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable contact service"></i></span>
 						<span id="value_to_send_email_pref" style="display:none;">f</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
 					{% else %}
-					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-red">disabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;">Contact service is <strong id="value_email_pref" class="w3-text-red">disabled</strong></span>
 						{% if run_mode  and run_mode == 'on' %}
-						<span id="btn_email_pref" name="email_pref" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable contact service"></i></span>
+						<span id="btn_email_pref" name="email_pref" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'email_pref');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable contact service"></i></span>
 						<span id="value_to_send_email_pref" style="display:none;">t</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
@@ -54,19 +52,17 @@
 				<!-- LOVD preferences -->
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 					{% if mobiuser.lovd_export == true %}
-					<span style="vertical-align: middle;">LOVD export is <strong id="value_lovd_export" class="w3-text-green">enabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;">LOVD export is <strong id="value_lovd_export" class="w3-text-green">enabled</strong></span>
 						{% if run_mode and run_mode == 'on' %}
-							<span id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable LOVD export"></i></span>
+							<span id="btn_lovd_export" name="lovd_export" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable LOVD export"></i></span>
 							<span id="value_to_send_lovd_export" style="display:none;">f</span>
 						{% else %}
 							<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
 					{% else %}
-					<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;"><a href="{{ url_for('md.about') }}#data_sharing" target="_blank">LOVD export</a> is <strong id="value_lovd_export" class="w3-text-red">disabled</strong></span>
 						{% if run_mode  and run_mode == 'on' %}
-							<span id="btn_lovd_export" name="lovd_export" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable LOVD export"></i></span>
+							<span id="btn_lovd_export" name="lovd_export" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'lovd_export');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable LOVD export"></i></span>
 							<span id="value_to_send_lovd_export" style="display:none;">t</span>
 						{% else %}
 							<span>Please wait for the end of the maintenance to modify this preference</span>
@@ -76,19 +72,17 @@
 				<!-- ClinVar follow up preferences -->
 				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 					{% if mobiuser.clinvar_check == true %}
-					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-green">enabled</strong>
-					&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-green">enabled</strong></span>
 						{% if run_mode and run_mode == 'on' %}
-						<span id="btn_clinvar_check" name="clinvar_check" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" tyle="vertical-align: middle;" title="Disable ClinVar watch"></i></span>
+						<span id="btn_clinvar_check" name="clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" tyle="vertical-align: middle;" title="Disable ClinVar watch"></i></span>
 						<span id="value_to_send_clinvar_check" style="display:none;">f</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
 					{% else %}
-					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-red">disabled</strong>
-					&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+					<span style="vertical-align: middle;">ClinVar watch is <strong id="value_clinvar_check" class="w3-text-red">disabled</strong></span>
 						{% if run_mode  and run_mode == 'on' %}
-						<span id="btn_clinvar_check" name="clinvar_check" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ClinVar watch"></i></span>
+						<span id="btn_clinvar_check" name="clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ClinVar watch"></i></span>
 						<span id="value_to_send_clinvar_check" style="display:none;">t</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
@@ -98,19 +92,17 @@
 				<!-- Automated ClinVar follow up preferences -->
 				<li id="li_auto_add2clinvar_check" class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">
 					{% if mobiuser.auto_add2clinvar_check == true %}
-						<span style="vertical-align: middle;">Automatic* ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-green" style="align-right">enabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+						<span style="vertical-align: middle;">Automatic* ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-green" style="align-right">enabled</strong></span>
 						{% if run_mode and run_mode == 'on' %}
-						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable automatic ClinVar watch of the variants you generate"></i></span>
+						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable automatic ClinVar watch of the variants you generate"></i></span>
 						<span id="value_to_send_auto_add2clinvar_check" style="display:none;">f</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
 						{% endif %}
 					{% else %}
-						<span style="vertical-align: middle;">Automatic* ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-red">disabled</strong>
-						&nbsp;&nbsp;--&nbsp;&nbsp;</span>
+						<span style="vertical-align: middle;">Automatic ClinVar watch of the variants you generate is <strong id="value_auto_add2clinvar_check" class="w3-text-red">disabled</strong></span>
 						{% if run_mode  and run_mode == 'on' %}
-						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable automatic ClinVar watch of the variants you generate"></i></span>
+						<span id="btn_auto_add2clinvar_check" name="auto_add2clinvar_check" class="var_li w3-right" onclick="toggle_service('{{ url_for("ajax.toggle_prefs") }}', '{{ csrf_token() }}', 'auto_add2clinvar_check');"><i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable automatic ClinVar watch of the variants you generate"></i></span>
 						<span id="value_to_send_auto_add2clinvar_check" style="display:none;">t</span>
 						{% else %}
 						<span>Please wait for the end of the maintenance to modify this preference</span>
@@ -127,20 +119,21 @@
 					academic user
 				</li>
 				<!-- API key -->
-				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick="copy_text('api_key');" class="var_li" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/><button onclick="copy_text('api_key');" class="var_li w3-right" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
 				{% endif %}
 			</ul>
 		</div>
 	</div>
 	<div id="error_message"></div>
 	{% if view == 'own' -%}
-	{{ info("Please consider that the API key is personal and identifies your account, therefore you should not share it.<br />You can explore the swagger <a href='/MDAPI/'>API</a> for programmatic access and learn <a href='https://github.com/beboche/obiDetails/wiki/Batch-variants-creation'>how</a> to use the API with <a href='https://github.com/beboche/MDUtils'>MDUtils</a> scripts to remotely create your lists of variants.<br />* For users who already had an account before this feature has been released, enabling this option will add all the variants already attached to your account to the list of variants to be watched. Then each new variant generated while authenticated will be automatically added to this list. <a href='%s' target='_blank' >How this works</a>.".format(url_for('md.about', anchor='clinvar_watch'))) }}
+	{{ info("<ul><li>The <strong>contact service</strong> allows other users to contact you via email through the MobiDetails system. They are not aware of your email adress unless you choose to respond directly. The first message comes from the address &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.</li><li>The <strong>LOVD export</strong> feature automatically sends data to the LOVD GVShared database when you classify a variant (<a href='%s' target='_blank'>more</a>).</li><li><a href='%s' target='_blank'>More</a> about the <strong>ClinVar watch</strong> feature.</li><li><strong>Automatic ClinVar watch of the variants you generate</strong>: This feature will automatically add the variants you generated while authenticated in the ClinVar watch list of variants. For users who already had an account before this feature has been released, enabling this option will add all the variants already attached to your account to the list of variants to be watched. <a href='%s' target='_blank' >How this works</a>.</li><li>Please consider that the <strong>API key</strong> is personal and identifies your account, therefore you should not share it. You can explore the swagger <a href='/MDAPI/'>API</a> for programmatic access and learn <a href='https://github.com/beboche/MobiDetails/wiki/Batch-variants-creation'>how</a> to use the API with <a href='https://github.com/beboche/MDUtils'>MDUtils</a> scripts to remotely create your lists of variants.</li></ul>"|format(url_for('md.about', _anchor='data_sharing'), url_for('md.about', _anchor='clinvar_watch'), url_for('md.about', _anchor='clinvar_watch'))) }}
 	<br />
 	<hr />
 	{%- endif %}
 	<!-- variants favourite -->
-	{% if variants_favourite is defined and variants_favourite %}
+	{% if variants_favourite is defined %}
 		{% if num_var_fav > 0 %}
+		<!-- favourite variant -->
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
 				<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite <i class="w3-xlarge fa fa-star"></i> variants:</span>
@@ -149,7 +142,6 @@
 		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
 			{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
 			{% if run_mode and run_mode == 'on' %}
-			{#{% if num_var_fav > 0 %}#}
 			<div id="variant_list_menu">
 				<div class="w3-card w3-mobile">
 					<ul class="w3-ul">
@@ -175,7 +167,6 @@
 				</div>
 				<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
 			</div><br />
-			{#{% endif %}#}
 			<div id="comment"></div>
 			{% else %}
 			<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
@@ -204,8 +195,22 @@
 				</ul>
 			</div>
 		</div>
-		{% endif %}
+		{% elif view == 'own' %}
+		<!-- no favourites -->
+		<div class="w3-container w3-margin">
+			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
+				<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
+			</div>
+			{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
+		</div>
+		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+			<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
+				<ul id="favourite_ul" class="w3-ul"></ul>
+			</div>
+		</div>
+		{% endif %}	
 		{% if num_var_clinv > 0 %}
+		<!-- clinvar watch -->
 		<div class="w3-container w3-margin">
 			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#clinvar_watched_vars').fadeToggle();">
 				<span id="clinvar_watched_title" class="w3-xlarge">Toggle your <span id="num_clinvar_watched">{{ num_var_clinv }}</span> ClinVar watched  <i class="w3-xlarge fa fa-heart"></i> variants:</span>
@@ -231,20 +236,20 @@
 				</ul>
 			</div>
 		</div>
+		{% else %}
+		<!-- no clinvar watch -->
+		<div class="w3-container w3-margin">
+			<div class="w3-button w3-blue w3-hover-light-blue w3-block">
+				<span id="watch_title" class="w3-xlarge">You have no variants in your ClinVar watch list yet.</span>
+			</div>
+			{{ info("To add a variant in your ClinVar watch list, visit a variant's page then click on the heart on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
+		</div>
+		<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+			<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
+				<ul id="watch__ul" class="w3-ul"></ul>
+			</div>
+		</div>
 		{% endif %}
-	{% elif view == 'own' %}
-	<!-- no favourites -->
-	<div class="w3-container w3-margin">
-		<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-			<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
-		</div>
-		{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
-	</div>
-	<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
-		<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
-			<ul id="favourite_ul" class="w3-ul"></ul>
-		</div>
-	</div>
 	{% endif %}
 	<hr />
 	<!-- variants groups -->

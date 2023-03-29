@@ -102,6 +102,5 @@ def request_entity_too_large_error(error):
     return render_template('errors/413.html'), 413
 
 def csrf_error(error):
-    # flash(f"{error.name} : {error.description} Please Retry.", 'w3-pale-red')
     flash('{0} : {1} Please Retry.'.format(error.name, error.description), 'w3-pale-red')
     return redirect(url_for('md.index'))
