@@ -1916,8 +1916,9 @@ def toggle_prefs():
             "UPDATE mobiuser SET {0} = '{1}' WHERE \
             id = '{2}'".format(field, pref, g.user['id'])
         )
-        if re.search(r'^clinvar_check$', request.form['field']):
-            # in addition we modify auto_add2clinvar_check the same as clinvar_check
+        if re.search(r'^clinvar_check$', request.form['field']) and \
+                pref == 'f':
+            # in addition we modify auto_add2clinvar_check the same as clinvar_check if disabling
             curs.execute(
                 """
                 UPDATE mobiuser 
@@ -2075,7 +2076,7 @@ def favourite():
             # type = 1 => favourite
             # type = 2 => clinvar
             # type = 3 => both
-            # if var exists and type == 3 => type = 2 or  1 if coming from clinvar_watch
+            # if var exists and type == 3 => type = 2 or 1 if coming from clinvar_watch
             # else (if type in (1,2)) => delete
             if m_fav:
                 # print(m_fav['type'])

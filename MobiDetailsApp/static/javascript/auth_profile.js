@@ -23,14 +23,6 @@ function toggle_service(pref_url, csrf_token, caller) {
   	.done(function(return_value, html_error) {
   		if (return_value == 'ok') {
               var txt = 'enabled';
-              // var label = 'Disable it';
-              var title = 'contact service';
-              if (caller == 'lovd_export') {title = 'LOVD export';}
-              else if (caller === 'clinvar_check') {
-                title = 'ClinVar follow-up';
-                $('#li_auto_add2clinvar_check').toggle();
-              }
-              else if (caller === 'auto_add2clinvar_check') {title = 'automatic ClinVar follow-up of the variants you generate';}
               var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
               var value_to_send = 'f';
               if (value_id == 'f') {
@@ -39,6 +31,22 @@ function toggle_service(pref_url, csrf_token, caller) {
                   var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
                   value_to_send = 't';
               }
+              var title = 'contact service';
+              if (caller == 'lovd_export') {title = 'LOVD export';}
+              else if (caller === 'clinvar_check') {
+                title = 'ClinVar follow-up';
+                if (value_id == 'f') {
+                  // auto_add2clinvar_check became f in ajax as well
+                  // we need to update the UI accordingly
+                  $("#value_auto_add2clinvar_check").attr('class', 'w3-text-red');
+                  $("#value_auto_add2clinvar_check").html(txt);
+                  $("#value_to_send_auto_add2clinvar_check").html(value_to_send);
+                  $("#btn_auto_add2clinvar_check").html(label);
+                }
+                $('#li_auto_add2clinvar_check').toggle();
+              }
+              else if (caller === 'auto_add2clinvar_check') {title = 'automatic ClinVar follow-up of the variants you generate';}
+              
               $("#value_to_send_" + caller).html(value_to_send);
               $("#btn_" + caller).html(label);
               //$("#contact_box").prop( "checked", false);

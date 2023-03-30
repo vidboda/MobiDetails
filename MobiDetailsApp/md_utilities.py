@@ -1815,7 +1815,7 @@ def create_var_vv(
     #     t.join(map(str, vf_d.values()))
     # ).replace("'NULL'", "NULL")
     # print(insert_variant_feature)
-    vf_id = ''
+    vf_id = None
     try:
         curs.execute(insert_variant_feature)
         vf_id = curs.fetchone()[0]
@@ -1907,6 +1907,29 @@ def create_var_vv(
                 return {
                     'mobidetails_error':
                     """Impossible to insert variant (hg19) for {}""".format(vv_key_var)}
+    # check users options and add the variant to the clinvar watch list if needed
+    if vf_id and \
+            g.user['id']:
+        curs.execute(
+            """
+            SELECT auto_add2clinvar_check
+            FROM mobiuser
+            WHERE id = %s
+                AND clinvar_check = 't'
+            """,
+            (g.user['id'],)
+        )
+        auto_clinvar = curs.fetchone()
+        if auto_clinvar and \
+                auto_clinvar['auto_add2clinvar_check'] is True:
+            # add the variant to the user's list
+            curs.execute(
+                """
+                INSERT INTO mobiuser_favourite (mobiuser_id, feature_id, type)
+                VALUES (%s, %s, 2)
+                """,
+                (g.user['id'], vf_id)
+            )
     db.commit()
     return vf_id
 
