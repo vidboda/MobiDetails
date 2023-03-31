@@ -1927,6 +1927,24 @@ def toggle_prefs():
                 """,
                 (pref, g.user['id'])
             )
+            # then we empty the clinvar watch list
+            curs.execute(
+                """
+                DELETE FROM mobiuser_favourite
+                WHERE mobiuser_id = %s
+                    AND type = 2
+                """,
+                (g.user['id'],)
+            )
+            curs.execute(
+                """
+                UPDATE mobiuser_favourite
+                SET type = 1
+                WHERE mobiuser_id = %s
+                    AND type = 3
+                """,
+                (g.user['id'],)
+            )
         if re.search(r'^auto_add2clinvar_check$', request.form['field']) and \
                 pref == 't':
             # all variants attached to this user are added to mobiuser_favourite with type 2 or upgraded to 3 (if already in favourite)
@@ -1939,11 +1957,6 @@ def toggle_prefs():
                 """,
                 (g.user['id'],)
             )
-            # SELECT a.id, c.type 
-            #     FROM variant_feature a, mobiuser b, mobiuser_favourite c
-            #     WHERE a.creation_user = b.id
-            #         AND b.id = c.mobiuser_id
-            #         AND b.id = %s
             variants = curs.fetchall()
             if variants:
                 for var in variants:

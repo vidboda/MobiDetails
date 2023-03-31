@@ -42,10 +42,20 @@ function toggle_service(pref_url, csrf_token, caller) {
                   $("#value_auto_add2clinvar_check").html(txt);
                   $("#value_to_send_auto_add2clinvar_check").html(value_to_send);
                   $("#btn_auto_add2clinvar_check").html(label);
+                  // in addition the list is emptied
+                  $("#num_clinvar_watched").text("0");
+                  $("#clinvar_watched_list").html("");
                 }
                 $('#li_auto_add2clinvar_check').toggle();
               }
-              else if (caller === 'auto_add2clinvar_check') {title = 'automatic ClinVar follow-up of the variants you generate';}
+              else if (caller === 'auto_add2clinvar_check') {
+                title = 'automatic ClinVar follow-up of the variants you generate';
+                alert(value_id);
+                if (value_id == 't') {
+                    // update the number of variants
+                    $("#clinvar_watched_title").html("Reload the page to check your ClinVar watch list");
+                }
+              }
               
               $("#value_to_send_" + caller).html(value_to_send);
               $("#btn_" + caller).html(label);
