@@ -50,7 +50,6 @@ function toggle_service(pref_url, csrf_token, caller) {
               }
               else if (caller === 'auto_add2clinvar_check') {
                 title = 'automatic ClinVar follow-up of the variants you generate';
-                alert(value_id);
                 if (value_id == 't') {
                     // update the number of variants
                     $("#clinvar_watched_title").html("Reload the page to check your ClinVar watch list");
