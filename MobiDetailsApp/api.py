@@ -1241,10 +1241,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         internal_data['missensePredictions']['revelColor'] = "#000000"
                         external_data['missensePredictions']['revelPred'] = 'no prediction'
                         # build revel pred
-                        # if not re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
-                        external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
-                        internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
-                        internal_data['missensePredictions']['revelStar'] = '**'                        
+                        if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
+                            external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
+                            internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
+                            internal_data['missensePredictions']['revelStar'] = '**'                        
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info
