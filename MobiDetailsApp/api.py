@@ -1231,19 +1231,20 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 external_data['nomenclatures']['hg19gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
                 # if no REVEL score in hg38 (REVEL hg38 were obtained by liftover, https://sites.google.com/site/revelgenomics/downloads)
                 # then try to retrieve in hg19
-                if not isinstance(external_data['missensePredictions']['revelScore'], float):
-                    revel = md_utilities.get_value_from_tabix_file('REVEL', md_utilities.local_files['revel_hg19']['abs_path'], var, variant_features)
-                    if isinstance(revel, str):
-                        external_data['missensePredictions']['revelScore'] = revel
-                    else:
-                        external_data['missensePredictions']['revelScore'] = revel[int(md_utilities.external_tools['REVEL']['value_col'])]
-                    internal_data['missensePredictions']['revelColor'] = "#000000"
-                    external_data['missensePredictions']['revelPred'] = 'no prediction'
-                    # build revel pred
-                    if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
-                        external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
-                        internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
-                        internal_data['missensePredictions']['revelStar'] = '**'
+                if academic is True:
+                    if not isinstance(external_data['missensePredictions']['revelScore'], float):
+                        revel = md_utilities.get_value_from_tabix_file('REVEL', md_utilities.local_files['revel_hg19']['abs_path'], var, variant_features)
+                        if isinstance(revel, str):
+                            external_data['missensePredictions']['revelScore'] = revel
+                        else:
+                            external_data['missensePredictions']['revelScore'] = revel[int(md_utilities.external_tools['REVEL']['value_col'])]
+                        internal_data['missensePredictions']['revelColor'] = "#000000"
+                        external_data['missensePredictions']['revelPred'] = 'no prediction'
+                        # build revel pred
+                        # if not re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
+                        external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data'missensePredictions']['revelScore'])
+                        internal_data['missensePredictions']['revelColor'] = md_utilities.et_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], revel_min', 'revel_max')
+                        internal_data['missensePredictions']['revelStar'] = '**'                        
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info
