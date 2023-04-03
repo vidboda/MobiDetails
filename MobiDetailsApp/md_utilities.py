@@ -1909,7 +1909,7 @@ def create_var_vv(
                     """Impossible to insert variant (hg19) for {}""".format(vv_key_var)}
     # check users options and add the variant to the clinvar watch list if needed
     if vf_id and \
-            g.user['id']:
+            g.user:
         curs.execute(
             """
             SELECT auto_add2clinvar_check
