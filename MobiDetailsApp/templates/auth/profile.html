@@ -136,107 +136,63 @@
 	<hr />
 	{%- endif %}
 	<!-- variants favourite -->
-	{% if variants_favourite is defined %}
-		{% if num_var_fav > 0 %}
-		<!-- favourite variant -->
-		<div class="w3-container w3-margin">
-			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-				<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite <i class="w3-xlarge fa fa-star"></i> variants:</span>
-			</div>		
-			<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
-				{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
-				{% if run_mode and run_mode == 'on' %}
-				<div id="variant_list_menu">
-					<div class="w3-card w3-mobile">
-						<ul class="w3-ul">
-							<!-- variants favourite delete -->
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants">
-									<!-- <i class="fa fa-trash w3-xlarge"></i> -->
-									{{ fa('trash', w3_class='xlarge') }}
-								</button>
-							</li>
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
-							</li>
-							<!-- variants list URL generation -->
-							<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
-								<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
-								<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants">
-									<!-- <i class="fa fa-magic w3-xlarge"></i> -->
-									{{ fa('magic', w3_class='xlarge') }}
-								</button>
-							</li>
-						</ul>
-					</div>
-					<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
-				</div><br />
-				<div id="comment"></div>
-				{% else %}
-				<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
-				{% endif %}
-				<br /><br />
-				<!-- variants favourite list -->
-				<div id="variant_list" class="w3-card w3-mobile">
-					<ul id="favourite_ul" class="w3-ul">
-						{% for var in variants_favourite %}
-							{% if var.type == 1 or var.type == 3 %}
-							<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
-								<span>
-									{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
-								</span>
-								<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
-								<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
-									<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
-								</span> -->
-								<span class="w3-right">
-									{{ fa('star', w3_class='xlarge') }}
-									<!-- <i class="fa fa-star w3-xxlarge"></i> -->
-								</span>
-							</li>
-							{% endif %}
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</div>
-		{% elif view == 'own' %}
-		<!-- no favourites -->
-		<div class="w3-container w3-margin">
-			<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
-				<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
-			</div>
-			{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
-			<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
-				<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
-					<ul id="favourite_ul" class="w3-ul"></ul>
-				</div>
-			</div>
-		</div>
-		{% endif %}	
-		{% if num_var_clinv > 0 %}
-		<!-- clinvar watch -->
-			{% if mobiuser.clinvar_check == true %}
-			<div id= "clinvar_watch_div" class="w3-container w3-margin">
-			{% else %}
-			<div id= "clinvar_watch_div" class="w3-container w3-margin" style="display:none;">
-			{% endif %}
-				<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#clinvar_watched_vars').fadeToggle();">
-					<span id="clinvar_watched_title" class="w3-xlarge">Toggle your <span id="num_clinvar_watched">{{ num_var_clinv }}</span> ClinVar watched  <i class="w3-xlarge fa fa-heart"></i> variants:</span>
-				</div>
-				<div id="clinvar_watched_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
-					{{ info("To add/remove a variant from the ClinVar watch list, visit a variant's page then click on the heart on the left menu") }}
-					<!-- clinvar watched list -->
-					<div id="clinvar_watched_list" class="w3-card w3-mobile">
-						<ul id="clinvar_watched_ul" class="w3-ul">
+	{% if variants_favourite is not none %}
+		{% if num_var_fav is not none %}
+			{% if num_var_fav > 0 %}
+			<!-- favourite variant -->
+			<div class="w3-container w3-margin">
+				<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
+					<span id="favourite_title" class="w3-xlarge">Toggle your <span id="num_favourite">{{ num_var_fav }}</span> favourite <i class="w3-xlarge fa fa-star"></i> variants:</span>
+				</div>		
+				<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+					{{ info("To mark a variant as favourite, visit a variant's page then click on the star on the left menu") }}
+					{% if run_mode and run_mode == 'on' %}
+					<div id="variant_list_menu">
+						<div class="w3-card w3-mobile">
+							<ul class="w3-ul">
+								<!-- variants favourite delete -->
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Empty your list of favourite variants: </span><button id="btn_empty_favourite" class="w3-padding-large w3-large var_li" name="empty_favourite" onclick="empty_variant_list('{{ url_for("ajax.empty_favourite_list") }}', '{{ csrf_token() }}');" title="Empty your list of favourite variants">
+										<!-- <i class="fa fa-trash w3-xlarge"></i> -->
+										{{ fa('trash', w3_class='xlarge') }}
+									</button>
+								</li>
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Use the form below to generate a unique and permanent URL for the current list of variants:</span>
+								</li>
+								<!-- variants list URL generation -->
+								<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
+									<span>Name of the list*: </span><input id="list_name" type="text" value="{{ clean_username }}_list_{{ variant_groups_number }}" size = "20" maxlength="30" title="Allowed characters are letters, numbers and underscores. No space or other characters."/>&nbsp;&nbsp;&nbsp;&nbsp;
+									<button id="create_unique_url" class="w3-padding-large w3-large var_li" name="unique_url" onclick="create_unique_url('{{ url_for("ajax.create_unique_url") }}', '{{ csrf_token() }}');" title="Name and generate a unique URL for this list of variants">
+										<!-- <i class="fa fa-magic w3-xlarge"></i> -->
+										{{ fa('magic', w3_class='xlarge') }}
+									</button>
+								</li>
+							</ul>
+						</div>
+						<div>*Allowed characters for the list names are letters, numbers and underscores. No space or other characters.</div>
+					</div><br />
+					<div id="comment"></div>
+					{% else %}
+					<span>Please wait for the end of the maintenance to be able to empty your variants list</span>
+					{% endif %}
+					<br /><br />
+					<!-- variants favourite list -->
+					<div id="variant_list" class="w3-card w3-mobile">
+						<ul id="favourite_ul" class="w3-ul">
 							{% for var in variants_favourite %}
-								{% if var.type == 2 or var.type == 3 %}
-								<li id="clinvar_watched_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+								{% if var.type == 1 or var.type == 3 %}
+								<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 									<span>
 										{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
 									</span>
+									<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
+									<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
+										<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
+									</span> -->
 									<span class="w3-right">
-										{{ fa('heart', w3_class='xlarge') }}
+										{{ fa('star', w3_class='xlarge') }}
+										<!-- <i class="fa fa-star w3-xxlarge"></i> -->
 									</span>
 								</li>
 								{% endif %}
@@ -245,23 +201,71 @@
 					</div>
 				</div>
 			</div>
-		{% else %}
-		<!-- no clinvar watch -->
-			{% if mobiuser.clinvar_check == true %}
-			<div id= "clinvar_watch_div" class="w3-container w3-margin">
+			{% elif view == 'own' %}
+			<!-- no favourites -->
+			<div class="w3-container w3-margin">
+				<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
+					<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
+				</div>
+				{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
+				<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+					<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
+						<ul id="favourite_ul" class="w3-ul"></ul>
+					</div>
+				</div>
+			</div>
+			{% endif %}	
+		{% endif %}
+		{% if num_var_clinv is not none %}
+			{% if num_var_clinv > 0 %}
+			<!-- clinvar watch -->
+				{% if mobiuser.clinvar_check == true %}
+				<div id= "clinvar_watch_div" class="w3-container w3-margin">
+				{% else %}
+				<div id= "clinvar_watch_div" class="w3-container w3-margin" style="display:none;">
+				{% endif %}
+					<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#clinvar_watched_vars').fadeToggle();">
+						<span id="clinvar_watched_title" class="w3-xlarge">Toggle your <span id="num_clinvar_watched">{{ num_var_clinv }}</span> ClinVar watched  <i class="w3-xlarge fa fa-heart"></i> variants:</span>
+					</div>
+					<div id="clinvar_watched_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+						{{ info("To add/remove a variant from the ClinVar watch list, visit a variant's page then click on the heart on the left menu") }}
+						<!-- clinvar watched list -->
+						<div id="clinvar_watched_list" class="w3-card w3-mobile">
+							<ul id="clinvar_watched_ul" class="w3-ul">
+								{% for var in variants_favourite %}
+									{% if var.type == 2 or var.type == 3 %}
+									<li id="clinvar_watched_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+										<span>
+											{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+										</span>
+										<span class="w3-right">
+											{{ fa('heart', w3_class='xlarge') }}
+										</span>
+									</li>
+									{% endif %}
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+				</div>
 			{% else %}
-			<div id= "clinvar_watch_div" class="w3-container w3-margin" style="display:none;">
+			<!-- no clinvar watch -->
+				{% if mobiuser.clinvar_check == true %}
+				<div id= "clinvar_watch_div" class="w3-container w3-margin">
+				{% else %}
+				<div id= "clinvar_watch_div" class="w3-container w3-margin" style="display:none;">
+				{% endif %}
+					<div class="w3-button w3-blue w3-hover-light-blue w3-block">
+						<span id="watch_title" class="w3-xlarge">You have no variants in your ClinVar watch list yet.</span>
+					</div>
+					{{ info("To add a variant in your ClinVar watch list, visit a variant's page then click on the heart on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
+				</div>
+				<div id="clinvar_watched_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
+					<div id="clinvar_watched_list" class="w3-card w3-mobile" style="display:none;">
+						<ul id="watch_ul" class="w3-ul"></ul>
+					</div>
+				</div>
 			{% endif %}
-				<div class="w3-button w3-blue w3-hover-light-blue w3-block">
-					<span id="watch_title" class="w3-xlarge">You have no variants in your ClinVar watch list yet.</span>
-				</div>
-				{{ info("To add a variant in your ClinVar watch list, visit a variant's page then click on the heart on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank'>documentation</a>") }}
-			</div>
-			<div id="clinvar_watched_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
-				<div id="clinvar_watched_list" class="w3-card w3-mobile" style="display:none;">
-					<ul id="watch_ul" class="w3-ul"></ul>
-				</div>
-			</div>
 		{% endif %}
 	{% endif %}
 	<hr />
