@@ -41,10 +41,10 @@ def register():
         email = request.form['email']
         academic = request.form['acad']
         header = md_utilities.api_agent
-
+        remote_ip = request.remote_addr
+        error = None
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        error = None
 
         academic_val = 't' if academic == 'academic' else 'f'
         if not username:
@@ -71,6 +71,8 @@ def register():
             email
         ):
             error = 'The email address does not look valid.'
+        elif not re.search(r'^([\d\.]+)$', remote_ip):
+            error = 'Invalid char in IP address.'
         else:
             http = urllib3.PoolManager(
                 cert_reqs='CERT_REQUIRED',
@@ -136,7 +138,7 @@ def register():
             # 2nd check https://www.stopforumspam.com/
             # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
             sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(
-                request.remote_addr,
+                remote_ip,
                 email,
                 username
             )
