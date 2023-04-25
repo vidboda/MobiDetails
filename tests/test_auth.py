@@ -30,19 +30,20 @@ def test_register(client, app):
 # multiple tests to check known username and email returns a message
 
 
-@pytest.mark.parametrize(('username', 'password', 'email', 'message'), (
-    ('djsdlm', 'ss9kghgF', 'david.baux@inserm.fr', b'is already registered.'),
-    ('davidbaux', 'ss9kghgF', 'kevin@inserm.fr', b'is already registered.'),
-    ('1', 's', 'v', b'Username should be at least 5 characters.'),
-    ('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
-    ('djsdlm', 'ss9kghgF', 'kevin@inserm.f', b'The email address does not look valid.'),
-    ('alinar', 'ss9kghgF', 'testing@xrumer.ru', b'Sorry, your input data is reported as risky.')
+@pytest.mark.parametrize(('username', 'password', 'email', 'country', 'message'), (
+    ('djsdlm', 'ss9kghgF', 'david.baux@inserm.fr', 'Albania', b'is already registered.'),
+    ('davidbaux', 'ss9kghgF', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
+    ('1', 's', 'v', 'Albania', b'Username should be at least 5 characters'),
+    ('djsdlm', 's', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'ss9kghgF', 'kevin@inserm.f', 'Albania', b'The email address does not look valid.'),
+    ('alinar', 'ss9kghgF', 'testing@xrumer.ru', 'Albania', b'Sorry, your input data is reported as risky.'),
+    ('djsdlm', 'ss9kghgF', 'kevin@inserm.fr', 'a', b'Unrecognized country.'),
 ))
-def test_register_validate_input(client, username, password, email, message):
+def test_register_validate_input(client, username, password, email, country, message):
     response = client.post(
         '/auth/register',
         data={
-            'username': username, 'password': password, 'country': 'a',
+            'username': username, 'password': password, 'country': country,
             'institute': 'a', 'email': email, 'acad': 'academic'
         }
     )
