@@ -249,10 +249,8 @@
 		// When the user clicks anywhere outside of the modal, close it
 		window.onclick = function(event) {
 			{% for modal_div in varargs %}
-				if ($('#{{ modal_div }}').length  && event.target == document.getElementById('{{ modal_div }}')) {
-				//if (event.target == document.getElementById('{{ modal_div }}')) {
+				if ($('#{{ modal_div }}').length && event.target == document.getElementById('{{ modal_div }}')) {
 					$('#{{ modal_div }}').hide();
-					//document.getElementById('{{ modal_div }}').style.display = 'none';
 				}
 			{% endfor %}
 		}

@@ -938,7 +938,7 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 def test_vv_api_url(vv_api_hello_url, vv_api_url):
     checked_vv_api_hello_url = validate_url(vv_api_hello_url)
     checked_vv_api_url = validate_url(vv_api_url)
-    if checked_vv_api_url and \
+    if checked_vv_api_hello_url and \
             checked_vv_api_url:
         try:
             hello = json.loads(

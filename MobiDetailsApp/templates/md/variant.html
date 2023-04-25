@@ -953,109 +953,117 @@
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
 		<!--missense section-->
-		{% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %}
-			<hr />
-			{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
-			<div class="w3-responsive w3-container">
-				<!--dbscSNV-->
-				<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
-					<thead>
-						<tr>
-							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align">Values</th>
-							<th class="w3-left-align">Prediction</th>
-							<th class="w3-left-align">Descriptions</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr><!--SIFT-->
-							<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G">SIFT</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftScore, internal_data.missensePredictions.siftColor) }}{{ internal_data.missensePredictions.siftStar }}</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftPred, internal_data.missensePredictions.siftColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging - single score</em></td>
-						</tr>
+		{# {% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %} #}
+		{% if external_data.positions.proteinType == 'missense' %}
+		<hr />
+		{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
+		<div class="w3-responsive w3-container">
+			<!--dbscSNV-->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align">Values</th>
+						<th class="w3-left-align">Prediction</th>
+						<th class="w3-left-align">Descriptions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if internal_data.noMatch.dbnsfp is none %}
+					<tr><!--SIFT-->
+						<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G">SIFT</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftScore, internal_data.missensePredictions.siftColor) }}{{ internal_data.missensePredictions.siftStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftPred, internal_data.missensePredictions.siftColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging - single score</em></td>
+					</tr>
 						{% if g.user['academic'] or not g.user %}
-							<tr><!--PH2 HDIV-->
-								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
-							</tr>
-							<tr><!--PH2 HVAR-->
-								<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
-							</tr>
+						<tr><!--PH2 HDIV-->
+							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumDiv:</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
+						</tr>
+						<tr><!--PH2 HVAR-->
+							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen">Polyphen 2</a> HumVar:</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
+						</tr>
 						{% endif %}
-							<tr><!--FATHMM-->
-								<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
-							</tr>
-						{% if g.user['academic'] or not g.user %}
-							<tr><!--REVEL-->
-								<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}{{ internal_data.missensePredictions.revelStar }}</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - meta score</em></td>
-							</tr>
-							<tr><!--ClinPred-->
-								<td class="w3-left-align"><a href="{{ urls.clinpred }}" target="_blank" title="Visit ClinPred">ClinPred</a>:</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredScore, internal_data.missensePredictions.clinpredColor) }}{{ internal_data.missensePredictions.clinpredStar }}</td>
-								<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredPred, internal_data.missensePredictions.clinpredColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging - meta score</em></td>
-							</tr>
+						<tr><!--FATHMM-->
+							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm">Fathmm</a>:</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
+						</tr>
+					{% endif %}
+					{% if g.user['academic'] or not g.user %}
+					<tr><!--REVEL-->
+						<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL">REVEL</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}{{ internal_data.missensePredictions.revelStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - meta score</em></td>
+					</tr>
+						{% if internal_data.noMatch.dbnsfp is none %}
+						<tr><!--ClinPred-->
+							<td class="w3-left-align"><a href="{{ urls.clinpred }}" target="_blank" title="Visit ClinPred">ClinPred</a>:</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredScore, internal_data.missensePredictions.clinpredColor) }}{{ internal_data.missensePredictions.clinpredStar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredPred, internal_data.missensePredictions.clinpredColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging - meta score</em></td>
+						</tr>
 						{% endif %}
-						<tr><!--Meta SVM-->
-							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMScore, internal_data.missensePredictions.metaSVMColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMPred, internal_data.missensePredictions.metaSVMColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
-						</tr>
-						<tr><!--Meta LR-->
-							<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRScore, internal_data.missensePredictions.metaLRColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRPred, internal_data.missensePredictions.metaLRColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
-						</tr>
-						<tr><!--Mistic-->
-							<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic">Mistic</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - meta score</em></td>
-						</tr>
-					</tbody>
-				</table>
-				{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
-					<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
-				{% endif %}
-				{% if internal_data.missensePredictions.revelStar == '**' %}
-					<p>**The revel score has been retrieved in the hg19 dataset.</p>
-				{% endif %}
-				<br/><br/>
-				<div class="w3-row-padding">
-					<!--Missense radar chart-->
-					<div class="w3-col m4">
-						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
-					</div>
+					{% endif %}
+					{% if internal_data.noMatch.dbnsfp is none %}
+					<tr><!--Meta SVM-->
+						<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta SVM</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMScore, internal_data.missensePredictions.metaSVMColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMPred, internal_data.missensePredictions.metaSVMColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
+					</tr>
+					<tr><!--Meta LR-->
+						<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp">Meta LR</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRScore, internal_data.missensePredictions.metaLRColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRPred, internal_data.missensePredictions.metaLRColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
+					</tr>
+					{% endif %}
+					<tr><!--Mistic-->
+						<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic">Mistic</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - meta score</em></td>
+					</tr>
+				</tbody>
+			</table>
+			{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
+				<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
+			{% endif %}
+			{% if internal_data.missensePredictions.revelStar == '**' %}
+				<p>**The revel score has been retrieved in the hg19 dataset.</p>
+			{% endif %}
+			<br/><br/>
+			{% if internal_data.noMatch.dbnsfp is none %}
+			<div class="w3-row-padding">
+				<!--Missense radar chart-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_missense_modal').show();" title="Display a radar chart of missense scores" style="width:100%">Show radar chart</span>
 				</div>
-				<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
-					<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
-						<header class="w3-container w3-blue">
-							<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>
-							<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
-							<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.<span id="total_missense_scores"></span></p>
-						</header>
-						<div class="w3-container">
-							<div class="chart-container" style="position: relative;">
-								<canvas id="missense_radar"><p>Radar Chart for missense predictions</p></canvas>
-							</div>
+			</div>
+			<div id="radar_missense_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
+				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+					<header class="w3-container w3-blue">
+						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_missense_modal').hide();">X</span>
+						<br /><span class="w3-xlarge">Radar view of missense predictors</span><br />
+						<p>Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.<span id="total_missense_scores"></span></p>
+					</header>
+					<div class="w3-container">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="missense_radar"><p>Radar Chart for missense predictions</p></canvas>
 						</div>
 					</div>
 				</div>
-				{# set missense predictors values to min when no values to plot radar chart #}
+			</div>
+			{# set missense predictors values to min when no values to plot radar chart #}
 				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=4, num_non_aca_single=2, num_aca_meta=5, num_non_aca_meta=3) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
@@ -1149,50 +1157,54 @@
 				{% else %}
 					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
 				{% endif %}
-			</div>
-
-
-		{% elif internal_data.noMatch.dbnsfp is not none %}
-			{{ info(internal_data.noMatch.dbnsfp) }}
-			{% if g.user %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-				{% endif %}
-			{% else %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
-				{% endif %}
 			{% endif %}
-		{% elif external_data.splicingPredictions.spliceai_DS_AG is not none  %}
-			{% if g.user %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+		</div>
+		{% endif %}
+		{% if external_data.positions.proteinType == 'missense' %}
+			{% if internal_data.noMatch.dbnsfp is not none %}
+				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
+				{% if g.user %}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% else %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% endif %}
 				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-				{% endif %}
-			{% else %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+					{% else %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
+					{% endif %}
 				{% endif %}
 			{% endif %}
 		{% else %}
-			{% if g.user %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+			{% if external_data.splicingPredictions.spliceai_DS_AG is not none  %}
+				{% if g.user %}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% else %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% endif %}
 				{% else %}
-					{{ modal_js('pubmed', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+					{% else %}
+						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
+					{% endif %}
 				{% endif %}
 			{% else %}
-				{% if external_data.VCF.hg19.ncbiChr is not none %}
-					{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+				{% if g.user %}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% else %}
+						{{ modal_js('pubmed', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
+					{% endif %}
 				{% else %}
-					{{ modal_js('pubmed', 'defgen_modal_hg38') }}
+					{% if external_data.VCF.hg19.ncbiChr is not none %}
+						{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
+					{% else %}
+						{{ modal_js('pubmed', 'defgen_modal_hg38') }}
+					{% endif %}
 				{% endif %}
 			{% endif %}
 		{% endif %}
