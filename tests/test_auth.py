@@ -30,20 +30,28 @@ def test_register(client, app):
 # multiple tests to check known username and email returns a message
 
 
-@pytest.mark.parametrize(('username', 'password', 'email', 'message'), (
-    ('djsdlm', 'ss9kghgF', 'david.baux@inserm.fr', b'is already registered.'),
-    ('davidbaux', 'ss9kghgF', 'kevin@inserm.fr', b'is already registered.'),
-    ('1', 's', 'v', b'Username should be at least 5 characters.'),
-    ('djsdlm', 's', 'v', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
-    ('djsdlm', 'ss9kghgF', 'kevin@inserm.f', b'The email address does not look valid.'),
-    ('alinar', 'ss9kghgF', 'testing@xrumer.ru', b'Sorry, your input data is reported as risky.')
+@pytest.mark.parametrize(('username', 'password', 'institute', 'email', 'country', 'message'), (
+    ('djsdlm', 'ss9kghgF', 'IURC ,;.-()', 'david.baux@inserm.fr', 'Albania', b'is already registered.'),
+    ('davidbaux', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
+    ('1', 's', 'IURC ,;.-()', 'v', 'Albania', b'Username should be at least 5 characters'),
+    ('djsdlm', 's', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'sfafg', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'SFAGF', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', '15467854566', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'SFAGF125FAR87', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'sfagf12587sadefz', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'sF12,z', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
+    ('djsdlm', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.f', 'Albania', b'The email address does not look valid.'),
+    ('alinar', 'ss9kghgF', 'IURC ,;.-()', 'testing@xrumer.ru', 'Albania', b'Sorry, your input data is reported as risky.'),
+    ('djsdlm', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'a', b'Unrecognized country.'),
+    ('djsdlm', 'ss9kghgF', 'IURC *', 'kevin@inserm.fr', 'Albania', b'Invalid characters in the Institute field (please use letters, numbers and ,;.-()).'),
 ))
-def test_register_validate_input(client, username, password, email, message):
+def test_register_validate_input(client, username, institute, password, email, country, message):
     response = client.post(
         '/auth/register',
         data={
-            'username': username, 'password': password, 'country': 'a',
-            'institute': 'a', 'email': email, 'acad': 'academic'
+            'username': username, 'password': password, 'country': country,
+            'institute': institute, 'email': email, 'acad': 'academic'
         }
     )
     print(response.get_data())

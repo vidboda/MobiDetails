@@ -33,47 +33,126 @@ def register():
             run_mode=md_utilities.get_running_mode()
         )
     if request.method == 'POST':
-        # username = urllib.parse.unquote(request.form['username'])
-        username = request.form['username']
-        password = request.form['password']
-        country = request.form['country']
-        institute = request.form['institute']
-        email = request.form['email']
-        academic = request.form['acad']
+        error = username = password = country = institute = email = None
+        if not request.form['username']:
+            error = 'Username is required.'
+        else:
+            match_obj = re.search(r'^([\w-]{5,100})$', request.form['username'])
+            if match_obj:
+                username = match_obj.group(1)
+            else:
+                error = """
+                Username should be at least 5 characters and contain only letters and numbers.
+                """
+        if not request.form['password']:
+            error = 'Password is required.'
+        elif not error:
+            # https://stackoverflow.com/questions/4429847/check-if-string-contains-both-number-and-letter-at-least
+            match_obj = re.search(r'(?!^[0-9]*$)(?!^[a-z]*$)(?!^[A-Z]*$)(?!^[a-zA-Z]*$)(?!^[a-z0-9]*$)(?!^[A-Z0-9]*$)^(.{8,})$', request.form['password'])
+            if match_obj:
+                password = match_obj.group(1)
+            else:
+                error = """
+            Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
+            """
+        if not request.form['country'] or \
+                re.match('--', request.form['country']):
+            error = 'Country is required.'
+        elif not error:
+            if request.form['country'] in md_utilities.countries:
+                # match_obj = re.search(r'^([^-][^-].+)')
+                # if match_obj:
+                country = md_utilities.countries[md_utilities.countries.index(request.form['country'])]
+            else:
+                error = 'Unrecognized country.'
+        if not request.form['institute']:
+            error = 'Institute is required.'
+        elif not error:
+            match_obj = re.search(r'^([\w\(\),;\.\s-]+)$', request.form['institute'])
+            if match_obj:
+                institute = match_obj.group(1)
+            else:
+                error = 'Invalid characters in the Institute field (please use letters, numbers and ,;.-()).'
+        if not request.form['email']:
+            error = 'Email is required.'
+        elif not error:
+            match_obj = re.search(
+                r'^([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$',
+                request.form['email']
+            )
+            if match_obj:
+                email = match_obj.group(1)
+            else:
+                error = 'The email address does not look valid.'
+        academic_val = 't' if request.form['acad'] == 'academic' else 'f'
         header = md_utilities.api_agent
-        remote_ip = request.remote_addr
-        error = None
+        if not request.remote_addr:
+            error = 'Invalid request'
+        elif not error:
+            match_obj = re.search(r'^([\d\.]+)$', request.remote_addr)
+            if match_obj:
+                remote_ip = match_obj.group(1)
+            else:
+                error = 'Invalid char in IP address.'
+        
+
+
+        # username = urllib.parse.unquote(request.form['username'])
+        # username = request.form['username']
+        # password = request.form['password']
+        # country = request.form['country']
+        # institute = request.form['institute']
+        # email = request.form['email']
+        # academic = request.form['acad']
+        # header = md_utilities.api_agent
+        # remote_ip = request.remote_addr
+       
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        academic_val = 't' if academic == 'academic' else 'f'
-        if not username:
-            error = 'Username is required.'
-        elif len(username) < 5:
-            error = 'Username should be at least 5 characters.'
-        elif not password:
-            error = 'Password is required.'
-        elif len(password) < 8 or \
-                not re.search(r'[a-z]', password) or \
-                not re.search(r'[A-Z]', password) or \
-                not re.search(r'[0-9]', password):
-            error = """
-            Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
-            """
-        elif not country or re.match('--', country):
-            error = 'Country is required.'
-        elif not institute:
-            error = 'Institute is required.'
-        elif not email:
-            error = 'Email is required.'
-        elif not re.search(
-            r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-            email
-        ):
-            error = 'The email address does not look valid.'
-        elif not re.search(r'^([\d\.]+)$', remote_ip):
-            error = 'Invalid char in IP address.'
-        else:
+        if not error:
+            curs.execute(
+                """
+                SELECT id
+                FROM mobiuser
+                WHERE username = %s OR email = %s
+                """,
+                (username, email)
+            )
+            if curs.fetchone() is not None:
+                error = 'User {0} or email address {1}\
+                 is already registered.'.format(
+                    username, email
+                )
+
+        # academic_val = 't' if academic == 'academic' else 'f'
+        # if not username:
+        #     error = 'Username is required.'
+        # elif len(username) < 5:
+        #     error = 'Username should be at least 5 characters.'
+        # elif not password:
+        #     error = 'Password is required.'
+        # elif len(password) < 8 or \
+        #         not re.search(r'[a-z]', password) or \
+        #         not re.search(r'[A-Z]', password) or \
+        #         not re.search(r'[0-9]', password):
+        #     error = """
+        #     Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
+        #     """
+        # elif not country or re.match('--', country):
+        #     error = 'Country is required.'
+        # elif not institute:
+        #     error = 'Institute is required.'
+        # elif not email:
+        #     error = 'Email is required.'
+        # elif not re.search(
+        #     r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+        #     email
+        # ):
+        #     error = 'The email address does not look valid.'
+        # elif not re.search(r'^([\d\.]+)$', remote_ip):
+        #     error = 'Invalid char in IP address.'
+        if not error:
             http = urllib3.PoolManager(
                 cert_reqs='CERT_REQUIRED',
                 ca_certs=certifi.where()
@@ -94,7 +173,7 @@ def register():
                 )
             except Exception:
                 mv_json = None
-            if mv_json is not None:
+            if mv_json:
                 try:
                     if mv_json['credits_available'] > 0:
                         if mv_json['status'] == "False":
@@ -153,7 +232,7 @@ def register():
                 )
             except Exception:
                 sfs_json = None
-            if sfs_json is not None:
+            if sfs_json:
                 try:
                     print(sfs_json)
                     if sfs_json['success'] == 1:
@@ -216,22 +295,7 @@ def register():
                         ),
                         '[MobiDetails - Email Validation Error]'
                     )
-        if error is None:
-            curs.execute(
-                """
-                SELECT id
-                FROM mobiuser
-                WHERE username = %s OR email = %s
-                """,
-                (username, email)
-            )
-            if curs.fetchone() is not None:
-                error = 'User {0} or email address {1}\
-                 is already registered.'.format(
-                    username, email
-                )
-
-        if error is None:
+        if not error:
             key = secrets.token_urlsafe(32)
             curs.execute(
                 """
@@ -289,7 +353,8 @@ def register():
             return redirect(url_for('md.index'), code=302)
 
         flash(error, 'w3-pale-red')
-        if error is not None and not app.config['TESTING']:
+        if error and \
+                not app.config['TESTING']:
             message_body = """
             <p>{0}</p><p>Originated from :</p><ul><li>
             Remote IP: {1}</li><li>Username: {2}</li>
