@@ -1,6 +1,10 @@
 <!--jinja macro input-->
-{% macro input(name, type='text', value='', id=name, placeholder=name) -%}
+{% macro input(name, type='text', value=None, id=name, placeholder=name) -%}
+	{% if value is not none %}
 	<input type="{{ type }}" class="w3-input w3-border" name="{{ name }}" id="{{ id }}" required="required" placeholder="{{ placeholder|capitalize }}" value="{{ value }}"/>
+	{% else %}
+	<input type="{{ type }}" class="w3-input w3-border" name="{{ name }}" id="{{ id }}" required="required" placeholder="{{ placeholder|capitalize }}"/>
+	{% endif %}
 {%- endmacro %}
 <!--for fa in forms-->
 {% macro fa(name, size='50px', w3_class='xxlarge') -%}

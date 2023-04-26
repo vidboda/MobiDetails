@@ -48,7 +48,7 @@ def register():
             error = 'Password is required.'
         elif not error:
             # https://stackoverflow.com/questions/4429847/check-if-string-contains-both-number-and-letter-at-least
-            match_obj = re.search(r'(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{8,})$', request.form['password'])
+            match_obj = re.search(r'(?!^[0-9]*$)(?!^[a-z]*$)(?!^[A-Z]*$)(?!^[a-zA-Z]*$)(?!^[a-z0-9]*$)(?!^[A-Z0-9]*$)^(.{8,})$', request.form['password'])
             if match_obj:
                 password = match_obj.group(1)
             else:
@@ -68,11 +68,11 @@ def register():
         if not request.form['institute']:
             error = 'Institute is required.'
         elif not error:
-            match_obj = re.search(r'^([\w\(\),;\.-]+)$', request.form['institute'])
+            match_obj = re.search(r'^([\w\(\),;\.\s-]+)$', request.form['institute'])
             if match_obj:
                 institute = match_obj.group(1)
             else:
-                error = 'Invalid characters in institute (please use letters, numbers and ,;.-())'
+                error = 'Invalid characters in the Institute field (please use letters, numbers and ,;.-()).'
         if not request.form['email']:
             error = 'Email is required.'
         elif not error:
