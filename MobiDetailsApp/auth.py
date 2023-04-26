@@ -393,19 +393,11 @@ def login():
     referrer_page = None
     if request.method == 'GET':
         referrer_page = request.referrer
-        # if request.referrer is not None and \
-        #         (url_parse(request.referrer).host ==
-        #            url_parse(request.base_url).host):
-        #     referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         try:
             referrer_page = request.form['referrer_page']
-            # if request.form['referrer_page'] is not None and \
-            #         (url_parse(request.form['referrer_page']).host ==
-            #            url_parse(request.base_url).host:
-            #     referrer_page = request.form['referrer_page']
         except Exception:
             pass
         db = get_db()

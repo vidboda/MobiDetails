@@ -332,24 +332,44 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
 @bp.route('/intervar', methods=['POST'])
 def intervar():
     genome_regexp = md_utilities.regexp['genome']
+    match_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
-    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(r'^\d+$', request.form['pos']) and \
-            re.search(r'^[ATGC]+$', request.form['ref']) and \
-            re.search(r'^[ATGC]+$', request.form['alt']) and \
-            'gene' in request.form:
-        genome_regexp = md_utilities.regexp['genome']
-        match_obj_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
-        if match_obj_genome:
-            genome = match_obj_genome.group(1)
-        else:
-            return 'Bad genome version'
-        chrom = request.form['chrom']
-        pos = request.form['pos']
-        ref = request.form['ref']
-        alt = request.form['alt']
-        gene = request.form['gene']
+    match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
+    match_pos = re.search(r'^(\d+)$', request.form['pos'])
+    match_ref = re.search(r'^([ATGC]+)$', request.form['ref'])
+    match_alt = re.search(r'^([ATGC]+)$', request.form['alt'])
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    if match_genome and \
+            match_nochr_chrom and \
+            match_pos and \
+            match_ref and \
+            match_alt and \
+            match_gene_symbol:
+    # if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
+    #         re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
+    #         re.search(r'^\d+$', request.form['pos']) and \
+    #         re.search(r'^[ATGC]+$', request.form['ref']) and \
+    #         re.search(r'^[ATGC]+$', request.form['alt']) and \
+    #         'gene' in request.form:
+        # genome_regexp = md_utilities.regexp['genome']
+        # match_obj_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
+        # if match_obj_genome:
+        #     genome = match_obj_genome.group(1)
+        # else:
+        #     return 'Bad genome version'
+        # chrom = request.form['chrom']
+        # pos = request.form['pos']
+        # ref = request.form['ref']
+        # alt = request.form['alt']
+        # gene = request.form['gene']
+
+        genome = match_genome.group(1)
+        chrom = match_nochr_chrom.group(1)
+        pos = match_pos.group(1)
+        ref = match_ref.group(1)
+        alt = match_alt.group(1)
+        gene = match_gene_symbol.group(1)
         header = md_utilities.api_agent
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
@@ -940,19 +960,35 @@ def spliceaivisual():
 def lovd():
     genome = chrom = g_name = c_name = gene = None
     genome_regexp = md_utilities.regexp['genome']
+    match_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
     variant_regexp = md_utilities.regexp['variant']
+    match_g_name = re.search(rf'^({variant_regexp})$', request.form['g_name'])
+    match_c_name = re.search(rf'^(c\.{variant_regexp})$', request.form['c_name'])
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
     # print(request.form)
-    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(rf'^{variant_regexp}$', request.form['g_name']) and \
-            re.search(rf'^c\.{variant_regexp}$', request.form['c_name']) and \
-            'gene' in request.form:
-        genome = request.form['genome']
-        chrom = request.form['chrom']
-        g_name = request.form['g_name']
-        c_name = request.form['c_name']
-        gene = request.form['gene']
+    if match_genome and \
+            match_nochr_chrom and \
+            match_g_name and \
+            match_c_name and \
+            match_gene_symbol:
+        genome = match_genome.group(1)
+        chrom = match_nochr_chrom.group(1)
+        g_name = match_g_name.group(1)
+        c_name = match_c_name.group(1)
+        gene = match_gene_symbol.group(1)
+    # if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
+    #         re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
+    #         re.search(rf'^{variant_regexp}$', request.form['g_name']) and \
+    #         re.search(rf'^c\.{variant_regexp}$', request.form['c_name']) and \
+    #         'gene' in request.form:
+        # genome = request.form['genome']
+        # chrom = request.form['chrom']
+        # g_name = request.form['g_name']
+        # c_name = request.form['c_name']
+        # gene = request.form['gene']
         header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
@@ -1642,29 +1678,32 @@ def create():
         return render_template(
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
-        )
-    variant_regexp = md_utilities.regexp['variant']
+        )    
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel(
             'variant creation attempt',
             'Please fill in the form before submitting!'
         )
-    if re.search(r'^[\w-]+$', request.form['gene']) and \
-            re.search(r'^NM_\d+\.\d+$', request.form['acc_no']) and \
-            re.search(
-                rf'^c\.{variant_regexp}$',
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    refseq_regexp = md_utilities.regexp['ncbi_transcript']
+    match_refseq = re.search(rf'^({refseq_regexp})$', request.form['acc_no'])
+    variant_regexp = md_utilities.regexp['variant']
+    match_variant = re.search(
+                rf'^(c\.{variant_regexp})$',
                 request.form['new_variant']
-            ):
-        gene = request.form['gene']
-        acc_no = request.form['acc_no']
-        new_variant = request.form['new_variant']
+            )
+    if match_gene and \
+            match_refseq and \
+            match_variant:
+        gene = match_gene.group(1)
+        acc_no = match_refseq.group(1)
+        new_variant = match_variant.group(1)
         new_variant = new_variant.replace(" ", "").replace("\t", "")
-        # new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
         alt_nm = None
         if 'alt_iso' in request.form:
             alt_nm = request.form['alt_iso']
-            # return md_utilities.danger_panel(alt_nm, acc_version)
             if alt_nm != '' and alt_nm != acc_no:
                 acc_no = alt_nm
         # variant already registered?
@@ -2531,38 +2570,46 @@ def autocomplete_var():
 @bp.route('/is_panelapp_entity', methods=['POST'])
 def is_panelapp_entity():
     if 'gene_symbol' in request.form:
-        gene_symbol = request.form['gene_symbol']
-        try:
-            panelapp = json.loads(
-                            http.request(
-                                'GET',
-                                '{0}genes/{1}/'.format(
-                                    md_utilities.urls['panelapp_api'],
-                                    gene_symbol
-                                ),
-                                headers=md_utilities.api_agent
-                            ).data.decode('utf-8')
-                        )
-        except Exception:
-            return """
-            <span class="w3-padding">Unable to perform the PanelApp query</span>
-            """
-        # panelapp = None
-        md_utilities.urls['panel_app'] = None
-        if panelapp is not None and \
-                str(panelapp['count']) != '0':
-            # we can propose the link
-            return """
-            <span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>
-            """.format(
-                    '{0}panels/entities/{1}'.format(
-                            md_utilities.urls['panelapp'],
-                            escape(gene_symbol)
-                        )
-                )
+        gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+        match_obj = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
+        if match_obj:
+            gene_symbol = match_obj.group(1)
+            # gene_symbol = request.form['gene_symbol']
+            try:
+                panelapp = json.loads(
+                                http.request(
+                                    'GET',
+                                    '{0}genes/{1}/'.format(
+                                        md_utilities.urls['panelapp_api'],
+                                        gene_symbol
+                                    ),
+                                    headers=md_utilities.api_agent
+                                ).data.decode('utf-8')
+                            )
+            except Exception:
+                return """
+                <span class="w3-padding">Unable to perform the PanelApp query</span>
+                """
+            # panelapp = None
+            md_utilities.urls['panel_app'] = None
+            if panelapp is not None and \
+                    str(panelapp['count']) != '0':
+                # we can propose the link
+                return """
+                <span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>
+                """.format(
+                        '{0}panels/entities/{1}'.format(
+                                md_utilities.urls['panelapp'],
+                                escape(gene_symbol)
+                            )
+                    )
+            else:
+                return """
+                <span class="w3-padding">No entry in panelApp for this gene</span>
+                """
         else:
             return """
-            <span class="w3-padding">No entry in panelApp for this gene</span>
+            <span class="w3-padding">Invalid character in the gene symbol</span>
             """
     else:
         return """

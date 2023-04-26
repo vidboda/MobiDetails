@@ -190,7 +190,8 @@ def test_lovd(client, app):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
-            SELECT a.genome_version, a.chr, a.g_name, b.c_name FROM variant a, variant_feature b
+            SELECT a.genome_version, a.chr, a.g_name, b.c_name, b.gene_symbol
+            FROM variant a, variant_feature b
             WHERE a.feature_id = b.id AND a.genome_version = 'hg19'
             ORDER BY random()
             LIMIT 5
@@ -199,7 +200,8 @@ def test_lovd(client, app):
         res = curs.fetchall()
         db_pool.putconn(db)
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'])
+            print(data_dict)
             assert client.post('/lovd', data=data_dict).status_code == 200
 
 # test modif_class
@@ -496,7 +498,9 @@ def test_autocomplete_var(client, query, acc_no, return_value, http_code):
 @pytest.mark.parametrize(('gene_symbol', 'return_value', 'http_code'), (
     ('USH2A', b'panelapp.genomicsengland.co.uk', 200),
     ('F91', b'No entry in panelApp for this gene', 200),
-    (91, b'No entry in panelApp for this gene', 200)
+    (91, b'No entry in panelApp for this gene', 200),
+    ('HLA-A', b'panelapp.genomicsengland.co.uk', 200),
+    ('HLA-DPA1:', b'Invalid character in the gene symbol', 200)
 ))
 def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     assert client.get('/is_panelapp_entity').status_code == 405

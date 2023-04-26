@@ -1848,8 +1848,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         if genome_version == 'hg19':
                             genome_vv = 'GRCh37'
                             # weird VV seems to work better with 'GRCh37' than with 'hg19'
-                        vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}/all?content-type=application/json".format(
-                            vv_base_url, genome_vv, variant_ghgvs
+                        vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/all?content-type=application/json".format(
+                            vv_base_url, genome_vv, ncbi_chr, g_var
                         )
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -2183,14 +2183,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             if 'hgvs' in seq_details2 and \
                                     not re.search(r'=', seq_details2['hgvs']):
                                 hgvs = seq_details2['hgvs']
-                                # flash(
-                                #     """
-                                #     Found {}
-                                #     """.format(hgvs),
-                                #     'w3-pale-red'
-                                # )
-                                # return redirect(url_for('md.index'), code=302)
-            # for hgvs in mutalyzer_data:  # works for exonic variants because mutalyzer returns no NM for intronic variants
+                                # works for exonic variants because mutalyzer returns no NM for intronic variants
                                 variant_regexp = md_utilities.regexp['variant']
                                 ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
                                 # intronic variant?
@@ -2215,7 +2208,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                                         # look for gene symbol
                                         positions = md_utilities.compute_start_end_pos(match_nc.group(2))
                                         if not gene_symbols:
-                                            # we want gene names spanning the genomic position
+                                            # we want gene symbols spanning the genomic position
                                             # we need to hit mygene.info with shtg like:
                                             # https://mygene.info/v3/query?q=chr1%3A216524862-216524862&fields=symbol&species=human
                                             # to get

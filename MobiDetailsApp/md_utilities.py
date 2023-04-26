@@ -1241,30 +1241,6 @@ def create_var_vv(
                     # test whether we still have mapping onto
                     # 
                     ncbi_chrom_regexp = regexp['ncbi_chrom']
-                    # print(vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description'])
-                    # print(vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description'])
-                    # if 'primary_assembly_loci' in vv_data[vv_key_var]\
-                    #     and \
-                    #     'hg19' in \
-                    #     vv_data[vv_key_var]['primary_assembly_loci']\
-                    #     and \
-                    #     'hgvs_genomic_description' in \
-                    #     vv_data[vv_key_var]['primary_assembly_loci']['hg19'] \
-                    #     and \
-                    #     re.search(
-                    #         rf'{ncbi_chrom_regexp}:g\.(.+)$',
-                    #         vv_data[vv_key_var]['primary_assembly_loci']['hg19']['hgvs_genomic_description']
-                    #     ) and \
-                    #     'hg38' in \
-                    #     vv_data[vv_key_var]['primary_assembly_loci'] \
-                    #     and \
-                    #     'hgvs_genomic_description' in \
-                    #     vv_data[vv_key_var]['primary_assembly_loci']['hg38'] \
-                    #     and \
-                    #     re.search(
-                    #         rf'{ncbi_chrom_regexp}:g\.(.+)$',
-                    #         vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
-                    #         ):
                     if 'primary_assembly_loci' in vv_data[vv_key_var]\
                         and \
                         'hg38' in \
@@ -1396,19 +1372,6 @@ def create_var_vv(
             elif caller == 'cli':
                 return hg19_d
     except Exception:
-        # error_text = """
-        # Transcript {0} for gene {1} does not seem to map correctly to hg19.
-        # Currently, MobiDetails requires proper mapping on hg38 and hg19.
-        # It is therefore impossible to create a variant.
-        # """.format(acc_no, gene)
-        # if caller == 'browser':
-        #     return danger_panel(
-        #         vv_key_var,
-        #         error_text
-        #     )
-        # elif caller == 'cli':
-        #     return {'mobidetails_error': error_text}
-        # bad hg19 mapping
         hg19_d = None
     positions = compute_start_end_pos(hg38_d['g_name'])
     if positions[0] == '-1':
@@ -1804,17 +1767,6 @@ def create_var_vv(
         s.join(vf_d.keys()),
         t.join(map(str, vf_d.values()))
     ).replace("'NULL'", "NULL")
-    # insert_variant_feature = """
-    # INSERT INTO variant_feature (gene_symbol, refseq, {0})
-    # VALUES ('{1}', '{2}', '{3}')
-    # RETURNING id
-    # """.format(
-    #     s.join(vf_d.keys()),
-    #     gene,
-    #     acc_no,
-    #     t.join(map(str, vf_d.values()))
-    # ).replace("'NULL'", "NULL")
-    # print(insert_variant_feature)
     vf_id = None
     try:
         curs.execute(insert_variant_feature)

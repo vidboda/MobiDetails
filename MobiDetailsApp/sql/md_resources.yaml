@@ -5,6 +5,7 @@
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
+  'gene_symbol': '[\w\d-]+'
   'genome': 'hg[13][98]'
   'nochr_chrom': '[\dXYM]{1,2}'
   'nochr_captured': '\d{1,2}|[XYM]'
