@@ -2,26 +2,27 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 align="center" class="w3-text-blue">{% block title %}Reset Your password{% endblock %}</h1>
+  <h1 class="w3-text-blue w3-center">{% block title %}Reset Your password{% endblock %}</h1>
 {% endblock %}
 {% block more_head %}
 	<script src="{{ url_for('static', filename='javascript/auth_reset_pass.js') }}" type="text/javascript"></script>	
 {% endblock %}
 {% block content %}
-	{{ info("Please fill in the form to reset your password with a new one. Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.") }}
+	{{ info("Please fill in the form to reset your password with a new one. Password must be at least 8 characters and mix at least letters (upper and lower case) and numbers.") }}
+	<div id="onsubmiterror" class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container"></div>
 	<br />
 	<div align = "center">
-	<form method="post" action="{{ url_for('auth.reset_password') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="password_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');check_password_length();show_loader();">
+	<form method="post" action="{{ url_for('auth.reset_password') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="password_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <input type="hidden" name="mobiuser_id" value="{{ mobiuser_id }}"/>
     <input type="hidden" name="api_key" value="{{ api_key }}"/>
     <br />
     <span class="w3-xlarge">Please provide your new password (twice):</span><br/>
-		<div class="w3-row w3-section"/>
+		<div class="w3-row w3-section">
 			{{ fa('key') }}
 			<div class="w3-rest">{{ input('password', 'password') }}</div>
 		</div>
-    	<div class="w3-row w3-section"/>
+    	<div class="w3-row w3-section">
 			{{ fa('key') }}
 			<div class="w3-rest">
                 <input type="password" class="w3-input w3-border" name="repassword" id="repassword" required="required" placeholder="Confirm new password" value=""/>

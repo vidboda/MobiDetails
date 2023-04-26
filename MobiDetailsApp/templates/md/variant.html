@@ -287,7 +287,6 @@
 			<div class="w3-row-padding">
 				<!--Mutalyzer-->
 				<div class="w3-col m4">
-					<!-- <span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_position_converter }}GRCh38&description=chr{{ external_data.VCF.chr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank', 'noopener,noreferrer');" title="Mutalyzer other possible mappings for the variant" style="width:100%">Mutalyzer alt mappings</span> -->
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ urls.mutalyzer_normalizer }}{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}', '_blank', 'noopener,noreferrer');" title="Mutalyzer Normalizer" style="width:100%">Mutalyzer</span>
 				</div>
 				<!--VariantValidator-->
@@ -413,28 +412,28 @@
 				<tbody>
 					{% if external_data.VCF.hg19.ncbiChr is not none %}
 					<tr><!--gnomAD exome-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> exome:</td>
+						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> exome:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Exome }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Exomes <strong>global MAF</strong></em></td>
 					</tr>
 					<tr><!--gnomAD genome-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> genome:</td>
+						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> genome:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2Genome }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Genomes <strong>global MAF</strong></em></td>
 					</tr>
 					<tr><!--gnomAD exome non cancer-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> exome (non cancer):</td>
+						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> exome (non cancer):</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2ExomeNonCancer }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Exomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
 					</tr>
 					<tr><!--gnomAD genome non cancer-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> genome (non cancer):</td>
+						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> genome (non cancer):</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2GenomeNonCancer }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Genomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
 					</tr>
 					{% endif %}
 					<tr><!--gnomAD v3-->
-						<td class="w3-left-align"><a href={{ "%svariant/%s-%s-%s-%s?dataset=gnomad_r3"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> v3:</td>
+						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r3'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> v3:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv3 }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v3 Genomes <strong>global MAF</strong></em></td>
 					</tr>
@@ -453,7 +452,7 @@
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
 								{% if external_data.frequenciesDatabases.clinvarClinsigConf  is not none %}
 									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
 								{% endif %}
@@ -463,7 +462,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href={{ "%s/variation/%s/"|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}  target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
 							{%endif %}
@@ -481,7 +480,7 @@
 					<tr><!-- ClinGen Specification Registry -->
 						<td class="w3-left-align">ClinGen Criteria:</td>
 						<td class="w3-left-align">
-							<a href={{ "%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}  target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant" rel="noopener noreferrer">{{ external_data.gene.clingenCriteriaSpec }}</a>
+							<a href="{{ '%sdoc/%s'|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}" target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant" rel="noopener noreferrer">{{ external_data.gene.clingenCriteriaSpec }}</a>
 						</td>
 						<td class="w3-left-align"><em class="w3-small">ClinGen ACMG specific rules for {{ external_data.gene.symbol }}</em></td>
 					</tr>
@@ -489,7 +488,7 @@
 					{% if external_data.positions.DNAType == 'substitution' and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 						<tr id="intervar_tr" onmouseout="$('#acmg_info').text('');"><!--intervar-->
 							{# <td class="w3-left-align"><a href={{ "%shg19_updated.v.202107&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }} target="_blank" title="Check and adjust ACMG class at intervar" rel="noopener noreferrer">Intervar</a>:</td> #}
-							<td class="w3-left-align"><a href={{ "%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }} target="_blank" title="Check and adjust ACMG class at intervar" rel="noopener noreferrer">hg38 InterVar</a>:</td>
+							<td class="w3-left-align"><a href="{{ '%shg38&chr=%s&pos=%s&ref=%s&alt=%s'|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Check and adjust ACMG class at intervar" rel="noopener noreferrer">hg38 InterVar</a>:</td>
 							<td class="w3-left-align">
 								<span id='intervar_data'>Asking Intervar...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 							</td>

@@ -13,9 +13,9 @@
 		</header>
 		<div class="w3-container">
 			{% if litvar_link is not none %}
-			<p>Full results available at <a href="{{ litvar_link }}" target="_blank">LitVar2</a>.</p>
+			<p>Full results available at <a href="{{ litvar_link }}" target="_blank" rel="noopener noreferrer">LitVar2</a>.</p>
 			{% else %}
-			<p>Full results available at <a href="https://www.ncbi.nlm.nih.gov/research/litvar2/docsum?variant=litvar@{{ rsid }}%23%23&query={{ rsid }}" target="_blank">LitVar2</a>.</p>
+			<p>Full results available at <a href="https://www.ncbi.nlm.nih.gov/research/litvar2/docsum?variant=litvar@{{ rsid }}%23%23&query={{ rsid }}" target="_blank" rel="noopener noreferrer">LitVar2</a>.</p>
 			{% endif %}
 			<ul>
 				{% for pubmedid in pmids|sort %}
