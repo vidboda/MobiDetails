@@ -97,9 +97,9 @@
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg19)</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg38)</span>
 					</li>
-					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank', 'noopener,noreferrer')">MARRVEL</span>
-					</li>
+					<!-- <li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ hgnc_id }}', '_blank', 'noopener,noreferrer')">MARRVEL</span>
+					</li> -->
 					<li class="w3-padding-small">
 						<span class="w3-padding" id="panelapp">Searching for PanelApp entity... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 					</li>

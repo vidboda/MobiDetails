@@ -441,7 +441,7 @@ def gene(gene_symbol=None):
                 if os.path.exists(
                     '{0}.txt.gz'.format(transcript_file_basename)
                 ):
-                    response = md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, transcript_file_basename)
+                    md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, transcript_file_basename)
                     # if response == 'ok':
                         # spliceai_transcript_list.append(main['refseq'])
                     # else:
