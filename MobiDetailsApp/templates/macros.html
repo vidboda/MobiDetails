@@ -84,42 +84,42 @@
 			<div class="w3-container">
 				<ul class="w3-ul w3-padding-small w3-hoverable">
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r2_1', '_blank')">gnomADv2</span> /
-						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r3', '_blank')">gnomADv3 browser</span>
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r2_1', '_blank', 'noopener,noreferrer')">gnomADv2</span> /
+						<span class="w3-button" onclick="window.open('{{ urls.gnomad }}gene/{{ gene_symbol }}?dataset=gnomad_r3', '_blank', 'noopener,noreferrer')">gnomADv3 browser</span>
 					</li>
 					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ urls.ncbi_gene }}{{ gene_symbol }}', '_blank')">NCBI gene</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.omim }}search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_symbol }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank')">OMIM</span>
+						<span class="w3-button" onclick="window.open('{{ urls.omim }}search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_symbol }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank', 'noopener,noreferrer')">OMIM</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg19)</span> /
-						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank')">UCSC (hg38)</span>
+						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg19)</span> /
+						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg38)</span>
 					</li>
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank')">MARRVEL</span>
+						<span class="w3-button" onclick="window.open('{{ urls.marrvel }}{{ gene_symbol }}', '_blank', 'noopener,noreferrer')">MARRVEL</span>
 					</li>
 					<li class="w3-padding-small">
 						<span class="w3-padding" id="panelapp">Searching for PanelApp entity... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
 					</li>
 					{% if max_prot_size and max_prot_size < 2700 %}
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
+						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank', 'noopener,noreferrer')">AlphaFold</span>
 					</li>
 					{% elif not max_prot_size %}
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank')">AlphaFold</span>
+						<span class="w3-button" onclick="window.open('{{ urls.alphafold }}entry/{{ uniprot_id }}', '_blank', 'noopener,noreferrer')">AlphaFold</span>
 					</li>
 					{% endif %}
 					{% if clingen_criteria_specification_id %}
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.clingen_gene_spec_web }}doc/{{ clingen_criteria_specification_id }}', '_blank')">ClinGen ACMG specific rules for <em>{{ gene_symbol }}</em> </span>
+						<span class="w3-button" onclick="window.open('{{ urls.clingen_gene_spec_web }}doc/{{ clingen_criteria_specification_id }}', '_blank', 'noopener,noreferrer')">ClinGen ACMG specific rules for <em>{{ gene_symbol }}</em> </span>
 					</li>
 					{% endif %}
 					{% if oncokb_info.is_oncogene or oncokb_info.is_tumor_suppressor %}
 					<li class="w3-padding-small">
-						<span class="w3-button" onclick="window.open('{{ urls.oncokb }}gene/{{ gene_symbol }}', '_blank')">OncoKB</span>
+						<span class="w3-button" onclick="window.open('{{ urls.oncokb }}gene/{{ gene_symbol }}', '_blank', 'noopener,noreferrer')">OncoKB</span>
 					</li>
 					{% endif %}
 					<li class="w3-padding-small">
@@ -291,7 +291,7 @@
 <!--create links for variants view-->
 {% macro link(link, text) -%}
 	<!-- for some reason jinja (2.10) urlencode filter does not encode this link and returns a wrong url-->
-	<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link | replace('+', '%2B') | replace('\n', '%0A') }}" target="_blank">{{ text }}</a>
+	<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link | replace('+', '%2B') | replace('\n', '%0A') }}" target="_blank" rel="noopener noreferrer">{{ text }}</a>
 {%- endmacro %}
 <!--create span with color for predictors-->
 {% macro span_color(value, color = None) %}
