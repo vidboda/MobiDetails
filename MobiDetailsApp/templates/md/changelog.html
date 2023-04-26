@@ -12,13 +12,13 @@
 		{{ info("[2023-03-31] - New feature : \
 			Authenticated (logged-in) users can now mark the variants as 'to be added in their ClinVar watch list'. <a href='{0}' target=_'blank'>More on this</a>.".format(url_for('md.about', _anchor='clinvar_watch'))) }}
 		{{ info("[2022-12-19] - New dataset : \
-			The REVEL scores are no longer retrieved from dbNSFP, but directly from the <a href='{0}downloads' target='_blank'>REVEL pre-computed dataset</a>. When the hg38 position is not present in the dataset, MobiDetails checks the hg19 one.".format(urls.revel)) }}
+			The REVEL scores are no longer retrieved from dbNSFP, but directly from the <a href='{0}downloads' target='_blank' rel='noopener noreferrer'>REVEL pre-computed dataset</a>. When the hg38 position is not present in the dataset, MobiDetails checks the hg19 one.".format(urls.revel)) }}
 		{{ info("[2023-03-03] - New feature : \
-			Mobidetails now live queries the <a href='{0}' target='_blank'>ClinGen Evidence Repository</a> and displays the corresponding ACMG classification just below the ClinVar results (to date 4706 curated variants in 81 genes).".format(urls.clingen_evrepo)) }}
+			Mobidetails now live queries the <a href='{0}' target='_blank' rel='noopener noreferrer'>ClinGen Evidence Repository</a> and displays the corresponding ACMG classification just below the ClinVar results (to date 4706 curated variants in 81 genes).".format(urls.clingen_evrepo)) }}
 		{{ info("[2022-12-19] - feature update : \
 			gnomad v3.0 becomes v3.1.2.") }}
 		{{ info("[2022-12-21] - New links : \
-			Links to <a href='{0}' target='_blank'>OncoKB</a> and <a href='{1}about.php' target='_blank'>CancerVar</a> for genes recognised as oncogenes or tumor suppressor by <a href='{0}' target='_blank'>OncoKB</a>. Added also OncoKB info in gene page and link in gene redirection modal.".format(urls.oncokb, urls.cancervar)) }}
+			Links to <a href='{0}' target='_blank' rel='noopener noreferrer'>OncoKB</a> and <a href='{1}about.php' target='_blank' rel='noopener noreferrer'>CancerVar</a> for genes recognised as oncogenes or tumor suppressor by <a href='{0}' target='_blank' rel='noopener noreferrer'>OncoKB</a>. Added also OncoKB info in gene page and link in gene redirection modal.".format(urls.oncokb, urls.cancervar)) }}
 		{{ info("[2022-12-19] - New feature : \
 			gnomADv2 displays non cancer Max MAF + gnomad v2.0.1 becomes v2.1.1.") }}
 		{{ info("[2022-12-19] - New feature : \
@@ -30,7 +30,7 @@
 		{{ info("[2022-10-27] - New dataset : \
 			dbNSFP has been updated from v4.1 to v4.3.") }}
 		{{ info("[2022-10-27] - New feature : \
-			LitVar has been updated to <a href='{0}' target='_blank'>LitVar2</a> and the litvar pop-up updated.".format(urls.ncbi_litvar2)) }}
+			LitVar has been updated to <a href='{0}' target='_blank' rel='noopener noreferrer'>LitVar2</a> and the litvar pop-up updated.".format(urls.ncbi_litvar2)) }}
 		{{ info("[2022-10-27] - New feature : \
 			Transcripts that are reported by VariantValidator to poorly match to hg19 are now available for annotation in MobiDetails. Only hg38 linked resources are available. In addition, 43 genes and 3900+ transcripts have been unlocked. These transcripts are marked 'hg38 secured' as depending on the localisation of the variant on the transcript, or on the transcript itself, hg19 mapping may succeed or not. hg19 failed variants lack some annotations or links:
 			<ul>
@@ -43,7 +43,7 @@
 				<li>no LOVD export on classification</li>
 			</ul>") }}
 		{{ info("[2022-08-11] - New resource : \
-			Added a link to <a href='{0}' target='_blank'>deCAF</a> (deCODE Allele frequency Browser), which displays allelic frequencies from 150,000 UK genomes.".format(urls.decaf)) }}
+			Added a link to <a href='{0}' target='_blank' rel='noopener noreferrer'>deCAF</a> (deCODE Allele frequency Browser), which displays allelic frequencies from 150,000 UK genomes.".format(urls.decaf)) }}
 		{{ info("[2022-07-05] - Software and transcript database update : \
 			Modification of the database schema et update of the transcript coming from VariantValidator (version vvta_2022_02).") }}
 		{{ info("[2022-06-28] - New feature : \
@@ -64,20 +64,20 @@
 				<li>Variants lying in these genes cannot (hopefully temporarily) be accessed: C5orf60, LYST, TET2, MICALCL, UROS, SLC26A10, TCP10L2, STAG2, CRYBG3, DNAH17, EFCAB8, TREX1, SLC22A18AS.</li>
 				<li>Along with the missense radar chart, the mean normalised scores for the single predictors family (e.g. SIFT) and for the meta-predictors (e.g. REVEL) are displayed.</li>") }}
 		{{ info("[2022-03-03] - New data : \
-			Data from the <a href='{0}summary' target='_blank'>ClinGen Specification Registry</a> is now linked in MD. You can find specific links for the relevant genes in the gene pages (redirection modal) and in the corresponding variants pages. This may help you in using expert panels ACMG criteria during the classification process.".format(urls.clingen_gene_spec_web)) }}
+			Data from the <a href='{0}summary' target='_blank' rel='noopener noreferrer'>ClinGen Specification Registry</a> is now linked in MD. You can find specific links for the relevant genes in the gene pages (redirection modal) and in the corresponding variants pages. This may help you in using expert panels ACMG criteria during the classification process.".format(urls.clingen_gene_spec_web)) }}
 		{{ info("[2022-02-14] - Major : \
-			Added about 60,000 transcripts following a major update of <a href='{0}' target = '_blank'>VariantValidator</a>. In addition, the submission of a variant lying in any of the proposed transcript will not be forced on canonical transcripts anymore. However, if possible, variants annotated on non-canonical transcripts by users will also be mapped on canonical transcripts (both annotations will be available). MD canonical transcript follow in most cases <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>MANE</a> annotations. Database scheme was also updated.".format(urls.variant_validator)) }}
+			Added about 60,000 transcripts following a major update of <a href='{0}' target='_blank' rel='noopener noreferrer'>VariantValidator</a>. In addition, the submission of a variant lying in any of the proposed transcript will not be forced on canonical transcripts anymore. However, if possible, variants annotated on non-canonical transcripts by users will also be mapped on canonical transcripts (both annotations will be available). MD canonical transcript follow in most cases <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank' rel='noopener noreferrer'>MANE</a> annotations. Database scheme was also updated.".format(urls.variant_validator)) }}
 		{{ info("[2021-10-07] - Minor : \
-			Added new links to <a href='{0}' target = '_blank'>AlphaFold/EBI protein Structure Database</a> to the gene (redirection modal) and variant pages.".format(urls.alphafold)) }}
+			Added new links to <a href='{0}' target = '_blank' rel='noopener noreferrer'>AlphaFold/EBI protein Structure Database</a> to the gene (redirection modal) and variant pages.".format(urls.alphafold)) }}
 		{{ info("[2021-08-09] - New data : \
-			Episignature data for 53 <em><a href='{0}' target='_blank'>KMT2A</a></em> variants are now available. See <a href='{1}32644126/' target='_blank'>this review</a> to learn more about this concept. Thanks to Pr. Lebre who brought the idea of integrating her team's results into MD.".format(url_for('md.gene', gene_symbol='KMT2A'), urls.ncbi_pubmed)) }}
+			Episignature data for 53 <em><a href='{0}' target='_blank' rel='noopener noreferrer'>KMT2A</a></em> variants are now available. See <a href='{1}32644126/' target='_blank' rel='noopener noreferrer'>this review</a> to learn more about this concept. Thanks to Pr. Lebre who brought the idea of integrating her team's results into MD.".format(url_for('md.gene', gene_symbol='KMT2A'), urls.ncbi_pubmed)) }}
 		{{ info("[2021-06-28] - New tool version : \
-			<a href='{0}' target = '_blank'>SPiP</a> has been updated to v2.1.".format(urls.spip)) }}
+			<a href='{0}' target = '_blank' rel='noopener noreferrer'>SPiP</a> has been updated to v2.1.".format(urls.spip)) }}
 		{{ info("[2021-06-21] - several changes around SPiP: \
 			<ul>
 				<li>New value for parameter caller for the /api/variant/ endpoint: Setting caller to 'clispip' will now return the full results including SPiP (takes longer), while using 'cli' will return the results without SPiP (faster). The swagger page has also bee nupdated to reflect this change.</li>
 				<li>SPiP results are now cached to be computed only once and enable a faster access the second (and third....) time</li>
-				<li>SPiP has been upgraded to v2. v2 is much more computer intensive than v1 (i.e. is slower). Start a <a href='https://github.com/beboche/MobiDetails/discussions' target='_blank'>Discussion</a> on github if you have any comments!</li>
+				<li>SPiP has been upgraded to v2. v2 is much more computer intensive than v1 (i.e. is slower). Start a <a href='https://github.com/beboche/MobiDetails/discussions' target='_blank' rel='noopener noreferrer'>Discussion</a> on github if you have any comments!</li>
 			</ul>") }}
 		{{ info("[2021-06-18] - New predictor : \
 			SpliceAi lookup API can be requested with the non-default parameter distance of 500bp for almost all variants (except complex indels). This can be useful to analyse deep intronic variants as well as large dels and dups.") }}
@@ -95,15 +95,15 @@
 			New feature : authenticatd users are now able to generate lists of variants accessible form unique and permanent URLs from their favourite list of variants. Users can create several lists, delete them, and use the URL to reference the complete list of variants, e.g. in a publication. All this is available from your profile page. \
 			") }}
 		{{ info("[2021-04-01] - New external link : \
-			new link directed to <a href='http://bioinfo.univ-rouen.fr/HExoSplice' target='_blank'>HexoSplice</a>, a tool to predict the impact of a variant on potential splicing regulatory elements. Only for substitutions.") }}
+			new link directed to <a href='http://bioinfo.univ-rouen.fr/HExoSplice' target='_blank' rel='noopener noreferrer'>HexoSplice</a>, a tool to predict the impact of a variant on potential splicing regulatory elements. Only for substitutions.") }}
 		{{ info("[2021-01-06] - New external link : \
 			When a variant maps onto a 3D structure, a new link is displayed in the left panel to access directly MuPIT") }}
 		{{ info("[2021-01-04] - Minor : \
 			New search engine keyword: 'last' will return all variants annotated during the last 7 days") }}
 		{{ info("[2020-12-01] - New predictor : \
-			<a href='https://github.com/raphaelleman/SPiP' target='_blank'>SPiP</a> is now available as a splicing predictor.") }}
+			<a href='https://github.com/raphaelleman/SPiP' target='_blank' rel='noopener noreferrer'>SPiP</a> is now available as a splicing predictor.") }}
 		{{ info("[2020-11-23] - Minor : \
-			Added a link to <a href='https://panelapp.genomicsengland.co.uk' target='_blank'>PanelApp</a> in the gene page when relevant.") }}
+			Added a link to <a href='https://panelapp.genomicsengland.co.uk' target='_blank' rel='noopener noreferrer'>PanelApp</a> in the gene page when relevant.") }}
 		{{ info("[2020-11-05] - Minor : \
 			Updated CADD from v1.5 to v1.6 and added direct links to CADD lookup for substitutions.") }}
 		{{ info("[2020-11-04] - Minor : \
@@ -119,9 +119,9 @@
 		{{ info("[2020-09-29] - Minor : \
 			Pubmed links are now sorted and presented by 1st author, year, journal (title on mouseover).") }}
 		{{ info("[2020-09-24] - New predictor : \
-			<a href='http://lbgi.fr/mistic' target='_blank'>Mistic</a> is now available as a missense predictor.") }}
+			<a href='http://lbgi.fr/mistic' target='_blank' rel='noopener noreferrer'>Mistic</a> is now available as a missense predictor.") }}
 		{{ info("[2020-09-23] - New function : \
-			Variants for which an ACMG class is defined are automatically submitted to <a href='http://www.lovd.nl' target='_blank'>LOVD</a>. <a href='{}#data_sharing'>Read more</a>.".format(url_for('md.about'))) }}
+			Variants for which an ACMG class is defined are automatically submitted to <a href='http://www.lovd.nl' target='_blank' rel='noopener noreferrer'>LOVD</a>. <a href='{}#data_sharing'>Read more</a>.".format(url_for('md.about'))) }}
 		{{ info("[2020-09-07] - New function : \
 			Possibility to annotate variants using dbSNP rs ids (API). \
 			The search engine can now be used to annotate variants not only to retrieve existing ones, using the following formats: \
@@ -134,15 +134,15 @@
 			Added a <a href='{}'>page</a> to upload a text file for batch variant annotation.".format(url_for('upload.file_upload'))) }}
 		{{ info("[2020-08-18] - New predictors : \
 			<ul> \
-				<li>Scores for miRNA binding predictors miRanda, TargetScan and RNAHybrid from <a href='{0}' target='_blank'>dbMTS</a> have been added for 3'UTR variants.</li> \
-				<li><a href='{1}' target='_blank'>Eigen</a> scores have been added, either from  <a href='{2}' target='_blank'>dbNSFP</a> for coding variants, or from  <a href='{0}' target='_blank'>dbMTS</a> for 3' UTR variants.</li> \
+				<li>Scores for miRNA binding predictors miRanda, TargetScan and RNAHybrid from <a href='{0}' target='_blank' rel='noopener noreferrer'>dbMTS</a> have been added for 3'UTR variants.</li> \
+				<li><a href='{1}' target='_blank' rel='noopener noreferrer'>Eigen</a> scores have been added, either from  <a href='{2}' target='_blank' rel='noopener noreferrer'>dbNSFP</a> for coding variants, or from  <a href='{0}' target='_blank' rel='noopener noreferrer'>dbMTS</a> for 3' UTR variants.</li> \
 			</ul>".format(urls.dbmts, urls.eigen, urls.dbnsfp)) }}
 		{{ info("[2020-08-14] - Feature update : \
 			LOVD effects are now reported when available. LOVD and Intervar results now appear in pdf reports.") }}
 		{{ info("[2020-08-12] - Minor: \
 			added CSS loader to most pages to increase the browsing comfort.") }}
 		{{ info("[2020-08-11] - API changes:  \
-			3 methods passed from GET to POST - also update create_vars_batch script in <a href='https://github.com/beboche/MDUtils' target='_blank'>MDUtils</a> package.") }}
+			3 methods passed from GET to POST - also update create_vars_batch script in <a href='https://github.com/beboche/MDUtils' target='_blank' rel='noopener noreferrer'>MDUtils</a> package.") }}
 		{{ info("[2020-08-11] - Minor : \
 			improvements to JS/CSS to make MD more responsive (for small screens)") }}
 		{{ info("[2020-07-09] - Minor : \
@@ -155,7 +155,7 @@
 			added an 'Forgot my password function' and bug fix with MaxEntScan which could lead to a 500 error.") }}
 		{{ info("[2020-06-24] - New API functions : \
 			ablility to create variants from genomic coordinates and a HGNC gene name. Ability to update a variant's ACMG class.") }}
-		{{ info("[2020-06-20] - <a href='https://cftr.iurc.montp.inserm.fr/cftr/' target='_blank'>CFTR-France</a> and MobiDetails are now working together: All variants in CFTR-France have been integrated into MobiDetails!") }}
+		{{ info("[2020-06-20] - <a href='https://cftr.iurc.montp.inserm.fr/cftr/' target='_blank' rel='noopener noreferrer'>CFTR-France</a> and MobiDetails are now working together: All variants in CFTR-France have been integrated into MobiDetails!") }}
 		{{ info("[2020-05-25] - New predictor : \
 			MaxEntScan is now available as a splicing predictor.") }}
 		{{ info("[2020-05-13] - Minor : \
@@ -163,7 +163,7 @@
 		{{ info("[2020-05-07] - Minor : \
 			Registering now requires an email activation.") }}
 		{{ info("[2020-04-23] - New predictor : \
-			<ul><li>Added <a href='https://sites.google.com/site/clinpred/' target='_blank'>ClinPred</a> as a new missense predictor (<a href='https://www.ncbi.nlm.nih.gov/pubmed/?term=30220433' target='_blank'>paper</a>).</li><li>Some minor style changes</li></ul>") }}
+			<ul><li>Added <a href='https://sites.google.com/site/clinpred/' target='_blank' rel='noopener noreferrer'>ClinPred</a> as a new missense predictor (<a href='https://www.ncbi.nlm.nih.gov/pubmed/?term=30220433' target='_blank' rel='noopener noreferrer'>paper</a>).</li><li>Some minor style changes</li></ul>") }}
 	</div>
 	<br /><br /><br />
 {% endblock %}
