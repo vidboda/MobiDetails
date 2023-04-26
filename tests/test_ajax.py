@@ -225,7 +225,6 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
                                 ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         response = client.post('/modif_class',
                                data=dict(
@@ -256,7 +255,6 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
                                ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         response = client.post('/remove_class',
                                data=dict(
@@ -265,8 +263,6 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
                                ), follow_redirects=True
                                )
         assert response.status_code == status_code
-        # print(response.get_data())
-        # assert return_value in response.get_data()
 
 # test send message
 
@@ -286,7 +282,6 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
                                ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/send_var_message',
@@ -315,10 +310,8 @@ def test_create(client, new_variant, gene, acc_no, message1, message2):
     assert response.status_code == 200
     possible = [message1, message2]
     assert any(test in response.get_data() for test in possible)
-    # assert message1 in response.get_data() or message2 in response.get_data()
 
-
-# test toggle_email_prefs
+# test toggle_prefs
 
 
 @pytest.mark.parametrize(('caller', 'pref', 'status_code'), (
@@ -425,6 +418,7 @@ def test_create_unique_url(client, app, auth):
             follow_redirects=True
         ).status_code == 200
         assert b'already' in response.get_data()
+
 
 # test delete_variant_list
 

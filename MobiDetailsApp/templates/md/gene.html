@@ -71,7 +71,7 @@
 						<td><span>{{ main_iso.strand }}</span></td>
 						<td><span>{{ main_iso.hgnc_name }}</span></td>
 						{% if main_iso.ng != 'NG_000000.0' %}
-						<td><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></td>
+						<td><span class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ main_iso.ng }}', '_blank', 'noopener,noreferrer')" title="click to open Genbank in new tab">{{ main_iso.ng }}</span></td>
 						{% else %}
 						<td><span>No NG accession number</span></td>
 						{% endif %}
@@ -183,7 +183,7 @@
 							{% else %}
 								<tr>
 							{% endif %}
-								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.refseq }}', '_blank')" title="click to open Genbank in new tab">
+								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.ncbi_nuccore }}{{ iso.refseq }}', '_blank', 'noopener noreferrer')" title="click to open Genbank in new tab">
 									<strong><span>{{ iso.refseq }}
 										{% if iso.canonical == 1 %}
 											<div class="w3-tag w3-round w3-green" style="padding:3px">
@@ -232,16 +232,16 @@
 										{% endif %}
 									{% endif %}
 								</td>
-								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank')" title="click to open Ensembl in new tab">
+								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ensembl_t }}{{ iso.enst }}', '_blank', 'noopener,noreferrer')" title="click to open Ensembl in new tab">
 									<span>{{ iso.enst }}</span>
 								</td>
 								<td>
 									<span>{{ iso.number_of_exons }}</span>
 								</td>
-								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank')" title="click to open Genbank in new tab">
+								<td class="w3-button w3-hover-sand"  onclick="window.open('{{ urls.ncbi_prot }}{{ iso.np }}', '_blank', 'noopener,noreferrer')" title="click to open Genbank in new tab">
 									<span>{{ iso.np }}</span>
 								</td>
-								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank')" title="click to open UNIPROT in new tab">
+								<td class="w3-button w3-hover-sand" onclick="window.open('{{ urls.uniprot_id }}{{ iso.uniprot_id }}', '_blank', 'noopener,noreferrer')" title="click to open UNIPROT in new tab">
 									<span>{{ iso.uniprot_id }}</span>
 								</td>
 							</tr>
@@ -250,7 +250,7 @@
 				</tbody>
 			</table>
 		</div><br /><br />
-		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.<br/>***Version of the OncoKB cancer gene list available at the <a href='%s' target='_blank'>about</a> page."| format(url_for('md.about'))) }}
+		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.<br/>***Version of the OncoKB cancer gene list available at the <a href='%s' target='_blank', 'noopener,noreferrer'>about</a> page."| format(url_for('md.about'))) }}
 		{% if mapping_warning.hg38_secured == 'yes' %}
 			{{ info("<strong><sup>#</sup> this tag means that variants on this transcript will map onto hg38, but may or may not correctly map on hg19, depending on the transcript and on the variant localisation. If the variant fails to map on hg19, some functionalities will be disabled in the variant analysis page. Missense predictions in particular may be incomplete.</strong>") }}
 		{% endif %}
