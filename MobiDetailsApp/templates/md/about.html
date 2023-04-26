@@ -96,12 +96,12 @@
 	</div>
 	<div class="w3-container w3-padding-64" style="display:block">
 		<h3 id="clinvar_watch">ClinVar watch functionality / favourite variants:</h3>
-		{{ info("Authenticated users have the ability to mark any variant of interest. There are 2 types of marks in Mobidetails:<ul><li>Favourite variants: identified by a star icon <i class='fa fa-star'></i>. this list is useful to:<ul><li>quickly retrieve a variant from your profile page</li><li>to create unique urls pointing to several variants which can be used in publications (e.g. <a href='https://tinyurl.com/n3emehns' target='_blank'>this list of <em>KMT2A</em> variants with episignature profile data</a>)</li></ul></li><li>ClinVar watch variants: identified by a heart icon <i class='fa fa-heart'></i>. This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you. Significant changes means:<ul><li>ACMG class 1 or 2 to any other class</li><li>class 3 to any other class</li><li>class 4 or 5 to any other class</li><li>Conflicting to any other or any to conflicting</li><li>variant occuring in ClinVar</li></ul>In addition you can choose to select the 'Automatic ClinVar watch of the variants you generate' feature. Enabling this feature will ensure that each time that you generate an annotation while being authenticated, this variant is automatically added to your watch list.<br />To empty your watch list, just disable the Clinvar watch feature in your profile page. In addition, enabling the 'Automatic ClinVar watch of the variants you generate' feature will also fill in your watch list with all the variants you already annotated.</li></ul>") }}
+		{{ info("Authenticated users have the ability to mark any variant of interest. There are 2 types of marks in Mobidetails:<ul><li>Favourite variants: identified by a star icon <i class='fa fa-star'></i>. this list is useful to:<ul><li>quickly retrieve a variant from your profile page</li><li>to create unique urls pointing to several variants which can be used in publications (e.g. <a href='https://tinyurl.com/n3emehns' target='_blank' rel='noopener noreferrer'>this list of <em>KMT2A</em> variants with episignature profile data</a>)</li></ul></li><li>ClinVar watch variants: identified by a heart icon <i class='fa fa-heart'></i>. This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you. Significant changes means:<ul><li>ACMG class 1 or 2 to any other class</li><li>class 3 to any other class</li><li>class 4 or 5 to any other class</li><li>Conflicting to any other or any to conflicting</li><li>variant occuring in ClinVar</li></ul>In addition you can choose to select the 'Automatic ClinVar watch of the variants you generate' feature. Enabling this feature will ensure that each time that you generate an annotation while being authenticated, this variant is automatically added to your watch list.<br />To empty your watch list, just disable the Clinvar watch feature in your profile page. In addition, enabling the 'Automatic ClinVar watch of the variants you generate' feature will also fill in your watch list with all the variants you already annotated.</li></ul>") }}
 		<span class="w3-button w3-block w3-blue" onclick="accord('watch_lists_gif')";>Check the animated gif to learn how to modify the lists</span><br /><div id="watch_lists_gif" class="w3-center" style="display:none;"><img class="w3-image" src="{{ url_for('static', filename='img/watch_lists.gif') }}" /></div>
 		<h3 id="disclaimer">Disclaimer:</h3>
 		{{ info("<strong>This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. Is is provided as a free for academic use service on an 'as-is' basis, without any warranty for accuracy. In particular, classifications do not necessarily reflect the classification considered in the laboratory.</strong>") }}
 		<h3 id="cite">Cite:</h3>
-		{{ info('<ul><li><strong>To mention MobiDetails</strong>, please cite:<br />Baux, D., Van Goethem, C., Ardouin, O. et al. <em>MobiDetails: online DNA variants interpretation.</em> Eur J Hum Genet (2020). <a href="https://doi.org/10.1038/s41431-020-00755-z" target="_blank">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/33161418/" target="_blank">PubMed</a></li><li><strong>To specifically cite SpliceAI-visual</strong>, please include the above citation and:<br />De Sainte Agathe, J-M., Filser, M. at al. <em>SpliceAI-visual: a free online tool to improve SpliceAI splicing variant interpretation.</em> Hum genomics (2023). <a href="https://doi.org/10.1186/s40246-023-00451-1" target="_blank">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/36765386/" target="_blank">PubMed</a></li></ul>') }}
+		{{ info('<ul><li><strong>To mention MobiDetails</strong>, please cite:<br />Baux, D., Van Goethem, C., Ardouin, O. et al. <em>MobiDetails: online DNA variants interpretation.</em> Eur J Hum Genet (2020). <a href="https://doi.org/10.1038/s41431-020-00755-z" target="_blank" rel="noopener noreferrer">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/33161418/" target="_blank" rel="noopener noreferrer">PubMed</a></li><li><strong>To specifically cite SpliceAI-visual</strong>, please include the above citation and:<br />De Sainte Agathe, J-M., Filser, M. at al. <em>SpliceAI-visual: a free online tool to improve SpliceAI splicing variant interpretation.</em> Hum genomics (2023). <a href="https://doi.org/10.1186/s40246-023-00451-1" target="_blank" rel="noopener noreferrer">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/36765386/" target="_blank" rel="noopener noreferrer">PubMed</a></li></ul>') }}
 		<h3 id= "contact">Contact:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 			<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
@@ -115,36 +115,35 @@
 		<h3 id="eposters">E-posters:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 			<ul>
-				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2020.pdf" target="_blank">Assises de génétique humaine et médicale 2020</a></li>
-				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank">JOBIM 2020</a></li>
-				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_eshg_2021.pdf" target="_blank">ESHG 2021</a></li>
-				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_veptc_2021.mp4" target="_blank">VEPTC 2021</a></li>
-				<li><a href="https://bioinfo-diag.fr/" target="_blank">BioinfoDiag</a> award winning <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2022.pdf" target="_blank">poster @ Assises de génétique humaine et médicale 2022</a></li>
+				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2020.pdf" target="_blank" rel="noopener noreferrer">Assises de génétique humaine et médicale 2020</a></li>
+				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank" rel="noopener noreferrer">JOBIM 2020</a></li>
+				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_eshg_2021.pdf" target="_blank" rel="noopener noreferrer">ESHG 2021</a></li>
+				<li><a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_veptc_2021.mp4" target="_blank" rel="noopener noreferrer">VEPTC 2021</a></li>
+				<li><a href="https://bioinfo-diag.fr/" target="_blank">BioinfoDiag</a> award winning <a href="https://mobidetails.iurc.montp.inserm.fr/posters/md_poster_assises_2022.pdf" target="_blank" rel="noopener noreferrer">poster @ Assises de génétique humaine et médicale 2022</a></li>
 			</ul>
 		</div>
 		<h3 id="group">Group's websites:</h3>
-		{{ info('<a href="https://pmmg.iurc.montp.inserm.fr/lgm/usher/diag_en.html" target="_blank">Deafness and blindness group</a> at \
+		{{ info('<a href="https://pmmg.iurc.montp.inserm.fr/lgm/usher/diag_en.html" target="_blank" rel="noopener noreferrer">Deafness and blindness group</a> at \
 					Laboratory of molecular genetics, Montpellier University Hospital</a><br /><br /> \
-					<a hef="https://pmmg.iurc.montp.inserm.fr/mobidic/" target="_blank">MoBiDiC</a>, bioinformaticians at Montpellier University Hospital') }}
+					<a hef="https://pmmg.iurc.montp.inserm.fr/mobidic/" target="_blank" rel="noopener noreferrer">MoBiDiC</a>, bioinformaticians at Montpellier University Hospital') }}
 		<h3 id="source_code">Source code:</h3>
-		{{ info('Available at <a href="https://github.com/beboche/MobiDetails" target="_blank">https://github.com/beboche/MobiDetails</a>') }}
+		{{ info('Available at <a href="https://github.com/beboche/MobiDetails" target="_blank" rel="noopener noreferrer">https://github.com/beboche/MobiDetails</a>') }}
 		<h3 id="credits">Credits:</h3>
-		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank">VariantValidator</a> \
-				(<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank">paper</a>) \
-				to create the variants.<br/>Logos made using <a href="https://my.logomakr.com" target="_blank">Logomakr</a>. Cookie Consents popup made with <a href="https://www.osano.com/cookieconsent/documentation/javascript-api/" target="_blank" >CookieConsent API</a>.<br /> \
+		{{ info('This service is based on <a href="https://variantvalidator.org/about/" target="_blank" rel="noopener noreferrer">VariantValidator</a> \
+				(<a href="https://onlinelibrary.wiley.com/doi/full/10.1002/humu.23348" target="_blank" rel="noopener noreferrer">paper</a>) \
+				to create the variants.<br/>Logos made using <a href="https://my.logomakr.com" target="_blank" rel="noopener noreferrer">Logomakr</a>. Cookie Consents popup made with <a href="https://www.osano.com/cookieconsent/documentation/javascript-api/" target="_blank" >CookieConsent API</a>.<br /> \
 				MobiDetails uses several APIs to maintain its data integrity, including: \
 				<ul> \
-					<li>NCBI <a href="https://www.ncbi.nlm.nih.gov/books/NBK25500/" target="_blank">eutils</a></li><li><a href="https://www.uniprot.org/help/programmatic_access" target="_blank">UNIPROT</a></li> \
-					<li><a href="https://rest.variantvalidator.org" target="_blank">VariantValidator</a></li></ul>And some others to provide you the most up to date data:<ul><li><a href="https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query=" target="_blank">LitVar</a></li> \
-					<li><a href="https://www.lovd.nl/" target="_blank">LOVD</a></li> \
-					<li><a href="http://wintervar.wglab.org/" target="_blank">wInterVar</a></li> \
-					<li><a href="https://stuart.radboudumc.nl/metadome/" target="_blank">MetaDome</a></li> \
-					<li><a href="https://panelapp.genomicsengland.co.uk" target="_blank">PanelApp</a></li> \
-					<li><a href="https://mupit.icm.jhu.edu/MuPIT_Interactive" target="_blank">MuPIT</a></li> \
+					<li>NCBI <a href="https://www.ncbi.nlm.nih.gov/books/NBK25500/" target="_blank" rel="noopener noreferrer">eutils</a></li><li><a href="https://www.uniprot.org/help/programmatic_access" target="_blank">UNIPROT</a></li> \
+					<li><a href="https://rest.variantvalidator.org" target="_blank" rel="noopener noreferrer">VariantValidator</a></li></ul>And some others to provide you the most up to date data:<ul><li><a href="https://www.ncbi.nlm.nih.gov/CBBresearch/Lu/Demo/LitVar/index.html#!?query=" target="_blank" rel="noopener noreferrer">LitVar</a></li> \
+					<li><a href="https://www.lovd.nl/" target="_blank" rel="noopener noreferrer">LOVD</a></li> \
+					<li><a href="http://wintervar.wglab.org/" target="_blank" rel="noopener noreferrer">wInterVar</a></li> \
+					<li><a href="https://stuart.radboudumc.nl/metadome/" target="_blank" rel="noopener noreferrer">MetaDome</a></li> \
+					<li><a href="https://panelapp.genomicsengland.co.uk" target="_blank" rel="noopener noreferrer">PanelApp</a></li> \
 				</ul>') }}
-		<h3 id="data_sharing">Data sharing using <a href="http://www.lovd.nl" target="_blank">LOVD</a>:</h3>
-		{{ info('<strong>MobiDetails and <a href="http://www.lovd.nl" target="_blank">LOVD</a> are working together to ensure a persistent sharing of the variants and annotations.</strong><br /> \
-					When a MobiDetails user defines an ACMG class, this action triggers the submission of the variant to the <a href="https://databases.lovd.nl/shared/genes" target="_blank">Global Variome LOVD shared</a> database. As in MobiDetails the variants are not related to any patient or sample, this will also be the case with the LOVD submissions. Only the HGVS nomenclatures, definition of the variant and the ACMG class will be sent. The MobiDetails user will not be listed as "Submitter" in the LOVD instance (The submitter will be identified as "MobiDetails"). This behaviour can be modified in the profile page of the MobiDetails user.<br />\
+		<h3 id="data_sharing">Data sharing using <a href="http://www.lovd.nl" target="_blank" rel="noopener noreferrer">LOVD</a>:</h3>
+		{{ info('<strong>MobiDetails and <a href="http://www.lovd.nl" target="_blank" rel="noopener noreferrer">LOVD</a> are working together to ensure a persistent sharing of the variants and annotations.</strong><br /> \
+					When a MobiDetails user defines an ACMG class, this action triggers the submission of the variant to the <a href="https://databases.lovd.nl/shared/genes" target="_blank" rel="noopener noreferrer">Global Variome LOVD shared</a> database. As in MobiDetails the variants are not related to any patient or sample, this will also be the case with the LOVD submissions. Only the HGVS nomenclatures, definition of the variant and the ACMG class will be sent. The MobiDetails user will not be listed as "Submitter" in the LOVD instance (The submitter will be identified as "MobiDetails"). This behaviour can be modified in the profile page of the MobiDetails user.<br />\
 					This integration of the 2 system will ensure a larger diffusion of the useful data present in MobiDetails.') }}
 		<h3 id="non_academic">Non academic users:</h3>
 		{{ info('MobiDetails is free for use, but non-academic users must register and be identified as such.<br/> \
