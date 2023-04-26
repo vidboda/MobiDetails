@@ -289,48 +289,48 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 		}
 	})
 	.done(function(tr_html) {
-      var reg = /something went wrong with the addition of this annotation/;
-      if (!reg.test(tr_html)) {
-		  // if (tr_html !== 'notok') {
-  		  var re = /already_classified/;
-        // alert("#" + mobiuser_id + "-" + acmg + "-" + variant_id);
-  			if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id).length > 0 ) {
-  				if (!re.test(tr_html)) {
-  					$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).hide();
-  				}
-  				// else {
-  				// 	$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
-  				// }
-        }
-  			if ($("#already_classified").length > 0) {
-          $("#already_classified").remove();
-        }
-        // var table_class = $('#class_table').DataTable();
-        $('#class_table').DataTable().destroy();
-        $("#class_table>tbody:last").append(unescape(tr_html));
-  			$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
-  			$("#acmg_comment").val('');
-  			if ($("#no_class").length > 0) {
-          // $("#no_class").hide();
-          $('#class_table').DataTable()
-            .row($('#no_class'))
-            .remove()
-            .draw()
-            .destroy();
-        }
-        if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
-          $("#owner_username").text($("#current_user").text());
-        }
-        redraw_dt('class_table', false);
+    var reg = /something went wrong with the addition of this annotation/;
+    if (!reg.test(tr_html)) {
+	  // if (tr_html !== 'notok') {
+  	  var re = /already_classified/;
+      // alert("#" + mobiuser_id + "-" + acmg + "-" + variant_id);
+  		if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id).length > 0 ) {
+  			if (!re.test(tr_html)) {
+  				$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).hide();
+  			}
+  			// else {
+  			// 	$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+  			// }
       }
-		  else {
-			     $("#message_return").html(tr_html);
-		  }
-      $('html').css('cursor', 'default');
-      $('.w3-button').css('cursor', 'default');
-      $('.w3-modal').css('cursor', 'default');
-      $('#sub').prop('disabled', false);
-      $("#modify_class_modal").hide();
+  		if ($("#already_classified").length > 0) {
+        $("#already_classified").remove();
+      }
+      // var table_class = $('#class_table').DataTable();
+      $('#class_table').DataTable().destroy();
+      $("#class_table>tbody:last").append(unescape(tr_html));
+  		$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+  		$("#acmg_comment").val('');
+  		if ($("#no_class").length > 0) {
+        // $("#no_class").hide();
+        $('#class_table').DataTable()
+          .row($('#no_class'))
+          .remove()
+          .draw()
+          .destroy();
+      }
+      if ($("#owner_username").text() == 'mobidetails' && $("#current_user").text() != 'mobidetails') {
+        $("#owner_username").text($("#current_user").text());
+      }
+      redraw_dt('class_table', false);
+    }
+	  else {
+		     $("#message_return").html(tr_html);
+	  }
+    $('html').css('cursor', 'default');
+    $('.w3-button').css('cursor', 'default');
+    $('.w3-modal').css('cursor', 'default');
+    $('#sub').prop('disabled', false);
+    $("#modify_class_modal").hide();
 	});
 }
 
@@ -338,13 +338,13 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csrf_token) {
 	// ajax to remove variant class
 	// send header for flask-wtf crsf security
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      }
+    }
+  });
 	$.ajax({
 		type: "POST",
 		url: remove_class_url,
@@ -354,12 +354,12 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csr
 	})
 	.done(function(return_code) {
 		if (return_code == 'ok') {
-            $('#class_table').DataTable()
-                .row($("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id))
-                .remove()
-                .draw();
-            // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
-        }
+      $('#class_table').DataTable()
+        .row($("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id))
+        .remove()
+        .draw();
+      // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
+    }
 		else {
 			$("#message_return").html(return_code);
 		}
@@ -368,23 +368,21 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csr
 
 
 function send_var_message(url, csrf_token) {
-    // ajax to send email
+   // ajax to send email
 	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
-    // html_message = html_message.replace(/'/g,"\'");
-    // html_message = html_message.replace(/"/g,'\"');
-    // alert(html_message);
-    $('html').css('cursor', 'progress');
+  // alert(html_message);
+  $('html').css('cursor', 'progress');
 	$('.w3-button').css('cursor', 'progress');
-    $('.w3-modal').css('cursor', 'progress');
-    $('#sub_message').prop('disabled', true);
+  $('.w3-modal').css('cursor', 'progress');
+  $('#sub_message').prop('disabled', true);
 	// send header for flask-wtf crsf security
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      }
+    }
+  });
 	$.ajax({
 		type: "POST",
 		url: url,
@@ -394,24 +392,24 @@ function send_var_message(url, csrf_token) {
 	})
 	.done(function(return_code) {
 		$("#message_return").html(return_code);
-        $('html').css('cursor', 'default');
-        $('.w3-button').css('cursor', 'default');
-        $('.w3-modal').css('cursor', 'default');
+    $('html').css('cursor', 'default');
+    $('.w3-button').css('cursor', 'default');
+    $('.w3-modal').css('cursor', 'default');
 		$("#message_modal").hide();
-        $('#sub_message').prop('disabled', false);
+    $('#sub_message').prop('disabled', false);
 	});
 }
 
 
 function run_spip(url, variant_id, csrf_token) {
 	// send header for flask-wtf crsf security
-    $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-          xhr.setRequestHeader("X-CSRFToken", csrf_token);
-        }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
       }
-    });
+    }
+  });
 	$.ajax({
 		type: "POST",
 		url: url,

@@ -1404,7 +1404,7 @@
 								<input type="hidden" name="sender_id" id="sender_id" value="{{ g.user['id'] }}" />
 								<input type="hidden" name="receiver_id" id="receiver_id" value="1" />
 								<span>This message will be sent via MobiDetails. The contact will also receive your email address and be able to answer directly.</span><br />
-								<p><span id="message_object">Object: Query via MobiDetails from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }}</span></p>
+								<p><span id="message_object">Object: [MobiDetails - Query from {{ g.user['username'] }} concerning {{ external_data.gene.RefSeqTranscript }}:c.{{ internal_data.nomenclatures.cName }}]</span></p>
 								<div class="w3-row w3-section w3-responsive">
 									<div class="w3-quarter w3-left-align">
 										<label for="message_body" form="message_form"><span >Type your message here:</span></label>

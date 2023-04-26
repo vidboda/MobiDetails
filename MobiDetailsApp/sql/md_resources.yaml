@@ -11,6 +11,7 @@
   'nochr_captured': '\d{1,2}|[XYM]'
   'ncbi_chrom': 'NC_0{4}\d{1,2}\.\d{1,2}'
   'ncbi_transcript': 'NM_\d+\.\d{1,2}'
+  'ncbi_transcript_trunc': 'NM_\d+'
   'amino_acid': 'ACDEFGHIKLMNPQRSTVXWYacdefghiklmnpqrstvwyx'
   'vcf_str': '[Cc]?[Hh]?[Rr]?[\dXYM]{1,2}[:_-]\d+[:_-][ACTGactg]+[:_-][ACTGactg]+'
   'vcf_str_captured': '[Cc]?[Hh]?[Rr]?(\d{1,2}|[XYM])[:_-](\d+)[:_-]([ACTGactg]+)[:_-]([ACTGactg]+)'
