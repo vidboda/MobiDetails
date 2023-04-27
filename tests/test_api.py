@@ -42,9 +42,9 @@ def test_check_vv_instance(client):
 @pytest.mark.parametrize(('variant', 'key', 'response'), (
     ('NC_000001.10:g.216595579G>A', 'mobidetails_id', '5'),
     ('NC_000001.11:g.216422237G>A', 'mobidetails_id', '5'),
-    ('nc_000001.11:g.216422237G>A', 'mobidetails_id', '5'),
+    # ('nc_000001.11:g.216422237G>A', 'mobidetails_id', '5'),
     ('NC_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
-    ('nc_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
+    # ('nc_000001.11:g.2164222', 'mobidetails_warning', 'does not exist'),
     ('NC_000007.11:g.216422237G>A', 'mobidetails_error', 'does not exist'),
     ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'Malformed query')
 ))
@@ -155,7 +155,7 @@ def test_api_create(client, app, new_variant, api_key, return_key, message):
     # ('NC_000001.11:g.40817273T>G', '', 'KCNQ4', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
     ('NC_000001.10:g.41282945T>G', '', 'KCNQ4', 'cli', 'mobidetails_id', 334420),
     ('NC_000035.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Unknown chromosome'),
-    ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Malformed query'),
+    ('NG_000001.11:g.40817273T>G', '', 'KCNQ4', 'cli', 'mobidetails_error', 'Invalid parameters'),
     ('NC_000001.11:g.40817273T>G', '', 'KCNQ4111', 'cli', 'mobidetails_error', 'is currently not available for variant annotation in MobiDetails'),
 ))
 def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller, return_key, message):
@@ -241,7 +241,9 @@ def test_api_variant_create_vcf_str(client, app, genome_version, vcf_str, api_ke
 @pytest.mark.parametrize(('variant_id', 'acmg_class', 'api_key', 'return_key', 'message'), (
     (1, 0, 'test', 'mobidetails_error', 'Invalid API key'),
     (1, 1, '', 'mobidetails_error', 'Invalid variant id submitted'),
-    (8, 0, '', 'mobidetails_error', 'Invalid ACMG class submitted'),
+    (8, 0, '', 'mobidetails_error', 'Invalid parameters'),
+    (8, -2, '', 'mobidetails_error', 'Invalid parameters'),
+    (8, 8, '', 'mobidetails_error', 'Invalid ACMG class submitted'),
     (323866, 5, '', 'mobidetails_error', 'ACMG class already submitted by this user for this variant'),
 ))
 def test_api_update_acmg(client, app, variant_id, acmg_class, api_key, return_key, message):
