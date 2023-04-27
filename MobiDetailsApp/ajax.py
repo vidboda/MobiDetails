@@ -125,9 +125,12 @@ def litvar():
 
 @bp.route('/litvar2', methods=['POST'])
 def litvar2():
-    if re.search(r'^rs\d+$', request.form['rsid']):
+    match_rsid = re.search(r'^(rs\d+)$', request.form['rsid'])
+    if match_rsid:
+        rsid = match_rsid.group(1)
+    # if re.search(r'^rs\d+$', request.form['rsid']):
         header = md_utilities.api_agent
-        rsid = request.form['rsid']
+        # rsid = request.form['rsid']
         litvar_data = None
         litvar_url = "{0}{1}%23%23/publications".format(
             md_utilities.urls['ncbi_litvar_apiv2'], rsid
@@ -252,16 +255,16 @@ def litvar2():
 @bp.route('/defgen', methods=['POST'])
 def defgen():
     genome_regexp = md_utilities.regexp['genome']
-    match_obj_genome = re.search(
+    match_genome = re.search(
         rf'^({genome_regexp})$',
         request.form['genome']
     )
-    match_obj_varid = re.search(r'^(\d+)$', request.form['vfid'])
-    if match_obj_varid and \
-            match_obj_genome:
-        variant_id = match_obj_varid.group(1)
+    match_varid = re.search(r'^(\d+)$', request.form['vfid'])
+    if match_varid and \
+            match_genome:
+        variant_id = match_varid.group(1)
         # genome = request.form['genome']
-        genome = match_obj_genome.group(1)
+        genome = match_genome.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
@@ -332,24 +335,26 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
 @bp.route('/intervar', methods=['POST'])
 def intervar():
     genome_regexp = md_utilities.regexp['genome']
+    match_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
-    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(r'^\d+$', request.form['pos']) and \
-            re.search(r'^[ATGC]+$', request.form['ref']) and \
-            re.search(r'^[ATGC]+$', request.form['alt']) and \
-            'gene' in request.form:
-        genome_regexp = md_utilities.regexp['genome']
-        match_obj_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
-        if match_obj_genome:
-            genome = match_obj_genome.group(1)
-        else:
-            return 'Bad genome version'
-        chrom = request.form['chrom']
-        pos = request.form['pos']
-        ref = request.form['ref']
-        alt = request.form['alt']
-        gene = request.form['gene']
+    match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
+    match_pos = re.search(r'^(\d+)$', request.form['pos'])
+    match_ref = re.search(r'^([ATGC]+)$', request.form['ref'])
+    match_alt = re.search(r'^([ATGC]+)$', request.form['alt'])
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    if match_genome and \
+            match_nochr_chrom and \
+            match_pos and \
+            match_ref and \
+            match_alt and \
+            match_gene_symbol:
+        genome = match_genome.group(1)
+        chrom = match_nochr_chrom.group(1)
+        pos = match_pos.group(1)
+        ref = match_ref.group(1)
+        alt = match_alt.group(1)
+        gene = match_gene_symbol.group(1)
         header = md_utilities.api_agent
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
@@ -361,11 +366,12 @@ def intervar():
         )
         # print(intervar_url)
         try:
-            intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
-            urllib3.disable_warnings()
+            # intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
+            # urllib3.disable_warnings()
+            # above used when there was a n issue with intervar certificate
             intervar_data = [
                 json.loads(
-                    intervar_http.request(
+                    http.request(
                         'GET',
                         intervar_url,
                         headers=header
@@ -568,23 +574,6 @@ def spliceaivisual():
             ):
                 response = md_utilities.build_bedgraph_from_raw_spliceai(chrom, header1, header2, transcript_file_basename)
                 # build new bedgraph from .txt.gz
-                # with gzip.open(
-                #     '{0}.txt.gz'.format(transcript_file_basename),
-                #     'rt'
-                # ) as spliceai_raw_file:
-                #     with open(
-                #         '{0}.bedGraph'.format(transcript_file_basename),
-                #         'w'
-                #     ) as bedgraph_file:
-                #         bedgraph_file.writelines([header1, header2])
-                #         for line in spliceai_raw_file:
-                #             if re.search(rf'^{nochr_chrom_regexp}', line):
-                #                 line_list = re.split('\t', line)
-                #                 spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
-                #                 bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
-                # spliceai_raw_file.close()
-                # bedgraph_file.close()
-                # response = 'ok'
             else:
                 # check whether we have pre-computed chr-start-end-strand
                 # we need ncbi chr
@@ -606,23 +595,6 @@ def spliceaivisual():
                 ):
                     # build new bedgraph from .txt.gz
                     response = md_utilities.build_bedgraph_from_raw_spliceai(chrom, header1, header2, position_file_basename, transcript_file_basename)
-                    # with gzip.open(
-                    #     '{0}.txt.gz'.format(position_file_basename),
-                    #     'rt'
-                    # ) as spliceai_raw_file:
-                    #     with open(
-                    #         '{0}.bedGraph'.format(transcript_file_basename),
-                    #         'w'
-                    #     ) as bedgraph_file:
-                    #         bedgraph_file.writelines([header1, header2])
-                    #         for line in spliceai_raw_file:
-                    #             if re.search(rf'^chr{nochr_chrom_regexp}', line):
-                    #                 line_list = re.split('\t', line)
-                    #                 spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
-                    #                 bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
-                    # spliceai_raw_file.close()
-                    # bedgraph_file.close()
-                    # response = 'ok'
                 else:
                     # build new bedgraph from scratch ? How many cases?
                     # response = 'ok'
@@ -651,43 +623,17 @@ def spliceaivisual():
                 bed_ins_file_basename,
                 'w'
             ) as bed_ins_file:
-                # before 20221206
-                # if len(ref) != len(alt) and \
-                #         len(ref) > 1 and \
-                #         len(alt) > 1:
-                #     # complex deletions / insertions (indels) - general case
-                #     # not needed if len(ref) == len(alt)
-                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
-                # elif len(alt) > len(ref) and \
-                #         len(ref) == 1:
-                #     # insertions, duplications
-                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt) - 1))
                 if len(ref) != len(alt) and \
                         ref[0:1] != alt[0:1]:
                     # complex deletions / insertions (indels) - general case
                     # not needed if len(ref) == len(alt)
                     start_ins = int(pos) - 1 if strand == '+' else int(pos) + len(ref) - len(alt) - 1
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
-                    # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(alt) - 1))
                 elif len(alt) > len(ref) and \
                         len(ref) == 1:
                     # insertions, duplications
                     start_ins = pos if strand == '+' else int(pos) - len(alt) + 1
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt) - 1))
-                    # bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos), int(pos) + len(alt)))
-                # 20221206 attempt to take strand minus into account
-                # if len(ref) != len(alt) and \
-                #         len(ref) > 1 and \
-                #         len(alt) > 1:
-                #     # complex deletions / insertions
-                #     # not needed if len(ref) == len(alt)
-                #     start_ins = pos if strand == '+' else int(pos) - len(alt)
-                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
-                # elif len(alt) > len(ref) and \
-                #         len(ref) == 1:
-                #     # insertions, duplications
-                #     start_ins = pos if strand == '+' else int(pos) - len(alt) + 1
-                #     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt)))
                 else:
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, 1, 1))
             bed_ins_file.close()
@@ -752,17 +698,6 @@ def spliceaivisual():
                 mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos):extreme_positions[1]].upper()
             else:
                 mt_seq = current_chrom[start_g:int(pos) - 1].upper() + alt + current_chrom[int(pos):end_g].upper()
-        # elif len(ref) > 1 and \
-        #         len(alt) > 1:
-        #     # complex indels
-        #     variant_type = 'indel'
-        #     if caller == 'automatic':
-        #         extreme_positions.append(int(pos) - offset - 1)
-        #         extreme_positions.append(int(pos) + offset + len(alt) - 1)
-        #         mt_seq = current_chrom[extreme_positions[0]:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) -1:extreme_positions[1]].upper()
-        #     else:
-        #         mt_seq = current_chrom[start_g - 1:int(pos) - 1].upper() + alt + current_chrom[int(pos) + len(ref) - 1:end_g].upper()
-            # print(mt_seq)
         else:
             mt_seq = None
         if caller == 'automatic' and \
@@ -843,25 +778,12 @@ def spliceaivisual():
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
                             elif variant_type == 'insertion':
-                                # intermediate_pos = int(pos) - 1 if strand == '+' else int(pos) - 1
                                 if current_pos <= int(pos) - 1:
-                                # if current_pos <= intermediate_pos:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                                # elif current_pos >= intermediate_pos + 1 and \
-                                #         current_pos < intermediate_pos + len(alt):
                                 elif current_pos >=  int(pos) and \
                                         current_pos <  int(pos) + len(alt) - 1:
-                                # elif current_pos >= int(pos) and \
-                                #         current_pos < int(pos) + len(alt):
-                                    # current, working on strand +, but unstaisfying on strand -
-                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos, current_pos + 1, sai_score)
                                     ins_pos = current_pos if strand == '+' else current_pos - len(alt) + 1
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
-                                    # before 20221206 version
-                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
-                                    # attempt 20221206 to take strand minus into account
-                                    # ins_pos = current_pos if strand == '+' else current_pos - len(alt)
-                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
                                 else:
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
                             elif variant_type == 'indel':
@@ -869,14 +791,8 @@ def spliceaivisual():
                                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
                                 elif current_pos >= int(pos) and \
                                         current_pos < int(pos) + len(alt):
-                                    # print('{0}-{1}'.format(pos, current_pos))
-                                    # print('{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score))
-                                    # attempt 20221206 to take strand minus into account
-                                    # ins_pos = current_pos + 1 if strand == '+' else current_pos - len(alt) + 1
                                     ins_pos = current_pos if strand == '+' else current_pos + len(ref) - len(alt)
                                     bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos - 1, ins_pos, sai_score)
-                                    # current, working on strand +, but unstaisfying on strand -
-                                    # bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, current_pos - 1, current_pos, sai_score)
                                 else:
                                     if len(ref) >= len(alt):
                                         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
@@ -940,19 +856,25 @@ def spliceaivisual():
 def lovd():
     genome = chrom = g_name = c_name = gene = None
     genome_regexp = md_utilities.regexp['genome']
+    match_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
     variant_regexp = md_utilities.regexp['variant']
+    match_g_name = re.search(rf'^({variant_regexp})$', request.form['g_name'])
+    match_c_name = re.search(rf'^(c\.{variant_regexp})$', request.form['c_name'])
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
     # print(request.form)
-    if re.search(rf'^{genome_regexp}$', request.form['genome']) and \
-            re.search(rf'^{nochr_chrom_regexp}$', request.form['chrom']) and \
-            re.search(rf'^{variant_regexp}$', request.form['g_name']) and \
-            re.search(rf'^c\.{variant_regexp}$', request.form['c_name']) and \
-            'gene' in request.form:
-        genome = request.form['genome']
-        chrom = request.form['chrom']
-        g_name = request.form['g_name']
-        c_name = request.form['c_name']
-        gene = request.form['gene']
+    if match_genome and \
+            match_nochr_chrom and \
+            match_g_name and \
+            match_c_name and \
+            match_gene_symbol:
+        genome = match_genome.group(1)
+        chrom = match_nochr_chrom.group(1)
+        g_name = match_g_name.group(1)
+        c_name = match_c_name.group(1)
+        gene = match_gene_symbol.group(1)
         header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
@@ -1017,12 +939,6 @@ def lovd():
                 for url in lovd_urls:
                     lovd_name = None
                     url = url.replace('"', '')
-                    # lovd_base_url = '{0}://{1}{2}'.format(
-                    #     url_parse(url).scheme,
-                    #     url_parse(url).host,
-                    #     url_parse(url).path
-                    # )
-                    # we don't need to match the scheme
                     lovd_base_url = 'https://{0}{1}'.format(
                         url_parse(url).host,
                         url_parse(url).path
@@ -1140,8 +1056,6 @@ def lovd():
                                     lovd_effect_count[feat][effect]
                                 )
                             )
-                            # reported_effect_list.append('<li>{0}: {1} </li>'
-                            # .format(effect, lovd_effect_count[feat][effect]))
                         else:
                             concluded_effect_list.append("""
                                 <div
@@ -1154,8 +1068,6 @@ def lovd():
                                     lovd_effect_count[feat][effect]
                                 )
                             )
-                            # concluded_effect_list.append('<li>{0}: {1} </li>'
-                            # .format(effect, lovd_effect_count[feat][effect]))
                 html += """
                 ,<tr>
                 <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
@@ -1204,7 +1116,6 @@ def lovd():
             '[MobiDetails - API Error]'
         )
         return md_utilities.lovd_error_html("LOVD query malformed")
-    # return "<span>{0}</span><span>{1}</span>".format(lovd_data, lovd_url)
 
 # -------------------------------------------------------------------
 # web app - ajax for ACMG classification modification
@@ -1219,13 +1130,13 @@ def modif_class():
             run_mode=md_utilities.get_running_mode()
         )
     # tr_html = 'notok'
-    if 'variant_id' in request.form and \
-            re.search(r'^\d+$', request.form['variant_id']) and \
-            'acmg_select' in request.form and \
-            re.search(r'^\d+$', request.form['acmg_select']) and \
+    match_variant_id = re.search(r'^(\d+)$', request.form['variant_id'])
+    match_acmg_select = re.search(r'^(\d+)$', request.form['acmg_select']) 
+    if match_variant_id and \
+            match_acmg_select and \
             'acmg_comment' in request.form:
-        variant_id = request.form['variant_id']
-        acmg_select = request.form['acmg_select']
+        variant_id = match_variant_id.group(1)
+        acmg_select = match_acmg_select.group(1)
         acmg_comment = request.form['acmg_comment']
         today = datetime.datetime.now()
         date = '{0}-{1}-{2}'.format(
@@ -1394,10 +1305,6 @@ def modif_class():
             # WHEN LOVD FEATURE IS READY
             if g.user['lovd_export'] is True and \
                     genome_version == 'hg19':
-                # and \
-                # url_parse(
-                #     request.referrer
-                # ).host == md_utilities.host['prod']:
                 with open(
                     md_utilities.local_files['lovd_api_json']['abs_path']
                 ) as json_file:
@@ -1460,7 +1367,6 @@ def modif_class():
             close_db()
             return tr_html
         except Exception as e:
-            # pass
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
@@ -1497,7 +1403,6 @@ def modif_class():
             Sorry, something went wrong with the addition of
             this annotation. An admin has been warned.
             """)
-    # return redirect(url_for('md.index'))
 
 
 # -------------------------------------------------------------------
@@ -1555,19 +1460,18 @@ def remove_class():
 @bp.route('/send_var_message', methods=['POST'])
 @login_required
 def send_var_message():
-    if re.search(r'^\d+$', request.form['receiver_id']):
-        if request.form['message'] != '' and \
-                re.search(
-                    r'Query\svia\sMobiDetails\sfrom',
+    match_receiver_id = re.search(r'^(\d+)$', request.form['receiver_id'])
+    match_message_object = re.search(
+                    r'(MobiDetails\s-\sQuery\sfrom.+)\]$',
                     request.form['message_object']
-                ):
-            # sender = {}
+                )
+    if match_receiver_id and \
+            match_message_object:
+        if request.form['message'] != '':
             receiver = {}
-            # variant = request.form['variant_mes']
-            # sender['id'] = request.form['sender_id']
-            receiver['id'] = request.form['receiver_id']
+            receiver['id'] = match_receiver_id.group(1)
             message = request.form['message']
-            message_object = request.form['message_object']
+            message_object = match_message_object.group(1)
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # get username and email
@@ -1593,7 +1497,7 @@ def send_var_message():
                 md_utilities.prepare_email_html(
                     message_object, message, False
                 ),
-                message_object,
+                '[{}]'.format(message_object),
                 [receiver['email']]
             )
             close_db()
@@ -1612,11 +1516,11 @@ def send_var_message():
         md_utilities.prepare_email_html(
             'MobiDetails error',
             """
-            <p>An email was not sent from {0} to {1}<br />Variant was {2}<br />Message was:<br />{3}</p>
+            <p>An email was not sent from {0} to {1}<br />Object was {2}<br />Message was:<br />{3}</p>
             """.format(
-                g.user['sender_id'],
+                g.user['id'],
                 request.form['receiver_id'],
-                request.form['variant_mes'],
+                request.form['message_object'],
                 request.form['message']
             )
         ),
@@ -1642,29 +1546,32 @@ def create():
         return render_template(
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
-        )
-    variant_regexp = md_utilities.regexp['variant']
+        )    
     if request.form['new_variant'] == '':
         return md_utilities.danger_panel(
             'variant creation attempt',
             'Please fill in the form before submitting!'
         )
-    if re.search(r'^[\w-]+$', request.form['gene']) and \
-            re.search(r'^NM_\d+\.\d+$', request.form['acc_no']) and \
-            re.search(
-                rf'^c\.{variant_regexp}$',
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    refseq_regexp = md_utilities.regexp['ncbi_transcript']
+    match_refseq = re.search(rf'^({refseq_regexp})$', request.form['acc_no'])
+    variant_regexp = md_utilities.regexp['variant']
+    match_variant = re.search(
+                rf'^(c\.{variant_regexp})$',
                 request.form['new_variant']
-            ):
-        gene = request.form['gene']
-        acc_no = request.form['acc_no']
-        new_variant = request.form['new_variant']
+            )
+    if match_gene and \
+            match_refseq and \
+            match_variant:
+        gene = match_gene.group(1)
+        acc_no = match_refseq.group(1)
+        new_variant = match_variant.group(1)
         new_variant = new_variant.replace(" ", "").replace("\t", "")
-        # new_variant = new_variant.replace("\t", "")
         original_variant = new_variant
         alt_nm = None
         if 'alt_iso' in request.form:
             alt_nm = request.form['alt_iso']
-            # return md_utilities.danger_panel(alt_nm, acc_version)
             if alt_nm != '' and alt_nm != acc_no:
                 acc_no = alt_nm
         # variant already registered?
@@ -1905,11 +1812,17 @@ def toggle_prefs():
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
         )
-    if re.search(r'^[ft]$', request.form['pref_value']) and \
-            re.search(r'^(email_pref|lovd_export|clinvar_check|auto_add2clinvar_check)$', request.form['field']):
+    match_pref_value = re.search(r'^([ft])$', request.form['pref_value'])
+    match_field = re.search(r'^(email_pref|lovd_export|clinvar_check|auto_add2clinvar_check)$', request.form['field'])
+    if match_pref_value and \
+            match_field:
+    # if re.search(r'^[ft]$', request.form['pref_value']) and \
+    #         re.search(r'^(email_pref|lovd_export|clinvar_check|auto_add2clinvar_check)$', request.form['field']):
         # mobiuser_id = request.form['user_id']
-        pref = request.form['pref_value']
-        field = request.form['field']
+        # pref = request.form['pref_value']
+        # field = request.form['field']
+        pref = match_pref_value.group(1)
+        field = match_field.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -2027,18 +1940,9 @@ def favourite():
             'md/index.html',
             run_mode=md_utilities.get_running_mode()
         )
-    if re.search(r'^\d+$', request.form['vf_id']):
-        vf_id = request.form['vf_id']
-        if vf_id is None:
-            flash(
-                """
-                Cannot mark a variant without id! Please contact us.
-                """,
-                'w3-pale-red'
-            )
-            return 'notok'
-        # print(vf_id)
-        # g.user['id']
+    match_vf_id = re.search(r'^(\d+)$', request.form['vf_id'])
+    if match_vf_id:
+        vf_id = match_vf_id.group(1)
         m_fav_type_insert = 1
         m_fav_type_update = 2
         if request.form['clinvar_watch'] and \
@@ -2161,8 +2065,12 @@ def toggle_lock_variant_list(list_name):
             'auth/profile.html',
             run_mode=md_utilities.get_running_mode()
         )
+    match_list_name = re.search(r'^([\w]+)$', list_name)
     if len(list_name) < 31 and \
-            re.search(r'^[\w]+$', list_name):
+            match_list_name:
+        checked_list_name = match_list_name.group(1)
+    # if len(list_name) < 31 and \
+    #         re.search(r'^[\w]+$', list_name):
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check whether list exists and belongs to user
@@ -2174,7 +2082,7 @@ def toggle_lock_variant_list(list_name):
             WHERE mobiuser_id = %s
                 AND list_name = %s
             """,
-            (g.user['id'], list_name)
+            (g.user['id'], checked_list_name)
         )
         res = curs.fetchone()
         if res:
@@ -2186,7 +2094,7 @@ def toggle_lock_variant_list(list_name):
                 WHERE mobiuser_id = %s
                     AND list_name = %s
                 """,
-                (new_lock, g.user['id'], list_name)
+                (new_lock, g.user['id'], checked_list_name)
             )
             db.commit()
             close_db()
@@ -2210,8 +2118,9 @@ def create_unique_url():
             run_mode=md_utilities.get_running_mode()
         )
     if request.form['list_name']:
-        if re.search(r'^[\w]+$', request.form['list_name']):
-            list_name = request.form['list_name']
+        match_list_name = re.search(r'^([\w]+)$', list_name)
+        if match_list_name:
+            list_name = match_list_name.group(1)
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -2364,8 +2273,9 @@ def delete_variant_list(list_name):
             'auth/profile.html',
             run_mode=md_utilities.get_running_mode()
         )
-    if list_name and \
-            re.search(r'^[\w]+$', list_name):
+    match_list_name = re.search(r'^([\w]+)$', list_name)
+    if match_list_name:
+        checked_list_name = match_list_name.group(1)
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -2374,7 +2284,7 @@ def delete_variant_list(list_name):
             WHERE list_name = %s
                 AND mobiuser_id = %s
             """,
-            (list_name, g.user['id'])
+            (checked_list_name, g.user['id'])
         )
         db.commit()
         close_db()
@@ -2531,38 +2441,46 @@ def autocomplete_var():
 @bp.route('/is_panelapp_entity', methods=['POST'])
 def is_panelapp_entity():
     if 'gene_symbol' in request.form:
-        gene_symbol = request.form['gene_symbol']
-        try:
-            panelapp = json.loads(
-                            http.request(
-                                'GET',
-                                '{0}genes/{1}/'.format(
-                                    md_utilities.urls['panelapp_api'],
-                                    gene_symbol
-                                ),
-                                headers=md_utilities.api_agent
-                            ).data.decode('utf-8')
-                        )
-        except Exception:
-            return """
-            <span class="w3-padding">Unable to perform the PanelApp query</span>
-            """
-        # panelapp = None
-        md_utilities.urls['panel_app'] = None
-        if panelapp is not None and \
-                str(panelapp['count']) != '0':
-            # we can propose the link
-            return """
-            <span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>
-            """.format(
-                    '{0}panels/entities/{1}'.format(
-                            md_utilities.urls['panelapp'],
-                            escape(gene_symbol)
-                        )
-                )
+        gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+        match_obj = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
+        if match_obj:
+            gene_symbol = match_obj.group(1)
+            # gene_symbol = request.form['gene_symbol']
+            try:
+                panelapp = json.loads(
+                                http.request(
+                                    'GET',
+                                    '{0}genes/{1}/'.format(
+                                        md_utilities.urls['panelapp_api'],
+                                        gene_symbol
+                                    ),
+                                    headers=md_utilities.api_agent
+                                ).data.decode('utf-8')
+                            )
+            except Exception:
+                return """
+                <span class="w3-padding">Unable to perform the PanelApp query</span>
+                """
+            # panelapp = None
+            md_utilities.urls['panel_app'] = None
+            if panelapp is not None and \
+                    str(panelapp['count']) != '0':
+                # we can propose the link
+                return """
+                <span class="w3-button" onclick="window.open(\'{0}\', \'_blank\')">PanelApp</span>
+                """.format(
+                        '{0}panels/entities/{1}'.format(
+                                md_utilities.urls['panelapp'],
+                                escape(gene_symbol)
+                            )
+                    )
+            else:
+                return """
+                <span class="w3-padding">No entry in panelApp for this gene</span>
+                """
         else:
             return """
-            <span class="w3-padding">No entry in panelApp for this gene</span>
+            <span class="w3-padding">Invalid character in the gene symbol</span>
             """
     else:
         return """
@@ -2576,41 +2494,38 @@ def is_panelapp_entity():
 
 @bp.route('/spip', methods=['POST'])
 def spip():
-    # print(request.form)
+    match_variant_id = re.search(r'^(\d+)$', request.form['variant_id'])        
     variant_regexp = md_utilities.regexp['variant']
+    match_variant = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
+    ncbi_transcript_trunc_regexp = md_utilities.regexp['ncbi_transcript_trunc']
+    match_nm_acc = re.search(rf'^({ncbi_transcript_trunc_regexp})$', request.form['nm_acc'])
+    if match_variant_id and \
+            match_variant and \
+            match_gene_symbol and \
+            match_nm_acc:
+        gene_symbol = match_gene_symbol.group(1)
+        nm_acc = match_nm_acc.group(1)
+        c_name = match_variant.group(1)
+        variant_id = match_variant_id.group(1)
+        spip_cache = 0
+        if os.path.exists(
+                '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)
+                ):
+            with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)) as spip_file:
+                num_lines = len(spip_file.readlines())
+            if num_lines == 2:
+                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
+                result_spip = spip_out.read()
+                spip_cache = 1
+        if spip_cache == 0:
+            result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
+        if result_spip == 'There has been an error while processing SPiP':
+            return result_spip
 
-    if 'gene_symbol' in request.form and \
-            'nm_acc' in request.form and \
-            'c_name' in request.form and \
-            'variant_id' in request.form:
-        match_obj = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
-        match_obj_id = re.search(r'^(\d+)$', request.form['variant_id'])
-        if match_obj and \
-                match_obj_id:
-            # re.search(rf'^c\.{variant_regexp}$', request.form['c_name']):
-            gene_symbol = request.form['gene_symbol']
-            nm_acc = request.form['nm_acc']
-            c_name = match_obj.group(1)
-            variant_id = match_obj_id.group(1)
-            spip_cache = 0
-            if os.path.exists(
-                    '{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)
-                    ):
-                with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)) as spip_file:
-                    num_lines = len(spip_file.readlines())
-                if num_lines == 2:
-                    spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
-                    result_spip = spip_out.read()
-                    spip_cache = 1
-            if spip_cache == 0:
-                result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
-            if result_spip == 'There has been an error while processing SPiP':
-                return result_spip
-
-            dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
-            return render_template('ajax/spip.html', spip_results=dict_spip)
-        else:
-            return 'received bad parameters c_name or variant_id to run SPiP.'
+        dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
+        return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'
 
@@ -2620,75 +2535,67 @@ def spip():
 
 @bp.route('/spliceai_lookup', methods=['POST'])
 def spliceai_lookup():
-    if 'variant' in request.form and \
-            'transcript' in request.form:
-        # variant = request.form['variant']
-        # transcript = request.form['transcript']
-        nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
-        ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-        match_obj_variant = re.search(rf'(chr{nochr_chrom_regexp}-\d+-[ATGC]+-[ATGC]+$)', request.form['variant'])
-        match_obj_transcript = re.search(rf'({ncbi_transcript_regexp})', request.form['transcript'])
-        header = md_utilities.api_agent
-        if match_obj_variant and \
-                match_obj_transcript:
-            variant = match_obj_variant.group(1)
-            transcript = match_obj_transcript.group(1).split(".")[0]
-            # print('{0}{1}'.format(
-            #     md_utilities.urls['spliceai_api'],
-            #     variant))
+    nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    match_obj_variant = re.search(rf'(chr{nochr_chrom_regexp}-\d+-[ATGC]+-[ATGC]+$)', request.form['variant'])
+    match_obj_transcript = re.search(rf'({ncbi_transcript_regexp})', request.form['transcript'])
+    header = md_utilities.api_agent
+    if match_obj_variant and \
+            match_obj_transcript:
+        variant = match_obj_variant.group(1)
+        transcript = match_obj_transcript.group(1).split(".")[0]
+        # print('{0}{1}'.format(
+        #     md_utilities.urls['spliceai_api'],
+        #     variant))
+        try:
+            spliceai500 = json.loads(
+                http.request(
+                    'GET',
+                    '{0}{1}'.format(
+                        md_utilities.urls['spliceai_api'],
+                        variant
+                    ),
+                    headers=header
+                ).data.decode('utf-8')
+            )
+        except urllib3.exceptions.MaxRetryError:
             try:
+                http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
                 spliceai500 = json.loads(
-                    http.request(
-                        'GET',
-                        '{0}{1}'.format(
-                            md_utilities.urls['spliceai_api'],
-                            variant
-                        ),
-                        headers=header
-                    ).data.decode('utf-8')
-                )
-            except urllib3.exceptions.MaxRetryError:
-                try:
-                    http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
-                    spliceai500 = json.loads(
-                                http_dangerous.request(
-                                    'GET',
-                                    '{0}{1}'.format(
-                                        md_utilities.urls['spliceai_api'],
-                                        variant
-                                    ),
-                                    headers=header
-                                ).data.decode('utf-8')
-                            )
-                except Exception:
-                    return """
-                    <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
-                    """
-            if spliceai500 and \
-                    spliceai500['variant'] == variant and \
-                    'error' not in spliceai500:
-                # print(spliceai500)
-                for score in spliceai500['scores']:
-                    if re.search(rf'{transcript}', score):
-                        spliceai_score = re.split(r'\|', score)
-                        # AG AL DG DL
-                        return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
-                            spliceai_score[1],
-                            spliceai_score[5],
-                            spliceai_score[2],
-                            spliceai_score[6],
-                            spliceai_score[3],
-                            spliceai_score[7],
-                            spliceai_score[4],
-                            spliceai_score[8]
+                            http_dangerous.request(
+                                'GET',
+                                '{0}{1}'.format(
+                                    md_utilities.urls['spliceai_api'],
+                                    variant
+                                ),
+                                headers=header
+                            ).data.decode('utf-8')
                         )
-            return """
-            <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
-            """.format(transcript)
-        else:
-            return """
-            <span class="w3-padding">Unable to run spliceAI lookup API (wrong parameter)</span>
-            """
+            except Exception:
+                return """
+                <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
+                """
+        if spliceai500 and \
+                spliceai500['variant'] == variant and \
+                'error' not in spliceai500:
+            # print(spliceai500)
+            for score in spliceai500['scores']:
+                if re.search(rf'{transcript}', score):
+                    spliceai_score = re.split(r'\|', score)
+                    # AG AL DG DL
+                    return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                        spliceai_score[1],
+                        spliceai_score[5],
+                        spliceai_score[2],
+                        spliceai_score[6],
+                        spliceai_score[3],
+                        spliceai_score[7],
+                        spliceai_score[4],
+                        spliceai_score[8]
+                    )
+        return """
+        <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
+        """.format(transcript)
     else:
         return """
         <span class="w3-padding">Unable to run spliceAI lookup API (wrong parameter)</span>

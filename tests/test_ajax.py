@@ -190,7 +190,8 @@ def test_lovd(client, app):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
-            SELECT a.genome_version, a.chr, a.g_name, b.c_name FROM variant a, variant_feature b
+            SELECT a.genome_version, a.chr, a.g_name, b.c_name, b.gene_symbol
+            FROM variant a, variant_feature b
             WHERE a.feature_id = b.id AND a.genome_version = 'hg19'
             ORDER BY random()
             LIMIT 5
@@ -199,7 +200,8 @@ def test_lovd(client, app):
         res = curs.fetchall()
         db_pool.putconn(db)
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']))
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'])
+            print(data_dict)
             assert client.post('/lovd', data=data_dict).status_code == 200
 
 # test modif_class
@@ -223,7 +225,6 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
                                 ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         response = client.post('/modif_class',
                                data=dict(
@@ -254,7 +255,6 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
                                ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         response = client.post('/remove_class',
                                data=dict(
@@ -263,8 +263,6 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
                                ), follow_redirects=True
                                )
         assert response.status_code == status_code
-        # print(response.get_data())
-        # assert return_value in response.get_data()
 
 # test send message
 
@@ -284,7 +282,6 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
                                ), follow_redirects=True
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
-        # email, password = get_generic_password()
         auth.login(email, password)
         assert client.post(
             '/send_var_message',
@@ -313,10 +310,8 @@ def test_create(client, new_variant, gene, acc_no, message1, message2):
     assert response.status_code == 200
     possible = [message1, message2]
     assert any(test in response.get_data() for test in possible)
-    # assert message1 in response.get_data() or message2 in response.get_data()
 
-
-# test toggle_email_prefs
+# test toggle_prefs
 
 
 @pytest.mark.parametrize(('caller', 'pref', 'status_code'), (
@@ -424,6 +419,7 @@ def test_create_unique_url(client, app, auth):
         ).status_code == 200
         assert b'already' in response.get_data()
 
+
 # test delete_variant_list
 
 
@@ -496,7 +492,9 @@ def test_autocomplete_var(client, query, acc_no, return_value, http_code):
 @pytest.mark.parametrize(('gene_symbol', 'return_value', 'http_code'), (
     ('USH2A', b'panelapp.genomicsengland.co.uk', 200),
     ('F91', b'No entry in panelApp for this gene', 200),
-    (91, b'No entry in panelApp for this gene', 200)
+    (91, b'No entry in panelApp for this gene', 200),
+    ('HLA-A', b'panelapp.genomicsengland.co.uk', 200),
+    ('HLA-DPA1:', b'Invalid character in the gene symbol', 200)
 ))
 def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     assert client.get('/is_panelapp_entity').status_code == 405

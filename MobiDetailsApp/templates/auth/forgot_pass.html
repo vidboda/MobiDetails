@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 align="center" class="w3-text-blue">{% block title %}You forgot your password{% endblock %}</h1>
+  <h1 class="w3-text-blue w3-center">{% block title %}You forgot your password{% endblock %}</h1>
 {% endblock %}
 {#{% block more_head %}
 	<script src="{{ url_for('static', filename='javascript/auth_forgot_pass.js') }}" type="text/javascript"></script>	
@@ -10,21 +10,21 @@
 {% block content %}
 	{{ info("Don't worry! Please just provide your e-mail address in order to reset your password.") }}
 	<br />
-	<div align = "center">
-	<form method="post" action="{{ url_for('auth.forgot_pass') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="login_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <br />
-    <span class="w3-xlarge">Please provide your academic email address:</span><br/>
-		<div class="w3-row w3-section">
-			{{ fa('envelope-o') }}
-			<div class="w3-rest">{{ input('email') }}</div>
-		</div>
-		<p class="w3-center">
-			<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
-		</p>
-	</form>
-  </div>
-  <br /><br />
-  <br /><br />
+	<div align="center" >
+		<form method="post" action="{{ url_for('auth.forgot_pass') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin w3-large" style="width:50%" id="login_form" enctype="application/x-www-form-urlencoded" onsubmit="$('#sub').attr('disabled', 'disabled');$('html').css('cursor', 'progress');$('.w3-button').css('cursor', 'progress');show_loader();">
+		<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+		<br />
+		<span class="w3-xlarge">Please provide your academic email address:</span><br/>
+			<div class="w3-row w3-section">
+				{{ fa('envelope-o') }}
+				<div class="w3-rest">{{ input('email') }}</div>
+			</div>
+			<p class="w3-center">
+				<input type="submit" id="sub" class="w3-button w3-section w3-blue w3-ripple" value="submit"/>
+			</p>
+		</form>
+  	</div>
+	<br /><br />
+	<br /><br />
    <!-- onclick="return check_login_form();"-->
 {% endblock %}

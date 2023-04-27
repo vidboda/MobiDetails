@@ -393,19 +393,11 @@ def login():
     referrer_page = None
     if request.method == 'GET':
         referrer_page = request.referrer
-        # if request.referrer is not None and \
-        #         (url_parse(request.referrer).host ==
-        #            url_parse(request.base_url).host):
-        #     referrer_page = request.referrer
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         try:
             referrer_page = request.form['referrer_page']
-            # if request.form['referrer_page'] is not None and \
-            #         (url_parse(request.form['referrer_page']).host ==
-            #            url_parse(request.base_url).host:
-            #     referrer_page = request.form['referrer_page']
         except Exception:
             pass
         db = get_db()
@@ -625,12 +617,6 @@ def profile(mobiuser_id=0):
             if mobiuser_id != 0:
                 error = 'This user seems to be unknown by MobiDetails.'
         if mobiuser_id == 0:
-            # curs.execute(
-            #     "SELECT id, c_name, gene_name, p_name, creation_date \
-            #     FROM variant_feature WHERE\
-            #     creation_user = %s ORDER BY creation_date DESC",
-            #     (g.user['id'],)
-            # )
             curs.execute(
                 """
                 SELECT a.id, a.c_name, a.gene_symbol, a.refseq,
