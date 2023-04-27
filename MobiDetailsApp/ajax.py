@@ -366,11 +366,12 @@ def intervar():
         )
         # print(intervar_url)
         try:
-            intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
-            urllib3.disable_warnings()
+            # intervar_http = urllib3.PoolManager(cert_reqs='CERT_NONE')
+            # urllib3.disable_warnings()
+            # above used when there was a n issue with intervar certificate
             intervar_data = [
                 json.loads(
-                    intervar_http.request(
+                    http.request(
                         'GET',
                         intervar_url,
                         headers=header
