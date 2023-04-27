@@ -123,7 +123,7 @@ def test_api_variant2(app, client):
     ('NM_206933.0:c.100C>T', 'random', 'mobidetails_error', 'Invalid API key'),
     ('NM_206933.4:c.100C>T', '', 'mobidetails_id', 334419),
     ('NM_206933.10:c.100C>T', 'ahkgs60jforjsge0hefqvx0v00dlzmpdtshenicldje', 'mobidetails_error', 'Unknown API key'),
-    ('M_206933.4:c.100C>T', '', 'mobidetails_error', 'Malformed query'),
+    ('M_206933.4:c.100C>T', '', 'mobidetails_error', 'Invalid parameters'),
     ('NM_206933.9:c.10000C>T', '', 'mobidetails_error', 'It seems that your transcript version'),
 ))
 def test_api_create(client, app, new_variant, api_key, return_key, message):
@@ -183,7 +183,7 @@ def test_api_variant_g_create(client, app, variant_ghgvs, api_key, gene, caller,
     ('rs10012946', '', 'cli', 'NM_006005.3:c.631+256T>C', 1672),
     # ('rs10012946', 'ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'browser', 'mobidetails_error', 'Invalid API key'),
     # ('rs10012946', '', 'clic', 'mobidetails_error', 'Invalid caller submitted'),
-    ('sdgg5456', '', 'cli', 'mobidetails_error', 'Invalid rs id provided'),
+    ('sdgg5456', '', 'cli', 'mobidetails_error', 'Invalid parameter'),
     ('rs99195525555555', '', 'cli', 'mobidetails_error', 'The NCBI API returned an error for the variant')
 ))
 def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, message):
