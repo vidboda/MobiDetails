@@ -59,7 +59,7 @@ function toggle_service(pref_url, csrf_token, caller) {
               }
               var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
               if (value_id == 'f') {
-                var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
+                label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
               }
               $("#value_to_send_" + caller).html(value_to_send);
               $("#btn_" + caller).html(label);
