@@ -510,13 +510,13 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
 
 
 @pytest.mark.parametrize(('gene_symbol', 'nm_acc', 'c_name', 'variant_id'), (
-    ('USH2A', 'NM_206933', 'c.-205+40A>G', '641'),
-    ('BRCA1', 'NM_007294', 'c.213-6T>G', '157446'),
-    ('BRCA1', 'NM_007294', 'c.441+36_441+53delinsG', '239248'),
-    ('USH2A', 'NM_206933', 'c.1972-12dup', '97698'),
-    ('USH2A', 'NM_206933', 'c.7061G>A', '952'),
-    ('USH2A', 'NM_206933', 'c.11389+8_11389+10delinsT', '202888'),
-    ('USH2A', 'NM_206933', 'c.11549-5del', '110'),
+    ('USH2A', 'NM_206933.2', 'c.-205+40A>G', '641'),
+    ('BRCA1', 'NM_007294.3', 'c.213-6T>G', '157446'),
+    ('BRCA1', 'NM_007294.3', 'c.441+36_441+53delinsG', '239248'),
+    ('USH2A', 'NM_206933.2', 'c.1972-12dup', '97698'),
+    ('USH2A', 'NM_206933.2', 'c.7061G>A', '952'),
+    ('USH2A', 'NM_206933.2', 'c.11389+8_11389+10delinsT', '202888'),
+    ('USH2A', 'NM_206933.2', 'c.11549-5del', '110'),
 ))
 def test_spip(client, gene_symbol, nm_acc, c_name, variant_id):
     assert client.get('/spip').status_code == 405
