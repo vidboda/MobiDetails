@@ -75,15 +75,16 @@ def check_vv_instance():
 def api_variant_exists(variant_ghgvs=None):
     if variant_ghgvs is None:
         return jsonify(mobidetails_error='No variant submitted')
-    match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)$', urllib.parse.unquote(variant_ghgvs))
-    if match_object:
+    variant_regexp = md_utilities.regexp['variant']
+    chrom_regexp = md_utilities.regexp['ncbi_chrom']
+    match_variant_ghgvs = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})$', urllib.parse.unquote(variant_ghgvs))
+    # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)$', urllib.parse.unquote(variant_ghgvs))
+    if match_variant_ghgvs:
         db = get_db()
-        # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)', variant_ghgvs)
-        # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
-        chrom, genome_version = md_utilities.get_common_chr_name(db, match_object.group(1).upper())
+        chrom, genome_version = md_utilities.get_common_chr_name(db, match_variant_ghgvs.group(1))
         if chrom and \
             genome_version:
-            pattern = match_object.group(2)
+            pattern = match_variant_ghgvs.group(2)
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
                 """
@@ -111,10 +112,10 @@ def api_variant_exists(variant_ghgvs=None):
                 )
             else:
                 close_db()
-                checked_var_ghgvs = '{0}:g.{1}'.format(match_object.group(1).upper(), match_object.group(2))
+                checked_var_ghgvs = '{0}:g.{1}'.format(match_variant_ghgvs.group(1), match_variant_ghgvs.group(2))
                 return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(checked_var_ghgvs))
         else:
-            return jsonify(mobidetails_error='The chromosome {} does not exist in MD'.format(match_object.group(1)))
+            return jsonify(mobidetails_error='The chromosome {} does not exist in MD'.format(match_variant_ghgvs.group(1)))
     else:
         return jsonify(mobidetails_error='Malformed query, please check your input')
 
@@ -1388,52 +1389,43 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
 @bp.route('/api/variant/create', methods=['POST'])
 def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
-    # get params
-    caller = md_utilities.get_post_param(request, 'caller')
-    variant_chgvs = md_utilities.get_post_param(request, 'variant_chgvs')
-    api_key = md_utilities.get_post_param(request, 'api_key')
-    header = md_utilities.api_agent
-    vv_header = urllib3.make_headers(
-        basic_auth='{0}:'.format(md_utilities.get_vv_token()),
-        user_agent=md_utilities.user_agent
-    )
-    # basic_auth='{0}:'.format(md_utilities.get_vv_token()),
+    # check and get params
+    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
-            return jsonify(
-                mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.'
-            )
+            return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
-    if variant_chgvs and \
-            caller and \
-            api_key:
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # mobiuser_id = None
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
-        if 'mobidetails_error' in res_check_api_key:
-            close_db()
-            if caller == 'cli':
-                return jsonify(res_check_api_key)
-            else:
-                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+    variant_regexp = md_utilities.regexp['variant']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    match_variant_chgvs = re.search(
+        rf'^({ncbi_transcript_regexp}:c\.{variant_regexp})',
+        urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_chgvs'))
+    )
+    db = get_db()
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    if 'mobidetails_error' in res_check_api_key:
+        close_db()
+        if caller == 'cli':
+            return jsonify(res_check_api_key)
         else:
-            g.user = res_check_api_key['mobiuser']
-        if md_utilities.check_caller(caller) == 'Invalid caller submitted':
-            close_db()
-            if caller == 'cli':
-                return jsonify(mobidetails_error='Invalid caller submitted')
-            else:
-                flash('Invalid caller submitted to API.', 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
-
-        variant_regexp = md_utilities.regexp['variant']
-        ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+            return redirect(url_for('md.index'), code=302)
+    else:
+        g.user = res_check_api_key['mobiuser']
+    header = md_utilities.api_agent
+    # vv_header = urllib3.make_headers(
+    #     basic_auth='{0}:'.format(md_utilities.get_vv_token()),
+    #     user_agent=md_utilities.user_agent
+    # )
+    # basic_auth='{0}:'.format(md_utilities.get_vv_token()),
+    if caller and \
+            match_variant_chgvs:
+        variant_chgvs = match_variant_chgvs.group(1)
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         match_object = re.search(
             rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})',
-            urllib.parse.unquote(variant_chgvs)
+            variant_chgvs
         )
         if match_object:
             acc_no, new_variant = match_object.group(1), match_object.group(2)
@@ -1704,6 +1696,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                 flash('The query seems to be malformed: {}.'.format(urllib.parse.unquote(variant_chgvs)), 'w3-pale-red')
                 return redirect(url_for('md.index'), code=302)
     else:
+        close_db()
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameters')
         else:
@@ -1720,44 +1713,38 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
 def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_key=None):
     # get params
     # treat params one by one
-    caller = md_utilities.get_post_param(request, 'caller')
-    variant_ghgvs = md_utilities.get_post_param(request, 'variant_ghgvs')
-    gene = md_utilities.get_post_param(request, 'gene_hgnc')
-    api_key = md_utilities.get_post_param(request, 'api_key')
-    header = md_utilities.api_agent
-
+    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
+    variant_regexp = md_utilities.regexp['variant']
+    chrom_regexp = md_utilities.regexp['ncbi_chrom']
+    match_variant_ghgvs = re.search(rf'^({chrom_regexp}:g\.{variant_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_ghgvs')))
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    match_gene_hgnc = re.search(rf'^({gene_symbol_regexp}|\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'gene_hgnc')))
 
-    if variant_ghgvs and \
-            gene and \
-            caller and \
-            api_key:
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # mobiuser_id = None
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
-        if 'mobidetails_error' in res_check_api_key:
-            close_db()
-            if caller == 'cli':
-                return jsonify(res_check_api_key)
-            else:
-                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+    db = get_db()
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    if 'mobidetails_error' in res_check_api_key:
+        close_db()
+        if caller == 'cli':
+            return jsonify(res_check_api_key)
         else:
-            g.user = res_check_api_key['mobiuser']
+            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+            return redirect(url_for('md.index'), code=302)
+    else:
+        g.user = res_check_api_key['mobiuser']
 
-        if md_utilities.check_caller(caller) == 'Invalid caller submitted':
-            close_db()
-            if caller == 'cli':
-                return jsonify(mobidetails_error='Invalid caller submitted')
-            else:
-                flash('Invalid caller submitted to API.', 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+    header = md_utilities.api_agent
 
+    if caller and \
+            match_variant_ghgvs and \
+            match_gene_hgnc:
+        variant_ghgvs = match_variant_ghgvs.group(1)
+        gene = match_gene_hgnc.group(1)
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check if gene exists
         if re.search(r'^\d+$', gene):
             # HGNC id submitted
@@ -1785,10 +1772,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
             )
         res_gene = curs.fetchone()
         if res_gene:
-            variant_regexp = md_utilities.regexp['variant']
-            chrom_regexp = md_utilities.regexp['ncbi_chrom']
             # match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
-            match_object = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
+            match_object = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})', variant_ghgvs)
             if match_object:
                 ncbi_chr, g_var = match_object.group(1), match_object.group(2)
                 # 1st check hg38
@@ -2024,6 +2009,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                 )
                 return redirect(url_for('md.index'), code=302)
     else:
+        close_db()
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameters')
         else:
@@ -2035,45 +2021,66 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
 
 @bp.route('/api/variant/create_rs', methods=['POST'])
 def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
-    # get params
-    caller = md_utilities.get_post_param(request, 'caller')
-    rs_id = md_utilities.get_post_param(request, 'rs_id')
-    api_key = md_utilities.get_post_param(request, 'api_key')
-    header = md_utilities.api_agent
+    # check and get params
+    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
-    if rs_id and \
-            caller and \
-            api_key:
-        db = get_db()
+    db = get_db()
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    if 'mobidetails_error' in res_check_api_key:
+        close_db()
+        if caller == 'cli':
+            return jsonify(res_check_api_key)
+        else:
+            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+            return redirect(url_for('md.index'), code=302)
+    else:
+        g.user = res_check_api_key['mobiuser']
+    match_rs_id = re.search(r'^rs(\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'rs_id')))
+    # caller = md_utilities.get_post_param(request, 'caller')
+    # rs_id = md_utilities.get_post_param(request, 'rs_id')
+    # api_key = md_utilities.get_post_param(request, 'api_key')
+    header = md_utilities.api_agent
+    # if (md_utilities.get_running_mode() == 'maintenance'):
+    #     if caller == 'cli':
+    #         return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
+    #     else:
+    #         return redirect(url_for('md.index'), code=302)
+    if caller and \
+            match_rs_id:
+    # if rs_id and \
+    #         caller and \
+    #         api_key:
+        # db = get_db()
+        rs_id = 'rs{}'.format(match_rs_id.group(1))
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check api key
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
-        if 'mobidetails_error' in res_check_api_key:
-            close_db()
-            if caller == 'cli':
-                return jsonify(res_check_api_key)
-            else:
-                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
-        else:
-            g.user = res_check_api_key['mobiuser']
-        # check caller
-        if md_utilities.check_caller(caller) == 'Invalid caller submitted':
-            close_db()
-            if caller == 'cli':
-                return jsonify(mobidetails_error='Invalid caller submitted')
-            else:
-                flash('Invalid caller submitted to the API.', 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+        # res_check_api_key = md_utilities.check_api_key(db, api_key)
+        # if 'mobidetails_error' in res_check_api_key:
+        #     close_db()
+        #     if caller == 'cli':
+        #         return jsonify(res_check_api_key)
+        #     else:
+        #         flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+        #         return redirect(url_for('md.index'), code=302)
+        # else:
+        #     g.user = res_check_api_key['mobiuser']
+        # # check caller
+        # if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+        #     close_db()
+        #     if caller == 'cli':
+        #         return jsonify(mobidetails_error='Invalid caller submitted')
+        #     else:
+        #         flash('Invalid caller submitted to the API.', 'w3-pale-red')
+        #         return redirect(url_for('md.index'), code=302)
         # check rs_id
-        trunc_rs_id = None
-        match_obj = re.search(r'^rs(\d+)$', rs_id)
-        if match_obj:
-            trunc_rs_id = match_obj.group(1)
+        trunc_rs_id = match_rs_id.group(1)
+        # match_obj = re.search(r'^rs(\d+)$', rs_id)
+        if trunc_rs_id:
+            # trunc_rs_id = match_obj.group(1)
             # check if rsid exists
             curs.execute(
                 """
@@ -2291,7 +2298,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
                             'gene_hgnc': gene_hgnc,
                             'caller': 'cli',
-                            'api_key': api_key
+                            'api_key': g.user['api_key']
                         }
                         try:
                             # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
@@ -2354,6 +2361,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                 flash('Invalid rs id provided', 'w3-pale-red')
                 return redirect(url_for('md.index'), code=302)
     else:
+        close_db()
         if caller == 'cli':
             return jsonify(mobidetails_error='Invalid parameter')
         else:
@@ -2366,49 +2374,46 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
 
 @bp.route('/api/variant/create_vcf_str', methods=['POST'])
 def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key=None):
-    # get params
-    vcf_str = md_utilities.get_post_param(request, 'vcf_str')
-    caller = md_utilities.get_post_param(request, 'caller')
-    api_key = md_utilities.get_post_param(request, 'api_key')
-    header = md_utilities.api_agent
-    if md_utilities.get_post_param(request, 'genome_version'):
-        genome_version = md_utilities.translate_genome_version(md_utilities.get_post_param(request, 'genome_version'))
-        if genome_version == 'wrong_genome_input':
-            if caller == 'cli':
-                return jsonify(mobidetails_error='The genome version provided as input is invalid.')
-            else:
-                flash('The genome version provided as input is invalid.', 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+    # check and get params
+    vcf_str_regexp = md_utilities.regexp['vcf_str_captured']
+    match_vcf_str = re.search(rf'^({vcf_str_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'vcf_str')))
+    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
-    if genome_version and \
-            vcf_str and \
-            caller and \
-            api_key:
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # check api key
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
-        if 'mobidetails_error' in res_check_api_key:
-            close_db()
-            if caller == 'cli':
-                return jsonify(res_check_api_key)
-            else:
-                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-                return redirect(url_for('md.index'), code=302)
+    db = get_db()
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    if 'mobidetails_error' in res_check_api_key:
+        close_db()
+        if caller == 'cli':
+            return jsonify(res_check_api_key)
         else:
-            g.user = res_check_api_key['mobiuser']
-        # check caller
-        if md_utilities.check_caller(caller) == 'Invalid caller submitted':
+            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+            return redirect(url_for('md.index'), code=302)
+    else:
+        g.user = res_check_api_key['mobiuser']
+
+    header = md_utilities.api_agent
+    if md_utilities.get_post_param(request, 'genome_version'):
+        genome_version = md_utilities.translate_genome_version(md_utilities.get_post_param(request, 'genome_version'))
+        if genome_version == 'wrong_genome_input':
             close_db()
             if caller == 'cli':
-                return jsonify(mobidetails_error='Invalid caller submitted')
+                return jsonify(mobidetails_error='The genome version provided as input is invalid.')
             else:
-                flash('Invalid caller submitted to the API.', 'w3-pale-red')
+                flash('The genome version provided as input is invalid.', 'w3-pale-red')
                 return redirect(url_for('md.index'), code=302)
+
+    if genome_version and \
+            match_vcf_str and \
+            caller:
+            # api_key:
+        # db = get_db()
+        vcf_str = match_vcf_str.group(1)
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        
         # submit vcf_str to VV
         # then get NMXXX hgvs
         # check if NM avail in MD (and store if canonical)
@@ -2629,6 +2634,13 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                             'w3-pale-red'
                         )
                     return redirect(url_for('md.index'), code=302)
+    close_db()
+    if caller == 'cli':
+        return jsonify(mobidetails_error='Invalid caller submitted')
+    else:
+        flash('Invalid params submitted to the API.', 'w3-pale-red')
+        return redirect(url_for('md.index'), code=302)
+
 # -------------------------------------------------------------------
 # api - gene
 
@@ -2719,35 +2731,23 @@ def api_gene(gene_hgnc=None):
 def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
     if (md_utilities.get_running_mode() == 'maintenance'):
         return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot add new ACMG classes.')
-    # get params
-    variant_id = md_utilities.get_post_param(request, 'variant_id')
-    acmg_id = md_utilities.get_post_param(request, 'acmg_id')
-    api_key = md_utilities.get_post_param(request, 'api_key')
+    # check and get params
+    db = get_db()
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    if 'mobidetails_error' in res_check_api_key:
+        close_db()
+        return jsonify(res_check_api_key)
+    else:
+        g.user = res_check_api_key['mobiuser']
+    match_variant_id = re.search(r'^(\d+)$', str(md_utilities.get_post_param(request, 'variant_id')))
+    if match_variant_id:
+        variant_id = int(match_variant_id.group(1))
+    match_acmg_id = re.search(r'^(\d+)$', str(md_utilities.get_post_param(request, 'acmg_id')))
+    if match_acmg_id:
+        acmg_id = int(match_acmg_id.group(1))
     if variant_id and \
-            acmg_id and \
-            api_key:
-        db = get_db()
+            acmg_id:
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # mobiuser_id = None
-        # check api key
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
-        if 'mobidetails_error' in res_check_api_key:
-            return jsonify(res_check_api_key)
-        else:
-            g.user = res_check_api_key['mobiuser']
-        # request.form data are str
-        if not isinstance(variant_id, int):
-            if not re.search(r'^\d+$', variant_id):
-                close_db()
-                return jsonify(mobidetails_error='No or invalid variant id submitted')
-            else:
-                variant_id = int(variant_id)
-            # if not isinstance(acmg_id, int):
-            if not re.search(r'^\d+$', acmg_id):
-                close_db()
-                return jsonify(mobidetails_error='No or invalid ACMG class submitted')
-            else:
-                acmg_id = int(acmg_id)
         if acmg_id > 0 and acmg_id < 7:
             # variant exists?
             curs.execute(
@@ -2802,4 +2802,5 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
             close_db()
             return jsonify(mobidetails_error='Invalid ACMG class submitted')
     else:
+        close_db()
         return jsonify(mobidetails_error='Invalid parameters')

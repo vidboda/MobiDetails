@@ -519,6 +519,7 @@ def intervar():
 
 @bp.route('/spliceaivisual', methods=['POST'])
 def spliceaivisual():
+    # check and get params
     chrom = pos = ref = alt = ncbi_transcript = strand = variant_id = None
     nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
@@ -549,11 +550,12 @@ def spliceaivisual():
         variant_id = variant_id_match.group(1)
         gene_symbol = gene_symbol_match.group(1)
         caller = caller_match.group(1)
-
+        # build file basename
         transcript_file_basename = '{0}transcripts/{1}'.format(
             md_utilities.local_files['spliceai_folder']['abs_path'],
             ncbi_transcript
         )
+        # headers for bedgraph file
         header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
         header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(ncbi_transcript)
         db = get_db()
@@ -1462,7 +1464,7 @@ def remove_class():
 def send_var_message():
     match_receiver_id = re.search(r'^(\d+)$', request.form['receiver_id'])
     match_message_object = re.search(
-                    r'(MobiDetails\s-\sQuery\sfrom.+)\]$',
+                    r'^Object: \[(MobiDetails\s-\sQuery\sfrom.+)\]$',
                     request.form['message_object']
                 )
     if match_receiver_id and \
@@ -1571,9 +1573,13 @@ def create():
         original_variant = new_variant
         alt_nm = None
         if 'alt_iso' in request.form:
-            alt_nm = request.form['alt_iso']
-            if alt_nm != '' and alt_nm != acc_no:
-                acc_no = alt_nm
+            match_alt_iso = re.search(rf'^({refseq_regexp})$', request.form['alt_iso'])
+            if match_alt_iso:
+                alt_nm = match_alt_iso.group(1)
+            # alt_nm = request.form['alt_iso']
+            # if alt_nm != '' and alt_nm != acc_no:
+                if alt_nm != acc_no:
+                    acc_no = alt_nm
         # variant already registered?
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -2322,8 +2328,10 @@ def autocomplete():
             for var in res:
                 result.append('rs{}'.format(var[0]))
             if result is not None:
+                close_db()
                 return json.dumps(result)
             else:
+                close_db()
                 return ('', 204)
         variant_regexp = md_utilities.regexp['variant']
         match_object = re.search(rf'^c\.({variant_regexp})', query)
@@ -2347,10 +2355,11 @@ def autocomplete():
                     )
                 )
             # print(json.dumps(result))
-            close_db()
             if result is not None:
+                close_db()
                 return json.dumps(result)
             else:
+                close_db()
                 return ('', 204)
         col = 'gene_symbol'
         match_obj_nm = re.search(r'^([Nn][Mm]_.+)$', query)

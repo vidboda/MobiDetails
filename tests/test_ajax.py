@@ -270,6 +270,7 @@ def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code)
 @pytest.mark.parametrize(('receiver_id', 'message_object', 'message', 'status_code'), (
     (1, 'test object', 'test message', 200),
     (10, 'test object', 'test message', 200),
+    (10, 'Object: [MobiDetails - Query from pytest]', 'test message', 200),
 ))
 def test_send_var_message(client, app, auth, receiver_id, message_object, message, status_code):
     assert client.get('/send_var_message').status_code == 405
