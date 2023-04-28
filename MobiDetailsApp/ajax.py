@@ -2124,7 +2124,7 @@ def create_unique_url():
             run_mode=md_utilities.get_running_mode()
         )
     if request.form['list_name']:
-        match_list_name = re.search(r'^([\w]+)$', list_name)
+        match_list_name = re.search(r'^([\w]+)$', request.form['list_name'])
         if match_list_name:
             list_name = match_list_name.group(1)
             db = get_db()
