@@ -23,19 +23,21 @@ function toggle_service(pref_url, csrf_token, caller) {
   	.done(function(return_value, html_error) {
   		if (return_value == 'ok') {
               var txt = 'enabled';
-              var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
+              // var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
               var value_to_send = 'f';
               if (value_id == 'f') {
                   txt = 'disabled';
                   // label = 'Enable it';
-                  var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
+                  // var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
                   value_to_send = 't';
               }
               var title = 'contact service';
               if (caller == 'lovd_export') {title = 'LOVD export';}
               else if (caller === 'clinvar_check') {
                 title = 'ClinVar follow-up';
+                var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
                 if (value_id == 'f') {
+                  label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
                   // auto_add2clinvar_check became f in ajax as well
                   // we need to update the UI accordingly
                   $("#value_auto_add2clinvar_check").attr('class', 'w3-text-red');
@@ -55,7 +57,10 @@ function toggle_service(pref_url, csrf_token, caller) {
                     $("#clinvar_watched_title").html("Reload the page to check your ClinVar watch list");
                 }
               }
-              
+              var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
+              if (value_id == 'f') {
+                var label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
+              }
               $("#value_to_send_" + caller).html(value_to_send);
               $("#btn_" + caller).html(label);
               //$("#contact_box").prop( "checked", false);
