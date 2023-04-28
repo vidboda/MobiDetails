@@ -2499,8 +2499,8 @@ def spip():
     match_variant = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
     gene_symbol_regexp = md_utilities.regexp['gene_symbol']
     match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
-    ncbi_transcript_trunc_regexp = md_utilities.regexp['ncbi_transcript_trunc']
-    match_nm_acc = re.search(rf'^({ncbi_transcript_trunc_regexp})$', request.form['nm_acc'])
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    match_nm_acc = re.search(rf'^({ncbi_transcript_regexp})$', request.form['nm_acc'])
     if match_variant_id and \
             match_variant and \
             match_gene_symbol and \
