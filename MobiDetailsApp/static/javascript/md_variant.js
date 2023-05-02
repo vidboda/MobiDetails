@@ -460,8 +460,8 @@ function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
       $('#clingen_evrepo').replaceWith("This variant has not yet been assessed by the ClinGen experts groups.");
     }
     else if (! $.isEmptyObject(jsonResponse.variantInterpretations[0].guidelines[0].outcome.label)) {
-      cligen_evrepo_url = jsonResponse.variantInterpretations[0]['@id']
-      $('#clingen_evrepo').replaceWith("<a href='" + cligen_evrepo_url.replace("/api/", "/ui/") + "' target='_blank'>" + jsonResponse.variantInterpretations[0].guidelines[0].outcome.label + "</a>");
+      var clingen_evrepo_url = jsonResponse.variantInterpretations[0]['@id']
+      $('#clingen_evrepo').replaceWith("<a href='" + clingen_evrepo_url.replace("/api/", "/ui/") + "' target='_blank'>" + jsonResponse.variantInterpretations[0].guidelines[0].outcome.label + "</a>");
     }
     else {
       $('#clingen_evrepo').replaceWith("Error when parsing the data from ClinGen: you may want to warn an admin (<a href='" + contact_url + "' target = '_blank'>contact</a>)");

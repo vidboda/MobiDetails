@@ -1,4 +1,4 @@
-import os
+# import os
 import re
 import pytest
 import psycopg2

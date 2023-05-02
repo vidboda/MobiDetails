@@ -213,7 +213,7 @@ def validate_url(url):
         result = urlparse(url)
         # return '{0}://{1}{2}'.format(result.scheme, result.netloc, result.path)
         return all([result.scheme, result.netloc, result.path])
-    except:
+    except Exception:
         return False
 
 
