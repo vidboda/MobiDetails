@@ -35,15 +35,15 @@ function toggle_service(pref_url, csrf_token, caller) {
               if (caller == 'lovd_export') {title = 'LOVD export';}
               else if (caller === 'clinvar_check') {
                 title = 'ClinVar follow-up';
-                var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
+                // var label = '<i class="fa fa-toggle-on w3-xxlarge" style="vertical-align: middle;" title="Disable ' + title +'"></i>';
                 if (value_id == 'f') {
-                  label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
+                  // label = '<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable ' + title +'"></i>';
                   // auto_add2clinvar_check became f in ajax as well
                   // we need to update the UI accordingly
                   $("#value_auto_add2clinvar_check").attr('class', 'w3-text-red');
                   $("#value_auto_add2clinvar_check").html(txt);
                   $("#value_to_send_auto_add2clinvar_check").html(value_to_send);
-                  $("#btn_auto_add2clinvar_check").html(label);
+                  $("#btn_auto_add2clinvar_check").html('<i class="fa fa-toggle-off w3-xxlarge" style="vertical-align: middle;" title="Enable automatic ClinVar follow-up of the variants you generate"></i>');
                   // in addition the list is emptied
                   $("#num_clinvar_watched").text("0");
                   $("#clinvar_watched_list").html("");
