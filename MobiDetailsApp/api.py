@@ -62,7 +62,7 @@ def check_vv_instance():
             )
         elif vv_url == md_utilities.urls['variant_validator_api_backup']:
             return jsonify(
-                variant_validator_instance='Running our own emergency VV server',
+                variant_validator_instance='Running MD VV server',
                 URL=vv_url
             )
 
