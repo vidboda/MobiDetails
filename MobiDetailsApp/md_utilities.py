@@ -2601,7 +2601,6 @@ def spliceai_internal_api_hello():
             raise Exception
     except Exception:
         return False
-    return False
 
 
 def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basename, output_file_basename=False):
