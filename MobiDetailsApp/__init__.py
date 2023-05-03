@@ -1,4 +1,5 @@
 import os
+import sys
 from . import configuration  # lgtm [py/import-own-module]
 from flask import Flask, render_template, url_for, flash, redirect
 from flask_mail import Mail
@@ -57,6 +58,7 @@ def create_app(test_config=None):
     try:
         os.makedirs(app.instance_path)
     except OSError:
+        # https://flask.palletsprojects.com/en/2.3.x/tutorial/factory/
         pass
     from . import db
     db.init_app(app)

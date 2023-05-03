@@ -49,12 +49,7 @@ def check_api_key(api_key=None):
 @bp.route('/api/service/vv_instance', methods=['GET'])
 def check_vv_instance():
     vv_url = md_utilities.get_vv_api_url()
-    if not vv_url:
-        return jsonify(
-            variant_validator_instance='No VV running',
-            URL='None'
-        )
-    else:
+    if vv_url:
         if vv_url == md_utilities.urls['variant_validator_api']:
             return jsonify(
                 variant_validator_instance='Running genuine VV server',
@@ -65,6 +60,10 @@ def check_vv_instance():
                 variant_validator_instance='Running MD VV server',
                 URL=vv_url
             )
+    return jsonify(
+            variant_validator_instance='No VV running',
+            URL='None'
+        )
 
 
 # -------------------------------------------------------------------
@@ -1353,9 +1352,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId'])) as spip_file:
                     num_lines = len(spip_file.readlines())
                 if num_lines == 2:
-                    spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId']), "r")
-                    result_spip = spip_out.read()
-                    # spip_cache == 1
+                    with open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], external_data['variantId']), "r") as spip_out:
+                        result_spip = spip_out.read()
             if not result_spip:
                 result_spip = md_utilities.run_spip(
                     external_data['gene']['symbol'],

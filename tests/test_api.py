@@ -84,6 +84,7 @@ def get_generic_api_key():
         db_pool.putconn(db)
         return res['api_key']
     db_pool.putconn(db)
+    return None
 
 
 # test variant creation

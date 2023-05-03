@@ -399,6 +399,7 @@ def login():
         try:
             referrer_page = request.form['referrer_page']
         except Exception:
+            # if no referrer page, pass
             pass
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)

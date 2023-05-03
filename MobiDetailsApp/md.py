@@ -377,7 +377,10 @@ def gene(gene_symbol=None):
                 no_vv_file = 1
             if no_vv_file == 0:
                 transcript_road_signs = {}
-                vv_json = json.load(json_file)
+                try:
+                    vv_json = json.load(json_file)
+                finally:
+                    json_file.close()
                 if 'error' in vv_json \
                     or ('message' in vv_json and
                         vv_json['message'] == 'Internal Server Error'):
@@ -833,8 +836,6 @@ def search_engine():
             match_object = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.({variant_regexp_flexible})$', query_engine)
             chrom = match_object.group(1)
             pattern = match_object.group(2)
-            # if re.search(r'>', pattern):
-            #    pattern = pattern.upper()
         elif re.search(r'^g\..+', query_engine):  # g. ng dna vars
             query_type = 'ng_name'
             pattern = md_utilities.clean_var_name(query_engine)

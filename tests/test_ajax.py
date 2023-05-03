@@ -42,6 +42,7 @@ def get_generic_password():
         db_pool.putconn(db)
         return res['email'], res['password']
     db_pool.putconn(db)
+    return None, None
 
 
 email, password = get_generic_password()

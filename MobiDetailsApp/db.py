@@ -21,8 +21,6 @@ def get_db():
             poolSemaphore.acquire(blocking=True)
             # read connection parameters
             g.db = app.config['POSTGRESQL_POOL'].getconn()
-            # params = configuration.mdconfig()
-            # g.db = psycopg2.connect(**params)
         except (Exception, psycopg2.DatabaseError) as error:
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
@@ -42,17 +40,13 @@ def close_db(e=None):
     if db is not None:
         app.config['POSTGRESQL_POOL'].putconn(db)
         poolSemaphore.release()
-        # print('rendered back db connection')
-        # db.close()
 
 
 def init_db():
     db = get_db()
     curs = db.cursor()
-    # print(os.getcwd())
-    curs.execute(open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r").read())
-    # with current_app.open_resource('sql/MobiDetails.sql') as f:
-    #    db.executescript(f.read().decode('utf8'))
+    with open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r") as sql_file:
+        curs.execute(sql_file.read())
 
 
 @click.command('init-db')

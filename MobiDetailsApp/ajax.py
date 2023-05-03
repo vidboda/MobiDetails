@@ -106,18 +106,11 @@ def litvar():
                 urls=md_utilities.urls,
                 pmids=pubmed_info
             )
-        else:
-            return """
-                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                    No match in Pubmed using LitVar API
-                </div>
-            """
-    else:
-        return """
-            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                No match in Pubmed using LitVar API
-            </div>
-        """
+    return """
+        <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+            No match in Pubmed using LitVar API
+        </div>
+    """
 
 ######################################################################
 # web app - ajax for litvar2
@@ -221,6 +214,7 @@ def litvar2():
                     ).data.decode('utf-8')
                 )
             except Exception as e:
+                # litvar_sesnor is not mandatory
                 pass
             litvar_link = None
             if 'rsid' in litvar_sensor and \
@@ -235,18 +229,18 @@ def litvar2():
                 rsid=rsid,
                 litvar_link=litvar_link
             )
-        else:
-            return """
-                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                    No match in Pubmed using LitVar2 API
-                </div>
-            """
-    else:
-        return """
-            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                No match in Pubmed using LitVar2 API
-            </div>
-        """
+    #     else:
+    #         return """
+    #             <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+    #                 No match in Pubmed using LitVar2 API
+    #             </div>
+    #         """
+    # else:
+    return """
+        <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
+            No match in Pubmed using LitVar2 API
+        </div>
+    """
 
 ######################################################################
 # web app - ajax for defgen export file
@@ -299,8 +293,8 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
         file_loc = "defgen/{0}-{1}-{2}{3}-{4}.csv".format(
             genome, vf['chr'], vf['pos'], vf['pos_ref'], vf['pos_alt']
         )
-        defgen_file = open("{0}/static/{1}".format(app_path, file_loc), "w")
-        defgen_file.write(file_content)
+        with open("{0}/static/{1}".format(app_path, file_loc), "w") as defgen_file:
+            defgen_file.write(file_content)
         close_db()
         return render_template(
             'ajax/defgen.html',
@@ -638,7 +632,6 @@ def spliceaivisual():
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(start_ins), int(start_ins) + len(alt) - 1))
                 else:
                     bed_ins_file.write('{0}\t{1}\t{2}\n'.format(chrom, 1, 1))
-            bed_ins_file.close()
         # files caches
         if caller == 'automatic' and \
                 os.path.exists(variant_file):
@@ -800,7 +793,6 @@ def spliceaivisual():
                                         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
                                     else:
                                         bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - (len(alt) - len(ref)) - 1, current_pos - (len(alt) - len(ref)), sai_score))
-                    bedgraph_file.close()
                     # create bed file for wt and mt if necessaery
                     bed_file_basename = '{0}variants/{1}.bed'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
@@ -819,7 +811,6 @@ def spliceaivisual():
                                 bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + 1))
                             if variant_type == 'indel':
                                 bed_file.write('{0}\t{1}\t{2}\n'.format(chrom, int(pos) - 1, int(pos) + len(ref) - 1))
-                        bed_file.close()
                     bedgraph_ins_file_basename = '{0}variants/{1}_ins.bedGraph'.format(
                         md_utilities.local_files['spliceai_folder']['abs_path'],
                         variant_id
@@ -831,7 +822,6 @@ def spliceaivisual():
                             'w'
                         ) as bedgraph_ins_file:
                             bedgraph_ins_file.write(bedgraph_insertion)
-                        bedgraph_ins_file.close()
                     response = 'ok'
                 if caller == 'automatic' and \
                         os.path.exists(full_variant_file):
@@ -963,6 +953,7 @@ def lovd():
                                 ):
                                     lovd_name = line.split('\t')[0]
                         except Exception:
+                            # finding the lovd file is not mandatory
                             pass
                     html_li = '<li>'
                     html_li_end = '</li>'
@@ -995,6 +986,7 @@ def lovd():
                         ).data.decode('utf-8')
                     )
                 except Exception:
+                    # if lovd api does not answer, pass
                     pass
                 if lovd_effect is not None and \
                         len(lovd_effect) != 0:
@@ -2524,9 +2516,9 @@ def spip():
             with open(r'{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id)) as spip_file:
                 num_lines = len(spip_file.readlines())
             if num_lines == 2:
-                spip_out = open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r")
-                result_spip = spip_out.read()
-                spip_cache = 1
+                with open('{0}{1}.txt'.format(md_utilities.local_files['spip']['abs_path'], variant_id), "r") as spip_out:
+                    result_spip = spip_out.read()
+                    spip_cache = 1
         if spip_cache == 0:
             result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
         if result_spip == 'There has been an error while processing SPiP':

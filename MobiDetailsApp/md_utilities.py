@@ -23,7 +23,9 @@ from MobiDetailsApp import mail
 
 app_path = os.path.dirname(os.path.realpath(__file__))
 # get config file with paths, etc
-resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
+with open('{}/sql/md_resources.yaml'.format(app_path), "r") as resources_file:
+    resources = yaml.safe_load(resources_file)
+# resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 host = resources['host']
 user_agent_list = resources['user_agent_list']
@@ -261,6 +263,7 @@ def three2one_fct(var):
         return three2one[match_object.group(1)].capitalize() + \
             match_object.group(2) + \
             'fs'
+    return None
 
 
 def one2three_fct(var):
@@ -281,6 +284,7 @@ def one2three_fct(var):
             match_object.group(2) + \
             one2three[match_object.group(3).capitalize()] + \
             match_object.group(4)
+    return None
 
 
 def get_ncbi_chr_name(db, chr_name, genome):
@@ -302,6 +306,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
             # print(ncbi_name)
             if ncbi_name:
                 return ncbi_name
+    return None
 
 
 def get_common_chr_name(db, ncbi_name):
@@ -317,10 +322,9 @@ def get_common_chr_name(db, ncbi_name):
             (ncbi_name,)
         )
         res = curs.fetchone()
-        if res is not None:
+        if res:
             return res
-        else:
-            return None, None
+    return None, None
 
 
 def is_valid_full_chr(chr_name):  # chr name is valid?
@@ -359,8 +363,7 @@ def translate_genome_version(genome_version):
         return 'hg19'
     elif re.search(r'^[hH][gG][13][98]$', genome_version):
         return genome_version.lower()
-    else:
-        return 'wrong_genome_input'
+    return 'wrong_genome_input'
 
 
 def decompose_vcf_str(vcf_str):
@@ -370,8 +373,7 @@ def decompose_vcf_str(vcf_str):
     # match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
     if match_obj:
         return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
-    else:
-        return None, None, None, None
+    return None, None, None, None
 
 
 def get_var_genic_csq(var):
@@ -382,6 +384,7 @@ def get_var_genic_csq(var):
         return 'exon'
     elif re.search(r'^-', var):
         return '5UTR'
+    return None
 
 
 def is_higher_genic_csq(new_csq, old_csq):
@@ -395,8 +398,7 @@ def is_higher_genic_csq(new_csq, old_csq):
     elif new_csq == '5UTR' and \
             old_csq == 'intron':
         return False
-    else:
-        return True
+    return True
 
 
 def get_pos_splice_site(pos, positions):
@@ -415,7 +417,9 @@ def get_pos_splice_site(pos, positions):
             # near from segment_start
             return [
                 'acceptor',
-                abs(int(positions['segment_start'])-int(pos))+1]
+                abs(int(positions['segment_start'])-int(pos))+1
+            ]
+    return [None, None]
 
 
 def get_pos_splice_site_intron(name):
@@ -440,6 +444,7 @@ def get_pos_splice_site_intron(name):
     if re.search(r'[\*-]?\d+[-]\d+_[\*-]?\d+[^\d_]', name):
         # overlapping variant e.g. -30-12_-8dup
         return [1, '-']
+    return [None, None]
 
 
 def get_pos_exon_canvas(pos, positions):
@@ -456,6 +461,7 @@ def get_pos_exon_canvas(pos, positions):
             ),
             int(positions['segment_size'])
         ]
+    return None
 
 
 def get_exon_neighbours(db, positions):
@@ -507,8 +513,7 @@ def get_exon_sequence(positions, chrom, strand):
         if strand == '-':
             exon_seq = reverse_complement(exon_seq).upper()
         return exon_seq
-    else:
-        return 'Wrong or lacking parameter'
+    return 'Wrong or lacking parameter'
 
 
 def get_exonic_substitution_position(var_cdna):
@@ -547,6 +552,7 @@ def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
     match_object = re.search(r'^\w{3}(\d+)[^\d]+.*$', hgvs_p)
     if match_object:
         return match_object.group(1), match_object.group(1)
+    return None, None
 
 
 def get_user_id(username, db):
@@ -709,8 +715,7 @@ def decompose_missense(p_name):
     match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
     if match_obj:
         return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
-    else:
-        return None, None, None
+    return None, None, None
 
 
 def getdbNSFP_results(
@@ -747,6 +752,7 @@ def getdbNSFP_results(
                     dbnsfp_record[pred_index]
                 ]
         except Exception:
+            # if no prediction found, pass
             pass
     return score, pred, star
 
@@ -763,8 +769,7 @@ def get_spliceai_color(val):
             return predictor_colors['small_effect']
         else:
             return predictor_colors['min']
-    else:
-        return predictor_colors['no_effect']
+    return predictor_colors['no_effect']
 
 
 def get_most_other_deleterious_pred(
@@ -788,8 +793,7 @@ def get_most_other_deleterious_pred(
         j += 1
     if best_score != threshold:
         return best_score, predictors_translations[pred_type][re.split(';', pred)[k]], '*'
-    else:
-        return '.', 'no prediction', ''
+    return '.', 'no prediction', ''
 
 
 def get_preditor_single_threshold_color(val, predictor):
@@ -802,8 +806,7 @@ def get_preditor_single_threshold_color(val, predictor):
         if value > predictor_thresholds[predictor]:
             return predictor_colors['max']
         return predictor_colors['min']
-    else:
-        return predictor_colors['no_effect']
+    return predictor_colors['no_effect']
 
 
 def get_preditor_single_threshold_reverted_color(val, predictor):
@@ -814,8 +817,7 @@ def get_preditor_single_threshold_reverted_color(val, predictor):
         if float(val) < predictor_thresholds[predictor]:
             return predictor_colors['max']
         return predictor_colors['min']
-    else:
-        return predictor_colors['no_effect']
+    return predictor_colors['no_effect']
 
 
 def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
@@ -828,8 +830,7 @@ def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
         elif value > predictor_thresholds[predictor_min]:
             return predictor_colors['mid_effect']
         return predictor_colors['min']
-    else:
-        return predictor_colors['no_effect']
+    return predictor_colors['no_effect']
 
 
 def get_metadome_colors(val):
@@ -847,8 +848,7 @@ def get_metadome_colors(val):
         return ['slightly tolerant', predictor_colors['slightly_tolerant']]
     elif value < predictor_thresholds['metadome_tolerant']:
         return ['tolerant', predictor_colors['tolerant']]
-    else:
-        return ['highly tolerant', predictor_colors['highly_tolerant']]
+    return ['highly tolerant', predictor_colors['highly_tolerant']]
 
 
 def build_revel_pred(revel_score):
@@ -860,8 +860,7 @@ def build_revel_pred(revel_score):
         elif float(revel_score) > 0.5:
             return predictors_translations['revel']['D']
         return predictors_translations['revel']['U']
-    else:
-        return 'no prediction'
+    return 'no prediction'
 
 
 def compute_pos_end(g_name):
@@ -879,6 +878,7 @@ def compute_pos_end(g_name):
             match_object = re.search(r'^(\d+)[d]', g_name)
             if match_object is not None:
                 return match_object.group(1)
+    return None
 
 
 def compute_start_end_pos(name):
@@ -900,6 +900,7 @@ def compute_start_end_pos(name):
                 # case where NM wt disagree with genomic wt
                 if re.search(r'^\d+=', name):
                     return '-1', '-1'
+    return None, None
 
 
 def danger_panel(var, warning):  # to be used in create_var_vv
@@ -998,42 +999,6 @@ def get_vv_api_url():
                 '[MobiDetails - VariantValidator Error]'
             )
     return None
-    # try:
-    #     # try remote VV rest api and if not functional, switch to local VV
-    #     checked_url = test_vv_api_url(
-    #             urls['variant_validator_api_hello'],
-    #             urls['variant_validator_api']
-    #     )
-    #     if checked_url:
-    #         return checked_url
-    #     else:
-    #         raise Exception
-    # except Exception:
-    #     try:
-    #         print(
-    #             'VV looks down - trying to switch on rescue docker {}'
-    #             .format(urls['variant_validator_api_hello_backup'])
-    #         )
-    #         checked_url = test_vv_api_url(
-    #             urls['variant_validator_api_hello_backup'],
-    #             urls['variant_validator_api_backup']
-    #         )
-    #         if checked_url:
-    #             return checked_url
-    #         else:
-    #             raise Exception
-    #     except Exception:
-    #         send_error_email(
-    #             prepare_email_html(
-    #                 'MobiDetails VariantValidator error',
-    #                 '<p>VariantValidator looks down!!<br /> - from {0}</p>'
-    #                 .format(
-    #                     os.path.basename(__file__)
-    #                 )
-    #             ),
-    #             '[MobiDetails - VariantValidator Error]'
-    #         )
-    # return None
 
 
 def vv_internal_server_error(caller, vv_data, vv_key_var):
@@ -1184,8 +1149,6 @@ def create_var_vv(
             # print(vv_data[first_level_key])
             # print(warning)
             variant_regexp = regexp['variant']
-            # if re.search(r'RefSeqGene record not available', warning):
-            #     vf_d['ng_name'] = 'NULL'
             if re.search(r'automapped to NC_0000', warning):
                 continue
             elif re.search(r'Trailing digits are not permitted in HGVS variant descriptions', warning):
@@ -1239,7 +1202,6 @@ def create_var_vv(
                     continue
                 if 'cannot be mapped directly to genome build' in warning:
                     # test whether we still have mapping onto
-                    # 
                     ncbi_chrom_regexp = regexp['ncbi_chrom']
                     if 'primary_assembly_loci' in vv_data[vv_key_var]\
                         and \
@@ -1281,7 +1243,6 @@ def create_var_vv(
                     else:
                         return {'mobidetails_error':  '{}'.format(warning)}
     vv_variant_data_check = check_vv_variant_data(vv_key_var, vv_data)
-    # if check_vv_variant_data(vv_key_var, vv_data) is not True:
     if vv_variant_data_check is not True:
         if caller == 'browser':
             vv_warning = return_vv_validation_warnings(vv_data)
@@ -1390,16 +1351,6 @@ def create_var_vv(
     if 'c_name' not in vf_d:
         var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
-    # NG name removed
-    # if 'ng_name' not in vf_d:
-    #     ng_name_obj = re.search(
-    #         r':g\.(.+)$',
-    #         vv_data[vv_key_var]['hgvs_refseqgene_variant']
-    #     )
-    #     if ng_name_obj:
-    #         vf_d['ng_name'] = ng_name_obj.group(1)
-    #     else:
-    #         vf_d['ng_name'] = 'NULL'
     # dna_type
     if re.search('>', vf_d['c_name']):
         vf_d['dna_type'] = 'substitution'
@@ -1891,16 +1842,14 @@ def get_segment_type_from_vv(vv_expr):
         return 'intron'
     elif re.match(r'^\d+$', vv_expr):
         return 'exon'
-    else:
-        return 'segment_type_error'
+    return 'segment_type_error'
 
 
 def get_segment_size_from_vv_cigar(cigar):
     match_obj = re.search(r'^(\d+)=', cigar)
     if match_obj:
         return str(match_obj.group(1))
-    else:
-        return 'cigar_error'
+    return 'cigar_error'
 
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
@@ -1915,7 +1864,10 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
     except IOError:
         # print('file_not_found_error')
         return 'file_not_found_error'
-    vv_json = json.load(json_file)
+    try:
+        vv_json = json.load(json_file)
+    finally:
+        json_file.close()
     positions = {
         'number': int(exon_number),
         'gene_symbol': gene_symbol,
@@ -1940,12 +1892,9 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
                         if positions['segment_size'] != 'cigar_error' and \
                                 re.search(r'^\d+$', positions['segment_start']) and \
                                 re.search(r'^\d+$', positions['segment_start']):
-                            json_file.close()
                             return positions
                         else:
-                            json_file.close()
                             return 'positions_error'
-    json_file.close()
     return 'transcript_error'
 
 
@@ -1953,8 +1902,7 @@ def get_segment_number_from_vv(vv_expr):
     match_obj = re.search(r'^(\d+)i?$', vv_expr)
     if match_obj:
         return match_obj.group(1)
-    else:
-        return 'segment_number_error'
+    return 'segment_number_error'
 
 
 def get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_chr, strand):
@@ -1964,9 +1912,11 @@ def get_genomic_transcript_positions_from_vv_json(gene_symbol, transcript, ncbi_
             gene_symbol
         ))
     except IOError:
-        # print('file_not_found_error')
         return 'file_not_found_error'
-    vv_json = json.load(json_file)
+    try:
+        vv_json = json.load(json_file)
+    finally:
+        json_file.close()
     start = end = vv_strand = None
     for vv_transcript in vv_json['transcripts']:
         if vv_transcript['reference'] == transcript:
@@ -2055,31 +2005,17 @@ def check_vv_variant_data(vv_key_var, vv_data):
         if 'primary_assembly_loci' not in vv_data[vv_key_var] or \
                 'hg38' not in vv_data[vv_key_var]['primary_assembly_loci']:
             return 'The variant does not seem to map properly on hg38, which is mandatory for MD to treat it.'
-        # if 'hg19' not in vv_data[vv_key_var]['primary_assembly_loci']:
-        #     return 'The variant does not seem to map properly on hg19, which is mandatory for MD to treat it.'
         if 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']:
-                #  or \
-                # 'hgvs_genomic_description' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
             return 'The variant is lacking proper genomic description in the variant validation.'
         if 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']:
-                #  or \
-                # 'vcf' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']:
             return 'The variant is lacking VCF description in the variant validation.'
         if 'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
-            #  or \
-            #     'chr' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking chr description in the variant validation.'
         if 'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
-            #  or \
-            #     'pos' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking position description in the variant validation.'
         if 'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
-            #  or \
-            #     'ref' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking reference description in the variant validation.'
         if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
-            #  or \
-            #     'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg19']['vcf']:
             return 'The variant is lacking alternative description in the variant validation.'
         if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
             return 'The variant is lacking RefSeqGene description in the variant validation.'
@@ -2169,13 +2105,12 @@ def prepare_email_html(title, message, send_url=True):
             message=message,
             url=''
         )
-    else:
-        return render_template(
-            'md/email.html',
-            title=title,
-            message=message,
-            url=request.base_url
-        )
+    return render_template(
+        'md/email.html',
+        title=title,
+        message=message,
+        url=request.base_url
+    )
 
 
 def send_email(message, mail_object, receiver, bcc_receiver=None):
@@ -2266,8 +2201,7 @@ def maxentscan(w, y, seq, scantype, a=0, x=26):
     )
     if result.returncode == 0:
         return [str(result.stdout, 'utf-8'), seqs_html]
-    else:
-        return ['There has been an error while processing MaxEntScan', '']
+    return ['There has been an error while processing MaxEntScan', '']
 
 
 def select_mes_scores(scoreswt, html_wt, scoresmt, html_mt, cutoff, threshold):
@@ -2378,8 +2312,7 @@ def get_maxent_natural_sites_scores(chrom, strand, scantype, positions):
             ),
             formatted_seq
         ]
-    else:
-        return ['There has been an error while processing MaxEntScan', '']
+    return ['There has been an error while processing MaxEntScan', '']
 
 
 def lovd_error_html(text):
@@ -2492,8 +2425,7 @@ def get_acmg_criterion_color(criterion):
         return 'w3-teal'
     elif re.search(r'^B[SA]', criterion):
         return 'w3-green'
-    else:
-        return None
+    return None
 
 
 def run_spip(gene_symbol, nm_acc, c_name, variant_id):
@@ -2526,11 +2458,10 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     )
     if result.returncode == 0:
         # print('SPiP: {}'.format(result_file))
-        spip_out = open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r")
-        result_file = spip_out.read()
+        with  open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r") as spip_out:
+            result_file = spip_out.read()
         return result_file
-    else:
-        return 'There has been an error while processing SPiP'
+    return 'There has been an error while processing SPiP'
 
 
 def format_spip_result(result_spip, caller):
@@ -2632,25 +2563,26 @@ def build_redirect_url(incoming_url=None):
                 url_parse(incoming_url).query,
             )
         # return incoming_url
+    return None
 
 
 def get_clingen_criteria_specification_id(current_gene_symbol):
-    clingen_index = open(local_files['clingen_criteria_specification_index']['abs_path'], 'r')
+    # clingen_index = open(local_files['clingen_criteria_specification_index']['abs_path'], 'r')
     # if the list becomes too long, store id directly in DB
-    for gene_symbol in clingen_index:
-        if re.search(f'^{current_gene_symbol}$', gene_symbol):
-            # get clingen spec page id in json
-            with open(local_files['clingen_criteria_specification']['abs_path'], 'r', encoding='utf-8') as clingen_file:
-                clingen_json = json.load(clingen_file)
-            clingen_file.close()
-            if 'data' in clingen_json:
-                for rule in clingen_json['data']:
-                    if 'genes' in rule:
-                        for gene in rule['genes']:
-                            if 'label' in gene and \
-                                    gene['label'] == current_gene_symbol:
-                                # we're in
-                                return rule['svi']['id']
+    with open(local_files['clingen_criteria_specification_index']['abs_path'], 'r') as clingen_index:
+        for gene_symbol in clingen_index:
+            if re.search(f'^{current_gene_symbol}$', gene_symbol):
+                # get clingen spec page id in json
+                with open(local_files['clingen_criteria_specification']['abs_path'], 'r', encoding='utf-8') as clingen_file:
+                    clingen_json = json.load(clingen_file)
+                if 'data' in clingen_json:
+                    for rule in clingen_json['data']:
+                        if 'genes' in rule:
+                            for gene in rule['genes']:
+                                if 'label' in gene and \
+                                        gene['label'] == current_gene_symbol:
+                                    # we're in
+                                    return rule['svi']['id']
     return None
 
 
@@ -2669,6 +2601,7 @@ def spliceai_internal_api_hello():
             raise Exception
     except Exception:
         return False
+    return False
 
 
 def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basename, output_file_basename=False):
@@ -2693,8 +2626,6 @@ def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basenam
                     line_list = re.split('\t', line)
                     spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
                     bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
-    spliceai_raw_file.close()
-    bedgraph_file.close()
     return 'ok'
 
 
@@ -2703,8 +2634,7 @@ def translate_yn_to_bool(yn_value):
             yn_value == 'yes' or \
             yn_value == 'y':
         return True
-    else:
-        return False
+    return False
 
 
 def get_oncokb_genes_info(gene_symbol):
