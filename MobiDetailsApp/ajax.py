@@ -16,7 +16,7 @@ import certifi
 import requests
 import datetime
 import twobitreader
-import gzip
+# import gzip
 
 bp = Blueprint('ajax', __name__)
 
@@ -1391,8 +1391,7 @@ def modif_class():
             md_utilities.prepare_email_html(
                 'MobiDetails error',
                 '<p>Variant class modification failed for variant \
-{0} with args: wrong parameter {1}-{2}</p>'.format(
-                    variant_id,
+{0} with args: wrong parameter {0}-{1}</p>'.format(
                     request.form['variant_id'],
                     request.form['acmg_select']
                 )

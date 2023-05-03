@@ -1,4 +1,4 @@
-import os
+# import os
 import re
 import pytest
 import psycopg2
@@ -846,8 +846,9 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 @pytest.mark.parametrize(('ua', 'vv_api_url'), (
     ('MobiDetails (mobidetails.iurc@gmail.com)', 'https://rest.variantvalidator.org/'),
-    ('chu-bordeaux', 'http://194.167.35.195:8000/'),
-    ('CJP', 'http://194.167.35.195:8000/'),
+    ('chu-bordeaux', 'http://194.167.35.196:8000/'),
+    ('CJP', 'http://194.167.35.196:8000/'),
+    ('Bisonex', 'http://194.167.35.196:8000/'),
     ('abcgcece', 'https://rest.variantvalidator.org/'),
 ))
 def test_get_vv_api_url(client, app, ua, vv_api_url):

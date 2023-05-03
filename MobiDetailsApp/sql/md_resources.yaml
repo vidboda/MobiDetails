@@ -1,7 +1,7 @@
 'host':
   'dev': '10.34.20.79'
   'prod': 'mobidetails.iurc.montp.inserm.fr'
-'user_agent_list': ['CJP', 'chu-bordeaux']
+'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex']
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
@@ -168,11 +168,11 @@
   # uncomment below to use genuine VV web API VV2 - 2021
   'variant_validator_api': 'https://rest.variantvalidator.org/'
   # VV on IURC Ovirt restvv
-  'variant_validator_api_backup': 'http://194.167.35.195:8000/'
+  'variant_validator_api_backup': 'http://194.167.35.196:8000/'
   # hello on genuine VV VV2 - 2021
   'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
   # hello on IURC OVirt restvv
-  'variant_validator_api_hello_backup': 'http://194.167.35.195:8000/hello/?content-type=application/json'
+  'variant_validator_api_hello_backup': 'http://194.167.35.196:8000/hello/?content-type=application/json'
 # attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
 # 'internal_urls':
 #   'prod_prefix': '/MD/'
