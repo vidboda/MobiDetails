@@ -1,7 +1,7 @@
 'host':
   'dev': '10.34.20.79'
   'prod': 'mobidetails.iurc.montp.inserm.fr'
-'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex', 'CHUGA']
+'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex', 'CHUGA', 'polyfeel v0.2.2']
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
