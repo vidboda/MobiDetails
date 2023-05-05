@@ -173,11 +173,11 @@
   'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
   # hello on IURC OVirt restvv
   'variant_validator_api_hello_backup': 'http://194.167.35.196:8000/hello/?content-type=application/json'
-# attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
-# 'internal_urls':
-#   'prod_prefix': '/MD/'
-#   'dev_prefix': ':5001/'
-#   'suffixes': ['auth/forgot_pass', 'auth/login', 'auth/profile/\d+', 'auth/register', 'md/about', 'md/changelog', 'md/gene/[A-Za-z0-9-]', 'md/genes', 'md/index', 'md/variant/\d+', 'upload/upload_form']
+  # attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
+  # 'internal_urls':
+  #   'prod_prefix': '/MD/'
+  #   'dev_prefix': ':5001/'
+  #   'suffixes': ['auth/forgot_pass', 'auth/login', 'auth/profile/\d+', 'auth/register', 'md/about', 'md/changelog', 'md/gene/[A-Za-z0-9-]', 'md/genes', 'md/index', 'md/variant/\d+', 'upload/upload_form']
 'local_files':
   # id :local path, version name, short desc, short name 4 urls xref
   'cadd':
