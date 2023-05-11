@@ -49,7 +49,9 @@ def test_check_vv_instance(client):
     ('C_000001.11:g.216422237G>A', 'mobidetails_error', 'Malformed query')
 ))
 def test_api_variant_exists(client, variant, key, response):
-    json_response = json.loads(client.get('/api/variant/exists/{}'.format(variant)).data.decode('utf8'))
+    json_response = json.loads(
+        client.get(f'/api/variant/exists/{variant}').data.decode('utf8')
+    )
     assert response in str(json_response[key])
 
 # test gene
@@ -62,7 +64,7 @@ def test_api_variant_exists(client, variant, key, response):
     ('--%USH2A', 'mobidetails_error', 'Invalid gene submitted')
 ))
 def test_api_gene(client, gene, key, response):
-    json_response = json.loads(client.get('/api/gene/{}'.format(gene)).data.decode('utf8'))
+    json_response = json.loads(client.get(f'/api/gene/{gene}').data.decode('utf8'))
     print(json_response)
     assert response in str(json_response[key])
 
@@ -93,7 +95,9 @@ def get_generic_api_key():
     (8, 'hg19PseudoVCF', '1-216420460-C-A'),
 ))
 def test_api_variant(client, variant_id, key, value):
-    json_response = json.loads(client.get('/api/variant/{}/clispip/'.format(variant_id)).data.decode('utf8'))
+    json_response = json.loads(
+        client.get(f'/api/variant/{variant_id}/clispip/').data.decode('utf8')
+    )
     assert json_response['nomenclatures'][key] == value
 
 # 2nd test variant creation
@@ -116,7 +120,11 @@ def test_api_variant2(app, client):
         db_pool.putconn(db)
         for variant_id in res:
             print(variant_id)
-            json_response = json.loads(client.get('/api/variant/{}/cli/'.format(variant_id[0])).data.decode('utf8'))
+            json_response = json.loads(
+                client.get(f'/api/variant/{variant_id[0]}/cli/').data.decode(
+                    'utf8'
+                )
+            )
             assert 'nomenclatures' in json_response
 
 

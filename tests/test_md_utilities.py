@@ -960,7 +960,7 @@ hsa-miR-548am-3p', "<a href='http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc=h
 ))
 def test_format_mirs(record, result):
     totest = md_utilities.format_mirs(record)
-    print('-{}'.format(totest))
+    print(f'-{totest}')
     assert re.split(r'\s+', result) == re.split(r'\s+', totest)
 
 

@@ -25,7 +25,7 @@ def test_gene_page(client, app):
         db_pool.putconn(db)
         for name in res:
             print(name[0])
-            assert client.get('/gene/{}'.format(name[0])).status_code == 200
+            assert client.get(f'/gene/{name[0]}').status_code == 200
 
 
 def test_genes_page(client):
@@ -97,8 +97,8 @@ def test_search_engine(client, app, t_search, url, status_code):
         print(response.get_data())
         assert url in response.get_data()
     elif status_code == 302:
-        print(response.headers['Location'] + 'http://localhost/{}'.format(url))
-        assert 'http://localhost/{}'.format(url) == response.headers['Location']
+        print(response.headers['Location'] + f'http://localhost/{url}')
+        assert f'http://localhost/{url}' == response.headers['Location']
     else:
         assert status_code == response.status_code
 
@@ -123,4 +123,4 @@ def test_variant_page(client, app):
         db_pool.putconn(db)
         for variant_id in res:
             print(variant_id[0])
-            assert client.get('/api/variant/{}/browser/'.format(variant_id[0])).status_code == 200
+            assert client.get(f'/api/variant/{variant_id[0]}/browser/').status_code == 200

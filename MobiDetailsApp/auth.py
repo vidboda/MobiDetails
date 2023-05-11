@@ -36,21 +36,22 @@ def register():
         error = username = password = country = institute = email = None
         if not request.form['username']:
             error = 'Username is required.'
+        elif match_obj := re.search(
+            r'^([\w-]{5,100})$', request.form['username']
+        ):
+            username = match_obj[1]
         else:
-            match_obj = re.search(r'^([\w-]{5,100})$', request.form['username'])
-            if match_obj:
-                username = match_obj.group(1)
-            else:
-                error = """
+            error = """
                 Username should be at least 5 characters and contain only letters and numbers.
                 """
         if not request.form['password']:
             error = 'Password is required.'
         elif not error:
-            # https://stackoverflow.com/questions/4429847/check-if-string-contains-both-number-and-letter-at-least
-            match_obj = re.search(r'(?!^[0-9]*$)(?!^[a-z]*$)(?!^[A-Z]*$)(?!^[a-zA-Z]*$)(?!^[a-z0-9]*$)(?!^[A-Z0-9]*$)^(.{8,})$', request.form['password'])
-            if match_obj:
-                password = match_obj.group(1)
+            if match_obj := re.search(
+                r'(?!^[0-9]*$)(?!^[a-z]*$)(?!^[A-Z]*$)(?!^[a-zA-Z]*$)(?!^[a-z0-9]*$)(?!^[A-Z0-9]*$)^(.{8,})$',
+                request.form['password'],
+            ):
+                password = match_obj[1]
             else:
                 error = """
             Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
@@ -68,20 +69,20 @@ def register():
         if not request.form['institute']:
             error = 'Institute is required.'
         elif not error:
-            match_obj = re.search(r'^([\w\(\),;\.\s-]+)$', request.form['institute'])
-            if match_obj:
-                institute = match_obj.group(1)
+            if match_obj := re.search(
+                r'^([\w\(\),;\.\s-]+)$', request.form['institute']
+            ):
+                institute = match_obj[1]
             else:
                 error = 'Invalid characters in the Institute field (please use letters, numbers and ,;.-()).'
         if not request.form['email']:
             error = 'Email is required.'
         elif not error:
-            match_obj = re.search(
+            if match_obj := re.search(
                 r'^([a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$',
-                request.form['email']
-            )
-            if match_obj:
-                email = match_obj.group(1)
+                request.form['email'],
+            ):
+                email = match_obj[1]
             else:
                 error = 'The email address does not look valid.'
         academic_val = 't' if request.form['acad'] == 'academic' else 'f'
@@ -89,12 +90,11 @@ def register():
         if not request.remote_addr:
             error = 'Invalid request'
         elif not error:
-            match_obj = re.search(r'^([\d\.]+)$', request.remote_addr)
-            if match_obj:
-                remote_ip = match_obj.group(1)
+            if match_obj := re.search(r'^([\d\.]+)$', request.remote_addr):
+                remote_ip = match_obj[1]
             else:
                 error = 'Invalid char in IP address.'
-        
+
 
 
         # username = urllib.parse.unquote(request.form['username'])
@@ -106,7 +106,7 @@ def register():
         # academic = request.form['acad']
         # header = md_utilities.api_agent
         # remote_ip = request.remote_addr
-       
+
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
@@ -176,11 +176,12 @@ def register():
             if mv_json:
                 try:
                     if mv_json['credits_available'] > 0:
-                        if mv_json['status'] == "False":
-                            if (mv_json['is_high_risk'] == "True" or
-                                    mv_json['is_suppressed'] == "True" or
-                                    mv_json['is_catchall'] == "True"):
-                                error = """
+                        if mv_json['status'] == "False" and (
+                            mv_json['is_high_risk'] == "True"
+                            or mv_json['is_suppressed'] == "True"
+                            or mv_json['is_catchall'] == "True"
+                        ):
+                            error = """
                                 The email address is reported as risky or suppressed.
                                 If this is not the case, please send
                                 us an email directly to
@@ -190,8 +191,6 @@ def register():
                                 &#103;&#109;&#097;&#105;&#108;&#046;
                                 &#099;&#111;&#109;.
                                 """
-                            # else:valid adressese such as
-                            # d-baux@chu-montpellier.fr are reported as False
                     else:
                         md_utilities.send_error_email(
                             md_utilities.prepare_email_html(
@@ -454,9 +453,9 @@ def login():
             session.clear()
             close_db()
             flash(
-                'You have successfully been logged in as {}.'.format(
-                    user["username"]), 'w3-pale-green'
-                )
+                f'You have successfully been logged in as {user["username"]}.',
+                'w3-pale-green',
+            )
             session['user_id'] = user['id']
             if referrer_page is None or \
                     (url_parse(referrer_page).host !=
@@ -470,27 +469,26 @@ def login():
                     ),
                     code=302
                 )
+            if referrer_page is not None and \
+                    (url_parse(referrer_page).host ==
+                        url_parse(request.base_url).host):
+                # not coming from mobidetails
+                # rebuild redirect URL
+                return redirect(
+                    md_utilities.build_redirect_url(
+                        referrer_page
+                    ),
+                    code=302
+                )
             else:
-                if referrer_page is not None and \
-                        (url_parse(referrer_page).host ==
-                            url_parse(request.base_url).host):
-                    # not coming from mobidetails
-                    # rebuild redirect URL
-                    return redirect(
-                        md_utilities.build_redirect_url(
-                            referrer_page
-                        ),
-                        code=302
-                    )
-                else:
-                    return redirect(
-                        url_for(
-                            'auth.profile',
-                            run_mode=md_utilities.get_running_mode(),
-                            mobiuser_id=0
-                        ),
-                        code=302
-                    )
+                return redirect(
+                    url_for(
+                        'auth.profile',
+                        run_mode=md_utilities.get_running_mode(),
+                        mobiuser_id=0
+                    ),
+                    code=302
+                )
         close_db()
         flash(error, 'w3-pale-red')
     # not coming from mobidetails
@@ -587,9 +585,7 @@ def login_required(view):
 @login_required
 def profile(mobiuser_id=0):
     if re.search(r'^\d+$', str(mobiuser_id)):
-        user_id = g.user['id']
-        if mobiuser_id != 0:
-            user_id = mobiuser_id
+        user_id = mobiuser_id if mobiuser_id != 0 else g.user['id']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -680,11 +676,11 @@ def profile(mobiuser_id=0):
                 """,
                 (g.user['id'],)
             )
-            num_var_clinv = curs.rowcount
-
             if error is None:
                 # num_var_fav = curs.rowcount
                 close_db()
+                num_var_clinv = curs.rowcount
+
                 return render_template(
                     'auth/profile.html',
                     run_mode=md_utilities.get_running_mode(),
@@ -718,16 +714,13 @@ def profile(mobiuser_id=0):
 
         flash(error, 'w3-pale-red')
         close_db()
-        return render_template(
-            'md/index.html',
-            run_mode=md_utilities.get_running_mode()
-        )
     else:
         ('Invalid user ID!!', 'w3-pale-red')
-        return render_template(
-            'md/index.html',
-            run_mode=md_utilities.get_running_mode()
-        )
+
+    return render_template(
+        'md/index.html',
+        run_mode=md_utilities.get_running_mode()
+    )
 
 # -------------------------------------------------------------------
 # load profile when browsing
@@ -757,17 +750,13 @@ def load_logged_in_user():
 def logout():
     session.clear()
     flash('You have successfully been logged out.', 'w3-pale-green')
-    # https://pythonise.com/series/learning-flask/the-flask-request-object
-    # url attributes
-    # scheme auth username password raw_username raw_password
-    # ascii_host host port path query fragment
-    if request.referrer is not None and \
-            (url_parse(request.referrer).host == md_utilities.host['dev'] or
-                url_parse(request.referrer).host == md_utilities.host['prod']):
-        redirect_url = md_utilities.build_redirect_url(request.referrer)
-        return redirect(redirect_url, code=302)
-    else:
+    if request.referrer is None or url_parse(request.referrer).host not in [
+        md_utilities.host['dev'],
+        md_utilities.host['prod'],
+    ]:
         return redirect(url_for('index'), code=302)
+    redirect_url = md_utilities.build_redirect_url(request.referrer)
+    return redirect(redirect_url, code=302)
 
 # -------------------------------------------------------------------
 # forgot password
@@ -785,14 +774,10 @@ def forgot_pass():
     elif request.method == 'POST':
         error = None
         email = request.form['email']
-        if not re.search(
+        if re.search(
                 r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                 email
                 ):
-            error = 'The email address does not look valid.'
-            flash(error, 'w3-pale-red')
-            return render_template('auth/forgot_pass.html')
-        else:
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -843,7 +828,9 @@ def forgot_pass():
                 , 'w3-pale-green'
             )
             close_db()
-            return render_template('auth/forgot_pass.html')
+        else:
+            flash('The email address does not look valid.', 'w3-pale-red')
+        return render_template('auth/forgot_pass.html')
     return render_template('md/unknown.html')
 
 # -------------------------------------------------------------------
@@ -980,39 +967,35 @@ def reset_password():
 
 @bp.route('/variant_list/<string:list_name>', methods=['GET'])
 def variant_list(list_name):
-    if len(list_name) < 31 and \
-            re.search(r'^[\w]+$', list_name):
-        db = get_db()
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        curs.execute(
-            """
+    if len(list_name) >= 31 or not re.search(r'^[\w]+$', list_name):
+        return render_template('errors/404.html'), 404
+    db = get_db()
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    curs.execute(
+        """
             SELECT a.variant_ids, b.username, a.creation_date, a.list_name
             FROM variants_groups a, mobiuser b
             WHERE a.mobiuser_id = b.id AND list_name = %s
             """,
-            (list_name,)
-        )
-        res = curs.fetchone()
-        # we've got an ARRAY of variants_ids and want to query on them...
-        if res:
-            res_ids_string = "("
-            for id in res['variant_ids']:
-                res_ids_string += "{}, ".format(id)
-            res_ids_string = res_ids_string[:-2]
-            res_ids_string += ")"
-            # print(res_ids_string)
-            curs.execute(
-                """
+        (list_name,)
+    )
+    if res := curs.fetchone():
+        res_ids_string = "("
+        for id in res['variant_ids']:
+            res_ids_string += f"{id}, "
+        res_ids_string = res_ids_string[:-2]
+        res_ids_string += ")"
+        # print(res_ids_string)
+        curs.execute(
+            """
                 SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq, a.creation_user, a.creation_date, b.username
                 FROM variant_feature a, mobiuser b
                 WHERE  a.creation_user = b.id AND a.id IN {0}
                 """.format(res_ids_string)
-            )
-            variants = curs.fetchall()
-            close_db()
-            return render_template('md/variant_multiple.html', variants=variants, unique_url_info=res)
-        else:
-            close_db()
-            return render_template('errors/404.html'), 404
+        )
+        variants = curs.fetchall()
+        close_db()
+        return render_template('md/variant_multiple.html', variants=variants, unique_url_info=res)
     else:
+        close_db()
         return render_template('errors/404.html'), 404

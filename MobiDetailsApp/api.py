@@ -48,8 +48,7 @@ def check_api_key(api_key=None):
 
 @bp.route('/api/service/vv_instance', methods=['GET'])
 def check_vv_instance():
-    vv_url = md_utilities.get_vv_api_url()
-    if vv_url:
+    if vv_url := md_utilities.get_vv_api_url():
         if vv_url == md_utilities.urls['variant_validator_api']:
             return jsonify(
                 variant_validator_instance='Running genuine VV server',
@@ -76,47 +75,57 @@ def api_variant_exists(variant_ghgvs=None):
         return jsonify(mobidetails_error='No variant submitted')
     variant_regexp = md_utilities.regexp['variant']
     chrom_regexp = md_utilities.regexp['ncbi_chrom']
-    match_variant_ghgvs = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})$', urllib.parse.unquote(variant_ghgvs))
-    # match_object = re.search(r'^([Nn][Cc]_0000\d{2}\.\d{1,2}):g\.(.+)$', urllib.parse.unquote(variant_ghgvs))
-    if match_variant_ghgvs:
-        db = get_db()
-        chrom, genome_version = md_utilities.get_common_chr_name(db, match_variant_ghgvs.group(1))
-        if chrom and \
+    if not (
+        match_variant_ghgvs := re.search(
+            rf'^({chrom_regexp}):g\.({variant_regexp})$',
+            urllib.parse.unquote(variant_ghgvs),
+        )
+    ):
+        return jsonify(mobidetails_error='Malformed query, please check your input')
+    db = get_db()
+    chrom, genome_version = md_utilities.get_common_chr_name(
+        db, match_variant_ghgvs[1]
+    )
+    if chrom and \
             genome_version:
-            pattern = match_variant_ghgvs.group(2)
-            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            curs.execute(
-                """
+        pattern = match_variant_ghgvs[2]
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
                 SELECT feature_id
                 FROM variant
                 WHERE chr = %s
                     AND g_name = %s
                     AND genome_version = %s
                 """,
-                (chrom, pattern, genome_version)
-            )
-            res = curs.fetchone()
-            if res is not None:
-                close_db()
-                return jsonify(
-                    mobidetails_id=res['feature_id'],
-                    url='{0}{1}'.format(
-                        request.host_url[:-1],
-                        url_for(
-                            'api.variant',
-                            variant_id=res['feature_id'],
-                            caller='browser'
-                        )
+            (chrom, pattern, genome_version)
+        )
+        res = curs.fetchone()
+        if res is not None:
+            close_db()
+            return jsonify(
+                mobidetails_id=res['feature_id'],
+                url='{0}{1}'.format(
+                    request.host_url[:-1],
+                    url_for(
+                        'api.variant',
+                        variant_id=res['feature_id'],
+                        caller='browser'
                     )
                 )
-            else:
-                close_db()
-                checked_var_ghgvs = '{0}:g.{1}'.format(match_variant_ghgvs.group(1), match_variant_ghgvs.group(2))
-                return jsonify(mobidetails_warning='The variant {} does not exist yet in MD'.format(checked_var_ghgvs))
+            )
         else:
-            return jsonify(mobidetails_error='The chromosome {} does not exist in MD'.format(match_variant_ghgvs.group(1)))
+            close_db()
+            checked_var_ghgvs = '{0}:g.{1}'.format(
+                match_variant_ghgvs[1], match_variant_ghgvs[2]
+            )
+            return jsonify(
+                mobidetails_warning=f'The variant {checked_var_ghgvs} does not exist yet in MD'
+            )
     else:
-        return jsonify(mobidetails_error='Malformed query, please check your input')
+        return jsonify(
+            mobidetails_error=f'The chromosome {match_variant_ghgvs[1]} does not exist in MD'
+        )
 
 # -------------------------------------------------------------------
 # api - variant
