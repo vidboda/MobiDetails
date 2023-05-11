@@ -45,7 +45,7 @@ def close_db(e=None):
 def init_db():
     db = get_db()
     curs = db.cursor()
-    with open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r") as sql_file:
+    with open(f"{os.getcwd()}/MobiDetailsApp/sql/MobiDetails.sql", "r") as sql_file:
         curs.execute(sql_file.read())
 
 

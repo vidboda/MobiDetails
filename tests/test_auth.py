@@ -96,9 +96,9 @@ def test_activate(client, mobiuser_id, api_key, message):
     (10,  b'Username'),
 ))
 def test_profile(client, app, auth, mobiuser_id, message):
-    assert client.get('/auth/profile/{}'.format(mobiuser_id)).status_code == 302
+    assert client.get(f'/auth/profile/{mobiuser_id}').status_code == 302
     with app.app_context():
-        response = client.get('/auth/profile/{}'.format(mobiuser_id), follow_redirects=True)
+        response = client.get(f'/auth/profile/{mobiuser_id}', follow_redirects=True)
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         # following does not work - as if login does not work properly?
         # db_pool, db = get_db()
@@ -169,8 +169,4 @@ def test_reset_password(client, mobiuser_id, api_key, timestamp, message):
     ('test', 404),
 ))
 def test_variant_list(client, list_name, http_code):
-    assert client.get(
-            '/auth/variant_list/{}'.format(
-                list_name,
-            )
-        ).status_code == http_code
+    assert client.get(f'/auth/variant_list/{list_name}').status_code == http_code

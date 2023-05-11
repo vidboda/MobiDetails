@@ -91,16 +91,16 @@ def litvar():
                     # print(article)
                     if article['authors'][0]:
                         pmid = int(article['pmid'])
-                        pubmed_info[pmid] = {}
-                        pubmed_info[pmid]['title'] = article['title']
-                        pubmed_info[pmid]['journal'] = article['journal']
-                        pubmed_info[pmid]['year'] = article['year']
-                        pubmed_info[pmid]['author'] = article['authors'][0]
+                        pubmed_info[pmid] = {
+                            'title': article['title'],
+                            'journal': article['journal'],
+                            'year': article['year'],
+                            'author': article['authors'][0],
+                        }
             except Exception:
                 for pubmed_id in litvar_data[0]['pmids']:
                     pmid = int(pubmed_id)
-                    pubmed_info[pmid] = {}
-                    pubmed_info[pmid]['title'] = ''
+                    pubmed_info[pmid] = {'title': ''}
             return render_template(
                 'ajax/litvar.html',
                 urls=md_utilities.urls,
@@ -118,9 +118,8 @@ def litvar():
 
 @bp.route('/litvar2', methods=['POST'])
 def litvar2():
-    match_rsid = re.search(r'^(rs\d+)$', request.form['rsid'])
-    if match_rsid:
-        rsid = match_rsid.group(1)
+    if match_rsid := re.search(r'^(rs\d+)$', request.form['rsid']):
+        rsid = match_rsid[1]
     # if re.search(r'^rs\d+$', request.form['rsid']):
         header = md_utilities.api_agent
         # rsid = request.form['rsid']
@@ -186,21 +185,20 @@ def litvar2():
                     if 'authors' in article and \
                             len(article['authors']) > 0:
                         pmid = int(article['pmid'])
-                        pubmed_info[pmid] = {}
-                        pubmed_info[pmid]['title'] = article['title']
-                        pubmed_info[pmid]['journal'] = article['journal']
-                        pubmed_info[pmid]['year'] = article['year']
-                        pubmed_info[pmid]['author'] = article['authors'][0]
+                        pubmed_info[pmid] = {
+                            'title': article['title'],
+                            'journal': article['journal'],
+                            'year': article['year'],
+                            'author': article['authors'][0],
+                        }
             except Exception:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
-                    pubmed_info[pmid] = {}
-                    pubmed_info[pmid]['title'] = ''
+                    pubmed_info[pmid] = {'title': ''}
             if not pubmed_info:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
-                    pubmed_info[pmid] = {}
-                    pubmed_info[pmid]['title'] = ''
+                    pubmed_info[pmid] = {'title': ''}
             # get litvar direct link of rsid
             litvar_sensor_url = "{0}{1}".format(
                 md_utilities.urls['ncbi_litvar_apiv2_sensor'], rsid
@@ -256,9 +254,9 @@ def defgen():
     match_varid = re.search(r'^(\d+)$', request.form['vfid'])
     if match_varid and \
             match_genome:
-        variant_id = match_varid.group(1)
+        variant_id = match_varid[1]
         # genome = request.form['genome']
-        genome = match_genome.group(1)
+        genome = match_genome[1]
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # get all variant_features and gene info
@@ -274,19 +272,28 @@ def defgen():
             (variant_id, genome)
         )
         vf = curs.fetchone()
-        file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
+        rsid = 'rs{0}'.format(vf['dbsnp_id']) if vf['dbsnp_id'] else ''
+        file_content = (
+            "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
 VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;\
 REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;\
 NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
-        rsid = ''
-        if vf['dbsnp_id']:
-            rsid = 'rs{0}'.format(vf['dbsnp_id'])
-        file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
+            + "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
 ;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
-            vf['gene_symbol'], vf['refseq'],
-            vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
-            rsid, vf['prot_type'], vf['chr'], genome,
-            vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
+                vf['gene_symbol'],
+                vf['refseq'],
+                vf['c_name'],
+                vf['p_name'],
+                vf['enst'],
+                vf['pos'],
+                rsid,
+                vf['prot_type'],
+                vf['chr'],
+                genome,
+                vf['g_name'],
+                vf['start_segment_type'],
+                vf['start_segment_number'],
+            )
         )
         # print(file_content)
         app_path = os.path.dirname(os.path.realpath(__file__))
@@ -309,12 +316,9 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(
                 'MobiDetails Ajax error',
-                '<p>DefGen file generation failed in {} (no variant_id)</p>'
-                .format(
-                    os.path.basename(__file__)
-                )
+                f'<p>DefGen file generation failed in {os.path.basename(__file__)} (no variant_id)</p>',
             ),
-            '[MobiDetails - Ajax Error]'
+            '[MobiDetails - Ajax Error]',
         )
         return """
             <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">
@@ -343,12 +347,12 @@ def intervar():
             match_ref and \
             match_alt and \
             match_gene_symbol:
-        genome = match_genome.group(1)
-        chrom = match_nochr_chrom.group(1)
-        pos = match_pos.group(1)
-        ref = match_ref.group(1)
-        alt = match_alt.group(1)
-        gene = match_gene_symbol.group(1)
+        genome = match_genome[1]
+        chrom = match_nochr_chrom[1]
+        pos = match_pos[1]
+        ref = match_ref[1]
+        alt = match_alt[1]
+        gene = match_gene_symbol[1]
         header = md_utilities.api_agent
         if len(ref) > 1 or len(alt) > 1:
             return 'No wintervar for indels'
@@ -396,17 +400,12 @@ def intervar():
                         headers=header
                     ).data.decode('utf-8')
                 )
-                i = 0
-                for obj in intervar_list:
+                for i, obj in enumerate(intervar_list):
                     # some housekeeping to get proper strings
                     obj = obj.replace('{', '').replace('}', '')
                     obj = '{{{}}}'.format(obj)
                     intervar_list[i] = obj
-                    i += 1
-                intervar_data = []
-                for obj in intervar_list:
-                    # print(obj)
-                    intervar_data.append(json.loads(obj))
+                intervar_data = [json.loads(obj) for obj in intervar_list]
             except Exception as e:
                 md_utilities.send_error_email(
                     md_utilities.prepare_email_html(
@@ -465,31 +464,30 @@ def intervar():
                                 key,
                                 md_utilities.acmg_criteria[key]
                             )
-        if intervar_acmg is not None:
-            db = get_db()
-            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            curs.execute(
-                """
+        if intervar_acmg is None:
+            return "<span>No wintervar class</span>"
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
                 SELECT html_code
                 FROM valid_class
                 WHERE acmg_translation = %s
                 """,
-                (intervar_acmg.lower(),)
-            )
-            res = curs.fetchone()
-            close_db()
-            return """
+            (intervar_acmg.lower(),)
+        )
+        res = curs.fetchone()
+        close_db()
+        return """
             <span style='color:{0};'>{1}</span>
             <span> with the following criteria:</span><br /><br />
             <div class='w3-row-padding w3-center'>{2}</div><br />
             <div id='acmg_info'></div>
             """.format(
-                res['html_code'],
-                intervar_acmg,
-                intervar_criteria
-            )
-        else:
-            return "<span>No wintervar class</span>"
+            res['html_code'],
+            intervar_acmg,
+            intervar_criteria
+        )
     else:
         md_utilities.send_error_email(
             md_utilities.prepare_email_html(

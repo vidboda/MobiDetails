@@ -201,7 +201,13 @@ def test_lovd(client, app):
         res = curs.fetchall()
         db_pool.putconn(db)
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'])
+            data_dict = dict(
+                genome=values['genome_version'],
+                chrom=values['chr'],
+                g_name=values['g_name'],
+                c_name=f"c.{values['c_name']}",
+                gene=values['gene_symbol'],
+            )
             print(data_dict)
             assert client.post('/lovd', data=data_dict).status_code == 200
 
@@ -434,20 +440,23 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
     assert client.get('/delete_variant_list').status_code == 404
     with app.app_context():
         response = client.get(
-            '/delete_variant_list/{}'.format(list_name),
-            follow_redirects=True
+            f'/delete_variant_list/{list_name}', follow_redirects=True
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
-        assert client.get(
-            '/delete_variant_list/{}'.format(list_name),
-            follow_redirects=True
-        ).status_code == return_value
-        assert b'check_login_form' in client.get(
-            '/delete_variant_list/{}'.format(list_name),
-            follow_redirects=True
-        ).get_data()
+        assert (
+            client.get(
+                f'/delete_variant_list/{list_name}', follow_redirects=True
+            ).status_code
+            == return_value
+        )
+        assert (
+            b'check_login_form'
+            in client.get(
+                f'/delete_variant_list/{list_name}', follow_redirects=True
+            ).get_data()
+        )
 
 # test autocomplete
 

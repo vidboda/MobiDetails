@@ -23,7 +23,7 @@ from MobiDetailsApp import mail
 
 app_path = os.path.dirname(os.path.realpath(__file__))
 # get config file with paths, etc
-with open('{}/sql/md_resources.yaml'.format(app_path), "r") as resources_file:
+with open(f'{app_path}/sql/md_resources.yaml', "r") as resources_file:
     resources = yaml.safe_load(resources_file)
 # resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
@@ -47,14 +47,10 @@ def get_resource_current_version(resource_dir, regexp, excluded_date=None):
     files = os.listdir(resource_dir)
     dates = []
     for current_file in files:
-        # print(current_file)
-        # match_obj = re.search(rf'clinvar_(\d+).vcf.gz$', current_file)
-        match_obj = re.search(rf'{regexp}$', current_file)
-        if match_obj:
-            if excluded_date and \
-                    excluded_date == match_obj.group(1):
+        if match_obj := re.search(rf'{regexp}$', current_file):
+            if excluded_date and excluded_date == match_obj[1]:
                 continue
-            dates.append(match_obj.group(1))
+            dates.append(match_obj[1])
     return max(dates)
 
 
@@ -187,15 +183,11 @@ for tool in external_tools:
         external_tools[tool]['paper'] = '{0}{1}'.format(
             urls['ncbi_pubmed'], external_tools[tool]['paper']
         )
-external_tools['ClinVar']['version'] = 'v{}'.format(
-    clinvar_version
-)
-external_tools['ClinGenSpecificationRegistry']['version'] = 'v{}'.format(
-    clingen_version
-)
-external_tools['OncoKBGenes']['version'] = 'v{}'.format(
-    oncokb_genes_version
-)
+external_tools['ClinVar']['version'] = f'v{clinvar_version}'
+external_tools['ClinGenSpecificationRegistry'][
+    'version'
+] = f'v{clingen_version}'
+external_tools['OncoKBGenes']['version'] = f'v{oncokb_genes_version}'
 acmg_criteria = resources['acmg']
 lovd_effect = resources['lovd_effect']
 spip_headers = resources['spip_headers']
@@ -230,60 +222,61 @@ def clean_var_name(variant):
     if re.search('>', variant):
         variant = variant.upper()
     elif re.search('d[eu][lp]', variant):
-        match_obj = re.search(r'^(.+d[eu][lp])[ATCG]+$', variant)
-        if match_obj:
-            variant = match_obj.group(1)
-        else:
-            match_obj = re.search(r'^(.+del)[ATCG]+(ins[ACTG])$', variant)
-            if match_obj:
-                variant = match_obj.group(1) + match_obj.group(2)
+        if match_obj := re.search(r'^(.+d[eu][lp])[ATCG]+$', variant):
+            variant = match_obj[1]
+        elif match_obj := re.search(r'^(.+del)[ATCG]+(ins[ACTG])$', variant):
+            variant = match_obj[1] + match_obj[2]
     return variant
 
 
 def three2one_fct(var):
     var = clean_var_name(var)
-    match_object = re.search(r'^(\w{3})(\d+)(\w{3}|[X\*=])$', var)
-    if match_object:
-        if re.search('d[ue][pl]', match_object.group(3)):
-            return three2one[match_object.group(1).capitalize()] + \
-                match_object.group(2) + \
-                match_object.group(3)
+    if match_object := re.search(r'^(\w{3})(\d+)(\w{3}|[X\*=])$', var):
+        if re.search('d[ue][pl]', match_object[3]):
+            return (
+                three2one[match_object[1].capitalize()]
+                + match_object[2]
+                + match_object[3]
+            )
         else:
-            return three2one[match_object.group(1).capitalize()] + \
-                match_object.group(2) + \
-                three2one[match_object.group(3).capitalize()]
-    match_object = re.search(r'^(\w{3})(\d+_)(\w{3})(\d+.+)$', var)
-    if match_object:
-        return three2one[match_object.group(1)].capitalize() + \
-            match_object.group(2) + \
-            three2one[match_object.group(3)].capitalize() + \
-            match_object.group(4)
-    match_object = re.search(r'^(\w{3})(\d+)\w{3}fsTer\d+$', var)
-    if match_object:
-        return three2one[match_object.group(1)].capitalize() + \
-            match_object.group(2) + \
-            'fs'
+            return (
+                three2one[match_object[1].capitalize()]
+                + match_object[2]
+                + three2one[match_object[3].capitalize()]
+            )
+    if match_object := re.search(r'^(\w{3})(\d+_)(\w{3})(\d+.+)$', var):
+        return (
+            three2one[match_object[1]].capitalize()
+            + match_object[2]
+            + three2one[match_object[3]].capitalize()
+            + match_object[4]
+        )
+    if match_object := re.search(r'^(\w{3})(\d+)\w{3}fsTer\d+$', var):
+        return three2one[match_object[1]].capitalize() + match_object[2] + 'fs'
     return None
 
 
 def one2three_fct(var):
     var = clean_var_name(var)
-    match_object = re.search(r'^(\w{1})(\d+)([\w\*=]{1})$', var)
-    if match_object:
-        return one2three[match_object.group(1).capitalize()] + \
-            match_object.group(2) + \
-            one2three[match_object.group(3).capitalize()]
-    match_object = re.search(r'^(\w{1})(\d+)(d[ue][pl])$', var)
-    if match_object:
-        return one2three[match_object.group(1).capitalize()] + \
-            match_object.group(2) + \
-            match_object.group(3)
-    match_object = re.search(r'^(\w{1})(\d+_)(\w{1})(\d+.+)$', var)
-    if match_object:
-        return one2three[match_object.group(1).capitalize()] + \
-            match_object.group(2) + \
-            one2three[match_object.group(3).capitalize()] + \
-            match_object.group(4)
+    if match_object := re.search(r'^(\w{1})(\d+)([\w\*=]{1})$', var):
+        return (
+            one2three[match_object[1].capitalize()]
+            + match_object[2]
+            + one2three[match_object[3].capitalize()]
+        )
+    if match_object := re.search(r'^(\w{1})(\d+)(d[ue][pl])$', var):
+        return (
+            one2three[match_object[1].capitalize()]
+            + match_object[2]
+            + match_object[3]
+        )
+    if match_object := re.search(r'^(\w{1})(\d+_)(\w{1})(\d+.+)$', var):
+        return (
+            one2three[match_object[1].capitalize()]
+            + match_object[2]
+            + one2three[match_object[3].capitalize()]
+            + match_object[4]
+        )
     return None
 
 
@@ -291,8 +284,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
     # get NCBI chr names for common names
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if is_valid_full_chr(chr_name):
-        short_chr = get_short_chr_name(chr_name)
-        if short_chr:
+        if short_chr := get_short_chr_name(chr_name):
             curs.execute(
                 """
                 SELECT ncbi_name
@@ -302,9 +294,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
                 """,
                 (genome, short_chr)
             )
-            ncbi_name = curs.fetchone()
-            # print(ncbi_name)
-            if ncbi_name:
+            if ncbi_name := curs.fetchone():
                 return ncbi_name
     return None
 
@@ -321,17 +311,14 @@ def get_common_chr_name(db, ncbi_name):
             """,
             (ncbi_name,)
         )
-        res = curs.fetchone()
-        if res:
+        if res := curs.fetchone():
             return res
     return None, None
 
 
 def is_valid_full_chr(chr_name):  # chr name is valid?
     nochr_captured_regexp = regexp['nochr_captured']
-    if re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name):
-        return True
-    return False
+    return bool(re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name))
 
 
 def get_short_chr_name(chr_name):  # get small chr name
@@ -340,20 +327,16 @@ def get_short_chr_name(chr_name):  # get small chr name
         rf'^[Cc][Hh][Rr]({nochr_captured_regexp})$', chr_name
     )
     if match_obj is not None:
-        return match_obj.group(1)
+        return match_obj[1]
 
 
 def is_valid_chr(chr_name):  # chr name is valid?
     nochr_captured_regexp = regexp['nochr_captured']
-    if re.search(rf'^({nochr_captured_regexp})$', chr_name):
-        return True
-    return False
+    return bool(re.search(rf'^({nochr_captured_regexp})$', chr_name))
 
 
 def is_valid_ncbi_chr(chr_name):  # NCBI chr name is valid?
-    if re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}$', chr_name):
-        return True
-    return False
+    return bool(re.search(r'^[Nn][Cc]_0000\d{2}\.\d{1,2}$', chr_name))
 
 
 def translate_genome_version(genome_version):
@@ -369,10 +352,13 @@ def translate_genome_version(genome_version):
 def decompose_vcf_str(vcf_str):
     # chr_regexp = regexp['nochr_captured']
     vcf_str_regexp = regexp['vcf_str_captured']
-    match_obj = re.search(rf'^{vcf_str_regexp}$', vcf_str)
-    # match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
-    if match_obj:
-        return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
+    if match_obj := re.search(rf'^{vcf_str_regexp}$', vcf_str):
+        return (
+            match_obj[1],
+            int(match_obj[2]),
+            match_obj[3].upper(),
+            match_obj[4].upper(),
+        )
     return None, None, None, None
 
 
@@ -389,14 +375,9 @@ def get_var_genic_csq(var):
 
 def is_higher_genic_csq(new_csq, old_csq):
     # function to assess exon>intron>5UTR (designed originally for vcf_str api endpoint but not used)
-    if new_csq == 'exon' or \
-            new_csq == old_csq:
+    if new_csq in ['exon', old_csq]:
         return True
-    elif new_csq != 'exon' and \
-            old_csq == 'exon':
-        return False
-    elif new_csq == '5UTR' and \
-            old_csq == 'intron':
+    elif old_csq == 'exon' or new_csq == '5UTR' and old_csq == 'intron':
         return False
     return True
 
@@ -423,24 +404,12 @@ def get_pos_splice_site(pos, positions):
 
 
 def get_pos_splice_site_intron(name):
-    # get position of intronic variant to the nearest ss
-    match_obj = re.search(r'^[\*-]?\d+([\+-])(\d+)[^\d_]', name)
-    if match_obj:
-        return [
-            int(match_obj.group(2)),
-            match_obj.group(1)
-        ]
-    match_obj = re.search(
+    if match_obj := re.search(r'^[\*-]?\d+([\+-])(\d+)[^\d_]', name):
+        return [int(match_obj[2]), match_obj[1]]
+    if match_obj := re.search(
         r'[\*-]?\d+([\+-])(\d+)_[\*-]?\d+[\+-](\d+)[^\d_]', name
-    )
-    if match_obj:
-        return [
-            min(
-                int(match_obj.group(2)),
-                int(match_obj.group(3))
-            ),
-            match_obj.group(1)
-        ]
+    ):
+        return [min(int(match_obj[2]), int(match_obj[3])), match_obj[1]]
     if re.search(r'[\*-]?\d+[-]\d+_[\*-]?\d+[^\d_]', name):
         # overlapping variant e.g. -30-12_-8dup
         return [1, '-']
@@ -496,39 +465,37 @@ def get_exon_neighbours(db, positions):
 
 def get_exon_sequence(positions, chrom, strand):
     # get DNA sequence for a given exon
-    if isinstance(positions['number'], int) and \
-            re.search(r'^NM_\d+\.\d+$', positions['refseq']) and \
-            re.search(r'^\d+$', chrom) and \
-            re.search(r'^[\+-]+', strand):
-        genome = twobitreader.TwoBitFile(
-            '{}.2bit'.format(local_files['human_genome_hg38']['abs_path'])
-        )
-        current_chrom = genome['chr{}'.format(chrom)]
-        exon_start = int(positions['segment_start'])
-        exon_end = int(positions['segment_end'])
-        if exon_start < exon_end:
-            exon_seq = current_chrom[exon_start-1:exon_end].upper()
-        else:
-            exon_seq = current_chrom[exon_end-1:exon_start].upper()
-        if strand == '-':
-            exon_seq = reverse_complement(exon_seq).upper()
-        return exon_seq
-    return 'Wrong or lacking parameter'
+    if (
+        not isinstance(positions['number'], int)
+        or not re.search(r'^NM_\d+\.\d+$', positions['refseq'])
+        or not re.search(r'^\d+$', chrom)
+        or not re.search(r'^[\+-]+', strand)
+    ):
+        return 'Wrong or lacking parameter'
+    genome = twobitreader.TwoBitFile(
+        f"{local_files['human_genome_hg38']['abs_path']}.2bit"
+    )
+    current_chrom = genome[f'chr{chrom}']
+    exon_start = int(positions['segment_start'])
+    exon_end = int(positions['segment_end'])
+    if exon_start < exon_end:
+        exon_seq = current_chrom[exon_start-1:exon_end].upper()
+    else:
+        exon_seq = current_chrom[exon_end-1:exon_start].upper()
+    if strand == '-':
+        exon_seq = reverse_complement(exon_seq).upper()
+    return exon_seq
 
 
 def get_exonic_substitution_position(var_cdna):
-    # from 158C>T get 158
-    match_obj = re.search(r'^[\*-]?(\d+)[ATCG]', var_cdna)
-    if match_obj:
-        return match_obj.group(1)
+    if match_obj := re.search(r'^[\*-]?(\d+)[ATCG]', var_cdna):
+        return match_obj[1]
     return None
 
 
 def get_substitution_nature(var_cdna):
-    # from 158C>T or 158-1C>T get C>T
-    match_obj = re.search(r'([ATCG]>[ATGC])$', var_cdna)
-    if match_obj:
-        return match_obj.group(1)
+    if match_obj := re.search(r'([ATCG]>[ATGC])$', var_cdna):
+        return match_obj[1]
     return None
 
 
@@ -545,13 +512,11 @@ def get_exon_first_nt_cdna_position(positions, var_gpos, var_c):
 
 
 def get_aa_position(hgvs_p):  # get aa position fomr hgvs p. (3 letter)
-    match_object = re.search(r'^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p)
-    if match_object:
+    if match_object := re.search(r'^\w{3}(\d+)_\w{3}(\d+)[^\d]+$', hgvs_p):
         # return "{0}_{1}".format(match_object.group(1), match_object.group(2))
-        return match_object.group(1), match_object.group(2)
-    match_object = re.search(r'^\w{3}(\d+)[^\d]+.*$', hgvs_p)
-    if match_object:
-        return match_object.group(1), match_object.group(1)
+        return match_object[1], match_object[2]
+    if match_object := re.search(r'^\w{3}(\d+)[^\d]+.*$', hgvs_p):
+        return match_object[1], match_object[1]
     return None, None
 
 
@@ -566,8 +531,7 @@ def get_user_id(username, db):
             """,
             (username,)
         )
-        res_user = curs.fetchone()
-        if res_user:
+        if res_user := curs.fetchone():
             return res_user['id']
     return None
 
@@ -576,9 +540,9 @@ def define_lovd_class(acmg_classes, db):
     lovd_class = None
     if isinstance(acmg_classes, list):
         for acmg_class in acmg_classes:
-            if (isinstance(acmg_class, list) or
-                    isinstance(acmg_class, dict)) and \
-                    'acmg_class' in acmg_class:
+            if (
+                isinstance(acmg_class, (list, dict))
+            ) and 'acmg_class' in acmg_class:
                 # list => true DictRow from psycopg2
                 # dict for pytest
                 # print(acmg_classes)
@@ -592,15 +556,15 @@ def define_lovd_class(acmg_classes, db):
                     break
                 elif lovd_class != 'Conflicting':
                     # do sthg
-                    if (acmg_class['acmg_class'] == 1 or
-                            acmg_class['acmg_class'] == 2) and \
-                            (lovd_class == 'Likely Pathogenic' or
-                                lovd_class == 'Pathogenic'):
+                    if acmg_class['acmg_class'] in [1, 2] and lovd_class in [
+                        'Likely Pathogenic',
+                        'Pathogenic',
+                    ]:
                         lovd_class = 'Conflicting'
-                    elif (acmg_class['acmg_class'] == 4 or
-                            acmg_class['acmg_class'] == 5) and \
-                            (lovd_class == 'Likely benign' or
-                                lovd_class == 'Benign'):
+                    elif acmg_class['acmg_class'] in [4, 5] and lovd_class in [
+                        'Likely benign',
+                        'Benign',
+                    ]:
                         lovd_class = 'Conflicting'
                     elif (lovd_class == 'Benign' and
                             acmg_class['acmg_class'] == 2):
@@ -611,10 +575,10 @@ def define_lovd_class(acmg_classes, db):
                     elif (lovd_class == 'Pathogenic' and
                             acmg_class['acmg_class'] == 4):
                         lovd_class = 'Likely Pathogenic'
-                    elif (lovd_class == 'Likely Pathogenic' and
-                            acmg_class['acmg_class'] == 5):
-                        pass
-                    else:
+                    elif (
+                        lovd_class != 'Likely Pathogenic'
+                        or acmg_class['acmg_class'] != 5
+                    ):
                         lovd_class = acmg2lovd(acmg_class['acmg_class'], db)
                         # print('current acmg:{0} - current lovd: {1}'.format(
                         # acmg_class['acmg_class'], lovd_class))
@@ -632,8 +596,7 @@ def acmg2lovd(acmg_class, db):
             """,
             (acmg_class,)
         )
-        res_lovd_acmg = curs.fetchone()
-        if res_lovd_acmg:
+        if res_lovd_acmg := curs.fetchone():
             return res_lovd_acmg[0]
     return None
 
@@ -661,7 +624,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             ),
             '[MobiDetails - Tabix Error]'
         )
-        return 'Match failed in {}'.format(text)
+        return f'Match failed in {text}'
     i = 3
     if re.search(
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
@@ -708,13 +671,14 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
-    return 'No match in {}'.format(text)
+    return f'No match in {text}'
 
 
 def decompose_missense(p_name):
-    match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
-    if match_obj:
-        return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
+    if match_obj := re.search(
+        r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name
+    ):
+        return three2one[match_obj[1]], match_obj[2], three2one[match_obj[3]]
     return None, None, None
 
 
@@ -726,15 +690,10 @@ def getdbNSFP_results(
     pred = 'no prediction'
     star = ''
     try:
-        score = re.split(
-            '{}'.format(sep), dbnsfp_record[score_index]
-        )[transcript_index]
+        score = re.split(f'{sep}', dbnsfp_record[score_index])[transcript_index]
         if pred_index != score_index:
             pred = predictors_translations[translation_mode][
-                re.split(
-                    '{}'.format(sep),
-                    dbnsfp_record[pred_index]
-                )[transcript_index]
+                re.split(f'{sep}', dbnsfp_record[pred_index])[transcript_index]
             ]
             if score == '.':  # search most deleterious in other isoforms
                 score, pred, star = get_most_other_deleterious_pred(
@@ -774,23 +733,18 @@ def get_spliceai_color(val):
 
 def get_most_other_deleterious_pred(
         score, pred, threshold, direction, pred_type):
-    # returns most deleterious score of predictors
-    # when not found in desired transcript
-    j = 0
     k = 0
     best_score = threshold
-    for score in re.split(';', score):
+    for j, score in enumerate(re.split(';', score)):
         if direction == 'lt':
             if score != '.' and \
                     float(score) < float(best_score):
                 best_score = score
                 k = j
-        else:
-            if score != '.' and \
+        elif score != '.' and \
                     float(score) > float(best_score):
-                best_score = score
-                k = j
-        j += 1
+            best_score = score
+            k = j
     if best_score != threshold:
         return best_score, predictors_translations[pred_type][re.split(';', pred)[k]], '*'
     return '.', 'no prediction', ''
@@ -800,9 +754,7 @@ def get_preditor_single_threshold_color(val, predictor):
     # returns an html color depending on a single threshold
     # function to get green or red
     if val != '.':
-        value = float(val)
-        if predictor == 'sift':
-            value = 1-(float(val))
+        value = 1-(float(val)) if predictor == 'sift' else float(val)
         if value > predictor_thresholds[predictor]:
             return predictor_colors['max']
         return predictor_colors['min']
@@ -868,17 +820,13 @@ def compute_pos_end(g_name):
     # receives g_name as 216420460C>A or 76885812_76885817del
     match_object = re.search(r'^(\d+)[ATGC]>', g_name)
     if match_object is not None:
-        return match_object.group(1)
-    else:
-        match_object = re.search(r'_(\d+)[di]', g_name)
-        if match_object is not None:
-            return match_object.group(1)
-        else:
-            # case of single nt dels ins dup
-            match_object = re.search(r'^(\d+)[d]', g_name)
-            if match_object is not None:
-                return match_object.group(1)
-    return None
+        return match_object[1]
+    match_object = re.search(r'_(\d+)[di]', g_name)
+    if match_object is not None:
+        return match_object[1]
+    # case of single nt dels ins dup
+    match_object = re.search(r'^(\d+)[d]', g_name)
+    return match_object[1] if match_object is not None else None
 
 
 def compute_start_end_pos(name):
@@ -886,27 +834,20 @@ def compute_start_end_pos(name):
     # from VCF and HGVS - for variants > 1bp
     match_object = re.search(r'(\d+)_(\d+)[di]', name)
     if match_object is not None:
-        return match_object.group(1), match_object.group(2)
-    else:
-        match_object = re.search(r'^(\d+)[ATGC]>', name)
-        if match_object is not None:
-            return match_object.group(1), match_object.group(1)
-        else:
-            # single nt del or delins
-            match_object = re.search(r'^(\d+)[d]', name)
-            if match_object is not None:
-                return match_object.group(1), match_object.group(1)
-            else:
+        return match_object[1], match_object[2]
+    match_object = re.search(r'^(\d+)[ATGC]>', name)
+    if match_object is not None:
+        return match_object[1], match_object[1]
+    # single nt del or delins
+    match_object = re.search(r'^(\d+)[d]', name)
+    if match_object is not None:
+        return match_object[1], match_object[1]
                 # case where NM wt disagree with genomic wt
-                if re.search(r'^\d+=', name):
-                    return '-1', '-1'
-    return None, None
+    return ('-1', '-1') if re.search(r'^\d+=', name) else (None, None)
 
 
 def danger_panel(var, warning):  # to be used in create_var_vv
-    begin_txt = 'VariantValidator error: '
-    if var == '':
-        begin_txt = ''
+    begin_txt = '' if var == '' else 'VariantValidator error: '
     return """
     <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
         <span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display=\'none\'">X</span>
@@ -916,11 +857,7 @@ def danger_panel(var, warning):  # to be used in create_var_vv
 
 
 def info_panel(text, var='', id_var='', color_class='w3-sand'):
-    # to print general info do not send var neither id_var
-    # Newly created variant:
-    c = 'c.'
-    if re.search(r'N[MR]_', var):
-        c = ''
+    c = '' if re.search(r'N[MR]_', var) else 'c.'
     link = ''
     if var != '':
         link = """
@@ -964,30 +901,23 @@ def get_vv_api_url():
                 urls['variant_validator_api_hello_backup'],
                 urls['variant_validator_api_backup']
         )
-        if checked_url:
-            return checked_url
-        else:
+        if not checked_url:
             checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello'],
                 urls['variant_validator_api']
             )
-            return checked_url
+        return checked_url
     else:
-        # the other way around
-        checked_url = test_vv_api_url(
-                urls['variant_validator_api_hello'],
-                urls['variant_validator_api']
-        )
-        if checked_url:
+        if checked_url := test_vv_api_url(
+            urls['variant_validator_api_hello'], urls['variant_validator_api']
+        ):
+            return checked_url
+        if checked_url := test_vv_api_url(
+            urls['variant_validator_api_hello_backup'],
+            urls['variant_validator_api_backup'],
+        ):
             return checked_url
         else:
-            checked_url = test_vv_api_url(
-                urls['variant_validator_api_hello_backup'],
-                urls['variant_validator_api_backup']
-            )
-            if checked_url:
-                return checked_url
-            else:
                 send_error_email(
                 prepare_email_html(
                     'MobiDetails VariantValidator error',
