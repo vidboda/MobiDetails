@@ -1445,7 +1445,8 @@ def create_var_vv(
             vf_d['prot_type'] = 'inframe insertion'
         else:
             var_obj = re.search(r'^(\w{3})\d+(\w{3})$', vf_d['p_name'])
-            if var_obj.group(1) != var_obj.group(2):
+            if var_obj and \
+                    var_obj.group(1) != var_obj.group(2):
                 vf_d['prot_type'] = 'missense'
             else:
                 vf_d['prot_type'] = 'unknown'
