@@ -180,6 +180,11 @@
   #   'suffixes': ['auth/forgot_pass', 'auth/login', 'auth/profile/\d+', 'auth/register', 'md/about', 'md/changelog', 'md/gene/[A-Za-z0-9-]', 'md/genes', 'md/index', 'md/variant/\d+', 'upload/upload_form']
 'local_files':
   # id :local path, version name, short desc, short name 4 urls xref
+  'absplice':
+    'rel_path': '/static/resources/AbSplice/AbSplice_DNA_hg38_snvs_high_scoresv3/score_cutoff=0.01/'
+    'name': 'AbSplice predictions'
+    'description': 'Predictions of splicing defects per tissue, combining SpliceAi and MMSplice'
+    'short_name': 'absplice'
   'cadd':
     'rel_path': '/static/resources/CADD/hg38/v1.6/whole_genome_SNVs.tsv.gz'
     'name': 'CADD SNVs'
@@ -354,6 +359,14 @@
     'dbNSFP_value_col': '53'
     'dbNSFP_pred_col': '55'
 'external_tools':
+  'AbSplice':
+    'firstauthor': 'Rentzsch'
+    'year': '2023'
+    'paper': '37142848'
+    'version': 'v3'
+    'short_name': 'absplice'
+    'min_col': '152'
+    'max_col': '199'
   'CADD':
     'firstauthor': 'Rentzsch'
     'year': '2019'

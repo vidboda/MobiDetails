@@ -653,10 +653,16 @@ $(document).ready(function() {
   	$('#page_menu').remove();
     $('#second_br').remove();
     // hide left menu items
-  	myAccFunc('hg19_acc', 'hg19_icon');
+    if ($('#somatic_acc').length) {
+  	  myAccFunc('hg19_acc', 'hg19_icon');
+    }
   	myAccFunc('hg38_acc', 'hg38_icon');
-    myAccFunc('somatic_acc', 'somatic_icon');
-    myAccFunc('bonus_acc', 'bonus_icon');
+    if ($('#somatic_acc').length) {
+      myAccFunc('somatic_acc', 'somatic_icon');
+    }
+    if ($('#somatic_acc').length) {
+      myAccFunc('bonus_acc', 'bonus_icon');
+    }    
   	$('#smart_menu').hide();
   	$('#openNav').css('visibility', 'visible');
   	$('#global_content').animate({marginLeft: '0%'});

@@ -273,6 +273,57 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DP_DG': None,
             'spliceai_DP_DL': None,
             'SPiP': None,
+            'AbSplice': {
+                'Adipose_Subcutaneous': None,
+                'Adipose_Visceral_Omentum': None,
+                'Adrenal_Gland': None,
+                'Artery_Aorta': None,
+                'Artery_Coronary': None,
+                'Artery_Tibial': None,
+                'Brain_Amygdala': None,
+                'Brain_Anterior_cingulate_cortex_BA24': None,
+                'Brain_Caudate_basal_ganglia': None,
+                'Brain_Cerebellar_Hemisphere': None,
+                'Brain_Cerebellum': None,
+                'Brain_Cortex': None,
+                'Brain_Frontal_Cortex_BA9': None,
+                'Brain_Hippocampus': None,
+                'Brain_Hypothalamus': None,
+                'Brain_Nucleus_accumbens_basal_ganglia': None,
+                'Brain_Putamen_basal_ganglia': None,
+                'Brain_Spinal_cord_cervical_c_1': None,
+                'Brain_Substantia_nigra': None,
+                'Breast_Mammary_Tissue': None,
+                'Cells_Cultured_fibroblasts': None,
+                'Cells_EBV_transformed_lymphocytes': None,
+                'Colon_Sigmoid': None,
+                'Colon_Transverse': None,
+                'Esophagus_Gastroesophageal_Junction': None,
+                'Esophagus_Mucosa': None,
+                'Esophagus_Muscularis': None,
+                'Heart_Atrial_Appendage': None,
+                'Heart_Left_Ventricle': None,
+                'Kidney_Cortex': None,
+                'Liver': None,
+                'Lung': None,
+                'Minor_Salivary_Gland': None,
+                'Muscle_Skeletal': None,
+                'Nerve_Tibial': None,
+                'Ovary': None,
+                'Pancreas': None,
+                'Pituitary': None,
+                'Prostate': None,
+                'Skin_Not_Sun_Exposed_Suprapubic': None,
+                'Skin_Sun_Exposed_Lower_leg': None,
+                'Small_Intestine_Terminal_Ileum': None,
+                'Spleen': None,
+                'Stomach': None,
+                'Testis': None,
+                'Thyroid': None,
+                'Uterus': None,
+                'Vagina': None,
+                'Whole_Blood': None,
+            }
         },
         'miRNATargetSitesPredictions': {
             'mirandaCategory': None,
@@ -382,6 +433,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DS_AL_color': None,
             'spliceai_DS_DG_color': None,
             'spliceai_DS_DL_color': None,
+            'abSpliceResults': False
         },
         'positions': {
             'metaDomeColor': None,
@@ -1169,12 +1221,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         variant_features['variant_size'] == 1) or
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4)):
-                # elif ((variant_features['dna_type'] == 'insertion' or
-                #         variant_features['dna_type'] == 'duplication') and
-                #         (variant_features['variant_size'] == 1) or
-                #         internal_data['positions']['insSize'] == 1) or \
-                #         (variant_features['dna_type'] == 'deletion' and
-                #             variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
                     # print(record)
                     spliceai_res = True
@@ -1207,6 +1253,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                     elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
                                         external_data['overallPredictions']['mpaScore'] = 6
                                         external_data['overallPredictions']['mpaImpact'] = 'Low splice'
+                # AbSplice
+                # results are stored in a tabix file, on file per gene
+                # so we need to get the file and then the results - 49 tissus, 49 results
+                # SNVs only
+                if os.path.isfile('{0}'.format(md_utilities.local_files['absplice']['abs_path'])):
+                    internal_data['splicingPredictions']['abSpliceResults'] = True
+                    record = md_utilities.get_value_from_tabix_file('AbSplice', md_utilities.local_files['absplice']['abs_path'], var, variant_features)
+                    print(record)
+
         for var in variant:
             # 2nd loop as we need to fetch hg38 first, to get revel scores
             if var['genome_version'] == 'hg19':
@@ -1508,7 +1563,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         )
                         return redirect(url_for('md.index'), code=302)
 
-                vv_base_url = md_utilities.get_vv_api_url()
+                vv_base_url = md_utilities.get_vv_api_url(caller)
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
@@ -1819,7 +1874,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             return redirect(url_for('api.variant', variant_id=res['feature_id'], caller='browser'), code=302)
                     else:
                         # creation
-                        vv_base_url = md_utilities.get_vv_api_url()
+                        vv_base_url = md_utilities.get_vv_api_url(caller)
                         if not vv_base_url:
                             close_db()
                             if caller == 'cli':
@@ -2466,7 +2521,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
         else:
             # creation
-            vv_base_url = md_utilities.get_vv_api_url()
+            vv_base_url = md_utilities.get_vv_api_url(caller)
             # print(vv_base_url)
             if not vv_base_url:
                 close_db()

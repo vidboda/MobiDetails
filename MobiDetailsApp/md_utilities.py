@@ -62,6 +62,9 @@ one2three = resources['one2three']
 three2one = resources['three2one']
 urls = resources['urls']
 local_files = resources['local_files']
+local_files['absplice']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['absplice']['rel_path']
+)
 local_files['cadd']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['cadd']['rel_path']
 )
@@ -957,9 +960,10 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     return None
 
 
-def get_vv_api_url():
+def get_vv_api_url(caller='browser'):
     # if identified intensive api usage, redirect to local VV
-    if request.headers.get('User-Agent') in user_agent_list:
+    if caller != 'browser':
+    # if request.headers.get('User-Agent') in user_agent_list:
         checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello_backup'],
                 urls['variant_validator_api_backup']
