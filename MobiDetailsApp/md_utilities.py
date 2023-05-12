@@ -28,7 +28,7 @@ with open('{}/sql/md_resources.yaml'.format(app_path), "r") as resources_file:
 # resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 host = resources['host']
-user_agent_list = resources['user_agent_list']
+# user_agent_list = resources['user_agent_list']
 regexp = resources['regexp']
 
 api_agent = resources['api_agent']
@@ -2351,6 +2351,7 @@ def format_mirs(record):
 
 
 def check_api_key(db, api_key):  # in api
+    print('API key: {}'.format(api_key))
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if len(api_key) != 43:
         return {'mobidetails_error': 'Invalid API key'}

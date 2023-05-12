@@ -660,7 +660,7 @@ $(document).ready(function() {
     if ($('#somatic_acc').length) {
       myAccFunc('somatic_acc', 'somatic_icon');
     }
-    if ($('#somatic_acc').length) {
+    if ($('#bonus_acc').length) {
       myAccFunc('bonus_acc', 'bonus_icon');
     }    
   	$('#smart_menu').hide();

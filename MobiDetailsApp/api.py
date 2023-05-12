@@ -133,8 +133,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
     # dealing with academic or not user
     academic = True
     # typically calling from API - swagger sends ','
+    # browser sends 'dom.css.map'
     if api_key and \
-            api_key != ',':
+            api_key != ',' and \
+            len(api_key) == 43:
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
             close_db()
