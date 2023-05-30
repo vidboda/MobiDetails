@@ -1,5 +1,6 @@
 import re
 import os
+import gzip
 from flask import (
     Blueprint, g, request, url_for, jsonify, redirect, flash, render_template, escape
 )
@@ -475,6 +476,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'htmlCode': None
         },
         'noMatch': {
+            'absplice': None,
             'cadd': None,
             'eigen': None,
             'dbnsfp': None,
@@ -1259,9 +1261,30 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # results are stored in a tabix file, on file per gene
                 # so we need to get the file and then the results - 49 tissus, 49 results
                 # SNVs only
-                if os.path.isfile('{0}'.format(md_utilities.local_files['absplice']['abs_path'])):
+                absplice_file = '{0}{1}.tsv.gz'.format(
+                            md_utilities.local_files['absplice']['abs_path'],
+                            external_data['gene']['hgncId']
+                        )
+                if os.path.isfile(absplice_file):
                     internal_data['splicingPredictions']['abSpliceResults'] = True
-                    record = md_utilities.get_value_from_tabix_file('AbSplice', md_utilities.local_files['absplice']['abs_path'], var, variant_features)
+                    record = md_utilities.get_value_from_tabix_file(
+                        'AbSplice',
+                        absplice_file,
+                        var,
+                        variant_features
+                    )
+                    if isinstance(record, str):
+                        # No match in AbSplice v3
+                        internal_data['noMatch']['absplice'] = "{0} {1}".format(record, md_utilities.external_tools['AbSplice']['version'])
+                    else:
+                        # parse the file header to get:
+                        # - splice_site_is_expressed_TISSUE WT expression?
+                        # - AbSplice_DNA_Tissue
+                        # - number of tissues vary from each file
+                        # then add the corresponding predictions
+                        with gzip.open(absplice_file, 'rt') as f:
+                            header = f.readline()
+                        print(header)
                     print(record)
 
         for var in variant:

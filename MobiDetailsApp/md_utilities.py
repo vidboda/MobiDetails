@@ -647,6 +647,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     # print(query)
     if text == 'gnomADv3' or \
+            text == 'AbSplice' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])

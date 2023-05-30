@@ -58,14 +58,14 @@ function w3_close() {
 function copy_text(copy_id) {
 	// adpated from https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
 	/* Get the text field */
-  var copyText = document.getElementById(copy_id);
-  /* Select the text field */
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); /*For mobile devices*/
-  /* Copy the text inside the text field */
-  document.execCommand("copy");
-  /* Alert the copied text */
-  //alert("Copied the text: " + copyText.value);
+	var copyText = document.getElementById(copy_id);
+	/* Select the text field */
+	copyText.select();
+	copyText.setSelectionRange(0, 99999); /*For mobile devices*/
+	/* Copy the text inside the text field */
+	document.execCommand("copy");
+	/* Alert the copied text */
+	//alert("Copied the text: " + copyText.value);
 }
 function hide_params() {
     // function to hide params when a form is sent (long response time e.g. register)
@@ -99,13 +99,13 @@ function panelapp(panelapp_url, gene_symbol, csrf_token) {
 // used in md.variant and auth.profile.html
 function favourite(vf_id, fav_url, csrf_token) {
 	// send header for flask-wtf crsf security
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrf_token);
-          }
-      }
-  });
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
 	// call form variant page
 	var favour_span_id;
 	var favour_id;
@@ -174,11 +174,11 @@ function favourite(vf_id, fav_url, csrf_token) {
 }
 function escapeHtml(unsafe) {
 	return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 $(document).ready(function(){
 	// $('#loader').hide();
