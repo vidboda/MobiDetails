@@ -648,14 +648,28 @@ def test_get_segment_number_from_vv(vv_expr, result):
     assert segment_number == result
 
 
-@pytest.mark.parametrize(('cigar', 'result'), (
-    ('8=', '8'),
-    ('72258=', '72258'),
-    ('xc', 'cigar_error'),
+@pytest.mark.parametrize(('start', 'end', 'result'), (
+    (39911401, 39911412, '12'),
+    (39927059, 39928306, '1248'),
+    (39928306, 39927059, 'segment_size_error'),
+    (39928306, '39927059', 'segment_size_error'),
+    ('dzzfe', 39927059, 'segment_size_error'),
+    (3992705, '39928306p', 'segment_size_error')
 ))
-def test_get_segment_size_from_vv_cigar(cigar, result):
-    segment_size = md_utilities.get_segment_size_from_vv_cigar(cigar)
+def test_get_segment_size_from_vv(start, end, result):
+    segment_size = md_utilities.get_segment_size_from_vv(start, end)
     assert segment_size == result
+
+
+# deprecated see https://github.com/beboche/MobiDetails/issues/45
+# @pytest.mark.parametrize(('cigar', 'result'), (
+#     ('8=', '8'),
+#     ('72258=', '72258'),
+#     ('xc', 'cigar_error'),
+# ))
+# def test_get_segment_size_from_vv_cigar(cigar, result):
+#     segment_size = md_utilities.get_segment_size_from_vv_cigar(cigar)
+#     assert segment_size == result
 
 
 @pytest.mark.parametrize(('gene_symbol', 'transcript', 'ncbi_chr', 'exon_number', 'start_result'), (
@@ -836,7 +850,7 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
-    ('http://194.167.35.195:8000/hello/?content-type=application/json', 'http://194.167.35.195:8000/'),
+    ('http://194.167.35.196:8000/hello/?content-type=application/json', 'http://194.167.35.196:8000/'),
     ('https://github.com', None),
     ('abcgcece', None),
 ))
@@ -844,15 +858,27 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
     assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
 
 
-@pytest.mark.parametrize(('ua', 'vv_api_url'), (
-    ('MobiDetails (mobidetails.iurc@gmail.com)', 'https://rest.variantvalidator.org/'),
-    ('chu-bordeaux', 'http://194.167.35.196:8000/'),
-    ('CJP', 'http://194.167.35.196:8000/'),
-    ('Bisonex', 'http://194.167.35.196:8000/'),
-    ('abcgcece', 'https://rest.variantvalidator.org/'),
+# deprecated, redirection depends of the caller, not anymore on the User-Agent
+# @pytest.mark.parametrize(('ua', 'vv_api_url'), (
+#     ('MobiDetails (mobidetails.iurc@gmail.com)', 'https://rest.variantvalidator.org/'),
+#     ('chu-bordeaux', 'http://194.167.35.196:8000/'),
+#     ('CJP', 'http://194.167.35.196:8000/'),
+#     ('Bisonex', 'http://194.167.35.196:8000/'),
+#     ('abcgcece', 'https://rest.variantvalidator.org/'),
+# ))
+@pytest.mark.parametrize(('caller', 'vv_api_url'), (
+    ('browser', 'https://rest.variantvalidator.org/'),
+    ('cli', 'http://194.167.35.196:8000/'),
+    ('nothing', 'http://194.167.35.196:8000/'),
+    (None, 'https://rest.variantvalidator.org/'),
 ))
-def test_get_vv_api_url(client, app, ua, vv_api_url):
-    with app.test_request_context(headers={'user-agent': ua}):
+def test_get_vv_api_url(caller, vv_api_url):
+    # with app.test_request_context(headers={'user-agent': ua}):
+    if caller:
+        api_url = md_utilities.get_vv_api_url(caller)
+        assert 'http' in api_url
+        assert api_url == vv_api_url
+    else:
         api_url = md_utilities.get_vv_api_url()
         assert 'http' in api_url
         assert api_url == vv_api_url

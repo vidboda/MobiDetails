@@ -1850,11 +1850,20 @@ def get_segment_type_from_vv(vv_expr):
     return 'segment_type_error'
 
 
-def get_segment_size_from_vv_cigar(cigar):
-    match_obj = re.search(r'^(\d+)=', cigar)
-    if match_obj:
-        return str(match_obj.group(1))
-    return 'cigar_error'
+def get_segment_size_from_vv(start, end):
+    if isinstance(start, int) and \
+            isinstance(end, int) and\
+            end > start:
+        return str(end - start + 1)
+    return 'segment_size_error'
+
+
+# deprecated see https://github.com/beboche/MobiDetails/issues/45
+# def get_segment_size_from_vv_cigar(cigar):
+#     match_obj = re.search(r'^(\d+)=', cigar)
+#     if match_obj:
+#         return str(match_obj.group(1))
+#     return 'cigar_error'
 
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
@@ -1893,10 +1902,18 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
                         else:
                             positions['segment_start'] = str(exon['genomic_end'])
                             positions['segment_end'] = str(exon['genomic_start'])
-                        positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
-                        if positions['segment_size'] != 'cigar_error' and \
+                        # deprecated see https://github.com/beboche/MobiDetails/issues/45
+                        # positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
+                        positions['segment_size'] = get_segment_size_from_vv(
+                            exon['genomic_start'],
+                            exon['genomic_end']
+                        )
+                        # if positions['segment_size'] != 'cigar_error' and \
+                        #         re.search(r'^\d+$', positions['segment_start']) and \
+                        #         re.search(r'^\d+$', positions['segment_end']):
+                        if positions['segment_size'] != 'segment_size_error' and \
                                 re.search(r'^\d+$', positions['segment_start']) and \
-                                re.search(r'^\d+$', positions['segment_start']):
+                                re.search(r'^\d+$', positions['segment_end']):
                             return positions
                         else:
                             return 'positions_error'
