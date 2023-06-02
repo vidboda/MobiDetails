@@ -364,7 +364,7 @@
     'firstauthor': 'Wagner'
     'year': '2023'
     'paper': '37142848'
-    'version': 'precomputed dataset from v1.0.0'
+    'version': ' v1.0.0 precomputed dataset'
     'short_name': 'absplice'
   'CADD':
     'firstauthor': 'Rentzsch'
