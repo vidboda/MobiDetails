@@ -713,6 +713,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
+    if text == 'AbSplice':
+        return 'No significant score in {}'.format(text)
     return 'No match in {}'.format(text)
 
 
