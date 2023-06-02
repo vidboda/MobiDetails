@@ -670,7 +670,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     if re.search(
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
             tabix_file
-            ):
+            ) or \
+            text == 'AbSplice':
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     for record in records:
@@ -761,15 +762,15 @@ def getdbNSFP_results(
     return score, pred, star
 
 
-def get_spliceai_color(val):
+def get_splice_predictor_color(predictor, val):
     # returns an html color depending on spliceai score
     if val != '.':
         value = float(val)
-        if value > predictor_thresholds['spliceai_max']:
+        if value > predictor_thresholds['{0}_max'.format(predictor)]:
             return predictor_colors['max']
-        elif value > predictor_thresholds['spliceai_mid']:
+        elif value > predictor_thresholds['{0}_mid'.format(predictor)]:
             return predictor_colors['mid_effect']
-        elif value > predictor_thresholds['spliceai_min']:
+        elif value > predictor_thresholds['{0}_min'.format(predictor)]:
             return predictor_colors['small_effect']
         else:
             return predictor_colors['min']

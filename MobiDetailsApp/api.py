@@ -276,57 +276,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DP_DG': None,
             'spliceai_DP_DL': None,
             'SPiP': None,
-            'AbSplice': {
-                'Adipose_Subcutaneous': None,
-                'Adipose_Visceral_Omentum': None,
-                'Adrenal_Gland': None,
-                'Artery_Aorta': None,
-                'Artery_Coronary': None,
-                'Artery_Tibial': None,
-                'Brain_Amygdala': None,
-                'Brain_Anterior_cingulate_cortex_BA24': None,
-                'Brain_Caudate_basal_ganglia': None,
-                'Brain_Cerebellar_Hemisphere': None,
-                'Brain_Cerebellum': None,
-                'Brain_Cortex': None,
-                'Brain_Frontal_Cortex_BA9': None,
-                'Brain_Hippocampus': None,
-                'Brain_Hypothalamus': None,
-                'Brain_Nucleus_accumbens_basal_ganglia': None,
-                'Brain_Putamen_basal_ganglia': None,
-                'Brain_Spinal_cord_cervical_c_1': None,
-                'Brain_Substantia_nigra': None,
-                'Breast_Mammary_Tissue': None,
-                'Cells_Cultured_fibroblasts': None,
-                'Cells_EBV_transformed_lymphocytes': None,
-                'Colon_Sigmoid': None,
-                'Colon_Transverse': None,
-                'Esophagus_Gastroesophageal_Junction': None,
-                'Esophagus_Mucosa': None,
-                'Esophagus_Muscularis': None,
-                'Heart_Atrial_Appendage': None,
-                'Heart_Left_Ventricle': None,
-                'Kidney_Cortex': None,
-                'Liver': None,
-                'Lung': None,
-                'Minor_Salivary_Gland': None,
-                'Muscle_Skeletal': None,
-                'Nerve_Tibial': None,
-                'Ovary': None,
-                'Pancreas': None,
-                'Pituitary': None,
-                'Prostate': None,
-                'Skin_Not_Sun_Exposed_Suprapubic': None,
-                'Skin_Sun_Exposed_Lower_leg': None,
-                'Small_Intestine_Terminal_Ileum': None,
-                'Spleen': None,
-                'Stomach': None,
-                'Testis': None,
-                'Thyroid': None,
-                'Uterus': None,
-                'Vagina': None,
-                'Whole_Blood': None,
-            }
+            'abSplice': {}
         },
         'miRNATargetSitesPredictions': {
             'mirandaCategory': None,
@@ -436,7 +386,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DS_AL_color': None,
             'spliceai_DS_DG_color': None,
             'spliceai_DS_DL_color': None,
-            'abSpliceResults': False
+            'abSpliceResults': None,
+            'abSpliceMaxColor': None,
+            'abspliceDNAHeader': [],
+            'abspliceDNAValues': [],
         },
         'positions': {
             'metaDomeColor': None,
@@ -476,7 +429,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'htmlCode': None
         },
         'noMatch': {
-            'absplice': None,
+            'abSplice': None,
             'cadd': None,
             'eigen': None,
             'dbnsfp': None,
@@ -1245,7 +1198,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             i += 1
                             if re.match('spliceai_DS_', identifier):
                                 id_color = "{}_color".format(identifier)
-                                internal_data['splicingPredictions'][id_color] = md_utilities.get_spliceai_color(float(external_data['splicingPredictions'][identifier]))
+                                internal_data['splicingPredictions'][id_color] = md_utilities.get_splice_predictor_color(
+                                    'spliceai',
+                                    float(external_data['splicingPredictions'][identifier])
+                                )
                                 if not external_data['overallPredictions']['mpaScore'] or \
                                         external_data['overallPredictions']['mpaScore'] < 10:
                                     if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
@@ -1261,31 +1217,61 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # results are stored in a tabix file, on file per gene
                 # so we need to get the file and then the results - 49 tissus, 49 results
                 # SNVs only
-                absplice_file = '{0}{1}.tsv.gz'.format(
-                            md_utilities.local_files['absplice']['abs_path'],
-                            external_data['gene']['hgncId']
+                if external_data['positions']['DNAType'] == 'substitution':
+                    absplice_file = '{0}{1}.tsv.gz'.format(
+                                md_utilities.local_files['absplice']['abs_path'],
+                                external_data['gene']['hgncId']
+                            )
+                    if os.path.isfile(absplice_file):
+                        record = md_utilities.get_value_from_tabix_file(
+                            'AbSplice',
+                            absplice_file,
+                            var,
+                            variant_features
                         )
-                if os.path.isfile(absplice_file):
-                    internal_data['splicingPredictions']['abSpliceResults'] = True
-                    record = md_utilities.get_value_from_tabix_file(
-                        'AbSplice',
-                        absplice_file,
-                        var,
-                        variant_features
-                    )
-                    if isinstance(record, str):
-                        # No match in AbSplice v3
-                        internal_data['noMatch']['absplice'] = "{0} {1}".format(record, md_utilities.external_tools['AbSplice']['version'])
-                    else:
-                        # parse the file header to get:
-                        # - splice_site_is_expressed_TISSUE WT expression?
-                        # - AbSplice_DNA_Tissue
-                        # - number of tissues vary from each file
-                        # then add the corresponding predictions
-                        with gzip.open(absplice_file, 'rt') as f:
-                            header = f.readline()
-                        print(header)
-                    print(record)
+                        if isinstance(record, str):
+                            # No match in AbSplice v3
+                            internal_data['noMatch']['abSplice'] = "{0} {1}".format(record, md_utilities.external_tools['AbSplice']['version'])
+                        else:
+                            internal_data['splicingPredictions']['abSpliceResults'] = True
+                            # parse the file header to get:
+                            # - splice_site_is_expressed_TISSUE WT expression?
+                            # - AbSplice_DNA_Tissue
+                            # - number of tissues vary from each file
+                            # - values can be empty?
+                            # then add the corresponding predictions
+                            # build dict with interesting header and value => map?
+                            with gzip.open(absplice_file, 'rt') as f:
+                                headers = f.readline().split('\t')
+                            external_data['splicingPredictions']['abSplice'] = dict(zip(headers, record))
+                            # get max absplice score
+                            # reduce dic with only interesting features?
+                            # build 2 lists with only AbSplice_DNA_Tissue and values
+                            # and get max absplice score
+                            tmp_max = 0
+                            tmp_tissue = ''
+                            for header in external_data['splicingPredictions']['abSplice']:
+                                match_obj = re.search(r'^AbSplice_DNA_(\w+)$', header)
+                                if match_obj:
+                                    internal_data['splicingPredictions']['abspliceDNAHeader'].append(match_obj.group(1).replace('_', ' '))
+                                    internal_data['splicingPredictions']['abspliceDNAValues'].append(
+                                        external_data['splicingPredictions']['abSplice'][header]
+                                    )
+                                    if ((tmp_max > 0 and 
+                                            float(external_data['splicingPredictions']['abSplice'][header]) >  tmp_max) or 
+                                            tmp_max == 0):
+                                        tmp_max = float(external_data['splicingPredictions']['abSplice'][header])
+                                        tmp_tissue = match_obj.group(1).replace('_', ' ')
+                            if tmp_max > 0:
+                                internal_data['splicingPredictions']['abSpliceMaxColor'] = md_utilities.get_splice_predictor_color(
+                                    'absplice',
+                                    tmp_max
+                                )
+                                external_data['splicingPredictions']['abSplice']['maxScore'] = tmp_max
+                                external_data['splicingPredictions']['abSplice']['maxTissue'] = tmp_tissue
+                        # print(external_data['splicingPredictions']['AbSplice'])
+                        # print(internal_data['splicingPredictions']['absplice_dna_header'])
+                        # print(internal_data['splicingPredictions']['absplice_dna_values'])
 
         for var in variant:
             # 2nd loop as we need to fetch hg38 first, to get revel scores

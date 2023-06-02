@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, link, span_color, section_title, modal_js, fa %}
+{% from 'macros.html' import danger, info, link, span_color, section_title, section_subtitle, modal_js, fa %}
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
@@ -15,7 +15,7 @@
 	unlink igv.min.js
 	ln -s igv.${VERSION}.min.js igv.min.js
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230512" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230602" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -568,11 +568,12 @@
 		</div>
 		<!--fifth section-->
 		<hr />
-		{{ section_title('splicing', 'Splicing predictions') }}
+		{{ section_title('splicing', 'Splicing predictions') }}		
 		<div class="w3-responsive w3-container">
 			{% if (external_data.positions.segmentStartType == 'exon' or (external_data.positions.segmentStartType == 'intron' and internal_data.positions.distFromExon < 101)) and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.size < 50 %}
 				<!-- Exonic Splicing context -->
-				<br />{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}
+				{{ section_subtitle('exonic_context_subtitle', 'Exonic context') }}
+				{{ info("The exonic splicing context of the variant including natural splice sites scores is summarized in the graph below:") }}
 				<div class="w3-container w3-center">
 					<canvas class="exonic_canvas" width="600" height="150" id="segment_drawing">Your web browser does not understand HTML5. In order to display the small graph, you must use a more recent one.</canvas>
 				</div>
@@ -629,6 +630,7 @@
 				{% endautoescape %}
 			{% endif %}
 			<!-- MaxEntScan 5'ss -->
+			{{ section_subtitle('mes_subtitle', 'MaxEntScan results') }}
 			{{ info('MaxEntScan scores are presented in the two following tables. Selected scores have: <ul><li>a |variation| > 15% and</li><li>a raw score for mutant or wild-type of at least 3</li></ul> The upper sequence shows the variation site in red, and the lower sequence the putative splice site considered by <a href ="http://hollywood.mit.edu/burgelab/maxent/Xmaxentscan_scoreseq.html" target="_blank" rel="noopener noreferrer">MaxEntScan</a> (putative introns are shown as lower case and exons as upper case).') }}
 			<br />
 			<table class="w3-table w3-centered display compact" style="width:90%;" id="maxent5ss_table">
@@ -701,12 +703,14 @@
 				</tbody>
 			</table><br/><br/>
 			<!-- SPiP -->
+			{{ section_subtitle('spip_subtitle', 'SPiP results') }}
 			{{ info('<a href="%s" target="_blank" rel="noopener noreferrer">SPiP</a> results and predictions:' | format(urls.spip)) }}
 			<div id="spip">{{ info('MobiDetails is running SPiPv2 (may last up to 20s)... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
-				<!--dbscSNV / spliceAI-->
+				<!--dbscSNV / spliceAI / AbSplice Max-->
+				{{ section_subtitle('spliceai_subtitle', 'dbscSNV / SpliceAI / AbSplice Max results') }}
 				{% if external_data.positions.DNAType != 'indel' %}
-					{{ info('This last table presents dbscSNV and <strong>SpliceAI raw delta scores (max distance: 50 bp)</strong>, when available. You can also (except for delins) run spliceAI via the <a href="%s" target="_blank" rel="noopener noreferrer">spliceAIlookup API</a> using a distance of 500 bp, and get also raw delta scores. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. <strong>Details on raw or masked delta scores are available <a href="https://github.com/Illumina/SpliceAI#frequently-asked-questions" target="_blank" rel="noopener noreferrer">here</a></strong>. While the authors state that masked scores are preferentially used for variant interprétation, raw scores (unmasked) seem to be more informative. <strong>You can get masked delta scores with a +/- 500 bp window with this <a href="%s%s-%s-%s-%s" target="_blank" rel="noopener noreferrer">link</a></strong>.')|format(urls.spliceai_lookup, urls.splcieai_lookup_masked_link, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}
+					{{ info('This table presents dbscSNV and <strong>SpliceAI raw delta scores (max distance: 50 bp)</strong>, when available. You can also (except for delins) run spliceAI via the <a href="%s" target="_blank" rel="noopener noreferrer">spliceAIlookup API</a> using a distance of 500 bp, and get also raw delta scores. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. <strong>Details on raw or masked delta scores are available <a href="https://github.com/Illumina/SpliceAI#frequently-asked-questions" target="_blank" rel="noopener noreferrer">here</a></strong>. While the authors state that masked scores are preferentially used for variant interprétation, raw scores (unmasked) seem to be more informative. <strong>You can get masked delta scores with a +/- 500 bp window with this <a href="%s%s-%s-%s-%s" target="_blank" rel="noopener noreferrer">link</a></strong>. For substitutions, a pre-computed score for AbSplice is diplayed when relevant. AbSplice associates SpliceAI, MMSplice and tissue-specific splice site annotations (SpliceMaps). The scores represent the probability that a given variant causes aberrant splicing in a given tissue.')|format(urls.spliceai_lookup, urls.spliceai_lookup_masked_link, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}
 				{% endif %}
 				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
 				<table class="w3-table w3-centered display compact" style="width:90%;" id="splicing_table">
@@ -719,67 +723,80 @@
 					</thead>
 					<tbody>
 						{% if external_data.positions.DNAType == 'substitution' %}
-							<tr><!--dbscSNV ADA-->
-								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> ADA:</td>
-								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
-							</tr>
-							<tr><!--dbscSNV RF-->
-								<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> RF:</td>
-								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
-								<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &gt; {{ thresholds.dbscsnv }} for impact</em></td>
-							</tr>
+						<tr><!--dbscSNV ADA-->
+							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> ADA:</td>
+							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &ge; {{ thresholds.dbscsnv }} for impact</em></td>
+						</tr>
+						<tr><!--dbscSNV RF-->
+							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> RF:</td>
+							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &ge; {{ thresholds.dbscsnv }} for impact</em></td>
+						</tr>
 						{% endif %}
 						{% if g.user['academic'] or not g.user %}
 							{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
-								<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
-									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> AG:</td>
-									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
-									<td class="w3-left-align"><em class="w3-small">Acceptor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-								</tr>
-								<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
-									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> AL:</td>
-									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
-									<td class="w3-left-align"><em class="w3-small">Acceptor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-								</tr>
-								<tr id='spliceai_dg_50_tr'><!--spliceAI DG-->
-									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> DG:</td>
-									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
-									<td class="w3-left-align"><em class="w3-small">Donor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-								</tr>
-								<tr id='spliceai_dl_50_tr'><!--spliceAI DL-->
-									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> DL:</td>
-									<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
-									<td class="w3-left-align"><em class="w3-small">Donor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-								</tr>
+							<tr id='spliceai_ag_50_tr'><!--spliceAI AG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> AG:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AG, internal_data.splicingPredictions.spliceai_DS_AG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AG }})</td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Gain, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_al_50_tr'><!--spliceAI AL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> AL:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_AL, internal_data.splicingPredictions.spliceai_DS_AL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_AL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Acceptor Loss, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_dg_50_tr'><!--spliceAI DG-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> DG:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DG, internal_data.splicingPredictions.spliceai_DS_DG_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DG }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Gain, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
+							<tr id='spliceai_dl_50_tr'><!--spliceAI DL-->
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a> DL:</td>
+								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai_DS_DL, internal_data.splicingPredictions.spliceai_DS_DL_color) }} ({{ external_data.splicingPredictions.spliceai_DP_DL }})</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
 							{% elif internal_data.noMatch.spliceai is not none %}
-								<tr>
-									<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a>:</td>
-									<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
-									<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
-								</tr>
+							<tr>
+								<td class="w3-left-align"><a href="{{ urls.spliceai }}" target="_blank" title="Visit spliceAI" rel="noopener noreferrer">spliceAI</a>:</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.spliceai }}</td>
+								<td class="w3-left-align"><em class="w3-small">Donor Loss, 0-1 (distance in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							</tr>
 							{% endif %}
 						{% endif %}
 						<tr id="spliceai_lookup_ag_tr" style="display:none;"><!--spliceAI lookup AG-->
 							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup" rel="noopener noreferrer">spliceAI lookup (500)</a> AG:</td>
 							<td class="w3-left-align" id="spliceai_lookup_ag">SpliceAi 500 was not run</td>
-							<td class="w3-left-align"><em class="w3-small">Acceptor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							<td class="w3-left-align"><em class="w3-small">Acceptor Gain, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
 						<tr id="spliceai_lookup_al_tr" style="display:none;"><!--spliceAI lookup AL-->
 							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup" rel="noopener noreferrer">spliceAI lookup (500)</a> AL:</td>
 							<td class="w3-left-align" id="spliceai_lookup_al">SpliceAi 500 was not run</td>
-							<td class="w3-left-align"><em class="w3-small">Acceptor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							<td class="w3-left-align"><em class="w3-small">Acceptor Loss, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
 						<tr id="spliceai_lookup_dg_tr" style="display:none;"><!--spliceAI lookup DG-->
 							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup" rel="noopener noreferrer">spliceAI lookup (500)</a> DG:</td>
 							<td class="w3-left-align" id="spliceai_lookup_dg">SpliceAi 500 was not run</td>
-							<td class="w3-left-align"><em class="w3-small">Donor Gain, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							<td class="w3-left-align"><em class="w3-small">Donor Gain, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
 						<tr id="spliceai_lookup_dl_tr" style="display:none;"><!--spliceAI lookup DL-->
 							<td class="w3-left-align"><a href="{{ urls.spliceai_lookup }}" target="_blank" title="Visit spliceAI lookup" rel="noopener noreferrer">spliceAI lookup (500)</a> DL:</td>
 							<td class="w3-left-align" id="spliceai_lookup_dl">SpliceAi 500 was not run</td>
-							<td class="w3-left-align"><em class="w3-small">Donor Loss, &Delta; score 0-1 (relative position in bp), thresholds &gt; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
+							<td class="w3-left-align"><em class="w3-small">Donor Loss, &Delta; score 0-1 (relative position in bp), thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai_min, thresholds.spliceai_mid, thresholds.spliceai_max) }} for impact</em></td>
 						</tr>
+						{% if internal_data.splicingPredictions.abSpliceResults is not none %}
+						<tr id='absplice_max'><!--AbSplice MaxScore lookup DL-->
+							<td class="w3-left-align"><a href="{{ urls.absplice }}" target="_blank" title="Visit AbSplice" rel="noopener noreferrer">AbSplice</a> Max Score:</td>
+							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.abSplice.maxScore, internal_data.splicingPredictions.abSpliceMaxColor) }} ({{ external_data.splicingPredictions.abSplice.maxTissue }})</td>
+							<td class="w3-left-align"><em class="w3-small">AbSplice Max Tissue score, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.absplice_min, thresholds.absplice_mid, thresholds.absplice_max) }} for impact</em></td>
+						</tr>
+						{% elif internal_data.noMatch.abSplice is not none %}
+						<tr>
+							<td class="w3-left-align"><a href="{{ urls.absplice }}" target="_blank" title="Visit AbSplice" rel="noopener noreferrer">AbSplice</a>:</td>
+							<td class="w3-left-align">{{ internal_data.noMatch.abSplice }}</td>
+							<td class="w3-left-align"><em class="w3-small">AbSplice Max Tissue score, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.absplice_min, thresholds.absplice_mid, thresholds.absplice_max) }} for impact</em></td>
+						</tr>
+						{% endif %}
 					</tbody>
 				</table>
 			{% endif %}
@@ -805,6 +822,15 @@
 					</div>
 				</div>
 				<br />
+				{% if internal_data.splicingPredictions.abSpliceResults is not none %}
+				<!--AbSplice full results button -->
+				<div class="w3-row-padding">
+					<div class="w3-col m4">
+						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#absplice_detailed').toggle();" title="Toggle full output of AbSplice" style="width:100%">Toggle full AbSplice results</span>
+					</div>
+				</div>
+				<br />
+				{% endif %}
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
 				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
 					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
@@ -886,8 +912,59 @@
 					</script>
 				{% endif %}
 			{% endif %}
+			{% if internal_data.splicingPredictions.abSpliceResults is not none %}
+				<div id="absplice_detailed" style="display:none;">
+					{{ section_subtitle('absplice_subtitle', 'AbSplice results') }}
+					{{ info('AbSplice associates SpliceAI, MMSplice and tissue-specific splice site annotations (SpliceMaps). The scores represent the probability that a given variant causes aberrant splicing in a given tissue. <strong>AbSplice thresholds are defined as 0.01 (low), 0.05 (intermediate), and 0.2 (high)</strong>') }}
+					<div class="w3-container">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="absplice_bar"><p>AbSplice predictions</p></canvas>
+						</div>
+					</div>
+					<script>
+						Chart.defaults.font.size=16
+						var point_font_size = 16
+						var wi = $(window).width();
+						if (wi < 400) {
+							Chart.defaults.font.size=12
+							point_font_size = 12;
+						}
+						{% autoescape false %}
+							new Chart($("#absplice_bar"), {
+								type: 'bar',
+								data: {
+									labels: {{ internal_data.splicingPredictions.abspliceDNAHeader }},
+									datasets: [{
+										label: 'AbSplice tissue predictions',
+										data: {{ internal_data.splicingPredictions.abspliceDNAValues }},
+										fill: true,
+									}]
+								},
+								options: {
+									indexAxis: 'y',
+									locale: 'en-US',
+									elements: {
+										bar: {
+											borderWidth: 2,
+										}
+									},
+									scales: {
+										x: {
+											beginAtZero: true,
+										},
+									},
+									// multiTooltipTemplate : "<%=label%> : <%=value%>",
+									onAnimationComplete: "done",
+									responsive: true,
+								}
+							});
+						{% endautoescape %}
+					</script>
+				</div>
+			{% endif %}
 			<!--spliceaivisual in igv.js-->
 			<br />
+			{{ section_subtitle('spliceai_visual_subtitle', 'SpliceAI-visual results') }}
 			<div id="igv_desc" style="display:none">
 				{{ info('SpliceAI-visual displays SpliceAI raw (absolute) predictions:<ul><li>Green and red highlights show the variation site on the wild-type and mutant track, respectively</li><li>Positive orange bars represent predicted acceptor sites ([0;1]), and negative blue bars donor sites ([-1;0]), the spliceai raw score being the absolute value.</li><li>The first track is the spliceai prediction for the entire MANE transcript.</li><li>The second track is the prediction for the variant, +/- 10kb inside the transcript (i.e. not considering intergenic nucleotides).</li><li>The "inserted nucleotides" track is used to display the scores of the nucleotides being part of the insertion (empty if no insertion)</li><li>You can download the <a href="{0}" target="_blank" rel="noopener noreferrer">Wild-type</a> and <a href="{1}" target="_blank" rel="noopener noreferrer">mutant</a> <span id="full_transcript_download"></span> bedgraphs in order to load them in your own Desktop IGV or the UCSC genome browser.</li><li><strong>Important notice: </strong>if your intronic variant is located more than 10kb from one of the two flanking exons, you are advised to click on the <strong>"SpliceAI-visual full transcript"</strong> button at the top of this text. Depending on the size of your transcript, within 30s-10 minutes (for the DMD gene, the bad news), <strong>the whole transcript prediction including the variant will appear as a new track in the igv.js browser</strong>, allowing a more accurate prediction for your variant. <strong>The good news being that if is has already been computed, it will load automatically.</strong></li><li><strong><a href="{2}" target="_blank" rel="noopener noreferrer">How to cite</a>?</strong></li></ul>'.format(url_for("static", filename="resources/spliceai/transcripts/{0}.bedGraph".format(external_data.gene.RefSeqTranscript)), url_for("static", filename="resources/spliceai/variants/{0}.bedGraph".format(external_data.variantId)), url_for("md.about", _anchor="disclaimer"))) }}
 			</div>
@@ -1002,13 +1079,13 @@
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer"Polyphen 2</a> HumDiv:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
 						</tr>
 						<tr><!--PH2 HVAR-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer">Polyphen 2</a> HumVar:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds &gt; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
 						</tr>
 						{% endif %}
 						<tr><!--FATHMM-->

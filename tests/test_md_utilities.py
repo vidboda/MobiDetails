@@ -537,15 +537,20 @@ def test_getdbNSFP_results():
     assert star == ''
 
 
-@pytest.mark.parametrize(('value', 'result_color'), (
-    (0.1270, '#00A020'),
-    (0.0000, '#00A020'),
-    (0.4289, '#FFA020'),
-    (0.6854, '#FF6020'),
-    (0.9847, '#FF0000')
+@pytest.mark.parametrize(('predictor', 'value', 'result_color'), (
+    ('spliceai', 0.1270, '#00A020'),
+    ('spliceai', 0.0000, '#00A020'),
+    ('spliceai', 0.4289, '#FFA020'),
+    ('spliceai', 0.6854, '#FF6020'),
+    ('spliceai', 0.9847, '#FF0000'),
+    ('absplice', 0.0012, '#00A020'),
+    ('absplice', 0.0000, '#00A020'),
+    ('absplice', 0.0123, '#FFA020'),
+    ('absplice', 0.0678, '#FF6020'),
+    ('absplice', 0.2678, '#FF0000')
 ))
-def test_get_spliceai_color(client, value, result_color):
-    color = md_utilities.get_spliceai_color(value)
+def test_get_splice_predictor_color(predictor, value, result_color):
+    color = md_utilities.get_splice_predictor_color(predictor, value)
     assert color == result_color
 
 
