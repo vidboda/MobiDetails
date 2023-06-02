@@ -653,10 +653,16 @@ $(document).ready(function() {
   	$('#page_menu').remove();
     $('#second_br').remove();
     // hide left menu items
-  	myAccFunc('hg19_acc', 'hg19_icon');
+    if ($('#somatic_acc').length) {
+  	  myAccFunc('hg19_acc', 'hg19_icon');
+    }
   	myAccFunc('hg38_acc', 'hg38_icon');
-    myAccFunc('somatic_acc', 'somatic_icon');
-    myAccFunc('bonus_acc', 'bonus_icon');
+    if ($('#somatic_acc').length) {
+      myAccFunc('somatic_acc', 'somatic_icon');
+    }
+    if ($('#bonus_acc').length) {
+      myAccFunc('bonus_acc', 'bonus_icon');
+    }    
   	$('#smart_menu').hide();
   	$('#openNav').css('visibility', 'visible');
   	$('#global_content').animate({marginLeft: '0%'});
@@ -739,15 +745,22 @@ $(document).ready(function() {
           else if (d === 'Possibly Damaging') {color_style = '#FF6020'}
           else if (d === 'Tolerated' || d === 'Neutral' || d === 'Benign') {color_style = '#00A020'}
         }
-        else if (table_title === 'dbscSNV and SpliceAI'){
+        else if (table_title === 'dbscSNV, SpliceAI and AbSplice'){
           // we need to split str to get actual spliceAI values
           var split_str = d.split(" ");
+          var re = /^\d\.\d{2}$/;
           var totest = parseFloat(split_str[0]);
-          if (!isNaN(totest)) {
+          if (!isNaN(totest) && re.test(split_str[0])) {
             if (totest < 0.2) {color_style = '#00A020'}
             else if (totest > 0.8) {color_style = '#FF0000'}
             else if (totest > 0.5) {color_style = '#FF6020'}
-            else if (totest > 0.2) {color_style = '#FFA020'}
+            else if (totest >= 0.2) {color_style = '#FFA020'}
+          }
+          else if (!isNaN(totest)) {
+            if (totest < 0.01) {color_style = '#00A020'}
+            else if (totest > 0.2) {color_style = '#FF0000'}
+            else if (totest > 0.05) {color_style = '#FF6020'}
+            else if (totest >= 0.01) {color_style = '#FFA020'}
           }
           // if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) < 0.2) {color_style = '#00A020'}
           // else if (! isNan(parseFloat(split_str[0])) && parseFloat(split_str[0]) > 0.8) {color_style = '#FF0000'}
@@ -976,7 +989,17 @@ $(document).ready(function() {
       );
     }
     if ($.fn.DataTable.isDataTable('#splicing_table')) {
-      doc = convert_dt(config, "splicing_table", "dbscSNV and SpliceAI", "table_subtitle", doc);
+      doc = convert_dt(config, "splicing_table", "dbscSNV, SpliceAI and AbSplice", "table_subtitle", doc);
+    }
+    if ($('#absplice_bar').width() > 0) {
+      // attempt to transform bar charts into pdf
+      var absplice_bar_chart = document.querySelector('#absplice_bar').toDataURL();
+      doc['content'].push(
+        " ",
+        {text: "AbSplice tissue prediction", style: "table_subtitle", tocItem: true},
+        "The scores represent the probability that a given variant causes aberrant splicing in a given tissue. AbSplice thresholds are defined as 0.01 (low), 0.05 (intermediate), and 0.2 (high).",
+        {image: absplice_bar_chart, width: 500, alignment: 'center'}
+      );
     }
     if ($('#igv_div').length && igv.browser) {
       // var igv_svg = igv.browser.toSVG();

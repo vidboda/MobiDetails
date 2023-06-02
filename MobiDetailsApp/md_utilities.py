@@ -28,7 +28,7 @@ with open('{}/sql/md_resources.yaml'.format(app_path), "r") as resources_file:
 # resources = yaml.safe_load(open('{}/sql/md_resources.yaml'.format(app_path)))
 
 host = resources['host']
-user_agent_list = resources['user_agent_list']
+# user_agent_list = resources['user_agent_list']
 regexp = resources['regexp']
 
 api_agent = resources['api_agent']
@@ -62,6 +62,9 @@ one2three = resources['one2three']
 three2one = resources['three2one']
 urls = resources['urls']
 local_files = resources['local_files']
+local_files['absplice']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['absplice']['rel_path']
+)
 local_files['cadd']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['cadd']['rel_path']
 )
@@ -644,6 +647,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     # print(query)
     if text == 'gnomADv3' or \
+            text == 'AbSplice' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -666,7 +670,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     if re.search(
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
             tabix_file
-            ):
+            ) or \
+            text == 'AbSplice':
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     for record in records:
@@ -708,6 +713,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
+    if text == 'AbSplice':
+        return 'No significant score in {}'.format(text)
     return 'No match in {}'.format(text)
 
 
@@ -757,15 +764,15 @@ def getdbNSFP_results(
     return score, pred, star
 
 
-def get_spliceai_color(val):
+def get_splice_predictor_color(predictor, val):
     # returns an html color depending on spliceai score
     if val != '.':
         value = float(val)
-        if value > predictor_thresholds['spliceai_max']:
+        if value > predictor_thresholds['{0}_max'.format(predictor)]:
             return predictor_colors['max']
-        elif value > predictor_thresholds['spliceai_mid']:
+        elif value > predictor_thresholds['{0}_mid'.format(predictor)]:
             return predictor_colors['mid_effect']
-        elif value > predictor_thresholds['spliceai_min']:
+        elif value > predictor_thresholds['{0}_min'.format(predictor)]:
             return predictor_colors['small_effect']
         else:
             return predictor_colors['min']
@@ -957,9 +964,10 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     return None
 
 
-def get_vv_api_url():
+def get_vv_api_url(caller='browser'):
     # if identified intensive api usage, redirect to local VV
-    if request.headers.get('User-Agent') in user_agent_list:
+    if caller != 'browser':
+    # if request.headers.get('User-Agent') in user_agent_list:
         checked_url = test_vv_api_url(
                 urls['variant_validator_api_hello_backup'],
                 urls['variant_validator_api_backup']
@@ -1846,11 +1854,20 @@ def get_segment_type_from_vv(vv_expr):
     return 'segment_type_error'
 
 
-def get_segment_size_from_vv_cigar(cigar):
-    match_obj = re.search(r'^(\d+)=', cigar)
-    if match_obj:
-        return str(match_obj.group(1))
-    return 'cigar_error'
+def get_segment_size_from_vv(start, end):
+    if isinstance(start, int) and \
+            isinstance(end, int) and\
+            end > start:
+        return str(end - start + 1)
+    return 'segment_size_error'
+
+
+# deprecated see https://github.com/beboche/MobiDetails/issues/45
+# def get_segment_size_from_vv_cigar(cigar):
+#     match_obj = re.search(r'^(\d+)=', cigar)
+#     if match_obj:
+#         return str(match_obj.group(1))
+#     return 'cigar_error'
 
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
@@ -1889,10 +1906,18 @@ def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_numb
                         else:
                             positions['segment_start'] = str(exon['genomic_end'])
                             positions['segment_end'] = str(exon['genomic_start'])
-                        positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
-                        if positions['segment_size'] != 'cigar_error' and \
+                        # deprecated see https://github.com/beboche/MobiDetails/issues/45
+                        # positions['segment_size'] = get_segment_size_from_vv_cigar(exon['cigar'])
+                        positions['segment_size'] = get_segment_size_from_vv(
+                            exon['genomic_start'],
+                            exon['genomic_end']
+                        )
+                        # if positions['segment_size'] != 'cigar_error' and \
+                        #         re.search(r'^\d+$', positions['segment_start']) and \
+                        #         re.search(r'^\d+$', positions['segment_end']):
+                        if positions['segment_size'] != 'segment_size_error' and \
                                 re.search(r'^\d+$', positions['segment_start']) and \
-                                re.search(r'^\d+$', positions['segment_start']):
+                                re.search(r'^\d+$', positions['segment_end']):
                             return positions
                         else:
                             return 'positions_error'
@@ -2348,6 +2373,7 @@ def format_mirs(record):
 
 
 def check_api_key(db, api_key):  # in api
+    print('API key: {}'.format(api_key))
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if len(api_key) != 43:
         return {'mobidetails_error': 'Invalid API key'}

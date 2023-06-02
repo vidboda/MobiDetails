@@ -1,5 +1,6 @@
 import re
 import os
+import gzip
 from flask import (
     Blueprint, g, request, url_for, jsonify, redirect, flash, render_template, escape
 )
@@ -133,8 +134,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
     # dealing with academic or not user
     academic = True
     # typically calling from API - swagger sends ','
+    # browser sends 'dom.css.map'
     if api_key and \
-            api_key != ',':
+            api_key != ',' and \
+            len(api_key) == 43:
         res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
             close_db()
@@ -273,6 +276,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DP_DG': None,
             'spliceai_DP_DL': None,
             'SPiP': None,
+            'abSplice': {}
         },
         'miRNATargetSitesPredictions': {
             'mirandaCategory': None,
@@ -382,6 +386,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DS_AL_color': None,
             'spliceai_DS_DG_color': None,
             'spliceai_DS_DL_color': None,
+            'abSpliceResults': None,
+            'abSpliceMaxColor': None,
+            'abspliceDNAHeader': [],
+            'abspliceDNAValues': [],
         },
         'positions': {
             'metaDomeColor': None,
@@ -421,6 +429,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'htmlCode': None
         },
         'noMatch': {
+            'abSplice': None,
             'cadd': None,
             'eigen': None,
             'dbnsfp': None,
@@ -1169,12 +1178,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         variant_features['variant_size'] == 1) or
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4)):
-                # elif ((variant_features['dna_type'] == 'insertion' or
-                #         variant_features['dna_type'] == 'duplication') and
-                #         (variant_features['variant_size'] == 1) or
-                #         internal_data['positions']['insSize'] == 1) or \
-                #         (variant_features['dna_type'] == 'deletion' and
-                #             variant_features['variant_size'] <= 4):
                     record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
                     # print(record)
                     spliceai_res = True
@@ -1195,7 +1198,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             i += 1
                             if re.match('spliceai_DS_', identifier):
                                 id_color = "{}_color".format(identifier)
-                                internal_data['splicingPredictions'][id_color] = md_utilities.get_spliceai_color(float(external_data['splicingPredictions'][identifier]))
+                                internal_data['splicingPredictions'][id_color] = md_utilities.get_splice_predictor_color(
+                                    'spliceai',
+                                    float(external_data['splicingPredictions'][identifier])
+                                )
                                 if not external_data['overallPredictions']['mpaScore'] or \
                                         external_data['overallPredictions']['mpaScore'] < 10:
                                     if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
@@ -1207,6 +1213,66 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                     elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
                                         external_data['overallPredictions']['mpaScore'] = 6
                                         external_data['overallPredictions']['mpaImpact'] = 'Low splice'
+                # AbSplice
+                # results are stored in a tabix file, on file per gene
+                # so we need to get the file and then the results - 49 tissus, 49 results
+                # SNVs only
+                if external_data['positions']['DNAType'] == 'substitution':
+                    absplice_file = '{0}{1}.tsv.gz'.format(
+                                md_utilities.local_files['absplice']['abs_path'],
+                                external_data['gene']['hgncId']
+                            )
+                    if os.path.isfile(absplice_file):
+                        record = md_utilities.get_value_from_tabix_file(
+                            'AbSplice',
+                            absplice_file,
+                            var,
+                            variant_features
+                        )
+                        if isinstance(record, str):
+                            # No match in AbSplice v3
+                            internal_data['noMatch']['abSplice'] = "{0} {1}".format(record, md_utilities.external_tools['AbSplice']['version'])
+                        else:
+                            internal_data['splicingPredictions']['abSpliceResults'] = True
+                            # parse the file header to get:
+                            # - splice_site_is_expressed_TISSUE WT expression?
+                            # - AbSplice_DNA_Tissue
+                            # - number of tissues vary from each file
+                            # - values can be empty?
+                            # then add the corresponding predictions
+                            # build dict with interesting header and value => map?
+                            with gzip.open(absplice_file, 'rt') as f:
+                                headers = f.readline().split('\t')
+                            external_data['splicingPredictions']['abSplice'] = dict(zip(headers, record))
+                            # get max absplice score
+                            # reduce dic with only interesting features?
+                            # build 2 lists with only AbSplice_DNA_Tissue and values
+                            # and get max absplice score
+                            tmp_max = 0
+                            tmp_tissue = ''
+                            for header in external_data['splicingPredictions']['abSplice']:
+                                match_obj = re.search(r'^AbSplice_DNA_(\w+)$', header)
+                                if match_obj:
+                                    internal_data['splicingPredictions']['abspliceDNAHeader'].append(match_obj.group(1).replace('_', ' '))
+                                    internal_data['splicingPredictions']['abspliceDNAValues'].append(
+                                        external_data['splicingPredictions']['abSplice'][header]
+                                    )
+                                    if ((tmp_max > 0 and 
+                                            float(external_data['splicingPredictions']['abSplice'][header]) >  tmp_max) or 
+                                            tmp_max == 0):
+                                        tmp_max = float(external_data['splicingPredictions']['abSplice'][header])
+                                        tmp_tissue = match_obj.group(1).replace('_', ' ')
+                            if tmp_max > 0:
+                                internal_data['splicingPredictions']['abSpliceMaxColor'] = md_utilities.get_splice_predictor_color(
+                                    'absplice',
+                                    tmp_max
+                                )
+                                external_data['splicingPredictions']['abSplice']['maxScore'] = tmp_max
+                                external_data['splicingPredictions']['abSplice']['maxTissue'] = tmp_tissue
+                        # print(external_data['splicingPredictions']['AbSplice'])
+                        # print(internal_data['splicingPredictions']['absplice_dna_header'])
+                        # print(internal_data['splicingPredictions']['absplice_dna_values'])
+
         for var in variant:
             # 2nd loop as we need to fetch hg38 first, to get revel scores
             if var['genome_version'] == 'hg19':
@@ -1508,7 +1574,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         )
                         return redirect(url_for('md.index'), code=302)
 
-                vv_base_url = md_utilities.get_vv_api_url()
+                vv_base_url = md_utilities.get_vv_api_url(caller)
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
@@ -1819,7 +1885,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             return redirect(url_for('api.variant', variant_id=res['feature_id'], caller='browser'), code=302)
                     else:
                         # creation
-                        vv_base_url = md_utilities.get_vv_api_url()
+                        vv_base_url = md_utilities.get_vv_api_url(caller)
                         if not vv_base_url:
                             close_db()
                             if caller == 'cli':
@@ -2466,7 +2532,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
         else:
             # creation
-            vv_base_url = md_utilities.get_vv_api_url()
+            vv_base_url = md_utilities.get_vv_api_url(caller)
             # print(vv_base_url)
             if not vv_base_url:
                 close_db()

@@ -1,7 +1,7 @@
 'host':
   'dev': '10.34.20.79'
   'prod': 'mobidetails.iurc.montp.inserm.fr'
-'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex', 'CHUGA', 'polyfeel v0.2.2']
+# 'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex', 'CHUGA', 'polyfeel v0.2.2']
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
@@ -86,6 +86,7 @@
   'Ter': 'Ter'
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
+  'absplice': 'https://zenodo.org/record/7871809'
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'cancervar': 'https://cancervar.wglab.org/'
@@ -152,7 +153,7 @@
   'spliceai': 'https://github.com/Illumina/SpliceAI'
   'spliceai_lookup': 'https://spliceailookup-api.broadinstitute.org/'
   'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=0&variant='
-  'splcieai_lookup_masked_link': 'https://spliceailookup.broadinstitute.org/#hg=38&distance=500&mask=1&precomputed=1&variant='
+  'spliceai_lookup_masked_link': 'https://spliceailookup.broadinstitute.org/#hg=38&distance=500&mask=1&precomputed=1&variant='
   'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
@@ -180,6 +181,11 @@
   #   'suffixes': ['auth/forgot_pass', 'auth/login', 'auth/profile/\d+', 'auth/register', 'md/about', 'md/changelog', 'md/gene/[A-Za-z0-9-]', 'md/genes', 'md/index', 'md/variant/\d+', 'upload/upload_form']
 'local_files':
   # id :local path, version name, short desc, short name 4 urls xref
+  'absplice':
+    'rel_path': '/static/resources/AbSplice/AbSplice_DNA_hg38_snvs_high_scoresv3/score_cutoff=0.01/'
+    'name': 'AbSplice predictions'
+    'description': 'Predictions of splicing defects per tissue, combining SpliceAI and MMSplice'
+    'short_name': 'absplice'
   'cadd':
     'rel_path': '/static/resources/CADD/hg38/v1.6/whole_genome_SNVs.tsv.gz'
     'name': 'CADD SNVs'
@@ -354,6 +360,12 @@
     'dbNSFP_value_col': '53'
     'dbNSFP_pred_col': '55'
 'external_tools':
+  'AbSplice':
+    'firstauthor': 'Wagner'
+    'year': '2023'
+    'paper': '37142848'
+    'version': 'precomputed dataset from v1.0.0'
+    'short_name': 'absplice'
   'CADD':
     'firstauthor': 'Rentzsch'
     'year': '2019'
@@ -655,6 +667,9 @@
   'spliceai_min': 0.2
   'spliceai_mid': 0.5
   'spliceai_max': 0.8
+  'absplice_min': 0.01
+  'absplice_mid': 0.05
+  'absplice_max': 0.2
 'predictor_colors':
   'min': '#00A020'
   'highly_tolerant': '#0404B4'

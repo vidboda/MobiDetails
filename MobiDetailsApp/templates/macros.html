@@ -53,6 +53,11 @@
 		<h3 id="{{ id }}">{{ content }}</h3>
 	</div>
 {%- endmacro %}
+{% macro section_subtitle(id, content) -%}
+	<div class="w3-text-orange w3-margin w3-panel w3-sand w3-leftbar">
+		<h5 id="{{ id }}">{{ content }}</h5>
+	</div>
+{%- endmacro %}
 {# not needed anymore
 {% macro danger_variable(text, variable='', other_variable='') -%}
 	{% autoescape false %}
