@@ -67,6 +67,17 @@ function copy_text(copy_id) {
 	/* Alert the copied text */
 	//alert("Copied the text: " + copyText.value);
 }
+function copy_from_span(copy_id) {
+	// adapted from https://stackoverflow.com/questions/49236100/copy-text-from-span-to-clipboard
+	var copyText = document.getElementById(copy_id);
+    var textArea = document.createElement("textarea");
+    textArea.value = copyText.textContent;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    textArea.remove();
+}
+
 function hide_params() {
     // function to hide params when a form is sent (long response time e.g. register)
 		$('input').css('visibility', 'hidden');

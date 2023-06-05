@@ -124,7 +124,9 @@
 					academic user
 				</li>
 				<!-- API key -->
-				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/><button onclick="copy_text('api_key');" class="var_li w3-right" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li>
+				<script>var field_copied_tag = '<div class="w3-tag w3-round w3-grey" style="padding:2px"><div class="w3-tag w3-round w3-grey w3-border w3-border-white">Field copied!</div></div>';</script>
+				<li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <span id="api_key">{{ mobiuser.api_key }}</span><button onclick="copy_from_span('api_key');$('#api_key_copied').html(field_copied_tag);" class="var_li w3-right" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="api_key_copied" class="field_copied_span w3-right"></span>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+				<!-- <li class="w3-padding-large w3-xlarge w3-light-grey w3-hover-blue">API key: <input id="api_key" type="text" value="{{ mobiuser.api_key }}" size="50" maxlength="43"/><button onclick="copy_text('api_key');" class="var_li w3-right" title="copy API key to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></li> -->
 				{% endif %}
 			</ul>
 		</div>

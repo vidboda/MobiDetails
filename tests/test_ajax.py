@@ -563,3 +563,4 @@ def test_spliceaivisual(client, gene, chrom, pos, ref, alt, variant_id, strand, 
     print(response.get_data())
     print(response.status_code)
     assert return_value in response.get_data()
+

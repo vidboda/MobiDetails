@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, link, span_color, section_title, section_subtitle, modal_js, fa %}
+{% from 'macros.html' import danger, info, link, span_color, section_title, section_subtitle, modal_js, fa, field_copied_tag %}
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
@@ -186,17 +186,18 @@
 					</tr>
 				</thead>
 				<tbody>
+					<script>var field_copied_tag = '<div class="w3-tag w3-round w3-grey" style="padding:2px"><div class="w3-tag w3-round w3-grey w3-border w3-border-white">Field copied!</div></div>';</script>
 					<!--HGNC gene symbol-->
 					<tr>
 						<td class="w3-left-align">HGNC gene symbol (ID):</td>
 						<td class="w3-left-align" id="hgnc_symbol"><a href="{{ urls.hgnc_gene }}{{ external_data.gene.hgncId }}" target="_blank" title="open HGNC page for {{ external_data.gene.symbol }}" rel="noopener noreferrer"><span id="gene_symbol"><em>{{ external_data.gene.symbol }}</em></span><span>&nbsp;({{ external_data.gene.hgncId }})</span></td>
-						<td class="w3-left-align"><em class="w3-small">HGNC gene symbol and corresponding ID</em></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('gene_symbol');$('#gene_symbol_copied').html(field_copied_tag);" title="copy gene HGNC symbol"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="gene_symbol_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGNC gene symbol and corresponding ID</em></td>
 					</tr>
 					<!--HGVS DNA on transcript-->
 					<tr>
 						<td class="w3-left-align">HGVS DNA on transcript:</td>
 						<td class="w3-left-align" id="nm_var">
-							<a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}" rel="noopener noreferrer"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span>
+							<span id="hgvs_nm_nom"><a href="{{ urls.ncbi_nuccore }}{{ external_data.gene.RefSeqTranscript }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqTranscript }}" rel="noopener noreferrer"><span id="nm_acc">{{ external_data.gene.RefSeqTranscript }}</span></a>:<span id="c_name">c.{{ internal_data.nomenclatures.cName }}</span></span>
 							{% if external_data.gene.canonical %}
 							<div class="w3-tag w3-round w3-green" style="padding:3px">
 								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
@@ -205,21 +206,21 @@
 							</div>
 							{% endif %}
 						</td>
-						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at DNA level on transcript</em></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_nm_nom');$('#hgvs_nm_copied').html(field_copied_tag);" title="copy full NM HGVS nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_nm_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at DNA level on transcript</em></td>
 					</tr>
 					<!--IVS name-->
 					{% if external_data.positions.segmentStartType == 'intron' %}
 					<tr>
 						<td class="w3-left-align">IVS name:</td>
-						<td class="w3-left-align">{{ external_data.nomenclatures.ivsName }}</td>
-						<td class="w3-left-align"><em class="w3-small">IVS nomenclature</em></td>
+						<td class="w3-left-align" id="ivs_name">{{ external_data.nomenclatures.ivsName }}</td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('ivs_name');$('#ivs_name_copied').html(field_copied_tag);" title="copy IVS nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="ivs_name_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;IVS nomenclature</em></td>
 					</tr>
 					{% endif %}
 					<!--HGVS Protein-->
 					<tr>
 						<td class="w3-left-align">HGVS Protein:</td>
-						<td class="w3-left-align"><a href="{{ urls.ncbi_prot }}{{ external_data.gene.RefSeqNp }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNp }}" rel="noopener noreferrer">{{ external_data.gene.RefSeqNp }}</a>:<span id="hgvs_p_name">p.({{ internal_data.nomenclatures.pName }})</span></td>
-						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at protein level</em></td>
+						<td class="w3-left-align" id="hgvs_np_nom"><a href="{{ urls.ncbi_prot }}{{ external_data.gene.RefSeqNp }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNp }}" rel="noopener noreferrer">{{ external_data.gene.RefSeqNp }}</a>:<span id="hgvs_p_name">p.({{ internal_data.nomenclatures.pName }})</span></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_np_nom');$('#hgvs_np_copied').html(field_copied_tag);" title="copy HGVS NP nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_np_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at protein level</em></td>
 					</tr>
 					<!--HGVS genomic (gene) removed-->
 					{#
@@ -236,39 +237,39 @@
 						<!--HGVS genomic (hg19)-->
 						<tr>
 							<td class="w3-left-align">HGVS genomic (hg19):</td>
-							<td class="w3-left-align">chr{{ external_data.VCF.chr }}:g.<span id="hg19_g_name">{{ internal_data.VCF.hg19.gName }}</span></td>
-							<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg19)</em></td>
+							<td class="w3-left-align" id="hgvs_genomic_hg19_nom">chr{{ external_data.VCF.chr }}<span style="display:none;">(hg19)</span>:g.<span id="hg19_g_name">{{ internal_data.VCF.hg19.gName }}</span></td>
+							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_nom');$('#hgvs_genomic_hg19_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg19)</em></td>
 						</tr>
 						<!--HGVS genomic strict (hg19)-->
 						<tr>
 							<td class="w3-left-align">HGVS strict genomic (hg19):</td>
-							<td class="w3-left-align">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</td>
-							<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg19)</em></td>
+							<td class="w3-left-align" id="hgvs_genomic_hg19_ncbi_nom">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</td>
+							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_ncbi_nom');$('#hgvs_genomic_hg19_ncbi_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_ncbi_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg19)</em></td>
 						</tr>
 						<!--pseudo VCF (hg19)-->
 						<tr>
 							<td class="w3-left-align">pseudo VCF (<span id="genome_19">hg19</span>):</td>
-							<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg19.pos }}-{{ external_data.VCF.hg19.ref }}-{{ external_data.VCF.hg19.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator" rel="noopener noreferrer"><span id="chrom_19">{{ external_data.VCF.chr }}</span>-<span id="pos_19">{{ external_data.VCF.hg19.pos }}</span>-<span id="ref_19">{{ external_data.VCF.hg19.ref }}</span>-<span id="alt_19">{{ external_data.VCF.hg19.alt }}</span></a></td>
-							<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg19)</em></td>
+							<td class="w3-left-align" id="hgvs_genomic_hg19_pvcf_nom"><span style="display:none;">hg19-</span><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg19.pos }}-{{ external_data.VCF.hg19.ref }}-{{ external_data.VCF.hg19.alt }}&primary_assembly=GRCh37&alignment=splign" target="_blank" title="open VariantValidator" rel="noopener noreferrer"><span id="chrom_19">{{ external_data.VCF.chr }}</span>-<span id="pos_19">{{ external_data.VCF.hg19.pos }}</span>-<span id="ref_19">{{ external_data.VCF.hg19.ref }}</span>-<span id="alt_19">{{ external_data.VCF.hg19.alt }}</span></a></td>
+							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_pvcf_nom');$('#hgvs_genomic_hg19_pvcf_copied').html(field_copied_tag);" title="copy HGVS hg19 pseudo-VCF nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_pvcf_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;chr-pos-ref-alt (hg19)</em></td>
 						</tr>
 					{% endif %}
 					<!--HGVS genomic (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg38):</td>
-						<td class="w3-left-align">chr{{ external_data.VCF.chr }}:g.<span id="hg38_g_name">{{ internal_data.VCF.hg38.gName }}</span></td>
-						<td class="w3-left-align"><em class="w3-small">HGVS full nomenclature at genomic level (hg38)</em></td>
+						<td class="w3-left-align" id="hgvs_genomic_hg38_nom">chr{{ external_data.VCF.chr }}<span style="display:none;">(hg38)</span>:g.<span id="hg38_g_name">{{ internal_data.VCF.hg38.gName }}</span></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg38_nom');$('#hgvs_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--HGVS genomic strict (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
 						<td class="w3-left-align" id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
-						<td class="w3-left-align"><em class="w3-small">HGVS full strict nomenclature at genomic level (hg38)</em></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_strict_genomic_hg38');$('#hgvs_strict_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_strict_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
 					<tr>
 						<td class="w3-left-align">pseudo VCF (<span id="genome_38">hg38</span>):</td>
-						<td class="w3-left-align"><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg38.pos }}-{{ external_data.VCF.hg38.ref }}-{{ external_data.VCF.hg38.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator" rel="noopener noreferrer"><span id="chrom_38">{{ external_data.VCF.chr }}</span>-<span id="pos_38">{{ external_data.VCF.hg38.pos }}</span>-<span id="ref_38">{{ external_data.VCF.hg38.ref }}</span>-<span id="alt_38">{{ external_data.VCF.hg38.alt }}</span></a></td>
-						<td class="w3-left-align"><em class="w3-small">chr-pos-ref-alt (hg38)</em></td>
+						<td class="w3-left-align" id="hgvs_genomic_hg38_pvcf_nom"><span style="display:none;">hg38-</span><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg38.pos }}-{{ external_data.VCF.hg38.ref }}-{{ external_data.VCF.hg38.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator" rel="noopener noreferrer"><span id="chrom_38">{{ external_data.VCF.chr }}</span>-<span id="pos_38">{{ external_data.VCF.hg38.pos }}</span>-<span id="ref_38">{{ external_data.VCF.hg38.ref }}</span>-<span id="alt_38">{{ external_data.VCF.hg38.alt }}</span></a></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg38_pvcf_nom');$('#hgvs_genomic_hg38_pvcf_copied').html(field_copied_tag);" title="copy HGVS hg38 pseudo-VCF nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg38_pvcf_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;chr-pos-ref-alt (hg38)</em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>
@@ -357,13 +358,17 @@
 					{% endif %}
 					<tr>
 						<td class="w3-left-align">Wild type sequence</td>
-						<td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.wildType }}</textarea></td>
-						<td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('wt_seq');" title="copy wild type sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
+						<td class="w3-left-align txt" id="wt_seq">{{ external_data.sequences.wildType }}</td>
+						<!-- <td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.wildType }}</textarea></td> -->
+						<!-- <td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('wt_seq');" title="copy wild type sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td> -->
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('wt_seq');$('#wt_seq_copied').html(field_copied_tag);" title="copy wild-type sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="wt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Wild type DNA sequence +/- 25 bp</em></td>
 					</tr>
 					<tr>
 						<td class="w3-left-align">Mutant sequence</td>
-						<td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.mutant }}</textarea></td>
-						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td>
+						<td class="w3-left-align txt" id="mt_seq">{{ external_data.sequences.mutant }}</td>
+						<!-- <td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.mutant }}</textarea></td>
+						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td> -->
+						<td class="w3-left-align"><em class="w3-small"><em class="w3-small"><button onclick="$('.field_copied_span').html('');$('.field_copied_span').html('');copy_from_span('mt_seq');$('#mt_seq_copied').html(field_copied_tag);" title="copy mutant sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="mt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Mutant DNA sequence +/- 25 bp</em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>
