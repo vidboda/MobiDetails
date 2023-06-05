@@ -50,7 +50,11 @@ def file_upload():
                 # return redirect(request.url)
             if allowed_file(uploaded_file.filename):
                 # filename = secure_filename(uploaded_file.filename)
-                lines = uploaded_file.read().decode().replace('\r\n', '\n').replace('\r', '\n').split('\n')
+                try:
+                    lines = uploaded_file.read().decode().replace('\r\n', '\n').replace('\r', '\n').split('\n')
+                except UnicodeDecodeError as e:
+                    flash('It seems that your input file contains some sort of illegal character!!! Please double check it and resubmit.')
+                    return render_template('upload/upload_form.html')
                 # print(lines)
                 # ok we've got the file
                 # get user API key or use MD
