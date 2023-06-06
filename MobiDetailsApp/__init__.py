@@ -1,7 +1,7 @@
 import os
-import sys
+import re
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, render_template, url_for, flash, redirect
+from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -82,7 +82,6 @@ def create_app(test_config=None):
         print(app.config)
     return app
 
-
 def not_found_error(error):
     return render_template('errors/404.html'), 404
 
@@ -103,6 +102,8 @@ def not_allowed_error(error):
 def request_entity_too_large_error(error):
     return render_template('errors/413.html'), 413
 
+
 def csrf_error(error):
-    flash('{0} : {1} Please Retry.'.format(error.name, error.description), 'w3-pale-red')
+    if not re.search('This typically means that you need to reload a fresh page and resubmit your query', get_flashed_messages()):
+        flash('{0} : {1}. This typically means that you need to reload a fresh page and resubmit your query.'.format(error.name, error.description), 'w3-pale-red')
     return redirect(url_for('md.index'))

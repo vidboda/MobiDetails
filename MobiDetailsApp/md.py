@@ -32,7 +32,6 @@ http = urllib3.PoolManager(
 
 @bp.route('/')
 def index():
-    # print(app.config['RUN_MODE'])
     # check vv
     md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.check_vv_instance'))
     vv_instance = json.loads(
@@ -42,7 +41,6 @@ def index():
                         headers=md_utilities.api_agent
                     ).data.decode('utf-8')
                 )
-    # print(vv_instance)
     # count genes
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)

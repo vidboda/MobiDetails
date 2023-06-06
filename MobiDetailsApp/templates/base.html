@@ -36,7 +36,7 @@
 					</div>
 				</div>
 				<!--navbar-->
-				<div class="w3-bar w3-card-2 w3-black" id="mdNavBar">
+				<div class="w3-bar w3-card-2 {% if config['SESSION_COOKIE_NAME'] == 'MDDevWebSession' %}w3-grey{% elif config['SESSION_COOKIE_NAME'] == 'MDStageWebSession' %}w3-dark-grey{% else %}w3-black{% endif %}" id="mdNavBar">
 					<!--home, about-->
 					<div class="w3-dropdown-hover">
 						<span class="w3-button w3-ripple w3-xlarge w3-black" onclick="show_loader();window.location='{{ url_for('md.index') }}';" title="MobiDetails homepage">
