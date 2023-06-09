@@ -166,14 +166,21 @@
   'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html'
   'uniprot_id': 'http://www.uniprot.org/uniprot/'
   'variant_validator': 'https://variantvalidator.org/service/validate/?variant='
+  # variant validator rest selection
+  # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
+  # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
+  'rest_vv_hello_str': 'hello/?content-type=application/json'
+  'rest_vv_browser': 'http://194.167.35.195:8000/'
+  'rest_vv_api': 'http://194.167.35.196:8000/'
+  'rest_vv_genuine': 'https://rest.variantvalidator.org/'
   # uncomment below to use genuine VV web API VV2 - 2021
-  'variant_validator_api': 'https://rest.variantvalidator.org/'
-  # VV on IURC Ovirt restvv
-  'variant_validator_api_backup': 'http://194.167.35.196:8000/'
-  # hello on genuine VV VV2 - 2021
-  'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
-  # hello on IURC OVirt restvv
-  'variant_validator_api_hello_backup': 'http://194.167.35.196:8000/hello/?content-type=application/json'
+  # 'variant_validator_api': 'https://rest.variantvalidator.org/'
+  # # VV on IURC Ovirt restvv
+  # 'variant_validator_api_backup': 'http://194.167.35.196:8000/'
+  # # hello on genuine VV VV2 - 2021
+  # 'variant_validator_api_hello': 'https://rest.variantvalidator.org/hello/?content-type=application/json'
+  # # hello on IURC OVirt restvv
+  # 'variant_validator_api_hello_backup': 'http://194.167.35.196:8000/hello/?content-type=application/json'
   # attempt to get a list of valid redirections https://lgtm.com/rules/1506021017581/
   # 'internal_urls':
   #   'prod_prefix': '/MD/'

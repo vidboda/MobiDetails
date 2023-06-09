@@ -51,16 +51,31 @@ def check_api_key(api_key=None):
 def check_vv_instance():
     vv_url = md_utilities.get_vv_api_url()
     if vv_url:
-        if vv_url == md_utilities.urls['variant_validator_api']:
+        if vv_url == md_utilities.urls['rest_vv_browser']:
             return jsonify(
-                variant_validator_instance='Running genuine VV server',
+                variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
                 URL=vv_url
             )
-        elif vv_url == md_utilities.urls['variant_validator_api_backup']:
+        elif vv_url == md_utilities.urls['rest_vv_api']:
             return jsonify(
-                variant_validator_instance='Running MD VV server',
+                variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
                 URL=vv_url
             )
+        elif vv_url == md_utilities.urls['rest_vv_genuine']:
+            return jsonify(
+                variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
+                URL=vv_url
+            )
+        # if vv_url == md_utilities.urls['variant_validator_api']:
+        #     return jsonify(
+        #         variant_validator_instance='Running genuine VV server',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['variant_validator_api_backup']:
+        #     return jsonify(
+        #         variant_validator_instance='Running MD VV server',
+        #         URL=vv_url
+        #     )
     return jsonify(
             variant_validator_instance='No VV running',
             URL='None'
@@ -1575,6 +1590,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return redirect(url_for('md.index'), code=302)
 
                 vv_base_url = md_utilities.get_vv_api_url(caller)
+                print(vv_base_url)
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
@@ -1886,6 +1902,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                     else:
                         # creation
                         vv_base_url = md_utilities.get_vv_api_url(caller)
+                        print(vv_base_url)
                         if not vv_base_url:
                             close_db()
                             if caller == 'cli':
@@ -2533,7 +2550,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
         else:
             # creation
             vv_base_url = md_utilities.get_vv_api_url(caller)
-            # print(vv_base_url)
+            print(vv_base_url)
             if not vv_base_url:
                 close_db()
                 if caller == 'cli':

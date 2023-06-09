@@ -34,7 +34,7 @@ def test_check_vv_instance(client):
     json_response = json.loads(client.get('/api/service/vv_instance').data.decode('utf8'))
     print(json_response)
     assert json_response['variant_validator_instance'] in \
-        ['No VV running', 'Running our own emergency VV server', 'Running genuine VV server']
+        ['No VV running', 'Running internal VV server dedicated to web UI (can be used as a backup for API calls)', 'Running internal VV server dedicated to API calls (can be used as a backup for web UI)', 'Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap']
 
 # test variant exists
 
