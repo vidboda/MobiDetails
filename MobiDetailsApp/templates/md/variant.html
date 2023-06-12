@@ -8,8 +8,9 @@
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/sweetalert2.all.min.js') }}" type="text/javascript"></script>
 	<!-- 
-	igv.js update:
+	igv.js update (the same for sweetalert or chart):
 	VERSION=2.15.8
 	wget -O igv.${VERSION}.min.js https://cdn.jsdelivr.net/npm/igv@${VERSION}/dist/igv.min.js
 	wget -O igv.${VERSION}.min.js.map https://cdn.jsdelivr.net/npm/igv@${VERSION}/dist/igv.min.js.map
@@ -18,7 +19,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230605" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230612" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -102,17 +103,17 @@
 			{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 			{% if g.user %}
 				{% if favourite is none or favourite.type == 2 %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', 'add', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
 				</span>
 				{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='unmark' onclick="favourite('{{ external_data.variantId }}', 'remove', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unmark as favourite"><i id="favour" class="fa fa-star-o"></i>
 				</span>
 				{% endif %}
 				{% if favourite is none or favourite.type == 1 %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='mark' onclick="clinvar_watch('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Watch this variant!"><i id="clinvar_watch" class="fa fa-heart"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='mark' onclick="clinvar_watch('{{ external_data.variantId }}', 'add', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Watch this variant!"><i id="clinvar_watch" class="fa fa-heart"></i>
 				</span>
 				{% else %}
-				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='unmark' onclick="clinvar_watch('{{ external_data.variantId }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unwatch this variant!"><i id="clinvar_watch" class="fa fa-heart-o"></i>
+				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="clinvar_watch_span" name='unmark' onclick="clinvar_watch('{{ external_data.variantId }}', 'remove', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Unwatch this variant!"><i id="clinvar_watch" class="fa fa-heart-o"></i>
 				</span>
 				{% endif %}
 			{% endif %}

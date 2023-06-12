@@ -108,80 +108,112 @@ function panelapp(panelapp_url, gene_symbol, csrf_token) {
 	});
 }
 // used in md.variant and auth.profile.html
-function favourite(vf_id, fav_url, csrf_token) {
-	// send header for flask-wtf crsf security
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+function favourite(vf_id, operation, fav_url, csrf_token) {
+	var swal_title = 'Add this variant to your favourite list';
+	var swalt_text = 'Retrieve it from your profile page and build custom lists of variants';
+	var swal_confirm = 'Yes, add it!';
+	var swal_done = 'This variant has been added to your favourite list.';
+	if (operation === 'remove') {
+		var swal_title = 'Remove this variant from your favourite list';
+		var swalt_text = 'You can add it again later if needed';
+		var swal_confirm = 'Yes, remove it!';
+		var swal_done = 'This variant has been removed from your favourite list.';
+	}
+	Swal.fire({
+		title: swal_title,
+		text: swalt_text,
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: swal_confirm
+	}).then((result) => {
+		if (result.isConfirmed) {
+			// send header for flask-wtf crsf security
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+					if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+						xhr.setRequestHeader("X-CSRFToken", csrf_token);
+					}
+				}
+			});
+			// call form variant page
+			var favour_span_id;
+			var favour_id;
+			if ($('#favour_span').length) {
+				favour_span_id = 'favour_span';
+				favour_id = 'favour';
 			}
-		}
-	});
-	// call form variant page
-	var favour_span_id;
-	var favour_id;
-	if ($('#favour_span').length) {
-		favour_span_id = 'favour_span';
-		favour_id = 'favour';
-	}
-	else {
-		//call form profile page
-		favour_span_id = 'favour_span_' + vf_id;
-		favour_id = 'favour_' + vf_id;
-	}
-	$.ajax({
-		type: "POST",
-		url: fav_url,
-		data: {
-			vf_id: vf_id, marker: $('#' + favour_span_id).attr('name'), clinvar_watch: 0
+			else {
+				//call form profile page
+				favour_span_id = 'favour_span_' + vf_id;
+				favour_id = 'favour_' + vf_id;
+			}
+			$.ajax({
+				type: "POST",
+				url: fav_url,
+				data: {
+					vf_id: vf_id, marker: $('#' + favour_span_id).attr('name'), clinvar_watch: 0
+				}
+			})
+			.done(function() {
+				if ($('#' + favour_span_id).attr('name') === 'mark') {
+					//$('#favour').removeClass('fa-star').addClass('fa-star-o');
+					$('#' + favour_id).toggleClass('fa-star fa-star-o');
+					$('#' + favour_span_id).attr('title', 'Unmark the variant');
+					$('#' + favour_span_id).attr('name', 'unmark');
+					if ($('#favour_span').length) {
+						// call from variant page
+						$('#favour_star').show();
+						$('#favour_span').on('click', function() {favourite(vf_id , 'remove', fav_url, csrf_token)});
+					}
+					else {
+						// returns https://lgtm.com/rules/1511866576920/ in LGTM if not encoded - encodeURIComponent
+						$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + escape($("#md_variant_url_" + vf_id).text()) + '\')" title="Visit the variant page"><span><em>' + escape($("#gene_" + vf_id).text()) + '</em>:c.' + escapeHtml($("#c_name_" + vf_id).text()) + ' - p.(' + escapeHtml($("#p_name_" + vf_id).text()) + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
+						$('#favour_span_' + vf_id).on('click', function() {favourite(vf_id , 'remove', fav_url, csrf_token)});
+						$('#favourite_vars').show();
+						$('#variant_list').show();
+						if ($('#num_favourite').length) {
+							var num_fav = parseInt($('#num_favourite').text()) + 1;
+							$('#num_favourite').text(num_fav);
+						}
+						else {
+							$('#favourite_title').html('Toggle your <span id="num_favourite">1</span> favourite variant');
+						}
+					}
+				}
+				else {
+					//$('#favour').removeClass('fa-star-o').addClass('fa-star');
+					$('#' + favour_id).toggleClass('fa-star-o fa-star');
+					$('#' + favour_span_id).attr('title', 'Mark the variant');
+					$('#' + favour_span_id).attr('name', 'mark');
+					// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
+					if ($('#favour_span').length) {
+						$('#favour_star').hide();
+						$('#favour_span').on('click', function() {favourite(vf_id , 'add', fav_url, csrf_token)});
+					}
+					else {
+						$('#favourite_li_'+ vf_id).remove();
+						var num_fav = parseInt($('#num_favourite').text()) - 1;
+						$('#favour_span_' + vf_id).on('click', function() {favourite(vf_id , 'add', fav_url, csrf_token)});
+						if(num_fav > 0) {
+							$('#num_favourite').text(num_fav);
+						}
+						else {
+							$('#favourite_title').text('You have no favourite variants yet.');
+						}
+					}
+				}
+
+			});
+			Swal.fire(
+				'Done!',
+				swal_done,
+				'success'
+			);
 		}
 	})
-	.done(function() {
-		if ($('#' + favour_span_id).attr('name') === 'mark') {
-			//$('#favour').removeClass('fa-star').addClass('fa-star-o');
-			$('#' + favour_id).toggleClass('fa-star fa-star-o');
-			$('#' + favour_span_id).attr('title', 'Unmark the variant');
-			$('#' + favour_span_id).attr('name', 'unmark');
-			if ($('#favour_span').length) {
-				// call from variant page
-				$('#favour_star').show();
-			}
-			else {
-				$('#favourite_ul').append('<li id="favourite_li_' + vf_id + '" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open(\'' + escape($("#md_variant_url_" + vf_id).text()) + '\')" title="Visit the variant page"><span><em>' + escape($("#gene_" + vf_id).text()) + '</em>:c.' + escapeHtml($("#c_name_" + vf_id).text()) + ' - p.(' + escapeHtml($("#p_name_" + vf_id).text()) + ')</span><span class="w3-right"><i class="fa fa-star w3-xxlarge"></i></span></li>');
-				// returns https://lgtm.com/rules/1511866576920/ in LGTM if not encoded - encodeURIComponent
-				$('#favourite_vars').show();
-				$('#variant_list').show();
-				if ($('#num_favourite').length) {
-					var num_fav = parseInt($('#num_favourite').text()) + 1;
-					$('#num_favourite').text(num_fav);
-				}
-				else {
-					$('#favourite_title').html('Toggle your <span id="num_favourite">1</span> favourite variant');
-				}
-			}
-		}
-		else {
-			//$('#favour').removeClass('fa-star-o').addClass('fa-star');
-			$('#' + favour_id).toggleClass('fa-star-o fa-star');
-			$('#' + favour_span_id).attr('title', 'Mark the variant');
-			$('#' + favour_span_id).attr('name', 'mark');
-			// $('#favour_span').attr('onclick', "favourite('" + vf_id + "', 'mark');");
-			if ($('#favour_span').length) {
-				$('#favour_star').hide();
-			}
-			else {
-				$('#favourite_li_'+ vf_id).remove();
-				var num_fav = parseInt($('#num_favourite').text()) - 1;
-				if(num_fav > 0) {
-					$('#num_favourite').text(num_fav);
-				}
-				else {
-					$('#favourite_title').text('You have no favourite variants yet.');
-				}
-			}
-		}
-
-	});
+	
 }
 function escapeHtml(unsafe) {
 	return unsafe

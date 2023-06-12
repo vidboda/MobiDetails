@@ -565,36 +565,65 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
 }
 
 
-function clinvar_watch(vf_id, watch_url, csrf_token) {
-	// send header for flask-wtf crsf security
-  $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
+  var swal_title = 'Add this variant to your clinvar watch list';
+	var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
+	var swal_confirm = 'Yes, add it!';
+	var swal_done = 'This variant has been added to your clinvar watch list.';
+	if (operation === 'remove') {
+		var swal_title = 'Remove this variant from your clinvar watch list';
+		var swalt_text = 'You can add it again later if needed';
+		var swal_confirm = 'Yes, remove it!';
+		var swal_done = 'This variant has been removed from your clinvar watch list.';
+	}
+  Swal.fire({
+		title: swal_title,
+		text: swalt_text,
+		icon: 'warning',
+		showCancelButton: true,
+		confirmButtonColor: '#3085d6',
+		cancelButtonColor: '#d33',
+		confirmButtonText: swal_confirm
+	}).then((result) => {
+    if (result.isConfirmed) {
+      // send header for flask-wtf crsf security
+      $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
+              }
           }
-      }
-  });
-	$.ajax({
-		type: "POST",
-		url: watch_url,
-		data: {
-			vf_id: vf_id, marker: $('#clinvar_watch_span').attr('name'), clinvar_watch: 1
+      });
+      $.ajax({
+        type: "POST",
+        url: watch_url,
+        data: {
+          vf_id: vf_id, marker: $('#clinvar_watch_span').attr('name'), clinvar_watch: 1
+        }
+      })
+      .done(function() {
+        if ($('#clinvar_watch_span').attr('name') === 'mark') {
+          $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'remove', watch_url, csrf_token)});
+          $('#clinvar_watch').toggleClass('fa-heart fa-heart-o');
+          $('#clinvar_watch_span').attr('title', 'Unwatch this variant!');
+          $('#clinvar_watch_span').attr('name', 'unmark');
+          $('#clinvar_watch_heart').show();          
+        }
+        else {
+          $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'add', watch_url, csrf_token)});
+          $('#clinvar_watch').toggleClass('fa-heart-o fa-heart');
+          $('#clinvar_watch_span').attr('title', 'Watch this variant!');
+          $('#clinvar_watch_span').attr('name', 'mark');
+          $('#clinvar_watch_heart').hide();
+        }
+      });
+      Swal.fire(
+				'Done!',
+				swal_done,
+				'success'
+			);
 		}
 	})
-	.done(function() {
-		if ($('#clinvar_watch_span').attr('name') === 'mark') {
-			$('#clinvar_watch').toggleClass('fa-heart fa-heart-o');
-			$('#clinvar_watch_span').attr('title', 'Unwatch this variant!');
-			$('#clinvar_watch_span').attr('name', 'unmark');
-			$('#clinvar_watch_heart').show();
-		}
-		else {
-			$('#clinvar_watch').toggleClass('fa-heart-o fa-heart');
-			$('#clinvar_watch_span').attr('title', 'Watch this variant!');
-			$('#clinvar_watch_span').attr('name', 'mark');
-			$('#clinvar_watch_heart').hide();
-		}
-	});
 }
 
 
