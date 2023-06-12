@@ -881,7 +881,7 @@ $(document).ready(function() {
   // http://pdfmake.org/#/gettingstarted
 	// export multiple tables in one single pdf
 
-	$('#ExportPdf').click(function() {
+	$('#ExportPdf').on("click", function() {
 		var config = {
   			className: "buttons-pdf buttons-html5",
   			customize: null,
