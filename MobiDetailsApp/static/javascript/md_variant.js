@@ -728,7 +728,7 @@ $(document).ready(function() {
   	]
 	});
   // deal with dbscSNV/spliceai table which can be empty
-  if (!$('#spliceai_ag_50_tr').length) {
+  if (!$('#spliceai_ag_50_tr').length && !$('#dbscsnvada').length && !$('#dbscsnvrf').length && !$('#absplice_max').length && !$('#no_absplice_max').length) {
     $('#splicing_table').hide();
     $('#splicing_table').DataTable().destroy();
   }

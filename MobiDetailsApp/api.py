@@ -1246,7 +1246,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         )
                         if isinstance(record, str):
                             # No match in AbSplice v3
-                            internal_data['noMatch']['abSplice'] = "{0} {1}".format(record, md_utilities.external_tools['AbSplice']['version'])
+                            internal_data['noMatch']['abSplice'] = "< 0.01 in {0}".format(md_utilities.external_tools['AbSplice']['version'])
                         else:
                             internal_data['splicingPredictions']['abSpliceResults'] = True
                             # parse the file header to get:

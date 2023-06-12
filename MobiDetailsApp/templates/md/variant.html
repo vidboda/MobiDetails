@@ -719,7 +719,7 @@
 				<!--dbscSNV / spliceAI / AbSplice Max-->
 				{{ section_subtitle('spliceai_subtitle', 'dbscSNV / SpliceAI / AbSplice Max results') }}
 				{% if external_data.positions.DNAType != 'indel' %}
-					{{ info('This table presents dbscSNV and <strong>SpliceAI raw delta scores (max distance: 50 bp)</strong>, when available. You can also (except for delins) run spliceAI via the <a href="%s" target="_blank" rel="noopener noreferrer">spliceAIlookup API</a> using a distance of 500 bp, and get also raw delta scores. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. <strong>Details on raw or masked delta scores are available <a href="https://github.com/Illumina/SpliceAI#frequently-asked-questions" target="_blank" rel="noopener noreferrer">here</a></strong>. While the authors state that masked scores are preferentially used for variant interprétation, raw scores (unmasked) seem to be more informative. <strong>You can get masked delta scores with a +/- 500 bp window with this <a href="%s%s-%s-%s-%s" target="_blank" rel="noopener noreferrer">link</a></strong>. For substitutions, a pre-computed score for AbSplice is diplayed when relevant. AbSplice associates SpliceAI, MMSplice and tissue-specific splice site annotations (SpliceMaps). The scores represent the probability that a given variant causes aberrant splicing in a given tissue.')|format(urls.spliceai_lookup, urls.spliceai_lookup_masked_link, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}
+					{{ info('This table presents dbscSNV and <strong>SpliceAI raw delta scores (max distance: 50 bp, for academic users)</strong>, when available. You can also run spliceAI via the <a href="%s" target="_blank" rel="noopener noreferrer">spliceAIlookup API</a> using a distance of 500 bp, and get also raw delta scores. This may take a while especially for genes with multiple transcripts but may help you identify new deep intronic variants. This also gives the opportunity to get spliceAi scores for large insertions or deletions. <strong>Details on raw or masked delta scores are available <a href="https://github.com/Illumina/SpliceAI#frequently-asked-questions" target="_blank" rel="noopener noreferrer">here</a></strong>. While the authors state that masked scores are preferentially used for variant interprétation, raw scores (unmasked) seem to be more informative. <strong>You can get masked delta scores with a +/- 500 bp window with this <a href="%s%s-%s-%s-%s" target="_blank" rel="noopener noreferrer">link</a></strong>. For substitutions, a pre-computed score for AbSplice is diplayed when relevant. AbSplice associates SpliceAI, MMSplice and tissue-specific splice site annotations (SpliceMaps). The scores represent the probability that a given variant causes aberrant splicing in a given tissue.')|format(urls.spliceai_lookup, urls.spliceai_lookup_masked_link, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}
 				{% endif %}
 				{# {% if external_data.positions.DNAType == 'substitution' or external_data.splicingPredictions.spliceai_DS_AG is not none %} #}
 				<table class="w3-table w3-centered display compact" style="width:90%;" id="splicing_table">
@@ -732,12 +732,12 @@
 					</thead>
 					<tbody>
 						{% if external_data.positions.DNAType == 'substitution' %}
-						<tr><!--dbscSNV ADA-->
+						<tr id="dbscsnvada"><!--dbscSNV ADA-->
 							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> ADA:</td>
 							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVADA, internal_data.splicingPredictions.dbscSNVADAColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &ge; {{ thresholds.dbscsnv }} for impact</em></td>
 						</tr>
-						<tr><!--dbscSNV RF-->
+						<tr id="dbscsnvrf"><!--dbscSNV RF-->
 							<td class="w3-left-align"><a href="{{ urls.dbscsnv }}" target="_blank" title="Visit dbscSNV" rel="noopener noreferrer">dbscSNV</a> RF:</td>
 							<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.dbscSNVRF, internal_data.splicingPredictions.dbscSNVRFColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Raw score 0-1, threshold &ge; {{ thresholds.dbscsnv }} for impact</em></td>
@@ -800,7 +800,7 @@
 							<td class="w3-left-align"><em class="w3-small">AbSplice Max Tissue score, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.absplice_min, thresholds.absplice_mid, thresholds.absplice_max) }} for impact</em></td>
 						</tr>
 						{% elif internal_data.noMatch.abSplice is not none %}
-						<tr>
+						<tr id='no_absplice_max'>
 							<td class="w3-left-align"><a href="{{ urls.absplice }}" target="_blank" title="Visit AbSplice" rel="noopener noreferrer">AbSplice</a>:</td>
 							<td class="w3-left-align">{{ internal_data.noMatch.abSplice }}</td>
 							<td class="w3-left-align"><em class="w3-small">AbSplice Max Tissue score, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.absplice_min, thresholds.absplice_mid, thresholds.absplice_max) }} for impact</em></td>
