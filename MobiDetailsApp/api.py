@@ -1250,7 +1250,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         else:
                             internal_data['splicingPredictions']['abSpliceResults'] = True
                             # parse the file header to get:
-                            # - splice_site_is_expressed_TISSUE WT expression?
                             # - AbSplice_DNA_Tissue
                             # - number of tissues vary from each file
                             # - values can be empty?
@@ -1621,14 +1620,14 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         try:
                             flash(
                                 """
-                                There has been a issue with the annotation of the variant via VariantValidator.
+                                There has been an issue with the annotation of the variant via VariantValidator.
                                 The error is the following: {}
                                 """.format(vv_data['validation_warning_1']['validation_warnings']),
                                 'w3-pale-red'
                             )
                         except Exception:
                             flash(
-                                """There has been a issue with the annotation of the variant via VariantValidator.
+                                """There has been an issue with the annotation of the variant via VariantValidator.
                                 Sorry for the inconvenience. You may want to try again in a few minutes.
                                 """,
                                 'w3-pale-red'
@@ -1935,7 +1934,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 try:
                                     flash(
                                         """
-                                        There has been a issue with the annotation of the variant via VariantValidator.
+                                        There has been an issue with the annotation of the variant via VariantValidator.
                                         The error is the following: {}
                                         """.format(vv_data['validation_warning_1']['validation_warnings']),
                                         'w3-pale-red'
@@ -1943,7 +1942,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 except Exception:
                                     flash(
                                         """
-                                        There has been a issue with the annotation of the variant via VariantValidator.
+                                        There has been an issue with the annotation of the variant via VariantValidator.
                                         Sorry for the inconvenience. You may want to try again in a few minutes.
                                         """,
                                         'w3-pale-red'
@@ -2044,12 +2043,12 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                         else:
                             close_db()
                             if caller == 'cli':
-                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-conventional chromosomes, or simply the VariantValidator API is full - you may want to try again later).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
+                                return jsonify(mobidetails_error='Could not create variant {} (possibly considered as intergenic or mapping on non-coding transcripts only, or simply the VariantValidator API is full - you may want to try again later).'.format(urllib.parse.unquote(variant_ghgvs)), variant_validator_output=vv_data)
                             else:
                                 try:
                                     flash(
                                         """
-                                        There has been a issue with the annotation of the variant via VariantValidator.
+                                        There has been an issue with the annotation of the variant via VariantValidator.
                                         The error is the following: {}
                                         """.format(vv_data['validation_warning_1']['validation_warnings']),
                                         'w3-pale-red'
@@ -2057,8 +2056,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                 except Exception:
                                     flash(
                                         """
-                                        There has been a issue with the annotation of the variant via VariantValidator.
-                                        Sorry for the inconvenience. You may want to try again in a few minutes.
+                                        This variant may not map on a coding transcript. Currently, Mobidetails does not handle variants on non-coding transcripts. Sorry for the inconvenience.
                                         """,
                                         'w3-pale-red'
                                     )
@@ -2121,47 +2119,14 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
     else:
         g.user = res_check_api_key['mobiuser']
     match_rs_id = re.search(r'^rs(\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'rs_id')))
-    # caller = md_utilities.get_post_param(request, 'caller')
-    # rs_id = md_utilities.get_post_param(request, 'rs_id')
-    # api_key = md_utilities.get_post_param(request, 'api_key')
     header = md_utilities.api_agent
-    # if (md_utilities.get_running_mode() == 'maintenance'):
-    #     if caller == 'cli':
-    #         return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
-    #     else:
-    #         return redirect(url_for('md.index'), code=302)
     if caller and \
             match_rs_id:
-    # if rs_id and \
-    #         caller and \
-    #         api_key:
-        # db = get_db()
         rs_id = 'rs{}'.format(match_rs_id.group(1))
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # check api key
-        # res_check_api_key = md_utilities.check_api_key(db, api_key)
-        # if 'mobidetails_error' in res_check_api_key:
-        #     close_db()
-        #     if caller == 'cli':
-        #         return jsonify(res_check_api_key)
-        #     else:
-        #         flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-        #         return redirect(url_for('md.index'), code=302)
-        # else:
-        #     g.user = res_check_api_key['mobiuser']
-        # # check caller
-        # if md_utilities.check_caller(caller) == 'Invalid caller submitted':
-        #     close_db()
-        #     if caller == 'cli':
-        #         return jsonify(mobidetails_error='Invalid caller submitted')
-        #     else:
-        #         flash('Invalid caller submitted to the API.', 'w3-pale-red')
-        #         return redirect(url_for('md.index'), code=302)
         # check rs_id
         trunc_rs_id = match_rs_id.group(1)
-        # match_obj = re.search(r'^rs(\d+)$', rs_id)
         if trunc_rs_id:
-            # trunc_rs_id = match_obj.group(1)
             # check if rsid exists
             curs.execute(
                 """
@@ -2192,36 +2157,7 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                             return redirect(url_for('api.variant', variant_id=var['id'], caller='browser'), code=302)
                     else:
                         return render_template('md/variant_multiple.html', vars_rs=vars_rs)
-                        # return redirect(url_for('md.variant_multiple', vars_rs=vars_rs), code=302)
-            # use mutalyzer to get HGVS nomenclatures
-            # mutalyzer_url = "{0}getdbSNPDescriptions?rs_id=rs{1}".format(
-            #     md_utilities.urls['mutalyzer_api_json'], trunc_rs_id
-            # )
-            # returns sthg like
-            # ["NC_000011.10:g.112088901C>T", "NC_000011.9:g.111959625C>T", "NG_012337.3:g.7055C>T", "NM_003002.4:c.204C>T", "NM_003002.3:c.204C>T", "NM_001276506.2:c.204C>T", "NM_001276506.1:c.204C>T", "NR_077060.2:n.239C>T", "NR_077060.1:n.288C>T", "NM_001276504.2:c.87C>T", "NM_001276504.1:c.87C>T", "NG_033145.1:g.2898G>A"]
-            # try:
-            #     mutalyzer_data = json.loads(
-            #         http.request(
-            #             'GET',
-            #             mutalyzer_url,
-            #             headers=header
-            #         ).data.decode('utf-8')
-            #     )
-            # except Exception:
-            #     close_db()
-            #     if caller == 'cli':
-            #         return jsonify(mobidetails_error='Mutalyzer did not return any value for the variant rs{}.'.format(trunc_rs_id))
-            #     else:
-            #         flash(
-            #             """
-            #             Mutalyzer did not return any value for the variant rs{}
-            #             """.format(trunc_rs_id),
-            #             'w3-pale-red'
-            #         )
-            #         return redirect(url_for('md.index'), code=302)
-            # print(mutalyzer_data)
-            # this mutalyzer endpoint will is deprecated in v3 - switching to NCBI API
-            # use mutalyzer to get HGVS nomenclatures
+            # use NCBI API to get HGVS nomenclatures
             ncbi_api_url = "{0}{1}".format(
                 md_utilities.urls['ncbi_snp_api'], trunc_rs_id
             )
@@ -2246,8 +2182,6 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
                     )
                     return redirect(url_for('md.index'), code=302)
             md_response = {}
-            # md_nm = list of NM recorded in MD, to be sure not to consider unexisting NM acc no
-            # md_nm = []
             hgvs_nc = []
             gene_symbols = []
             # can_nm = None
@@ -2582,7 +2516,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     try:
                         flash(
                             """
-                            There has been a issue with the annotation of the variant via VariantValidator.
+                            There has been an issue with the annotation of the variant via VariantValidator.
                             The error is the following: {}
                             """.format(vv_data['validation_warning_1']['validation_warnings']),
                             'w3-pale-red'
@@ -2590,7 +2524,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     except Exception:
                         flash(
                             """
-                            There has been a issue with the annotation of the variant via VariantValidator.
+                            There has been an issue with the annotation of the variant via VariantValidator.
                             Sorry for the inconvenience. You may want to try again in a few minutes.
                             """,
                             'w3-pale-red'
@@ -2701,7 +2635,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     try:
                         flash(
                             """
-                            There has been a issue with the annotation of the variant via VariantValidator.
+                            There has been an issue with the annotation of the variant via VariantValidator.
                             The error is the following: {}
                             """.format(vv_data['validation_warning_1']['validation_warnings']),
                             'w3-pale-red'
@@ -2709,8 +2643,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key
                     except Exception:
                         flash(
                             """
-                            There has been a issue with the annotation of the variant via VariantValidator.
-                            Sorry for the inconvenience. You may want to try again in a few minutes.
+                            This variant may not map on a coding transcript. Currently, Mobidetails does not handle variants on non-coding transcripts. Sorry for the inconvenience.
                             """,
                             'w3-pale-red'
                         )
