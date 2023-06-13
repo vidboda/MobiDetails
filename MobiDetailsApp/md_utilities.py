@@ -653,6 +653,11 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     try:
         records = tb.querys(query)
+    except tabix.TabixError:
+        if text == 'AbSplice':
+            # some files are just empty, e.g. 33867.tsv.gz
+            # those return a 'query failed' error in tabix python module 
+            return 'Match failed in {}'.format(text)
     except Exception as e:
         send_error_email(
             prepare_email_html(
