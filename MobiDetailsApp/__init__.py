@@ -104,6 +104,12 @@ def request_entity_too_large_error(error):
 
 
 def csrf_error(error):
-    if not re.search('This typically means that you need to reload a fresh page and resubmit your query', get_flashed_messages()):
+    flashed_messages = get_flashed_messages()
+    csrf_message = 0
+    if flashed_messages:
+        for flashed_message in flashed_messages:
+            if re.search('This typically means that you need to reload a fresh page and resubmit your query', flashed_message):
+                csrf_message = 1
+    if csrf_message == 0:
         flash('{0} : {1}. This typically means that you need to reload a fresh page and resubmit your query.'.format(error.name, error.description), 'w3-pale-red')
     return redirect(url_for('md.index'))
