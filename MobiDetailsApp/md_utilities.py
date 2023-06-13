@@ -657,7 +657,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         if text == 'AbSplice':
             # some files are just empty, e.g. 33867.tsv.gz
             # those return a 'query failed' error in tabix python module 
-            return 'Match failed in {}'.format(text)
+            return 'No significant score in {}'.format(text)
     except Exception as e:
         send_error_email(
             prepare_email_html(
