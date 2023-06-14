@@ -234,7 +234,7 @@
     'description': 'Dataset of splicing predictions'
     'short_name': 'dbscsnv'
   'dbsnp':
-    'rel_path': '/static/resources/dbsnp/hg38/v154/GCF_000001405.38.gz'
+    'rel_path': '/static/resources/dbsnp/hg38/v156/GCF_000001405.40.gz'
     'name': 'dbSNP'
     'description': 'Database of human genetic variations'
     'short_name': 'ncbi_dbsnp'
@@ -446,7 +446,7 @@
     'firstauthor': 'Sherry'
     'year': '2001'
     'paper': '11125122'
-    'version': 'v154'
+    'version': 'v156'
     'short_name': 'ncbi_dbsnp'
   'EpiSignature':
     'firstauthor': 'Foroutan'
