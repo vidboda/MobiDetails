@@ -1589,7 +1589,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
                         return redirect(url_for('md.index'), code=302)
 
                 vv_base_url = md_utilities.get_vv_api_url(caller)
-                # print(vv_base_url)
+                print(vv_base_url)
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
