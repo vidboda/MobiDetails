@@ -969,52 +969,6 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     return None
 
 
-# deprecated 20230609
-# def get_vv_api_url_old(caller='browser'):
-#     # if identified intensive api usage, redirect to local VV
-#     if caller != 'browser':
-#     # if request.headers.get('User-Agent') in user_agent_list:
-#         checked_url = test_vv_api_url(
-#                 urls['variant_validator_api_hello_backup'],
-#                 urls['variant_validator_api_backup']
-#         )
-#         if checked_url:
-#             return checked_url
-#         else:
-#             checked_url = test_vv_api_url(
-#                 urls['variant_validator_api_hello'],
-#                 urls['variant_validator_api']
-#             )
-#             return checked_url
-#     else:
-#         # the other way around
-#         checked_url = test_vv_api_url(
-#                 urls['variant_validator_api_hello'],
-#                 urls['variant_validator_api']
-#         )
-#         if checked_url:
-#             return checked_url
-#         else:
-#             checked_url = test_vv_api_url(
-#                 urls['variant_validator_api_hello_backup'],
-#                 urls['variant_validator_api_backup']
-#             )
-#             if checked_url:
-#                 return checked_url
-#             else:
-#                 send_error_email(
-#                 prepare_email_html(
-#                     'MobiDetails VariantValidator error',
-#                     '<p>VariantValidator looks down!!<br /> - from {0}</p>'
-#                     .format(
-#                         os.path.basename(__file__)
-#                     )
-#                 ),
-#                 '[MobiDetails - VariantValidator Error]'
-#             )
-#     return None
-
-
 def get_vv_api_url(caller='browser'):
      # variant validator rest selection
     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
