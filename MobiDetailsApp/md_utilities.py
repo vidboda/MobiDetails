@@ -2439,31 +2439,33 @@ def format_mirs(record):
     return mir_html
 
 
-def check_api_key(db, api_key):  # in api
-    # print('API key: {}'.format(api_key))
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    if len(api_key) != 43:
-        return {'mobidetails_error': 'Invalid API key'}
-    else:
-        api_match = re.search('^([\w-]+)$', api_key)
-        if api_match:
-            key_regexp_checked = api_match.group(1)
-            curs.execute(
-                """
-                SELECT *
-                FROM mobiuser
-                WHERE api_key = %s
-                    AND activated = 't'
-                """,
-                (key_regexp_checked,)
-            )
-            res = curs.fetchone()
-            if res is None:
-                return {'mobidetails_error': 'Unknown API key or unactivated account'}
-            else:
-                return {'mobiuser': res}
+def check_api_key(db, api_key=None):  # in api
+    # print('API key: {}'.format(api_key))    
+    if api_key:
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if len(api_key) != 43:
+            return {'mobidetails_error': 'Invalid API key'}
         else:
-            return {'mobidetails_error': 'Bad chars in API key'}
+            api_match = re.search('^([\w-]+)$', api_key)
+            if api_match:
+                key_regexp_checked = api_match.group(1)
+                curs.execute(
+                    """
+                    SELECT *
+                    FROM mobiuser
+                    WHERE api_key = %s
+                        AND activated = 't'
+                    """,
+                    (key_regexp_checked,)
+                )
+                res = curs.fetchone()
+                if res is None:
+                    return {'mobidetails_error': 'Unknown API key or unactivated account'}
+                else:
+                    return {'mobiuser': res}
+            else:
+                return {'mobidetails_error': 'Bad chars in API key'}
+    return {'mobidetails_error': 'No API key provided'}
 
 
 def check_caller(caller):  # in api

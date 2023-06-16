@@ -1465,10 +1465,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
 # api - variant create
 
 
-@bp.route('/api/variant/create', methods=['POST'])
-def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
+@bp.route('/api/variant/create', methods=['GET', 'POST'])
+def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
     # check and get params
-    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    match_variant_chgvs = None
+    if md_utilities.get_post_param(request, 'caller'):
+        caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
@@ -1476,10 +1478,11 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
             return redirect(url_for('md.index'), code=302)
     variant_regexp = md_utilities.regexp['variant']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-    match_variant_chgvs = re.search(
-        rf'^({ncbi_transcript_regexp}:c\.{variant_regexp})',
-        urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_chgvs'))
-    )
+    if md_utilities.get_post_param(request, 'variant_chgvs'):
+        match_variant_chgvs = re.search(
+            rf'^({ncbi_transcript_regexp}:c\.{variant_regexp})',
+            urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_chgvs'))
+        )
     db = get_db()
     res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
     if 'mobidetails_error' in res_check_api_key:
@@ -1492,6 +1495,7 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
     else:
         g.user = res_check_api_key['mobiuser']
     header = md_utilities.api_agent
+    # code for when vv will require a token
     # vv_header = urllib3.make_headers(
     #     basic_auth='{0}:'.format(md_utilities.get_vv_token()),
     #     user_agent=md_utilities.user_agent
@@ -1788,21 +1792,26 @@ def api_variant_create(variant_chgvs=None, caller=None, api_key=None):
 
 # @bp.route('/api/variant/create_g/<string:variant_ghgvs>/<string:gene>/<string:caller>/<string:api_key>', methods=['GET', 'POST'])
 # def api_variant_g_create(variant_ghgvs=None, gene=None, caller=None, api_key=None):
-@bp.route('/api/variant/create_g', methods=['POST'])
-def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_key=None):
+@bp.route('/api/variant/create_g', methods=['GET', 'POST'])
+def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', api_key=None):
     # get params
+    match_variant_ghgvs = match_gene_hgnc = None
     # treat params one by one
-    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    if md_utilities.get_post_param(request, 'caller'):
+        caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
     variant_regexp = md_utilities.regexp['variant']
-    chrom_regexp = md_utilities.regexp['ncbi_chrom']
-    match_variant_ghgvs = re.search(rf'^({chrom_regexp}:g\.{variant_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_ghgvs')))
+    chrom_regexp = md_utilities.regexp['ncbi_chrom']    
+    if md_utilities.get_post_param(request, 'variant_ghgvs'):
+        match_variant_ghgvs = re.search(rf'^({chrom_regexp}:g\.{variant_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_ghgvs')))
     gene_symbol_regexp = md_utilities.regexp['gene_symbol']
-    match_gene_hgnc = re.search(rf'^({gene_symbol_regexp}|\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'gene_hgnc')))
+    if md_utilities.get_post_param(request, 'gene_hgnc'):
+        match_gene_hgnc = re.search(rf'^({gene_symbol_regexp}|\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'gene_hgnc')))
 
     db = get_db()
     res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
@@ -1822,10 +1831,10 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
             match_variant_ghgvs and \
             match_gene_hgnc:
         variant_ghgvs = match_variant_ghgvs.group(1)
-        gene = match_gene_hgnc.group(1)
+        gene_hgnc = match_gene_hgnc.group(1)
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check if gene exists
-        if re.search(r'^\d+$', gene):
+        if re.search(r'^\d+$', gene_hgnc):
             # HGNC id submitted
             curs.execute(
                 """
@@ -1835,7 +1844,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                     AND canonical = 't'
                     AND variant_creation IN ('ok', 'hg19_mapping_default')
                 """,
-                (gene,)
+                (gene_hgnc,)
             )
         else:
             # search for gene symbol
@@ -1847,7 +1856,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                     AND canonical = 't'
                     AND variant_creation IN ('ok', 'hg19_mapping_default')
                 """,
-                (gene,)
+                (gene_hgnc,)
             )
         res_gene = curs.fetchone()
         if res_gene:
@@ -1883,7 +1892,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             AND b.chr = %s
                             AND c.canonical = 't'
                         """,
-                        (gene, genome_version, g_var, chrom)
+                        (gene_hgnc, genome_version, g_var, chrom)
                     )
                     res = curs.fetchone()
                     if res:
@@ -1969,10 +1978,10 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                             WHERE gene_symbol = %s
                                 AND canonical = 'f'
                             """,
-                            (gene,)
+                            (gene_hgnc,)
                         )
                         res_gene_non_can = curs.fetchall()
-                        gene_symbol = gene
+                        gene_symbol = gene_hgnc
                         nm_transcript = res_gene['refseq']
                         for transcript in res_gene_non_can:
                             res_gene_non_can_list.append(transcript['refseq'])
@@ -1987,7 +1996,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                                     # treat canonical as priority
                                     new_variant = vv_variant
                                     nm_transcript = res_gene['refseq']
-                                    gene_symbol = gene
+                                    gene_symbol = gene_hgnc
                                     vv_key_var = "{0}:c.{1}".format(vv_refseq, vv_variant)
                                     break
                                 elif not vv_key_var:
@@ -2083,7 +2092,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
                 flash(
                     """
                     The gene {} is currently not available for variant annotation in MobiDetails
-                    """.format(gene),
+                    """.format(gene_hgnc),
                     'w3-pale-red'
                 )
                 return redirect(url_for('md.index'), code=302)
@@ -2098,10 +2107,13 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller=None, api_ke
 # api - variant create from NCBI dbSNP rs id
 
 
-@bp.route('/api/variant/create_rs', methods=['POST'])
-def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
+@bp.route('/api/variant/create_rs', methods=['GET', 'POST'])
+def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
     # check and get params
-    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    match_rs_id = None
+    if md_utilities.get_post_param(request, 'caller'):
+        caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
@@ -2118,7 +2130,8 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
             return redirect(url_for('md.index'), code=302)
     else:
         g.user = res_check_api_key['mobiuser']
-    match_rs_id = re.search(r'^rs(\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'rs_id')))
+    if md_utilities.get_post_param(request, 'rs_id'):
+        match_rs_id = re.search(r'^rs(\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'rs_id')))
     header = md_utilities.api_agent
     if caller and \
             match_rs_id:
@@ -2387,12 +2400,16 @@ def api_variant_create_rs(rs_id=None, caller=None, api_key=None):
 # api - variant create from VCF string
 
 
-@bp.route('/api/variant/create_vcf_str', methods=['POST'])
-def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller=None, api_key=None):
+@bp.route('/api/variant/create_vcf_str', methods=['GET', 'POST'])
+def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', api_key=None):
     # check and get params
+    match_vcf_str = None
     vcf_str_regexp = md_utilities.regexp['vcf_str_captured']
-    match_vcf_str = re.search(rf'^({vcf_str_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'vcf_str')))
-    caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    if md_utilities.get_post_param(request, 'vcf_str'):
+        match_vcf_str = re.search(rf'^({vcf_str_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'vcf_str')))
+    if md_utilities.get_post_param(request, 'caller'):
+        caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
+    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')

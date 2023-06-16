@@ -372,7 +372,7 @@
 						<td class="w3-left-align txt" id="mt_seq">{{ external_data.sequences.mutant }}</td>
 						<!-- <td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.mutant }}</textarea></td>
 						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td> -->
-						<td class="w3-left-align"><em class="w3-small"><em class="w3-small"><button onclick="$('.field_copied_span').html('');$('.field_copied_span').html('');copy_from_span('mt_seq');$('#mt_seq_copied').html(field_copied_tag);" title="copy mutant sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="mt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Mutant DNA sequence +/- 25 bp</em></td>
+						<td class="w3-left-align"><em class="w3-small"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('mt_seq');$('#mt_seq_copied').html(field_copied_tag);" title="copy mutant sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="mt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Mutant DNA sequence +/- 25 bp</em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>
@@ -444,7 +444,11 @@
 								No match in dbSNP {{ external_tools['dbSNP']['version'] }}
 							{% endif %}
 						</td>
+						{% if internal_data.frequenciesDatabases.dbSNPrsid  is not none %}
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('dbsnp_id');$('#rsid_copied').html(field_copied_tag);" title="copy full dbSNP rsid"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="rsid_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Identifier for NCBI dbSNP</em></td>
+						{% else %}
 						<td class="w3-left-align"><em class="w3-small">Identifier for NCBI dbSNP</em></td>
+						{% endif %}
 					</tr>
 					<tr><!--clinvar-->
 						<td class="w3-left-align">Clinvar:</td>
