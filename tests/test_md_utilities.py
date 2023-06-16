@@ -863,14 +863,6 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
     assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
 
 
-# deprecated, redirection depends of the caller, not anymore on the User-Agent
-# @pytest.mark.parametrize(('ua', 'vv_api_url'), (
-#     ('MobiDetails (mobidetails.iurc@gmail.com)', 'https://rest.variantvalidator.org/'),
-#     ('chu-bordeaux', 'http://194.167.35.196:8000/'),
-#     ('CJP', 'http://194.167.35.196:8000/'),
-#     ('Bisonex', 'http://194.167.35.196:8000/'),
-#     ('abcgcece', 'https://rest.variantvalidator.org/'),
-# ))
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
     ('browser', 'https://rest.variantvalidator.org/'),
     ('cli', 'http://194.167.35.196:8000/'),
