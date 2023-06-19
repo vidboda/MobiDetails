@@ -1595,7 +1595,7 @@ def create():
         if re.search(r'c\..+', new_variant):
             # is vv alive?
             vv_base_url = md_utilities.get_vv_api_url()
-            print(vv_base_url)
+            # print(vv_base_url)
             # print('--- 2- {} seconds ---'.format((time.time() - start_time)))
             if not vv_base_url:
                 close_db()
