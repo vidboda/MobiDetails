@@ -15,7 +15,7 @@
 {% block content %}
 	{% if view == 'own' -%}
 	<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
-		<p><a href='{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}'>Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
+		<p><a href="{{ url_for('auth.profile', mobiuser_id=g.user['id']) }}">Check</a> what other authenticated people can see from you when they follow a link (e.g. when they visit a variant you created and click on the link on your username).</p>
 		<p>Public users (not logged in) only see your username and cannot follow any link.</p>
 		<p>The email contact service is proposed by Mobidetails. It is triggered by a user who wants to get in touch because e.g. you classified a particular variant. The user must be logged in and cannot see your email address unless you answer his query. The first message comes from the address &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.</p>
 	</div>
@@ -210,7 +210,7 @@
 				<div class="w3-button w3-blue w3-hover-light-blue w3-block" onclick="$('#favourite_vars').fadeToggle();">
 					<span id="favourite_title" class="w3-xlarge">You have no favourite variants yet.</span>
 				</div>
-				{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='url_for('md.about', _anchor='clinvar_watch')' target='_blank' rel='noopener noreferrer'>documentation</a>") }}
+				{{ info("To add a variant in your favourite list, visit a variant's page then click on the star on the left menu, or check the <a href='{0}' target='_blank' rel='noopener noreferrer'>documentation</a>".format(url_for('md.about', _anchor='clinvar_watch'))) }}
 				<div id="favourite_vars" class="w3-container w3-padding-32 w3-margin w3-mobile" style="display:none;">
 					<div id="variant_list" class="w3-card w3-mobile" style="display:none;">
 						<ul id="favourite_ul" class="w3-ul"></ul>
