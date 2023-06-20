@@ -1254,7 +1254,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             # - number of tissues vary from each file
                             # - values can be empty?
                             # then add the corresponding predictions
-                            # build dict with interesting header and value => map?
+                            # build dict with interesting header and value
                             with gzip.open(absplice_file, 'rt') as f:
                                 headers = f.readline().split('\t')
                             external_data['splicingPredictions']['abSplice'] = dict(zip(headers, record))
@@ -1265,6 +1265,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             tmp_max = 0
                             tmp_tissue = ''
                             for header in external_data['splicingPredictions']['abSplice']:
+                                if external_data['splicingPredictions']['abSplice'][header] == '':
+                                        # do not consider empty values
+                                        continue
                                 match_obj = re.search(r'^AbSplice_DNA_(\w+)$', header)
                                 if match_obj:
                                     internal_data['splicingPredictions']['abspliceDNAHeader'].append(match_obj.group(1).replace('_', ' '))
