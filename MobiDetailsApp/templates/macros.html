@@ -219,7 +219,7 @@
 							</div>
 						{% endif %}
 						<div class="w3-panel">
-							<p>Getting annotations for a new variant usually takes up to 30 seconds for variants located in genes with many isoforms</p>
+							<p>Running a variant means mainly generating HGVS nomenclatures via <a href="https://variantvalidator.org/" target = "_blank">VariantValidator</a> and creating the entry in the database. Then the variant is available forever in MobiDetails.</p>
 						</div>
 						<div class="w3-panel w3-large w3-center">
 							<input type="button" id="submit_btn" name="submit" value="Launch annotation!" onclick="create_var('{{ url_for('ajax.create') }}', '{{ csrf_token() }}');" class="w3-btn w3-blue" for="creation_form"/>
@@ -324,7 +324,7 @@
 			<ul> \
 				<li>NC_000001.11:g.216422237G>A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene symbol</li> \
 				<li>NM_206933.2:c.100C>T or NM_206933.2(USH2A):c.100C>T</li> \
-				<li>rs772808534 (can take up to 30-40s)</li> \
+				<li>rs772808534 (can take up to 10-15s)</li> \
 				<li>1-216422237-G-A, pseudo VCF expression (default hg38), or hg19-1-216595579-G-A, hg38:1:216422237:G:A, separator being ':', '_' or '-'. Genome version supports GRCh37, GRCh38, hg19, hg38, case insensitive.</li> \
 			</ul> \
 		</li> \
