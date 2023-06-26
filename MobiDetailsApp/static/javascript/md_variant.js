@@ -151,7 +151,8 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
             showCenterGuide: true,
             showCursorTrackingGuide: true,
             //genome: 'hg38',
-            locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            // locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            locaus: 'myc',
             reference: {
               id: "hg38",
               name: "Human (GRCh38/hg38)",
@@ -161,6 +162,31 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
+              {
+                name: "RNA-Seq",
+                type: "wig",
+                format: "bedgraph",
+                visibilityWindow: 10000000,
+                url: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz',
+                indexURL: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz.tbi'
+              },
+              // {
+              //   name: 'Test gz',                
+              //   type: 'wig',
+              //   format: 'bedgraph',
+              //   min: -1,
+              //   max: 1,
+              //   url: static_path + 'resources/spliceai/variants/100658.bedGraph.gz',
+              //   indexURL: static_path + 'resources/spliceai/variants/100658.bedGraph.gz.tbi',
+              //   label: 'Test gz'                
+              // },
+              {
+                'url':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz',
+                'indexURL':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz.tbi',
+                'type':'wig',
+                'format':'bedgraph',
+                'name':'test-bg-tbi-aswig'
+              },
               {
                 name: 'SpliceAI WT ' + $('#nm_acc').text(),
                 format: 'bedGraph',
