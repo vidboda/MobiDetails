@@ -1021,3 +1021,8 @@ def search_engine():
         error = 'Please type something for the search engine to work.'
     flash(error, 'w3-pale-red')
     return render_template('md/unknown.html', run_mode=md_utilities.get_running_mode())
+
+
+@bp.route('/test_igv', methods=['GET'])
+def test_igv():
+    return render_template('md/test_igv.html')

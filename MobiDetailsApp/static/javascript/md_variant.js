@@ -171,18 +171,32 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               //   indexURL: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz.tbi'
               // },
               {
+                name: 'SpliceAI WT ' + $('#nm_acc').text(),
+                format: 'bedGraph',
+                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
+                indexed: false,
+                removable: false,
+                label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                  indexed: false,
+                  color: "rgba(0, 150, 50, 0.25)"
+                }]
+              },
+              {
                 name: 'SpliceAI MT ' + $('#nm_acc').text(),
                 type: 'wig',
                 format: 'bedgraph',
                 url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz',
                 indexURL: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz.tbi',
                 label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-                // roi: [{
-                //   name: $('#variant_id').text(),
-                //   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-                //   indexed: false,
-                //   color: "rgba(220, 20, 60, 0.25)"
-                // }]           
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                  indexed: false,
+                  color: "rgba(220, 20, 60, 0.25)"
+                }]           
               },
               // {
               //   'url':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz',
@@ -190,20 +204,6 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               //   'type':'wig',
               //   'format':'bedgraph',
               //   'name':'test-bg-tbi-aswig'
-              // },
-              // {
-              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
-              //   format: 'bedGraph',
-              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-              //   indexed: false,
-              //   removable: false,
-              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-              //   roi: [{
-              //     name: $('#variant_id').text(),
-              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-              //     indexed: false,
-              //     color: "rgba(0, 150, 50, 0.25)"
-              //   }]
               // },
               // {
               //   name: 'SpliceAI MT ' + $('#nm_acc').text(),
@@ -219,19 +219,19 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               //     color: "rgba(220, 20, 60, 0.25)"
               //   }]
               // },
-              // {
-              //   name: 'Inserted nucleotides',
-              //   format: 'bedGraph',
-              //   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
-              //   indexed: false,
-              //   label: 'Insertion track',
-              //   roi: [{
-              //     name: $('#variant_id').text(),
-              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bed',
-              //     indexed: false,
-              //     color: "rgba(220, 20, 60, 0.25)"
-              //   }]
-              // },
+              {
+                name: 'Inserted nucleotides',
+                format: 'bedGraph',
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
+                indexed: false,
+                label: 'Insertion track',
+                roi: [{
+                  name: $('#variant_id').text(),
+                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bed',
+                  indexed: false,
+                  color: "rgba(220, 20, 60, 0.25)"
+                }]
+              },
               {
                 name: 'MANE transcripts',
                 url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
