@@ -151,8 +151,8 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
             showCenterGuide: true,
             showCursorTrackingGuide: true,
             //genome: 'hg38',
-            // locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
-            locaus: 'myc',
+            locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            // locus: 'myc',
             reference: {
               id: "hg38",
               name: "Human (GRCh38/hg38)",
@@ -162,72 +162,76 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
-              {
-                name: "RNA-Seq",
-                type: "wig",
-                format: "bedgraph",
-                visibilityWindow: 10000000,
-                url: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz',
-                indexURL: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz.tbi'
-              },
               // {
-              //   name: 'Test gz',                
-              //   type: 'wig',
-              //   format: 'bedgraph',
-              //   min: -1,
-              //   max: 1,
-              //   url: static_path + 'resources/spliceai/variants/100658.bedGraph.gz',
-              //   indexURL: static_path + 'resources/spliceai/variants/100658.bedGraph.gz.tbi',
-              //   label: 'Test gz'                
+              //   name: "RNA-Seq",
+              //   type: "wig",
+              //   format: "bedgraph",
+              //   visibilityWindow: 10000000,
+              //   url: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz',
+              //   indexURL: static_path + 'resources/spliceai/variants/ENCFF439GUL.bedgraph.gz.tbi'
               // },
               {
-                'url':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz',
-                'indexURL':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz.tbi',
-                'type':'wig',
-                'format':'bedgraph',
-                'name':'test-bg-tbi-aswig'
-              },
-              {
-                name: 'SpliceAI WT ' + $('#nm_acc').text(),
-                format: 'bedGraph',
-                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-                indexed: false,
-                removable: false,
-                label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-                roi: [{
-                  name: $('#variant_id').text(),
-                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-                  indexed: false,
-                  color: "rgba(0, 150, 50, 0.25)"
-                }]
-              },
-              {
                 name: 'SpliceAI MT ' + $('#nm_acc').text(),
-                format: 'bedGraph',
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph',
-                indexed: false,
-                removable: false,
+                type: 'wig',
+                format: 'bedgraph',
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz',
+                indexURL: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz.tbi',
                 label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-                roi: [{
-                  name: $('#variant_id').text(),
-                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-                  indexed: false,
-                  color: "rgba(220, 20, 60, 0.25)"
-                }]
+                // roi: [{
+                //   name: $('#variant_id').text(),
+                //   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+                //   indexed: false,
+                //   color: "rgba(220, 20, 60, 0.25)"
+                // }]           
               },
-              {
-                name: 'Inserted nucleotides',
-                format: 'bedGraph',
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
-                indexed: false,
-                label: 'Insertion track',
-                roi: [{
-                  name: $('#variant_id').text(),
-                  url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bed',
-                  indexed: false,
-                  color: "rgba(220, 20, 60, 0.25)"
-                }]
-              },
+              // {
+              //   'url':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz',
+              //   'indexURL':'https://s3-us-west-2.amazonaws.com/ilmn.igv-test/test.bedgraph.gz.tbi',
+              //   'type':'wig',
+              //   'format':'bedgraph',
+              //   'name':'test-bg-tbi-aswig'
+              // },
+              // {
+              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
+              //   format: 'bedGraph',
+              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
+              //   indexed: false,
+              //   removable: false,
+              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+              //   roi: [{
+              //     name: $('#variant_id').text(),
+              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+              //     indexed: false,
+              //     color: "rgba(0, 150, 50, 0.25)"
+              //   }]
+              // },
+              // {
+              //   name: 'SpliceAI MT ' + $('#nm_acc').text(),
+              //   format: 'bedGraph',
+              //   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph',
+              //   indexed: false,
+              //   removable: false,
+              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+              //   roi: [{
+              //     name: $('#variant_id').text(),
+              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+              //     indexed: false,
+              //     color: "rgba(220, 20, 60, 0.25)"
+              //   }]
+              // },
+              // {
+              //   name: 'Inserted nucleotides',
+              //   format: 'bedGraph',
+              //   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
+              //   indexed: false,
+              //   label: 'Insertion track',
+              //   roi: [{
+              //     name: $('#variant_id').text(),
+              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bed',
+              //     indexed: false,
+              //     color: "rgba(220, 20, 60, 0.25)"
+              //   }]
+              // },
               {
                 name: 'MANE transcripts',
                 url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
