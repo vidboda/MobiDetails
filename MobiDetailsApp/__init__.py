@@ -17,7 +17,12 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
-
+    @app.after_request
+    def remove_header(response):
+        if response.status_code == 206:
+            del response.headers['content-encoding']
+            del response.headers['content-disposition']
+        return response
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('sql/md.cfg', silent=False)
@@ -81,6 +86,7 @@ def create_app(test_config=None):
     if app.debug:
         print(app.config)
     return app
+
 
 def not_found_error(error):
     return render_template('errors/404.html'), 404

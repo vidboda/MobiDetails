@@ -20,8 +20,20 @@ http = urllib3.PoolManager(
     cert_reqs='CERT_REQUIRED',
     ca_certs=certifi.where()
 )
+
+# removes content-encoding HTTP header
+# https://github.com/igvteam/igv.js/issues/1654
+
+
+# @bp.after_request
+# def remove_header(response):
+#     # if response.status_code == 206:
+#     del response.headers['content-encoding']
+#     del response.headers['content-disposition']
+#     return response
+
 # -------------------------------------------------------------------
-# api - check APi key
+# api - check API key
 
 
 @bp.route('/api/service/check_api_key', methods=['POST'])
@@ -66,16 +78,6 @@ def check_vv_instance():
                 variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
                 URL=vv_url
             )
-        # if vv_url == md_utilities.urls['variant_validator_api']:
-        #     return jsonify(
-        #         variant_validator_instance='Running genuine VV server',
-        #         URL=vv_url
-        #     )
-        # elif vv_url == md_utilities.urls['variant_validator_api_backup']:
-        #     return jsonify(
-        #         variant_validator_instance='Running MD VV server',
-        #         URL=vv_url
-        #     )
     return jsonify(
             variant_validator_instance='No VV running',
             URL='None'
