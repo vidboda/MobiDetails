@@ -1089,7 +1089,7 @@
 					</tr>
 						{% if g.user['academic'] or not g.user %}
 						<tr><!--PH2 HDIV-->
-							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer"Polyphen 2</a> HumDiv:</td>
+							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer">Polyphen 2</a> HumDiv:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
 							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>

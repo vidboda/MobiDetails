@@ -579,8 +579,9 @@ def spliceaivisual():
             elif os.path.exists(
                 '{0}.txt.gz'.format(transcript_file_basename)
             ):
-                response = md_utilities.build_bedgraph_from_raw_spliceai(chrom, header1, header2, transcript_file_basename)
-                # build new bedgraph from .txt.gz
+                # build new bedgraph.gz from .txt.gz
+                response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header1, header2, transcript_file_basename)
+                
             else:
                 # check whether we have pre-computed chr-start-end-strand
                 # we need ncbi chr
@@ -600,8 +601,8 @@ def spliceaivisual():
                 if os.path.exists(
                     '{0}.txt.gz'.format(position_file_basename)
                 ):
-                    # build new bedgraph from .txt.gz
-                    response = md_utilities.build_bedgraph_from_raw_spliceai(chrom, header1, header2, position_file_basename, transcript_file_basename)
+                    # build new bedgraph.gz from .txt.gz
+                    response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header1, header2, position_file_basename, transcript_file_basename)
                 else:
                     # build new bedgraph from scratch ? How many cases?
                     # response = 'ok'
