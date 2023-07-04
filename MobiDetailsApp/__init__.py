@@ -25,7 +25,7 @@ def create_app(test_config=None):
         # if response.status_code == 206:
         # issue: on gene page the bedgraph is fully loaded, then
         # remove header only for bedgraph.gz files
-        if re.search('bedGraph.gz$', request.url):
+        if re.search('(bedGraph|fa).gz$', request.url):
             del response.headers['content-encoding']
             del response.headers['content-disposition']
         return response
