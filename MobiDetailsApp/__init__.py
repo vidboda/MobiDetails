@@ -1,7 +1,7 @@
 import os
 import re
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages
+from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages, request
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -17,9 +17,15 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
+    # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
     def remove_header(response):
-        if response.status_code == 206:
+        # remove gzip content-encoding when loading partial bedgraphs
+        # bgzip is not gzip, flask should not add these headers
+        # if response.status_code == 206:
+        # issue: on gene page the bedgraph is fully loaded, then
+        # remove header only for bedgraph.gz files
+        if re.search('bedGraph.gz$', request.url):
             del response.headers['content-encoding']
             del response.headers['content-disposition']
         return response

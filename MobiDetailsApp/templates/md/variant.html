@@ -1069,7 +1069,7 @@
 		<hr />
 		{{ section_title('missense', 'Missense predictions: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
 		<div class="w3-responsive w3-container">
-			<!--dbscSNV-->
+			<!--Missense predictions-->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="missense_table">
 				<thead>
 					<tr>
@@ -1294,8 +1294,6 @@
 				{% endif %}
 			{% endif %}
 		</div>
-		{% endif %}
-		{% if external_data.positions.proteinType == 'missense' %}
 			{% if internal_data.noMatch.dbnsfp is not none %}
 				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
 				{% if g.user %}
@@ -1342,6 +1340,14 @@
 					{% endif %}
 				{% endif %}
 			{% endif %}
+		{% endif %}
+		{% if external_data.positions.proteinType == 'missense' %}
+		<!--3D modeling section-->
+		<hr />
+		{{ section_title('3d_modeling', '3D Modeling: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
+		<div class="w3-responsive w3-container">
+			{{ info("Let's try this <a href='%s?variant&%s&%s' target='_blank'>direct access to MIZTLI's 3D engine</a> to compare the wild-type and mutant structure of your variant."|format(urls.miztli, external_data.gene.symbol, internal_data.nomenclatures.pName)) }}
+		</div>
 		{% endif %}
 		<!--EpiSign section-->
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}

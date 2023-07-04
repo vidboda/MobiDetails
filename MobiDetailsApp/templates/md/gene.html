@@ -129,9 +129,9 @@
 				{# {% for transcript in spliceai_transcript_list %} #}
 				{
 					name: 'SpliceAI {{ main_iso.refseq }}',
-					format: 'bedGraph',
-					url: '{{ url_for('static', filename='') }}resources/spliceai/transcripts/{{ main_iso.refseq }}.bedGraph',
-					indexed: false,
+					format: 'bedgraph',
+					type: 'wig',
+					url: '{{ url_for('static', filename='') }}resources/spliceai/transcripts/{{ main_iso.refseq }}.bedGraph.gz',
 					removable: false,
 					label: 'SpliceAI raw scores for {{ main_iso.refseq }}',
 				},

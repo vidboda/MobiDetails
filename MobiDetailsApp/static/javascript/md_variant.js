@@ -161,11 +161,26 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
-              {
+              // { // uncompressed version
+              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
+              //   format: 'bedGraph',
+              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
+              //   indexed: false,
+              //   removable: false,
+              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+              //   roi: [{
+              //     name: $('#variant_id').text(),
+              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+              //     indexed: false,
+              //     color: "rgba(0, 150, 50, 0.25)"
+              //   }]
+              // },
+              { // compressed version
                 name: 'SpliceAI WT ' + $('#nm_acc').text(),
+                type: 'wig',
                 format: 'bedGraph',
-                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-                indexed: false,
+                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz',
+                indexURL: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz.tbi',
                 removable: false,
                 label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
                 roi: [{
@@ -175,21 +190,6 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
                   color: "rgba(0, 150, 50, 0.25)"
                 }]
               },
-              // { // compressed version - not ready yet
-              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
-              //   type: 'wig',
-              //   format: 'bedGraph',
-              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz',
-              //   indexURL: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz.tbi',
-              //   removable: false,
-              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-              //   roi: [{
-              //     name: $('#variant_id').text(),
-              //     url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bed',
-              //     indexed: false,
-              //     color: "rgba(0, 150, 50, 0.25)"
-              //   }]
-              // },
               {
                 name: 'SpliceAI MT ' + $('#nm_acc').text(),
                 type: 'wig',

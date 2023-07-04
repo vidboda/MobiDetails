@@ -2726,7 +2726,7 @@ def build_compress_bedgraph_from_raw_spliceai(chrom, header, input_file_basename
             '{0}.txt.gz'.format(input_file_basename),
             'rt'
         ) as spliceai_raw_file:
-            bedgraph_data = ''
+            bedgraph_data = header
             for line in spliceai_raw_file:
                 if re.search(rf'^{chr_addition}{nochr_chrom_regexp}', line):
                     line_list = re.split('\t', line)
@@ -2754,6 +2754,7 @@ def build_compress_bedgraph_from_raw_spliceai(chrom, header, input_file_basename
     return 'notok'
 
 
+# deprecated 20230704 we need compressed bedgraphs
 def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basename, output_file_basename=False):
     nochr_chrom_regexp = regexp['nochr_chrom']
     # build new bedgraph from .txt.gz

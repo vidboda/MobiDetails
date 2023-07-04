@@ -1190,6 +1190,7 @@ def test_build_compress_bedgraph_from_raw_spliceai(chr, transcript, result):
     assert md_utilities.build_compress_bedgraph_from_raw_spliceai(chr, header, file_basename) == result
 
 
+# deprecated 20230704 we need compressed bedgraphs
 def test_build_bedgraph_from_raw_spliceai():
     header1 = 'browser position chr1:215622891-216423448\n'
     header2 = 'track name="spliceAI" type=bedGraph description="spliceAI predictions for NM_206933.4     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'

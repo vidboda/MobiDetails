@@ -429,20 +429,20 @@ def gene(gene_symbol=None):
                     main['refseq']
                 )
                 if not os.path.exists(
-                            '{0}.bedGraph'.format(transcript_file_basename)
+                            '{0}.bedGraph.gz'.format(transcript_file_basename)
                         ) or os.path.getctime(
-                            '{0}.bedGraph'.format(transcript_file_basename)
+                            '{0}.bedGraph.gz'.format(transcript_file_basename)
                         ) < 1671580800:
                     # if bedgraph created before 20221221 - first online release
                     # check whether we have pre-computed trancript
                     ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(main['chr']), 'hg38')
                     start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(main['gene_symbol'], main['refseq'], ncbi_chr['ncbi_name'], main['strand'])
-                    header1 = 'browser position chr{0}:{1}-{2}\n'.format(main['chr'], start_g - 1, end_g)
-                    header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(main['refseq'])
+                    # header1 = 'browser position chr{0}:{1}-{2}\n'.format(main['chr'], start_g - 1, end_g)
+                    header = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(main['refseq'])
                     if os.path.exists(
                         '{0}.txt.gz'.format(transcript_file_basename)
                     ):
-                        md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, transcript_file_basename)
+                        md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, transcript_file_basename)
                         # if response == 'ok':
                             # spliceai_transcript_list.append(main['refseq'])
                         # else:

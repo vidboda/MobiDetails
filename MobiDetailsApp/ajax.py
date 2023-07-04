@@ -561,8 +561,8 @@ def spliceaivisual():
             ncbi_transcript
         )
         # headers for bedgraph file
-        header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
-        header2 = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(ncbi_transcript)
+        # header1 = 'browser position chr{0}:{1}-{2}\n'.format(chrom, int(pos) - 1, pos)
+        header = 'track name="spliceAI_{0}" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(ncbi_transcript)
         db = get_db()
         ncbi_chr = md_utilities.get_ncbi_chr_name(db, 'chr{0}'.format(chrom), 'hg38')
         start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, ncbi_transcript, ncbi_chr['ncbi_name'], strand)
@@ -580,7 +580,7 @@ def spliceaivisual():
                 '{0}.txt.gz'.format(transcript_file_basename)
             ):
                 # build new bedgraph.gz from .txt.gz
-                response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header1, header2, transcript_file_basename)
+                response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header, transcript_file_basename)
                 
             else:
                 # check whether we have pre-computed chr-start-end-strand
@@ -602,7 +602,7 @@ def spliceaivisual():
                     '{0}.txt.gz'.format(position_file_basename)
                 ):
                     # build new bedgraph.gz from .txt.gz
-                    response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header1, header2, position_file_basename, transcript_file_basename)
+                    response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header, position_file_basename, transcript_file_basename)
                 else:
                     # build new bedgraph from scratch ? How many cases?
                     # response = 'ok'

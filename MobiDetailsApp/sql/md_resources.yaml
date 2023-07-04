@@ -120,6 +120,7 @@
   'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/'
   'mirbase': 'http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc='
   'mistic': 'http://lbgi.fr/mistic'
+  'miztli': 'https://miztli.biokerden.eu'
   'mpa': 'https://github.com/mobidic/MPA'
   'mutalyzer': 'https://mutalyzer.nl'
   'mutalyzer_normalizer': 'https://mutalyzer.nl/normalizer/'
