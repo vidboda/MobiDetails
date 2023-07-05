@@ -1823,7 +1823,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
         # external API call
-        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key')) if api_key else md_utilities.get_api_key(g, curs, 'user_object')
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller == 'cli':
