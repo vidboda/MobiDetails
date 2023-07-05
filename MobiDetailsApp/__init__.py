@@ -24,7 +24,7 @@ def create_app(test_config=None):
         # bgzip is not gzip, flask should not add these headers
         # if response.status_code == 206:
         # issue: on gene page the bedgraph is fully loaded, then
-        # remove header only for bedgraph.gz files
+        # remove header for bedgraph.gz and genome.gz files
         if re.search('(bedGraph|fa).gz$', request.url):
             del response.headers['content-encoding']
             del response.headers['content-disposition']
