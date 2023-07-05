@@ -1,7 +1,7 @@
 import os
 import re
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages
+from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages, request
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -17,7 +17,18 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
-
+    # https://github.com/igvteam/igv.js/issues/1654
+    @app.after_request
+    def remove_header(response):
+        # remove gzip content-encoding when loading partial bedgraphs
+        # bgzip is not gzip, flask should not add these headers
+        # if response.status_code == 206:
+        # issue: on gene page the bedgraph is fully loaded, then
+        # remove header for bedgraph.gz and genome.gz files
+        if re.search('(bedGraph|fa).gz$', request.url):
+            del response.headers['content-encoding']
+            del response.headers['content-disposition']
+        return response
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('sql/md.cfg', silent=False)
@@ -81,6 +92,7 @@ def create_app(test_config=None):
     if app.debug:
         print(app.config)
     return app
+
 
 def not_found_error(error):
     return render_template('errors/404.html'), 404

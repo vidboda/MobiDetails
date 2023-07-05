@@ -864,10 +864,10 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
-    ('browser', 'https://rest.variantvalidator.org/'),
+    ('browser', 'http://194.167.35.195:8000/'),
     ('cli', 'http://194.167.35.196:8000/'),
     ('nothing', 'http://194.167.35.196:8000/'),
-    (None, 'https://rest.variantvalidator.org/'),
+    (None, 'http://194.167.35.195:8000/'),
 ))
 def test_get_vv_api_url(caller, vv_api_url):
     # with app.test_request_context(headers={'user-agent': ua}):
@@ -1144,10 +1144,57 @@ def test_spliceai_internal_api_hello():
     assert isinstance(md_utilities.spliceai_internal_api_hello(), bool)
 
 
+def test_bgzip_data_onto_file():
+    data = """track test
+chr1	77215209	77215210	-0.0
+chr1	77215210	77215211	-0.0
+chr1	77215211	77215212	-0.0
+chr1	77215212	77215213	-0.0
+chr1	77215213	77215214	0.0008999999845400453
+chr1	77215214	77215215	-0.0
+chr1	77215215	77215216	-0.0
+chr1	77215216	77215217	-0.0
+chr1	77215217	77215218	-0.0
+chr1	77215218	77215219	-0.0
+chr1	77215219	77215220	-0.0
+chr1	77215220	77215221	9.999999747378752e-05
+chr1	77215221	77215222	-0.0
+chr1	77215222	77215223	0.0003000000142492354
+chr1	77215223	77215224	-0.0
+chr1	77215224	77215225	-0.0
+"""
+    file = '{0}variants/test.bedGraph.gz'.format(
+        md_utilities.local_files['spliceai_folder']['abs_path']
+    )
+    assert md_utilities.bgzip_data_onto_file(data, file) == 'ok'
+
+
+def test_create_tabix_index():
+    bedgraph_file = '{0}variants/test.bedGraph.gz'.format(
+        md_utilities.local_files['spliceai_folder']['abs_path']
+    )
+    assert 'ok' == md_utilities.create_tabix_index(bedgraph_file)
+
+
+@pytest.mark.parametrize(('chr', 'transcript', 'result'), (
+    (1, 'NM_000260.4', 'ok'),
+    # (1, 'NM_000260.72', 'not ok'),
+    # ('y', 'not ok'),
+))
+def test_build_compress_bedgraph_from_raw_spliceai(chr, transcript, result):
+    header = 'track name="spliceAI" type=bedGraph description="spliceAI predictions for {0}     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(transcript)
+    file_basename = '{0}transcripts/{1}'.format(
+        md_utilities.local_files['spliceai_folder']['abs_path'],
+        transcript
+    )
+    assert md_utilities.build_compress_bedgraph_from_raw_spliceai(chr, header, file_basename) == result
+
+
+# deprecated 20230704 we need compressed bedgraphs
 def test_build_bedgraph_from_raw_spliceai():
     header1 = 'browser position chr1:215622891-216423448\n'
     header2 = 'track name="spliceAI" type=bedGraph description="spliceAI predictions for NM_206933.4     acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'
-    file_basename = '{0}/transcripts/NM_206933.4'.format(
+    file_basename = '{0}transcripts/NM_206933.4'.format(
         md_utilities.local_files['spliceai_folder']['abs_path']
     )
     assert md_utilities.build_bedgraph_from_raw_spliceai(1, header1, header2, file_basename) == 'ok'

@@ -22,6 +22,7 @@
   'spip': '/softs/SPiPv2.1/SPiPv2.1_main.r'
   'maxentscan5': '/static/resources/maxentscan/score5.pl'
   'maxentscan3': '/static/resources/maxentscan/score3.pl'
+  'tabix': '/usr/local/bin/tabix'
 'api_agent':
   'Accept': 'application/json'
   'User-Agent': 'MobiDetails (mobidetails.iurc@gmail.com)'
@@ -119,6 +120,7 @@
   'metadome_api': 'https://stuart.radboudumc.nl/metadome/api/'
   'mirbase': 'http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc='
   'mistic': 'http://lbgi.fr/mistic'
+  'miztli': 'https://miztli.biokerden.eu'
   'mpa': 'https://github.com/mobidic/MPA'
   'mutalyzer': 'https://mutalyzer.nl'
   'mutalyzer_normalizer': 'https://mutalyzer.nl/normalizer/'

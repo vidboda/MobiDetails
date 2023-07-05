@@ -180,7 +180,7 @@
 							source: function(request, response){
 								// var req_encoded = request.term;
 								// req_encoded = req_encoded.replace(/>/g,"%3E");
-								//send header for flask-wtf crsf security
+								// send header for flask-wtf crsf security
 								var csrf_token = "{{ csrf_token() }}";
 								$.ajaxSetup({
 									beforeSend: function(xhr, settings) {

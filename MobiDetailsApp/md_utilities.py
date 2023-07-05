@@ -12,6 +12,7 @@ import twobitreader
 import tempfile
 import subprocess
 import gzip
+import bgzip
 from urllib.parse import urlparse
 from flask import (
     url_for, request, render_template, current_app as app
@@ -2653,6 +2654,107 @@ def spliceai_internal_api_hello():
         return False
 
 
+def create_tabix_index(bgz_file, type='bed', comment_char='t'):
+    # run tabix on bgzipped file - here bedgraph.gz from spliceai_visual
+    # launched by subprocess
+    # there is a python tabix and puretabix modules, but only to read
+    result = subprocess.run(
+            [
+                ext_exe['tabix'],
+                '-p{0}'.format(type),
+                '-c{0}'.format(comment_char),
+                '-f',
+                bgz_file
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+    if result.returncode == 0:
+        return 'ok'
+    send_error_email(
+        prepare_email_html(
+            'MobiDetails error',
+            """
+            <pThe tabix indexing of file {0} failed with subprocess code: {1}<br/>OutErr: {2}</p>
+            """.format(
+                bgz_file, result.returncode, result.stdout
+            )
+        ),
+        '[MobiDetails - Tabix Error]'
+    )
+    return 'notok'
+
+
+def bgzip_data_onto_file(data, file):
+    try:
+        with open(
+                file,
+                'wb'
+            ) as target_file:
+            with bgzip.BGZipWriter(target_file) as bgzip_fh:
+                bgzip_fh.write(bytes(data, encoding='ascii'))
+    except Exception as e:
+        send_error_email(
+            prepare_email_html(
+                'MobiDetails error',
+                """
+                <pThe bgzip compression of file {0} failed with args: {1}</p>
+                """.format(
+                    file, e.args
+                )
+            ),
+            '[MobiDetails - Tabix Error]'
+        )
+        return 'notok'
+    return 'ok'
+
+
+# left behind for the moment - the idea was to generate bgzipped inedx pre-computed transcripts bedgraphs live, but original file for genes on strand minus are not sorted
+# this would need a sort step somewhere
+# maybe it would be more efficient to sort once for all all txt.gz files, then remove all baedgraphs from the transcript folder, and switch to this function
+def build_compress_bedgraph_from_raw_spliceai(chrom, header, input_file_basename, output_file_basename=False):
+    nochr_chrom_regexp = regexp['nochr_chrom']
+    # build new bedgraph from .txt.gz
+    chr_addition = ''
+    if output_file_basename is False:
+        output_file_basename = input_file_basename
+    else:
+        chr_addition = 'chr'
+    try:
+        # transform data from the txt.gz format to bedgraph
+        with gzip.open(
+            '{0}.txt.gz'.format(input_file_basename),
+            'rt'
+        ) as spliceai_raw_file:
+            bedgraph_data = header
+            for line in spliceai_raw_file:
+                if re.search(rf'^{chr_addition}{nochr_chrom_regexp}', line):
+                    line_list = re.split('\t', line)
+                    spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                    bedgraph_data = bedgraph_data + '{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score)
+    except Exception as e:
+        send_error_email(
+            prepare_email_html(
+                'MobiDetails error',
+                """
+                <pThe bgzip compression of file {0} failed with args: {1}</p>
+                """.format(
+                    input_file_basename, e.args
+                )
+            ),
+            '[MobiDetails - Tabix Error]'
+        )
+        return 'notok'
+    # actual compression
+    bgzip_data_onto_file(bedgraph_data, '{0}.bedGraph.gz'.format(output_file_basename))
+    # run tabix
+    result = create_tabix_index('{0}.bedGraph.gz'.format(output_file_basename))
+    if result == 'ok':
+        return 'ok'
+    return 'notok'
+
+
+# deprecated 20230704 we need compressed bedgraphs
 def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basename, output_file_basename=False):
     nochr_chrom_regexp = regexp['nochr_chrom']
     # build new bedgraph from .txt.gz
@@ -2665,16 +2767,16 @@ def build_bedgraph_from_raw_spliceai(chrom, header1, header2, input_file_basenam
         '{0}.txt.gz'.format(input_file_basename),
         'rt'
     ) as spliceai_raw_file:
-        with open(
+            with open(
             '{0}.bedGraph'.format(output_file_basename),
             'w'
-        ) as bedgraph_file:
-            bedgraph_file.writelines([header1, header2])
-            for line in spliceai_raw_file:
-                if re.search(rf'^{chr_addition}{nochr_chrom_regexp}', line):
-                    line_list = re.split('\t', line)
-                    spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
-                    bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
+            ) as bedgraph_file:
+                bedgraph_file.writelines([header1, header2])
+                for line in spliceai_raw_file:
+                    if re.search(rf'^{chr_addition}{nochr_chrom_regexp}', line):
+                        line_list = re.split('\t', line)
+                        spliceai_max_score = line_list[3] if float(line_list[3]) > float(line_list[4]) else - float(line_list[4])
+                        bedgraph_file.write('{0}\t{1}\t{2}\t{3}\n'.format(chrom, int(line_list[1]) - 1, line_list[1], spliceai_max_score))
     return 'ok'
 
 

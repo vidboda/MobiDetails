@@ -161,11 +161,26 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
-              {
+              // { // uncompressed version
+              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
+              //   format: 'bedGraph',
+              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
+              //   indexed: false,
+              //   removable: false,
+              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
+              //   roi: [{
+              //     name: $('#variant_id').text(),
+              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
+              //     indexed: false,
+              //     color: "rgba(0, 150, 50, 0.25)"
+              //   }]
+              // },
+              { // compressed version
                 name: 'SpliceAI WT ' + $('#nm_acc').text(),
+                type: 'wig',
                 format: 'bedGraph',
-                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-                indexed: false,
+                url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz',
+                indexURL: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph.gz.tbi',
                 removable: false,
                 label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
                 roi: [{
@@ -177,9 +192,10 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               },
               {
                 name: 'SpliceAI MT ' + $('#nm_acc').text(),
-                format: 'bedGraph',
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph',
-                indexed: false,
+                type: 'wig',
+                format: 'bedgraph',
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz',
+                indexURL: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bedGraph.gz.tbi',
                 removable: false,
                 label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
                 roi: [{
@@ -187,13 +203,14 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
                   url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
                   indexed: false,
                   color: "rgba(220, 20, 60, 0.25)"
-                }]
+                }]           
               },
               {
                 name: 'Inserted nucleotides',
+                type: 'wig',
                 format: 'bedGraph',
-                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph',
-                indexed: false,
+                url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph.gz',
+                indexURL: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_ins.bedGraph.gz.tbi',
                 label: 'Insertion track',
                 roi: [{
                   name: $('#variant_id').text(),
@@ -242,9 +259,10 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
 async function add_full_gene_track(static_path) {
   igv.browser.loadTrack({
     name: 'FULL MT SpliceAI ' + $('#nm_acc').text(),
+    type: 'wig',
     format: 'bedGraph',
-    url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph',
-    indexed: false,
+    url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph.gz',
+    indexURL: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '_full_transcript.bedGraph.gz.tbi',
     label: 'SpliceAI raw scores for full mutant ' + $('#nm_acc').text(),
     removable: false,
     order: 3,
@@ -255,7 +273,7 @@ async function add_full_gene_track(static_path) {
       color: "rgba(220, 20, 60, 0.25)"
     }]
   });
-  $('#full_transcript_download').html(' or <a href="' + escape(static_path) + 'resources/spliceai/variants/' + escape($('#variant_id').val()) + '_full_transcript.bedGraph" target="_blank">full mutant transcript</a>');
+  $('#full_transcript_download').html(' or <a href="' + escape(static_path) + 'resources/spliceai/variants/' + escape($('#variant_id').val()) + '_full_transcript.bedGraph.gz" target="_blank">full mutant transcript</a>');
   $('#spliceai_visual_full_wheel').html('<span></span>');
   $('html').css('cursor', 'default');
 }
