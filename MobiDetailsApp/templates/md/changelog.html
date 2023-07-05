@@ -9,6 +9,11 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2023-07-06]
+			<ul>
+				<li>bedgraphs for SpliceAI-visual are now bgzipped and indexed with tabix in order to save some disk space on the server. Thanks to <a href='https://github.com/jrobinso' target='_blank'>Jim Robinson</a> for the essential igv.js and for solving an issue with the <a href='https://github.com/igvteam/igv.js/issues/1654' target='_blank'>flask framework and the bgzipped files</a></li>
+				<li>MobiDetails proposes from now on a direct link to <a href='{0}' target='_blank'>MIZTLI</a> for missense variants 3D interpretation. Thanks to Dr. Blavier for the amazing work! MIZTLI proposes the interpretation of missense variants based on <a href='{1}' target='_blank'>alphaFold</a> models or from structures coming form the <a href='{2}' target='_blank'>PDB</a>. In the coming weeks the direct access should evolve to simplify the interpretation. You can from now on check the <a href='https://www.biokerden.eu/miztli/doc/index.html' target='_blank'>doc</a> to learn how to manipulate MIZTLI!</li>
+			</ul>".format(urls.miztli, urls.alphafold, urls.pdb)) }}
 		{{ info("[2023-07-03] - Dataset removed: the gnomAD 211 genome frequencies shown were always empty. The dataset has been removed waiting to find a long-term fix.") }}
 		{{ info("[2023-06-14]
 			<ul>

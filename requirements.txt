@@ -1,6 +1,7 @@
 argh==0.26.2
 atomicwrites==1.4.0
 attrs==21.2.0
+bgzip==0.4.0
 blinker==1.4
 Brotli==1.0.9
 certifi==2022.12.7

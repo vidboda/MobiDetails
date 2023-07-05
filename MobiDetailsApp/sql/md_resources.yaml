@@ -146,6 +146,7 @@
   'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
+  'pdb': 'https://www.rcsb.org'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
   'regulomedb': 'https://regulomedb.org'
   'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
@@ -541,6 +542,12 @@
     'version': 'v1'
     'short_name': 'mistic'
     'value_col': '4'
+  'MIZTLI':
+    'firstauthor': 'Blavier'
+    'year': '2022'
+    'paper': 'None'
+    'version': 'Live web site'
+    'short_name': 'miztli'
   'MPA':
     'firstauthor': 'Yauy'
     'year': '2018'
@@ -613,9 +620,9 @@
     'dbNSFP_value_col': '37'
     'dbNSFP_pred_col': '39'
   'SPiP':
-    'firstauthor': 'Preprint: Leman'
+    'firstauthor': 'Leman'
     'year': '2020'
-    'paper': 'https://www.researchgate.net/publication/339817193_SPiP_a_comprehensive_Splicing_Prediction_Pipeline_for_massive_detection_of_exonic_and_intronic_variant_effect_on_mRNA_splicing'
+    'paper': '36273432'
     'version': 'v2.1'
     'short_name': 'spip'
   'spliceAI':
@@ -633,7 +640,7 @@
   'SpliceAI-visual':
     'firstauthor': 'De Sainte Agathe'
     'year': '2022'
-    'paper': 'None'
+    'paper': '36765386'
     'version': 'internal implementation'
     'short_name': 'spliceaivisual'
   'togows':
