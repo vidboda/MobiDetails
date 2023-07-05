@@ -191,6 +191,8 @@ for tool in external_tools:
         external_tools[tool]['paper'] = '{0}{1}'.format(
             urls['ncbi_pubmed'], external_tools[tool]['paper']
         )
+    elif external_tools[tool]['paper'] == 'None':
+        external_tools[tool]['paper'] = None
 external_tools['ClinVar']['version'] = 'v{}'.format(
     clinvar_version
 )
