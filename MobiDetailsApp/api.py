@@ -1489,16 +1489,19 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
             urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_chgvs'))
         )
     db = get_db()
-    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
-    if 'mobidetails_error' in res_check_api_key:
-        close_db()
-        if caller == 'cli':
-            return jsonify(res_check_api_key)
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if not g.user:
+        # external API call
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        if 'mobidetails_error' in res_check_api_key:
+            close_db()
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
         else:
-            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-            return redirect(url_for('md.index'), code=302)
-    else:
-        g.user = res_check_api_key['mobiuser']
+            g.user = res_check_api_key['mobiuser']
     header = md_utilities.api_agent
     # code for when vv will require a token
     # vv_header = urllib3.make_headers(
@@ -1509,7 +1512,6 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
     if caller and \
             match_variant_chgvs:
         variant_chgvs = match_variant_chgvs.group(1)
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         match_object = re.search(
             rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})',
             variant_chgvs
@@ -1804,7 +1806,6 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
     # treat params one by one
     if md_utilities.get_post_param(request, 'caller'):
         caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
-    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
@@ -1819,16 +1820,19 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
         match_gene_hgnc = re.search(rf'^({gene_symbol_regexp}|\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'gene_hgnc')))
 
     db = get_db()
-    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
-    if 'mobidetails_error' in res_check_api_key:
-        close_db()
-        if caller == 'cli':
-            return jsonify(res_check_api_key)
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if not g.user:
+        # external API call
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key')) if api_key else md_utilities.get_api_key(g, curs, 'user_object')
+        if 'mobidetails_error' in res_check_api_key:
+            close_db()
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
         else:
-            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-            return redirect(url_for('md.index'), code=302)
-    else:
-        g.user = res_check_api_key['mobiuser']
+            g.user = res_check_api_key['mobiuser']
 
     header = md_utilities.api_agent
 
@@ -1837,7 +1841,6 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
             match_gene_hgnc:
         variant_ghgvs = match_variant_ghgvs.group(1)
         gene_hgnc = match_gene_hgnc.group(1)
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check if gene exists
         if re.search(r'^\d+$', gene_hgnc):
             # HGNC id submitted
@@ -2118,30 +2121,31 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
     match_rs_id = None
     if md_utilities.get_post_param(request, 'caller'):
         caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
-    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
     db = get_db()
-    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
-    if 'mobidetails_error' in res_check_api_key:
-        close_db()
-        if caller == 'cli':
-            return jsonify(res_check_api_key)
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if not g.user:
+        # external API call
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        if 'mobidetails_error' in res_check_api_key:
+            close_db()
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
         else:
-            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-            return redirect(url_for('md.index'), code=302)
-    else:
-        g.user = res_check_api_key['mobiuser']
+            g.user = res_check_api_key['mobiuser']
     if md_utilities.get_post_param(request, 'rs_id'):
         match_rs_id = re.search(r'^rs(\d+)$', urllib.parse.unquote(md_utilities.get_post_param(request, 'rs_id')))
     header = md_utilities.api_agent
     if caller and \
             match_rs_id:
         rs_id = 'rs{}'.format(match_rs_id.group(1))
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # check rs_id
         trunc_rs_id = match_rs_id.group(1)
         if trunc_rs_id:
@@ -2414,23 +2418,25 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
         match_vcf_str = re.search(rf'^({vcf_str_regexp})$', urllib.parse.unquote(md_utilities.get_post_param(request, 'vcf_str')))
     if md_utilities.get_post_param(request, 'caller'):
         caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
-    # caller = 'cli' if md_utilities.get_post_param(request, 'caller') == 'cli' else 'browser'
     if (md_utilities.get_running_mode() == 'maintenance'):
         if caller == 'cli':
             return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot annotate new variants.')
         else:
             return redirect(url_for('md.index'), code=302)
     db = get_db()
-    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
-    if 'mobidetails_error' in res_check_api_key:
-        close_db()
-        if caller == 'cli':
-            return jsonify(res_check_api_key)
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if not g.user:
+        # external API call
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        if 'mobidetails_error' in res_check_api_key:
+            close_db()
+            if caller == 'cli':
+                return jsonify(res_check_api_key)
+            else:
+                flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
+                return redirect(url_for('md.index'), code=302)
         else:
-            flash(res_check_api_key['mobidetails_error'], 'w3-pale-red')
-            return redirect(url_for('md.index'), code=302)
-    else:
-        g.user = res_check_api_key['mobiuser']
+            g.user = res_check_api_key['mobiuser']
 
     header = md_utilities.api_agent
     if md_utilities.get_post_param(request, 'genome_version'):

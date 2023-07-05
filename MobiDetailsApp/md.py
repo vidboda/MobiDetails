@@ -715,7 +715,7 @@ def search_engine():
                             genome_version=genome_version,
                             vcf_str=match_object.group(2),
                             caller='browser',
-                            api_key=api_key
+                            # api_key=api_key
                         ),
                         code=307
                     )
@@ -735,7 +735,7 @@ def search_engine():
                             'api.api_create_vcf_str',
                             vcf_str=query_engine,
                             caller='browser',
-                            api_key=api_key
+                            # api_key=api_key
                         ),
                         code=307
                     )
@@ -777,19 +777,19 @@ def search_engine():
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            api_key = md_utilities.get_api_key(g, curs)
+            # api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
-            if api_key is not None:
-                close_db()
-                return redirect(
-                    url_for(
-                        'api.api_variant_create',
-                        variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)),
-                        caller='browser',
-                        api_key=api_key
-                    ),
-                    code=307
-                )
+            # if api_key is not None:
+            close_db()
+            return redirect(
+                url_for(
+                    'api.api_variant_create',
+                    variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)),
+                    caller='browser',
+                    # api_key=api_key
+                ),
+                code=307
+            )
         elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
             query_type = 'refseq'
@@ -814,20 +814,20 @@ def search_engine():
             if 'db' not in locals():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            api_key = md_utilities.get_api_key(g, curs)
+            # api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
-            if api_key is not None:
-                close_db()
-                return redirect(
-                    url_for(
-                        'api.api_variant_g_create',
-                        variant_ghgvs=match_obj.group(1),
-                        gene_hgnc=match_obj.group(2),
-                        caller='browser',
-                        api_key=api_key
-                    ),
-                    code=307
-                )
+            # if api_key is not None:
+            close_db()
+            return redirect(
+                url_for(
+                    'api.api_variant_g_create',
+                    variant_ghgvs=match_obj.group(1),
+                    gene_hgnc=match_obj.group(2),
+                    caller='browser',
+                    # api_key=api_key
+                ),
+                code=307
+            )
         elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
@@ -984,7 +984,7 @@ def search_engine():
                                     'api.api_variant_create_rs',
                                     rs_id='rs{}'.format(pattern),
                                     caller='browser',
-                                    api_key=api_key
+                                    # api_key=api_key
                                 ),
                                 code=307
                             )

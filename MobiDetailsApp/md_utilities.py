@@ -2432,15 +2432,15 @@ def check_caller(caller):  # in api
     return 'Valid caller'
 
 
-def get_api_key(g, curs):
-    # when we need an API key just to trigger an API action e.g. in upload.py
-    api_key = None
+def get_api_key(g, curs, api_key=None):
+    # when we need an API key just to trigger an API action e.g. in upload.py => mode key_only
+    # mode user_object called from API to hide default API key when redirecting
     if g.user:
         api_key = g.user['api_key']
     else:
         curs.execute(
             """
-            SELECT api_key
+            SELECT *
             FROM mobiuser
             WHERE username = 'mobidetails'
             """
