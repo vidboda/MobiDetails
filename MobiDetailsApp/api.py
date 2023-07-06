@@ -177,7 +177,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         res_user = curs.fetchone()
         academic = res_user['academic']
     if not api_key:
-        api_key = md_utilities.get_api_key(g, curs)
+        api_key = md_utilities.get_api_key(curs)
 
     # we need 2 dicts:
     # - one for data that will be presented to the world via the API: external_data
@@ -1491,7 +1491,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
-        # external API call
+        # external API call - or non-connected user on webUI
         res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
@@ -1822,7 +1822,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
-        # external API call
+        # external API call - or non-connected user on webUI
         res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
@@ -2129,7 +2129,7 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
-        # external API call
+        # external API call - or non-connected user on webUI
         res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
@@ -2426,7 +2426,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
-        # external API call
+        # external API call - or non-connected user on webUI
         res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
         if 'mobidetails_error' in res_check_api_key:
             close_db()

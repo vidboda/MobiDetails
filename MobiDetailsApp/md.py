@@ -703,42 +703,44 @@ def search_engine():
         if match_object:
             genome_version = md_utilities.translate_genome_version(match_object.group(1))
             if genome_version != 'wrong_genome_input':
-                if 'db' not in locals():
-                    db = get_db()
-                    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                api_key = md_utilities.get_api_key(g, curs)
-                if api_key is not None:
+                # if 'db' not in locals():
+                #     db = get_db()
+                #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                # api_key = md_utilities.get_api_key(g, curs)
+                # if api_key is not None:
+                if 'db' in locals():
                     close_db()
-                    return redirect(
-                        url_for(
-                            'api.api_create_vcf_str',
-                            genome_version=genome_version,
-                            vcf_str=match_object.group(2),
-                            caller='browser',
-                            # api_key=api_key
-                        ),
-                        code=307
-                    )
+                return redirect(
+                    url_for(
+                        'api.api_create_vcf_str',
+                        genome_version=genome_version,
+                        vcf_str=match_object.group(2),
+                        caller='browser',
+                        # api_key=api_key
+                    ),
+                    code=307
+                )
             else:
                 error = 'Your genome version looks suspicious ({}). Supported are hg19, hg38, GRCh37, GRCh38'.format(match_object.group(1))
         else:
             match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
             if match_object:
-                if 'db' not in locals():
-                    db = get_db()
-                    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                api_key = md_utilities.get_api_key(g, curs)
-                if api_key is not None:
+                # if 'db' not in locals():
+                #     db = get_db()
+                #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                # api_key = md_utilities.get_api_key(g, curs)
+                # if api_key is not None:
+                if 'db' in locals():
                     close_db()
-                    return redirect(
-                        url_for(
-                            'api.api_create_vcf_str',
-                            vcf_str=query_engine,
-                            caller='browser',
-                            # api_key=api_key
-                        ),
-                        code=307
-                    )
+                return redirect(
+                    url_for(
+                        'api.api_create_vcf_str',
+                        vcf_str=query_engine,
+                        caller='browser',
+                        # api_key=api_key
+                    ),
+                    code=307
+                )
         match_object = re.search(rf'^([{amino_acid_regexp}]{{1}})(\d+)([{amino_acid_regexp}\*]{{1}})$', query_engine)  # e.g. R34X
         if match_object:
             confusing_genes = ['C1R', 'C8G', 'S100G', 'F11R', 'C1S', 'A2M', 'C1D', 'S100P', 'F2R', 'C8A', 'C4A']
@@ -774,13 +776,14 @@ def search_engine():
                 re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
             # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
             # API call
-            if 'db' not in locals():
-                db = get_db()
-                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            # if 'db' not in locals():
+            #     db = get_db()
+            #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
             # if api_key is not None:
-            close_db()
+            if 'db' in locals():
+                close_db()
             return redirect(
                 url_for(
                     'api.api_variant_create',
@@ -811,13 +814,14 @@ def search_engine():
             # res_common = md_utilities.get_common_chr_name(db, )
         elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
             # API call
-            if 'db' not in locals():
-                db = get_db()
-                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            # if 'db' not in locals():
+            #     db = get_db()
+            #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             # api_key = md_utilities.get_api_key(g, curs)
             match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
             # if api_key is not None:
-            close_db()
+            if 'db' in locals():
+                close_db()
             return redirect(
                 url_for(
                     'api.api_variant_g_create',
@@ -976,18 +980,18 @@ def search_engine():
                 if not result:
                     if query_type == 'dbsnp_id':
                         # api call to create variant from rs id
-                        api_key = md_utilities.get_api_key(g, curs)
-                        if api_key is not None:
-                            close_db()
-                            return redirect(
-                                url_for(
-                                    'api.api_variant_create_rs',
-                                    rs_id='rs{}'.format(pattern),
-                                    caller='browser',
-                                    # api_key=api_key
-                                ),
-                                code=307
-                            )
+                        # api_key = md_utilities.get_api_key(g, curs)
+                        # if api_key is not None:
+                        close_db()
+                        return redirect(
+                            url_for(
+                                'api.api_variant_create_rs',
+                                rs_id='rs{}'.format(pattern),
+                                caller='browser',
+                                # api_key=api_key
+                            ),
+                            code=307
+                        )
                     error = """
                     Sorry the variant or gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).<br />
                     You can annotate it directly at the corresponding gene page.

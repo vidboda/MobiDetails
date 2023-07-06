@@ -15,7 +15,7 @@ import gzip
 import bgzip
 from urllib.parse import urlparse
 from flask import (
-    url_for, request, render_template, current_app as app
+    url_for, request, render_template, current_app as app, g
 )
 from flask_mail import Message
 from werkzeug.urls import url_parse
@@ -2397,9 +2397,9 @@ def format_mirs(record):
 
 
 def check_api_key(db, api_key=None):  # in api
-    # print('API key: {}'.format(api_key))    
-    if api_key:
-        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    # print('API key: {}'.format(api_key))
+    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if api_key:        
         if len(api_key) != 43:
             return {'mobidetails_error': 'Invalid API key'}
         else:
@@ -2422,7 +2422,9 @@ def check_api_key(db, api_key=None):  # in api
                     return {'mobiuser': res}
             else:
                 return {'mobidetails_error': 'Bad chars in API key'}
-    return {'mobidetails_error': 'No API key provided'}
+    else:
+        return {'mobiuser': get_api_key(curs, None, 'user_object')}
+    # return {'mobidetails_error': 'No API key provided'}
 
 
 def check_caller(caller):  # in api
@@ -2432,7 +2434,7 @@ def check_caller(caller):  # in api
     return 'Valid caller'
 
 
-def get_api_key(g, curs, api_key=None):
+def get_api_key(curs, api_key=None, mode='key_only'):
     # when we need an API key just to trigger an API action e.g. in upload.py => mode key_only
     # mode user_object called from API to hide default API key when redirecting
     if g.user:
@@ -2445,9 +2447,9 @@ def get_api_key(g, curs, api_key=None):
             WHERE username = 'mobidetails'
             """
         )
-        res_key = curs.fetchone()
-        if res_key:
-            api_key = res_key['api_key']
+        res = curs.fetchone()
+        if res:
+            api_key = res['api_key'] if mode == 'key_only' else res
     return api_key
 
 

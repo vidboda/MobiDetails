@@ -261,13 +261,13 @@ def test_api_variant_create_vcf_str(client, app, genome_version, vcf_str, api_ke
         ('create_vcf_str?vcf_str=17-7673822-T-TC&caller=cli&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', b'NM_000546.6:c.797dup', 200), # cli caller
         ('create?variant_chgvse=NM_001429.4:c.3069A>G&caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create bad param
         ('create?caller=browser&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create no param
-        ('create?variant_chgvs=NM_000546.5:c.797dupG', '', 302), # create no caller no api key
+        ('create?variant_chgvs=NM_000546.5:c.797dupG', 'api/variant/335466/browser/', 302), # create no caller no api key
         ('create?variant_chgvs=NM_001429.4:c.3069A>G&caller=browser&api_key=lWjH_Y2Za-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create invalid api key
-        ('create?variant_chgvs=NM_000546.5:c.797dupG&caller=cli', b'No API key provided', 200), # create cli caller no api key
+        ('create?variant_chgvs=NM_000546.5:c.797dupG&caller=cli', 335466, 200), # create cli caller no api key
         ('create_g?variant_ghgvss=NC_000017.11:g.7673825dup&gene_hgnc=TP53&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_g no caller bad param hg38
         ('create_g?variant_ghgvs=NC_000017.41:g.7673825dup&gene_hgnc=TP53&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_g no caller invalid chr hg38
         ('create_g?variant_ghgvs=NC_000017.10:g.7577143dup&gene_gnc=TP53&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_g no caller bad param hg19
-        ('create_g?variant_ghgvs=NC_000017.10:g.7577143dup&gene_hgnc=TP53', '', 302), # create_g no caller no api key hg19
+        ('create_g?variant_ghgvs=NC_000017.10:g.7577143dup&gene_hgnc=TP53', 'api/variant/335465/browser/', 302), # create_g no caller no api key hg19
         ('create_g?variant_ghgvs=NC_000017.11:g.7673825dup&gene_hgnc=TP53&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYfCs', '', 302), # create_g no caller invalid api key
         ('create_rs?api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_rs no caller no rsid
         ('create_rs?rs_idz=rs80338902&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_rs no caller bad param
@@ -276,7 +276,7 @@ def test_api_variant_create_vcf_str(client, app, genome_version, vcf_str, api_ke
         ('create_rs?rs_id=rs8033s8902?api_key=lWjH_YMZa-NuKVAiH', '', 302), # create_rs no caller invalid api key
         ('create_vcf_str?vcf_strs=17-7673822-T-TC&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_vcf_str no caller no genome bad param
         ('create_vcf_str?genome_version=hg39&vcf_str=hg39:17-7577140-T-TC&api_key=lWjH_YMZa-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_vcf_str no caller bad genome
-        ('create_vcf_str?vcf_str=17-7673822-T-TC', '', 302), # create_vcf_str no caller no genome no api key
+        ('create_vcf_str?vcf_str=17-7673822-T-TC', b'NM_000546.6:c.797dup', 200), # create_vcf_str no caller no genome no api key
         ('create_vcf_str?vcf_str=17-7673822-T-TC&api_key=lWjH_YMZb-NuKVAiHyDsi7yyu5aZXpCvo1Wf_zSYPCs', '', 302), # create_vcf_str no caller no genome invalid api key
 ))
 def test_get_create_api(client, app, endpoint, to_find, http_code):
@@ -289,7 +289,7 @@ def test_get_create_api(client, app, endpoint, to_find, http_code):
         elif isinstance(to_find, int):
             json_response = json.loads(response.get_data().decode('utf-8'))
             print(json_response)
-            assert 335464 == json_response['mobidetails_id']
+            assert to_find == json_response['mobidetails_id']
         else:
             print(response.get_data()) 
             assert to_find in response.get_data() 

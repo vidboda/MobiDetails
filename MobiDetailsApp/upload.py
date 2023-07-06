@@ -64,7 +64,7 @@ def file_upload():
                 # headers
                 header = md_utilities.api_agent
                 result = []
-                api_key = md_utilities.get_api_key(g, curs)
+                api_key = md_utilities.get_api_key(curs)
                 if api_key is None:
                     flash('There is an issue in obtaining an API key')
                     close_db()

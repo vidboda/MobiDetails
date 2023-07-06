@@ -992,9 +992,11 @@ def test_format_mirs(record, result):
     ('ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'Bad chars in API key'),
     ('ahkgs69jforjsgeghefqvx5vggdlzmpdtshenicldje', 'Unknown API key or unactivated account'),
     ('', 'mobidetails'),
+    (None, 'mobidetails'),
 ))
 def test_check_api_key(app, api_key, result):
     with app.app_context():
+        g.user = None
         db_pool, db = get_db()
         if api_key == '':
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -1032,9 +1034,13 @@ def test_get_api_key(app):
     with app.app_context():
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        g.user = None
         db_pool.putconn(db)
-        assert md_utilities.get_api_key(g, curs) is not None
+        g.user = None        
+        assert len(md_utilities.get_api_key(curs)) == 43
+        user_object = md_utilities.get_api_key(curs, None, 'user_object')
+        print(user_object)
+        assert len(user_object['api_key']) == 43
+
 
 
 @pytest.mark.parametrize(('criterion', 'color'), (
