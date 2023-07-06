@@ -1490,7 +1490,6 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
         )
     db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    print(g.user)
     if not g.user:
         # external API call - or non-connected user on webUI
         res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
