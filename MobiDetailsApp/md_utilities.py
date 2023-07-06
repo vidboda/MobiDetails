@@ -2397,7 +2397,7 @@ def format_mirs(record):
 
 
 def check_api_key(db, api_key=None):  # in api
-    print('API key: {}'.format(api_key))
+    # print('API key: {}'.format(api_key))
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if api_key:        
         if len(api_key) != 43:
@@ -2424,8 +2424,8 @@ def check_api_key(db, api_key=None):  # in api
                 return {'mobidetails_error': 'Bad chars in API key'}
     elif request.referrer is not None and \
             (url_parse(request.referrer).host == host['dev'] or
-                url_parse(request.referrer).host == host['prod']) and \
-            url_parse(request.referrer).path != 'MDAPI':
+                url_parse(request.referrer).host == host['prod']):# and \
+            # url_parse(request.referrer).path != 'MDAPI':
         
         print(url_parse(request.referrer).path)
         return {'mobiuser': get_api_key(curs, None, 'user_object')}
