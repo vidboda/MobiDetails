@@ -2422,9 +2422,12 @@ def check_api_key(db, api_key=None):  # in api
                     return {'mobiuser': res}
             else:
                 return {'mobidetails_error': 'Bad chars in API key'}
-    else:
+    elif request.referrer is not None and \
+            (url_parse(request.referrer).host == host['dev'] or
+                url_parse(request.referrer).host == host['prod']):
+        print('here')
         return {'mobiuser': get_api_key(curs, None, 'user_object')}
-    # return {'mobidetails_error': 'No API key provided'}
+    return {'mobidetails_error': 'No API key provided'}
 
 
 def check_caller(caller):  # in api
