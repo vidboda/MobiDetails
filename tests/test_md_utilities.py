@@ -992,31 +992,32 @@ def test_format_mirs(record, result):
     ('ahkgs6!jforjsge%hefqvx,v;:dlzmpdtshenicldje', 'Bad chars in API key'),
     ('ahkgs69jforjsgeghefqvx5vggdlzmpdtshenicldje', 'Unknown API key or unactivated account'),
     ('', 'mobidetails'),
-    (None, 'mobidetails'),
+    (None, 'No API key provided'),
 ))
 def test_check_api_key(app, api_key, result):
     with app.app_context():
-        g.user = None
-        db_pool, db = get_db()
-        if api_key == '':
-            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            curs.execute(
-                """
-                SELECT api_key
-                FROM mobiuser
-                WHERE email = 'mobidetails.iurc@gmail.com'
-                """
-            )
-            res = curs.fetchone()
-            if res is not None:
-                api_key = res['api_key']
-        check = md_utilities.check_api_key(db, api_key)
-        db_pool.putconn(db)
-        if 'mobidetails_error' in check:
-            assert result == check['mobidetails_error']
-        else:
-            print(check['mobiuser'])
-            assert result == check['mobiuser'][4]
+        with app.test_request_context():
+            g.user = None
+            db_pool, db = get_db()
+            if api_key == '':
+                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                curs.execute(
+                    """
+                    SELECT api_key
+                    FROM mobiuser
+                    WHERE email = 'mobidetails.iurc@gmail.com'
+                    """
+                )
+                res = curs.fetchone()
+                if res is not None:
+                    api_key = res['api_key']
+            check = md_utilities.check_api_key(db, api_key)
+            db_pool.putconn(db)
+            if 'mobidetails_error' in check:
+                assert result == check['mobidetails_error']
+            else:
+                print(check['mobiuser'])
+                assert result == check['mobiuser'][4]
 
 
 @pytest.mark.parametrize(('caller', 'result'), (
