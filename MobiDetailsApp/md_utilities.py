@@ -2397,7 +2397,7 @@ def format_mirs(record):
 
 
 def check_api_key(db, api_key=None):  # in api
-    # print('API key: {}'.format(api_key))
+    print('API key: {}'.format(api_key))
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if api_key:        
         if len(api_key) != 43:
