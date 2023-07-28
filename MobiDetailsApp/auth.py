@@ -144,11 +144,7 @@ def register():
                                 The email address is reported as risky or suppressed.
                                 If this is not the case, please send
                                 us an email directly to
-                                &#109;&#111;&#098;&#105;&#100;&#101;
-                                &#116;&#097;&#105;&#108;&#115;
-                                &#046;&#105;&#117;&#114;&#099;&#064;
-                                &#103;&#109;&#097;&#105;&#108;&#046;
-                                &#099;&#111;&#109;.
+                                &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.
                                 """
                             # else:valid adressese such as
                             # d-baux@chu-montpellier.fr are reported as False
@@ -205,11 +201,7 @@ def register():
                             Sorry, your input data is reported as risky.
                             If this is not the case, please send
                             us an email directly to
-                            &#109;&#111;&#098;&#105;&#100;&#101;
-                            &#116;&#097;&#105;&#108;&#115;
-                            &#046;&#105;&#117;&#114;&#099;
-                            &#064;&#103;&#109;&#097;&#105;&#108;
-                            &#046;&#099;&#111;&#109;.
+                            &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.
                             """
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(
@@ -257,20 +249,6 @@ def register():
                     )
         if not error:
             key = secrets.token_urlsafe(32)
-            print(
-                """
-                INSERT INTO mobiuser (username, password, country, institute, email, api_key, academic, activated)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, 'f')
-                RETURNING id
-                """,
-                (username,
-                 generate_password_hash(password),
-                 country,
-                 institute,
-                 email,
-                 key,
-                 academic_val)
-            )
             curs.execute(
                 """
                 INSERT INTO mobiuser (username, password, country, institute, email, api_key, academic, activated)
