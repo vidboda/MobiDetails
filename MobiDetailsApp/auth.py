@@ -94,18 +94,6 @@ def register():
                 remote_ip = match_obj.group(1)
             else:
                 error = 'Invalid char in IP address.'
-        
-
-
-        # username = urllib.parse.unquote(request.form['username'])
-        # username = request.form['username']
-        # password = request.form['password']
-        # country = request.form['country']
-        # institute = request.form['institute']
-        # email = request.form['email']
-        # academic = request.form['acad']
-        # header = md_utilities.api_agent
-        # remote_ip = request.remote_addr
        
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -124,34 +112,6 @@ def register():
                  is already registered.'.format(
                     username, email
                 )
-
-        # academic_val = 't' if academic == 'academic' else 'f'
-        # if not username:
-        #     error = 'Username is required.'
-        # elif len(username) < 5:
-        #     error = 'Username should be at least 5 characters.'
-        # elif not password:
-        #     error = 'Password is required.'
-        # elif len(password) < 8 or \
-        #         not re.search(r'[a-z]', password) or \
-        #         not re.search(r'[A-Z]', password) or \
-        #         not re.search(r'[0-9]', password):
-        #     error = """
-        #     Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.
-        #     """
-        # elif not country or re.match('--', country):
-        #     error = 'Country is required.'
-        # elif not institute:
-        #     error = 'Institute is required.'
-        # elif not email:
-        #     error = 'Email is required.'
-        # elif not re.search(
-        #     r'^[a-zA-Z0-9\._%\+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-        #     email
-        # ):
-        #     error = 'The email address does not look valid.'
-        # elif not re.search(r'^([\d\.]+)$', remote_ip):
-        #     error = 'Invalid char in IP address.'
         if not error:
             http = urllib3.PoolManager(
                 cert_reqs='CERT_REQUIRED',
@@ -297,6 +257,20 @@ def register():
                     )
         if not error:
             key = secrets.token_urlsafe(32)
+            print(
+                """
+                INSERT INTO mobiuser (username, password, country, institute, email, api_key, academic, activated)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'f')
+                RETURNING id
+                """,
+                (username,
+                 generate_password_hash(password),
+                 country,
+                 institute,
+                 email,
+                 key,
+                 academic_val)
+            )
             curs.execute(
                 """
                 INSERT INTO mobiuser (username, password, country, institute, email, api_key, academic, activated)
