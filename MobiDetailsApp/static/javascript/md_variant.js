@@ -587,12 +587,11 @@ function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
   var swal_title = 'Add this variant to your clinvar watch list';
 	var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
 	var swal_confirm = 'Yes, add it!';
-	var swal_done = 'This variant has been added to your clinvar watch list.';
+	var swal_done = 'This pop-up will close automatically.';
 	if (operation === 'remove') {
 		var swal_title = 'Remove this variant from your clinvar watch list';
 		var swalt_text = 'You can add it again later if needed';
 		var swal_confirm = 'Yes, remove it!';
-		var swal_done = 'This variant has been removed from your clinvar watch list.';
 	}
   Swal.fire({
 		title: swal_title,
@@ -635,11 +634,15 @@ function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
           $('#clinvar_watch_heart').hide();
         }
       });
-      Swal.fire(
-				'Done!',
-				swal_done,
-				'success'
-			);
+      Swal.fire({
+				title: 'Done!',
+				html: swal_done,
+        timer: 1000,
+        timerProgressBar: true,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      });
 		}
 	})
 }

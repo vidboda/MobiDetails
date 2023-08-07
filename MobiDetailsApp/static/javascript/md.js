@@ -112,12 +112,11 @@ function favourite(vf_id, operation, fav_url, csrf_token) {
 	var swal_title = 'Add this variant to your favourite list';
 	var swalt_text = 'Retrieve it from your profile page and build custom lists of variants';
 	var swal_confirm = 'Yes, add it!';
-	var swal_done = 'This variant has been added to your favourite list.';
+	var swal_done = 'This pop-up will close automatically.';
 	if (operation === 'remove') {
 		var swal_title = 'Remove this variant from your favourite list';
 		var swalt_text = 'You can add it again later if needed';
 		var swal_confirm = 'Yes, remove it!';
-		var swal_done = 'This variant has been removed from your favourite list.';
 	}
 	Swal.fire({
 		title: swal_title,
@@ -206,11 +205,15 @@ function favourite(vf_id, operation, fav_url, csrf_token) {
 				}
 
 			});
-			Swal.fire(
-				'Done!',
-				swal_done,
-				'success'
-			);
+			Swal.fire({
+				title: 'Done!',
+				html: swal_done,
+				timer: 1000,
+				timerProgressBar: true,
+				didOpen: () => {
+				Swal.showLoading()
+				},
+			});
 		}
 	})
 	
