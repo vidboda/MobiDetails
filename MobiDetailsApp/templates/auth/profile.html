@@ -351,7 +351,8 @@
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
-								{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] %}
+								{% if var.mobiuser_id is not none and var.mobiuser_id == g.user['id'] and var.type != 2 %}
+								<!-- mobiuser_favourite.type can be 1: favourite only, 2: clinvar_watched only or 3: both -->
 								<span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', 'remove', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="var_li">
 									<i id="favour_{{ var.id }}" class="fa fa-star w3-xxlarge"></i>
 								</span>

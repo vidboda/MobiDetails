@@ -573,7 +573,7 @@ def profile(mobiuser_id=0):
             curs.execute(
                 """
                 SELECT a.id, a.c_name, a.gene_symbol, a.refseq,
-                    a.p_name, a.creation_date, b.mobiuser_id
+                    a.p_name, a.creation_date, b.mobiuser_id, b.type
                 FROM variant_feature a
                 LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
                 WHERE a.creation_user = %s
