@@ -475,7 +475,8 @@ def gene(gene_symbol=None):
                         if os.path.exists(
                             '{0}.txt.gz'.format(position_file_basename)
                         ):
-                            md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, position_file_basename, transcript_file_basename)
+                            md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, position_file_basename, transcript_file_basename)
+                            # md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, position_file_basename, transcript_file_basename)
                 # print(spliceai_transcript_list)
                 # get oncoKB gene data
                 oncokb_info = md_utilities.get_oncokb_genes_info(gene_symbol)
