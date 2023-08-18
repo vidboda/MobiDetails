@@ -75,16 +75,12 @@ a:hover {
     max-height:50px;
   }
 } */
-#engine_index:focus {
-  background: aliceblue;
-}
 #engine_index:focus, #engine:focus {
   outline: #2195f3bb solid 2px;
   outline-offset:-3px;
-}
-#engine_index {
-  background:#ecf0f1;
+  background: aliceblue;
 }
 #engine_index, #engine {
+  background:#ecf0f1;
   border:0px;
 }
