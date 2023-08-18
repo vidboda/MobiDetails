@@ -64,3 +64,27 @@ a:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+.toots {
+  min-width:100%!important;
+}
+#mastodon_feed {
+  overflow: scroll;
+}
+/* @media screen and (min-width:600px){
+  #mastodon_feed {
+    max-height:50px;
+  }
+} */
+#engine_index:focus {
+  background: aliceblue;
+}
+#engine_index:focus, #engine:focus {
+  outline: #2195f3bb solid 2px;
+  outline-offset:-3px;
+}
+#engine_index {
+  background:#ecf0f1;
+}
+#engine_index, #engine {
+  border:0px;
+}

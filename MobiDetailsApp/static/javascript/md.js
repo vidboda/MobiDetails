@@ -12,6 +12,7 @@ document.onreadystatechange = function() {
   } else {
 		$('#loader').hide();
 		$('#content').show();
+		$('#engine_index').focus();
   }
 };
 
@@ -232,16 +233,16 @@ $(document).ready(function(){
 	// change z-index for menus
 	$('#mdNavBar').mouseenter(
 		function () {
-			if ($('#about_menu').length) {$('#about_menu').css('z-index', 1111);}
-			if ($('#page_menu').length) {$('#page_menu').css('z-index', 1111);}
-			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 1111);}
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 10);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 10);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 10);}
     }
 	);
 	$('#mdNavBar').mouseleave(
 		function () {
-			if ($('#about_menu').length) {$('#about_menu').css('z-index', 1300);}
-			if ($('#page_menu').length) {$('#page_menu').css('z-index', 1300);}
-			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 1300);}
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 13);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 13);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 13);}
     }
 	);
 

@@ -8,7 +8,6 @@
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/chart.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/sweetalert2.all.min.js') }}" type="text/javascript"></script>
 	<!-- 
 	igv.js update (the same for sweetalert or chart):
 	VERSION=2.15.8
@@ -23,7 +22,7 @@
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
-	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="max-height:86%;height:auto;">
+	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="top:89px;max-height:86%;height:auto;z-index:11">
 		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
 		{# hg19 #}
 		{# deal with position for genome browsers #}
@@ -119,7 +118,7 @@
 			{% endif %}
 		</div>
 	</div>
-	<div class="w3-bar w3-light-grey" style="width:100%;z-index:1300;position:fixed;top:50px;" id="page_menu">
+	<div class="w3-bar w3-light-grey" style="width:100%;z-index:13;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>

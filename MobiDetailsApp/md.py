@@ -41,38 +41,38 @@ def index():
                         headers=md_utilities.api_agent
                     ).data.decode('utf-8')
                 )
-    # count genes
-    db = get_db()
-    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    curs.execute(
-        """
-        SELECT COUNT(DISTINCT(gene_symbol)) AS gene, COUNT(refseq) AS transcript
-        FROM gene
-        WHERE variant_creation = 'ok' OR variant_creation = 'hg19_mapping_default'
-        """
+    # count genes - deprecated 20030818
+#     db = get_db()
+#     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+#     curs.execute(
+#         """
+#         SELECT COUNT(DISTINCT(gene_symbol)) AS gene, COUNT(refseq) AS transcript
+#         FROM gene
+#         WHERE variant_creation = 'ok' OR variant_creation = 'hg19_mapping_default'
+#         """
+#     )
+#     res = curs.fetchone()
+#     if res is None:
+#         close_db()
+#         error = 'There is a problem with the number of genes.'
+#         flash(error, 'w3-pale-red')
+#         md_utilities.send_error_email(
+#             md_utilities.prepare_email_html(
+#                 'MobiDetails PostGreSQL error',
+#                 '<p>There is a problem with the number of genes.\
+# <br /> in {}</p>'.format(os.path.basename(__file__))
+#             ),
+#             '[MobiDetails - PostGreSQL Error]'
+#         )
+#     else:
+#         close_db()
+    return render_template(
+        'md/index.html',
+        run_mode=md_utilities.get_running_mode(),
+        # nb_genes=res['gene'],
+        # nb_isoforms=res['transcript'],
+        vv_instance=vv_instance
     )
-    res = curs.fetchone()
-    if res is None:
-        close_db()
-        error = 'There is a problem with the number of genes.'
-        flash(error, 'w3-pale-red')
-        md_utilities.send_error_email(
-            md_utilities.prepare_email_html(
-                'MobiDetails PostGreSQL error',
-                '<p>There is a problem with the number of genes.\
-<br /> in {}</p>'.format(os.path.basename(__file__))
-            ),
-            '[MobiDetails - PostGreSQL Error]'
-        )
-    else:
-        close_db()
-        return render_template(
-            'md/index.html',
-            run_mode=md_utilities.get_running_mode(),
-            nb_genes=res['gene'],
-            nb_isoforms=res['transcript'],
-            vv_instance=vv_instance
-        )
 
 # -------------------------------------------------------------------
 # web app - about
