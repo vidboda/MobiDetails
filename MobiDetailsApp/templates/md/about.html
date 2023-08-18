@@ -10,10 +10,10 @@
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:13;position:fixed;top:50px;" id="about_menu">
 		<a href="#references" class="w3-bar-item w3-button w3-mobile">References</a>
 		<a href="#clinvar_watch" class="w3-bar-item w3-button w3-mobile">Watch list</a>
-		<a href="#disclaimer" class="w3-bar-item w3-button w3-mobile">Disclaimer</a>
-		<a href="#cite" class="w3-bar-item w3-button w3-mobile">Cite</a>
-		<a href="#contact" class="w3-bar-item w3-button w3-mobile">Contact</a>
-		<a href="#eposters" class="w3-bar-item w3-button w3-mobile">E-posters</a>
+		<a href="#clinvar_watch" class="w3-bar-item w3-button w3-mobile">Disclaimer</a>
+		<a href="#disclaimer" class="w3-bar-item w3-button w3-mobile">Cite</a>
+		<a href="#cite" class="w3-bar-item w3-button w3-mobile">Contact</a>
+		<a href="#contact" class="w3-bar-item w3-button w3-mobile">E-posters</a>
 		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
 		<a href="#source_code" class="w3-bar-item w3-button w3-mobile">Source code</a>
 		<a href="#credits" class="w3-bar-item w3-button w3-mobile">Credits</a>
@@ -94,8 +94,8 @@
 			</table>
 		</div>
 	</div>
-	<div class="w3-container w3-padding-64" style="display:block">
-		<h3 id="clinvar_watch">ClinVar watch functionality / favourite variants:</h3>
+	<div id="clinvar_watch" class="w3-container w3-padding-64" style="display:block">
+		<h3>ClinVar watch functionality / favourite variants:</h3>
 		{{ info("Authenticated users have the ability to mark any variant of interest. There are 2 types of marks in Mobidetails:<ul><li>Favourite variants: identified by a star icon <i class='fa fa-star'></i>. this list is useful to:<ul><li>quickly retrieve a variant from your profile page</li><li>to create unique urls pointing to several variants which can be used in publications (e.g. <a href='https://tinyurl.com/n3emehns' target='_blank' rel='noopener noreferrer'>this list of <em>KMT2A</em> variants with episignature profile data</a>)</li></ul></li><li>ClinVar watch variants: identified by a heart icon <i class='fa fa-heart'></i>. This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you. Significant changes means:<ul><li>ACMG class 1 or 2 to any other class</li><li>class 3 to any other class</li><li>class 4 or 5 to any other class</li><li>Conflicting to any other or any to conflicting</li><li>variant occuring in ClinVar</li></ul>In addition you can choose to select the 'Automatic ClinVar watch of the variants you generate' feature. Enabling this feature will ensure that each time that you generate an annotation while being authenticated, this variant is automatically added to your watch list.<br />To empty your watch list, just disable the Clinvar watch feature in your profile page. In addition, enabling the 'Automatic ClinVar watch of the variants you generate' feature will also fill in your watch list with all the variants you already annotated.</li></ul>") }}
 		<span class="w3-button w3-block w3-blue" onclick="accord('watch_lists_gif')";>Check the animated gif to learn how to modify the lists</span><br /><div id="watch_lists_gif" class="w3-center" style="display:none;"><img class="w3-image" src="{{ url_for('static', filename='img/watch_lists.gif') }}" /></div>
 		<h3 id="disclaimer">Disclaimer:</h3>
