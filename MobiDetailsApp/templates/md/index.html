@@ -5,9 +5,8 @@
 
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/cookieconsent.min.css') }}">
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/toots.css') }}">
-	<!-- <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/sampsyo/emfed@1/toots.css"> -->
-	<script type="module" src="https://esm.sh/emfed"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/mastodon-timeline.css') }}">
+	<script type="module" src="{{ url_for('static', filename='javascript/mastodon-timeline.js') }}"></script>
 	<script src="{{ url_for('static', filename='javascript/cookieconsent.min.js') }}" type="text/javascript"></script>
 {% endblock %}
 
@@ -62,27 +61,15 @@
 					<li><a href="/MDAPI/" target="_blank" rel="noopener noreferrer">Swagger API</a></li>
 				</ul>
 			</div>
-		<!-- </div> -->
-
-			<!-- <div class="w3-col l6 ">
-				<div class="w3-margin w3-panel w3-sand w3-leftbar">
-					<p>Links for:</p>
-					<ul>
-						<li><a href="{{ url_for('md.about') }}" onclick="show_loader();">About page</a></li>
-						<li><a href="{{ url_for('upload.file_upload') }}" onclick="show_loader();">Batch variant annotation</a></li>
-						<li><a href="{{ url_for('md.changelog') }}" onclick="show_loader();">Change log</a></li>
-						<li><a href="/MDAPI/" target="_blank" rel="noopener noreferrer">Swagger API</a></li>
-					</ul>
-				</div>
-			</div> -->
 		</div>
 
-		<div class="w3-col l4 m6" id="mastodon">
-				<!-- https://sampsyo.github.io/emfed/ -->
-				<div class="w3-panel w3-container w3-center w3-margin" style="width:100%;height:100%;" id="mastodon_feed">
-					<a class="mastodon-feed" href="https://mastodon.online/@MoBiDiC_bioinfo" data-toot-limit="40">Follow me into the Fediverse</a>
+		<div class="w3-col l4 m6" id="mastodon_feed" style="padding:16px">
+			<!-- Thanks https://mastodon.online/@idotj for the widget https://gitlab.com/idotj/mastodon-embed-feed-timeline-->
+			<div class="mt-timeline">
+				<div id="mt-body" class="mt-body" role="feed">
+					<div class="loading-spinner"></div>
 				</div>
-			<br />
+			</div>
 		</div>
 
 		<script>
@@ -91,10 +78,9 @@
 			function onLoadFunction(event){
 				var h = Math.max(($(window).height()/2), 200);
 				if ($(window).width() > 600) {
-					h = (document.getElementById('informations').offsetHeight - 32);
+					h = (document.getElementById('informations').offsetHeight -0);
 				}
-				console.log(h)
-				document.getElementById('mastodon_feed').setAttribute("style","height:" + h + "px");
+				$('#mastodon_feed').css( "height", h + "px" )
 			};
 		</script>
 	</div>
