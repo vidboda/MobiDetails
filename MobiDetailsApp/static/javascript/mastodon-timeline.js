@@ -495,9 +495,9 @@ MastodonApi.prototype.assambleToot = function(c, i) {
 
     // Preview link
     let preview_link = "";
-    if (!this.HIDE_PREVIEW_LINK && c.card) {
-        preview_link = this.placePreviewLink(c.card);
-    }
+    // if (!this.HIDE_PREVIEW_LINK && c.card) {
+    //     preview_link = this.placePreviewLink(c.card);
+    // }
 
     // Poll
     let poll = "";
