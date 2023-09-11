@@ -2658,19 +2658,33 @@ def spliceai_lookup():
                 'error' not in spliceai500:
             # print(spliceai500)
             for score in spliceai500['scores']:
-                if re.search(rf'{transcript}', score):
-                    spliceai_score = re.split(r'\|', score)
+                # print(score)
+                if re.search(rf'{transcript}', score['NAME']):
                     # AG AL DG DL
-                    return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
-                        spliceai_score[1],
-                        spliceai_score[5],
-                        spliceai_score[2],
-                        spliceai_score[6],
-                        spliceai_score[3],
-                        spliceai_score[7],
-                        spliceai_score[4],
-                        spliceai_score[8]
+                    # new spliceAi-lookup format 20230911
+                    return '{:.2f} ({});{:.2f} ({});{:.2f} ({});{:.2f} ({})'.format(
+                        score['DS_AG'],
+                        score['DP_AG'],
+                        score['DS_AL'],
+                        score['DP_AL'],
+                        score['DS_DG'],
+                        score['DP_DG'],
+                        score['DS_DL'],
+                        score['DP_DL']
                     )
+                    # deprecated 20230911
+                    # spliceai_score = re.split(r'\|', score)
+                    # # AG AL DG DL
+                    # return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                    #     spliceai_score[1],
+                    #     spliceai_score[5],
+                    #     spliceai_score[2],
+                    #     spliceai_score[6],
+                    #     spliceai_score[3],
+                    #     spliceai_score[7],
+                    #     spliceai_score[4],
+                    #     spliceai_score[8]
+                    # )
         return """
         <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
         """.format(transcript)

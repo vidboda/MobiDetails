@@ -271,11 +271,11 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
-  'hgnc_full_set':
-    'rel_path': '/static/resources/hgnc/hgnc_complete_set.txt'
-    'name': 'Human genome sequence'
-    'description': 'Human genome nomenclature committee dataset'
-    'short_name': 'hgnc_full_set'
+  # 'hgnc_full_set':
+  #   'rel_path': '/static/resources/hgnc/hgnc_complete_set.txt'
+  #   'name': 'Human genome sequence'
+  #   'description': 'Human genome nomenclature committee dataset'
+  #   'short_name': 'hgnc_full_set'
   'human_genome_hg38':
     'rel_path': '/static/resources/genome/hg38'
     'name': 'Human genome sequence'
