@@ -2656,9 +2656,9 @@ def spliceai_lookup():
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
-            print(spliceai500)
+            # print(spliceai500)
             for score in spliceai500['scores']:
-                print(score)
+                # print(score)
                 if 't_refseq_ids' in score and \
                         score['t_refseq_ids']:
                     for t_refseq_ids in score['t_refseq_ids']:
