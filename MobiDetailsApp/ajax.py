@@ -2656,22 +2656,25 @@ def spliceai_lookup():
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
-            # print(spliceai500)
+            print(spliceai500)
             for score in spliceai500['scores']:
-                # print(score)
-                if re.search(rf'{transcript}', score['NAME']):
-                    # AG AL DG DL
-                    # new spliceAi-lookup format 20230911
-                    return '{:.2f} ({});{:.2f} ({});{:.2f} ({});{:.2f} ({})'.format(
-                        score['DS_AG'],
-                        score['DP_AG'],
-                        score['DS_AL'],
-                        score['DP_AL'],
-                        score['DS_DG'],
-                        score['DP_DG'],
-                        score['DS_DL'],
-                        score['DP_DL']
-                    )
+                print(score)
+                if 't_refseq_ids' in score and \
+                        score['t_refseq_ids']:
+                    for t_refseq_ids in score['t_refseq_ids']:
+                        if re.search(rf'{transcript}', t_refseq_ids):
+                            # AG AL DG DL
+                            # new spliceAi-lookup format 20230911
+                            return '{:.2f} ({});{:.2f} ({});{:.2f} ({});{:.2f} ({})'.format(
+                                score['DS_AG'],
+                                score['DP_AG'],
+                                score['DS_AL'],
+                                score['DP_AL'],
+                                score['DS_DG'],
+                                score['DP_DG'],
+                                score['DS_DL'],
+                                score['DP_DL']
+                            )
                     # deprecated 20230911
                     # spliceai_score = re.split(r'\|', score)
                     # # AG AL DG DL
