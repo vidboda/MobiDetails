@@ -2665,7 +2665,10 @@ def spliceai_lookup():
                         if re.search(rf'{transcript}', t_refseq_ids):
                             # AG AL DG DL
                             # new spliceAi-lookup format 20230911
-                            return '{:.2f} ({});{:.2f} ({});{:.2f} ({});{:.2f} ({})'.format(
+                            # print(score)
+                            # print(score['DP_DL'])
+                            # return '{0:.2f} ({1});{2:.2f} ({3});{4:.2f} ({5});{6:.2f} ({7})'.format(
+                            return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
                                 score['DS_AG'],
                                 score['DP_AG'],
                                 score['DS_AL'],
