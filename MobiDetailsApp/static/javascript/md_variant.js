@@ -791,9 +791,9 @@ $(document).ready(function() {
       rows.push($.map(data.body[i], function(d) {
         var color_style = '#000000';
         if (table_title === 'Missense predictions'){
-          if (d === 'Damaging' || d === 'Probably Damaging') {color_style = '#FF0000'}
+          if (d === 'Damaging' || d === 'Probably Damaging' || d === 'Likely Pathogenic') {color_style = '#FF0000'}
           else if (d === 'Possibly Damaging') {color_style = '#FF6020'}
-          else if (d === 'Tolerated' || d === 'Neutral' || d === 'Benign') {color_style = '#00A020'}
+          else if (d === 'Tolerated' || d === 'Neutral' || d === 'Benign' || d === 'Likely Benign') {color_style = '#00A020'}
         }
         else if (table_title === 'dbscSNV, SpliceAI and AbSplice'){
           // we need to split str to get actual spliceAI values

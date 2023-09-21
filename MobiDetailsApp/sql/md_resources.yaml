@@ -385,13 +385,13 @@
     'firstauthor': 'Wagner'
     'year': '2023'
     'paper': '37142848'
-    'version': ' v1.0.0 precomputed dataset'
+    'version': 'v1.0.0 (dataset)'
     'short_name': 'absplice'
   'AlphaMissense':
     'firstauthor': 'Cheng'
     'year': '2023'
     'paper': ''
-    'version': ' 20230803 precomputed dataset'
+    'version': 'v20230803 (dataset)'
     'short_name': 'alphamissense'
     'missense_col': 7
     'value_col': 8
