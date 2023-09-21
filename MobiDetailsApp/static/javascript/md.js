@@ -233,16 +233,16 @@ $(document).ready(function(){
 	// change z-index for menus
 	$('#mdNavBar').mouseenter(
 		function () {
-			if ($('#about_menu').length) {$('#about_menu').css('z-index', 10);}
-			if ($('#page_menu').length) {$('#page_menu').css('z-index', 10);}
-			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 10);}
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 599);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 599);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 599);}
     }
 	);
 	$('#mdNavBar').mouseleave(
 		function () {
-			if ($('#about_menu').length) {$('#about_menu').css('z-index', 13);}
-			if ($('#page_menu').length) {$('#page_menu').css('z-index', 13);}
-			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 13);}
+			if ($('#about_menu').length) {$('#about_menu').css('z-index', 601);}
+			if ($('#page_menu').length) {$('#page_menu').css('z-index', 601);}
+			if ($('#smart_menu').length) {$('#smart_menu').css('z-index', 601);}
     }
 	);
 
