@@ -63,6 +63,9 @@ one2three = resources['one2three']
 three2one = resources['three2one']
 urls = resources['urls']
 local_files = resources['local_files']
+local_files['alphamissense']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['alphamissense']['rel_path']
+)
 local_files['absplice']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['absplice']['rel_path']
 )
@@ -651,6 +654,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     # print(query)
     if text == 'gnomADv3' or \
             text == 'AbSplice' or \
+            text == 'AlphaMissense' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -679,7 +683,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
             tabix_file
             ) or \
-            text == 'AbSplice':
+            text == 'AbSplice' or \
+            text == 'AlphaMissense':
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     for record in records:
@@ -694,6 +699,10 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
+            elif text == 'AlphaMissense':
+                # need to validate amino acids
+                if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
+                    return record
             elif re.search(r'dbNSFP', tabix_file):
                 j = 4
                 ppos_list = re.split(';', record[j+7])
@@ -703,16 +712,20 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                     return record
             else:
                 return record
-        elif re.search(r'(dbNSFP|revel)', tabix_file) and \
+        elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
                 variant_features['dna_type'] == 'indel' and \
                 variant_features['prot_type'] == 'missense':
             # particular case delins resulting in missense e.g.
             # FLNC c.3715_3716delinsTT p.Pro1239Phe
-            aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+            # aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
             if re.search(r'revel', tabix_file):
                 # need to validate amino acids
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
+                    return record
+            elif text == 'AlphaMissense':
+                # need to validate amino acids
+                if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
                     return record
             else:
                 j = 4

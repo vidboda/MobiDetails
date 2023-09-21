@@ -6,8 +6,8 @@
 	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.nopdfmake.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/pdfmake.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/chart.min.js') }}" type="text/javascript"></script>
-	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/chart.min.js') }}?20230915" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}?20230915" type="text/javascript"></script>
 	<!-- 
 	igv.js update (the same for sweetalert or chart):
 	VERSION=2.15.8
@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}??20230807" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20230807" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -1107,6 +1107,12 @@
 							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
 						</tr>
 					{% endif %}
+					<tr><!--AlphaMissense-->
+						<td class="w3-left-align"><a href="{{ urls.alphamissense }}" target="_blank" title="Visit AlphaMissense" rel="noopener noreferrer">AlphaMissense</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor) }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - single score</em></td>
+					</tr>
 					{% if g.user['academic'] or not g.user %}
 					<tr><!--REVEL-->
 						<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL" rel="noopener noreferrer">REVEL</a>:</td>
@@ -1174,7 +1180,7 @@
 				</div>
 			</div>
 			{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=4, num_non_aca_single=2, num_aca_meta=5, num_non_aca_meta=3) %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, am=external_data.missensePredictions.amScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=5, num_non_aca_single=3, num_aca_meta=5, num_non_aca_meta=3) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
@@ -1187,6 +1193,11 @@
 				{% if external_data.missensePredictions.polyphen2HdivPred == 'no prediction' %}
 					{% set missense_pred.pphdiv = 0 %}
 					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
+				{% endif %}
+				{% if external_data.missensePredictions.amPred == 'no prediction' %}
+					{% set missense_pred.am = 0 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
+					{% set missense_pred.num_non_aca_single = missense_pred.num_non_aca_single - 1 %}
 				{% endif %}
 				{% if external_data.missensePredictions.revelPred == 'no prediction' %}
 					{% set missense_pred.revel = 0 %}
@@ -1234,7 +1245,7 @@
 					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
 					var numberOfScoresSingle = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_single }} {% else %} {{ missense_pred.num_non_aca_single }} {% endif %};
 					var numberOfScoresMeta = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_meta }} {% else %} {{ missense_pred.num_non_aca_meta }} {% endif %};
-					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmm)).toFixed(3);
+					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmm) + ({{ missense_pred.am }})).toFixed(3);
 					var totalNormalisedScoresMeta = ((normalisedMetasvm) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3)
 					var meanNormalisedScoresSingle = (totalNormalisedScoresSingle / numberOfScoresSingle).toFixed(3);
 					var meanNormalisedScoresMeta = (totalNormalisedScoresMeta / numberOfScoresMeta).toFixed(3);
@@ -1242,11 +1253,10 @@
 					new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
-							// labels: ['dbscSNV ADA', 'dbscSNV RF', 'SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'],
-							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'FATHMM', 'MetaSVM', 'MetaLR', 'Mistic'],
+							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'FATHMM', 'AlphaMissense', 'MetaSVM', 'MetaLR', 'Mistic'],
 							datasets: [{
 								label: 'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmm, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmm, {{ missense_pred.am }}, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
 								fill: true,
 								backgroundColor: 'rgb(255, 99, 132, 0.2)',
 								borderColor: 'rgb(255, 99, 132)',

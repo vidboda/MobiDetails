@@ -492,6 +492,8 @@ var_ss_f = {
     ('dbnsfp', var, '0.883', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var_indel, '0.0006', int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), 'dbnsfp', var_indel_f),
     ('dbnsfp', var_indel, '0.081', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_indel_f),
+    ('AlphaMissense', var_indel, '0.0648', int(md_utilities.external_tools['AlphaMissense']['value_col']), 'alphamissense', var_indel_f),
+    ('AlphaMissense', var, '0.9091', int(md_utilities.external_tools['AlphaMissense']['value_col']), 'alphamissense', var_f),
     ('REVEL', var_indel, '0.193', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_indel_f),
     ('REVEL', var, '0.902', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_f),
     ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),

@@ -89,6 +89,7 @@
 'urls':
   'absplice': 'https://zenodo.org/record/7871809'
   'alphafold': 'https://alphafold.ebi.ac.uk/'
+  'alphamissense': 'https://github.com/deepmind/alphamissense'
   'cadd': 'https://cadd.gs.washington.edu/'
   'cancervar': 'https://cancervar.wglab.org/'
   'cancervar_api': 'https://cancervar.wglab.org/results_new_pos.php?queryType=position&build=hg38&chr='
@@ -196,6 +197,16 @@
     'name': 'AbSplice predictions'
     'description': 'Predictions of splicing defects per tissue, combining SpliceAI and MMSplice'
     'short_name': 'absplice'
+  'alphamissense':
+    'rel_path': '/static/resources/alphamissense/AlphaMissense_hg38.tsv.gz'
+    'name': 'AlphaMissense scores'
+    'description': 'Pre-computed alphamissense scores for all possible human missense variant (hg38 version)'
+    'short_name': 'alphamissense'
+  'alphamissense_hg19':
+    'rel_path': '/static/resources/alphamissense/AlphaMissense_hg19.tsv.gz'
+    'name': 'AlphaMissense scores'
+    'description': 'Pre-computed alphamissense scores for all possible human missense variant (hg19 version)'
+    'short_name': 'alphamissense_hg19'
   'cadd':
     'rel_path': '/static/resources/CADD/hg38/v1.6/whole_genome_SNVs.tsv.gz'
     'name': 'CADD SNVs'
@@ -376,6 +387,15 @@
     'paper': '37142848'
     'version': ' v1.0.0 precomputed dataset'
     'short_name': 'absplice'
+  'AlphaMissense':
+    'firstauthor': 'Cheng'
+    'year': '2023'
+    'paper': ''
+    'version': ' 20230803 precomputed dataset'
+    'short_name': 'alphamissense'
+    'missense_col': 7
+    'value_col': 8
+    'pred_col': 9
   'CADD':
     'firstauthor': 'Rentzsch'
     'year': '2019'
@@ -621,7 +641,7 @@
     'dbNSFP_pred_col': '39'
   'SPiP':
     'firstauthor': 'Leman'
-    'year': '2020'
+    'year': '2022'
     'paper': '36273432'
     'version': 'v2.1'
     'short_name': 'spip'
@@ -656,6 +676,8 @@
     'version': 'API'
     'short_name': 'variant_validator'
 'predictor_thresholds':
+  'am_min': 0.34
+  'am_max': 0.564
   'clinpred': 0.5
   'dbscsnv': 0.8
   'fathmm': -1.5
@@ -720,6 +742,10 @@
     'U': 'Uncertain'
     'B': 'Benign'
     '.': 'no prediction'
+  'alphamissense':
+    'likely_benign': 'Likely Benign'
+    'ambiguous': 'Ambiguous'
+    'likely_pathogenic': 'Likely Pathogenic'
 'acmg':
   'PVS1': 'null variant (nonsense, frameshift, canonical +- 2 splice sites, initiation codon, single or multiexon deletion) in a gene where LOF is a known mechanism of disease'
   'PS1': 'Same amino acid change as a previously established pathogenic variant regardless of nucleotide change'
