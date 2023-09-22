@@ -588,12 +588,21 @@ def test_get_preditor_single_threshold_reverted_color(client, value, result_colo
     assert color == result_color
 
 
-@pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max'), (
-    (0.12, '#00A020', 'pph2_hdiv_mid', 'pph2_hdiv_max'),
-    (0.97, '#FF0000', 'pph2_hdiv_mid', 'pph2_hdiv_max')
+@pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max', 'mid_effect_color'), (
+    (0.12, '#00A020', 'pph2_hdiv_mid', 'pph2_hdiv_max', ''),
+    (0.97, '#FF0000', 'pph2_hdiv_mid', 'pph2_hdiv_max', ''),
+    (0.1, '#00A020', 'revel_min', 'revel_max', ''),
+    (0.3, '#000000', 'revel_min', 'revel_max', 'no_effect'),
+    (0.6, '#FF0000', 'revel_min', 'revel_max', ''),
+    (0.1, '#00A020', 'am_min', 'am_max', ''),
+    (0.4, '#000000', 'am_min', 'am_max', 'no_effect'),
+    (0.6, '#FF0000', 'am_min', 'am_max', ''),
 ))
-def test_get_preditor_double_threshold_color(client, value, result_color, predictor_min, predictor_max):
-    color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
+def test_get_preditor_double_threshold_color(client, value, result_color, predictor_min, predictor_max, mid_effect_color):
+    if mid_effect_color != '':
+        color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max, mid_effect_color)
+    else:
+        color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
     assert color == result_color
 
 

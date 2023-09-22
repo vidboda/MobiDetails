@@ -1037,7 +1037,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             # if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
                             if isinstance(external_data['missensePredictions']['revelScore'], float):
                                 external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
-                                internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
+                                internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max', 'no_effect')
                         # alphamissense
                         alphamissense = md_utilities.get_value_from_tabix_file('AlphaMissense', md_utilities.local_files['alphamissense']['abs_path'], var, variant_features)
                         if isinstance(alphamissense, str):
@@ -1049,7 +1049,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         # build alphamissense pred
                         if isinstance(external_data['missensePredictions']['amScore'], float):
                             external_data['missensePredictions']['amPred'] = md_utilities.predictors_translations['alphamissense'][alphamissense[int(md_utilities.external_tools['AlphaMissense']['pred_col'])]]
-                            internal_data['missensePredictions']['amColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['amScore'], 'am_min', 'am_max')
+                            internal_data['missensePredictions']['amColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['amScore'], 'am_min', 'am_max', 'no_effect')
                         # meta SVM
                         external_data['missensePredictions']['metaSVMScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
                         internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')

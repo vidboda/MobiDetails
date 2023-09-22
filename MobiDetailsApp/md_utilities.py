@@ -848,7 +848,7 @@ def get_preditor_single_threshold_reverted_color(val, predictor):
     return predictor_colors['no_effect']
 
 
-def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
+def get_preditor_double_threshold_color(val, predictor_min, predictor_max, mid_effect_color='mid_effect'):
     # returns an html color depending on a double threshold
     # function to get green or red
     if val != '.':
@@ -856,7 +856,7 @@ def get_preditor_double_threshold_color(val, predictor_min, predictor_max):
         if value > predictor_thresholds[predictor_max]:
             return predictor_colors['max']
         elif value > predictor_thresholds[predictor_min]:
-            return predictor_colors['mid_effect']
+            return predictor_colors[mid_effect_color]
         return predictor_colors['min']
     return predictor_colors['no_effect']
 
