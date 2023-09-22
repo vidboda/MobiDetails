@@ -1109,7 +1109,7 @@
 					{% endif %}
 					<tr><!--AlphaMissense-->
 						<td class="w3-left-align"><a href="{{ urls.alphamissense }}" target="_blank" title="Visit AlphaMissense" rel="noopener noreferrer">AlphaMissense</a>:</td>
-						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor) }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor) }}{{ internal_data.missensePredictions.amStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - single score</em></td>
 					</tr>
@@ -1152,10 +1152,10 @@
 				</tbody>
 			</table>
 			{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
-				<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
+			<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
 			{% endif %}
-			{% if internal_data.missensePredictions.revelStar == '**' %}
-				<p>**The revel score has been retrieved in the hg19 dataset.</p>
+			{% if internal_data.missensePredictions.revelStar == '**' or internal_data.missensePredictions.amStar == '**' %}
+			<p>**This score has been retrieved in the hg19 dataset.</p>
 			{% endif %}
 			<br/><br/>
 			{% if internal_data.noMatch.dbnsfp is none %}

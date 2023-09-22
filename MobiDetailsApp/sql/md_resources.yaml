@@ -746,6 +746,10 @@
     'likely_benign': 'Likely Benign'
     'ambiguous': 'Ambiguous'
     'likely_pathogenic': 'Likely Pathogenic'
+  'alphamissense_hg19':
+    'benign': 'Likely Benign'
+    'ambiguous': 'Ambiguous'
+    'pathogenic': 'Likely Pathogenic'
 'acmg':
   'PVS1': 'null variant (nonsense, frameshift, canonical +- 2 splice sites, initiation codon, single or multiexon deletion) in a gene where LOF is a known mechanism of disease'
   'PS1': 'Same amino acid change as a previously established pathogenic variant regardless of nucleotide change'

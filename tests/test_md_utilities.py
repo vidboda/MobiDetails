@@ -1129,6 +1129,17 @@ def test_decompose_missense(p_name, aa1, ppos, aa2):
     assert aa2 == md_utilities.decompose_missense(p_name)[2]
 
 
+@pytest.mark.parametrize(('p_name', 'aa1', 'ppos', 'aa2'), (
+    ('P1239F', 'P', '1239', 'F'),
+    ('Pro1239X', None, None, None),
+    ('1239Phe', None, None, None)
+))
+def test_decompose_missense_one_letter(p_name, aa1, ppos, aa2):
+    assert aa1 == md_utilities.decompose_missense_one_letter(p_name)[0]
+    assert ppos == md_utilities.decompose_missense_one_letter(p_name)[1]
+    assert aa2 == md_utilities.decompose_missense_one_letter(p_name)[2]
+
+
 @pytest.mark.parametrize(('incoming_url', 'outcoming_url'), (
     ('http://10.34.20.79:5001/variant/8#',
         'http://10.34.20.79:5001/variant/8#'),

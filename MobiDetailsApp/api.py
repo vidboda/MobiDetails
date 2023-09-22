@@ -435,6 +435,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'clinpredStar': None,
             'clinpredColor': None,
             'revelStar': None,
+            'amStar': None,
             'metaSVMColor': None,
             'metaLRColor': None,
             'misticColor': None,
@@ -1046,6 +1047,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['missensePredictions']['amScore'] = float(format(float(alphamissense[int(md_utilities.external_tools['AlphaMissense']['value_col'])]), '.3f'))
                         internal_data['missensePredictions']['amColor'] = "#000000"
                         external_data['missensePredictions']['amPred'] = 'no prediction'
+                        internal_data['missensePredictions']['amStar'] = ''
                         # build alphamissense pred
                         if isinstance(external_data['missensePredictions']['amScore'], float):
                             external_data['missensePredictions']['amPred'] = md_utilities.predictors_translations['alphamissense'][alphamissense[int(md_utilities.external_tools['AlphaMissense']['pred_col'])]]
@@ -1343,7 +1345,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         if re.search(r'^[\d\.]+$', external_data['missensePredictions']['revelScore']):
                             external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
                             internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max')
-                            internal_data['missensePredictions']['revelStar'] = '**'                        
+                            internal_data['missensePredictions']['revelStar'] = '**'
+                # if no alphamissense in hg38, try to find a score in the hg19 dataset
+                if not isinstance(external_data['missensePredictions']['amScore'], float):
+                    alphamissense = md_utilities.get_value_from_tabix_file('AlphaMissense', md_utilities.local_files['alphamissense_hg19']['abs_path'], var, variant_features)
+                    if isinstance(alphamissense, str):
+                        external_data['missensePredictions']['amScore'] = alphamissense
+                    else:
+                        external_data['missensePredictions']['amScore'] = float(format(float(alphamissense[int(md_utilities.external_tools['AlphaMissense']['value_col'])]), '.3f'))
+                    internal_data['missensePredictions']['amColor'] = "#000000"
+                    external_data['missensePredictions']['amPred'] = 'no prediction'
+                    # build alphamissense pred
+                    if isinstance(external_data['missensePredictions']['amScore'], float):
+                        external_data['missensePredictions']['amPred'] = md_utilities.predictors_translations['alphamissense_hg19'][alphamissense[int(md_utilities.external_tools['AlphaMissense']['pred_col'])]]
+                        internal_data['missensePredictions']['amColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['amScore'], 'am_min', 'am_max', 'no_effect')
+                        internal_data['missensePredictions']['amStar'] = '**'
         internal_data['splicingPredictions']['splicingRadarLabels'] = splicing_radar_labels
         internal_data['splicingPredictions']['splicingRadarValues'] = splicing_radar_values
         # get classification info

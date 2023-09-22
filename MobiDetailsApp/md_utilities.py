@@ -66,6 +66,9 @@ local_files = resources['local_files']
 local_files['alphamissense']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['alphamissense']['rel_path']
 )
+local_files['alphamissense_hg19']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['alphamissense_hg19']['rel_path']
+)
 local_files['absplice']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['absplice']['rel_path']
 )
@@ -695,13 +698,16 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
             if re.search(r'revel', tabix_file):
-                # need to validate amino acids                
+                # need to validate amino acids - position can differ
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
             elif text == 'AlphaMissense':
-                # need to validate amino acids
-                if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
+                # need to validate amino acids and position
+                am_aa1, am_pos, am_aa2 = decompose_missense_one_letter(record[external_tools['AlphaMissense']['missense_col']])
+                # if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
+                if am_aa1 == aa1 and \
+                        am_aa2 == aa2:
                     return record
             elif re.search(r'dbNSFP', tabix_file):
                 j = 4
@@ -724,8 +730,11 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
             elif text == 'AlphaMissense':
-                # need to validate amino acids
-                if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
+                # need to validate amino acids and position
+                am_aa1, am_pos, am_aa2 = decompose_missense_one_letter(record[external_tools['AlphaMissense']['missense_col']])
+                # if record[external_tools['AlphaMissense']['missense_col']] == '{}{}{}'.format(aa1, ppos, aa2):
+                if am_aa1 == aa1 and \
+                        am_aa2 == aa2:
                     return record
             else:
                 j = 4
@@ -743,6 +752,12 @@ def decompose_missense(p_name):
     match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
     if match_obj:
         return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
+    return None, None, None
+
+def decompose_missense_one_letter(p_name):
+    match_obj = re.search(r'^([A-Z])(\d+)([A-Z])$', p_name)
+    if match_obj:
+        return match_obj.group(1), match_obj.group(2), match_obj.group(3)
     return None, None, None
 
 
