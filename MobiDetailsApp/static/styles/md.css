@@ -17,6 +17,9 @@ a:hover {
 	color:yellow;
 	font-style:500%;
 }
+.star_color {
+	color:#fdb81e;
+}
 /*a:visited {
 	color:#F70F00;
     text-decoration:none;

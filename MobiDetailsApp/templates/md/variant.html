@@ -453,9 +453,35 @@
 						<td class="w3-left-align">Clinvar:</td>
 						<td class="w3-left-align">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a>
 								{% if external_data.frequenciesDatabases.clinvarClinsigConf  is not none %}
 									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
+								{% endif %}
+								{% if external_data.frequenciesDatabases.clinvarClinRevStat ==  'none' %}
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarClinRevStat ==  'one' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarClinRevStat ==  'two' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarClinRevStat ==  'three' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarClinRevStat ==  'four' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
 								{% endif %}
 							{% else %}
 								 {{ external_data.frequenciesDatabases.clinvarClinsig }}

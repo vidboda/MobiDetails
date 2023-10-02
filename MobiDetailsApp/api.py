@@ -270,6 +270,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'clinvarId': None,
             'clinvarClinsigConf': None,
             'clinvarClinsig': None,
+            'clinvarClinRevStat': None,
         },
         'overallPredictions': {
             'caddRaw': None,
@@ -851,8 +852,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['frequenciesDatabases']['clinvarClinsigConf'] = external_data['frequenciesDatabases']['clinvarClinsigConf'].replace('%3B', '-')
                         else:
                             external_data['frequenciesDatabases']['clinvarClinsig'] = match_object.group(1)
+                        # define stars
+                        for revstat in md_utilities.clinvar_review_status:
+                            if re.search(rf'CLNREVSTAT={revstat};', record[7]):
+                                external_data['frequenciesDatabases']['clinvarClinRevStat'] = md_utilities.clinvar_review_status[revstat]
+                                break
                     elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
                         external_data['frequenciesDatabases']['clinvarClinsig'] = 'No interpretation for the single variant'
+                    # MPA score
                     if external_data['frequenciesDatabases']['clinvarClinsig'] and \
                             re.search('pathogenic', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE) and \
                             not re.search('pathogenicity', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE):

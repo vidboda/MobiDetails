@@ -212,6 +212,7 @@ acmg_criteria = resources['acmg']
 lovd_effect = resources['lovd_effect']
 spip_headers = resources['spip_headers']
 spip_annotations = resources['spip_annotations']
+clinvar_review_status = resources['clinvar_review_status']
 countries = resources['countries']
 
 # create a poolmanager
