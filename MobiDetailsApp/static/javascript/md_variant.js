@@ -828,14 +828,14 @@ $(document).ready(function() {
           else if (split_str[1] === '  	 		tolerant 	  ') {color_style = '#2E64FE'}
           else if (split_str[1] === '  	 		highly tolerant 	  ') {color_style = '#0404B4'}
         }
-        else if (table_title === 'Population frequencies and databases') {          
+        else if (table_title === 'Population frequencies and databases') {
           var re = /Likely[\s_][Bb]enign/;
           if (re.test(d)) {color_style = '#0000A0'}
-          re = /^Benign$/;
+          re = /^Benign\s?\*{0,4}$/;
           if (re.test(d)) {color_style = '#00A020'}
           re = /Likely[\s_][Pp]athogenic/;
           if (re.test(d)) {color_style = '#FF6020'}
-          re = /^Pathogenic$/;
+          re = /^Pathogenic\s?\*{0,4}$/;
           if (re.test(d)) {color_style = '#FF0000'}
         }
         else if (table_title === 'Overall predictions'){
