@@ -71,8 +71,10 @@ def create_app(test_config=None):
     except OSError:
         # https://flask.palletsprojects.com/en/2.3.x/tutorial/factory/
         pass
+    # somehow still used by pytest
     from . import db
     db.init_app(app)
+    # load blueprints
     from . import auth
     app.register_blueprint(auth.bp)
     from . import md
@@ -86,8 +88,7 @@ def create_app(test_config=None):
     app.register_blueprint(static_route.bp)
     from . import upload
     app.register_blueprint(upload.bp)
-    # from . import error
-    # app.register_blueprint(error.bp)
+    
     app.add_url_rule('/', endpoint='index')
     if app.debug:
         print(app.config)

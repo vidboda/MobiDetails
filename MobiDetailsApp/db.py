@@ -41,12 +41,12 @@ def close_db(e=None):
         app.config['POSTGRESQL_POOL'].putconn(db)
         poolSemaphore.release()
 
-
+# used to initialize a db for pytest
 def init_db():
     db = get_db()
     curs = db.cursor()
-    with open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r") as sql_file:
-        curs.execute(sql_file.read())
+    # with open(os.getcwd() + "/MobiDetailsApp/sql/MobiDetails.sql", "r") as sql_file:
+    #     curs.execute(sql_file.read())
 
 
 @click.command('init-db')

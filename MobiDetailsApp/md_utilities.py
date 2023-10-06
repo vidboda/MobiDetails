@@ -237,19 +237,19 @@ def reverse_complement(seq):
 
 
 def clean_var_name(variant):
-    variant = re.sub(r'^[cpg]\.', '', variant)
+    variant = re.sub(r'^[cCpPgG]\.', '', variant)
     variant = re.sub(r'\(', '', variant)
     variant = re.sub(r'\)', '', variant)
     if re.search('>', variant):
         variant = variant.upper()
     elif re.search('d[eu][lp]', variant):
-        match_obj = re.search(r'^(.+d[eu][lp])[ATCG]+$', variant)
+        match_obj = re.search(r'^(.+d[eu][lp])[ATCGatcg]+$', variant)
         if match_obj:
             variant = match_obj.group(1)
         else:
-            match_obj = re.search(r'^(.+del)[ATCG]+(ins[ACTG])$', variant)
+            match_obj = re.search(r'^(.+del)[ATCGatcg]+ins([ACTGactg])$', variant)
             if match_obj:
-                variant = match_obj.group(1) + match_obj.group(2)
+                variant = '{0}ins{1}'.format(match_obj.group(1), match_obj.group(2).upper())
     return variant
 
 

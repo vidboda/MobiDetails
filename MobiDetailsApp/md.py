@@ -700,15 +700,9 @@ def search_engine():
                 close_db()
                 return render_template('md/variant_multiple.html', variants=variants)
         match_object = re.search(rf'^([Gg]*[rR]*[hHcC][gGhH][13][978])[:_-]({vcf_str_regexp})$', query_engine)
-        # match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
         if match_object:
             genome_version = md_utilities.translate_genome_version(match_object.group(1))
             if genome_version != 'wrong_genome_input':
-                # if 'db' not in locals():
-                #     db = get_db()
-                #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                # api_key = md_utilities.get_api_key(g, curs)
-                # if api_key is not None:
                 if 'db' in locals():
                     close_db()
                 return redirect(
@@ -717,7 +711,6 @@ def search_engine():
                         genome_version=genome_version,
                         vcf_str=match_object.group(2),
                         caller='browser',
-                        # api_key=api_key
                     ),
                     code=307
                 )
@@ -726,11 +719,6 @@ def search_engine():
         else:
             match_object = re.search(rf'^{vcf_str_regexp}$', query_engine)
             if match_object:
-                # if 'db' not in locals():
-                #     db = get_db()
-                #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                # api_key = md_utilities.get_api_key(g, curs)
-                # if api_key is not None:
                 if 'db' in locals():
                     close_db()
                 return redirect(
@@ -738,7 +726,6 @@ def search_engine():
                         'api.api_create_vcf_str',
                         vcf_str=query_engine,
                         caller='browser',
-                        # api_key=api_key
                     ),
                     code=307
                 )
@@ -758,7 +745,7 @@ def search_engine():
             query_type = 'dbsnp_id'
             match_object = re.search(r'^rs(\d+)$', query_engine)
             pattern = match_object.group(1)
-        elif re.search(r'^p\..+', query_engine):
+        elif re.search(r'^[pP]\..+', query_engine):
             query_type = 'p_name'
             var = md_utilities.clean_var_name(query_engine)
             match_object = re.search(r'^(\w{1})(\d+)([\w\*]{1})$', var)  # e.g. p.R34X
@@ -773,24 +760,16 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^{ncbi_transcript_regexp}:c\.{variant_regexp}$', query_engine) or \
-                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):c\.{variant_regexp}$', query_engine):  # NM acc_no variant
-            # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
-            # API call
-            # if 'db' not in locals():
-            #     db = get_db()
-            #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            # api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*(:c\.{variant_regexp})$', query_engine)
-            # if api_key is not None:
+        elif re.search(rf'^{ncbi_transcript_regexp}:[cC]\.{variant_regexp_flexible}$', query_engine) or \
+                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):[cC]\.{variant_regexp_flexible}$', query_engine):  # NM acc_no variant
+            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*:([cC]\.{variant_regexp_flexible})$', query_engine)
             if 'db' in locals():
                 close_db()
             return redirect(
                 url_for(
                     'api.api_variant_create',
-                    variant_chgvs='{0}{1}'.format(match_obj.group(1), match_obj.group(2)),
+                    variant_chgvs='{0}:c.{1}'.format(match_obj.group(1), md_utilities.clean_var_name(match_obj.group(2))),
                     caller='browser',
-                    # api_key=api_key
                 ),
                 code=307
             )
@@ -802,49 +781,46 @@ def search_engine():
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)
-        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp}$', query_engine):  # strict HGVS genomic
+        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:[gG]\.{variant_regexp_flexible}$', query_engine):  # strict HGVS genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
-            db = get_db()
-            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})$', query_engine)
+            if 'db' not in locals():
+                db = get_db()
+            match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):([gG]\.{variant_regexp_flexible})$', query_engine)
             # res_common = md_utilities.get_common_chr_name(db, match_object.group(1))
             chrom = md_utilities.get_common_chr_name(db, match_object.group(1))[0]
-            pattern = match_object.group(2)
-            close_db()
+            pattern = md_utilities.clean_var_name(match_object.group(2))
+            if 'db' in locals():
+                close_db()
             # res_common = md_utilities.get_common_chr_name(db, )
-        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
+        elif re.search(rf'^[Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:[gG]\.{variant_regexp};[\w-]+$', query_engine):  # strict HGVS genomic + gene (API call)
             # API call
-            # if 'db' not in locals():
-            #     db = get_db()
-            #     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            # api_key = md_utilities.get_api_key(g, curs)
-            match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}:g\.{variant_regexp});([\w-]+)$', query_engine)
-            # if api_key is not None:
+            match_obj = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):([gG]\.{variant_regexp});([\w-]+)$', query_engine)
             if 'db' in locals():
                 close_db()
             return redirect(
                 url_for(
                     'api.api_variant_g_create',
-                    variant_ghgvs=match_obj.group(1),
-                    gene_hgnc=match_obj.group(2),
+                    variant_ghgvs='{0}:g.{1}'.format(match_obj.group(1), md_utilities.clean_var_name(match_obj.group(2))),
+                    gene_hgnc=match_obj.group(3),
                     caller='browser',
-                    # api_key=api_key
                 ),
                 code=307
             )
-        elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
+        elif re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):[gG]\.{variant_regexp_flexible}$', query_engine):  # deal w/ genomic
             sql_table = 'variant'
             query_type = 'g_name'
             col_names = 'feature_id'
-            match_object = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):g\.({variant_regexp_flexible})$', query_engine)
+            match_object = re.search(rf'^[Cc][Hh][Rr]({nochr_captured_regexp}):[gG]\.({variant_regexp_flexible})$', query_engine)
             chrom = match_object.group(1)
             pattern = match_object.group(2)
-        elif re.search(r'^g\..+', query_engine):  # g. ng dna vars
+        elif re.search(r'^[gG]\..+', query_engine):  # g. ng dna vars
             query_type = 'ng_name'
             pattern = md_utilities.clean_var_name(query_engine)
-        elif re.search(r'^c\..+', query_engine):  # c. dna vars
+        elif re.search(r'^[cC]\..+', query_engine):  # c. dna vars
             query_type = 'c_name'
+            print(md_utilities.clean_var_name(query_engine))
             pattern = md_utilities.clean_var_name(query_engine)
         elif re.search(r'^%\d+$', query_engine):  # only numbers: get matching variants (exact position match) - specific query
             match_obj = re.search(r'^%(\d+)$', query_engine)
@@ -864,7 +840,8 @@ def search_engine():
                 )
             )
             semaph_query = 1
-            close_db()
+            if 'db' in locals():
+                close_db()
         elif re.search(r'^\d{2,}$', query_engine):  # only numbers: get matching variants (partial match, at least 2 numbers) - specific query
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -879,7 +856,8 @@ def search_engine():
                 )
             )
             semaph_query = 1
-            close_db()
+            if 'db' in locals():
+                close_db()
         elif re.search(r'^[A-Za-z0-9-]+$', query_engine):  # genes
             sql_table = 'gene'
             query_type = 'gene_symbol'
@@ -912,7 +890,8 @@ def search_engine():
                     if var_match:
                         pattern = var_match.group(1).lower() + var_match.group(2) + var_match.group(3).upper()
                     else:
-                        close_db()
+                        if 'db' in locals():
+                            close_db()
                         error = 'You submitted a forbidden character in "{}".'.format(pattern)
                         flash(error, 'w3-pale-red')
                         return render_template('md/unknown.html', run_mode=app.config['RUN_MODE'])
@@ -966,7 +945,8 @@ def search_engine():
                         )
                     )
                     result_second = curs.fetchone()
-                    close_db()
+                    if 'db' in locals():
+                        close_db()
                     if result_second is None:
                         error = """
                         Sorry the gene does not seem to exist yet in MD or cannot be annotated for some reason ({}).
@@ -974,16 +954,16 @@ def search_engine():
                     else:
                         return redirect(url_for('md.gene', gene_symbol=result_second[col_names]))
                 else:
-                    close_db()
+                    if 'db' in locals():
+                        close_db()
                     return redirect(url_for('md.gene', gene_symbol=result[col_names]))
             else:
                 result = curs.fetchall()
                 if not result:
                     if query_type == 'dbsnp_id':
                         # api call to create variant from rs id
-                        # api_key = md_utilities.get_api_key(g, curs)
-                        # if api_key is not None:
-                        close_db()
+                        if 'db' in locals():
+                            close_db()
                         return redirect(
                             url_for(
                                 'api.api_variant_create_rs',
@@ -999,7 +979,8 @@ def search_engine():
                     """.format(query_engine)
                 else:
                     if len(result) == 1:
-                        close_db()
+                        if 'db' in locals():
+                            close_db()
                         return redirect(url_for('api.variant', variant_id=result[0][0], caller='browser'))
                     else:
                         variants = result
@@ -1018,7 +999,8 @@ def search_engine():
                                 (tuple(id_tuple),)
                             )
                             variants = curs.fetchall()
-                        close_db()
+                        if 'db' in locals():
+                            close_db()
                         return render_template('md/variant_multiple.html', run_mode=md_utilities.get_running_mode(), variants=variants)
             if 'db' in locals():
                 close_db()
