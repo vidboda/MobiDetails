@@ -72,7 +72,7 @@ toml==0.10.2
 tomli==1.2.2
 twobitreader==3.1.7
 typing_extensions==4.0.0
-urllib3==1.26.7
+urllib3==1.26.17
 watchdog==2.1.6
 wcwidth==0.2.5
 Werkzeug==2.2.3
