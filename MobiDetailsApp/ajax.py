@@ -905,6 +905,7 @@ def spliceaivisual():
                     response = 'full'
                 if spliceai_results['spliceai_return_code'] != 0 or \
                         spliceai_results['error']:
+                    print(spliceai_results)
                     return '<p style="color:red">Bad params for SpliceAI-visual.</p>'
             else:
                 return '<p style="color:red">Bad params for SpliceAI-visual.</p>'
