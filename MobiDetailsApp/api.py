@@ -266,6 +266,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'gnomADv2ExomeNonCancer': None,
             'gnomADv2GenomeNonCancer': None,
             'gnomADv3': None,
+            'gnomADv4Genome': None,
+            'gnomADv4Exome': None,
             'dbSNPrsid': None,
             'clinvarId': None,
             'clinvarClinsigConf': None,
@@ -897,15 +899,29 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 if isinstance(record, str):
                     external_data['frequenciesDatabases']['gnomADv3'] = record
                 else:
-                    # print(record)
                     external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # gnomadv4 genome
+                record = md_utilities.get_value_from_tabix_file(
+                    'gnomADv4', md_utilities.local_files['gnomad_40_genome']['abs_path'], var, variant_features
+                )
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv4Genome'] = record
+                else:
+                    external_data['frequenciesDatabases']['gnomADv4Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # gnomadv4 exome
+                record = md_utilities.get_value_from_tabix_file(
+                    'gnomADv4', md_utilities.local_files['gnomad_40_exome']['abs_path'], var, variant_features
+                )
+                if isinstance(record, str):
+                    external_data['frequenciesDatabases']['gnomADv4Exome'] = record
+                else:
+                    external_data['frequenciesDatabases']['gnomADv4Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP and others
                 if variant_features['prot_type'] == 'missense':
                     # CADD
                     record = md_utilities.get_value_from_tabix_file(
                         'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
                     )
-                    # print(record)
                     if academic is True:
                         try:
                             external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')

@@ -282,6 +282,16 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
+  'gnomad_40_genome':
+    'rel_path': '/static/resources/gnomad/hg38_gnomad40_genome_sorted.txt.gz'
+    'name': 'gnomAD 4 genome'
+    'description': 'Large dataset of variants population frequencies'
+    'short_name': 'gnomad_genome'
+  'gnomad_40_exome':
+    'rel_path': '/static/resources/gnomad/hg38_gnomad40_exome_sorted.txt.gz'
+    'name': 'gnomAD 4 exome'
+    'description': 'Large dataset of variants population frequencies'
+    'short_name': 'gnomad_exome'
   # 'hgnc_full_set':
   #   'rel_path': '/static/resources/hgnc/hgnc_complete_set.txt'
   #   'name': 'Human genome sequence'
@@ -504,7 +514,7 @@
     'firstauthor': 'Karczewski'
     'year': '2020'
     'paper': '32461654'
-    'version': 'v2.1.1;v3.1.2'
+    'version': 'v2.1.1;v3.1.2;v4.0.0'
     'short_name': 'gnomad'
     'annovar_format_af_col': '5'
     'annovar_format_af_noncancer_col': '20'

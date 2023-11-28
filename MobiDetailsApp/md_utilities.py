@@ -131,6 +131,12 @@ local_files['gnomad_genome_hg38']['abs_path'] = '{0}{1}'.format(
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_3']['rel_path']
 )
+local_files['gnomad_40_exome']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_40_exome']['rel_path']
+)
+local_files['gnomad_40_genome']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_40_genome']['rel_path']
+)
 # local_files['hgnc_full_set']['abs_path'] = '{0}{1}'.format(
 #     app_path, local_files['hgnc_full_set']['rel_path']
 # )
@@ -657,6 +663,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
     # print(query)
     if text == 'gnomADv3' or \
+            text == 'gnomADv4' or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
             (re.search('MISTIC', tabix_file) and
