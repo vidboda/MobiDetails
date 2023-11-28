@@ -892,17 +892,17 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         # print(record)
                         external_data['frequenciesDatabases']['gnomADv2Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                         external_data['frequenciesDatabases']['gnomADv2GenomeNonCancer'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_noncancer_col'])]
-                # gnomadv3
-                record = md_utilities.get_value_from_tabix_file(
-                    'gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features
-                )
-                if isinstance(record, str):
-                    external_data['frequenciesDatabases']['gnomADv3'] = record
-                else:
-                    external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
+                # gnomadv3 - removed 20231128 as it is included in gnomADv4 genome
+                # record = md_utilities.get_value_from_tabix_file(
+                #     'gnomADv3', md_utilities.local_files['gnomad_3']['abs_path'], var, variant_features
+                # )
+                # if isinstance(record, str):
+                #     external_data['frequenciesDatabases']['gnomADv3'] = record
+                # else:
+                #     external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomadv4 genome
                 record = md_utilities.get_value_from_tabix_file(
-                    'gnomADv4', md_utilities.local_files['gnomad_40_genome']['abs_path'], var, variant_features
+                    'gnomADv4 Genome', md_utilities.local_files['gnomad_40_genome']['abs_path'], var, variant_features
                 )
                 if isinstance(record, str):
                     external_data['frequenciesDatabases']['gnomADv4Genome'] = record
@@ -910,7 +910,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     external_data['frequenciesDatabases']['gnomADv4Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomadv4 exome
                 record = md_utilities.get_value_from_tabix_file(
-                    'gnomADv4', md_utilities.local_files['gnomad_40_exome']['abs_path'], var, variant_features
+                    'gnomADv4 Exome', md_utilities.local_files['gnomad_40_exome']['abs_path'], var, variant_features
                 )
                 if isinstance(record, str):
                     external_data['frequenciesDatabases']['gnomADv4Exome'] = record
