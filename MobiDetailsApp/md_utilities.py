@@ -661,7 +661,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    # print(query)
+    # print('{}-{}'.format(text, query))
     if re.match('gnomADv4', text) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
@@ -719,10 +719,12 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             elif re.search(r'dbNSFP', tabix_file):
                 j = 4
                 ppos_list = re.split(';', record[j+7])
+                # print('{}-{}-{}-{}-{}-{}'.format(aa1, record[j], aa2, record[j+1], ppos, ppos_list))
                 if aa1 == record[j] and \
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
+                return 'The dbNSFP entry does not match the amino-acid position. dnNSFP returns as possible amino-acid position for this variant {0}. dbNSFP'.format(ppos_list)
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \

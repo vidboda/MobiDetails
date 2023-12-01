@@ -922,6 +922,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     record = md_utilities.get_value_from_tabix_file(
                         'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
                     )
+                    # print(record)
                     if academic is True:
                         try:
                             external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
