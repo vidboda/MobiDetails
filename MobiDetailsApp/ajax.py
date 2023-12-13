@@ -183,6 +183,7 @@ def litvar2():
             for pubmed_id in litvar_data['pmids']:
                 togows_url = '{0}{1},'.format(togows_url, pubmed_id)
             togows_url = '{0}.json'.format(togows_url[:-1])
+            print(togows_url)
             try:
                 # using togows to get details on publications
                 pubmeds = json.loads(

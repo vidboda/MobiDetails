@@ -284,12 +284,12 @@
     'short_name': 'gnomad'
   'gnomad_40_genome':
     'rel_path': '/static/resources/gnomad/hg38_gnomad40_genome_sorted.txt.gz'
-    'name': 'gnomAD 4 genome'
+    'name': 'gnomADv4 genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad_genome'
   'gnomad_40_exome':
     'rel_path': '/static/resources/gnomad/hg38_gnomad40_exome_sorted.txt.gz'
-    'name': 'gnomAD 4 exome'
+    'name': 'gnomADv4 exome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad_exome'
   # 'hgnc_full_set':

@@ -520,8 +520,10 @@ var_ss_f = {
     ('gnomAD exome', var_dup, '1.0', 5, 'gnomad_exome_hg38', var_dup_f),
     ('gnomAD genome', var, '0.0010', 5, 'gnomad_genome_hg38', var_f),
     ('gnomAD genome', var_dup, '1.0', 5, 'gnomad_genome_hg38', var_dup_f),
-    ('gnomADv3', var, '0.0013', 5, 'gnomad_3', var_f),
-    ('gnomADv3', var_dup, '1.0000', 5, 'gnomad_3', var_dup_f),
+    ('gnomADv4 genome', var, '0.0013', 5, 'gnomad_40_genome', var_f),
+    ('gnomADv4 genome', var_dup, '1.0000', 5, 'gnomad_40_genome', var_dup_f),
+    ('gnomADv4 exome', var, '0.0015', 5, 'gnomad_40_exome', var_f),
+    ('gnomADv4 exome', var_dup, '1.0000', 5, 'gnomad_40_exome', var_dup_f),
     ('Mistic', var, '0.876', 4, 'mistic', var_f),
     ('dbscSNV', var_ss, '0.9999', 14, 'dbscsnv', var_ss_f),
     ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f)

@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
 	<div id="onsubmiterror" class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container"></div>
-	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.") }}
+	{{ danger("Authentication involves cookies, however, they are strictly functional cookies.<br />By registering, you agree that MobiDetails will store some kind of personal data (username and email address). These data will not be used for any commercial purpose neither be transmitted to any organism. Their usage is strictly restricted to MobiDetails internal operation.<br/>Instructions for each field are provided over the corresponding icons.") }}
 	{{ info("Registering currently is useful to keep track of the variants you annotated. It also allows you to mark some variants as favourites, add an ACMG class to variants, contact other users, be contacted if you agree... An account is also mandatory to use the batch variants capabilities of the API. However, for browsing the site, you do not require to log in (except if you are a <a href='%s#non_academic'>non-academic</a> user).") | format(url_for('md.about')) }}
 	<br />
 	<div align = "center">
@@ -18,15 +18,15 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
        <!--onsubmit="encode_params('username');encode_params('password');encode_params('country');encode_params('institute');encode_params('email');"-->
 			<span class="w3-xlarge">Please register using your academic email address if possible (in the <strong>email</strong> field):</span><br/>
-			<div class="w3-row w3-section" title="Username">
+			<div class="w3-row w3-section" title="Username: should be at least 5 characters and contain only letters and numbers.">
 				{{ fa('user') }}
 				<div class="w3-rest">{{ input('username', value=prev_username) }}</div>
 			</div>
-			<div class="w3-row w3-section" title="Password">
+			<div class="w3-row w3-section" title="Password: should be at least 8 characters and mix at least letters (upper and lower case) and numbers.">
 				{{ fa('key') }}
 				<div class="w3-rest">{{ input('password', type='password') }}</div>
 			</div>
-			<div class="w3-row w3-section" title="Country">
+			<div class="w3-row w3-section" title="Country: please choose one from the list.">
 				{{ fa('globe') }}
 				<div class="w3-rest"><select class="w3-select w3-border" name="country" id="country">
 					<option value="--">--</option>
@@ -36,15 +36,15 @@
 				</select></div>
 				<!--<div class="w3-rest">{{ input('country') }}</div>-->
 			</div>
-			<div class="w3-row w3-section" title="Institution">
+			<div class="w3-row w3-section" title="Institution: please only use letters, numbers and ,;.-().">
 				{{ fa('hospital-o') }}
 				<div class="w3-rest">{{ input('institute', value=prev_institute) }}</div>
 			</div>
-			<div class="w3-row w3-section" title="Email">
+			<div class="w3-row w3-section" title="Email: prefer the usage of a professional email address. It will never be used outside of Mobidetails.">
 				{{ fa('envelope-o') }}
 				<div class="w3-rest">{{ input('email', value=prev_email) }}</div>
 			</div>
-      <div class="w3-row w3-section" title="Academic status">
+      <div class="w3-row w3-section" title="Academic status. Understand it as non-for-profit institutions. Non academic have the same access to the website, except some predictors (e.g. polyphen2 which are restricted to academic only.)">
 				{{ fa('graduation-cap') }}
 				<div class="w3-rest">
           <input type="radio" id="academic" name="acad" value="academic" checked="checked">
