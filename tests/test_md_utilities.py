@@ -9,6 +9,9 @@ from test_ajax import get_db
 
 # app_path = os.path.dirname(os.path.realpath(__file__))
 
+#individual test:
+# pytest tests/test_md_utilities.py::test_get_pos_splice_site
+
 @pytest.mark.parametrize(('resource_dir', 'regexp', 'excluded_date'), (
     ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clingen_criteria_specification']['rel_path']), r'clingenCriteriaSpec_(\d+).json', None),
     ('{0}{1}'.format(md_utilities.app_path, md_utilities.local_files['clingen_criteria_specification']['rel_path']), r'clingenCriteriaSpec_(\d+).json', 20230307),
@@ -153,7 +156,6 @@ def test_is_valid_chr(client, chr_name, valid):
     ('NC_000024.10', True),
 ))
 def test_is_valid_ncbi_chr(client, chr_name, valid):
-    # valid_test = md_utilities.is_valid_ncbi_chr(chr_name)
     assert md_utilities.is_valid_ncbi_chr(chr_name) == valid
 
 
@@ -183,12 +185,22 @@ def test_translate_genome_version(genome_version, result):
     ('1-216247118:C_TagcTa', '1', 216247118, 'C', 'TAGCTA'),
 ))
 def test_decompose_vcf_str(vcf_str, chr, pos, ref, alt):
-    test_chr, test_pos, test_ref, test_alt = md_utilities.decompose_vcf_str(vcf_str)
-    assert test_chr == chr
-    assert test_pos == pos
-    assert test_ref == ref
-    assert test_alt == alt
-# pytest tests/test_md_utilities.py::test_get_pos_splice_site
+    assert  md_utilities.decompose_vcf_str(vcf_str) == (chr, pos, ref, alt)
+
+
+# @pytest.mark.parametrize(('full_transcript', 'result'), (
+#     ('NM_001005484.2', ('NM_001005484', 2)),
+#     ('NM_001005484.240', (None, None)),
+#     ('XM_001005484.2', (None, None)),
+# ))
+@pytest.mark.parametrize(('full_transcript', 'transcript', 'version'), (
+    ('NM_001005484.2', 'NM_001005484', 2),
+    ('NM_001005484.240', None, None),
+    ('XM_001005484.2', None, None),
+))
+def test_decompose_transcript(full_transcript, transcript, version):
+    print(full_transcript)
+    assert md_utilities.decompose_transcript(full_transcript) == (transcript, version)
 
 
 @pytest.mark.parametrize(('var', 'result'), (
@@ -422,6 +434,17 @@ var_indel_f = {
     'prot_type': 'missense',
     'p_name': 'Val467Ile'
 }
+var_5utr1 = {
+    'chr': '1',
+    'pos': '216422351',
+    'pos_ref': 'A',
+    'pos_alt': 'C'
+}
+var_5utr1_f= {
+    'refseq': 'NM_206933.4',
+    'p_name': 'p.(?)',
+    'c_name': 'c.-15T>G'
+}
 var_3utr1 = {
     'chr': '1',
     'pos': '215625629',
@@ -526,7 +549,9 @@ var_ss_f = {
     ('gnomADv4 exome', var_dup, '1.0000', 5, 'gnomad_40_exome', var_dup_f),
     ('Mistic', var, '0.876', 4, 'mistic', var_f),
     ('dbscSNV', var_ss, '0.9999', 14, 'dbscsnv', var_ss_f),
-    ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f)
+    ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f),
+    ('MorfeeDB', var_5utr1, 'uTIS', 10, 'morfeedb', var_5utr1_f),
+    ('MorfeeDB', var_5utr1, 'not_overlapping; overlapping_0.32%', 12, 'morfeedb', var_5utr1_f)
 ))
 def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
     record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)

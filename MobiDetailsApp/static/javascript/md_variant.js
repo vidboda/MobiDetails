@@ -233,12 +233,17 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               }
             ]
           };
+          
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
               igv.browser = browser;
               if (spliceaivisual_response == 'full') {
                 // load full transcript track
                 add_full_gene_track(static_path);
+              }
+              if ($('#morfee_table').length) {
+                // if we have morfeedb results we should have a bed describing ORFs
+                add_morfee_bed_track(static_path)          
               }
           });
       }
@@ -276,6 +281,20 @@ async function add_full_gene_track(static_path) {
   $('#full_transcript_download').html(' or <a href="' + escape(static_path) + 'resources/spliceai/variants/' + escape($('#variant_id').val()) + '_full_transcript.bedGraph.gz" target="_blank">full mutant transcript</a>');
   $('#spliceai_visual_full_wheel').html('<span></span>');
   $('html').css('cursor', 'default');
+}
+
+async function add_morfee_bed_track(static_path) {
+  igv.browser.loadTrack({
+    name: 'MORFEEDB: ' + $('#c_name').text(),
+    type: 'annotation',
+    format: 'bed',
+    indexed: false,
+    url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.bed',
+    label: 'MORFEEDB predicted uORFs for ' + $('#c_name').text(),
+    removable: false,
+    order: 3,
+    color: "rgba(220, 20, 60, 0.25)"
+  });
 }
 
 
@@ -1082,6 +1101,9 @@ $(document).ready(function() {
     }
     if ($('#dbmts_table').length) {
       doc = convert_dt(config, "dbmts_table", "dbMTS results", "table_title", doc);
+    }
+    if ($('#morfee_table').length) {
+      doc = convert_dt(config, "morfee_table", "MORFEE results", "table_title", doc);
     }
     if ($('#episignature_table').length) {
       doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);

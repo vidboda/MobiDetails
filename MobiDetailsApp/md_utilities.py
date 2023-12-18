@@ -158,6 +158,12 @@ local_files['metadome']['abs_path'] = '{0}{1}'.format(
 local_files['mistic']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['mistic']['rel_path']
 )
+local_files['morfeedb']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['morfeedb']['rel_path']
+)
+local_files['morfeedb_folder']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['morfeedb_folder']['rel_path']
+)
 oncokb_genes_version = get_resource_current_version(
     '{0}{1}'.format(app_path, local_files['oncokb_genes']['rel_path']),
     r'cancerGeneList_(\d+).tsv'
@@ -386,13 +392,19 @@ def translate_genome_version(genome_version):
 
 
 def decompose_vcf_str(vcf_str):
-    # chr_regexp = regexp['nochr_captured']
     vcf_str_regexp = regexp['vcf_str_captured']
     match_obj = re.search(rf'^{vcf_str_regexp}$', vcf_str)
-    # match_obj = re.search(rf'[Cc]?[Hh]?[Rr]?({chr_regexp})[:-](\d+)[:-]([ACTGactg]+)[:-]([ACTGactg]+)', vcf_str)
     if match_obj:
         return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
     return None, None, None, None
+
+
+def decompose_transcript(transcript):
+    ncbi_transcript_trunc_regexp = regexp['ncbi_transcript_trunc']
+    match_obj = re.search(rf'^({ncbi_transcript_trunc_regexp})\.(\d{{1,2}})$', transcript)
+    if match_obj:
+        return match_obj.group(1), int(match_obj.group(2))
+    return None, None
 
 
 def get_var_genic_csq(var):
@@ -660,14 +672,15 @@ def acmg2lovd(acmg_class, db):
 def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
-    query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    # print('{}-{}'.format(text, query))
+    query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])   
     if re.match('gnomADv4', text) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
+            text == 'MorfeeDB' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
+    # print('{}-{}'.format(text, query))
     try:
         records = tb.querys(query)
     except tabix.TabixError:
@@ -694,7 +707,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             tabix_file
             ) or \
             text == 'AbSplice' or \
-            text == 'AlphaMissense':
+            text == 'AlphaMissense' or \
+            text == 'MorfeeDB':
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     for record in records:
@@ -725,6 +739,22 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         ppos in ppos_list:
                     return record
                 return 'The dbNSFP entry does not match the amino-acid position. dnNSFP returns as possible amino-acid position for this variant {0}. dbNSFP'.format(ppos_list)
+            elif text == 'MorfeeDB':
+                # we'll match on the transcript without version and c.
+                # we may find multiple transcripts and c. separated with ';' - assertion: transcripts and c. are always the same but the csq may vary
+                tlist = re.split(';', record[int(external_tools['MorfeeDB']['refseq_transcript_col'])].replace(' ', ''))                
+                vf_nover, ver = decompose_transcript(variant_features['refseq'])
+                t_nover_list = []
+                for t in tlist:
+                    t_nover, ver = decompose_transcript(t)
+                    t_nover_list.append(t_nover)
+                if vf_nover in t_nover_list:
+                    # check c.
+                    c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
+                    if 'c.{}'.format(variant_features['c_name']) in c_list:
+                        return record
+                else:
+                    continue
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \

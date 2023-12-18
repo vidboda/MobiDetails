@@ -352,6 +352,19 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'misticScore': None,
             'misticPred': None,
         },
+        'morfeedb': {
+            'orfSNVs_type': None,
+            'orfSNVs_frame': None,
+            'type_of_generated_ORF': None,
+            'Ratio_length_pred_obs': None,
+            'TIS_sequence': None,
+            'STOP_sequence': None,
+            'Kozak_sequence': None,
+            'Kozak_score': None,
+            'Kozak_strength': None,
+            'TIS_c_pos': None,
+            'STOP_c_pos': None,
+        }
     }
     internal_data = {
         'admin': {
@@ -459,7 +472,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'dbnsfp': None,
             'dbmts': None,
             'spliceai': None,
-            'episignature': None
+            'episignature': None,
+            'morfeedb': None
         }
     }
 
@@ -1328,10 +1342,54 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 )
                                 external_data['splicingPredictions']['abSplice']['maxScore'] = tmp_max
                                 external_data['splicingPredictions']['abSplice']['maxTissue'] = tmp_tissue
-                        # print(external_data['splicingPredictions']['AbSplice'])
-                        # print(internal_data['splicingPredictions']['absplice_dna_header'])
-                        # print(internal_data['splicingPredictions']['absplice_dna_values'])
-
+                # MorfeeDB
+                # bgzipped tabixed file
+                # we may have multiple results per position, sep ';'
+                if re.search('^-.+', variant_features['c_name']) and \
+                        variant_features['dna_type'] == 'substitution':
+                    record = md_utilities.get_value_from_tabix_file(
+                        'MorfeeDB',
+                        md_utilities.local_files['morfeedb']['abs_path'],
+                        var,
+                        variant_features
+                    )
+                    if isinstance(record, str):
+                        # No match in AbSplice v3
+                        internal_data['noMatch']['morfeedb'] = record
+                    else:
+                        for morfee_type in external_data['morfeedb']:
+                            # get values - and for some reducs the number of decimals
+                            if morfee_type == 'Ratio_length_pred_obs':
+                                external_data['morfeedb'][morfee_type] = format(float(record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]), '.4f')
+                            elif morfee_type == 'Kozak_score':
+                                kozak_str = ''
+                                kozaks = re.split(';', record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])].replace(' ', ''))
+                                for kozak in kozaks:
+                                    kozak_str = '{0}{1}; '.format(kozak_str, format(float(kozak), '.2f'))
+                                # we remove trailing ;
+                                final_kozak_str = kozak_str[:-2]
+                                external_data['morfeedb'][morfee_type] = final_kozak_str
+                            else:
+                                external_data['morfeedb'][morfee_type] = record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]
+                        # there may be mutliple results ; build a dict {start: stop}
+                        orf_pos_dict = dict(zip(re.split(';', record[int(md_utilities.external_tools['MorfeeDB']['TIS_position'])].replace(' ', '')), re.split(';', record[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', ''))))
+                        # print(orf_pos_dict)
+                        # create bed file to be displayed in igv.js
+                        bed_file_basename = '{0}{1}.bed'.format(
+                            md_utilities.local_files['morfeedb_folder']['abs_path'],
+                            variant_id
+                        )
+                        if not os.path.exists(bed_file_basename):
+                            with open(
+                                bed_file_basename,
+                                'w'
+                            ) as bed_file:
+                                for start in orf_pos_dict:
+                                    if external_data['gene']['strand'] == '+':
+                                        bed_file.write('{0}\t{1}\t{2}\n'.format(external_data['VCF']['chr'], int(start)-1, int(orf_pos_dict[start])))
+                                    else:
+                                        bed_file.write('{0}\t{1}\t{2}\n'.format(external_data['VCF']['chr'], int(orf_pos_dict[start])-1, int(start)))
+                    # print(external_data['morfeedb'])
         for var in variant:
             # 2nd loop as we need to fetch hg38 first, to get revel scores
             if var['genome_version'] == 'hg19':

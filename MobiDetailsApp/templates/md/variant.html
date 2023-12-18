@@ -130,6 +130,9 @@
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
+		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb.orfSNVs_type is not none %}
+		<a href="#morfeedb" class="w3-bar-item w3-button w3-mobile">uORF Predictions</a>
+		{% endif %}
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
 		<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
 		{% endif %}
@@ -1097,6 +1100,86 @@
 			</div>
 		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
+		{% endif %}
+		<!--alt sixth section-->
+		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb.orfSNVs_type is not none %}
+			<hr />
+			{{ section_title('morfeedb', 'uORF prediction') }}
+			<div class="w3-responsive w3-container">
+				<!--dbMTS-->
+				{{ info("<strong>MORFEE</strong> is a tool that detects and annotates single nucleotide variants (SNVs) by:<ul><li> creating canonical (ATG) and non-canonical Translation Initiation Sites (TIS)</li><li>creating Stop codons (TAA, TAG and TGA)</li><li>deleting Stop codons in the 5’UTR (uTIS, uStop and New_uStop), the coding sequence (CDS, intTIS, intStop and New_intStop), and the 3’UTR (dTIS, dStop and New_dStop)</li></ul>MORFEE annotated more than 19,000,000 variants from the mutational saturation of the 5'UTR from the whole genome. Mutliple results are separated by a ';'. A track is displayed above in igv.js (if present) showing the potential uORFs.") }}
+				<table class="w3-table w3-centered display compact" style="width:90%" id="morfee_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align">Values</th>
+							<th class="w3-left-align">Descriptions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><!--category-->
+							<td class="w3-left-align">orfSNVs type:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.orfSNVs_type }}</td>
+							<td class="w3-left-align"><em class="w3-small">uTIS: creation of an upstream TIS (ATG, CTG, TTG, GTG, AAG, ACG, AGG, ATC, ATA, ATT).<br />uSTOP: deletion of an upstream STOP codon.<br />new_uSTOP: creation of an upstream STOP codon</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">orfSNVs frame:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.orfSNVs_frame }}</td>
+							<td class="w3-left-align"><em class="w3-small">in_frame or out_of_frame according to whether the new TIS or the new or deleted STOP is in frame or not with the main ATG</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Type of generated_ORF:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.type_of_generated_ORF }}</td>
+							<td class="w3-left-align"><em class="w3-small">Possible values are *overlapping*, *not_overlapping* or *elongated_CDS* according to the type of the predicted upstream /downstream/internal ORF compared to the canonical CDS</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Ratio length pred/obs:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.Ratio_length_pred_obs }}</td>
+							<td class="w3-left-align"><em class="w3-small">Ratio of the length of the predicted ORF over that of the CDS</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">TIS sequence:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.TIS_sequence }}</td>
+							<td class="w3-left-align"><em class="w3-small">Sequence of new TIS detected by MORFEE</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">STOP sequence:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.STOP_sequence }}</td>
+							<td class="w3-left-align"><em class="w3-small">STOP codon sequence of the new predicted ORF or of the deleted STOP</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">TIS c.pos:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.TIS_c_pos }}</td>
+							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the TIS on the corresponding transcript(s)</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">STOP c.pos:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.STOP_c_pos }}</td>
+							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the Stop codon on the corresponding transcript(s)</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Kozak sequence:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_sequence }}</td>
+							<td class="w3-left-align"><em class="w3-small">Kozak sequence of the new predicted TIS (sequence of the TIS with 10 nicleotides from each side)</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Kozak score:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_score }}</td>
+							<td class="w3-left-align"><em class="w3-small">Kozak strength of the new predicted TIS by taking into account the most conserved positions -3 and +4 regarding the first nucleotide of the TIS</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Kozak strength:</td>
+							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_strength }}</td>
+							<td class="w3-left-align"><em class="w3-small">Kozak score of the new predicted TIS as calculated by the TIS-predictor algorithm (KSS score)</em></td>
+						</tr>
+
+					</tbody>
+				</table>
+			</div>
+		{% elif internal_data.noMatch.morfeedb is not none %}
+			<hr />
+			{{ section_title('morfeedb', 'uORF prediction') }}
+			{{ info(internal_data.noMatch.morfeedb) }}
 		{% endif %}
 		<!--missense section-->
 		{# {% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %} #}
