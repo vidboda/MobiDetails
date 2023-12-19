@@ -440,10 +440,10 @@ var_5utr1 = {
     'pos_ref': 'A',
     'pos_alt': 'C'
 }
-var_5utr1_f= {
+var_5utr1_f = {
     'refseq': 'NM_206933.4',
     'p_name': 'p.(?)',
-    'c_name': 'c.-15T>G'
+    'c_name': '-15T>G'
 }
 var_3utr1 = {
     'chr': '1',
@@ -558,6 +558,8 @@ def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name
     print(record)
     print(record[record_number])
     print(record_number)
+    print(tool)
+    print(md_utilities.local_files[file_name]['abs_path'])
     assert re.search(expected, record[record_number])
     # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
     # assert re.search('Pathogenic', record[7])

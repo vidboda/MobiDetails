@@ -233,7 +233,6 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               }
             ]
           };
-          
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
               igv.browser = browser;
@@ -283,14 +282,15 @@ async function add_full_gene_track(static_path) {
   $('html').css('cursor', 'default');
 }
 
+
 async function add_morfee_bed_track(static_path) {
   igv.browser.loadTrack({
-    name: 'MORFEEDB: ' + $('#c_name').text(),
+    name: 'upORF: MORFEEDB',
     type: 'annotation',
     format: 'bed',
     indexed: false,
     url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.bed',
-    label: 'MORFEEDB predicted uORFs for ' + $('#c_name').text(),
+    label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
     removable: false,
     order: 3,
     color: "rgba(220, 20, 60, 0.25)"

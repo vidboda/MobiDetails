@@ -341,7 +341,7 @@
     'rel_path': '/static/resources/morfeedb/variants/'
     'name': 'MMorfee scores'
     'description': 'bed files for MorfeeDB individual variants'
-    'short_name': 'morfeedb'
+    'short_name': 'morfeedb_folder'
   'oncokb_genes':
     'rel_path': '/static/resources/oncokb/'
     'name': 'OncoKB cancer gene list'
