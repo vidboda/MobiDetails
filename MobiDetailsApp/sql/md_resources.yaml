@@ -594,6 +594,7 @@
     'paper': 'None'
     'version': '1.0'
     'short_name': 'morfeedb'
+    'enst_col': '4'
     'refseq_transcript_col': '5'
     'hgvs_c': '8'
     'orfSNVs_type': '10'

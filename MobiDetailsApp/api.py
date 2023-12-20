@@ -1347,11 +1347,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # we may have multiple results per position, sep ';'
                 if re.search('^-.+', variant_features['c_name']) and \
                         variant_features['dna_type'] == 'substitution':
+                    morfee_vf = variant_features
+                    morfee_vf['enst'] = external_data['gene']['ENST']
                     record = md_utilities.get_value_from_tabix_file(
                         'MorfeeDB',
                         md_utilities.local_files['morfeedb']['abs_path'],
                         var,
-                        variant_features
+                        morfee_vf
                     )
                     if isinstance(record, str):
                         # No match in AbSplice v3
