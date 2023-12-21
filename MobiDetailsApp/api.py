@@ -1345,7 +1345,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # MorfeeDB
                 # bgzipped tabixed file
                 # we may have multiple results per position, sep ';'
-                if re.search('^-.+', external_data['nomenclatures']['cName']) and \
+                if re.search('^c\.-.+', external_data['nomenclatures']['cName']) and \
                         external_data['positions']['segmentStartType'] == 'exon' and \
                         external_data['positions']['DNAType'] == 'substitution':
                     morfee_vf = variant_features

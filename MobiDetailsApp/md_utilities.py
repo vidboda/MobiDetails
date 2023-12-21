@@ -758,7 +758,6 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                 else:
                     # check ENST as MANE for gencode can identify several NM
                     enst = re.split('[;.:]', record[int(external_tools['MorfeeDB']['enst_col'])])[0]
-                    print(enst)
                     if enst == variant_features['enst']:
                         # check c.
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
