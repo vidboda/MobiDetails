@@ -442,6 +442,7 @@ var_5utr1 = {
 }
 var_5utr1_f = {
     'refseq': 'NM_206933.4',
+    'enst': 'ENST00000307340',
     'p_name': 'p.(?)',
     'c_name': '-15T>G'
 }
@@ -556,11 +557,12 @@ var_ss_f = {
 def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
     record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)
     print(record)
-    print(record[record_number])
-    print(record_number)
     print(tool)
     print(md_utilities.local_files[file_name]['abs_path'])
-    assert re.search(expected, record[record_number])
+    if tool == 'MorfeeDB':
+        assert re.search(expected, record[0][record_number])
+    else:
+        assert re.search(expected, record[record_number])
     # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
     # assert re.search('Pathogenic', record[7])
     # assert re.search('2356', record[2])

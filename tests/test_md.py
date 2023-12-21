@@ -132,7 +132,7 @@ def test_variant_page(client, app):
             """
             SELECT id
             FROM variant_feature
-            WHERE c_name like '-%'
+            WHERE c_name <> '2del'
             ORDER BY random()
             LIMIT 200
             """
