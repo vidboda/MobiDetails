@@ -1355,11 +1355,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         var,
                         morfee_vf
                     )
+                    print(record)
                     if isinstance(record, str):
                         # No match in AbSplice v3
                         internal_data['noMatch']['morfeedb'] = record
                     else:
-                        # create bed file to be displayed in igv.js
+                        # create gtf file to be displayed in igv.js
                         gtf_file_basename = '{0}{1}.gtf'.format(
                             md_utilities.local_files['morfeedb_folder']['abs_path'],
                             variant_id

@@ -130,7 +130,7 @@
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
-		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb.orfSNVs_type is not none %}
+		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 		<a href="#morfeedb" class="w3-bar-item w3-button w3-mobile">upORF Predictions</a>
 		{% endif %}
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
@@ -1102,7 +1102,7 @@
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
 		<!--alt sixth section-->
-		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb.orfSNVs_type is not none %}
+		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 			<hr />
 			{{ section_title('morfeedb', 'upORF prediction') }}
 			<div class="w3-responsive w3-container">
