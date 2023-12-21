@@ -1117,62 +1117,63 @@
 						</tr>
 					</thead>
 					<tbody>
+						{% for uporf in external_data.morfeedb %}
 						<tr><!--category-->
-							<td class="w3-left-align">orfSNVs type:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.orfSNVs_type }}</td>
+							<td class="w3-left-align"><strong>orfSNVs type:</strong></td>
+							<td class="w3-left-align"><strong>{{ uporf.orfSNVs_type }}</strong></td>
 							<td class="w3-left-align"><em class="w3-small">uTIS: creation of an upstream TIS (ATG, CTG, TTG, GTG, AAG, ACG, AGG, ATC, ATA, ATT).<br />uSTOP: deletion of an upstream STOP codon.<br />new_uSTOP: creation of an upstream STOP codon</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">orfSNVs frame:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.orfSNVs_frame }}</td>
+							<td class="w3-left-align">{{ uporf.orfSNVs_frame }}</td>
 							<td class="w3-left-align"><em class="w3-small">in_frame or out_of_frame according to whether the new TIS or the new or deleted STOP is in frame or not with the main ATG</em></td>
 						</tr>
 						<tr><!--category-->
-							<td class="w3-left-align">Type of generated_ORF:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.type_of_generated_ORF }}</td>
+							<td class="w3-left-align">Type of generated ORF:</td>
+							<td class="w3-left-align">{{ uporf.type_of_generated_ORF }}</td>
 							<td class="w3-left-align"><em class="w3-small">Possible values are *overlapping*, *not_overlapping* or *elongated_CDS* according to the type of the predicted upstream /downstream/internal ORF compared to the canonical CDS</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">Ratio length pred/obs:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.Ratio_length_pred_obs }}</td>
+							<td class="w3-left-align">{{ uporf.Ratio_length_pred_obs }}</td>
 							<td class="w3-left-align"><em class="w3-small">Ratio of the length of the predicted ORF over that of the CDS</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">TIS sequence:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.TIS_sequence }}</td>
+							<td class="w3-left-align">{{ uporf.TIS_sequence }}</td>
 							<td class="w3-left-align"><em class="w3-small">Sequence of new TIS detected by MORFEE</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">STOP sequence:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.STOP_sequence }}</td>
+							<td class="w3-left-align">{{ uporf.STOP_sequence }}</td>
 							<td class="w3-left-align"><em class="w3-small">STOP codon sequence of the new predicted ORF or of the deleted STOP</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">TIS c.pos:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.TIS_c_pos }}</td>
+							<td class="w3-left-align">{{ uporf.TIS_c_pos }}</td>
 							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the TIS on the corresponding transcript(s)</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">STOP c.pos:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.STOP_c_pos }}</td>
+							<td class="w3-left-align">{{ uporf.STOP_c_pos }}</td>
 							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the Stop codon on the corresponding transcript(s)</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">Kozak sequence:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_sequence }}</td>
+							<td class="w3-left-align">{{ uporf.Kozak_sequence }}</td>
 							<td class="w3-left-align"><em class="w3-small">Kozak sequence of the new predicted TIS (sequence of the TIS with 10 nicleotides from each side)</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">Kozak score:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_score }}</td>
+							<td class="w3-left-align">{{ uporf.Kozak_score }}</td>
 							<td class="w3-left-align"><em class="w3-small">Kozak strength of the new predicted TIS by taking into account the most conserved positions -3 and +4 regarding the first nucleotide of the TIS</em></td>
 						</tr>
 						<tr><!--category-->
 							<td class="w3-left-align">Kozak strength:</td>
-							<td class="w3-left-align">{{ external_data.morfeedb.Kozak_strength }}</td>
+							<td class="w3-left-align">{{ uporf.Kozak_strength }}</td>
 							<td class="w3-left-align"><em class="w3-small">Kozak score of the new predicted TIS as calculated by the TIS-predictor algorithm (KSS score)</em></td>
 						</tr>
-
+						{% endfor %}
 					</tbody>
 				</table>
 			</div>

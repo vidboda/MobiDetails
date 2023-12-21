@@ -672,7 +672,9 @@ def acmg2lovd(acmg_class, db):
 def get_value_from_tabix_file(text, tabix_file, var, variant_features):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
-    query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])   
+    query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
+    # for morfeedb which may return several lines
+    record_list = []
     if re.match('gnomADv4', text) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
@@ -752,7 +754,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                     # check c.
                     c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                     if 'c.{}'.format(variant_features['c_name']) in c_list:
-                        return record
+                        record_list.append(record)
                 else:
                     # check ENST as MANE for gencode can identify several NM
                     enst = re.split('[;.:]', record[int(external_tools['MorfeeDB']['enst_col'])])[0]
@@ -761,9 +763,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         # check c.
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                         if 'c.{}'.format(variant_features['c_name']) in c_list:
-                            return record
-                # else:
-                #     continue
+                            record_list.append(record)
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
@@ -793,6 +793,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                     return record
     if text == 'AbSplice':
         return 'No significant score in {}'.format(text)
+    if record_list:
+        return record_list
     return 'No match in {}'.format(text)
 
 

@@ -284,16 +284,35 @@ async function add_full_gene_track(static_path) {
 
 
 async function add_morfee_bed_track(static_path) {
+  // igv.browser.loadTrack({
+  //   name: 'upORF: MORFEEDB',
+  //   type: 'annotation',
+  //   format: 'bed',
+  //   indexed: false,
+  //   autoHeight: true,
+  //   url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.bed',
+  //   label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
+  //   removable: false,
+  //   order: 3,
+  //   color: "rgba(220, 20, 60, 0.25)"
+  // });
   igv.browser.loadTrack({
     name: 'upORF: MORFEEDB',
     type: 'annotation',
-    format: 'bed',
+    format: 'gtf',
+    displayMode: "expanded",
     indexed: false,
-    url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.bed',
+    autoHeight: true,
+    url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.gtf',
     label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
     removable: false,
     order: 3,
-    color: "rgba(220, 20, 60, 0.25)"
+    colorBy: "orfSNVs_type",
+    colorTable: {
+       "uTIS": "rgba(153, 0, 0, 0.25)",
+       "uSTOP": "rgba(255, 128, 0, 0.25)",
+       "new_uSTOP": "rgba(220, 20, 60, 0.25)",
+    }
   });
 }
 
@@ -761,7 +780,7 @@ $(document).ready(function() {
   	responsive: true,
   	dom: 't',
   	"order": [],
-    "pageLength": 15,
+    "pageLength": 35,
   	//scrollY: 600,
   	buttons: [
   		'copy', 'excel', 'pdf'

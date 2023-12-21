@@ -352,7 +352,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'misticScore': None,
             'misticPred': None,
         },
-        'morfeedb': {
+        'morfeedb': [{
             'orfSNVs_type': None,
             'orfSNVs_frame': None,
             'type_of_generated_ORF': None,
@@ -364,7 +364,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'Kozak_strength': None,
             'TIS_c_pos': None,
             'STOP_c_pos': None,
-        }
+        }]
     }
     internal_data = {
         'admin': {
@@ -1359,38 +1359,82 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         # No match in AbSplice v3
                         internal_data['noMatch']['morfeedb'] = record
                     else:
-                        for morfee_type in external_data['morfeedb']:
-                            # get values - and for some reducs the number of decimals
-                            if morfee_type == 'Ratio_length_pred_obs':
-                                external_data['morfeedb'][morfee_type] = format(float(record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]), '.4f')
-                            elif morfee_type == 'Kozak_score':
-                                kozak_str = ''
-                                kozaks = re.split(';', record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])].replace(' ', ''))
-                                for kozak in kozaks:
-                                    kozak_str = '{0}{1}; '.format(kozak_str, format(float(kozak), '.2f'))
-                                # we remove trailing ;
-                                final_kozak_str = kozak_str[:-2]
-                                external_data['morfeedb'][morfee_type] = final_kozak_str
-                            else:
-                                external_data['morfeedb'][morfee_type] = record[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]
-                        # there may be mutliple results ; build a dict {start: stop}
-                        orf_pos_dict = dict(zip(re.split(';', record[int(md_utilities.external_tools['MorfeeDB']['TIS_position'])].replace(' ', '')), re.split(';', record[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', ''))))
-                        # print(orf_pos_dict)
                         # create bed file to be displayed in igv.js
-                        bed_file_basename = '{0}{1}.bed'.format(
+                        gtf_file_basename = '{0}{1}.gtf'.format(
                             md_utilities.local_files['morfeedb_folder']['abs_path'],
                             variant_id
                         )
-                        if not os.path.exists(bed_file_basename):
-                            with open(
-                                bed_file_basename,
-                                'w'
-                            ) as bed_file:
-                                for start in orf_pos_dict:
-                                    if external_data['gene']['strand'] == '+':
-                                        bed_file.write('{0}\t{1}\t{2}\n'.format(external_data['VCF']['chr'], int(start)-1, int(orf_pos_dict[start])))
+                        with open(
+                            gtf_file_basename,
+                            'w'
+                        ) as gtf_file:
+                            i = 0
+                            for morfee_entry in record:
+                                if i > 0:
+                                    external_data['morfeedb'].append({
+                                        'orfSNVs_type': None,
+                                        'orfSNVs_frame': None,
+                                        'type_of_generated_ORF': None,
+                                        'Ratio_length_pred_obs': None,
+                                        'TIS_sequence': None,
+                                        'STOP_sequence': None,
+                                        'Kozak_sequence': None,
+                                        'Kozak_score': None,
+                                        'Kozak_strength': None,
+                                        'TIS_c_pos': None,
+                                        'STOP_c_pos': None,
+                                    })
+                                for morfee_type in external_data['morfeedb'][i]:
+                                    # get values - and for some reducs the number of decimals
+                                    # print(morfee_type)
+                                    if morfee_type == 'Ratio_length_pred_obs':
+                                        external_data['morfeedb'][i][morfee_type] = format(float(morfee_entry[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]), '.4f')
+                                    elif morfee_type == 'Kozak_score':
+                                        kozak_str = ''
+                                        kozaks = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB'][morfee_type])].replace(' ', ''))
+                                        for kozak in kozaks:
+                                            if kozak == 'NA':
+                                                kozak_str = '{0}{1}; '.format(kozak_str, kozak)
+                                            else:
+                                                kozak_str = '{0}{1}; '.format(kozak_str, format(float(kozak), '.2f'))
+                                        # we remove trailing ;
+                                        final_kozak_str = kozak_str[:-2]
+                                        external_data['morfeedb'][i][morfee_type] = final_kozak_str
                                     else:
-                                        bed_file.write('{0}\t{1}\t{2}\n'.format(external_data['VCF']['chr'], int(orf_pos_dict[start])-1, int(start)))
+                                        external_data['morfeedb'][i][morfee_type] = morfee_entry[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]
+                                orf_pos_dict = dict(zip(re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_position'])].replace(' ', '')), re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', ''))))
+                                # if not os.path.exists(gtf_file_basename):
+                                    # with open(
+                                    #     gtf_file_basename,
+                                    #     'w'
+                                    # ) as gtf_file:
+                                for start_pos in orf_pos_dict:
+                                    start, end = start_pos, int(orf_pos_dict[start_pos])
+                                    if external_data['gene']['strand'] == '-':
+                                        start, end = int(orf_pos_dict[start_pos]), start_pos
+                                    # bed_file.write('{0}\t{1}\t{2}\n'.format(external_data['VCF']['chr'], start-1, end
+                                    # gtf format https://www.ensembl.org/info/website/upload/gff.html?redirect=no
+                                    gtf_file.write('{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t{8}\n'.format(
+                                        external_data['VCF']['chr'],
+                                        'MORFEE',
+                                        morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_type'])],
+                                        start,
+                                        end,
+                                        '.',
+                                        external_data['gene']['strand'],
+                                        '.',
+                                        'orfSNVs_type {0};orfSNVs_frame {1};type_of_generated_ORF {2};Ratio_length_pred_obs {3};TIS_c_pos {4};STOP_c_pos {5};Kozak_score {6};Kozak_strength {7}'.format(
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_type'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_frame'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['type_of_generated_ORF'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Ratio_length_pred_obs'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_c_pos'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_c_pos'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_score'])],
+                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_strength'])]
+                                        )
+                                    ))
+                                i += 1
                     # print(external_data['morfeedb'])
         for var in variant:
             # 2nd loop as we need to fetch hg38 first, to get revel scores

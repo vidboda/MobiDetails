@@ -123,7 +123,7 @@ def test_search_engine(client, app, t_search, url, status_code):
 
 # test all variants in dev db except c.1A>T (too numerous as used to test variant creation)
 
-
+# WHERE c_name <> '2del'
 def test_variant_page(client, app):
     with app.app_context():
         db_pool, db = get_db()
@@ -132,9 +132,9 @@ def test_variant_page(client, app):
             """
             SELECT id
             FROM variant_feature
-            WHERE c_name <> 'c.2del'
+            WHERE c_name like '-%'
             ORDER BY random()
-            LIMIT 100
+            LIMIT 200
             """
             # LIMIT 100  WHERE prot_type = 'missense'",  #  ORDER BY random() LIMIT 500
         )
