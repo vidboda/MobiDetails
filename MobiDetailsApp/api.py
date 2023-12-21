@@ -1355,7 +1355,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         var,
                         morfee_vf
                     )
-                    print(record)
                     if isinstance(record, str):
                         # No match in AbSplice v3
                         internal_data['noMatch']['morfeedb'] = record
