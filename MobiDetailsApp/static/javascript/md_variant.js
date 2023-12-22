@@ -85,7 +85,7 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     if ($('#lovd_rna_hgvs').text()) {
       $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html());
       $('#lovd_rna_hgvs').empty();
-      $('#rna_hgvs_tr').show();
+      // $('#rna_hgvs_tr').show();
       var nomenclature_table = $('#nomenclature_table').DataTable();
       nomenclature_table
         .row($("#rna_hgvs_tr").parents('tr'))
