@@ -168,7 +168,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
               igv.browser = browser;
-              add_morfee_bed_track(static_path, 1)
+              add_morfee_bed_track(static_path, 0)
           });
       }
     }
