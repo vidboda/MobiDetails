@@ -191,17 +191,17 @@ def test_lovd(client, app):
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
             """
-            SELECT a.genome_version, a.chr, a.g_name, b.c_name, b.gene_symbol
+            SELECT a.genome_version, a.chr, a.g_name, b.c_name, b.gene_symbol, b.refseq
             FROM variant a, variant_feature b
             WHERE a.feature_id = b.id AND a.genome_version = 'hg19'
             ORDER BY random()
-            LIMIT 5
+            LIMIT 10
             """
         )
         res = curs.fetchall()
         db_pool.putconn(db)
         for values in res:
-            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'])
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'], ncbi_transcript=values['refseq'])
             print(data_dict)
             assert client.post('/lovd', data=data_dict).status_code == 200
 
