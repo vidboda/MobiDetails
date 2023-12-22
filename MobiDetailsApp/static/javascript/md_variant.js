@@ -149,7 +149,21 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               indexURL: static_path + "resources/genome/hg38.fa.gz.fai",
               compressedIndexURL: static_path + "resources/genome/hg38.fa.gz.gzi",
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
-            }
+            },
+            tracks: [
+              {
+                name: 'MANE transcripts',
+                url: static_path + 'resources/mane/MANE.GRCh38.v1.0.refseq.bb',
+                indexed: false,
+                label: 'MANE transcripts',
+              },
+              {
+                name: 'Refseq Genes',
+                url: static_path + 'resources/genome/refGene.txt.gz',
+                order: 1000000,
+                indexed: false
+              }
+            ]
           };
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
@@ -188,20 +202,6 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
             },
             tracks: [
-              // { // uncompressed version
-              //   name: 'SpliceAI WT ' + $('#nm_acc').text(),
-              //   format: 'bedGraph',
-              //   url: static_path + 'resources/spliceai/transcripts/' + $('#nm_acc').text() + '.bedGraph',
-              //   indexed: false,
-              //   removable: false,
-              //   label: 'SpliceAI raw scores for ' + $('#nm_acc').text(),
-              //   roi: [{
-              //     name: $('#variant_id').text(),
-              //     url: static_path + 'resources/spliceai/variants/' + $('#variant_id').val() + '.bed',
-              //     indexed: false,
-              //     color: "rgba(0, 150, 50, 0.25)"
-              //   }]
-              // },
               { // compressed version
                 name: 'SpliceAI WT ' + $('#nm_acc').text(),
                 type: 'wig',
