@@ -935,17 +935,23 @@ def lovd():
     match_c_name = re.search(rf'^(c\.{variant_regexp})$', request.form['c_name'])
     gene_symbol_regexp = md_utilities.regexp['gene_symbol']
     match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    match_ncbi_transcript = re.search(rf'^({ncbi_transcript_regexp})$', request.form['ncbi_transcript'])
     # print(request.form)
     if match_genome and \
             match_nochr_chrom and \
             match_g_name and \
             match_c_name and \
-            match_gene_symbol:
+            match_gene_symbol and \
+            match_ncbi_transcript:
         genome = match_genome.group(1)
         chrom = match_nochr_chrom.group(1)
         g_name = match_g_name.group(1)
         c_name = match_c_name.group(1)
         gene = match_gene_symbol.group(1)
+        refseq = match_ncbi_transcript.group(1)
+        # for r. nomenclature
+        rna_hgvs = 'r.(?)'
         header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
@@ -1093,6 +1099,18 @@ def lovd():
                             lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
                         else:
                             lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] += 1
+                        # for rna hgvs
+                        if rna_hgvs == 'r.(?)':
+                            nm, nm_ver = md_utilities.decompose_transcript(refseq)
+                            if 'variants_on_transcripts' in var:
+                                for transcript in var['variants_on_transcripts']:
+                                    if re.search(nm, transcript) and \
+                                            'RNA' in var['variants_on_transcripts'][transcript] and \
+                                            var['variants_on_transcripts'][transcript]['RNA'] != rna_hgvs:                                        
+                                        if 'id' in var:
+                                            rna_hgvs = '<a href="https://databases.lovd.nl/shared/variants/{0}" title="Check LOVD" target="_blank">{1}</a>'.format(var['id'], var['variants_on_transcripts'][transcript]['RNA'])
+                                        else:
+                                            rna_hgvs = var['variants_on_transcripts'][transcript]['RNA']
                 # print(lovd_effect_count)
 
             else:
@@ -1100,15 +1118,15 @@ def lovd():
                     "No match in LOVD public instances"
                 )
                 # return 'No match in LOVD public instances'
-            html = """
+            html = """            
             <tr>
-                <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:</td>
-                <td class="w3-left-align"><ul>{}</ul></td>
+                <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:<span id="lovd_rna_hgvs" style="display:none;visibility:hidden;">{0}</span></td>
+                <td class="w3-left-align"><ul>{1}</ul></td>
                 <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;">
                     <em class="w3-small">LOVD match in public instances</em>
                 </td>
             </tr>
-            """.format(''.join(html_list))
+            """.format(rna_hgvs, ''.join(html_list))
             if lovd_effect_count is not None:
                 reported_effect_list = []
                 concluded_effect_list = []

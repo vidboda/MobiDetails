@@ -53,34 +53,49 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
         }
+      }
     });
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
 		data: {
-			genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene:$('#gene_symbol').text()
+			genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene: $('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
 		}
         // pos: $('#pos_19').text(),
 	})
 	.done(function(html) {
-        // selector for datatable
-        var population_table = $('#population_table').DataTable();
-        // prepare js table from flask html tr
-        var new_rows = html.split(",");
-        // remove old tr and destroy datatable
-        population_table
-            .row($("#lovd_feature").parents('tr'))
-            .remove()
-            .draw()
-            .destroy();
-        // add new tr and rebuilt datatable
-        $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
-        redraw_dt('population_table', false);
+    // selector for datatable
+    var population_table = $('#population_table').DataTable();
+    // prepare js table from flask html tr
+    var new_rows = html.split(",");
+    // remove old tr and destroy datatable
+    population_table
+      .row($("#lovd_feature").parents('tr'))
+      .remove()
+      .draw()
+      .destroy();
+    // add new tr and rebuilt datatable
+    $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
+
+    // RNA HGVS
+    if ($('#lovd_rna_hgvs').text()) {
+      $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html());
+      $('#lovd_rna_hgvs').empty();
+      $('#rna_hgvs_tr').show();
+      var nomenclature_table = $('#nomenclature_table').DataTable();
+      nomenclature_table
+        .row($("#rna_hgvs_tr").parents('tr'))
+        .remove()
+        .draw()
+        .destroy();
+      redraw_dt('nomenclature_table', false);
+    }
+
+    redraw_dt('population_table', false);
 	});
 }
 
