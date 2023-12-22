@@ -131,15 +131,42 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
   })
   .done(function(spliceaivisual_response) {
     // $('#igv_com').replaceWith('<span></span>');
-    if (spliceaivisual_response == '<p style="color:red">Bad params for SpliceAI-visual.</p>') {
+    if (spliceaivisual_response == '<p style="color:red">Bad params for SpliceAI-visual.</p>' || spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>' || spliceaivisual_response == '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>') {
       $('#igv_com').replaceWith(spliceaivisual_response);
+      if ($('#morfee_table').length) {
+        var options =
+          {
+            showNavigation: true,
+            showRuler: true,
+            showCenterGuide: true,
+            showCursorTrackingGuide: true,
+            //genome: 'hg38',
+            locus: 'chr' + $('#chrom_38').text() + ':'+ $('#pos_38').text() + '-' + $('#pos_38').text(),
+            reference: {
+              id: "hg38",
+              name: "Human (GRCh38/hg38)",
+              fastaURL: static_path + "resources/genome/hg38.fa.gz",
+              indexURL: static_path + "resources/genome/hg38.fa.gz.fai",
+              compressedIndexURL: static_path + "resources/genome/hg38.fa.gz.gzi",
+              cytobandURL: static_path + "resources/genome/cytoBandIdeo.txt.gz"
+            }
+          };
+        igv.createBrowser(document.getElementById('igv_div'), options)
+          .then(function (browser) {
+              igv.browser = browser;
+              add_morfee_bed_track(static_path)
+          });
+      }
     }
-    else if (spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>') {
-      $('#igv_com').replaceWith(spliceaivisual_response);
-    }
-    else if (spliceaivisual_response == '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>') {
-      $('#igv_com').replaceWith(spliceaivisual_response);
-    }
+    // if (spliceaivisual_response == '<p style="color:red">Bad params for SpliceAI-visual.</p>') {
+    //   $('#igv_com').replaceWith(spliceaivisual_response);
+    // }
+    // else if (spliceaivisual_response == '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>') {
+    //   $('#igv_com').replaceWith(spliceaivisual_response);
+    // }
+    // else if (spliceaivisual_response == '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>') {
+    //   $('#igv_com').replaceWith(spliceaivisual_response);
+    // }
     else {
       $('#igv_com').replaceWith('<span></span>');
       $('#igv_desc').show();
@@ -242,7 +269,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               }
               if ($('#morfee_table').length) {
                 // if we have morfeedb results we should have a bed describing ORFs
-                add_morfee_bed_track(static_path)          
+                add_morfee_bed_track(static_path);
               }
           });
       }
@@ -284,18 +311,6 @@ async function add_full_gene_track(static_path) {
 
 
 async function add_morfee_bed_track(static_path) {
-  // igv.browser.loadTrack({
-  //   name: 'upORF: MORFEEDB',
-  //   type: 'annotation',
-  //   format: 'bed',
-  //   indexed: false,
-  //   autoHeight: true,
-  //   url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.bed',
-  //   label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
-  //   removable: false,
-  //   order: 3,
-  //   color: "rgba(220, 20, 60, 0.25)"
-  // });
   igv.browser.loadTrack({
     name: 'upORF: MORFEEDB',
     type: 'annotation',
@@ -307,11 +322,39 @@ async function add_morfee_bed_track(static_path) {
     label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
     removable: false,
     order: 3,
-    colorBy: "orfSNVs_type",
-    colorTable: {
-       "uTIS": "rgba(153, 0, 0, 0.25)",
-       "uSTOP": "rgba(255, 128, 0, 0.25)",
-       "new_uSTOP": "rgba(220, 20, 60, 0.25)",
+    color: (feature) => {
+      if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
+        if (feature.getAttributeValue("Kozak_strength") === "weak") {
+          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+            return "rgba(220, 20, 60, 0.25)"
+          }
+          return "rgba(153, 0, 0, 0.5)"
+        }
+        if (feature.getAttributeValue("Kozak_strength") === "moderate") {
+          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+            return "rgba(220, 20, 60, 0.5)"
+          }
+          return "rgba(153, 0, 0, 0.75)"
+        }
+        if (feature.getAttributeValue("Kozak_strength") === "strong") {
+          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+            return "rgba(220, 20, 60, 0.75)"
+          }
+          return "rgba(153, 0, 0)"
+        }
+      }
+      if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
+        if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+          return "rgba(255, 128, 0, 0.25)"
+        }
+        return "rgba(255, 128, 0, 0.75)"
+      }
+      if (feature.getAttributeValue("orfSNVs_type") === "new_uSTOP") {
+        if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+          return "rgba(220, 20, 60, 0.25)"
+        }
+        return "rgba(220, 20, 60, 0.75)"
+      }
     }
   });
 }

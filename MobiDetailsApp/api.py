@@ -1403,12 +1403,36 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                         external_data['morfeedb'][i][morfee_type] = final_kozak_str
                                     else:
                                         external_data['morfeedb'][i][morfee_type] = morfee_entry[int(md_utilities.external_tools['MorfeeDB'][morfee_type])]
-                                orf_pos_dict = dict(zip(re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_position'])].replace(' ', '')), re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', ''))))
+                                orf_pos_dict = dict(
+                                    zip(
+                                        re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_position'])].replace(' ', '')),
+                                        re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', '')), 
+                                        # [
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_position'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_frame'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['type_of_generated_ORF'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_c_pos'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_c_pos'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_score'])].replace(' ', '')),
+                                        #     re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_strength'])].replace(' ', '')),
+                                        # ]
+                                    )
+                                )
                                 # if not os.path.exists(gtf_file_basename):
                                     # with open(
                                     #     gtf_file_basename,
                                     #     'w'
                                     # ) as gtf_file:
+                                # print(orf_pos_dict)
+                                j = 0
+                                # build tables for multiple results for the gtf file
+                                orfSNVs_frames = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_frame'])].replace(' ', ''))
+                                type_of_generated_ORFs = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['type_of_generated_ORF'])].replace(' ', ''))
+                                TIS_c_poss = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_c_pos'])].replace(' ', ''))
+                                STOP_c_poss = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_c_pos'])].replace(' ', ''))
+                                Kozak_scores = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_score'])].replace(' ', ''))
+                                Kozak_strengths = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_strength'])].replace(' ', ''))
+                                # print(TIS_c_poss)
                                 for start_pos in orf_pos_dict:
                                     start, end = start_pos, int(orf_pos_dict[start_pos])
                                     if external_data['gene']['strand'] == '-':
@@ -1426,15 +1450,16 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                         '.',
                                         'orfSNVs_type {0};orfSNVs_frame {1};type_of_generated_ORF {2};Ratio_length_pred_obs {3};TIS_c_pos {4};STOP_c_pos {5};Kozak_score {6};Kozak_strength {7}'.format(
                                             morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_type'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['orfSNVs_frame'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['type_of_generated_ORF'])],
+                                            orfSNVs_frames[j],
+                                            type_of_generated_ORFs[j],
                                             morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Ratio_length_pred_obs'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['TIS_c_pos'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['STOP_c_pos'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_score'])],
-                                            morfee_entry[int(md_utilities.external_tools['MorfeeDB']['Kozak_strength'])]
+                                            TIS_c_poss[j],
+                                            STOP_c_poss[j],
+                                            Kozak_scores[j] if j < len(Kozak_scores) else 'NA',
+                                            Kozak_strengths[j] if j < len(Kozak_scores) else 'NA'
                                         )
                                     ))
+                                    j += 1
                                 i += 1
                     # print(external_data['morfeedb'])
         for var in variant:
