@@ -168,7 +168,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
         igv.createBrowser(document.getElementById('igv_div'), options)
           .then(function (browser) {
               igv.browser = browser;
-              add_morfee_bed_track(static_path)
+              add_morfee_bed_track(static_path, 1)
           });
       }
     }
@@ -269,7 +269,7 @@ function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
               }
               if ($('#morfee_table').length) {
                 // if we have morfeedb results we should have a bed describing ORFs
-                add_morfee_bed_track(static_path);
+                add_morfee_bed_track(static_path, 3);
               }
           });
       }
@@ -310,7 +310,7 @@ async function add_full_gene_track(static_path) {
 }
 
 
-async function add_morfee_bed_track(static_path) {
+async function add_morfee_bed_track(static_path, position) {
   igv.browser.loadTrack({
     name: 'upORF: MORFEEDB',
     type: 'annotation',
@@ -321,7 +321,7 @@ async function add_morfee_bed_track(static_path) {
     url: static_path + 'resources/morfeedb/variants/' + $('#variant_id').val() + '.gtf',
     label: 'MORFEEDB predicted upORFs for ' + $('#c_name').text(),
     removable: false,
-    order: 3,
+    order: position,
     color: (feature) => {
       if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
         if (feature.getAttributeValue("Kozak_strength") === "weak") {
