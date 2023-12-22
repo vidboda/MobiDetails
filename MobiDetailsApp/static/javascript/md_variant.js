@@ -82,7 +82,8 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
 
     // RNA HGVS
-    if ($('#lovd_rna_hgvs').text()) {
+    if ($('#lovd_rna_hgvs').text() !== '') {
+      // alert($('#lovd_rna_hgvs').html());
       $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html());
       $('#lovd_rna_hgvs').empty();
       // $('#rna_hgvs_tr').show();
