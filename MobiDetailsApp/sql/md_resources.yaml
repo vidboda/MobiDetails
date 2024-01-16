@@ -174,8 +174,8 @@
   # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
   # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
   'rest_vv_hello_str': 'hello/?content-type=application/json'
-  'rest_vv_browser': 'http://194.167.35.197:8000/'
-  'rest_vv_api': 'http://194.167.35.198:8000/'
+  'rest_vv_browser': 'http://194.167.35.195:8000/'
+  'rest_vv_api': 'http://194.167.35.196:8000/'
   'rest_vv_genuine': 'https://rest.variantvalidator.org/'
   # uncomment below to use genuine VV web API VV2 - 2021
   # 'variant_validator_api': 'https://rest.variantvalidator.org/'
