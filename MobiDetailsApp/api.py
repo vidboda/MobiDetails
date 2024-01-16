@@ -1394,7 +1394,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                         kozak_str = ''
                                         kozaks = re.split(';', morfee_entry[int(md_utilities.external_tools['MorfeeDB'][morfee_type])].replace(' ', ''))
                                         for kozak in kozaks:
-                                            if kozak == 'NA':
+                                            if kozak == 'NA' or \
+                                                    kozak == 'na':
                                                 kozak_str = '{0}{1}; '.format(kozak_str, kozak)
                                             else:
                                                 kozak_str = '{0}{1}; '.format(kozak_str, format(float(kozak), '.2f'))
@@ -1903,9 +1904,15 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                     # get variant name for this transcript
                     # need another call to VV
                     if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
-                        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
+                        # special code for vv
+                        vv_special = ''
+                        vv_provider = md_utilities.urls['rest_vv_genuine']
+                        if re.match(rf'{vv_provider}', vv_base_url):
+                            vv_special = 'auth_'
+                        vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/{2}all?content-type=application/json".format(
                             vv_base_url,
-                            vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
+                            vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'],
+                            vv_special
                         )
                         try:
                             vv_full_data = json.loads(
@@ -2114,8 +2121,13 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                         if genome_version == 'hg19':
                             genome_vv = 'GRCh37'
                             # weird VV seems to work better with 'GRCh37' than with 'hg19'
-                        vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/all?content-type=application/json".format(
-                            vv_base_url, genome_vv, ncbi_chr, g_var
+                        # special code for vv
+                        vv_special = ''
+                        vv_provider = md_utilities.urls['rest_vv_genuine']
+                        if re.match(rf'{vv_provider}', vv_base_url):
+                            vv_special = 'auth_'
+                        vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/{4}all?content-type=application/json".format(
+                            vv_base_url, genome_vv, ncbi_chr, g_var, vv_special
                         )
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -2709,8 +2721,13 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                     genome_version == 'GRCh37':
                 genome_vv = 'GRCh37'
                 # weird VV seems to work better with 'GRCh37' than with 'hg19'
-            vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/all?content-type=application/json".format(
-                vv_base_url, genome_vv, chr, pos, ref, alt
+            # special code for vv
+            vv_special = ''
+            vv_provider = md_utilities.urls['rest_vv_genuine']
+            if re.match(rf'{vv_provider}', vv_base_url):
+                vv_special = 'auth_'
+            vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/{6}all?content-type=application/json".format(
+                vv_base_url, genome_vv, chr, pos, ref, alt, vv_special
             )
             try:
                 vv_data = json.loads(

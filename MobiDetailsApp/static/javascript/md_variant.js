@@ -339,39 +339,64 @@ async function add_morfee_bed_track(static_path, position) {
     removable: false,
     order: position,
     color: (feature) => {
+      var transparency = 0.25
+      if (feature.getAttributeValue("Kozak_strength") !== "NA" && feature.getAttributeValue("Kozak_strength") !== "na") {
+        if ((feature.getAttributeValue("Kozak_strength") === "moderate" || feature.getAttributeValue("Kozak_strength") === "strong") && (feature.getAttributeValue("Kozak_score") > 0.6)) {
+          transparency = 0.75
+        }
+      }
       if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
-        if (feature.getAttributeValue("Kozak_strength") === "weak") {
-          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-            return "rgba(220, 20, 60, 0.25)"
-          }
-          return "rgba(153, 0, 0, 0.5)"
+        type_pattern = /^overlapping/;
+        // alert(feature.getAttributeValue("type_of_generated_ORF"));
+        if (type_pattern.test(feature.getAttributeValue("type_of_generated_ORF"))) {
+          return "rgba(153, 0, 0, ".concat(transparency, ")")
         }
-        if (feature.getAttributeValue("Kozak_strength") === "moderate") {
-          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-            return "rgba(220, 20, 60, 0.5)"
-          }
-          return "rgba(153, 0, 0, 0.75)"
+        type_pattern = /^not_overlapping/;
+        if (type_pattern.test(feature.getAttributeValue("type_of_generated_ORF"))) {
+          return "rgba(39, 78, 245, ".concat(transparency, ")")
         }
-        if (feature.getAttributeValue("Kozak_strength") === "strong") {
-          if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-            return "rgba(220, 20, 60, 0.75)"
-          }
-          return "rgba(153, 0, 0)"
-        }
+        return "rgba(38, 309, 56, ".concat(transparency, ")")
       }
       if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
-        if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-          return "rgba(255, 128, 0, 0.25)"
-        }
-        return "rgba(255, 128, 0, 0.75)"
+        return "rgba(100, 100, 100, ".concat(transparency, ")")
       }
       if (feature.getAttributeValue("orfSNVs_type") === "new_uSTOP") {
-        if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-          return "rgba(220, 20, 60, 0.25)"
-        }
-        return "rgba(220, 20, 60, 0.75)"
+        return "rgba(100, 100, 100, ".concat(transparency, ")")
       }
     }
+    //   if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
+    //     if (feature.getAttributeValue("Kozak_strength") === "weak") {
+    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+    //         return "rgba(220, 20, 60, 0.25)"
+    //       }
+    //       return "rgba(153, 0, 0, 0.5)"
+    //     }
+    //     if (feature.getAttributeValue("Kozak_strength") === "moderate") {
+    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+    //         return "rgba(220, 20, 60, 0.5)"
+    //       }
+    //       return "rgba(153, 0, 0, 0.75)"
+    //     }
+    //     if (feature.getAttributeValue("Kozak_strength") === "strong") {
+    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+    //         return "rgba(220, 20, 60, 0.75)"
+    //       }
+    //       return "rgba(153, 0, 0)"
+    //     }
+    //   }
+    //   if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
+    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+    //       return "rgba(255, 128, 0, 0.25)"
+    //     }
+    //     return "rgba(255, 128, 0, 0.75)"
+    //   }
+    //   if (feature.getAttributeValue("orfSNVs_type") === "new_uSTOP") {
+    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
+    //       return "rgba(220, 20, 60, 0.25)"
+    //     }
+    //     return "rgba(220, 20, 60, 0.75)"
+    //   }
+    // }
   });
 }
 
