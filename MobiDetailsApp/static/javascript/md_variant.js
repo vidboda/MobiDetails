@@ -355,7 +355,7 @@ async function add_morfee_bed_track(static_path, position) {
         if (type_pattern.test(feature.getAttributeValue("type_of_generated_ORF"))) {
           return "rgba(39, 78, 245, ".concat(transparency, ")")
         }
-        return "rgba(38, 309, 56, ".concat(transparency, ")")
+        return "rgba(60, 179, 113, ".concat(transparency, ")")
       }
       if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
         return "rgba(100, 100, 100, ".concat(transparency, ")")
