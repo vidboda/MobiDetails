@@ -174,9 +174,29 @@
   # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
   # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
   'rest_vv_hello_str': 'hello/?content-type=application/json'
-  'rest_vv_browser': 'http://194.167.35.195:8000/'
-  'rest_vv_api': 'http://194.167.35.196:8000/'
-  'rest_vv_genuine': 'https://rest.variantvalidator.org/'
+  # 'rest_vv_browser': 'http://194.167.35.195:8000/'
+  # 'rest_vv_api': 'url': 'http://194.167.35.196:8000/'
+  # 'rest_vv_genuine': 'url': 'https://rest.variantvalidator.org/'
+  # 'rest_vv_browser': 
+  #   'url': 'http://194.167.35.195:8000/'
+  #   'order_browser': '1'
+  #   'order_api': '2'
+  # 'rest_vv_api': 
+  #   'url': 'http://194.167.35.196:8000/'
+  #   'order_browser': '2'
+  #   'order_api': '1'
+  # 'rest_vv_genuine':
+  #   'url': 'https://rest.variantvalidator.org/'
+  #   'order_browser': '3'
+  #   'order_api': '3'
+  'rest_vv_browser': 
+    '1': 'https://rest.variantvalidator.org/'
+    '2': 'http://194.167.35.195:8000/'
+    '3': 'http://194.167.35.196:8000/'
+  'rest_vv_api': 
+    '1': 'https://rest.variantvalidator.org/'
+    '2': 'http://194.167.35.196:8000/'
+    '3': 'http://194.167.35.195:8000/'
   # uncomment below to use genuine VV web API VV2 - 2021
   # 'variant_validator_api': 'https://rest.variantvalidator.org/'
   # # VV on IURC Ovirt restvv

@@ -63,17 +63,32 @@ def check_api_key(api_key=None):
 def check_vv_instance():
     vv_url = md_utilities.get_vv_api_url()
     if vv_url:
-        if vv_url == md_utilities.urls['rest_vv_browser']:
+        # if vv_url == md_utilities.urls['rest_vv_browser']:
+        #     return jsonify(
+        #         variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['rest_vv_api']:
+        #     return jsonify(
+        #         variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['rest_vv_genuine']:
+        #     return jsonify(
+        #         variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
+        #         URL=vv_url
+        #     )
+        if vv_url == md_utilities.urls['rest_vv_browser']['3']:
             return jsonify(
                 variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
                 URL=vv_url
             )
-        elif vv_url == md_utilities.urls['rest_vv_api']:
+        elif vv_url == md_utilities.urls['rest_vv_browser']['2']:
             return jsonify(
                 variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
                 URL=vv_url
             )
-        elif vv_url == md_utilities.urls['rest_vv_genuine']:
+        elif vv_url == md_utilities.urls['rest_vv_browser']['1']:
             return jsonify(
                 variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
                 URL=vv_url
@@ -1785,7 +1800,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         return redirect(url_for('md.index'), code=302)
 
                 vv_base_url = md_utilities.get_vv_api_url(caller)
-                # print(vv_base_url)
+                print(vv_base_url)
                 if not vv_base_url:
                     close_db()
                     if caller == 'cli':
@@ -1906,7 +1921,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                     if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
                         # special code for vv
                         vv_special = ''
-                        vv_provider = md_utilities.urls['rest_vv_genuine']
+                        # vv_provider = md_utilities.urls['rest_vv_genuine']
+                        vv_provider = md_utilities.urls['rest_vv_browser']['1']
                         if re.match(rf'{vv_provider}', vv_base_url):
                             vv_special = 'auth_'
                         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/{2}all?content-type=application/json".format(
@@ -2123,7 +2139,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                             # weird VV seems to work better with 'GRCh37' than with 'hg19'
                         # special code for vv
                         vv_special = ''
-                        vv_provider = md_utilities.urls['rest_vv_genuine']
+                        # vv_provider = md_utilities.urls['rest_vv_genuine']
+                        vv_provider = md_utilities.urls['rest_vv_browser']['1']
                         if re.match(rf'{vv_provider}', vv_base_url):
                             vv_special = 'auth_'
                         vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/{4}all?content-type=application/json".format(

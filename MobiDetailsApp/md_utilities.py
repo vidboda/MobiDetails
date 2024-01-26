@@ -1049,6 +1049,67 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     return None
 
 
+# def get_vv_api_url(caller='browser'):
+#      # variant validator rest selection
+#     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
+#     # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
+#     if caller == 'browser':
+#     # if request.headers.get('User-Agent') in user_agent_list:
+#         checked_url = test_vv_api_url(
+#             '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
+#             urls['rest_vv_browser']
+#         )
+#         if checked_url:
+#             return checked_url
+#         else:
+#             checked_url = test_vv_api_url(
+#                 '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
+#                 urls['rest_vv_api']
+#             )
+#         if checked_url:
+#             return checked_url
+#         else:
+#             checked_url = test_vv_api_url(
+#                 '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
+#                 urls['rest_vv_genuine']
+#             )
+#             return checked_url        
+#     else:
+#         # the other way around
+#         checked_url = test_vv_api_url(
+#                 '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
+#                 urls['rest_vv_api']
+#         )
+#         if checked_url:
+#             return checked_url
+#         else:
+#             checked_url = test_vv_api_url(
+#                 '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
+#                 urls['rest_vv_browser']
+#             )
+#             if checked_url:
+#                 return checked_url
+#             else:
+#                 checked_url = test_vv_api_url(
+#                     '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
+#                     urls['rest_vv_genuine']
+#                 )
+#             if checked_url:
+#                 return checked_url
+#             else:
+#                 send_error_email(
+#                 prepare_email_html(
+#                     'MobiDetails VariantValidator error',
+#                     '<p>VariantValidator looks down!!<br /> - from {0}</p>'
+#                     .format(
+#                         os.path.basename(__file__)
+#                     )
+#                 ),
+#                 '[MobiDetails - VariantValidator Error]'
+#             )
+#     return None
+
+
 def get_vv_api_url(caller='browser'):
      # variant validator rest selection
     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
@@ -1056,43 +1117,43 @@ def get_vv_api_url(caller='browser'):
     if caller == 'browser':
     # if request.headers.get('User-Agent') in user_agent_list:
         checked_url = test_vv_api_url(
-            '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
-            urls['rest_vv_browser']
+            '{0}{1}'.format(urls['rest_vv_browser']['1'], urls['rest_vv_hello_str']),
+            urls['rest_vv_browser']['1']
         )
         if checked_url:
             return checked_url
         else:
             checked_url = test_vv_api_url(
-                '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
-                urls['rest_vv_api']
+                '{0}{1}'.format(urls['rest_vv_browser']['2'], urls['rest_vv_hello_str']),
+                urls['rest_vv_browser']['2']
             )
         if checked_url:
             return checked_url
         else:
             checked_url = test_vv_api_url(
-                '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
-                urls['rest_vv_genuine']
+                '{0}{1}'.format(urls['rest_vv_browser']['3'], urls['rest_vv_hello_str']),
+                urls['rest_vv_browser']['3']
             )
             return checked_url        
     else:
         # the other way around
         checked_url = test_vv_api_url(
-                '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
-                urls['rest_vv_api']
+                '{0}{1}'.format(urls['rest_vv_api']['1'], urls['rest_vv_hello_str']),
+                urls['rest_vv_api']['1']
         )
         if checked_url:
             return checked_url
         else:
             checked_url = test_vv_api_url(
-                '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
-                urls['rest_vv_browser']
+                '{0}{1}'.format(urls['rest_vv_api']['2'], urls['rest_vv_hello_str']),
+                urls['rest_vv_api']['2']
             )
             if checked_url:
                 return checked_url
             else:
                 checked_url = test_vv_api_url(
-                    '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
-                    urls['rest_vv_genuine']
+                    '{0}{1}'.format(urls['rest_vv_api']['3'], urls['rest_vv_hello_str']),
+                    urls['rest_vv_api']['3']
                 )
             if checked_url:
                 return checked_url
