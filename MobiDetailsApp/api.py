@@ -2740,7 +2740,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                 # weird VV seems to work better with 'GRCh37' than with 'hg19'
             # special code for vv
             vv_special = ''
-            vv_provider = md_utilities.urls['rest_vv_genuine']
+            # vv_provider = md_utilities.urls['rest_vv_genuine']
+            vv_provider = md_utilities.urls['rest_vv_browser']['1']
             if re.match(rf'{vv_provider}', vv_base_url):
                 vv_special = 'auth_'
             vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/{6}all?content-type=application/json".format(

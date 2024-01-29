@@ -1717,7 +1717,7 @@ def create():
                 vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}/all?content-type=application/json".format(
                     vv_base_url, acc_no, new_variant
                 )
-                print(vv_url)
+                # print(vv_url)
             vv_key_var = "{0}:{1}".format(acc_no, new_variant)
             try:
                 vv_data = json.loads(
