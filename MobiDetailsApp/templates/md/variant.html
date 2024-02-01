@@ -469,8 +469,8 @@
 						<td class="w3-left-align"><em class="w3-small">Identifier for NCBI dbSNP</em></td>
 						{% endif %}
 					</tr>
-					<tr><!--clinvar-->
-						<td class="w3-left-align">Clinvar:</td>
+					<tr><!--clinvar germline-->
+						<td class="w3-left-align">Clinvar Germline:</td>
 						<td class="w3-left-align">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
 							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarClinRevStat }}</span>
@@ -516,6 +516,95 @@
 							Clinvar</a> interpretation</em>
 						</td>
 					</tr>
+					{% if external_data.frequenciesDatabases.clinvarOnc  is not none %}
+					<tr><!--clinvar oncogenicity-->
+						<td class="w3-left-align">Clinvar Oncogenicity:</td>
+						<td class="w3-left-align">
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarOnc }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarOncRevStat }}</span>
+								{% if external_data.frequenciesDatabases.clinvarOncConf  is not none %}
+									({{ external_data.frequenciesDatabases.clinvarOncConf }})
+								{% endif %}
+								{% if external_data.frequenciesDatabases.clinvarOncRevStat ==  '' %}
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarOncRevStat ==  '*' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarOncRevStat ==  '**' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarOncRevStat ==  '***' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarOncRevStat ==  '***' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								{% endif %}
+						</td>
+						<td class="w3-left-align"><em class="w3-small">
+							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+							{% else %}
+								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
+							{%endif %}
+							Clinvar</a> interpretation</em>
+						</td>
+					</tr>
+					{% endif %}
+					{% if external_data.frequenciesDatabases.clinvarOnc  is not none %}
+					<tr><!--clinvar somatic-->
+						<td class="w3-left-align">Clinvar Somatic:</td>
+						<td class="w3-left-align">
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarSci }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarSciRevStat }}</span>
+								{% if external_data.frequenciesDatabases.clinvarSciRevStat ==  '' %}
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarSciRevStat ==  '*' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarSciRevStat ==  '**' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarSciRevStat ==  '***' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								{% elif external_data.frequenciesDatabases.clinvarSciRevStat ==  '***' %}
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								<i class="fa fa-star star_color" aria-hidden="true"></i>
+								{% endif %}
+						</td>
+						<td class="w3-left-align"><em class="w3-small">
+							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+							{% else %}
+								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
+							{%endif %}
+							Clinvar</a> interpretation</em>
+						</td>
+					</tr>
+					{% endif %}
+					{% if external_data.frequenciesDatabases.clinvarSci  is not none %}
+					{% endif %}
 					<tr><!-- ClinGen Evidence Repository -->
 						<td class="w3-left-align">ClinGen EvRepo:</td>
 						<td class="w3-left-align">

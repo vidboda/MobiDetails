@@ -288,6 +288,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'clinvarClinsigConf': None,
             'clinvarClinsig': None,
             'clinvarClinRevStat': None,
+            'clinvarOncConf': None,
+            'clinvarOnc': None,
+            'clinvarOncRevStat': None,
+            'clinvarSci': None,
+            'clinvarSciRevStat': None,
         },
         'overallPredictions': {
             'caddRaw': None,
@@ -874,6 +879,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     external_data['frequenciesDatabases']['clinvarClinsig'] = "{0} {1}".format(record, md_utilities.external_tools['ClinVar']['version'])
                 else:
                     external_data['frequenciesDatabases']['clinvarId'] = record[2]
+                    # https://github.com/ncbi/clinvar/tree/master/sample_tab_delimited
+                    # https://www.ncbi.nlm.nih.gov/clinvar/docs/review_status/
+                    ##INFO=<ID=ONC,Number=.,Type=String,Description="Aggregate oncogenicity classification for this single variant; multiple values are separated by a vertical bar">
+                    ##INFO=<ID=ONCREVSTAT,Number=.,Type=String,Description="ClinVar review status of oncogenicity classification for the Variation ID">
+                    ##INFO=<ID=ONCCONF,Number=.,Type=String,Description="Conflicting oncogenicity classification for this single variant; multiple values are separated by a vertical bar">
+                    ##INFO=<ID=SCIREVSTAT,Number=.,Type=String,Description="ClinVar review status of somatic clinical impact for the Variation ID">
+                    ##INFO=<ID=SCI,Number=.,Type=String,Description="Aggregate somatic clinical impact for this single variant; multiple values are separated by a vertical bar">
+                    # germline
                     match_object = re.search(r'CLNSIG=(.+);CLNVC=', record[7])
                     if match_object:
                         match2_object = re.search(r'^(.+);CLNSIGCONF=(.+)$', match_object.group(1))
@@ -883,13 +896,46 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['frequenciesDatabases']['clinvarClinsigConf'] = external_data['frequenciesDatabases']['clinvarClinsigConf'].replace('%3B', '-')
                         else:
                             external_data['frequenciesDatabases']['clinvarClinsig'] = match_object.group(1)
-                        # define stars
+                        if external_data['frequenciesDatabases']['clinvarClinsig'] == 'no_classification_for_the_single_variant':
+                            external_data['frequenciesDatabases']['clinvarClinsig'] = 'No classification for the single variant'
+                    # elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
+                    #     external_data['frequenciesDatabases']['clinvarClinsig'] = 'No interpretation for the single variant'
+                    # became useless as we cannot find anymore fields w/ CLNREVSTAT=no_clas... and not CLNSIG=no_clas...
+                    # elif re.search(r'CLNREVSTAT=no_classification_for_the_single_variant', record[7]):
+                    #     external_data['frequenciesDatabases']['clinvarClinsig'] = 'No classification for the single variant'
+                    # oncogenicity
+                    match_object = re.search(r'ONC=(.+);ONCREVSTAT=(.+);RS=', record[7])
+                    if match_object:
+                        # 20240201 assertion that as for germline ONCONF will only be presnet in case of conflicting classification, following directly ONCREVSTAT, from VCF decsription order - TO BE CHECKED
+                        external_data['frequenciesDatabases']['clinvarOnc'] = match_object.group(1)
+                        if external_data['frequenciesDatabases']['clinvarOnc'] == 'no_classification_for_the_single_variant':
+                            external_data['frequenciesDatabases']['clinvarOnc'] = 'No classification for the single variant'
+                        match2_object = re.search(r'^(.+);ONCCONF=(.+)$', match_object.group(2))
+                        if match2_object:
+                            external_data['frequenciesDatabases']['clinvarOncRevStat'] = match2_object.group(1)
+                            external_data['frequenciesDatabases']['clinvarOncConf'] = match2_object.group(2)
+                            external_data['frequenciesDatabases']['clinvarOncConf'] = external_data['frequenciesDatabases']['clinvarOncConf'].replace('%3B', '-')
+                        else:
+                            external_data['frequenciesDatabases']['clinvarOncRevStat'] = match_object.group(2)
+                    # somatic
+                    match_object = re.search(r'SCI=(.+);SCIREVSTAT=(.+);CLNDISDBINCL=', record[7])
+                    if match_object:
+                        # 20240201 order of regex TO BE CHECKED
+                        external_data['frequenciesDatabases']['clinvarSci'] = match_object.group(1)
+                        if external_data['frequenciesDatabases']['clinvarSci'] == 'no_classification_for_the_single_variant':
+                            external_data['frequenciesDatabases']['clinvarSci'] = 'No classification for the single variant'
+                        external_data['frequenciesDatabases']['clinvarSciRevStat'] = match_object.group(2)
+                    # useless ??
+                    # elif re.search(r'SCIREVSTAT=no_classification_for_the_single_variant', record[7]):
+                    #     external_data['frequenciesDatabases']['clinvarSci'] = 'No classification for the single variant'
+                    # define stars
                         for revstat in md_utilities.clinvar_review_status:
                             if re.search(rf'CLNREVSTAT={revstat};', record[7]):
                                 external_data['frequenciesDatabases']['clinvarClinRevStat'] = md_utilities.clinvar_review_status[revstat]
-                                break
-                    elif re.search(r'CLNREVSTAT=no_interpretation_for_the_single_variant', record[7]):
-                        external_data['frequenciesDatabases']['clinvarClinsig'] = 'No interpretation for the single variant'
+                            elif re.search(rf'ONCREVSTAT={revstat};', record[7]):
+                                external_data['frequenciesDatabases']['clinvarOncRevStat'] = md_utilities.clinvar_review_status[revstat]
+                            elif re.search(rf'SCIREVSTAT={revstat};', record[7]):
+                                external_data['frequenciesDatabases']['clinvarSciRevStat'] = md_utilities.clinvar_review_status[revstat]
                     # MPA score
                     if external_data['frequenciesDatabases']['clinvarClinsig'] and \
                             re.search('pathogenic', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE) and \
