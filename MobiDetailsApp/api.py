@@ -925,17 +925,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         if external_data['frequenciesDatabases']['clinvarSci'] == 'no_classification_for_the_single_variant':
                             external_data['frequenciesDatabases']['clinvarSci'] = 'No classification for the single variant'
                         external_data['frequenciesDatabases']['clinvarSciRevStat'] = match_object.group(2)
-                    # useless ??
-                    # elif re.search(r'SCIREVSTAT=no_classification_for_the_single_variant', record[7]):
-                    #     external_data['frequenciesDatabases']['clinvarSci'] = 'No classification for the single variant'
                     # define stars
-                        for revstat in md_utilities.clinvar_review_status:
-                            if re.search(rf'CLNREVSTAT={revstat};', record[7]):
-                                external_data['frequenciesDatabases']['clinvarClinRevStat'] = md_utilities.clinvar_review_status[revstat]
-                            elif re.search(rf'ONCREVSTAT={revstat};', record[7]):
-                                external_data['frequenciesDatabases']['clinvarOncRevStat'] = md_utilities.clinvar_review_status[revstat]
-                            elif re.search(rf'SCIREVSTAT={revstat};', record[7]):
-                                external_data['frequenciesDatabases']['clinvarSciRevStat'] = md_utilities.clinvar_review_status[revstat]
+                    for revstat in md_utilities.clinvar_review_status:
+                        if re.search(rf'CLNREVSTAT={revstat};', record[7]):
+                            external_data['frequenciesDatabases']['clinvarClinRevStat'] = md_utilities.clinvar_review_status[revstat]
+                        elif re.search(rf'ONCREVSTAT={revstat};', record[7]):
+                            external_data['frequenciesDatabases']['clinvarOncRevStat'] = md_utilities.clinvar_review_status[revstat]
+                        elif re.search(rf'SCIREVSTAT={revstat};', record[7]):
+                            external_data['frequenciesDatabases']['clinvarSciRevStat'] = md_utilities.clinvar_review_status[revstat]
                     # MPA score
                     if external_data['frequenciesDatabases']['clinvarClinsig'] and \
                             re.search('pathogenic', external_data['frequenciesDatabases']['clinvarClinsig'], re.IGNORECASE) and \
