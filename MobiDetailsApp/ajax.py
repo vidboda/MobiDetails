@@ -1729,11 +1729,24 @@ def create():
                 )
             except Exception:
                 close_db()
+                md_utilities.send_error_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails error',
+                        """
+                        <p>VV timeout for variant {0} with args: {1} {2}.
+                        """.format(
+                            vv_key_var,
+                            vv_url,
+                            header
+                        )
+                    ),
+                    '[MobiDetails - MD variant creation Error: VV timeout]'
+                )
                 return md_utilities.danger_panel(
                     new_variant,
                     """
                     Variant Validator did not return any value for the variant.
-                    Either it is down or your nomenclature is very odd!
+                    It is likey due to a timeout. You might want to try again.
                     """
                 )
             vv_error = md_utilities.vv_internal_server_error('browser', vv_data, vv_key_var)
@@ -1829,11 +1842,24 @@ def create():
                     )
                 except Exception:
                     close_db()
+                    md_utilities.send_error_email(
+                        md_utilities.prepare_email_html(
+                            'MobiDetails error',
+                            """
+                            <p>VV timeout for variant {0} with args: {1} {2}.
+                            """.format(
+                                vv_key_var,
+                                vv_url,
+                                header
+                            )
+                        ),
+                        '[MobiDetails - MD variant creation Error: VV timeout]'
+                    )
                     return md_utilities.danger_panel(
                         vv_key_var,
                         """
                         Variant Validator did not return any value for the variant.
-                        Either it is down or your nomenclature is very odd!
+                        It is likey due to a timeout. You might want to try again.
                         """
                     )
                 vv_key_var_can = None

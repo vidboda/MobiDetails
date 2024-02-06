@@ -192,12 +192,12 @@
   #   'order_api': '3'
   'rest_vv_browser': 
     '1': 'http://194.167.35.195:8000/'
-    '2': 'https://rest.variantvalidator.org/'
-    '3': 'http://194.167.35.196:8000/'
+    '2': 'http://194.167.35.196:8000/'
+    '3': 'https://rest.variantvalidator.org/'
   'rest_vv_api': 
     '1': 'http://194.167.35.196:8000/'
-    '2': 'https://rest.variantvalidator.org/'
-    '3': 'http://194.167.35.195:8000/'
+    '2': 'http://194.167.35.195:8000/'
+    '3': 'https://rest.variantvalidator.org/'
   # uncomment below to use genuine VV web API VV2 - 2021
   # 'variant_validator_api': 'https://rest.variantvalidator.org/'
   # # VV on IURC Ovirt restvv

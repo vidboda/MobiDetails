@@ -1881,10 +1881,23 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                             )
                         except Exception:
                             flash(
-                                """There has been an issue with the annotation of the variant via VariantValidator.
+                                """There has been an issue with the annotation of the variant via VariantValidator (likely a timeout).
                                 Sorry for the inconvenience. You may want to try again in a few minutes.
                                 """,
                                 'w3-pale-red'
+                            )
+                            md_utilities.send_error_email(
+                                md_utilities.prepare_email_html(
+                                    'MobiDetails error',
+                                    """
+                                    <p>VV timeout for variant {0} with args: {1} {2}.
+                                    """.format(
+                                        vv_key_var,
+                                        vv_url,
+                                        header
+                                    )
+                                ),
+                                '[MobiDetails - MD variant creation Error: VV timeout]'
                             )
                         return redirect(url_for('md.index'), code=302)
                 vv_error = md_utilities.vv_internal_server_error(caller, vv_data, vv_key_var)
