@@ -1107,6 +1107,7 @@ def lovd():
                                         'RNA' in var['variants_on_transcripts'][transcript] and \
                                         var['variants_on_transcripts'][transcript]['RNA'] != rna_hgvs:
                                     new_rna_hgvs = re.escape(var['variants_on_transcripts'][transcript]['RNA'])
+                                    # print(new_rna_hgvs)
                                     if 'id' in var and \
                                             not re.search(f'{new_rna_hgvs}', rna_hgvs):
                                         rna_hgvs = '{0} <br />{1}'.format(
@@ -1116,9 +1117,10 @@ def lovd():
                                             ),
                                             rna_hgvs
                                         )
+                                        # print(rna_hgvs)
                                     elif not re.search(new_rna_hgvs, rna_hgvs):
                                         rna_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['RNA'], rna_hgvs)
-                # print(lovd_effect_count)
+                # print(rna_hgvs)
             else:
                 return md_utilities.lovd_error_html(
                     "No match in LOVD public instances"
@@ -1165,13 +1167,13 @@ def lovd():
                                     lovd_effect_count[feat][effect]
                                 )
                             )
-                html += """
-                ,<tr>
+                html = """
+                {0}$<tr>
                 <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
                     LOVD Effect Reported:
                 </td>
                 <td class="w3-center" style="vertical-align:middle;">
-                    <div class="w3-row w3-center">{0}</div><br />
+                    <div class="w3-row w3-center">{1}</div><br />
                 </td>
                 <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
                     <em class="w3-small">Effects reported by LOVD submitters</em>
@@ -1181,12 +1183,13 @@ def lovd():
                     LOVD Effect Concluded:
                 </td>
                 <td class="w3-center" style="vertical-align:middle;">
-                    <div class="w3-row w3-center">{1}</div><br />
+                    <div class="w3-row w3-center">{2}</div><br />
                 </td>
                 <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">
                     <em class="w3-small">Effects concluded by LOVD curators</em></td>
                 </tr>
-                """.format(''.join(reported_effect_list), ''.join(concluded_effect_list))
+                """.format(html, ''.join(reported_effect_list), ''.join(concluded_effect_list))
+                # print(html)
             return html
         else:
             md_utilities.send_error_email(

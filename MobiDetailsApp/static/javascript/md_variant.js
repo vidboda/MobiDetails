@@ -71,7 +71,7 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     // selector for datatable
     var population_table = $('#population_table').DataTable();
     // prepare js table from flask html tr
-    var new_rows = html.split(",");
+    var new_rows = html.split("$");
     // remove old tr and destroy datatable
     population_table
       .row($("#lovd_feature").parents('tr'))
