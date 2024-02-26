@@ -2798,14 +2798,14 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
             vv_special = ''
             # vv_provider = md_utilities.urls['rest_vv_genuine']
             vv_provider = md_utilities.urls['rest_vv_browser']['3']
-            print(vv_provider)
-            print(vv_base_url)
+            # print(vv_provider)
+            # print(vv_base_url)
             if re.match(rf'{vv_provider}', vv_base_url):
                 vv_special = 'auth_'
             vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/{6}all?content-type=application/json".format(
                 vv_base_url, genome_vv, chr, pos, ref, alt, vv_special
             )
-            print(vv_url)
+            # print(vv_url)
             try:
                 vv_data = json.loads(
                     http.request(

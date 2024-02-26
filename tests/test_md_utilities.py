@@ -912,14 +912,14 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
-    # ('browser', 'http://194.167.35.195:8000/'),
-    # ('cli', 'http://194.167.35.196:8000/'),
-    # ('nothing', 'http://194.167.35.196:8000/'),
-    # (None, 'http://194.167.35.195:8000/'),
-     ('browser', 'https://rest.variantvalidator.org/'),
-    ('cli', 'https://rest.variantvalidator.org/'),
-    ('nothing', 'https://rest.variantvalidator.org/'),
-    (None, 'https://rest.variantvalidator.org/'),
+    ('browser', 'http://194.167.35.195:8000/'),
+    ('cli', 'http://194.167.35.196:8000/'),
+    ('nothing', 'http://194.167.35.196:8000/'),
+    (None, 'http://194.167.35.195:8000/'),
+    #  ('browser', 'https://rest.variantvalidator.org/'),
+    # ('cli', 'https://rest.variantvalidator.org/'),
+    # ('nothing', 'https://rest.variantvalidator.org/'),
+    # (None, 'https://rest.variantvalidator.org/'),
 ))
 def test_get_vv_api_url(caller, vv_api_url):
     # with app.test_request_context(headers={'user-agent': ua}):
