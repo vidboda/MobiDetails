@@ -88,6 +88,7 @@
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
   'absplice': 'https://zenodo.org/record/7871809'
+  'allofus': 'https://databrowser.researchallofus.org/variants'
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'alphamissense': 'https://github.com/deepmind/alphamissense'
   'cadd': 'https://cadd.gs.washington.edu/'
