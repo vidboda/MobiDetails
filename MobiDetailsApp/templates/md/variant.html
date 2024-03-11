@@ -68,7 +68,7 @@
 			{{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r4"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "gnomAD v4")}}
 			{{ link("%s/region/chr%s:%s-%s"|format(urls.decaf, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.pos), "deCAF")}}
 			{{ link("%s/variant.html?chrom=%s&pos=%s&ref=%s&alt=%s"|format(urls.topmed, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "TOPMed")}}
-			{{ link("%s/%s-%s-%s-%s"|format(urls.allofus, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "AllofUS")}}
+			{{ link("%s/%s-%s-%s-%s"|format(urls.allofus, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "AllofUs")}}
 			{% if external_data.positions.DNAType == 'substitution' %}
 			{{ link("%ssnv/GRCh38-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CADD")}}
 			{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
