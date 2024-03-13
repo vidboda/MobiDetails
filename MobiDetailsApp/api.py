@@ -80,31 +80,32 @@ def check_vv_instance():
         #     )
 
 
-        # if vv_url == md_utilities.urls['rest_vv_browser']['1']:
-        #     return jsonify(
-        #         variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
-        #         URL=vv_url
-        #     )
-        # elif vv_url == md_utilities.urls['rest_vv_browser']['2']:
-        #     return jsonify(
-        #         variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
-        #         URL=vv_url
-        #     )
-        # elif vv_url == md_utilities.urls['rest_vv_browser']['3']:
-        #     return jsonify(
-        #         variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
-        #         URL=vv_url
-        #     )
-        if vv_url == md_utilities.urls['rest_vv']['1']:
+        if vv_url == md_utilities.urls['rest_vv_browser']['1']:
             return jsonify(
                 variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
                 URL=vv_url
             )
-        elif vv_url == md_utilities.urls['rest_vv']['2']:
+        elif vv_url == md_utilities.urls['rest_vv_browser']['2']:
+            return jsonify(
+                variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
+                URL=vv_url
+            )
+        elif vv_url == md_utilities.urls['rest_vv_browser']['3']:
             return jsonify(
                 variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
                 URL=vv_url
             )
+        # restvv 2023 - comment all above
+        # if vv_url == md_utilities.urls['rest_vv']['1']:
+        #     return jsonify(
+        #         variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['rest_vv']['2']:
+        #     return jsonify(
+        #         variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
+        #         URL=vv_url
+        #     )
     return jsonify(
             variant_validator_instance='No VV running',
             URL='None'
