@@ -153,6 +153,7 @@
   'regulomedb': 'https://regulomedb.org'
   'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
   'revel': 'https://sites.google.com/site/revelgenomics/'
+  'rgc': 'https://rgc-research.regeneron.com/me/variant'
   'spice': 'https://sourceforge.net/p/spicev2-1/wiki/SPICE%20wiki/'
   'spip': 'https://github.com/raphaelleman/SPiP'
   'spliceai': 'https://github.com/Illumina/SpliceAI'
@@ -199,6 +200,9 @@
     '1': 'http://194.167.35.196:8000/'
     '2': 'http://194.167.35.195:8000/'
     '3': 'https://rest.variantvalidator.org/'
+  # 'rest_vv': 
+  #   '1': 'http://194.167.35.197/'
+  #   '2': 'https://rest.variantvalidator.org/'
   # uncomment below to use genuine VV web API VV2 - 2021
   # 'variant_validator_api': 'https://rest.variantvalidator.org/'
   # # VV on IURC Ovirt restvv
