@@ -1171,6 +1171,39 @@ def get_vv_api_url(caller='browser'):
     return None
 
 
+
+# def get_vv_api_url(caller='browser'):
+#     # variant validator rest selection
+#     # v2023 comment all above
+
+#     checked_url = test_vv_api_url(
+#         '{0}{1}'.format(urls['rest_vv']['1'], urls['rest_vv_hello_str']),
+#         urls['rest_vv']['1']
+#     )
+#     if checked_url:
+#         return checked_url
+#     else:
+#         checked_url = test_vv_api_url(
+#             '{0}{1}'.format(urls['rest_vv']['2'], urls['rest_vv_hello_str']),
+#             urls['rest_vv']['2']
+#         )
+#     if checked_url:
+#         return checked_url
+#     else:
+#         send_error_email(
+#             prepare_email_html(
+#                 'MobiDetails VariantValidator error',
+#                 '<p>VariantValidator looks down!!<br /> - from {0}</p>'
+#                 .format(
+#                     os.path.basename(__file__)
+#                 )
+#             ),
+#             '[MobiDetails - VariantValidator Error]'
+#         )
+#     return None
+
+
+
 def vv_internal_server_error(caller, vv_data, vv_key_var):
     if 'message' in vv_data and vv_data['message'] == 'Internal Server Error':
         if caller == 'browser':

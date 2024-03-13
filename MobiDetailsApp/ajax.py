@@ -1831,10 +1831,21 @@ def create():
             # need another call to VV
             if vv_key_var in vv_data and \
                     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/all?content-type=application/json".format(
+                # special code for vv
+                vv_special = ''
+                vv_provider = md_utilities.urls['rest_vv_browser']['3']
+                if re.match(rf'{vv_provider}', vv_base_url):
+                    vv_special = 'auth_'
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/{2}all?content-type=application/json".format(
                     vv_base_url,
-                    vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
+                    vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'],
+                    vv_special
                 )
+                # restvv 2023 - comment all above
+                # vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/auth_all?content-type=application/json".format(
+                #     vv_base_url,
+                #     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']
+                # )
                 try:
                     vv_full_data = json.loads(
                         http.request(

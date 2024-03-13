@@ -78,17 +78,29 @@ def check_vv_instance():
         #         variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
         #         URL=vv_url
         #     )
-        if vv_url == md_utilities.urls['rest_vv_browser']['1']:
+
+
+        # if vv_url == md_utilities.urls['rest_vv_browser']['1']:
+        #     return jsonify(
+        #         variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['rest_vv_browser']['2']:
+        #     return jsonify(
+        #         variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
+        #         URL=vv_url
+        #     )
+        # elif vv_url == md_utilities.urls['rest_vv_browser']['3']:
+        #     return jsonify(
+        #         variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
+        #         URL=vv_url
+        #     )
+        if vv_url == md_utilities.urls['rest_vv']['1']:
             return jsonify(
                 variant_validator_instance='Running internal VV server dedicated to web UI (can be used as a backup for API calls)',
                 URL=vv_url
             )
-        elif vv_url == md_utilities.urls['rest_vv_browser']['2']:
-            return jsonify(
-                variant_validator_instance='Running internal VV server dedicated to API calls (can be used as a backup for web UI)',
-                URL=vv_url
-            )
-        elif vv_url == md_utilities.urls['rest_vv_browser']['3']:
+        elif vv_url == md_utilities.urls['rest_vv']['2']:
             return jsonify(
                 variant_validator_instance='Running genuine english VV server, as a backup - this means that both internal VV servers are down! Please warn me asap',
                 URL=vv_url
@@ -1979,6 +1991,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         vv_special = ''
                         # vv_provider = md_utilities.urls['rest_vv_genuine']
                         vv_provider = md_utilities.urls['rest_vv_browser']['3']
+                        # vv_provider = md_utilities.urls['rest_vv']['2']
                         if re.match(rf'{vv_provider}', vv_base_url):
                             vv_special = 'auth_'
                         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/{2}all?content-type=application/json".format(
@@ -1986,6 +1999,11 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                             vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'],
                             vv_special
                         )
+                        # restvv 2023 - comment all above
+                        # vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/auth_all?content-type=application/json".format(
+                        #     vv_base_url,
+                        #     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'],
+                        # )
                         try:
                             vv_full_data = json.loads(
                                 http.request(
@@ -2195,13 +2213,17 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                             # weird VV seems to work better with 'GRCh37' than with 'hg19'
                         # special code for vv
                         vv_special = ''
-                        # vv_provider = md_utilities.urls['rest_vv_genuine']
+                        # # vv_provider = md_utilities.urls['rest_vv_genuine']
                         vv_provider = md_utilities.urls['rest_vv_browser']['3']
                         if re.match(rf'{vv_provider}', vv_base_url):
                             vv_special = 'auth_'
                         vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/{4}all?content-type=application/json".format(
                             vv_base_url, genome_vv, ncbi_chr, g_var, vv_special
                         )
+                        # restvv 2023 - comment all above
+                        # vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:g.{3}/auth_all?content-type=application/json".format(
+                        #     vv_base_url, genome_vv, ncbi_chr, g_var
+                        # )
                         # vv_key_var = "{0}.{1}:c.{2}".format(acc_no, acc_version, new_variant)
                         # http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
                         try:
@@ -2796,15 +2818,19 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                 # weird VV seems to work better with 'GRCh37' than with 'hg19'
             # special code for vv
             vv_special = ''
-            # vv_provider = md_utilities.urls['rest_vv_genuine']
+            # # vv_provider = md_utilities.urls['rest_vv_genuine']
             vv_provider = md_utilities.urls['rest_vv_browser']['3']
-            # print(vv_provider)
-            # print(vv_base_url)
+            # # print(vv_provider)
+            # # print(vv_base_url)
             if re.match(rf'{vv_provider}', vv_base_url):
                 vv_special = 'auth_'
             vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/{6}all?content-type=application/json".format(
                 vv_base_url, genome_vv, chr, pos, ref, alt, vv_special
             )
+            # restvv 2023 - comment all above
+            # vv_url = "{0}VariantValidator/variantvalidator/{1}/{2}:{3}:{4}:{5}/auth_all?content-type=application/json".format(
+            #     vv_base_url, genome_vv, chr, pos, ref, alt
+            # )
             # print(vv_url)
             try:
                 vv_data = json.loads(
