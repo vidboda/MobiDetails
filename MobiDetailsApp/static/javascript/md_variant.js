@@ -128,6 +128,30 @@ function intervar(intervar_url, csrf_token) {
 }
 
 
+function genebe(genebe_url, csrf_token) {
+	// ajax for genebe to get semi-automated ACMG classification
+	// send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: genebe_url,
+		data: {
+      genome: $('#genome_38').text(), chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), gene:$('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
+		}
+	})
+	.done(function(html) {
+		$('#genebe_data').replaceWith(html);
+    redraw_dt('population_table', true);
+	});
+}
+
+
 function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
   // ajax for spliceaivisual
   // send header for flask-wtf crsf security

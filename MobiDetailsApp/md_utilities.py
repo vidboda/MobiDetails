@@ -2640,6 +2640,27 @@ def get_post_param(request, param):
     return None
 
 
+def get_genebe_acmg_criterion_color(criterion, criterion_modulation):
+    # criterion = str(criterion)
+    if re.match('^P', criterion):
+        # pathogenic
+        if criterion_modulation == 'Very_Strong':
+            return 'w3-pink'
+        elif criterion_modulation == 'Strong':
+            return 'w3-red'
+        elif criterion_modulation == 'Moderate':
+            return 'w3-deep-orange'
+        elif criterion_modulation == 'Supporting':
+            return 'w3-orange'
+    else:
+        # benign
+        if criterion_modulation == 'Strong' or criterion == 'BA1':
+            return 'w3-teal'
+        elif criterion_modulation == 'Supporting':
+            return 'w3-green'
+    return None
+
+
 def get_acmg_criterion_color(criterion):
     criterion = str(criterion)
     if re.search(r'^PS', criterion) or \
