@@ -1,5 +1,6 @@
 import os
 import tempfile
+import configparser
 
 import pytest
 from MobiDetailsApp import create_app
@@ -10,6 +11,11 @@ from MobiDetailsApp.db import init_db
 @pytest.fixture
 def app():
     db_fd, db_path = tempfile.mkstemp()
+    # load true config
+    config = configparser.ConfigParser()
+    with open('MobiDetailsApp/sql/md.cfg') as stream:
+        config.read_string('[DEFAULT]\n' + stream.read())
+    md_conf = dict(config.items('DEFAULT'))
     app = create_app({
         'TESTING': True,
         'DATABASE': db_path,
@@ -17,8 +23,10 @@ def app():
         'WTF_CSRF_ENABLED': False,
         'ALLOWED_EXTENSIONS': '[txt]',
         'RUN_MODE': 'on',
-        'TINY_URL_API_KEY': '19d5ze3g8e4a68t4s699s4ed42e6r2t8yf7z8r9t5y4h7g8d5z2e1r4f87f6',
-        'VV_TOKEN': 'eXObqceEgR2l4W6bNl9lkb.ruhyWVE3hBnrkL85qWFpyqU3mdD790ctIP6r4e-FakowUjFxuEp4CwpA7apILdGdjLOJVXeEpkKuFpNeV6wiSiiROfk0CbFD'
+        'TINY_URL_API_KEY': md_conf['tiny_url_api_key'].replace('"', ''),
+        'VV_TOKEN': md_conf['vv_token'].replace('"', ''),
+        'GENEBE_EMAIL': md_conf['genebe_email'].replace('"', ''),
+        'GENEBE_API_KEY': md_conf['genebe_api_key'].replace('"', ''),
     })
     with app.app_context():
         init_db()

@@ -507,12 +507,10 @@ def intervar():
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
                 """
-                <p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> -
-                from {5} with args: A mandatory argument is missing</p>
+                <p>GeneBe API call failed for from {0} with args: A mandatory argument is missing: {1}</p>
                 """.format(
-                    request.form['genome'], request.form['chrom'],
-                    request.form['pos'], request.form['ref'],
-                    request.form['alt'], os.path.basename(__file__)
+                    os.path.basename(__file__),
+                    request.form
                 )
             ),
             '[MobiDetails - API Error]'
@@ -561,13 +559,13 @@ def genebe():
         gene = match_gene_symbol.group(1)
         headers = urllib3.make_headers(basic_auth='{0}:{1}'.format(app.config["GENEBE_EMAIL"], app.config["GENEBE_API_KEY"]))
         if ref == alt:
-            return '{0} reference is equal to variant: no wIntervar query'.format(genome)
-        genebe_url = "{0}/cloud/api-public/v1/variant?&chr={1}&pos={2}&ref={3}&alt={4}&transcript={5}&gene_symbol={6}&useRefseq=True&useEnsembl=False&omitAcmg=False&omitCsq=False&omitBasic=True&omitAdvanced=True&omitNormalization=True&genome={7}".format(
+            return '{0} reference is equal to variant: no GeneBe query'.format(genome)
+        genebe_url = "{0}/cloud/api-public/v1/variant?&chr={1}&pos={2}&ref={3}&alt={4}&transcript={5}&gene_symbol={6}&useRefseq=True&useEnsembl=False&omitAcmg=False&omitCsq=False&omitBasic=False&omitAdvanced=False&omitNormalization=True&genome={7}".format(
             md_utilities.urls['genebe_api'],
             chrom, pos, ref, alt,
             ncbi_transcript, gene, genome
         )
-        # print(genebe_url)
+        # print(headers)
         try:
             genebe_data = [
                 json.loads(
@@ -594,8 +592,11 @@ def genebe():
             return "<span>MD failed to query genebe.net</span>"
         try:
             genebe_acmg = genebe_data[0]['variants'][0]['acmg_classification']
-            genebe_criteria = genebe_data[0]['variants'][0]['acmg_criteria']
+            genebe_acmg_score = genebe_data[0]['variants'][0]['acmg_score']
+            if genebe_acmg_score != 0:
+                genebe_criteria = genebe_data[0]['variants'][0]['acmg_criteria']
         except Exception as e:
+            # print(genebe_data)
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails API error',
@@ -608,40 +609,42 @@ def genebe():
                 '[MobiDetails - API Error]'
             )
             return "<span>GeneBe returned no classification for this variant or MD was unable to interpret it.</span>"
-        criteria_list = re.split(',', genebe_criteria)
+        # print(genebe_data)
         html_criteria = ''
-        for criterion in criteria_list:
-            strict_criterion = criterion
-            criterion_modulation = ''
-            width = 50
-            criterion_obj = re.search('^([BP][MVSP]S?\d)_(Supporting|Moderate|Strong|Very_Strong)$', criterion)
-            if criterion_obj:
-                width = 150
-                strict_criterion = criterion_obj.group(1)
-                criterion_modulation = criterion_obj.group(2)
-            if strict_criterion == criterion:
-                # e.e. PP3 alone need to determine default modulation
-                if criterion == 'PVS1':
-                    criterion_modulation = 'Very_Strong'
-                elif re.match('[BP]S', criterion):
-                    criterion_modulation = 'Strong'
-                elif re.match('PM', criterion):
-                    criterion_modulation = 'Moderate'
-                elif re.match('[BP]P', criterion):
-                    criterion_modulation = 'Supporting'
-            html_criteria = """
-                {0}&nbsp;<div
-                    class="w3-col {1} w3-opacity-min w3-hover-shadow"
-                    style="width:{2}px;"
-                    onmouseover="$(\'#genebe_acmg_info\').text(\'{3}: {4}\');">
-                {3}</div>
-                """.format(
-                    str(html_criteria),
-                    md_utilities.get_genebe_acmg_criterion_color(strict_criterion, criterion_modulation),
-                    width,
-                    criterion,
-                    md_utilities.acmg_criteria[strict_criterion]
-                )
+        if genebe_acmg_score != 0:
+            criteria_list = re.split(',', genebe_criteria)
+            for criterion in criteria_list:
+                strict_criterion = criterion
+                criterion_modulation = ''
+                width = 50
+                criterion_obj = re.search('^([BP][MVSP]S?\d)_(Supporting|Moderate|Strong|Very_Strong)$', criterion)
+                if criterion_obj:
+                    width = 150
+                    strict_criterion = criterion_obj.group(1)
+                    criterion_modulation = criterion_obj.group(2)
+                if strict_criterion == criterion:
+                    # e.e. PP3 alone need to determine default modulation
+                    if criterion == 'PVS1':
+                        criterion_modulation = 'Very_Strong'
+                    elif re.match('[BP]S', criterion):
+                        criterion_modulation = 'Strong'
+                    elif re.match('PM', criterion):
+                        criterion_modulation = 'Moderate'
+                    elif re.match('[BP]P', criterion):
+                        criterion_modulation = 'Supporting'
+                html_criteria = """
+                    {0}&nbsp;<div
+                        class="w3-col {1} w3-opacity-min w3-hover-shadow"
+                        style="width:{2}px;"
+                        onmouseover="$(\'#genebe_acmg_info\').text(\'{3}: {4}\');">
+                    {3}</div>
+                    """.format(
+                        str(html_criteria),
+                        md_utilities.get_genebe_acmg_criterion_color(strict_criterion, criterion_modulation),
+                        width,
+                        criterion,
+                        md_utilities.acmg_criteria[strict_criterion]
+                    )
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         genebe_acmg_txt = genebe_acmg
@@ -657,17 +660,39 @@ def genebe():
         )
         res = curs.fetchone()
         close_db()
-        return """
-        <span style='color:{0};'>{1}</span>
-        <span> with the following criteria:</span><br /><br />
-        <div class='w3-row-padding w3-center'>{2}</div><br />
-        <div id='genebe_acmg_info'></div>
-        """.format(
-            res['html_code'],
-            genebe_acmg,
-            html_criteria
+        if genebe_acmg_score != 0:
+            return """
+            <span style='color:{0};'>{1}</span>
+            <span> with the following criteria:</span><br /><br />
+            <div class='w3-row-padding w3-center'>{2}</div><br />
+            <div id='genebe_acmg_info'></div>
+            """.format(
+                res['html_code'],
+                genebe_acmg_txt,
+                html_criteria
+            )
+        else:
+            return """
+            <span style='color:{0};'>{1}</span>
+            <span> as no criterion could be applied</span>
+            """.format(
+                res['html_code'],
+                genebe_acmg_txt
+            )
+    else:
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails API error',
+                """
+                <p>GeneBe API call failed from {0} with args: A mandatory argument is missing: {1}</p>
+                """.format(
+                    os.path.basename(__file__),
+                    request.form
+                )
+            ),
+            '[MobiDetails - API Error]'
         )
-    return "<span>Bad request</span>"
+        return "<span>Bad request</span>"
 
 
 # -------------------------------------------------------------------

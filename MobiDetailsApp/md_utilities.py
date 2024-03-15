@@ -2654,10 +2654,14 @@ def get_genebe_acmg_criterion_color(criterion, criterion_modulation):
             return 'w3-orange'
     else:
         # benign
-        if criterion_modulation == 'Strong' or criterion == 'BA1':
+        if criterion_modulation == 'Very_Strong' or criterion == 'BA1':
             return 'w3-teal'
-        elif criterion_modulation == 'Supporting':
+        elif criterion_modulation == 'Strong':
             return 'w3-green'
+        elif criterion_modulation == 'Moderate':
+            return 'w3-light-green'
+        elif criterion_modulation == 'Supporting':
+            return 'w3-lime'
     return None
 
 
