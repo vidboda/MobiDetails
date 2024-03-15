@@ -548,6 +548,12 @@
     'short_name': 'fathmm'
     'dbNSFP_value_col': '61'
     'dbNSFP_pred_col': '63'
+  'genebe':
+    'firstauthor': 'Stawiński'
+    'year': '2024'
+    'paper': '38440907'
+    'version': 'Live web site'
+    'short_name': 'geneb'
   'gnomAD':
     'firstauthor': 'Karczewski'
     'year': '2020'
