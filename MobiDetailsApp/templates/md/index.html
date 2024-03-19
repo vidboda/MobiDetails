@@ -4,10 +4,10 @@
 {% block title %}Homepage{% endblock %}
 
 {% block more_head %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/cookieconsent.min.css') }}">
+	{# <link rel="stylesheet" href="{{ url_for('static', filename='styles/cookieconsent.min.css') }}"> #}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/mastodon-timeline.css') }}">
 	<script type="module" src="{{ url_for('static', filename='javascript/mastodon-timeline.js') }}"></script>
-	<script src="{{ url_for('static', filename='javascript/cookieconsent.min.js') }}" type="text/javascript"></script>
+	{# <script src="{{ url_for('static', filename='javascript/cookieconsent.min.js') }}" type="text/javascript"></script> #}
 {% endblock %}
 
 {% block content %}
@@ -100,7 +100,7 @@
 		</a> -->
 	</div>
 	
-	<!--https://www.osano.com/cookieconsent/documentation/javascript-api/-->
+	{# <!--https://www.osano.com/cookieconsent/documentation/javascript-api/-->
 	<script>
 		window.cookieconsent.initialise({
 		  "palette": {
@@ -120,9 +120,9 @@
 		  "theme": "classic",
 		  "position": "bottom-right",
 		  "content": {
-			"message": "This website uses cookies to ensure you the best experience. However, they are strictly functional cookies and those that may have come from Twitter have been disabled.",
+			"message": "This website uses cookies to ensure you the best experience. However, they are strictly functional cookies. In addition, you agree that the software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software of the use or other dealings in the software",
 			"href": "{{ url_for('md.about') }}#privacy_policy"
 		  }
 		});
-	</script>
+	</script> #}
 {% endblock %}

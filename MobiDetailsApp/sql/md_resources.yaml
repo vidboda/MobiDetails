@@ -843,7 +843,7 @@
   'PP3': 'Multiple lines of computational evidence support a deleterious effect on the gene or gene product (conservation, evolutionary, splicing impact, etc.)'
   'PP4': 'Patient''s phenotype or family history is highly specific for a disease with a single genetic etiology'
   'PP5': 'Reputable source recently reports variant as pathogenic, but the evidence is not available to the laboratory to perform an independent evaluation'
-  'BA1': 'Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium'
+  'BA1': 'Allele frequency is greater than 5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation Consortium'
   'BS1': 'Allele frequency is greater than expected for disorder'
   'BS2': 'Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or X-linked (hemizygous) disorder, with full penetrance expected at an early age'
   'BS3': 'Well-established in vitro or in vivo functional studies show no damaging effect on protein function or splicing'
