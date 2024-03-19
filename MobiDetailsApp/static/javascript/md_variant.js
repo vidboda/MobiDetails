@@ -388,39 +388,6 @@ async function add_morfee_bed_track(static_path, position) {
         return "rgba(100, 100, 100, ".concat(transparency, ")")
       }
     }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
-    //     if (feature.getAttributeValue("Kozak_strength") === "weak") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.25)"
-    //       }
-    //       return "rgba(153, 0, 0, 0.5)"
-    //     }
-    //     if (feature.getAttributeValue("Kozak_strength") === "moderate") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.5)"
-    //       }
-    //       return "rgba(153, 0, 0, 0.75)"
-    //     }
-    //     if (feature.getAttributeValue("Kozak_strength") === "strong") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.75)"
-    //       }
-    //       return "rgba(153, 0, 0)"
-    //     }
-    //   }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
-    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //       return "rgba(255, 128, 0, 0.25)"
-    //     }
-    //     return "rgba(255, 128, 0, 0.75)"
-    //   }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "new_uSTOP") {
-    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //       return "rgba(220, 20, 60, 0.25)"
-    //     }
-    //     return "rgba(220, 20, 60, 0.75)"
-    //   }
-    // }
   });
 }
 
@@ -900,21 +867,6 @@ $(document).ready(function() {
     $('#splicing_table').DataTable().destroy();
   }
 
-  // check MuPIT for available 3D structure - removed 20220511
-  // if ($('#missense').length) {
-  //   // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
-  //   $.ajax({
-  // 	  type: "GET",
-  // 	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
-  // 	})
-  // 	.done(function(mupit_results) {
-  //     // alert(mupit_results.hit);
-  //     if (mupit_results.hit === true) {
-  //         $('#mupit_link').show();
-  //     }
-  //   });
-  // }
-
   // trick to force charts.js script execution and to get canvas in pdf export
   // charts are displayed by default and then quickly hidden
   $('#radar_splicing_modal').hide();
@@ -977,11 +929,15 @@ $(document).ready(function() {
         else if (table_title === 'Population frequencies and databases') {
           var re = /Likely[\s_][Bb]enign/;
           if (re.test(d)) {color_style = '#0000A0'}
-          re = /^Benign\s?\*{0,4}$/;
+          re = /^Benign\s?\*{0,4}/;
           if (re.test(d)) {color_style = '#00A020'}
+          // re = /^Benign\s?\*{0,4}$/;
+          // if (re.test(d)) {color_style = '#00A020'}
           re = /Likely[\s_][Pp]athogenic/;
           if (re.test(d)) {color_style = '#FF6020'}
-          re = /^Pathogenic\s?\*{0,4}$/;
+          // re = /^Pathogenic\s?\*{0,4}$/;
+          // if (re.test(d)) {color_style = '#FF0000'}
+          re = /^Pathogenic\s?\*{0,4}/;
           if (re.test(d)) {color_style = '#FF0000'}
         }
         else if (table_title === 'Overall predictions'){
