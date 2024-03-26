@@ -128,6 +128,30 @@ function intervar(intervar_url, csrf_token) {
 }
 
 
+function genebe(genebe_url, csrf_token) {
+	// ajax for genebe to get semi-automated ACMG classification
+	// send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: genebe_url,
+		data: {
+      genome: $('#genome_38').text(), chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), gene:$('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
+		}
+	})
+	.done(function(html) {
+		$('#genebe_data').replaceWith(html);
+    redraw_dt('population_table', true);
+	});
+}
+
+
 function spliceaivisual(spliceaivisual_url, static_path, caller, csrf_token) {
   // ajax for spliceaivisual
   // send header for flask-wtf crsf security
@@ -364,39 +388,6 @@ async function add_morfee_bed_track(static_path, position) {
         return "rgba(100, 100, 100, ".concat(transparency, ")")
       }
     }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "uTIS") {
-    //     if (feature.getAttributeValue("Kozak_strength") === "weak") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.25)"
-    //       }
-    //       return "rgba(153, 0, 0, 0.5)"
-    //     }
-    //     if (feature.getAttributeValue("Kozak_strength") === "moderate") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.5)"
-    //       }
-    //       return "rgba(153, 0, 0, 0.75)"
-    //     }
-    //     if (feature.getAttributeValue("Kozak_strength") === "strong") {
-    //       if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //         return "rgba(220, 20, 60, 0.75)"
-    //       }
-    //       return "rgba(153, 0, 0)"
-    //     }
-    //   }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "uSTOP") {
-    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //       return "rgba(255, 128, 0, 0.25)"
-    //     }
-    //     return "rgba(255, 128, 0, 0.75)"
-    //   }
-    //   if (feature.getAttributeValue("orfSNVs_type") === "new_uSTOP") {
-    //     if (feature.getAttributeValue("orfSNVs_frame") === "in_frame") {
-    //       return "rgba(220, 20, 60, 0.25)"
-    //     }
-    //     return "rgba(220, 20, 60, 0.75)"
-    //   }
-    // }
   });
 }
 
@@ -876,21 +867,6 @@ $(document).ready(function() {
     $('#splicing_table').DataTable().destroy();
   }
 
-  // check MuPIT for available 3D structure - removed 20220511
-  // if ($('#missense').length) {
-  //   // alert($('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text());
-  //   $.ajax({
-  // 	  type: "GET",
-  // 	  url: $('#mupit_url').text() + "/rest/showstructure/check?pos=chr" + $('#chrom_38').text() + " " + $('#pos_38').text(),
-  // 	})
-  // 	.done(function(mupit_results) {
-  //     // alert(mupit_results.hit);
-  //     if (mupit_results.hit === true) {
-  //         $('#mupit_link').show();
-  //     }
-  //   });
-  // }
-
   // trick to force charts.js script execution and to get canvas in pdf export
   // charts are displayed by default and then quickly hidden
   $('#radar_splicing_modal').hide();
@@ -953,11 +929,15 @@ $(document).ready(function() {
         else if (table_title === 'Population frequencies and databases') {
           var re = /Likely[\s_][Bb]enign/;
           if (re.test(d)) {color_style = '#0000A0'}
-          re = /^Benign\s?\*{0,4}$/;
+          re = /^Benign\s?\*{0,4}/;
           if (re.test(d)) {color_style = '#00A020'}
+          // re = /^Benign\s?\*{0,4}$/;
+          // if (re.test(d)) {color_style = '#00A020'}
           re = /Likely[\s_][Pp]athogenic/;
           if (re.test(d)) {color_style = '#FF6020'}
-          re = /^Pathogenic\s?\*{0,4}$/;
+          // re = /^Pathogenic\s?\*{0,4}$/;
+          // if (re.test(d)) {color_style = '#FF0000'}
+          re = /^Pathogenic\s?\*{0,4}/;
           if (re.test(d)) {color_style = '#FF0000'}
         }
         else if (table_title === 'Overall predictions'){

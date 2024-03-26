@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20240212" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20240315" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -634,6 +634,14 @@
 							</td>
 						</tr>
 					{% endif %}
+					<tr id="genebe_tr" onmouseout="$('#genebe_acmg_info').text('');"><!--genebe-->
+						<td class="w3-left-align"><a href="{{ '%s/variant/hg38/%s-%s-%s-%s'|format(urls.genebe, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Check and adjust ACMG class at GeneBe" rel="noopener noreferrer">GeneBe</a>:</td>
+						<td class="w3-left-align">
+							<span id='genebe_data'>Asking GeneBe...  <i class="fa fa-spinner w3-spin" style="font-size:24px"></i></span>
+						</td>
+						<td class="w3-left-align"><em class="w3-small">Semi-automated ACMG classification - click on the GeneBe link to adjust<br /> - passing the mouse over a criterion will display the definition</em>
+						</td>
+					</tr>
 					<tr><!--LOVD matches-->
 						<td class="w3-left-align" id="lovd_feature">LOVD matches:</td>
 						<td class="w3-left-align">
@@ -1894,6 +1902,7 @@
 			{% else %}
 				lovd('{{ url_for('ajax.lovd') }}', $('#genome_38').text(), $('#chrom_38').text(), $('#hg38_g_name').text(), '{{ csrf_token() }}');
 			{% endif %}
+			genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 		});

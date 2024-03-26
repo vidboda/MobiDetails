@@ -12,12 +12,14 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='styles/md.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='styles/font-awesome.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='styles/jquery-ui.min.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='styles/cookieconsent.min.css') }}">
 		<link rel="shortcut icon" href="{{ url_for('static', filename='img/md.png') }}" type="image/x-icon">
 		<link rel="icon" href="{{ url_for('static', filename='img/md.png') }}" type="image/x-icon">
 		<script src="{{ url_for('static', filename='javascript/jquery-3.4.1.min.js') }}" type="text/javascript"></script>
 		<script src="{{ url_for('static', filename='javascript/md.js') }}?20230807" type="text/javascript"></script>
 		<script src="{{ url_for('static', filename='javascript/jquery-ui.min.js') }}" type="text/javascript"></script>
 		<script src="{{ url_for('static', filename='javascript/sweetalert2.all.min.js') }}" type="text/javascript"></script>
+		<script src="{{ url_for('static', filename='javascript/cookieconsent.min.js') }}" type="text/javascript"></script>
 		{% block more_head %}{% endblock %}
 		<title>
 		{% block title %}
@@ -148,6 +150,31 @@
 			{% endautoescape %}
 		{% endfor %}
 		<br />
+		<!--https://www.osano.com/cookieconsent/documentation/javascript-api/-->
+		<script>
+			window.cookieconsent.initialise({
+			"palette": {
+				"popup": {
+				"background": "#edeff5",
+				"text": "#838391"
+				},
+				"button": {
+				"background": "#4b81e8"
+				}
+			},
+			cookie: {
+				name: "cookie_consent_md",
+				domain: "{{ request.path.split('/')[0] }}"
+			},
+			"revokable": true,
+			"theme": "classic",
+			"position": "bottom-right",
+			"content": {
+				"message": "This website uses cookies to ensure you the best experience. However, they are strictly functional cookies. In addition, you agree that the software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software of the use or other dealings in the software.",
+				"href": "{{ url_for('md.about') }}#privacy_policy"
+			}
+			});
+		</script>
 		{# {{ danger("IMPORTANT NOTICE:<br /> Due to a (yet another) planned power outage, MobiDetails won't be available from 7:45 to 10 am, GMT+2, on Tuesday, April 11th. In addition, the SpliceAI-visual feature wil be shut down shortly before and restored shortly after.") }} #}
 		{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails will be shut down from Monday, Frebruary, 13 around 17:30 Paris time (GMT+1) to Tuesday morning between 9:00 and 10:00 due to an intervention on the electrical network of the building.") }} #}
 		{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is back! However due to major power instability in the building this service will be shut down from Friday November, 18, 17h Paris time to Monday morning, November 21.") }} #}

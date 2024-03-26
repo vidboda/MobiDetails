@@ -181,6 +181,41 @@ def test_intervar(client, app):
             assert any(test in response.get_data() for test in possible)
         db_pool.putconn(db)
 
+
+# test genebe
+
+
+def test_genebe(client, app):
+    assert client.get('/genebe').status_code == 405
+    with app.app_context():
+        db_pool, db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            r"""
+            SELECT a.genome_version, a.chr, a.pos, a.pos_ref, a.pos_alt, b.gene_symbol, b.refseq FROM variant a,
+            variant_feature b WHERE a.feature_id = b.id AND a.genome_version = 'hg38' ORDER BY random() LIMIT 15
+            """
+        )
+        res = curs.fetchall()
+        for values in res:
+            data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene_symbol'], ncbi_transcript=values['refseq'])
+            response = client.post('/genebe', data=data_dict)
+            assert response.status_code == 200
+            possible = [
+                b'athogenic',
+                b'lassified',
+                b'enign',
+                b'ncertain',
+                b'MD failed to query genebe.net',
+                b'reference is equal to variant: no GeneBe query',
+                # b'GeneBe returned no classification for this variant or MD was unable to interpret it'
+            ]
+            # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
+            print(values)
+            print(response.get_data())
+            assert any(test in response.get_data() for test in possible)
+        db_pool.putconn(db)
+
 # test lovd
 
 

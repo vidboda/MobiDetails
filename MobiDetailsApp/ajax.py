@@ -1,7 +1,7 @@
 import os
 import re
 from flask import (
-    Blueprint, flash, g, render_template, request, escape, url_for, escape
+    Blueprint, flash, g, render_template, request, escape, url_for, escape, current_app as app
 )
 from werkzeug.urls import url_parse
 from MobiDetailsApp.auth import login_required
@@ -507,17 +507,193 @@ def intervar():
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
                 """
-                <p>Intervar API call failed for {0}-{1}-{2}-{3}-{4}<br /> -
-                from {5} with args: A mandatory argument is missing</p>
+                <p>GeneBe API call failed for from {0} with args: A mandatory argument is missing: {1}</p>
                 """.format(
-                    request.form['genome'], request.form['chrom'],
-                    request.form['pos'], request.form['ref'],
-                    request.form['alt'], os.path.basename(__file__)
+                    os.path.basename(__file__),
+                    request.form
                 )
             ),
             '[MobiDetails - API Error]'
         )
         return "<span>Bad request</span>"
+
+
+# -------------------------------------------------------------------
+# web app - ajax for genebe
+
+@bp.route('/genebe', methods=['POST'])
+def genebe():
+    # https://api.genebe.net/cloud/api-public/v1/variant?chr=6&pos=108561712&ref=C&alt=T&transcript=NM_001455.4&gene_symbol=FOXO3&useRefseq=True&useEnsembl=False&omitAcmg=False&omitCsq=False&omitBasic=True&omitAdvanced=True&omitNormalization=True&genome=hg38
+    # api key
+    # curl -X 'GET' -u YOUR_EMAIL:YOUR_API_KEY \
+    # 'https://api.genebe.net/cloud/api-public/v1/variant?chr=6&pos=160585140&ref=T&alt=G&genome=hg38' \
+    # -H 'Accept: application/json'
+    # https://genebe.net/about/api
+    # Use Basic Authorization with your email as the username and the API key as the password in your API requests.
+    # headers = urllib3.make_headers(basic_auth='abc:xyz')
+    # r = http.request('GET', url, headers=headers)
+    nochr_chrom_regexp = md_utilities.regexp['nochr_chrom']
+    ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
+    gene_symbol_regexp = md_utilities.regexp['gene_symbol']
+    genome_regexp = md_utilities.regexp['genome']
+    match_genome = re.search(rf'^({genome_regexp})$', request.form['genome'])
+    match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
+    match_pos = re.search(r'^(\d+)$', request.form['pos'])
+    match_ref = re.search(r'^([ATGC]+)$', request.form['ref'])
+    match_alt = re.search(r'^([ATGC]+)$', request.form['alt'])
+    ncbi_transcript_match = re.search(rf'^({ncbi_transcript_regexp})$', request.form['ncbi_transcript'])
+    match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
+    if match_genome and \
+            match_nochr_chrom and \
+            match_pos and \
+            match_ref and \
+            match_alt and \
+            ncbi_transcript_match and \
+            match_gene_symbol:
+        genome = match_genome.group(1)
+        chrom = match_nochr_chrom.group(1)
+        pos = match_pos.group(1)
+        ref = match_ref.group(1)
+        alt = match_alt.group(1)
+        ncbi_transcript = ncbi_transcript_match.group(1)
+        gene = match_gene_symbol.group(1)
+        headers = urllib3.make_headers(basic_auth='{0}:{1}'.format(app.config["GENEBE_EMAIL"], app.config["GENEBE_API_KEY"]))
+        if ref == alt:
+            return '{0} reference is equal to variant: no GeneBe query'.format(genome)
+        genebe_url = "{0}/cloud/api-public/v1/variant?&chr={1}&pos={2}&ref={3}&alt={4}&transcript={5}&gene_symbol={6}&useRefseq=True&useEnsembl=False&omitAcmg=False&omitCsq=False&omitBasic=False&omitAdvanced=False&omitNormalization=True&genome={7}".format(
+            md_utilities.urls['genebe_api'],
+            chrom, pos, ref, alt,
+            ncbi_transcript, gene, genome
+        )
+        # print(headers)
+        try:
+            genebe_data = [
+                json.loads(
+                    http.request(
+                        'GET',
+                        genebe_url,
+                        headers=headers
+                    ).data.decode('utf-8')
+                )
+            ]
+        except Exception as e:
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    """
+                    <p>GeneBe API call failed for {0}-{1}-{2}-{3}-{4}- url: {5} <br /> - from {6} with args: {7}</p>
+                    """.format(
+                        genome, chrom, pos, ref, alt,
+                        genebe_url, os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return "<span>MD failed to query genebe.net</span>"
+        try:
+            genebe_acmg = genebe_data[0]['variants'][0]['acmg_classification']
+            genebe_acmg_score = genebe_data[0]['variants'][0]['acmg_score']
+            if genebe_acmg_score != 0:
+                genebe_criteria = genebe_data[0]['variants'][0]['acmg_criteria']
+        except Exception as e:
+            # print(genebe_data)
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'MobiDetails API error',
+                    """
+                    <p>AMCG class not retrieved in GeneBe object: {0}<br /> from {1} </p>
+                    """.format(
+                        genebe_data, genebe_url
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return "<span>GeneBe returned no classification for this variant or MD was unable to interpret it.</span>"
+        # print(genebe_data)
+        html_criteria = ''
+        if genebe_acmg_score != 0:
+            criteria_list = re.split(',', genebe_criteria)
+            for criterion in criteria_list:
+                strict_criterion = criterion
+                criterion_modulation = ''
+                width = 50
+                criterion_obj = re.search('^([BP][MVSP]S?\d)_(Supporting|Moderate|Strong|Very_Strong)$', criterion)
+                if criterion_obj:
+                    width = 150
+                    strict_criterion = criterion_obj.group(1)
+                    criterion_modulation = criterion_obj.group(2)
+                if strict_criterion == criterion:
+                    # e.e. PP3 alone need to determine default modulation
+                    if criterion == 'PVS1':
+                        criterion_modulation = 'Very_Strong'
+                    elif re.match('[BP]S', criterion):
+                        criterion_modulation = 'Strong'
+                    elif re.match('PM', criterion):
+                        criterion_modulation = 'Moderate'
+                    elif re.match('[BP]P', criterion):
+                        criterion_modulation = 'Supporting'
+                html_criteria = """
+                    {0}&nbsp;<div
+                        class="w3-col {1} w3-opacity-min w3-hover-shadow"
+                        style="width:{2}px;"
+                        onmouseover="$(\'#genebe_acmg_info\').text(\'{3}: {4}\');">
+                    {3}</div>
+                    """.format(
+                        str(html_criteria),
+                        md_utilities.get_genebe_acmg_criterion_color(strict_criterion, criterion_modulation),
+                        width,
+                        criterion,
+                        md_utilities.acmg_criteria[strict_criterion]
+                    )
+        db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        genebe_acmg_txt = genebe_acmg
+        if re.search('_', genebe_acmg):
+            genebe_acmg_txt = genebe_acmg.replace('_', ' ')
+        curs.execute(
+            """
+            SELECT html_code
+            FROM valid_class
+            WHERE acmg_translation = %s
+            """,
+            (genebe_acmg_txt.lower(),)
+        )
+        res = curs.fetchone()
+        close_db()
+        if genebe_acmg_score != 0:
+            return """
+            <span style='color:{0};'>{1}</span>
+            <span> with the following criteria:</span><br /><br />
+            <div class='w3-row-padding w3-center'>{2}</div><br />
+            <div id='genebe_acmg_info'></div>
+            """.format(
+                res['html_code'],
+                genebe_acmg_txt,
+                html_criteria
+            )
+        else:
+            return """
+            <span style='color:{0};'>{1}</span>
+            <span> as no criterion could be applied</span>
+            """.format(
+                res['html_code'],
+                genebe_acmg_txt
+            )
+    else:
+        md_utilities.send_error_email(
+            md_utilities.prepare_email_html(
+                'MobiDetails API error',
+                """
+                <p>GeneBe API call failed from {0} with args: A mandatory argument is missing: {1}</p>
+                """.format(
+                    os.path.basename(__file__),
+                    request.form
+                )
+            ),
+            '[MobiDetails - API Error]'
+        )
+        return "<span>Bad request</span>"
+
 
 # -------------------------------------------------------------------
 # web app - ajax for spliceaivisual
@@ -2703,23 +2879,23 @@ def spliceai_lookup():
                     headers=header
                 ).data.decode('utf-8')
             )
-        except urllib3.exceptions.MaxRetryError:
-            try:
-                http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
-                spliceai500 = json.loads(
-                            http_dangerous.request(
-                                'GET',
-                                '{0}{1}'.format(
-                                    md_utilities.urls['spliceai_api'],
-                                    variant
-                                ),
-                                headers=header
-                            ).data.decode('utf-8')
-                        )
-            except Exception:
-                return """
-                <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
-                """
+        # except urllib3.exceptions.MaxRetryError:
+        #     try:
+        #         http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
+        #         spliceai500 = json.loads(
+        #                     http_dangerous.request(
+        #                         'GET',
+        #                         '{0}{1}'.format(
+        #                             md_utilities.urls['spliceai_api'],
+        #                             variant
+        #                         ),
+        #                         headers=header
+        #                     ).data.decode('utf-8')
+        #                 )
+        except Exception:
+            return """
+            <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
+            """
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
@@ -2745,19 +2921,6 @@ def spliceai_lookup():
                                 score['DS_DL'],
                                 score['DP_DL']
                             )
-                    # deprecated 20230911
-                    # spliceai_score = re.split(r'\|', score)
-                    # # AG AL DG DL
-                    # return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
-                    #     spliceai_score[1],
-                    #     spliceai_score[5],
-                    #     spliceai_score[2],
-                    #     spliceai_score[6],
-                    #     spliceai_score[3],
-                    #     spliceai_score[7],
-                    #     spliceai_score[4],
-                    #     spliceai_score[8]
-                    # )
         return """
         <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
         """.format(transcript)
