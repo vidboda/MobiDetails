@@ -2879,23 +2879,23 @@ def spliceai_lookup():
                     headers=header
                 ).data.decode('utf-8')
             )
-        except urllib3.exceptions.MaxRetryError:
-            try:
-                http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
-                spliceai500 = json.loads(
-                            http_dangerous.request(
-                                'GET',
-                                '{0}{1}'.format(
-                                    md_utilities.urls['spliceai_api'],
-                                    variant
-                                ),
-                                headers=header
-                            ).data.decode('utf-8')
-                        )
-            except Exception:
-                return """
-                <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
-                """
+        # except urllib3.exceptions.MaxRetryError:
+        #     try:
+        #         http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
+        #         spliceai500 = json.loads(
+        #                     http_dangerous.request(
+        #                         'GET',
+        #                         '{0}{1}'.format(
+        #                             md_utilities.urls['spliceai_api'],
+        #                             variant
+        #                         ),
+        #                         headers=header
+        #                     ).data.decode('utf-8')
+        #                 )
+        except Exception:
+            return """
+            <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>
+            """
         if spliceai500 and \
                 spliceai500['variant'] == variant and \
                 'error' not in spliceai500:
@@ -2921,19 +2921,6 @@ def spliceai_lookup():
                                 score['DS_DL'],
                                 score['DP_DL']
                             )
-                    # deprecated 20230911
-                    # spliceai_score = re.split(r'\|', score)
-                    # # AG AL DG DL
-                    # return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
-                    #     spliceai_score[1],
-                    #     spliceai_score[5],
-                    #     spliceai_score[2],
-                    #     spliceai_score[6],
-                    #     spliceai_score[3],
-                    #     spliceai_score[7],
-                    #     spliceai_score[4],
-                    #     spliceai_score[8]
-                    # )
         return """
         <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
         """.format(transcript)
