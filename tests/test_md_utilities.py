@@ -412,6 +412,15 @@ var = {
     'pos_ref': 'C',
     'pos_alt': 'A'
 }
+var_spliceai = {
+    'chr': '10',
+    'pos': '71712814',
+    'pos_ref': 'G',
+    'pos_alt': 'A'
+}
+var_spliceai_f = {
+    'dna_type': 'substitution'
+}
 var_f = {
     'dna_type': 'substitution',
     'prot_type': 'missense',
@@ -538,6 +547,7 @@ var_ss_f = {
     ('CADD', var_dup, '1.793870', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd_indels', var_dup_f),
     ('CADD', var_dup, '17.69', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels', var_dup_f),
     ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs', var_f),
+    ('spliceAI', var_spliceai, 'SpliceAI=A|CDH23|0.00|0.00|0.82|0.95|3|-1|3|-1', 7, 'spliceai_snvs', var_spliceai_f),
     ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels', var_dup_f),
     ('gnomAD exome', var, '0.0010', 5, 'gnomad_exome_hg38', var_f),
     ('gnomAD exome', var, '0.0021', 20, 'gnomad_exome_hg38', var_f),
