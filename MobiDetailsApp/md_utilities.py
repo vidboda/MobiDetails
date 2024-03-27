@@ -669,7 +669,7 @@ def acmg2lovd(acmg_class, db):
     return None
 
 
-def get_value_from_tabix_file(text, tabix_file, var, variant_features):
+def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -713,6 +713,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
             text == 'MorfeeDB':
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+    spliceai_last_record = ''
     for record in records:
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
@@ -725,6 +726,39 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
                         aa2 == record[int(external_tools['REVEL']['alt_aa_col'])]:
                     return record
+            elif text == 'spliceAI':
+                # overlapping genes return 2 or more lines for the same genomic position
+                # we need to check the gene symbol, but what if we use a different?
+                spliceai_gene_symbol = re.split('\|', record[7])[1]
+                if spliceai_gene_symbol == variant_features['gene_symbol']:
+                    # most likely
+                    return record
+                else:
+                    # check whether we're able to find the correct symbol
+                    curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    curs.execute(
+                        """
+                        SELECT DISTINCT(gene_symbol)
+                        FROM gene
+                        WHERE UPPER(second_name) ~ CONCAT('(^|[,;])', %s, '([,;]|$)');
+                        """,
+                        (spliceai_gene_symbol.upper(),)
+                    )
+                    # may return several symbols, e.g. 'TN'
+                    # WHERE UPPER(second_name) LIKE CONCAT('%%', UPPER(%s), '%%');
+                    res_symbols = curs.fetchall()
+                    if res_symbols:
+                        for res_symbol in res_symbols:
+                            if res_symbol['gene_symbol'] == variant_features['gene_symbol']:
+                                # ok, return
+                                return record
+                        # still here, keep record in memory and move on
+                        spliceai_last_record = record
+                        next
+                    else:
+                        # gene_symbol not found, keep record in memory and move
+                        spliceai_last_record = record
+                        next
             elif text == 'AlphaMissense':
                 # need to validate amino acids and position
                 am_aa1, am_pos, am_aa2 = decompose_missense_one_letter(record[external_tools['AlphaMissense']['missense_col']])
@@ -790,6 +824,11 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features):
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
+    if text == 'SpliceAI' and \
+            spliceai_last_record != '':
+        # we're here because we could not match spliceai gene_symbol and MD's
+        record = spliceai_last_record.append('spliceai_warning_gene_symbol_not_found')
+        return record
     if text == 'AbSplice':
         return 'No significant score in {}'.format(text)
     if record_list:

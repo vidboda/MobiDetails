@@ -454,6 +454,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DS_AL_color': None,
             'spliceai_DS_DG_color': None,
             'spliceai_DS_DL_color': None,
+            'spliceai_warning': None,
             'abSpliceResults': None,
             'abSpliceMaxColor': None,
             'abspliceDNAHeader': [],
@@ -1312,7 +1313,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
                 spliceai_res = False
                 if variant_features['dna_type'] == 'substitution':
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features, db)
                     spliceai_res = True
                 elif ((variant_features['dna_type'] == 'insertion' and
                         internal_data['positions']['insSize'] == 1) or
@@ -1320,13 +1321,17 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         variant_features['variant_size'] == 1) or
                         (variant_features['dna_type'] == 'deletion' and
                             variant_features['variant_size'] <= 4)):
-                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features)
+                    record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features, db)
                     # print(record)
                     spliceai_res = True
                 if spliceai_res is True:
                     if isinstance(record, str):
                         internal_data['noMatch']['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
                     else:
+                        # check if warning coming from spliceai and gene symbol conflict
+                        if len(record) == 9:
+                            # warning
+                            internal_data['spliceai_warning'] = record[8]
                         spliceais = re.split(r'\|', record[7])
                         # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
                         splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
