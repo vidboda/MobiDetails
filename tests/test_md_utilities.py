@@ -419,12 +419,15 @@ var_spliceai = {
     'pos_alt': 'A'
 }
 var_spliceai_f = {
-    'dna_type': 'substitution'
+    'dna_type': 'substitution',
+    'p_name': '?',
+    'gene_symbol': 'CDH23'
 }
 var_f = {
     'dna_type': 'substitution',
     'prot_type': 'missense',
-    'p_name': 'Cys759Phe'
+    'p_name': 'Cys759Phe',
+    'gene_symbol': 'USH2A'
 }
 var_hg19 = {
     'chr': '1',
@@ -486,7 +489,8 @@ var_dup = {
 var_dup_f = {
     'dna_type': 'duplication',
     'prot_type': 'unknown',
-    'p_name': '?'
+    'p_name': '?',
+    'gene_symbol': 'GBE1'
 }
 var_dup_hg19 = {
     'chr': '3',
@@ -564,18 +568,22 @@ var_ss_f = {
     ('MorfeeDB', var_5utr1, 'uTIS', 10, 'morfeedb', var_5utr1_f),
     ('MorfeeDB', var_5utr1, 'not_overlapping; overlapping_0.32%', 12, 'morfeedb', var_5utr1_f)
 ))
-def test_get_value_from_tabix_file(tool, var, expected, record_number, file_name, var_f):
-    record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f)
-    print(record)
-    print(tool)
-    print(md_utilities.local_files[file_name]['abs_path'])
-    if tool == 'MorfeeDB':
-        assert re.search(expected, record[0][record_number])
-    else:
-        assert re.search(expected, record[record_number])
-    # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
-    # assert re.search('Pathogenic', record[7])
-    # assert re.search('2356', record[2])
+def test_get_value_from_tabix_file(app, client, tool, var, expected, record_number, file_name, var_f):
+    with app.app_context():
+        g = fake_g_obj()
+        db_pool, db = get_db()
+        record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f, db)
+        print(record)
+        print(tool)
+        print(md_utilities.local_files[file_name]['abs_path'])
+        db_pool.putconn(db)
+        if tool == 'MorfeeDB':
+            assert re.search(expected, record[0][record_number])
+        else:
+            assert re.search(expected, record[record_number])
+        # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
+        # assert re.search('Pathogenic', record[7])
+        # assert re.search('2356', record[2])
 
 
 def test_getdbNSFP_results():
