@@ -1580,7 +1580,9 @@ def modif_class():
             # REPLACE md_utilities.host['dev'] with md_utilities.host['prod'] \
             # WHEN LOVD FEATURE IS READY
             if g.user['lovd_export'] is True and \
-                    genome_version == 'hg19':
+                    genome_version == 'hg19' and \
+                    acmg_select != 7:
+                    # risk factor not sent to LOVD for the moment
                 with open(
                     md_utilities.local_files['lovd_api_json']['abs_path']
                 ) as json_file:

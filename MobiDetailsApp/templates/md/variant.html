@@ -1658,7 +1658,7 @@
 						<th class="w3-left-align">Variant</th>
 						<th class="w3-left-align">User</th>
 						<th class="w3-left-align">Date</th>
-						<th class="w3-left-align">ACMG Classification</th>
+						<th class="w3-left-align">ACMG Classification*</th>
 						<th class="w3-left-align">Comments</th>
 					</tr>
 				</thead>
@@ -1819,6 +1819,7 @@
 			{% else %}
 				{{ info("To modify the classification history, you must be <a href='%s'>logged in</a> (you might want to <a href='%s' target='_blank' rel='noopener noreferrer'>create an account</a> before)."|format(url_for('auth.login'), url_for('auth.register'))) }}
 			{% endif %}
+			{{ info("* We added an additional 'risk factor' class to the 5 ACMG classe in order to describe low penetrance risk factor variants.") }}
 		</div>
 		<br/><br/>
 		<!--eighth section-->
