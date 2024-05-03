@@ -243,14 +243,15 @@ def test_lovd(client, app):
 # test modif_class
 
 
-@pytest.mark.parametrize(('vf_id', 'acmg', 'acmg_com', 'return_value', 'status_code2'), (
-    (5, 4, 'Variant pathogenic because of its pathogenicity:;,-', b'1-1-5', 200),
-    (5, 1, 'Variant  not pathogenic because of its non-pathogenicity:;,-', b'1-1-5', 200),
-    (5, 7, 'Fake acmg', b'notok', 200),
-    (-5, 7, 'Fake variant', b'notok', 200),
-    ('ebc', 7, 'impossible variant', b'notok', 200),
+@pytest.mark.parametrize(('vf_id', 'acmg', 'acmg_com', 'status_code2'), (
+    (5, 4, 'Variant pathogenic because of its pathogenicity:;,-', 200),
+    (5, 1, 'Variant  not pathogenic because of its non-pathogenicity:;,-', 200),
+    (5, 8, 'test risk factor code', 200),
+    (5, 8, 'Fake acmg', 200),
+    (-5, 7, 'Fake variant', 200),
+    ('ebc', 7, 'impossible variant', 200),
 ))
-def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, status_code2):
+def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, status_code2):
     assert client.get('/modif_class').status_code == 405
     with app.app_context():
         response = client.post('/modif_class',
@@ -274,14 +275,14 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, return_value, sta
 # test remove_class
 
 
-@pytest.mark.parametrize(('vf_id', 'acmg', 'return_value', 'status_code'), (
-    (5, 4, b'ok', 200),
-    (5, 1, b'ok', 200),
-    (5, 7, b'ok', 200),
-    (5, 7, b'notok', 200),
-    (-5, 7, b'notok', 200),
+@pytest.mark.parametrize(('vf_id', 'acmg', 'status_code'), (
+    (5, 4, 200),
+    (5, 1, 200),
+    (5, 7, 200),
+    (5, 7, 200),
+    (-5, 7, 200),
 ))
-def test_remove_class(client, app, auth, vf_id, acmg, return_value, status_code):
+def test_remove_class(client, app, auth, vf_id, acmg, status_code):
     assert client.get('/modif_class').status_code == 405
     with app.app_context():
         response = client.post('/remove_class',
