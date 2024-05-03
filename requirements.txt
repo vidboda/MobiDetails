@@ -27,7 +27,7 @@ future==0.18.3
 gevent==23.9.1
 geventhttpclient==1.5.3
 greenlet==1.1.2
-idna==3.3
+idna==3.7
 importlib-metadata==4.2.0
 iniconfig==1.1.1
 itsdangerous==2.0.1
