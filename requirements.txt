@@ -60,7 +60,7 @@ python-gnupg==0.4.8
 python-ldap==3.4.0
 PyYAML==6.0
 pyzmq==23.0.0
-requests==2.31.0
+requests==2.32.0
 roundrobin==0.0.2
 ruamel.yaml==0.17.17
 ruamel.yaml.clib==0.2.6
