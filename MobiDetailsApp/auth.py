@@ -501,10 +501,11 @@ def activate(mobiuser_id, api_key):
             if user['activated'] is False and \
                     user['api_key'] == api_key and \
                     user['id'] == mobiuser_id:
+                new_api_key = secrets.token_urlsafe(32)
                 curs.execute(
                     "UPDATE mobiuser SET activated = 't' WHERE \
                     id = %s AND api_key = %s",
-                    (user['id'], user['api_key'])
+                    (user['id'], new_api_key)
                 )
                 db.commit()
                 flash(
