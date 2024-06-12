@@ -3046,3 +3046,54 @@ def get_oncokb_genes_info(gene_symbol):
             return oncokb_dict
     return oncokb_dict
 
+
+def get_transcript_road_signs(gene_symbol, gene_info):
+    # get refseq select, mane, etc from vv json file
+    no_vv_file = 0
+    transcript_road_signs = {}
+    try:
+        json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
+            local_files['variant_validator']['abs_path'],
+            gene_symbol
+        ))
+    except IOError:
+        no_vv_file = 1
+    if no_vv_file == 0:
+        try:
+            vv_json = json.load(json_file)
+        finally:
+            json_file.close()
+        if 'error' in vv_json \
+            or ('message' in vv_json and
+                vv_json['message'] == 'Internal Server Error'):
+            no_vv_file = 1
+            curs.execute(
+                """
+                UPDATE gene
+                SET variant_creation = 'not_in_vv_json'
+                WHERE gene_symbol = %s
+                    AND variant_creation <> 'not_in_vv_json'
+                """,
+                (gene_symbol,)
+            )
+            db.commit()
+        if no_vv_file == 0:
+            for vv_transcript in vv_json['transcripts']:
+                for res in gene_info:
+                    # need to check vv isoforms against MD isoforms to keep only relevant ones
+                    if vv_transcript['reference'] == res['refseq']:
+                        if 'mane_select' in vv_transcript['annotations'] and \
+                                'mane_plus_clinical' in vv_transcript['annotations'] and \
+                                'refseq_select' in vv_transcript['annotations']:
+                            transcript_road_signs[res['refseq']] = {
+                                'mane_select': vv_transcript['annotations']['mane_select'],
+                                'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                'refseq_select': vv_transcript['annotations']['refseq_select']
+                            }
+            return transcript_road_signs
+        else:
+            transcript_road_signs['error'] = 'Error in vv file'
+            return transcript_road_signs
+    else:
+        transcript_road_signs['error'] = 'IOError w/ vv file'
+        return transcript_road_signs

@@ -1315,6 +1315,37 @@ def test_get_oncokb_genes_info(gene_symbol, is_oncogene, is_tumor_suppressor):
     assert oncokb_dict['is_oncogene'] == is_oncogene
     assert oncokb_dict['is_tumor_suppressor'] == is_tumor_suppressor
 
+@pytest.mark.parametrize(('gene_symbol', 'transcript', 'is_mane', 'is_mane_plus_clinical', 'is_refseq_select'), (
+    ('PCDH15', 'NM_001384140.1', True, False, True),
+    ('PCDH15','NM_001142769.2', False, False, True),
+    ('PCDH15','NM_033056.4', False, True, False),
+    ('PCDH15','NM_033056.3', False, False, False),
+    ('DYSF', 'NM_001130987.2', True, False, True),
+    ('DYSF','NM_003494.4', False, True, False),
+    ('DYSF','NM_001130987.1', False, False, False),
+    ('USH2A','NM_206933.4', True, False, True)
+))
+def test_get_transcript_road_signs(app, gene_symbol, transcript, is_mane, is_mane_plus_clinical, is_refseq_select):
+    with app.app_context():
+        db_pool, db = get_db()
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
+            SELECT refseq
+            FROM gene
+            WHERE gene_symbol = %s
+            AND refseq = %s
+            """,
+            (gene_symbol, transcript)
+        )
+        gene_info = curs.fetchall()
+        db_pool.putconn(db)
+        transcript_road_signs = md_utilities.get_transcript_road_signs(gene_symbol, gene_info)
+        print (transcript_road_signs[transcript])
+        assert transcript_road_signs[transcript]['mane_select'] == is_mane
+        assert transcript_road_signs[transcript]['mane_plus_clinical'] == is_mane_plus_clinical
+        assert transcript_road_signs[transcript]['refseq_select'] == is_refseq_select
+
 
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (

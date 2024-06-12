@@ -220,6 +220,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'ENST': None,
             'ENSP': None,
             'canonical': None,
+            'MANE': None,
+            'MANEPlusClinical': None,
+            'RefSeqSelect': None,
             'previousSymbols_aliases': None,
             'hgncId': None,
             'chromosome': None,
@@ -406,6 +409,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'creationUserEmailPref': None,
             'otherIds': None,
             'mappedCanonical': None,
+            'transcript_road_signs': None,
             'apiKey': api_key
         },
         'nomenclatures': {
@@ -526,7 +530,24 @@ def variant(variant_id=None, caller='browser', api_key=None):
     )
     variant_features = curs.fetchone()
     if variant_features:
-
+        # get MANE info
+        # query below just to get the correct format for the sub below
+        curs.execute(
+            """
+            SELECT refseq
+            FROM gene
+            WHERE gene_symbol = %s
+            ORDER BY number_of_exons DESC
+            """,
+            (variant_features['gene_symbol'],)
+        )  # get all isoforms
+        result_all_genes = curs.fetchall()
+        transcript_road_signs = md_utilities.get_transcript_road_signs(variant_features['gene_symbol'], result_all_genes)
+        if not 'error' in transcript_road_signs and \
+                variant_features['refseq'] in transcript_road_signs:
+            external_data['gene']['MANE'] = transcript_road_signs[variant_features['refseq']]['mane_select']
+            external_data['gene']['MANEPlusClinical'] = transcript_road_signs[variant_features['refseq']]['mane_plus_clinical']
+            external_data['gene']['RefSeqSelect'] = transcript_road_signs[variant_features['refseq']]['refseq_select']
         # length of c_name for printing on screen
         var_cname = variant_features['c_name']
         if len(var_cname) > 30:
@@ -671,6 +692,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 res_ids = curs.fetchall()
                 mapped_canonical = True if external_data['gene']['canonical'] is True else False
                 if res_ids:
+                    if not 'error' in transcript_road_signs:
+                        internal_data['admin']['transcript_road_signs'] = transcript_road_signs
                     internal_data['admin']['otherIds'] = res_ids
                     other_ids = [res_id['feature_id'] for res_id in res_ids]
                     for res_id in res_ids:

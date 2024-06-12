@@ -162,6 +162,27 @@
 						</div>
 					</div>
 					{% endif %}
+					{% if internal_data.admin.transcript_road_signs is not none %}
+						{% if internal_data.admin.transcript_road_signs[id.refseq]['mane_select'] %}
+						<div class="w3-tag w3-round w3-green" style="padding:3px">
+							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+								MANE Select
+							</div>
+						</div>
+						{% elif internal_data.admin.transcript_road_signs[id.refseq]['mane_plus_clinical'] %}
+						<div class="w3-tag w3-round w3-green" style="padding:3px">
+							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+								MANE Plus Select
+							</div>
+						</div>
+						{% elif internal_data.admin.transcript_road_signs[id.refseq]['refseq_select'] %}
+						<div class="w3-tag w3-round w3-green" style="padding:3px">
+							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+								RefSeq Select
+							</div>
+						</div>
+						{% endif %}
+					{% endif %}
 				{% endautoescape %}
 				</li>
 				{% endfor %}
@@ -211,6 +232,25 @@
 							<div class="w3-tag w3-round w3-green" style="padding:3px">
 								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
 									MD canonical
+								</div>
+							</div>
+							{% endif %}
+							{% if external_data.gene.MANE %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									MANE Select
+								</div>
+							</div>
+							{% elif external_data.gene.MANEPlusClinical %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									MANE Plus Clinical
+								</div>
+							</div>
+							{% elif external_data.gene.RefSeqSelect %}
+							<div class="w3-tag w3-round w3-green" style="padding:3px">
+								<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+									RefSeq Select
 								</div>
 							</div>
 							{% endif %}
