@@ -27,6 +27,7 @@ def app():
         'VV_TOKEN': md_conf['vv_token'].replace('"', ''),
         'GENEBE_EMAIL': md_conf['genebe_email'].replace('"', ''),
         'GENEBE_API_KEY': md_conf['genebe_api_key'].replace('"', ''),
+        'IP_WHITE_LIST': md_conf['ip_white_list'].replace('"', ''),
     })
     with app.app_context():
         init_db()
