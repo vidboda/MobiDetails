@@ -41,36 +41,9 @@ def index():
                         headers=md_utilities.api_agent
                     ).data.decode('utf-8')
                 )
-    # count genes - deprecated 20030818
-#     db = get_db()
-#     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
-#     curs.execute(
-#         """
-#         SELECT COUNT(DISTINCT(gene_symbol)) AS gene, COUNT(refseq) AS transcript
-#         FROM gene
-#         WHERE variant_creation = 'ok' OR variant_creation = 'hg19_mapping_default'
-#         """
-#     )
-#     res = curs.fetchone()
-#     if res is None:
-#         close_db()
-#         error = 'There is a problem with the number of genes.'
-#         flash(error, 'w3-pale-red')
-#         md_utilities.send_error_email(
-#             md_utilities.prepare_email_html(
-#                 'MobiDetails PostGreSQL error',
-#                 '<p>There is a problem with the number of genes.\
-# <br /> in {}</p>'.format(os.path.basename(__file__))
-#             ),
-#             '[MobiDetails - PostGreSQL Error]'
-#         )
-#     else:
-#         close_db()
     return render_template(
         'md/index.html',
         run_mode=md_utilities.get_running_mode(),
-        # nb_genes=res['gene'],
-        # nb_isoforms=res['transcript'],
         vv_instance=vv_instance
     )
 
@@ -377,66 +350,9 @@ def gene(gene_symbol=None):
             num_iso = len(result_all)
             # get refseq select, mane, etc from vv json file
             transcript_road_signs = md_utilities.get_transcript_road_signs(gene_symbol, result_all)
-            if not 'error' in transcript_road_signs:
-            # no_vv_file = 0
-            # try:
-            #     json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
-            #         md_utilities.local_files['variant_validator']['abs_path'],
-            #         gene_symbol
-            #     ))
-            # except IOError:
-            #     no_vv_file = 1
-            # if no_vv_file == 0:
-            #     transcript_road_signs = {}
-            #     try:
-            #         vv_json = json.load(json_file)
-            #     finally:
-            #         json_file.close()
-            #     if 'error' in vv_json \
-            #         or ('message' in vv_json and
-            #             vv_json['message'] == 'Internal Server Error'):
-            #         no_vv_file = 1
-            #         curs.execute(
-            #             """
-            #             UPDATE gene
-            #             SET variant_creation = 'not_in_vv_json'
-            #             WHERE gene_symbol = %s
-            #                 AND variant_creation <> 'not_in_vv_json'
-            #             """,
-            #             (gene_symbol,)
-            #         )
-            #         db.commit()
-            #         # curs.execute(
-            #         #     """
-            #         #     SELECT *
-            #         #     FROM gene
-            #         #     WHERE gene_symbol = %s
-            #         #     ORDER BY number_of_exons DESC
-            #         #     """,
-            #         #     (gene_symbol,)
-            #         # )  # get all isoforms
-            #         # result_all = curs.fetchall()
-            #         # num_iso = len(result_all)
-            #     if no_vv_file == 0:
-            #         for vv_transcript in vv_json['transcripts']:
-            #             for res in result_all:
-            #                 # need to check vv isoforms against MD isoforms to keep only relevant ones
-            #                 if vv_transcript['reference'] == res['refseq']:
-            #                     if 'mane_select' in vv_transcript['annotations'] and \
-            #                             'mane_plus_clinical' in vv_transcript['annotations'] and \
-            #                             'refseq_select' in vv_transcript['annotations']:
-            #                         transcript_road_signs[res['refseq']] = {
-            #                             'mane_select': vv_transcript['annotations']['mane_select'],
-            #                             'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
-            #                             'refseq_select': vv_transcript['annotations']['refseq_select']
-            #                         }
-                # print(transcript_road_signs)
-            
+            if not 'error' in transcript_road_signs:            
                 clingen_criteria_specification_id = md_utilities.get_clingen_criteria_specification_id(gene_symbol)
                 # get isoforms with precomputed spliceAI
-                # spliceai_transcript_list = []
-                # for iso in result_all:
-                    # print(iso['refseq'])
                 transcript_file_basename = '{0}transcripts/{1}'.format(
                     md_utilities.local_files['spliceai_folder']['abs_path'],
                     main['refseq']
@@ -456,26 +372,6 @@ def gene(gene_symbol=None):
                         '{0}.txt.gz'.format(transcript_file_basename)
                     ):
                         md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, transcript_file_basename)
-                        # if response == 'ok':
-                            # spliceai_transcript_list.append(main['refseq'])
-                        # else:
-                        #     # check whether we have pre-computed chr-start-end-strand
-                        #     # DEPRECATED we will diplay only the canonical (main)
-                            # spliceai_strand = 'plus' if iso['strand'] == '+' else 'minus'
-                            # position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
-                            #     md_utilities.local_files['spliceai_folder']['abs_path'],
-                            #     'chr{0}'.format(main['chr']),
-                            #     start_g,
-                            #     end_g,
-                            #     spliceai_strand
-                            # )
-                            # if os.path.exists(
-                            #     '{0}.txt.gz'.format(position_file_basename)
-                            # ):
-                            #     # print(position_file_basename)
-                            #     response = md_utilities.build_bedgraph_from_raw_spliceai(iso['chr'], header1, header2, position_file_basename, transcript_file_basename)
-                        #         if response == 'ok':
-                        #             spliceai_transcript_list.append(iso['refseq'])
                     else:
                         spliceai_strand = 'plus' if main['strand'] == '+' else 'minus'
                         position_file_basename = '{0}positions/{1}_{2}_{3}_{4}'.format(
@@ -489,8 +385,6 @@ def gene(gene_symbol=None):
                             '{0}.txt.gz'.format(position_file_basename)
                         ):
                             md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, position_file_basename, transcript_file_basename)
-                            # md_utilities.build_bedgraph_from_raw_spliceai(main['chr'], header1, header2, position_file_basename, transcript_file_basename)
-                # print(spliceai_transcript_list)
                 # get oncoKB gene data
                 oncokb_info = md_utilities.get_oncokb_genes_info(gene_symbol)
                 close_db()
@@ -507,7 +401,6 @@ def gene(gene_symbol=None):
                     clingen_criteria_specification_id=clingen_criteria_specification_id,
                     transcript_road_signs=transcript_road_signs,
                     oncokb_info=oncokb_info
-                    # spliceai_transcript_list=spliceai_transcript_list
                 )
             else:
                 close_db()
@@ -600,62 +493,7 @@ def vars(gene_symbol=None):
         result_all = curs.fetchall()
         num_iso = len(result_all)
         transcript_road_signs = md_utilities.get_transcript_road_signs(gene_symbol, result_all)
-        # get refseq select, mane, etc from vv json file
-        # no_vv_file = 0
-        # try:
-        #     json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
-        #         md_utilities.local_files['variant_validator']['abs_path'],
-        #         gene_symbol
-        #     ))
-        # except IOError:
-        #     no_vv_file = 1
-        # if no_vv_file == 0:
-        #     transcript_road_signs = {}
-        #     try:
-        #         vv_json = json.load(json_file)
-        #     finally:
-        #         json_file.close()
-        #     if 'error' in vv_json \
-        #         or ('message' in vv_json and
-        #             vv_json['message'] == 'Internal Server Error'):
-        #         no_vv_file = 1
-        #         curs.execute(
-        #             """
-        #             UPDATE gene
-        #             SET variant_creation = 'not_in_vv_json'
-        #             WHERE gene_symbol = %s
-        #                 AND variant_creation <> 'not_in_vv_json'
-        #             """,
-        #             (gene_symbol,)
-        #         )
-        #         db.commit()
-        #     if no_vv_file == 0:
-        #         for vv_transcript in vv_json['transcripts']:
-        #             for res in result_all:
-        #                 # need to check vv isoforms against MD isoforms to keep only relevant ones
-        #                 if vv_transcript['reference'] == res['refseq']:
-        #                     if 'mane_select' in vv_transcript['annotations'] and \
-        #                             'mane_plus_clinical' in vv_transcript['annotations'] and \
-        #                             'refseq_select' in vv_transcript['annotations']:
-        #                         transcript_road_signs[res['refseq']] = {
-        #                             'mane_select': vv_transcript['annotations']['mane_select'],
-        #                             'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
-        #                             'refseq_select': vv_transcript['annotations']['refseq_select']
-        #                         }
-
-        # curs.execute(
-        #     """
-        #     SELECT d.variant_creation, d.refseq, b.pos, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
-        #     FROM variant_feature a, variant b, mobiuser c, gene d
-        #     WHERE a.id = b.feature_id
-        #         AND a.gene_symbol = d.gene_symbol
-        #         AND a.refseq = d.refseq
-        #         AND a.creation_user = c.id
-        #         AND b.genome_version = 'hg38'
-        #         AND a.gene_symbol = %s
-        #     """,
-        #     (gene_symbol,)
-        # )
+ 
         curs.execute(
             """
             SELECT d.variant_creation, d.refseq, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
