@@ -32,7 +32,7 @@
 		</p>
 		<p class = "w3-center">
 			{% if run_mode  and run_mode == 'on' %}
-				{{ create_variant(gene_symbol, gene_info, num_iso, res) }}
+				{{ create_variant(gene_symbol, gene_info, num_iso, transcript_road_signs, res) }}
 			{% else %}
 				<p class = "w3-center">Please wait for the end of the maintenance to annotate a new variant</p>
 			{% endif %}

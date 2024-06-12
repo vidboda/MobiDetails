@@ -580,11 +580,56 @@ def vars(gene_symbol=None):
             SELECT gene_symbol, refseq, variant_creation
             FROM gene
             WHERE gene_symbol = %s
+            ORDER BY number_of_exons DESC
             """,
             (gene_symbol,)
         )  # get all isoforms
         result_all = curs.fetchall()
         num_iso = len(result_all)
+
+        # get refseq select, mane, etc from vv json file
+        no_vv_file = 0
+        try:
+            json_file = open('{0}{1}.json'.format(  # lgtm [py/path-injection]
+                md_utilities.local_files['variant_validator']['abs_path'],
+                gene_symbol
+            ))
+        except IOError:
+            no_vv_file = 1
+        if no_vv_file == 0:
+            transcript_road_signs = {}
+            try:
+                vv_json = json.load(json_file)
+            finally:
+                json_file.close()
+            if 'error' in vv_json \
+                or ('message' in vv_json and
+                    vv_json['message'] == 'Internal Server Error'):
+                no_vv_file = 1
+                curs.execute(
+                    """
+                    UPDATE gene
+                    SET variant_creation = 'not_in_vv_json'
+                    WHERE gene_symbol = %s
+                        AND variant_creation <> 'not_in_vv_json'
+                    """,
+                    (gene_symbol,)
+                )
+                db.commit()
+            if no_vv_file == 0:
+                for vv_transcript in vv_json['transcripts']:
+                    for res in result_all:
+                        # need to check vv isoforms against MD isoforms to keep only relevant ones
+                        if vv_transcript['reference'] == res['refseq']:
+                            if 'mane_select' in vv_transcript['annotations'] and \
+                                    'mane_plus_clinical' in vv_transcript['annotations'] and \
+                                    'refseq_select' in vv_transcript['annotations']:
+                                transcript_road_signs[res['refseq']] = {
+                                    'mane_select': vv_transcript['annotations']['mane_select'],
+                                    'mane_plus_clinical': vv_transcript['annotations']['mane_plus_clinical'],
+                                    'refseq_select': vv_transcript['annotations']['refseq_select']
+                                }
+
         # curs.execute(
         #     """
         #     SELECT d.variant_creation, d.refseq, b.pos, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
@@ -635,7 +680,8 @@ def vars(gene_symbol=None):
             res=result_all,
             max_prot_size=res_size['size'],
             clingen_criteria_specification_id=clingen_criteria_specification_id,
-            oncokb_info=oncokb_info
+            oncokb_info=oncokb_info,
+            transcript_road_signs=transcript_road_signs
         )
     else:
         close_db()

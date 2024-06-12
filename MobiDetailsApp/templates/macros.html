@@ -141,7 +141,7 @@
 	</script>
 {%- endmacro %}
 <!--create variant-->
-{% macro create_variant(gene, main_iso, num_iso, res) -%}
+{% macro create_variant(gene, main_iso, num_iso, transcript_road_signs, res) -%}
 	{% if main_iso.variant_creation == 'ok' or main_iso.variant_creation == 'hg19_mapping_default' %}
 		<input type="button"  value="Run a new variant!" onclick="document.getElementById('var_modal').style.display='block';$('#creation_form :input').prop('disabled', false);$('#new_variant').val('c.')" class="w3-button w3-ripple w3-blue w3-border w3-border-blue" id="add_var"/>
 		<div class="w3-modal w3-animate-opacity" id="var_modal" style="z-index:1000">
@@ -204,11 +204,37 @@
 							<div class="w3-panel w3-large" id ="iso_form" style="display:none;">
 									<select  for="creation_form" name="alt_iso" id="alt_iso" class="w3-select">
 										<option value="" selected="selected" disabled="disabled">Select an isoform</option>
-										<option value="{{ main_iso.refseq }}" >{{ main_iso.refseq }}</option>
+										{# <option value="{{ main_iso.refseq }}" >{{ main_iso.refseq }}</option> #}
+										<option value="{{ main_iso.refseq }}" >{{ main_iso.refseq }}
+										{% if main_iso.refseq in transcript_road_signs %}
+											{% if transcript_road_signs[main_iso.refseq].mane_select %}
+											&nbsp;-&nbsp;MANE Select
+											{% endif %}
+											{% if transcript_road_signs[main_iso.refseq].mane_plus_clinical %}
+											&nbsp;-&nbsp;MANE Plus Clinical
+											{% endif %}
+											{% if transcript_road_signs[main_iso.refseq].refseq_select %}
+											&nbsp;-&nbsp;RefSeq Select
+											{% endif %}
+										{% endif %}
+										</option>
 										{% for iso in res %}
 											{% if iso.refseq != main_iso.refseq %}
 												{% if iso.variant_creation == 'ok' or iso.variant_creation == 'hg19_mapping_default' %}
-													<option value="{{ iso.refseq }}">{{ iso.refseq }}</option>
+													<option value="{{ iso.refseq }}">{{ iso.refseq }}
+													{% if iso.refseq in transcript_road_signs %}
+														{% if transcript_road_signs[iso.refseq].mane_select %}
+														&nbsp;-&nbsp;MANE Select
+														{% endif %}
+														{% if transcript_road_signs[iso.refseq].mane_plus_clinical %}
+														&nbsp;-&nbsp;MANE Plus Clinical
+														{% endif %}
+														{% if transcript_road_signs[iso.refseq].refseq_select %}
+														&nbsp;-&nbsp;RefSeq Select
+														{% endif %}
+													{% endif %}
+													{# <option value="{{ iso.refseq }}">{{ iso.refseq }}</option> #}
+													</option>
 												{% else %}
 													<option value="{{ iso.refseq }}" disabled="disabled">{{ iso.refseq }} - disabled ({{ iso.variant_creation|replace('_', ' ') }})</option>
 												{% endif %}
