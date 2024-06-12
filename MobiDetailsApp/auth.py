@@ -17,6 +17,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
 from datetime import datetime
+from IPy import IP, IPSet
 from MobiDetailsApp.db import get_db, close_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -195,8 +196,20 @@ def register():
                         # sfs return a boolean for username, ip, email
                         # if email or ip = 1 => rejected
                         # username won't be rejected but a warning will be sent
-                        if sfs_json['ip']['appears'] == 1 or \
+                        # build IP white list
+                        # https://pypi.org/project/IPy/
+                        ip_list = re.split(',', app.config['IP_WHITE_LIST'])
+                        ip_white_list = IPSet([IP(ip_list.pop(0))])
+                        for ip in ip_list:
+                            ip_white_list.add(IP(ip))
+                        is_in_white_list = any([remote_ip in white_net for white_net in ip_white_list])
+                        print(ip_white_list)
+                        print(is_in_white_list)
+                        if (sfs_json['ip']['appears'] == 1 and \
+                                is_in_white_list is False) or \
                                 sfs_json['email']['appears'] == 1:
+                        # if sfs_json['ip']['appears'] == 1 or \
+                        #         sfs_json['email']['appears'] == 1:
                             error = """
                             Sorry, your input data is reported as risky.
                             If this is not the case, please send
