@@ -162,7 +162,7 @@
 						</div>
 					</div>
 					{% endif %}
-					{% if internal_data.admin.transcript_road_signs is not none %}
+					{% if internal_data.admin.transcript_road_signs is not none  and id.refseq in internal_data.admin.transcript_road_signs%}
 						{% if internal_data.admin.transcript_road_signs[id.refseq]['mane_select'] %}
 						<div class="w3-tag w3-round w3-green" style="padding:3px">
 							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
