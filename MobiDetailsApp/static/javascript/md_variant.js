@@ -1257,6 +1257,6 @@ $(document).ready(function() {
 
     // console.log(doc.content )
     //pdfmake comes with datatables
-		pdfMake.createPdf(doc).download($('#nm_var').text() + '.pdf');
+		pdfMake.createPdf(doc).download($('#hgvs_nm_nom').text() + '.pdf');
 	});
 });
