@@ -974,6 +974,19 @@ def test_create_var_vv(client, app):
         assert isinstance(res_id, int)
 
 
+def test_create_var_vv_vcf_str(client, app):
+    with app.app_context():
+        g = fake_g_obj()
+        db_pool, db = get_db()
+        res_id = md_utilities.create_var_vv_vcf_str(
+            'NM_206933.4:c.100_101delinsA', 'USH2A', 'NM_206933.4',
+            'c.100_101delinsA', 'c.100_101delinsA', vv_dict,
+            'test', db, g
+        )
+        db_pool.putconn(db)
+        print(res_id)
+        assert isinstance(res_id, int)
+
 @pytest.mark.parametrize(('name', 'result'), (
     ('216595578_216595582delinsT', ('216595578', '216595582')),
     ('100_101del', ('100', '101')),

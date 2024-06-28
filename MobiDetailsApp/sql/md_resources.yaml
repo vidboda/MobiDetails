@@ -312,14 +312,14 @@
     'name': 'gnomAD genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad'
-  'gnomad_40_genome':
-    'rel_path': '/static/resources/gnomad/hg38_gnomad40_genome_sorted.txt.gz'
-    'name': 'gnomADv4 genome'
+  'gnomad_4_genome':
+    'rel_path': '/static/resources/gnomad/hg38_gnomad41_genome_sorted.txt.gz'
+    'name': 'gnomADv4.1 genome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad_genome'
-  'gnomad_40_exome':
-    'rel_path': '/static/resources/gnomad/hg38_gnomad40_exome_sorted.txt.gz'
-    'name': 'gnomADv4 exome'
+  'gnomad_4_exome':
+    'rel_path': '/static/resources/gnomad/hg38_gnomad41_exome_sorted.txt.gz'
+    'name': 'gnomADv4.1 exome'
     'description': 'Large dataset of variants population frequencies'
     'short_name': 'gnomad_exome'
   # 'hgnc_full_set':

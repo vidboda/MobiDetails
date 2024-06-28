@@ -1011,7 +1011,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 #     external_data['frequenciesDatabases']['gnomADv3'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomadv4 genome
                 record = md_utilities.get_value_from_tabix_file(
-                    'gnomADv4 Genome', md_utilities.local_files['gnomad_40_genome']['abs_path'], var, variant_features
+                    'gnomADv4 Genome', md_utilities.local_files['gnomad_4_genome']['abs_path'], var, variant_features
                 )
                 if isinstance(record, str):
                     external_data['frequenciesDatabases']['gnomADv4Genome'] = record
@@ -1019,7 +1019,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     external_data['frequenciesDatabases']['gnomADv4Genome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # gnomadv4 exome
                 record = md_utilities.get_value_from_tabix_file(
-                    'gnomADv4 Exome', md_utilities.local_files['gnomad_40_exome']['abs_path'], var, variant_features
+                    'gnomADv4 Exome', md_utilities.local_files['gnomad_4_exome']['abs_path'], var, variant_features
                 )
                 if isinstance(record, str):
                     external_data['frequenciesDatabases']['gnomADv4Exome'] = record
@@ -2953,7 +2953,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
             if var_dict:
                 vars_vcf = {}
                 for gene in var_dict:
-                    creation_dict = md_utilities.create_var_vv(
+                    creation_dict = md_utilities.create_var_vv_vcf_str(
                         var_dict[gene]['vv_key_var'], gene, var_dict[gene]['RefSeq_NM'],
                         'c.{}'.format(var_dict[gene]['new_variant']), var_dict[gene]['new_variant'],
                         vv_data, caller, db, g

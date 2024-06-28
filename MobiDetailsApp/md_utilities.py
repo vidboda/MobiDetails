@@ -131,11 +131,11 @@ local_files['gnomad_genome_hg38']['abs_path'] = '{0}{1}'.format(
 local_files['gnomad_3']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_3']['rel_path']
 )
-local_files['gnomad_40_exome']['abs_path'] = '{0}{1}'.format(
-    app_path, local_files['gnomad_40_exome']['rel_path']
+local_files['gnomad_4_exome']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_4_exome']['rel_path']
 )
-local_files['gnomad_40_genome']['abs_path'] = '{0}{1}'.format(
-    app_path, local_files['gnomad_40_genome']['rel_path']
+local_files['gnomad_4_genome']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gnomad_4_genome']['rel_path']
 )
 # local_files['hgnc_full_set']['abs_path'] = '{0}{1}'.format(
 #     app_path, local_files['hgnc_full_set']['rel_path']
