@@ -2178,6 +2178,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
             )
         res_gene = curs.fetchone()
         if res_gene:
+            gene_hgnc = res_gene['gene_symbol']
             # match_object = re.search(rf'^([Nn][Cc]_0000\d{{2}}\.\d{{1,2}}):g\.({variant_regexp})', urllib.parse.unquote(variant_ghgvs))
             match_object = re.search(rf'^({chrom_regexp}):g\.({variant_regexp})', variant_ghgvs)
             if match_object:
