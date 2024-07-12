@@ -81,11 +81,13 @@
 			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
 			{% endif %}
 			{% endif %}
+			{{ link("%s/detail?gene=%s&mutation=%s:g.%s"|format(urls.mastermind, external_data.gene.symbol, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName), "Mastermind") }}
 		</div>
 		{# somatic #}
 		{% if (external_data.gene.isOncogene or external_data.gene.isTumorSuppressor) and (external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?') %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('somatic_acc', 'somatic_icon');">somatic <i class="fa fa-caret-down" id="somatic_icon"></i></button>
 		<div class="w3-show" id="somatic_acc">
+			{{ link("%s/search?q=%s %s"|format(urls.cosmic, external_data.gene.symbol, internal_data.nomenclatures.cName), "COSMIC")}}
 			{{ link("%sgene/%s/%s"|format(urls.oncokb, external_data.gene.symbol, internal_data.nomenclatures.oneLetterpName), "OncoKB")}}
 			{% if external_data.positions.proteinType == 'missense' %}
 			{{ link("%s%s&pos=%s&ref=%s&alt=%s"|format(urls.cancervar_api, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CancerVar")}}
@@ -1356,48 +1358,48 @@
 						<td class="w3-left-align"><a href="{{ urls.sift }}" target="_blank" title="Visit SIFT 4G" rel="noopener noreferrer">SIFT</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftScore, internal_data.missensePredictions.siftColor) }}{{ internal_data.missensePredictions.siftStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.siftPred, internal_data.missensePredictions.siftColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging - single score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &lt; 0.05 for Damaging - <strong>single score</strong></em></td>
 					</tr>
 						{% if g.user['academic'] or not g.user %}
 						<tr><!--PH2 HDIV-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer">Polyphen 2</a> HumDiv:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivScore, internal_data.missensePredictions.polyphen2HdivColor) }}{{ internal_data.missensePredictions.polyphen2HdivStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HdivPred, internal_data.missensePredictions.polyphen2HdivColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - single score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hdiv_mid, thresholds.pph2_hdiv_max) }} for Possibly and Probably Damaging - <strong>single score</strong></em></td>
 						</tr>
 						<tr><!--PH2 HVAR-->
 							<td class="w3-left-align"><a href="{{ urls.pph2 }}" target="_blank" title="Visit Polyphen" rel="noopener noreferrer">Polyphen 2</a> HumVar:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarScore, internal_data.missensePredictions.polyphen2HvarColor) }}{{ internal_data.missensePredictions.polyphen2HvarStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.polyphen2HvarPred, internal_data.missensePredictions.polyphen2HvarColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - single score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ "%s|%s"|format(thresholds.pph2_hvar_mid, thresholds.pph2_hvar_max) }} for Possibly and Probably Damaging - <strong>single score</strong></em></td>
 						</tr>
 						{% endif %}
 						<tr><!--FATHMM-->
 							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm" rel="noopener noreferrer">Fathmm</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - single score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - <strong>single score</strong></em></td>
 						</tr>
 					{% endif %}
 					<tr><!--AlphaMissense-->
 						<td class="w3-left-align"><a href="{{ urls.alphamissense }}" target="_blank" title="Visit AlphaMissense" rel="noopener noreferrer">AlphaMissense</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor) }}{{ internal_data.missensePredictions.amStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - single score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
 					{% if g.user['academic'] or not g.user %}
 					<tr><!--REVEL-->
 						<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL" rel="noopener noreferrer">REVEL</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}{{ internal_data.missensePredictions.revelStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - meta score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - <strong>meta score</strong></em></td>
 					</tr>
 						{% if internal_data.noMatch.dbnsfp is none %}
 						<tr><!--ClinPred-->
 							<td class="w3-left-align"><a href="{{ urls.clinpred }}" target="_blank" title="Visit ClinPred" rel="noopener noreferrer">ClinPred</a>:</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredScore, internal_data.missensePredictions.clinpredColor) }}{{ internal_data.missensePredictions.clinpredStar }}</td>
 							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.clinpredPred, internal_data.missensePredictions.clinpredColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging - meta score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds.clinpred }} for Damaging - <strong>meta score</strong></em></td>
 						</tr>
 						{% endif %}
 					{% endif %}
@@ -1406,20 +1408,20 @@
 						<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp" rel="noopener noreferrer">Meta SVM</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMScore, internal_data.missensePredictions.metaSVMColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaSVMPred, internal_data.missensePredictions.metaSVMColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-svm'] }} for Damaging (reliabilty index: 0-10), 10:high - <strong>meta score</strong></em></td>
 					</tr>
 					<tr><!--Meta LR-->
 						<td class="w3-left-align"><a href="{{ urls.dbnsfp }}" target="_blank" title="Visit dbnsfp" rel="noopener noreferrer">Meta LR</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRScore, internal_data.missensePredictions.metaLRColor) }} ({{ external_data.missensePredictions.metaSVMLRRel }})</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.metaLRPred, internal_data.missensePredictions.metaLRColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high - meta score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['meta-lr'] }}  for Damaging (reliabilty index: 0-10), 10:high -<strong> meta score</strong></em></td>
 					</tr>
 					{% endif %}
 					<tr><!--Mistic-->
 						<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic" rel="noopener noreferrer">Mistic</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
-						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - meta score</em></td>
+						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - <strong>meta score</strong></em></td>
 					</tr>
 				</tbody>
 			</table>
