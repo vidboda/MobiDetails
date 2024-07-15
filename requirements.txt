@@ -77,6 +77,6 @@ watchdog==2.1.6
 wcwidth==0.2.5
 Werkzeug==3.0.3
 WTForms==3.0.0
-zipp==3.6.0
+zipp==3.19.1
 zope.event==4.5.0
 zope.interface==5.4.0
