@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "macros.html" import info, search_engine_manual %}
 {% block more_head %}
-	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}" type="text/css">
 	<script src="{{ url_for('static', filename='javascript/datatables.1.11.5.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/md_about.js') }}?20220511" type="text/javascript"></script>
 {% endblock %}
@@ -27,12 +27,6 @@
 	<div class="w3-container w3-padding-64 w3-center" id="whatyouwillget" style="display:none">
 		<img class="w3-image" src="{{ url_for('static', filename='img/MD1.png') }}"/>
 	</div>
-<!--	<div class="w3-button w3-block w3-blue" onclick="accord('whatyouneed');" title="toggle section">
-		<span class="w3-xxlarge">What you need to run MobiDetails</span>
-	</div><br />
-	<div class="w3-container w3-padding-64 w3-center" id="whatyouneed" style="display:none">
-		{{ info("<span>Internet, a web browser, a gene and a variant of interest (HGVS c. nomenclature). That's all.</span>") }}
-	</div>-->
 	<div class="w3-button w3-block w3-blue" onclick="accord('howto');" title="toggle section">
 		<span class="w3-xxlarge">How to use it</span>
 	</div><br/>
