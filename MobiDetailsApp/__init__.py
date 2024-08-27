@@ -65,6 +65,8 @@ def create_app(test_config=None):
     # define custom jinja filters
     app.jinja_env.filters['match'] = configuration.match
     app.jinja_env.filters['match_multiline'] = configuration.match_multiline
+    # define global jina variable for static full paths - to be used later?
+    # app.add_template_global(name='SERVER_NAME', f=app.config['SERVER_NAME'])
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
