@@ -191,7 +191,7 @@ def register():
                 sfs_json = None
             if sfs_json:
                 try:
-                    print(sfs_json)
+                    # print(sfs_json)
                     if sfs_json['success'] == 1:
                         # sfs return a boolean for username, ip, email
                         # if email or ip = 1 => rejected
@@ -203,8 +203,8 @@ def register():
                         for ip in ip_list:
                             ip_white_list.add(IP(ip))
                         is_in_white_list = any([remote_ip in white_net for white_net in ip_white_list])
-                        print(ip_white_list)
-                        print(is_in_white_list)
+                        # print(ip_white_list)
+                        # print(is_in_white_list)
                         if (sfs_json['ip']['appears'] == 1 and \
                                 is_in_white_list is False) or \
                                 sfs_json['email']['appears'] == 1:
@@ -486,9 +486,10 @@ def activate(mobiuser_id, api_key):
         curs.execute(
             """
             SELECT id, api_key, activated
-            FROM mobiuser WHERE id = %s AND api_key = %s
+            FROM mobiuser
+            WHERE id = %s
             """,
-            (mobiuser_id, api_key)
+            (mobiuser_id,)
         )
         user = curs.fetchone()
         if user is None:
@@ -505,7 +506,7 @@ def activate(mobiuser_id, api_key):
                 '[MobiDetails - Activation Error]'
             )
             flash(
-                'API key and user id do not seem to fit. An admin has been warned',
+                'API key and user id do not seem to fit. An admin has been warned.',
                 'w3-pale-red'
             )
             close_db()
@@ -528,8 +529,11 @@ def activate(mobiuser_id, api_key):
                 close_db()
                 return render_template('auth/login.html')
             if user['activated'] is True and \
-                    user['api_key'] == api_key and \
                     user['id'] == mobiuser_id:
+                flash(
+                    'Your account is already activated, you may now log in using your email address.',
+                    'w3-pale-green'
+                )
                 return render_template('auth/login.html')
     return render_template('md/unknown.html')
 
