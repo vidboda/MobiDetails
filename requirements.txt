@@ -4,7 +4,7 @@ attrs==21.2.0
 bgzip==0.4.0
 blinker==1.4
 Brotli==1.0.9
-certifi==2023.7.22
+certifi==2024.7.4
 cffi==1.15.0
 chardet==4.0.0
 charset-normalizer==2.0.8
@@ -72,11 +72,11 @@ toml==0.10.2
 tomli==1.2.2
 twobitreader==3.1.7
 typing_extensions==4.0.0
-urllib3==1.26.18
+urllib3==1.26.19
 watchdog==2.1.6
 wcwidth==0.2.5
 Werkzeug==3.0.3
 WTForms==3.0.0
-zipp==3.6.0
+zipp==3.19.1
 zope.event==4.5.0
 zope.interface==5.4.0
