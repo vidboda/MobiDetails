@@ -506,7 +506,7 @@ def activate(mobiuser_id, api_key):
                 '[MobiDetails - Activation Error]'
             )
             flash(
-                'API key and user id do not seem to fit. An admin has been warned.',
+                'User id does not exist. An admin has been warned.',
                 'w3-pale-red'
             )
             close_db()
