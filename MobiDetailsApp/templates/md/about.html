@@ -68,7 +68,7 @@
 							<td class="w3-left-align">
 							{% if urls[external_tools[tool]['short_name']] != '' %}
 								{% if tool == 'MorfeeDB' %}
-								<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}" download>{{ tool }}</a>
+								<a href="{{ url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz') }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}" download="download">{{ tool }}</a>
 								{% else %}
 								<a href="{{ urls[external_tools[tool]['short_name']] }}" target="_blank" rel="noopener noreferrer" title="Visit {{ tool }}">{{ tool }}</a>
 								{% endif %}

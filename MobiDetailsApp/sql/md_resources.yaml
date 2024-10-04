@@ -129,7 +129,6 @@
   'mistic': 'http://lbgi.fr/mistic'
   'miztli': 'https://miztli.biokerden.eu'
   'mpa': 'https://github.com/mobidic/MPA'
-  'morfeedb' : '/static/resources/morfeedb/morfee.20231213.txt.gz'
   'mutalyzer': 'https://mutalyzer.nl'
   'mutalyzer_normalizer': 'https://mutalyzer.nl/normalizer/'
   'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
