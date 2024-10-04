@@ -129,6 +129,7 @@
   'mistic': 'http://lbgi.fr/mistic'
   'miztli': 'https://miztli.biokerden.eu'
   'mpa': 'https://github.com/mobidic/MPA'
+  'morfeedb' : '/static/resources/morfeedb/morfee.20231213.txt.gz'
   'mutalyzer': 'https://mutalyzer.nl'
   'mutalyzer_normalizer': 'https://mutalyzer.nl/normalizer/'
   'mutalyzer_position_converter': 'https://mutalyzer.nl/position-converter?assembly_name_or_alias='
@@ -557,7 +558,7 @@
     'year': '2024'
     'paper': '38440907'
     'version': 'Live web site'
-    'short_name': 'geneb'
+    'short_name': 'genebe'
   'gnomAD':
     'firstauthor': 'Karczewski'
     'year': '2020'
