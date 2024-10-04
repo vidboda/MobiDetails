@@ -2619,7 +2619,6 @@ def delete_variant_list(list_name):
 @bp.route('/autocomplete', methods=['POST'])
 def autocomplete():
     if 'query_engine' in request.form:
-        print('ok')
         query = request.form['query_engine']
         query = re.sub(r'\s', '', query)
         query = re.sub(r"'", '', query)
