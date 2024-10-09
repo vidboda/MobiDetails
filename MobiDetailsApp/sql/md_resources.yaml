@@ -155,6 +155,7 @@
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
   'pdb': 'https://www.rcsb.org'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
+  'pubmatcher': 'https://www.pubmatcher.fr'
   'regulomedb': 'https://regulomedb.org'
   'regulomedb_hg19_search': 'https://www.regulomedb.org/regulome-search?genome=GRCh37&regions='
   'revel': 'https://sites.google.com/site/revelgenomics/'

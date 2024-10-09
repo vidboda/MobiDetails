@@ -99,6 +99,9 @@
 						<span class="w3-button" onclick="window.open('{{ urls.omim }}search/?index=entry&amp;start=1&amp;limit=10&amp;search={{ gene_symbol }}&amp;sort=score+desc%2C+prefix_sort+desc', '_blank', 'noopener,noreferrer')">OMIM</span>
 					</li>
 					<li class="w3-padding-small">
+						<span class="w3-button" onclick="window.open('{{ urls.pubmatcher }}/search?genes={{ gene_symbol }}&phenotypes=', '_blank', 'noopener,noreferrer')">PubMatcher</span>
+					</li>
+					<li class="w3-padding-small">
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg19 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg19)</span> /
 						<span class="w3-button" onclick="window.open('{{ urls.ucsc_hg38 }}{{ gene_symbol }}&amp;hgt.positionInput={{ gene_symbol }}&amp;hgt.suggestTrack=knownGene&amp;Submit=submit', '_blank', 'noopener,noreferrer')">UCSC (hg38)</span>
 					</li>

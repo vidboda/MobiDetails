@@ -96,6 +96,7 @@
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('bonus_acc', 'bonus_icon');">bonus <i class="fa fa-caret-down" id="bonus_icon"></i></button>
 		<div class="w3-show" id="bonus_acc">
+			{{ link("%s/search?genes=%s&phenotypes="|format(urls.pubmatcher, external_data.gene.symbol), 'PubMatcher') }}
 			{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
 			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
 			{% elif not external_data.gene.proteinSize %}
