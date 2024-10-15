@@ -165,7 +165,7 @@
 				}
 			},
 			cookie: {
-				name: "cookie_consent_md",
+				name: "CookieConsent{{ config['SESSION_COOKIE_NAME'] }}",
 				domain: "{{ request.path.split('/')[0] }}"
 			},
 			"revokable": true,
@@ -177,8 +177,10 @@
 			}
 			});
 		</script>
-		{{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }}
-		{# {{ danger("IMPORTANT NOTICE:<br /> Due to a (yet another) planned power outage, MobiDetails won't be available from 7:45 to 10 am, GMT+2, on Tuesday, April 11th. In addition, the SpliceAI-visual feature wil be shut down shortly before and restored shortly after.") }} #}
+		{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }} #}
+		<div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
+		{{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7am to 14 pm, GMT+2, on Tuesday, October the 22nd.") }}
+		</div>
 		{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails will be shut down from Monday, Frebruary, 13 around 17:30 Paris time (GMT+1) to Tuesday morning between 9:00 and 10:00 due to an intervention on the electrical network of the building.") }} #}
 		{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is back! However due to major power instability in the building this service will be shut down from Friday November, 18, 17h Paris time to Monday morning, November 21.") }} #}
 		{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is temporarily down. Sorry for the inconvenience. We're working on restoring it asap.") }} # }}
