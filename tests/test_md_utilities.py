@@ -63,10 +63,10 @@ def test_one2three_fct(client, variant_in, variant_out):
 
 
 @pytest.mark.parametrize(('variant_in', 'variant_out'), (
-    ('p.Arg34X', 'R34Ter'),
+    ('p.Arg34X', 'R34*'),
     ('p.Arg34del', 'R34del'),
-    ('p.Arg34Ter', 'R34Ter'),
-    ('p.(Arg34*', 'R34Ter'),
+    ('p.Arg34Ter', 'R34*'),
+    ('p.(Arg34*', 'R34*'),
     ('p.Arg34_Glu65del', 'R34_E65del'),
     ('p.(Arg34tyr)', 'R34Y'),
     ('p.(Arg34_Glu65del)', 'R34_E65del'),
