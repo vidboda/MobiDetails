@@ -1,8 +1,9 @@
 import os
 import re
 from flask import (
-    Blueprint, flash, g, render_template, request, escape, url_for, escape, current_app as app
+    Blueprint, flash, g, render_template, request, url_for, current_app as app
 )
+from markupsafe import escape
 # from werkzeug.urls import url_parse
 # from urllib.parse import urlparse
 from MobiDetailsApp.auth import login_required

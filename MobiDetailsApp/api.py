@@ -2,8 +2,9 @@ import re
 import os
 import gzip
 from flask import (
-    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template, escape
+    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template
 )
+from markupsafe import escape
 import psycopg2
 import psycopg2.extras
 import json
