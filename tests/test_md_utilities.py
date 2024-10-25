@@ -1007,6 +1007,23 @@ def test_validate_url(url, result):
     assert md_utilities.validate_url(url) == result
 
 
+
+@pytest.mark.parametrize(('url', 'result', 'index'), (
+    ('https://stackoverflow.com/questions/18423853/how-to-validate-url-and-redirect-to-some-url-using-flask', 'https', 0),
+    ('https://stackoverflow.com/questions/18423853/how-to-validate-url-and-redirect-to-some-url-using-flask', 'stackoverflow.com', 1),
+    ('https://stackoverflow.com/questions/18423853/how-to-validate-url-and-redirect-to-some-url-using-flask', '/questions/18423853/how-to-validate-url-and-redirect-to-some-url-using-flask', 2),
+    ('abcgeerg', '', 0),
+    ('http://194.167.35.195:8000/', 'http', 0),
+    ('https://rest.variantvalidator.org/', 'rest.variantvalidator.org', 1),
+    ('/favourite', '', 0)
+))
+def test_parse_url(url, result, index):
+    results = md_utilities.parse_url(url)
+    print(results)
+    if results:
+        assert results[index] == result
+
+
 @pytest.mark.parametrize(('seq', 'result'), (
     ('ATCG', 'CGAT'),
     ('TCTCCAGCCTTGGGAAAAGACCTCGTGACTCAGTCAAGGATATTGAAGCA',

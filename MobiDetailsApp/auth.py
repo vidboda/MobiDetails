@@ -15,7 +15,7 @@ from flask import (
     request, session, url_for, current_app as app
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-from werkzeug.urls import url_parse
+# from werkzeug.urls import url_parse
 from datetime import datetime
 from IPy import IP, IPSet
 from MobiDetailsApp.db import get_db, close_db
@@ -423,9 +423,13 @@ def login():
                     user["username"]), 'w3-pale-green'
                 )
             session['user_id'] = user['id']
+            # if referrer_page is None or \
+            #         (url_parse(referrer_page).host !=
+            #             url_parse(request.base_url).host or
+            #             re.search(r'(login|register)', referrer_page)):
             if referrer_page is None or \
-                    (url_parse(referrer_page).host !=
-                        url_parse(request.base_url).host or
+                    (md_utilities.parse_url(referrer_page).hostname !=
+                        md_utilities.parse_url(request.base_url).hostname or
                         re.search(r'(login|register)', referrer_page)):
                 return redirect(
                     url_for(
@@ -436,9 +440,12 @@ def login():
                     code=302
                 )
             else:
+                # if referrer_page is not None and \
+                #         (url_parse(referrer_page).host ==
+                #             url_parse(request.base_url).host):
                 if referrer_page is not None and \
-                        (url_parse(referrer_page).host ==
-                            url_parse(request.base_url).host):
+                        (md_utilities.parse_url(referrer_page).hostname ==
+                            md_utilities.parse_url(request.base_url).hostname):
                     # not coming from mobidetails
                     # rebuild redirect URL
                     return redirect(
@@ -732,9 +739,10 @@ def logout():
     # scheme auth username password raw_username raw_password
     # ascii_host host port path query fragment
     if request.referrer is not None and \
-            (url_parse(request.referrer).host == md_utilities.host['dev'] or
-                url_parse(request.referrer).host == md_utilities.host['prod']):
+            (md_utilities.parse_url(request.referrer).hostname == md_utilities.host['dev'] or
+                md_utilities.parse_url(request.referrer).hostname == md_utilities.host['prod']):
         redirect_url = md_utilities.build_redirect_url(request.referrer)
+        print(redirect_url)
         return redirect(redirect_url, code=302)
     else:
         return redirect(url_for('index'), code=302)

@@ -18,7 +18,7 @@ from flask import (
     url_for, request, render_template, current_app as app, g
 )
 from flask_mail import Message
-from werkzeug.urls import url_parse
+# from werkzeug.urls import url_parse
 # from . import config
 from MobiDetailsApp import mail
 
@@ -242,6 +242,14 @@ def validate_url(url):
         return all([result.scheme, result.netloc, result.path])
     except Exception:
         return False
+
+
+def parse_url(url):
+    # if validate_url(url):
+        # result = urlparse(url)
+        # return [result.scheme, result.netloc, result.path, result.params, result.query, result.fragment, result.username, result.password, result.hostname, result.port]
+    # scheme, netloc, path, params, query, fragment, username, password, hostname, port
+    return urlparse(url)
 
 
 def reverse_complement(seq):
@@ -3447,8 +3455,8 @@ def check_api_key(db, api_key=None):  # in api
             else:
                 return {'mobidetails_error': 'Bad chars in API key'}
     elif request.referrer is not None and \
-            (url_parse(request.referrer).host == host['dev'] or
-                url_parse(request.referrer).host == host['prod']):        
+            (md_utilities.parse_url(request.referrer).hostname == host['dev'] or
+                md_utilities.parse_url(request.referrer).hostname == host['prod']):        
         return {'mobiuser': get_api_key(curs, None, 'user_object')}
     return {'mobidetails_error': 'No API key provided'}
 
@@ -3646,28 +3654,51 @@ def get_vv_token():
 def build_redirect_url(incoming_url=None):
     # method to rebuild URL and avoid Untrusted URL redirection
     # if re.search(r'https?:\/\/', incoming_url):
-    if incoming_url is None:
+    parse_results = parse_url(incoming_url)
+    if not parse_results:
         return None
-    elif url_parse(incoming_url).scheme:
+    elif parse_results.scheme != '':
         return '{0}://{1}{2}{3}#{4}'.format(
-            url_parse(incoming_url).scheme,
-            url_parse(incoming_url).netloc,
-            url_parse(incoming_url).path,
-            url_parse(incoming_url).query,
-            url_parse(incoming_url).fragment
+            parse_results.scheme,
+            parse_results.netloc,
+            parse_results.path,
+            parse_results.query,
+            parse_results.fragment
         )
     elif re.search(r'^\/', incoming_url):
-        if url_parse(incoming_url).fragment:
+        if parse_results.fragment:
             return '{0}{1}#{2}'.format(
-                url_parse(incoming_url).path,
-                url_parse(incoming_url).query,
-                url_parse(incoming_url).fragment
+                parse_results.path,
+                parse_results.query,
+                parse_results.fragment
             )
         else:
             return '{0}{1}'.format(
-                url_parse(incoming_url).path,
-                url_parse(incoming_url).query,
+                parse_results.path,
+                parse_results.query,
             )
+    # if incoming_url is None:
+    #     return None
+    # elif url_parse(incoming_url).scheme:
+    #     return '{0}://{1}{2}{3}#{4}'.format(
+    #         url_parse(incoming_url).scheme,
+    #         url_parse(incoming_url).netloc,
+    #         url_parse(incoming_url).path,
+    #         url_parse(incoming_url).query,
+    #         url_parse(incoming_url).fragment
+    #     )
+    # elif re.search(r'^\/', incoming_url):
+    #     if url_parse(incoming_url).fragment:
+    #         return '{0}{1}#{2}'.format(
+    #             url_parse(incoming_url).path,
+    #             url_parse(incoming_url).query,
+    #             url_parse(incoming_url).fragment
+    #         )
+    #     else:
+    #         return '{0}{1}'.format(
+    #             url_parse(incoming_url).path,
+    #             url_parse(incoming_url).query,
+    #         )
         # return incoming_url
     return None
 

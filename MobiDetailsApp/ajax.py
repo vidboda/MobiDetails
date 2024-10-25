@@ -3,7 +3,8 @@ import re
 from flask import (
     Blueprint, flash, g, render_template, request, escape, url_for, escape, current_app as app
 )
-from werkzeug.urls import url_parse
+# from werkzeug.urls import url_parse
+# from urllib.parse import urlparse
 from MobiDetailsApp.auth import login_required
 from MobiDetailsApp.db import get_db, close_db
 from . import md_utilities
@@ -1192,10 +1193,17 @@ def lovd():
                 for url in lovd_urls:
                     lovd_name = None
                     url = url.replace('"', '')
+                    parsed_url = md_utilities.parse_url(url)
+                    # print(parsed_url)
                     lovd_base_url = 'https://{0}{1}'.format(
-                        url_parse(url).host,
-                        url_parse(url).path
+                        parsed_url[1],
+                        parsed_url[2]
                     )
+                    # print(lovd_base_url)
+                    # lovd_base_url = 'https://{0}{1}'.format(
+                    #     url_parse(url).host,
+                    #     url_parse(url).path
+                    # )
                     match_obj = re.search(
                         r'^(.+\/)variants\.php$',
                         lovd_base_url
