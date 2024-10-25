@@ -3455,8 +3455,8 @@ def check_api_key(db, api_key=None):  # in api
             else:
                 return {'mobidetails_error': 'Bad chars in API key'}
     elif request.referrer is not None and \
-            (md_utilities.parse_url(request.referrer).hostname == host['dev'] or
-                md_utilities.parse_url(request.referrer).hostname == host['prod']):        
+            (parse_url(request.referrer).hostname == host['dev'] or
+                parse_url(request.referrer).hostname == host['prod']):        
         return {'mobiuser': get_api_key(curs, None, 'user_object')}
     return {'mobidetails_error': 'No API key provided'}
 
