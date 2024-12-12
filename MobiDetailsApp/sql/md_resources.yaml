@@ -1,5 +1,5 @@
 'host':
-  'dev': '10.34.20.79'
+  'dev': 'mddev.pmmg.priv'
   'prod': 'mobidetails.iurc.montp.inserm.fr'
 # 'user_agent_list': ['CJP', 'chu-bordeaux', 'Bisonex', 'CHUGA', 'polyfeel v0.2.2']
 'regexp':
@@ -167,7 +167,8 @@
   # 'spliceai_api': 'https://spliceailookup-api.broadinstitute.org/spliceai/?hg=38&distance=500&mask=0&variant='
   'spliceai_api': 'https://spliceai-38-xwkwwwxdwq-uc.a.run.app/spliceai/?hg=38&variant='
   'spliceai_lookup_masked_link': 'https://spliceailookup.broadinstitute.org/#hg=38&distance=500&mask=1&precomputed=1&variant='
-  'spliceai_internal_server': 'http://194.167.35.157:80'
+  'spliceai_internal_server': 'http://spliceaivisual.chu-montpellier.fr'
+  # 'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
   'tinyurl_api': 'https://api.tinyurl.com/create'
