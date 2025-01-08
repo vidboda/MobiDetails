@@ -1,6 +1,6 @@
 'host':
   'dev': 'mddev.pmmg.priv'
-  'prod': 'mobidetails.iurc.montp.inserm.fr'
+  'prod': 'mobidetails.chu-montpellier.fr'
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
@@ -199,13 +199,21 @@
   #   'url': 'https://rest.variantvalidator.org/'
   #   'order_browser': '3'
   #   'order_api': '3'
+  # 'rest_vv_browser': 
+  #   '1': 'http://194.167.35.195:8000/'
+  #   '2': 'http://194.167.35.196:8000/'
+  #   '3': 'https://rest.variantvalidator.org/'
+  # 'rest_vv_api': 
+  #   '1': 'http://194.167.35.196:8000/'
+  #   '2': 'http://194.167.35.195:8000/'
+  #   '3': 'https://rest.variantvalidator.org/'
   'rest_vv_browser': 
-    '1': 'http://194.167.35.195:8000/'
-    '2': 'http://194.167.35.196:8000/'
+    '1': 'http://restvv1.chu-montpellier.fr/'
+    '2': 'http://restvv2.chu-montpellier.fr/'
     '3': 'https://rest.variantvalidator.org/'
   'rest_vv_api': 
-    '1': 'http://194.167.35.196:8000/'
-    '2': 'http://194.167.35.195:8000/'
+    '1': 'http://restvv2.chu-montpellier.fr/'
+    '2': 'http://restvv1.chu-montpellier.fr/'
     '3': 'https://rest.variantvalidator.org/'
   # 'rest_vv': 
   #   '1': 'http://194.167.35.197/'
