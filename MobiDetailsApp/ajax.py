@@ -919,10 +919,15 @@ def spliceaivisual():
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
             try:
-                req_results = requests.get(
+                # req_results = requests.get(
+                #     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
+                #     json={'mt_seq': mt_seq},
+                #     headers=md_utilities.api_agent
+                # )
+                req_results = requests.post(
                     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                     json={'mt_seq': mt_seq},
-                    headers=md_utilities.api_agent
+                    headers={'Content-Type': 'application/json' }
                 )
             except requests.exceptions.ConnectionError:
                 return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
@@ -933,60 +938,7 @@ def spliceaivisual():
                 if spliceai_results['spliceai_return_code'] == 0 and \
                         spliceai_results['error'] is None and \
                         not os.path.exists(current_mt_file):
-                    # build bedgraph
-                    # uncompressed version
-                    # with open(current_mt_file, 'w') as bedgraph_file:
-                    #     bedgraph_file.writelines([header1, header2])
-                    #     mt_acceptor_scores = spliceai_results['result']['mt_acceptor_scores']
-                    #     mt_donor_scores = spliceai_results['result']['mt_donor_scores']
-                    #     # 0-based
-                    #     abs_pos = (int(pos) - offset - 1) if caller == 'automatic' else start_g - 1
-                    #     if strand == '-':
-                    #         mt_acceptor_scores = dict(reversed(list(mt_acceptor_scores.items())))
-                    #         mt_donor_scores = dict(reversed(list(mt_donor_scores.items())))
-                    #         abs_pos += 1
-                    #     i = len(mt_acceptor_scores)
-                    #     # print(i)
-                    #     bedgraph_insertion = 'track name="Insertion allele (MobiDetails ID: {0})" type=bedGraph description="spliceAI prediction for inserted nucleotides for variant {0} in MobiDetails    acceptor_sites = positive_values       donor_sites = negative_values" visibility=full windowingFunction=maximum color=200,100,0 altColor=0,100,200 priority=20 autoScale=off viewLimits=-1:1 darkerLabels=on\n'.format(variant_id)
-                    #     # uncompressed version
-                    #     for relative_pos in mt_acceptor_scores:
-                    #         rel_pos_genome = relative_pos
-                    #         if strand == '-':
-                    #             rel_pos_genome = len(mt_acceptor_scores) - i
-                    #             i -= 1
-                    #         sai_score = mt_acceptor_scores[relative_pos][1] if float(mt_acceptor_scores[relative_pos][1]) > float(mt_donor_scores[relative_pos][1]) else - float(mt_donor_scores[relative_pos][1])
-                    #         current_pos = abs_pos + int(rel_pos_genome)
-                    #         if variant_type == 'substitution' or \
-                    #                 (variant_type == 'indel' and
-                    #                     len(ref) == len(alt)):
-                    #             bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
-                    #         elif variant_type == 'deletion':
-                    #             if current_pos <= int(pos) - 1:
-                    #                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                    #             else:
-                    #                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + len(ref) - 1, current_pos + len(ref), sai_score))
-                    #         elif variant_type == 'insertion':
-                    #             if current_pos <= int(pos) - 1:
-                    #                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos, current_pos + 1, sai_score))
-                    #             elif current_pos >=  int(pos) and \
-                    #                     current_pos <  int(pos) + len(alt) - 1:
-                    #                 ins_pos = current_pos if strand == '+' else current_pos - len(alt) + 1
-                    #                 bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos, ins_pos + 1, sai_score)
-                    #             else:
-                    #                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - len(alt) + 1, current_pos - len(alt) + 2, sai_score))
-                    #         elif variant_type == 'indel':
-                    #             if current_pos <= int(pos) - 1:
-                    #                 bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - 1, current_pos, sai_score))
-                    #             elif current_pos >= int(pos) and \
-                    #                     current_pos < int(pos) + len(alt):
-                    #                 ins_pos = current_pos if strand == '+' else current_pos + len(ref) - len(alt)
-                    #                 bedgraph_insertion = '{0}{1}\t{2}\t{3}\t{4}\n'.format(bedgraph_insertion, chrom, ins_pos - 1, ins_pos, sai_score)
-                    #             else:
-                    #                 if len(ref) >= len(alt):
-                    #                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos + (len(ref) - len(alt)) - 1, current_pos + (len(ref) - len(alt)), sai_score))
-                    #                 else:
-                    #                     bedgraph_file.write('chr{0}\t{1}\t{2}\t{3}\n'.format(chrom, current_pos - (len(alt) - len(ref)) - 1, current_pos - (len(alt) - len(ref)), sai_score))
-                    # compressed version
+                    # build compressed bedgraph
                     bedgraph_data = header2
                     mt_acceptor_scores = spliceai_results['result']['mt_acceptor_scores']
                     mt_donor_scores = spliceai_results['result']['mt_donor_scores']
@@ -1087,6 +1039,7 @@ def spliceaivisual():
                     print(spliceai_results)
                     return '<p style="color:red">Bad params for SpliceAI-visual.</p>'
             else:
+                print(req_results.content)
                 return '<p style="color:red">Bad params for SpliceAI-visual.</p>'
             if not response:
                 response = 'ok'
