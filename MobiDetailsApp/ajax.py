@@ -927,7 +927,7 @@ def spliceaivisual():
                 req_results = requests.post(
                     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                     json={'mt_seq': mt_seq},
-                    headers={'Content-Type': 'application/json' }
+                    headers={'Content-Type': 'application/json'}
                 )
             except requests.exceptions.ConnectionError:
                 return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
