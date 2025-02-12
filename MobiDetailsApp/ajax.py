@@ -752,7 +752,7 @@ def spliceaivisual():
             # spliceaivisual_full_button => we send the complete mutant transcript to spliceai
             # do we have the wt bedgraph
             if os.path.exists(
-                '{0}.bedGraph'.format(transcript_file_basename)
+                '{0}.bedGraph.gz'.format(transcript_file_basename)
             ):
                 response = 'ok'
             elif os.path.exists(
