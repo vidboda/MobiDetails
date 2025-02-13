@@ -296,6 +296,13 @@ def three2one_fct(var):
         return three2one[match_object.group(1)].capitalize() + \
             match_object.group(2) + \
             'fs'
+    # ex for Met136delinsIleTer for oncoKB we must return * in the end
+    match_object = re.search(r'^(\w{3})(\d+)(\w+)Ter$', var)
+    if match_object:
+        return three2one[match_object.group(1)].capitalize() + \
+            match_object.group(2) + \
+            match_object.group(3) + \
+            '*'
     return None
 
 
