@@ -13,7 +13,7 @@ ConfigArgParse==1.5.3
 configobj==5.0.9
 configparser==5.1.0
 coverage==6.2
-cryptography==43.0.1
+cryptography==44.0.1
 entrypoints==0.3
 flake8==4.0.1
 Flask==2.2.5
@@ -31,7 +31,7 @@ idna==3.7
 importlib-metadata==4.2.0
 iniconfig==1.1.1
 itsdangerous==2.0.1
-Jinja2==3.1.4
+Jinja2==3.1.5
 locust==2.8.6
 MarkupSafe==2.1.1
 mccabe==0.6.1
