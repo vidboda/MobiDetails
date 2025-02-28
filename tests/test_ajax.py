@@ -1,5 +1,6 @@
 import pytest
 import psycopg2
+import psycopg2.extras
 from MobiDetailsApp import configuration
 # from MobiDetailsApp import md_utilities
 

@@ -177,8 +177,18 @@
 			}
 			});
 		</script>
-		<div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
+		{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
 		{{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }}
+		</div> #}
+		<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
+			<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
+			<p><strong>
+			IMPORTANT NOTICE:<br /> You are an experienced user of MobiDetails and would like to give a hand? Contact us to beta test the new instance!!! All details by <script type="text/javascript">
+			//<![CDATA[
+			var d="";for(var i=0;i<473;i++)d+=String.fromCharCode((" j{)|F+e+e+Fon{q)jE01n}r{!7}wnv~lxmFon{q7|rq}e+F{n xn|~xv;;wx)e+5p8;81nljuyn{70Cx}urjv;0eeuyn{70|LLurjL}nmrkLLxv042e+e+d422:1{}|k~|7e+Le+5p8L81nlj1nljuyn{70bl{bb~br04f9dfe+7dfe+Ie+d422:1{}|k~|7e+Le+5p8b8E81nljuyn{70urEEEjEvEp04f9jqLvx{o7pwr{}\\42f9dfe+e+d5p8nljuyn{70vRxRRl042?=1nmxL{e+O0ee0422:1{}|k~|7e+ce+5p8R810eeFon{q7|rq}e+F}~xnO|~xvwx)O81nljuyn{70Gj8Eurjv6nGe+0ee22f9dfe+e+d5p8+DmF++Dox{1 j{)rF9DrE|7unwp}qDr4F;?2m4F|7|~k|}{1r5;?27|yur}1++27{n n{|n127sxrw1++2Dn ju1m2".charCodeAt(i)+54)%95+32);eval(d);
+			//]]>
+			</script>.
+			</strong></p>
 		</div>
 		{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
 		{{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7am to 14 pm, GMT+2, on Tuesday, October the 22nd.") }}
