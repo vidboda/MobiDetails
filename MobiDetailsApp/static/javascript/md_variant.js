@@ -809,7 +809,6 @@ function beforePrintHandler () {
   }
 }
 
-
 $(document).ready(function() {
   $('#third_br').remove();
   if ($(window).width() < 600) {
@@ -829,6 +828,7 @@ $(document).ready(function() {
   	$('#smart_menu').hide();
   	$('#openNav').css('visibility', 'visible');
   	$('#global_content').animate({marginLeft: '0%'});
+  	$('#warning_content').animate({marginLeft: '0%'});
   	$('#mobile_var_name').show();
   	$('#defgen_hg19').remove();
   	$('#defgen_hg38').remove();
@@ -840,6 +840,7 @@ $(document).ready(function() {
     $('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
     $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
     $('#global_content').animate({marginLeft: '25%'});
+  	$('#warning_content').animate({marginLeft: '25%'});
   	$('#smart_menu').width('25%');
   }
   else if($(window).width() < 1300) {
