@@ -1,5 +1,5 @@
 import pytest
-from test_ajax import get_db
+from .test_ajax import get_db
 
 
 # def test_homepage(client):

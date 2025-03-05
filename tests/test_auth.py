@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 # from flask import g, session
-from test_ajax import get_db
+from .test_ajax import get_db
 
 
 def test_register(client, app):

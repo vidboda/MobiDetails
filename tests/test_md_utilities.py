@@ -5,7 +5,7 @@ import psycopg2
 # import json
 from flask import g
 from MobiDetailsApp import md_utilities
-from test_ajax import get_db
+from .test_ajax import get_db
 
 # app_path = os.path.dirname(os.path.realpath(__file__))
 
