@@ -219,6 +219,7 @@
   #   '1': 'http://194.167.35.197/'
   #   '2': 'https://rest.variantvalidator.org/'
   # uncomment below to use genuine VV web API VV2 - 2021
+  'varchat': 'https://varchat.engenome.com/search?source=md&text='
   # 'variant_validator_api': 'https://rest.variantvalidator.org/'
   # # VV on IURC Ovirt restvv
   # 'variant_validator_api_backup': 'http://194.167.35.196:8000/'

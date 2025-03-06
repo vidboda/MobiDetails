@@ -466,6 +466,29 @@
 			</div>
 
 			<div>
+				{{ section_subtitle('VarChat', 'VarChat : use AI to summarize scientific literature for genomic variant interpretation') }}
+
+				{{ content('VarChat is an open platform that leverages the power of generative artificial
+						intelligence to support the genomic variant interpretation process by searching
+						and condensing the scientific literature available for each variant into a brief 
+						yet very infomative text.
+					<ul>
+						<li>Get insights from pertinent scientific literature in seconds</li>
+						<li>Stay up-to-date with the latest research on genomic variants</li>
+						<li>Save a lot of time while receiving accurate and detailed genomic information</li>
+					</ul>') }}
+
+				<div class="w3-row-padding">
+					<div class="w3-col " id="defgen_hg19">
+						{% set prot = ":p." ~ internal_data.nomenclatures.pName if internal_data.nomenclatures.pName is not none else "" %}
+						{% set rsid = " rs" ~ internal_data.frequenciesDatabases.dbSNPrsid if internal_data.frequenciesDatabases.dbSNPrsid is not none else "" %}
+						{% set varchat_link = urls.varchat ~ external_data.gene.symbol ~ ":c." ~ internal_data.nomenclatures.cName ~ prot ~  rsid %}
+						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ varchat_link | replace('+', '%2B') | replace('>', '%3E') }}', '_blank', 'noopener,noreferrer')" title="Query your variant on VarChat" style="width:100%">Query your variant on VarChat</span>
+					</div>
+				</div>
+			</div>
+
+			<div>
 				{{ section_subtitle('other-literature', 'Alternative automated literature tools') }}
 
 				<ul>
