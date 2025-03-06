@@ -202,7 +202,7 @@
 			</p>
 		</div>
 		{% endif %}
-		<!--first section-->
+		<!-- Section : Nomenclatures -->
 		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
@@ -347,7 +347,7 @@
 				</div>
 			</div>
 		</div>
-		<!--second section-->
+		<!-- Section : Positions -->
 		<hr />
 		{{ section_title('positions', 'Positions') }}
 		<div class="w3-responsive w3-container">
@@ -405,7 +405,7 @@
 								{% else %}
 									<td class="w3-left-align">Not in a UNIPROT defined domain</td>
 								{% endif %}
-								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
+								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
 							</tr>
 						{% endif %}
 						{% if external_data.positions.metaDomednds is not none %}
@@ -448,7 +448,7 @@
 				</div>
 			</div>
 		</div>
-		<!--third section-->
+		<!-- Section : Population Frequencies and Databases -->
 		<hr />
 		{{ section_title('frequencies', 'Population Frequencies and Databases') }}
 		<div class="w3-responsive w3-container">
@@ -518,7 +518,7 @@
 						<td class="w3-left-align">Clinvar Germline:</td>
 						<td class="w3-left-align">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarClinRevStat }}</span>
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarClinsig }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarClinRevStat }}</span>
 								{% if external_data.frequenciesDatabases.clinvarClinsigConf  is not none %}
 									({{ external_data.frequenciesDatabases.clinvarClinsigConf }})
 								{% endif %}
@@ -554,7 +554,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
 							{%endif %}
@@ -565,7 +565,7 @@
 					<tr><!--clinvar oncogenicity-->
 						<td class="w3-left-align">Clinvar Oncogenicity:</td>
 						<td class="w3-left-align">
-							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarOnc }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarOncRevStat }}</span>
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarOnc }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarOncRevStat }}</span>
 								{% if external_data.frequenciesDatabases.clinvarOncConf  is not none %}
 									({{ external_data.frequenciesDatabases.clinvarOncConf }})
 								{% endif %}
@@ -598,7 +598,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
 							{%endif %}
@@ -610,7 +610,7 @@
 					<tr><!--clinvar somatic-->
 						<td class="w3-left-align">Clinvar Somatic:</td>
 						<td class="w3-left-align">
-							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarSci }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarSciRevStat }}</span>
+							<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">{{ external_data.frequenciesDatabases.clinvarSci }}</a><span style="display:none;"> {{ external_data.frequenciesDatabases.clinvarSciRevStat }}</span>
 								{% if external_data.frequenciesDatabases.clinvarSciRevStat ==  '' %}
 								<i class="fa fa-star-o" aria-hidden="true"></i>
 								<i class="fa fa-star-o" aria-hidden="true"></i>
@@ -640,7 +640,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small">
 							{% if external_data.frequenciesDatabases.clinvarId  is not none %}
-								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
+								<a href="{{ '%s/variation/%s/'|format(urls.ncbi_clinvar, external_data.frequenciesDatabases.clinvarId) }}" target="_blank" title="Visit Clinvar for this variant" rel="noopener noreferrer">
 							{% else %}
 								<a href="{{ urls.ncbi_clinvar }}" target="_blank" title="Visit Clinvar" rel="noopener noreferrer">
 							{%endif %}
@@ -661,7 +661,7 @@
 					<tr><!-- ClinGen Specification Registry -->
 						<td class="w3-left-align">ClinGen Criteria:</td>
 						<td class="w3-left-align">
-							<a href="{{ '%sdoc/%s'|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}" target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant" rel="noopener noreferrer">{{ external_data.gene.clingenCriteriaSpec }}</a>
+							<a href="{{ '%sdoc/%s'|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec) }}" target="_blank" title="Visit ClinGen to get specific ACMG criteria for this variant" rel="noopener noreferrer">{{ external_data.gene.clingenCriteriaSpec }}</a>
 						</td>
 						<td class="w3-left-align"><em class="w3-small">ClinGen ACMG specific rules for {{ external_data.gene.symbol }}</em></td>
 					</tr>
@@ -699,7 +699,7 @@
 			<span style="visibility:hidden" id="dna_type">{{ external_data.positions.DNAType }}</span>
 			<span style="visibility:hidden" id="strand">{{ external_data.gene.strand }}</span>
 		</div>
-		<!--fourth section-->
+		<!-- Section : Overall predictions-->
 		<hr />
 		{{ section_title('predictions', 'Overall predictions') }}
 		<div class="w3-responsive w3-container">
@@ -766,7 +766,7 @@
 				</tbody>
 			</table><br/><br/>
 		</div>
-		<!--fifth section-->
+		<!-- Section : Splicing predictions -->
 		<hr />
 		{{ section_title('splicing', 'Splicing predictions') }}		
 		<div class="w3-responsive w3-container">
@@ -1178,13 +1178,13 @@
 			</div>
 			<br />
 		</div>
-		<!--alt sixth section-->
+		<!-- Section : miRNA target sites predictions -->
 		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts is none and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 			<hr />
 			{{ section_title('dbmts', 'miRNA target sites predictions') }}
 			<div class="w3-responsive w3-container">
 				<!--dbMTS-->
-				 {{ info("The table below comes form <a href='http://www.liulab.science/dbmts.html' target='_blank' rel='noopener noreferrer'>dbMTS{}</a>. It focuses on miRNA binding capabilities of the wild-type and mutant sequences and on the differences observed using 3 different algorithms, namely <a href='http://www.microrna.org/microrna/getGeneForm.do' target='_blank' rel='noopener noreferrer'>miRanda</a>, <a href='http://www.rnaiweb.com/cgi-bin/web/jump.cgi?ID=56' target='_blank' rel='noopener noreferrer'>TargetScan</a> and <a href='https://bibiserv.cebitec.uni-bielefeld.de/rnahybrid/' target='_blank' rel='noopener noreferrer'>RNAHybrid</a>. Each predictor may define three categories of functional change (see Descriptions). To correctly assess the Max Diff column, one needs to know the theoretical max differences for each tool: miRanda (216), TargetScan (11.07), RNAHybrid (60.8). Concerning best scores, for miRanda and RNAhybrid, the best score is the miRNA-target pair that has the highest prediction score. For TargetScan, the best score is the miRNA-target pair that has the largest negative prediction score.".format(external_tools['dbMTS']['version'])) }}
+				 {{ info("The table below comes form <a href='http://www.liulab.science/dbmts.html' target='_blank' rel='noopener noreferrer'>dbMTS{}</a>. It focuses on miRNA binding capabilities of the wild-type and mutant sequences and on the differences observed using 3 different algorithms, namely <a href='http://www.microrna.org/microrna/getGeneForm.do' target='_blank' rel='noopener noreferrer'>miRanda</a>, <a href='http://www.rnaiweb.com/cgi-bin/web/jump.cgi?ID=56' target='_blank' rel='noopener noreferrer'>TargetScan</a> and <a href='https://bibiserv.cebitec.uni-bielefeld.de/rnahybrid/' target='_blank' rel='noopener noreferrer'>RNAHybrid</a>. Each predictor may define three categories of functional change (see Descriptions). To correctly assess the Max Diff column, one needs to know the theoretical max differences for each tool: miRanda (216), TargetScan (11.07), RNAHybrid (60.8). Concerning best scores, for miRanda and RNAhybrid, the best score is the miRNA-target pair that has the highest prediction score. For TargetScan, the best score is the miRNA-target pair that has the largest negative prediction score.".format(external_tools['dbMTS']['version'])) }}
 				<table class="w3-table w3-centered display compact" style="width:90%" id="dbmts_table">
 					<thead>
 						<tr>
@@ -1253,7 +1253,7 @@
 		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
-		<!--alt sixth section-->
+		<!-- Section : upORF prediction -->
 		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 			<hr />
 			{{ section_title('morfeedb', 'upORF prediction') }}
@@ -1337,7 +1337,7 @@
 			{{ section_title('morfeedb', 'uORF prediction') }}
 			{{ info(internal_data.noMatch.morfeedb) }}
 		{% endif %}
-		<!--missense section-->
+		<!-- Section : Missense section-->
 		{# {% if external_data.positions.proteinType == 'missense' and internal_data.noMatch.dbnsfp is none %} #}
 		{% if external_data.positions.proteinType == 'missense' %}
 		<hr />
@@ -1626,14 +1626,14 @@
 			{% endif %}
 		{% endif %}
 		{% if external_data.positions.proteinType == 'missense' %}
-		<!--3D modeling section-->
+		<!-- Section : 3D modeling -->
 		<hr />
 		{{ section_title('3d_modeling', '3D Modeling: p.(%s)'|format(internal_data.nomenclatures.pName)) }}
 		<div class="w3-responsive w3-container">
 			{{ info("Let's try this <a href='%s?variant&%s&%s' target='_blank'>direct access to MIZTLI's 3D engine</a> to compare the wild-type and mutant structure of your variant."|format(urls.miztli, external_data.gene.symbol, internal_data.nomenclatures.pName)) }}
 		</div>
 		{% endif %}
-		<!--EpiSign section-->
+		<!-- Section : EpiSign -->
 		{% if internal_data.episignature.ExpertACMGClassification is not none %}
 		<hr />
 		{{ section_title('episignature', 'Epigenetic Signature') }}
@@ -1677,7 +1677,7 @@
 			</table>
 		</div>
 		{% endif %}
-		<!--Classification section-->
+		<!-- Section : Classification history-->
 		<hr />
 		{{ section_title('class', 'Classification History') }}
 		<div class="w3-responsive w3-container">
@@ -1865,7 +1865,7 @@
 			{{ info("* We added an additional 'risk factor' class to the 5 ACMG classes in order to describe low penetrance risk factor variants. Currently, these variants are not sent to the LOVD Global Variome instance.") }}
 		</div>
 		<br/><br/>
-		<!--eighth section-->
+		<!-- Section : Administrative information -->
 		<hr />
 		{{ section_title('admin', 'Administrative information') }}
 		<div class="w3-responsive w3-container">
