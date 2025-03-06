@@ -22,6 +22,19 @@
 	</div>
 	{% endautoescape %}
 {%- endmacro %}
+
+{% macro content() -%}
+	{% autoescape false %}
+	<div class="w3-margin w3-panel w3-leftbar">
+		<p>
+			{% for text in varargs %}
+				<span>{{ text }}</span><br />
+			{% endfor %}
+		</p>
+	</div>
+	{% endautoescape %}
+{%- endmacro %}
+
 <!--success panel -->
 {% macro success() -%}
 	{% autoescape false %}
