@@ -129,19 +129,23 @@ def litvar():
 # web app - ajax for litvar2
 
 
+def is_litvar_empty(data):
+    if data is None:
+        return True
+    if len(data) == 0:
+        return True
+    return 'detail' in data and re.search('Variant not found', data['detail'])
+
 @bp.route('/litvar2', methods=['POST'])
 def litvar2():
     match_rsid = re.search(r'^(rs\d+)$', request.form['rsid'])
     if match_rsid:
         rsid = match_rsid.group(1)
-    # if re.search(r'^rs\d+$', request.form['rsid']):
         header = md_utilities.api_agent
-        # rsid = request.form['rsid']
         litvar_data = None
         litvar_url = "{0}{1}%23%23/publications".format(
             md_utilities.urls['ncbi_litvar_apiv2'], rsid
         )
-        # print(litvar_url)
         try:
             litvar_data = json.loads(
                 http.request(
@@ -162,30 +166,21 @@ def litvar2():
                 '[MobiDetails - API Error]'
             )
             return """
-            <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                The Litvar2 query failed
-            </div>
-            """
-        if litvar_data is not None:
-            if len(litvar_data) == 0 or \
-                (
-                    'detail' in litvar_data and 
-                    re.search('Variant not found', litvar_data['detail'])
-                ):
-                return """
-                <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-                    No match in Pubmed using LitVar2 API
-                </div>
-                """
-            pubmed_info = {}
+                <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
+                    <p><strong>The Litvar2 query failed</strong> - <i>Please reload and if the problem persist <a href="" onmouseover="this.href='mailto:mobidetails.iurc@gmail.com'" onmouseout="this.href=''">contact our administrator</a>.</i></p>
+                </div>"""
+        if not is_litvar_empty(litvar_data):
+            pubmed_info = dict()
+
             togows_url = '{0}/entry/ncbi-pubmed/'.format(
                 md_utilities.urls['togows']
             )
+
             pubmed_count = litvar_data['pmids_count']
-            for pubmed_id in litvar_data['pmids']:
+            for pubmed_id in litvar_data['pmids'][:400]:
                 togows_url = '{0}{1},'.format(togows_url, pubmed_id)
             togows_url = '{0}.json'.format(togows_url[:-1])
-            # print(togows_url)
+            
             try:
                 # using togows to get details on publications
                 pubmeds = json.loads(
@@ -196,25 +191,25 @@ def litvar2():
                     ).data.decode('utf-8')
                 )
                 for article in pubmeds:
-                    # print(article)
                     if 'authors' in article and \
                             len(article['authors']) > 0:
                         pmid = int(article['pmid'])
-                        pubmed_info[pmid] = {}
-                        pubmed_info[pmid]['title'] = article['title']
-                        pubmed_info[pmid]['journal'] = article['journal']
-                        pubmed_info[pmid]['year'] = article['year']
-                        pubmed_info[pmid]['author'] = article['authors'][0]
+                        pubmed_info[pmid] = {
+                            'title': article['title'],
+                            'journal': article['journal'],
+                            'year': article['year'],
+                            'author': article['authors'][0]
+                        }
+                    else:
+                        print(pmid)
             except Exception:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
-                    pubmed_info[pmid] = {}
-                    pubmed_info[pmid]['title'] = ''
+                    pubmed_info[pmid] = {'title': ''}
             if not pubmed_info:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
-                    pubmed_info[pmid] = {}
-                    pubmed_info[pmid]['title'] = ''
+                    pubmed_info[pmid] = {'title': ''}
             # get litvar direct link of rsid
             litvar_sensor_url = "{0}{1}".format(
                 md_utilities.urls['ncbi_litvar_apiv2_sensor'], rsid
@@ -243,19 +238,10 @@ def litvar2():
                 rsid=rsid,
                 litvar_link=litvar_link
             )
-    #     else:
-    #         return """
-    #             <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-    #                 No match in Pubmed using LitVar2 API
-    #             </div>
-    #         """
-    # else:
     return """
-        <div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%;">
-            No match in Pubmed using LitVar2 API
-        </div>
-    """
-
+        <div class="w3-margin w3-panel w3-pale-yellow w3-leftbar w3-display-container">
+            <p>Currently no match in PubMed using LitVar2 API</p>
+        </div>"""
 ######################################################################
 # web app - ajax for defgen export file
 

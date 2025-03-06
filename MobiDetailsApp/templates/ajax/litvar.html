@@ -1,33 +1,22 @@
 {% from 'macros.html' import modal_js %}
-<span onclick="$('#pubmed').show();" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%;" id="litvar_data">show Pubmed links</span>
-<div class="w3-modal" id="pubmed" style="z-index:2002;">
-	<div class="w3-modal-content w3-display-middle w3-animate-opacity w3-mobile" style="max-height:80%;overflow:auto;">
-		<header class="w3-container w3-blue">
-			<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#pubmed').hide();">X</span>
-			<br />
-			<span class="w3-xlarge">PubMed links of articles citing this variant
-			{% if pubmed_count %}
-				({{pubmed_count}} citations)
-			{% endif %}
-			:</span><br />
-		</header>
-		<div class="w3-container">
-			{% if litvar_link is not none %}
-			<p>Full results available at <a href="{{ litvar_link }}" target="_blank" rel="noopener noreferrer">LitVar2</a>.</p>
+
+{% set litvar_url = litvar_link if litvar_link is not none else "https://www.ncbi.nlm.nih.gov/research/litvar2/docsum?variant=litvar@" ~ rsid ~ "%23%23&query=" ~ rsid %}
+
+<p><i>Full details and complete results available at <a href="{{ litvar_url }}" target="_blank" rel="noopener noreferrer">LitVar2</a>.</i></p>
+{% if pubmed_count/400 > 1 %}
+	<p id="intro_litvar">Preview of all results (400 on {{ pubmed_count }} citations) : </p>
+{% else %}
+	<p id="intro_litvar">All results ({{ pubmed_count }} citations) :</p>
+{% endif %}
+<div class="w3-container w3-border" style="max-height: 60vh;height: fit-content; overflow-y: auto;">
+	<ul id="list_from_litvar2">
+		{% for pubmedid in pmids|sort %}
+			{% if pmids[pubmedid]['title'] %}
+				<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" title="{{ pmids[pubmedid]['title'] }}" rel="noopener noreferrer">{{ pmids[pubmedid]['author'] }} et al., {{ pmids[pubmedid]['year'] }} ({{ pmids[pubmedid]['journal'] }})</a>:<br /><em>{{ pmids[pubmedid]['title'] }}</em></li>
 			{% else %}
-			<p>Full results available at <a href="https://www.ncbi.nlm.nih.gov/research/litvar2/docsum?variant=litvar@{{ rsid }}%23%23&query={{ rsid }}" target="_blank" rel="noopener noreferrer">LitVar2</a>.</p>
+				<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" rel="noopener noreferrer">{{ pubmedid }}</a></li>
 			{% endif %}
-			<ul>
-				{% for pubmedid in pmids|sort %}
-					{% if pmids[pubmedid]['title'] %}
-						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" title="{{ pmids[pubmedid]['title'] }}" rel="noopener noreferrer">{{ pmids[pubmedid]['author'] }} et al., {{ pmids[pubmedid]['year'] }} ({{ pmids[pubmedid]['journal'] }})</a>:<br /><em>{{ pmids[pubmedid]['title'] }}</em></li>
-					{% else %}
-						<li><a href="{{ urls.ncbi_pubmed }}{{ pubmedid }}" target="_blank" rel="noopener noreferrer">{{ pubmedid }}</a></li>
-					{% endif %}
-				{% endfor %}
-			</ul>
-			<br /><br />
-			<div id = "hidden_pubmed_results" style="display:none;">{% for pubmedid in pmids|sort %}{% if pmids[pubmedid]['title'] %}{{ pmids[pubmedid]['author'] }} et al., {{ pmids[pubmedid]['year'] }} ({{ pmids[pubmedid]['journal'] }}) : {{ pmids[pubmedid]['title'] }};{% else %}{{ pubmedid }}{% endif %}{% endfor %}</div>
-		</div>
-	</div>
+		{% endfor %}
+	</ul>
+	<div id = "hidden_litvarlink" style="display:none;">{{ litvar_url }}</div>
 </div>

@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250305" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250306" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -127,6 +127,7 @@
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:601;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
+		<a href="#literature" class="w3-bar-item w3-button w3-mobile">Literature</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
 		<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
@@ -431,21 +432,45 @@
 				</tbody>
 			</table><br/><br/>
 			<div class="w3-row-padding">
-				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" style="width:100%" id="litvar_data">
-						Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
-					</span>
-				</div>
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
-				<div class="w3-col m4" id="defgen_hg19">
+				<div class="w3-col m6" id="defgen_hg19">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19" style="z-index:2002;"></div>
 				</div>
 				{% endif %}
-				<div class="w3-col m4" id="defgen_hg38">
+				<div class="w3-col m6" id="defgen_hg38">
 					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38" style="z-index:2002;"></div>
 				</div>
+			</div>
+		</div>
+		<!-- Section : literature -->
+		<hr />
+		{{ section_title('literature', 'Literature') }}
+		<div class="w3-responsive w3-container">
+			<div>
+				{{ section_subtitle('litvar2', 'LitVar2 : PubMed links of articles citing this variant') }}
+				
+				{{ content('LitVar is a web service that allows the search and retrieval of variant 
+							relevant information from the biomedical literature. LitVar uses advanced 
+							text mining and machine learning techniques to normalize different forms 
+							of the same variant into a unique and standardized name so that all 
+							matching articles can be returned regardless of the use of a specific name 
+							in the query. LitVar is freely available to the research community.') }}
+
+				<div class="w3-margin">
+					<span class="" style="width:100%" id="litvar_data">
+						Collecting LitVar data...<i class="fa fa-spinner w3-spin" style="font-size:24px"></i>
+					</span>
+				</div>
+			</div>
+
+			<div>
+				{{ section_subtitle('other-literature', 'Alternative automated literature tools') }}
+
+				<ul>
+					<li><a href="{{ "%s/detail?gene=%s&mutation=%s:g.%s"|format(urls.mastermind, external_data.gene.symbol, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName) | replace('+', '%2B') | replace('\n', '%0A') }}" target="_blank" title="Vist Mastermind" rel="noopener noreferrer">Mastermind</a> : Search engine to identify gene, variant, disease, phenotype, and therapy evidence from scientific articles.</li>
+				</ul>
 			</div>
 		</div>
 		<!-- Section : Population Frequencies and Databases -->

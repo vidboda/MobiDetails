@@ -44,7 +44,7 @@ function litvar2(litvar_url, csrf_token) {
 		});
 	}
 	else {
-		$("#litvar_data").replaceWith('<div class="w3-blue w3-ripple w3-padding-16 w3-large w3-center" style="width:100%">requesting LitVar2 for Pubmed requires a dbSNP identifier</div>');
+		$("#litvar_data").replaceWith('<div class="w3-margin w3-panel w3-pale-yellow w3-leftbar w3-display-container"><p><i>Unfortunately, this variant does not have a dbSNP ID, which is required by LitVar2 for PubMed citations.</i></p><div>');
 	}
 }
 
@@ -1196,15 +1196,18 @@ $(document).ready(function() {
       doc = convert_dt(config, "class_table", "Classification history", "table_title", doc);
     }
     // pubmed
-    if ($('#hidden_pubmed_results').length > 0) {
+    if (Array.from(document.getElementById('list_from_litvar2').getElementsByTagName('li')).map(item => item.textContent).length > 0) {
       const articles = $('#hidden_pubmed_results').text().split(';');
 
       doc['content'].push(
         " ",
         {text: "Pubmed citations", style: "table_title", tocItem: true},
         " ",
+        { text: 'Click Me to view details on LitVar2 !', link:  $('#hidden_litvarlink').text() },
+        " ",
+        { text: $('#intro_litvar').text() },
         {
-          ul: articles,
+          ul: Array.from(document.getElementById('list_from_litvar2').getElementsByTagName('li')).map(item => item.textContent),
           pageBreak: 'after'
         }
       );
