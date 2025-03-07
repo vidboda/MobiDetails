@@ -183,7 +183,8 @@
 				{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
 				{{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }}
 				</div> #}
-				<div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
+				{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails' migration to the new instance is scheduled for March, 19th, morning. The current instance will first be placed on read-only mode during the switch, which should last a few hours, and which means you will be able to consult already annotated variants but not annotate new ones. A redirection to the new instance will be activated when it is ready.") }} #}
+				{# <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
 					<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
 					<p><strong>
 					IMPORTANT NOTICE:<br /> You are an experienced user of MobiDetails and would like to give a hand? Contact us to beta test the new instance!!! All details by <script type="text/javascript">
@@ -192,7 +193,7 @@
 					//]]>
 					</script>.
 					</strong></p>
-				</div>
+				</div> #}
 				{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
 				{{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7am to 14 pm, GMT+2, on Tuesday, October the 22nd.") }}
 				</div> #}

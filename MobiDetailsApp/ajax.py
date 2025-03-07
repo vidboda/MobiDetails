@@ -167,8 +167,8 @@ def litvar2():
             )
             return """
                 <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
-                    <p><strong>The Litvar2 query failed</strong> - <i>Please reload and if the problem persist <a href="" onmouseover="this.href='mailto:mobidetails.iurc@gmail.com'" onmouseout="this.href=''">contact our administrator</a>.</i></p>
-                </div>"""
+                    <p><strong>The Litvar2 query failed</strong> - <i>Please reload and if the problem persist <a href="" onmouseover="this.href='mailto:{}'" onmouseout="this.href=''">contact our administrator</a>.</i></p>
+                </div>""".format(app.config["MAIL_USERNAME"])
         if not is_litvar_empty(litvar_data):
             pubmed_info = dict()
 

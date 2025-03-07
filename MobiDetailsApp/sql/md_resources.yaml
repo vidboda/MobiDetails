@@ -1,6 +1,6 @@
 'host':
   'dev': 'mddev.pmmg.priv'
-  'prod': 'mobidetails.iurc.montp.inserm.fr'
+  'prod': 'mobidetails.chu-montpellier.fr'
 'regexp':
   'variant': '[\dACGTdienulpsv_>\+\*=-]+'
   'variant_flexible': '[\dACGTacgtdienulpsv_>\+\*-]+'
@@ -24,8 +24,8 @@
   'tabix': '/usr/local/bin/tabix'
 'api_agent':
   'Accept': 'application/json'
-  'User-Agent': 'MobiDetails (mobidetails.iurc@gmail.com)'
-'user_agent': 'MobiDetails (mobidetails.iurc@gmail.com)'
+  'User-Agent': 'MobiDetails (mobidetails@chu-montpellier.fr)'
+'user_agent': 'MobiDetails (mobidetails@chu-montpellier.fr)'
 'complement':
   'A': 'T'
   'C': 'G'

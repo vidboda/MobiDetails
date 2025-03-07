@@ -291,7 +291,7 @@ def register():
                     Activate your MD account</a></p>
                     <p>If you do not know why you received this email,
                     do not follow the link and please alert
-                    mobidetails.iurc@gmail.com.</p><br />
+                    {3}.</p><br />
                     """.format(
                         username,
                         request.host_url.rstrip('/'),
@@ -299,7 +299,8 @@ def register():
                             'auth.activate',
                             mobiuser_id=user_id,
                             api_key=key
-                        )
+                        ),
+                        app.config["MAIL_USERNAME"]
                     ),
                     False
                 ),
@@ -399,7 +400,7 @@ def login():
                     Activate your MD account</a></p>
                     <p>If you do not know why you receive this email,
                     do not follow the link and please alert
-                    mobidetails.iurc@gmail.com.</p><br />
+                    {3}.</p><br />
                     """.format(
                         user['username'],
                         request.host_url.rstrip('/'),
@@ -407,7 +408,8 @@ def login():
                             'auth.activate',
                             mobiuser_id=user['id'],
                             api_key=user['api_key']
-                        )
+                        ),
+                        app.config["MAIL_USERNAME"]
                     ),
                     False
                 ),
@@ -796,7 +798,7 @@ def forgot_pass():
                     Reset your MD password</a></p>
                     <p>If you do not know why you receive this email,
                     do not follow the link and please alert
-                    mobidetails.iurc@gmail.com.</p><br />
+                    {3}.</p><br />
                     """.format(
                         user['username'],
                         request.host_url.rstrip('/'),
@@ -805,7 +807,8 @@ def forgot_pass():
                             mobiuser_id=user['id'],
                             api_key=user['api_key'],
                             ts=datetime.timestamp(datetime.now())
-                        )
+                        ),
+                        app.config["MAIL_USERNAME"]
                     ),
                     False
                 ),
