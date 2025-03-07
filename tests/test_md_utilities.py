@@ -342,8 +342,8 @@ def test_get_aa_position(variant_in, aa_pos):
 
 
 @pytest.mark.parametrize(('username', 'user_id'), (
-    ('mobidetails', 10),
-    ('davidbaux', 1),
+    ('mobidetails', 1),
+    ('davidbaux', 6),
     ('fake_username', None),
 ))
 def test_get_user_id(app, username, user_id):
@@ -921,7 +921,7 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
-    ('http://194.167.35.196:8000/hello/?content-type=application/json', 'http://194.167.35.196:8000/'),
+    ('http://restvv1.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv1.chu-montpellier.fr/'),
     ('https://github.com', None),
     ('abcgcece', None),
 ))
@@ -930,14 +930,10 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
-    ('browser', 'http://194.167.35.195:8000/'),
-    ('cli', 'http://194.167.35.196:8000/'),
-    ('nothing', 'http://194.167.35.196:8000/'),
-    (None, 'http://194.167.35.195:8000/'),
-    #  ('browser', 'https://rest.variantvalidator.org/'),
-    # ('cli', 'https://rest.variantvalidator.org/'),
-    # ('nothing', 'https://rest.variantvalidator.org/'),
-    # (None, 'https://rest.variantvalidator.org/'),
+    ('browser', 'http://restvv1.chu-montpellier.fr/'),
+    ('cli', 'http://restvv2.chu-montpellier.fr/'),
+    ('nothing', 'http://restvv2.chu-montpellier.fr/'),
+    (None, 'http://restvv1.chu-montpellier.fr/'),
 ))
 def test_get_vv_api_url(caller, vv_api_url):
     # with app.test_request_context(headers={'user-agent': ua}):

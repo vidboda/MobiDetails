@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime
 # from flask import g, session
 from .test_ajax import get_db
+from .test_api import get_generic_api_key
 
 
 def test_register(client, app):
@@ -32,7 +33,7 @@ def test_register(client, app):
 
 @pytest.mark.parametrize(('username', 'password', 'institute', 'email', 'country', 'message'), (
     ('djsdlm', 'ss9kghgF', 'IURC ,;.-()', 'david.baux@inserm.fr', 'Albania', b'is already registered.'),
-    ('davidbaux', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
+    ('david', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
     ('1', 's', 'IURC ,;.-()', 'v', 'Albania', b'Username should be at least 5 characters'),
     ('djsdlm', 's', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
     ('djsdlm', 'sfafg', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
@@ -73,11 +74,12 @@ def test_login_validate_input(client, email, password, message):
     assert message in response.get_data()
 
 # test activation
+api_key = get_generic_api_key()
 
 
 @pytest.mark.parametrize(('mobiuser_id', 'api_key', 'message'), (
-    (4, 'J9gKDvkEKktuv7t3dRB7tGopiusyCa9WQkwVEy1tDzc', b'User id does not exist.'),
-    (12, '_jO9AZj62Y71MUByR-W41tdHIwJOKeqTLOya8WBoFF0', b'Your account is already activated, you may now log in using your email address.')
+    (3, api_key, b'User id does not exist.'),
+    (1, api_key, b'Your account is already activated, you may now log in using your email address.')
 ))
 def test_activate(client, mobiuser_id, api_key, message):
     response = client.get(
@@ -117,7 +119,7 @@ def test_profile(client, app, auth, mobiuser_id, message):
 def test_logout(client):
     response = client.get('/auth/logout')
     print(response.headers['Location'])
-    assert 'http://localhost/' == response.headers['Location']
+    assert '/' == response.headers['Location']
     # assert b'Homepage' in response.get_data()
 
 # test forgot my password form
@@ -141,11 +143,11 @@ def test_forgot_pass(client, mobiuser_email, message):
 
 
 @pytest.mark.parametrize(('mobiuser_id', 'api_key', 'timestamp', 'message'), (
-    (2, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'API key and user id do not seem to fit.'),
-    ('test', 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'Some parameters are not legal'),
-    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', None, b'Please fill in the form to reset your password with a new one.'),
-    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', '593612854.360794', b'This link is outdated.'),
-    (1, 'xLeeX6_tD3flHnI__Rc4P1PqklR2Sm8aFs8PXrMrE6s', '2593612854.360794', b'This link is outdated.'),
+    (2, api_key, None, b'API key and user id do not seem to fit.'),
+    ('test', api_key, None, b'Some parameters are not legal'),
+    (1, api_key, None, b'Please fill in the form to reset your password with a new one.'),
+    (1, api_key, '593612854.360794', b'This link is outdated.'),
+    (1, api_key, '2593612854.360794', b'This link is outdated.'),
 ))
 def test_reset_password(client, mobiuser_id, api_key, timestamp, message):
     if timestamp is None:

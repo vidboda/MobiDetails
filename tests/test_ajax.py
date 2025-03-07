@@ -36,7 +36,7 @@ def get_generic_password():
     db_pool, db = get_db()
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     curs.execute(
-        "SELECT email, password FROM mobiuser WHERE email = 'mobidetails.iurc@gmail.com'"
+        "SELECT email, password FROM mobiuser WHERE id = 1"
     )
     res = curs.fetchone()
     if res is not None:
@@ -114,8 +114,8 @@ def test_litvar2(client, app):
             )
             assert response.status_code == 200
             possible = [
-                b'No match in Pubmed using LitVar2 API',
-                b'PubMed links of articles citing this variant',
+                b'Currently no match in PubMed using LitVar2 API',
+                b'Full details and complete results available at',
                 b'The Litvar2 query failed'
             ]
             # https://stackoverflow.com/questions/6531482/how-to-check-if-a-string-contains-an-element-from-a-list-in-python/6531704#6531704
