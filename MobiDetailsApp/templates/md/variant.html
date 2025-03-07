@@ -81,7 +81,6 @@
 			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
 			{% endif %}
 			{% endif %}
-			{{ link("%s/detail?gene=%s&mutation=%s:g.%s"|format(urls.mastermind, external_data.gene.symbol, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName), "Mastermind") }}
 		</div>
 		{# somatic #}
 		{% if (external_data.gene.isOncogene or external_data.gene.isTumorSuppressor) and (external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?') %}
