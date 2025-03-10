@@ -1196,7 +1196,7 @@ $(document).ready(function() {
       doc = convert_dt(config, "class_table", "Classification history", "table_title", doc);
     }
     // pubmed
-    if (Array.from(document.getElementById('list_from_litvar2').getElementsByTagName('li')).map(item => item.textContent).length > 0) {
+    if ($('#list_from_litvar2').length && Array.from(document.getElementById('list_from_litvar2').getElementsByTagName('li')).map(item => item.textContent).length > 0) {
       const articles = $('#hidden_pubmed_results').text().split(';');
 
       doc['content'].push(
