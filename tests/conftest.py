@@ -28,6 +28,8 @@ def app():
         'GENEBE_EMAIL': md_conf['genebe_email'].replace('"', ''),
         'GENEBE_API_KEY': md_conf['genebe_api_key'].replace('"', ''),
         'IP_WHITE_LIST': md_conf['ip_white_list'].replace('"', ''),
+        'MAIL_USERNAME': md_conf['mail_username'].replace('"', ''),
+        'MAIL_ERROR_RECIPIENT': md_conf['mail_error_recipient'].replace('"', ''),
     })
     with app.app_context():
         init_db()

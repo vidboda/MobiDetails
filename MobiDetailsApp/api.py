@@ -1006,20 +1006,20 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     external_data['frequenciesDatabases']['gnomADv4Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP and others
                 if variant_features['prot_type'] == 'missense':
-                    # CADD
+                    # Eigen
                     record = md_utilities.get_value_from_tabix_file(
                         'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
                     )
                     # print(record)
-                    if academic is True:
-                        try:
-                            external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
-                            external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
-                        except Exception:
-                            internal_data['noMatch']['cadd'] = 'No match in dbNSFP for CADD'
-                        if 'caddRaw' in external_data['overallPredictions'] and \
-                                external_data['overallPredictions']['caddRaw'] == '.':
-                            internal_data['noMatch']['cadd'] = 'No score in dbNSFP for CADD'
+                    # if academic is True:
+                    #     try:
+                    #         external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
+                    #         external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
+                    #     except Exception:
+                    #         internal_data['noMatch']['cadd'] = 'No match in dbNSFP for CADD'
+                    #     if 'caddRaw' in external_data['overallPredictions'] and \
+                    #             external_data['overallPredictions']['caddRaw'] == '.':
+                    #         internal_data['noMatch']['cadd'] = 'No score in dbNSFP for CADD'
                     # Eigen
                     try:
                         external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
@@ -1029,7 +1029,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     if 'eigenRaw' in external_data['overallPredictions'] and \
                             external_data['overallPredictions']['eigenRaw'] == '.':
                         internal_data['noMatch']['eigen'] = 'No score in dbNSFP for Eigen'
-                    # record comes from CADD section above
+                    # record comes from Eigen section above
                     if isinstance(record, str):
                         internal_data['noMatch']['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
                     else:
@@ -1254,14 +1254,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # CADD
                 if academic is True:
                     if variant_features['dna_type'] == 'substitution':
-                        if variant_features['prot_type'] != 'missense':
-                            # specific file for CADD
-                            record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
-                            if isinstance(record, str):
-                                internal_data['noMatch']['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
-                            else:
-                                external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['raw_col'])]), '.2f')
-                                external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['phred_col'])]), '.2f')
+                        # if variant_features['prot_type'] != 'missense':
+                        # specific file for CADD
+                        record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            internal_data['noMatch']['cadd'] = "{0} {1}".format(record, md_utilities.external_tools['CADD']['version'])
+                        else:
+                            external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['raw_col'])]), '.2f')
+                            external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['phred_col'])]), '.2f')
                     else:
                         record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd_indels']['abs_path'], var, variant_features)
                         if isinstance(record, str):
