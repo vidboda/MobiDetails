@@ -128,13 +128,23 @@ def litvar():
 ######################################################################
 # web app - ajax for litvar2
 
+def is_litvar_valid(data):
+    """
+    Checks if the provided data meets the specified conditions to be considered a valid litvar value.
 
-def is_litvar_empty(data):
-    if data is None:
-        return True
-    if len(data) == 0:
-        return True
-    return 'detail' in data and re.search('Variant not found', data['detail'])
+    Parameters:
+    - data (dict): The data to be verified.
+
+    Returns:
+    - bool: True if the data meets all conditions, False otherwise.
+    """
+    if data is None or not data:
+        return False
+    
+    if 'detail' in data and re.search('Variant not found', data["detail"]):
+        return False
+    return True
+
 
 @bp.route('/litvar2', methods=['POST'])
 def litvar2():
@@ -169,7 +179,7 @@ def litvar2():
                 <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-display-container">
                     <p><strong>The Litvar2 query failed</strong> - <i>Please reload and if the problem persist <a href="" onmouseover="this.href='mailto:{}'" onmouseout="this.href=''">contact our administrator</a>.</i></p>
                 </div>""".format(app.config["MAIL_USERNAME"])
-        if not is_litvar_empty(litvar_data):
+        if is_litvar_valid(litvar_data):
             pubmed_info = dict()
 
             togows_url = '{0}/entry/ncbi-pubmed/'.format(
@@ -200,8 +210,6 @@ def litvar2():
                             'year': article['year'],
                             'author': article['authors'][0]
                         }
-                    else:
-                        print(pmid)
             except Exception:
                 for pubmed_id in litvar_data['pmids']:
                     pmid = int(pubmed_id)
