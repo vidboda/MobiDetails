@@ -8,7 +8,7 @@
 {% else %}
 	<p id="intro_litvar">All results ({{ pubmed_count }} citations) :</p>
 {% endif %}
-<div class="w3-container w3-border" style="max-height: 60vh;height: fit-content; overflow-y: auto;">
+<div class="w3-container w3-border" style="height: fit-content; overflow-y: auto;" id="litvar_content">
 	<ul id="list_from_litvar2">
 		{% for pubmedid in pmids|sort %}
 			{% if pmids[pubmedid]['title'] %}

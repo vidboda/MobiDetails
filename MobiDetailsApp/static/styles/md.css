@@ -87,3 +87,15 @@ a:hover {
   background:#ecf0f1;
   border:0px;
 }
+
+@media (max-height: 500px) {
+  #litvar_content {
+      max-height: 200px;
+  }
+}
+
+@media (min-height: 501px) {
+  #litvar_content {
+      max-height: 40vh;
+  }
+}
