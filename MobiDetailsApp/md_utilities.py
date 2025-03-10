@@ -720,7 +720,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         return 'Match failed in {}'.format(text)
     i = 3
     if re.search(
-            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.6/gnomad.genomes\.r3\.0\.indel)',
+            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.7/gnomad.genomes\.r4\.0\.indel)',
             tabix_file
             ) or \
             text == 'AbSplice' or \
