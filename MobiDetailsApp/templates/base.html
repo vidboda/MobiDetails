@@ -180,6 +180,7 @@
 		<div id="content">
 
 			<div id="warning_content" {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
+				{{ info("We've just migrated to a new address! Please update your bookmarks!") }}
 				{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
 				{{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }}
 				</div> #}
