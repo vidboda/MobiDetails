@@ -9,3 +9,7 @@ bp = Blueprint('static_route', __name__)
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])
 
+@bp.route('/google3a59cad5c35ba902.html')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
