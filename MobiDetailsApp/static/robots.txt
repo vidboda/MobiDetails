@@ -1,21 +1,28 @@
+
 User-agent: *
-Allow:https://mobidetails.chu-montpellier.fr/
-Allow:https://mobidetails.chu-montpellier.fr/about
-Allow:https://mobidetails.chu-montpellier.fr/genes
-Allow:https://mobidetails.chu-montpellier.fr/changelog
-Disallow:https://mobidetails.chu-montpellier.fr/static/*
-Disallow:https://mobidetails.chu-montpellier.fr/gene/*
-Disallow:https://mobidetails.chu-montpellier.fr/vars/*
-Disallow:https://mobidetails.chu-montpellier.fr/variant/*
-Disallow:https://mobidetails.chu-montpellier.fr/defgen
-Disallow:https://mobidetails.chu-montpellier.fr/litvar
-Disallow:https://mobidetails.chu-montpellier.fr/intervar
-Disallow:https://mobidetails.chu-montpellier.fr/lovd
-Disallow:https://mobidetails.chu-montpellier.fr/modif_class
-Disallow:https://mobidetails.chu-montpellier.fr/remove_class
-Disallow:https://mobidetails.chu-montpellier.fr/create
-Disallow:https://mobidetails.chu-montpellier.fr/toggle_prefs
-Disallow:https://mobidetails.chu-montpellierm.fr/favourite
-Disallow:https://mobidetails.chu-montpellier.fr/autocomplete
-Disallow:https://mobidetails.chu-montpellier.fr/autocomplete_var
-Disallow:https://mobidetails.chu-montpellier.fr/search_engine
+Allow: /
+Allow: /about
+Allow: /genes
+Allow: /changelog
+Allow: /MDAPI
+Disallow: /api/*
+Disallow: /static/*
+Disallow: /gene/*
+Disallow: /vars/*
+Disallow: /variant/*
+Disallow: /defgen
+Disallow: /litvar2
+Disallow: /intervar
+Disallow: /lovd
+Disallow: /modif_class
+Disallow: /remove_class
+Disallow: /create
+Disallow: /toggle_prefs
+Disallow: /favourite
+Disallow: /autocomplete
+Disallow: /autocomplete_var
+Disallow: /search_engine
+Disallow: /spip
+Disallow: /spliceaivisual
+Disallow: /genebe
+Crawl-delay: 10
