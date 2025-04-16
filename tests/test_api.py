@@ -2,7 +2,10 @@ import pytest
 import psycopg2
 import json
 import urllib.parse
-from .test_ajax import get_db
+# python 3.9 style
+# from .test_ajax import get_db
+# python 3.6 style
+from test_ajax import get_db
 
 
 # test api key

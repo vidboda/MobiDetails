@@ -1,8 +1,11 @@
 import pytest
 from datetime import datetime
 # from flask import g, session
-from .test_ajax import get_db
-from .test_api import get_generic_api_key
+# python 3.9 style
+# from .test_ajax import get_db
+# python 3.6 style
+from test_ajax import get_db
+from test_api import get_generic_api_key
 
 
 def test_register(client, app):

@@ -1,5 +1,8 @@
 import pytest
-from .test_ajax import get_db
+# python 3.9 style
+# from .test_ajax import get_db
+# python 3.6 style
+from test_ajax import get_db
 
 
 # def test_homepage(client):
