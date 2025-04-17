@@ -27,7 +27,7 @@ Flask-Paranoid==0.3.0
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.1
 future==1.0.0
-gevent==22.10.2
+gevent==23.9.0
 geventhttpclient==2.0.12
 greenlet==2.0.2
 idna==3.10
