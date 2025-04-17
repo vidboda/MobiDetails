@@ -61,6 +61,7 @@ pyparsing==3.2.0
 pyproject_hooks==1.2.0
 pytabix==0.1
 pytest==8.3.3
+pytest-cov==6.1.1
 python-gnupg==0.5.3
 python-ldap==3.4.4
 PyYAML==6.0.2
