@@ -112,7 +112,7 @@ MobiDetailsApp/static/videos/
 #MobiDetailsApp/static/img/
 #styles
 
-
+MobiDetailsApp/static/google3a59cad5c35ba902.html
 MobiDetailsApp/static/defgen/
 MobiDetailsApp/static/javascript/Chart.min.js
 MobiDetailsApp/static/javascript/Chart.min.js.2.8.0.js
@@ -189,4 +189,4 @@ MobiDetailsApp/templates/md/variant_old.html
 logs/
 requirements.txt.versions
 requirements_noversions.txt
-
+requirements_nover.txt
