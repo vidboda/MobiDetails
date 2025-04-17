@@ -145,9 +145,9 @@ def register():
                                 The email address is reported as risky or suppressed.
                                 If this is not the case, please send
                                 us an email directly to
-                                &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.
+                                &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#064;&#099;&#104;&#117;&#045;&#109;&#111;&#110;&#116;&#112;&#101;&#108;&#108;&#105;&#101;&#114;&#046;&#102;&#114;.
                                 """
-                            # else:valid adressese such as
+                            # else:valid adresses such as
                             # d-baux@chu-montpellier.fr are reported as False
                     else:
                         md_utilities.send_error_email(
@@ -172,8 +172,8 @@ def register():
                         '[MobiDetails - Email Validation Error]'
                     )
             # 2nd check https://www.stopforumspam.com/
-            # ex https://www.stopforumspam.com/api?ip=&email=&username=&f=json
-            sfs_url = 'https://www.stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(
+            # ex https://stopforumspam.com/api?ip=&email=&username=&f=json
+            sfs_url = 'https://stopforumspam.com/api?ip={0}&email={1}&username={2}&f=json'.format(
                 remote_ip,
                 email,
                 username
@@ -187,7 +187,7 @@ def register():
                         headers=header
                     ).data.decode('utf-8')
                 )
-            except Exception:
+            except Exception as e:
                 sfs_json = None
             if sfs_json:
                 try:
@@ -214,7 +214,7 @@ def register():
                             Sorry, your input data is reported as risky.
                             If this is not the case, please send
                             us an email directly to
-                            &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#046;&#105;&#117;&#114;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;.
+                            &#109;&#111;&#098;&#105;&#100;&#101;&#116;&#097;&#105;&#108;&#115;&#064;&#099;&#104;&#117;&#045;&#109;&#111;&#110;&#116;&#112;&#101;&#108;&#108;&#105;&#101;&#114;&#046;&#102;&#114;.
                             """
                         elif sfs_json['username']['appears'] == 1:
                             md_utilities.send_error_email(

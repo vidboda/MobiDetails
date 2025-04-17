@@ -81,7 +81,7 @@ def get_generic_api_key():
         """
         SELECT api_key
         FROM mobiuser
-        WHERE email = 'mobidetails.iurc@gmail.com'
+        WHERE email = 'mobidetails@chu-montpellier.fr'
         """
     )
     res = curs.fetchone()

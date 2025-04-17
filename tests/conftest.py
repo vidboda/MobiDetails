@@ -30,6 +30,7 @@ def app():
         'IP_WHITE_LIST': md_conf['ip_white_list'].replace('"', ''),
         'MAIL_USERNAME': md_conf['mail_username'].replace('"', ''),
         'MAIL_ERROR_RECIPIENT': md_conf['mail_error_recipient'].replace('"', ''),
+        'SERVER_NAME': md_conf['server_name'].replace('"', ''),
     })
     with app.app_context():
         init_db()
