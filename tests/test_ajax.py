@@ -1,3 +1,4 @@
+from flask import url_for
 import pytest
 import psycopg2
 import psycopg2.extras
@@ -52,8 +53,8 @@ email, password = get_generic_password()
 
 
 def test_litvar2(client, app):
-    assert client.get('/litvar2').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.litvar2')).status_code == 405
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -71,7 +72,7 @@ def test_litvar2(client, app):
         db_pool.putconn(db)
         for values in res:
             response = client.post(
-                '/litvar2',
+                url_for('ajax.litvar2'),
                 data=dict(rsid='rs{0}'.format(values['dbsnp_id']))
             )
             assert response.status_code == 200
@@ -91,8 +92,8 @@ def test_litvar2(client, app):
 
 
 def test_defgen(client, app):
-    assert client.get('/defgen').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.defgen')).status_code == 405
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -106,7 +107,7 @@ def test_defgen(client, app):
         db_pool.putconn(db)
         for values in res:
             data_dict = dict(vfid=values['feature_id'], genome=values['genome_version'])
-            response = client.post('/defgen', data=data_dict)
+            response = client.post(url_for('ajax.defgen'), data=data_dict)
             assert response.status_code == 200
             assert b'Export Variant data to DEFGEN' in response.get_data()
 
@@ -114,8 +115,8 @@ def test_defgen(client, app):
 
 
 def test_intervar(client, app):
-    assert client.get('/intervar').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.intervar')).status_code == 405
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -128,7 +129,7 @@ def test_intervar(client, app):
         res = curs.fetchall()
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene_symbol'])
-            response = client.post('/intervar', data=data_dict)
+            response = client.post(url_for('ajax.intervar'), data=data_dict)
             assert response.status_code == 200
             possible = [
                 b'athogenic',
@@ -149,8 +150,8 @@ def test_intervar(client, app):
 
 
 def test_genebe(client, app):
-    assert client.get('/genebe').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.genebe')).status_code == 405
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -162,7 +163,7 @@ def test_genebe(client, app):
         res = curs.fetchall()
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], pos=values['pos'], ref=values['pos_ref'], alt=values['pos_alt'], gene=values['gene_symbol'], ncbi_transcript=values['refseq'])
-            response = client.post('/genebe', data=data_dict)
+            response = client.post(url_for('ajax.genebe'), data=data_dict)
             assert response.status_code == 200
             possible = [
                 b'athogenic',
@@ -183,8 +184,8 @@ def test_genebe(client, app):
 
 
 def test_lovd(client, app):
-    assert client.get('/lovd').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.lovd')).status_code == 405
         db_pool, db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         curs.execute(
@@ -201,7 +202,7 @@ def test_lovd(client, app):
         for values in res:
             data_dict = dict(genome=values['genome_version'], chrom=values['chr'], g_name=values['g_name'], c_name='c.{}'.format(values['c_name']), gene=values['gene_symbol'], ncbi_transcript=values['refseq'])
             print(data_dict)
-            assert client.post('/lovd', data=data_dict).status_code == 200
+            assert client.post(url_for('ajax.lovd'), data=data_dict).status_code == 200
 
 # test modif_class
 
@@ -215,9 +216,9 @@ def test_lovd(client, app):
     ('ebc', 7, 'impossible variant', 200),
 ))
 def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, status_code2):
-    assert client.get('/modif_class').status_code == 405
     with app.app_context():
-        response = client.post('/modif_class',
+        assert client.get(url_for('ajax.modif_class')).status_code == 405
+        response = client.post(url_for('ajax.modif_class'),
                                data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg,
@@ -226,7 +227,7 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, status_code2):
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
-        response = client.post('/modif_class',
+        response = client.post(url_for('ajax.modif_class'),
                                data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg,
@@ -246,9 +247,9 @@ def test_modif_class(client, app, auth, vf_id, acmg, acmg_com, status_code2):
     (-5, 7, 200),
 ))
 def test_remove_class(client, app, auth, vf_id, acmg, status_code):
-    assert client.get('/modif_class').status_code == 405
     with app.app_context():
-        response = client.post('/remove_class',
+        assert client.get(url_for('ajax.modif_class')).status_code == 405
+        response = client.post(url_for('ajax.remove_class'),
                                data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg
@@ -256,7 +257,7 @@ def test_remove_class(client, app, auth, vf_id, acmg, status_code):
                                )
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
-        response = client.post('/remove_class',
+        response = client.post(url_for('ajax.remove_class'),
                                data=dict(
                                     variant_id=vf_id,
                                     acmg_select=acmg
@@ -273,9 +274,9 @@ def test_remove_class(client, app, auth, vf_id, acmg, status_code):
     (10, 'Object: [MobiDetails - Query from pytest]', 'test message', 200),
 ))
 def test_send_var_message(client, app, auth, receiver_id, message_object, message, status_code):
-    assert client.get('/send_var_message').status_code == 405
     with app.app_context():
-        response = client.post('/send_var_message',
+        assert client.get(url_for('ajax.send_var_message')).status_code == 405
+        response = client.post(url_for('ajax.send_var_message'),
                                data=dict(
                                     receiver_id=receiver_id,
                                     message_object=message_object,
@@ -285,7 +286,7 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.post(
-            '/send_var_message',
+            url_for('ajax.send_var_message'),
             data=dict(
                 receiver_id=receiver_id,
                 message_object=message_object,
@@ -304,13 +305,14 @@ def test_send_var_message(client, app, auth, receiver_id, message_object, messag
     ('c.*25_*26insATG', 'USH2A', 'NM_206933.4', b'already', b'successfully'),
     ('c.651+126_651+128del', 'USH2A', 'NM_206933.4', b'already', b'successfully')
 ))
-def test_create(client, new_variant, gene, acc_no, message1, message2):
-    assert client.get('/create').status_code == 405
-    data_dict = dict(new_variant=new_variant, gene=gene, acc_no=acc_no)
-    response = client.post('/create', data=data_dict)
-    assert response.status_code == 200
-    possible = [message1, message2]
-    assert any(test in response.get_data() for test in possible)
+def test_create(client, app, new_variant, gene, acc_no, message1, message2):
+    with app.app_context():
+        assert client.get(url_for('ajax.create')).status_code == 405
+        data_dict = dict(new_variant=new_variant, gene=gene, acc_no=acc_no)
+        response = client.post(url_for('ajax.create'), data=data_dict)
+        assert response.status_code == 200
+        possible = [message1, message2]
+        assert any(test in response.get_data() for test in possible)
 
 # test toggle_prefs
 
@@ -327,14 +329,14 @@ def test_create(client, new_variant, gene, acc_no, message1, message2):
     ('auto_add2clinvar_check', None, 200)
 ))
 def test_toggle_prefs(client, app, auth, caller, pref, status_code):
-    assert client.get('/toggle_prefs').status_code == 405
     with app.app_context():
-        response = client.post('/toggle_prefs', data=dict(pref_value=pref, field=caller), follow_redirects=True)
+        assert client.get(url_for('ajax.toggle_prefs')).status_code == 405
+        response = client.post(url_for('ajax.toggle_prefs'), data=dict(pref_value=pref, field=caller), follow_redirects=True)
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.post(
-            '/toggle_prefs',
+            url_for('ajax.toggle_prefs'),
             data=dict(
                 pref_value=pref,
                 field=caller
@@ -351,14 +353,14 @@ def test_toggle_prefs(client, app, auth, caller, pref, status_code):
     ('', 200)
 ))
 def test_favourite(client, app, auth, vf_id, status_code):
-    assert client.get('/favourite').status_code == 405
     with app.app_context():
-        response = client.post('/favourite', data=dict(vf_id=vf_id), follow_redirects=True)
+        assert client.get(url_for('ajax.favourite')).status_code == 405
+        response = client.post(url_for('ajax.favourite'), data=dict(vf_id=vf_id), follow_redirects=True)
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.post(
-            '/favourite',
+            url_for('ajax.favourite'),
             data=dict(vf_id=vf_id),
             follow_redirects=True
         ).status_code == status_code
@@ -367,17 +369,17 @@ def test_favourite(client, app, auth, vf_id, status_code):
 
 
 def test_empty_favourite_list(client, app, auth):
-    assert client.get('/empty_favourite_list').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.empty_favourite_list')).status_code == 405
         response = client.post(
-            '/empty_favourite_list',
+            url_for('ajax.empty_favourite_list'),
             follow_redirects=True
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.post(
-            '/empty_favourite_list',
+            url_for('ajax.empty_favourite_list'),
             follow_redirects=True
         ).status_code == 200
 
@@ -385,17 +387,17 @@ def test_empty_favourite_list(client, app, auth):
 
 
 def test_toggle_lock_variant_list(client, app, auth):
-    assert client.get('/empty_favourite_list').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.empty_favourite_list')).status_code == 405
         response = client.get(
-            '/toggle_lock_variant_list/mobidetails_list_1',
+            url_for('ajax.toggle_lock_variant_list', list_name='MYO7A_LGM_2021'),
             follow_redirects=True
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.get(
-            '/toggle_lock_variant_list/mobidetails_list_1',
+            url_for('ajax.toggle_lock_variant_list', list_name='MYO7A_LGM_2021'),
             follow_redirects=True
         ).status_code == 200
 
@@ -403,19 +405,19 @@ def test_toggle_lock_variant_list(client, app, auth):
 
 
 def test_create_unique_url(client, app, auth):
-    assert client.get('/create_unique_url').status_code == 405
     with app.app_context():
+        assert client.get(url_for('ajax.create_unique_url')).status_code == 405
         response = client.post(
-            '/create_unique_url',
-            data=dict(list_name='mobidetails_list_1'),
+            url_for('ajax.create_unique_url'),
+            data=dict(list_name='MYO7A_LGM_2021'),
             follow_redirects=True
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.post(
-            '/create_unique_url',
-            data=dict(list_name='mobidetails_list_1'),
+            url_for('ajax.create_unique_url'),
+            data=dict(list_name='MYO7A_LGM_2021'),
             follow_redirects=True
         ).status_code == 200
         assert b'already' in response.get_data()
@@ -425,26 +427,26 @@ def test_create_unique_url(client, app, auth):
 
 
 @pytest.mark.parametrize(('list_name', 'return_value'), (
-    ('mobidetails_list_1', 200),
+    ('MYO7A_LGM_2021', 200),
     ('test', 200),
     (9, 200),
 ))
 def test_delete_variant_list(client, app, auth, list_name, return_value):
-    assert client.get('/delete_variant_list').status_code == 404
     with app.app_context():
+        assert client.get(url_for('ajax.delete_variant_list', list_name='')).status_code == 404
         response = client.get(
-            '/delete_variant_list/{}'.format(list_name),
+            url_for('ajax.delete_variant_list', list_name=list_name),
             follow_redirects=True
         )
         print(response.get_data())
         assert b'check_login_form' in response.get_data()  # means we are in the login page
         auth.login(email, password)
         assert client.get(
-            '/delete_variant_list/{}'.format(list_name),
+            url_for('ajax.delete_variant_list', list_name=list_name),
             follow_redirects=True
         ).status_code == return_value
         assert b'check_login_form' in client.get(
-            '/delete_variant_list/{}'.format(list_name),
+            url_for('ajax.delete_variant_list', list_name=list_name),
             follow_redirects=True
         ).get_data()
 
@@ -462,10 +464,11 @@ def test_delete_variant_list(client, app, auth, list_name, return_value):
     ('c.blabla', b'')
 ))
 def test_autocomplete(client, app, query, return_value):
-    assert client.get('/autocomplete').status_code == 405
-    response = client.post('/autocomplete', data=dict(query_engine=query))
-    print(response.get_data())
-    assert return_value in response.get_data()
+    with app.app_context():
+        assert client.get(url_for('ajax.autocomplete')).status_code == 405
+        response = client.post(url_for('ajax.autocomplete'), data=dict(query_engine=query))
+        print(response.get_data())
+        assert return_value in response.get_data()
 
 # test autocomplete_var
 
@@ -478,14 +481,15 @@ def test_autocomplete(client, app, query, return_value):
     ('c.actg', 'NM_206933.4', b'', 204),
     ('c.ATCG', 'NM_206933.4', b'[]', 200)
 ))
-def test_autocomplete_var(client, query, acc_no, return_value, http_code):
-    assert client.get('/autocomplete_var').status_code == 405
-    data_dict = dict(query_engine=query, acc_no=acc_no)
-    response = client.post('/autocomplete_var', data=data_dict)
-    print(response.get_data())
-    print(response.status_code)
-    assert return_value == response.get_data()
-    assert http_code == response.status_code
+def test_autocomplete_var(client, app, query, acc_no, return_value, http_code):
+    with app.app_context():
+        assert client.get(url_for('ajax.autocomplete_var')).status_code == 405
+        data_dict = dict(query_engine=query, acc_no=acc_no)
+        response = client.post(url_for('ajax.autocomplete_var'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert return_value == response.get_data()
+        assert http_code == response.status_code
 
 # test panelApp
 
@@ -497,14 +501,15 @@ def test_autocomplete_var(client, query, acc_no, return_value, http_code):
     ('HLA-A', b'panelapp.genomicsengland.co.uk', 200),
     ('HLA-DPA1:', b'Invalid character in the gene symbol', 200)
 ))
-def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
-    assert client.get('/is_panelapp_entity').status_code == 405
-    data_dict = dict(gene_symbol=gene_symbol)
-    response = client.post('/is_panelapp_entity', data=data_dict)
-    print(response.get_data())
-    print(response.status_code)
-    assert return_value in response.get_data()
-    assert http_code == response.status_code
+def test_is_panelapp_entity(client, app, gene_symbol, return_value, http_code):
+    with app.app_context():
+        assert client.get(url_for('ajax.is_panelapp_entity')).status_code == 405
+        data_dict = dict(gene_symbol=gene_symbol)
+        response = client.post(url_for('ajax.is_panelapp_entity'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert return_value in response.get_data()
+        assert http_code == response.status_code
 
 # test SPiP
 
@@ -518,13 +523,14 @@ def test_is_panelapp_entity(client, gene_symbol, return_value, http_code):
     ('USH2A', 'NM_206933.2', 'c.11389+8_11389+10delinsT', '202888'),
     ('USH2A', 'NM_206933.2', 'c.11549-5del', '110'),
 ))
-def test_spip(client, gene_symbol, nm_acc, c_name, variant_id):
-    assert client.get('/spip').status_code == 405
-    data_dict = dict(gene_symbol=gene_symbol, nm_acc=nm_acc, c_name=c_name, variant_id=variant_id)
-    response = client.post('/spip', data=data_dict)
-    print(response.get_data())
-    print(response.status_code)
-    assert b'Interpretation' in response.get_data()
+def test_spip(client, app, gene_symbol, nm_acc, c_name, variant_id):
+    with app.app_context():
+        assert client.get(url_for('ajax.spip')).status_code == 405
+        data_dict = dict(gene_symbol=gene_symbol, nm_acc=nm_acc, c_name=c_name, variant_id=variant_id)
+        response = client.post(url_for('ajax.spip'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert b'Interpretation' in response.get_data()
 
 # test spliceai lookup
 
@@ -538,13 +544,14 @@ def test_spip(client, gene_symbol, nm_acc, c_name, variant_id):
     ('chr1-215625755-G-GCAT', 'NM_206933.4', b'(-324)'),
     ('chr1-215680269-CAG-TTTA', 'NM_206933.4', b'0.00 (-27)')
 ))
-def test_spliceai_lookup(client, variant, transcript, return_value):
-    assert client.get('/spliceai_lookup').status_code == 405
-    data_dict = dict(variant=variant, transcript=transcript)
-    response = client.post('/spliceai_lookup', data=data_dict)
-    print(response.get_data())
-    print(response.status_code)
-    assert return_value in response.get_data()
+def test_spliceai_lookup(client, app, variant, transcript, return_value):
+    with app.app_context():
+        assert client.get(url_for('ajax.spliceai_lookup')).status_code == 405
+        data_dict = dict(variant=variant, transcript=transcript)
+        response = client.post(url_for('ajax.spliceai_lookup'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert return_value in response.get_data()
 
 # test spliceai visual
 
@@ -555,11 +562,12 @@ def test_spliceai_lookup(client, variant, transcript, return_value):
     ('USH2A', '1', 216325499, 'G', 'T', 334809, '-', 'NM_206933.X', 'automatic', b'<p style="color:red">Bad params for SpliceAI-visual.</p>'),
     ('TTN', '2', '178599063', 'CT', 'GA', 334804, '-', 'NM_001267550.2', 'automatic', b'ok'),
 ))
-def test_spliceaivisual(client, gene, chrom, pos, ref, alt, variant_id, strand, ncbi_transcript, caller, return_value):
-    assert client.get('/spliceaivisual').status_code == 405
-    data_dict = dict(chrom=chrom, pos=pos, ref=ref, alt=alt, variant_id=variant_id, strand=strand, ncbi_transcript=ncbi_transcript, gene_symbol=gene, caller=caller)
-    response = client.post('/spliceaivisual', data=data_dict)
-    print(response.get_data())
-    print(response.status_code)
-    assert return_value in response.get_data()
+def test_spliceaivisual(client, app, gene, chrom, pos, ref, alt, variant_id, strand, ncbi_transcript, caller, return_value):
+    with app.app_context():
+        assert client.get(url_for('ajax.spliceaivisual')).status_code == 405
+        data_dict = dict(chrom=chrom, pos=pos, ref=ref, alt=alt, variant_id=variant_id, strand=strand, ncbi_transcript=ncbi_transcript, gene_symbol=gene, caller=caller)
+        response = client.post(url_for('ajax.spliceaivisual'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert return_value in response.get_data()
 

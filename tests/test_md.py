@@ -1,3 +1,4 @@
+from flask import url_for
 import pytest
 # python 3.9 style
 # from .test_ajax import get_db
@@ -44,42 +45,42 @@ def test_basic_variant_page(client):
 
 
 @pytest.mark.parametrize(('t_search', 'url', 'status_code'), (
-    ('R34X', b'api/variant/240/browser/', 200),
-    ('R34*', b'api/variant/240/browser/', 200),
-    ('p.Arg34*', b'api/variant/240/browser/', 200),
-    ('p.(Arg34Ter)', b'api/variant/240/browser/', 200),
-    ('p.(Arg34*)', b'api/variant/240/browser/', 200),
-    ('c.100C>T', b'api/variant/240/browser/', 200),
-    ('c.100c>t', b'api/variant/240/browser/', 200),
-    ('c.100c>T', b'api/variant/240/browser/', 200),
-    ('NM_206933.4:c.100C>T', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:c.100c>T', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:c.100C>t', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:c.100c>t', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:C.100C>T', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:C.100C>t', b'api/variant/240/browser/', 307),
-    ('NM_206933.4:C.100c>t', b'api/variant/240/browser/', 307),
-    ('chr1:g.216595579G>A', b'api/variant/240/browser/', 200),
-    ('chr1:g.216422237G>A', b'api/variant/240/browser/', 200),
-    ('chr1:g.216422237g>a', b'api/variant/240/browser/', 200),
-    ('chr1:g.216422237G>a', b'api/variant/240/browser/', 200),
-    ('chr1:G.216422237G>a', b'api/variant/240/browser/', 200),
-    ('chr1:G.216422237g>A', b'api/variant/240/browser/', 200),
-    ('chr1:G.216422237g>a', b'api/variant/240/browser/', 200),
-    ('NC_000001.11:g.216422237G>A', b'api/variant/240/browser/', 200),
-    ('NC_000001.11:g.216422237g>A', b'api/variant/240/browser/', 200),
-    ('NC_000001.11:g.216422237G>a', b'api/variant/240/browser/', 200),
-    ('NC_000001.11:g.216422237g>a', b'api/variant/240/browser/', 200),
-    ('NC_000001.11:G.216422237g>a', b'api/variant/240/browser/', 200),
+    ('R34X', b'api/variant/98756/browser/', 200),
+    ('R34*', b'api/variant/98756/browser/', 200),
+    ('p.Arg34*', b'api/variant/98756/browser/', 200),
+    ('p.(Arg34Ter)', b'api/variant/98756/browser/', 200),
+    ('p.(Arg34*)', b'api/variant/98756/browser/', 200),
+    ('c.100C>T', b'api/variant/98756/browser/', 200),
+    ('c.100c>t', b'api/variant/98756/browser/', 200),
+    ('c.100c>T', b'api/variant/98756/browser/', 200),
+    ('NM_206933.4:c.100C>T', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:c.100c>T', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:c.100C>t', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:c.100c>t', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:C.100C>T', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:C.100C>t', b'api/variant/98756/browser/', 307),
+    ('NM_206933.4:C.100c>t', b'api/variant/98756/browser/', 307),
+    ('chr1:g.216595579G>A', b'api/variant/98756/browser/', 200),
+    ('chr1:g.216422237G>A', b'api/variant/98756/browser/', 200),
+    ('chr1:g.216422237g>a', b'api/variant/98756/browser/', 200),
+    ('chr1:g.216422237G>a', b'api/variant/98756/browser/', 200),
+    ('chr1:G.216422237G>a', b'api/variant/98756/browser/', 200),
+    ('chr1:G.216422237g>A', b'api/variant/98756/browser/', 200),
+    ('chr1:G.216422237g>a', b'api/variant/98756/browser/', 200),
+    ('NC_000001.11:g.216422237G>A', b'api/variant/98756/browser/', 200),
+    ('NC_000001.11:g.216422237g>A', b'api/variant/98756/browser/', 200),
+    ('NC_000001.11:g.216422237G>a', b'api/variant/98756/browser/', 200),
+    ('NC_000001.11:g.216422237g>a', b'api/variant/98756/browser/', 200),
+    ('NC_000001.11:G.216422237g>a', b'api/variant/98756/browser/', 200),
     ('NC_000004.12:g.76311072A>C;STBD1', b'api/variant/create_g?variant_ghgvs=NC_000004.12%3Ag.76311072A%3EC&gene_hgnc=STBD1&caller=browser', 307),
     ('USH2A', '/gene/USH2A', 302),
-    ('c.2448_2462delCTGCAAGCCCAATGT', '/api/variant/264/browser/', 302),
-    ('c.2448_2462del', '/api/variant/264/browser/', 302),
-    ('p.Cys817_Val821del', '/api/variant/264/browser/', 302),
-    ('p.C817_V821del', '/api/variant/264/browser/', 302),
-    ('p.Leu1278del', '/api/variant/265/browser/', 302),
-    ('p.L1278del', '/api/variant/265/browser/', 302),
-    ('p.L1278delA', '/api/variant/265/browser/', 302),
+    ('c.2448_2462delCTGCAAGCCCAATGT', '/api/variant/955514/browser/', 302),
+    ('c.2448_2462del', '/api/variant/955514/browser/', 302),
+    ('p.Cys817_Val821del', '/api/variant/955514/browser/', 302),
+    ('p.C817_V821del', '/api/variant/955514/browser/', 302),
+    ('p.Leu1278del', '/api/variant/101517/browser/', 302),
+    ('p.L1278del', '/api/variant/101517/browser/', 302),
+    ('p.L1278delA', '/api/variant/101517/browser/', 302),
     ('NM_206933.2:c.2299del', ('/api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser'), 302),
     ('NM_206933.2(USH2A):c.2299del', ('/api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser'), 302),
     ('NM_206933.2(USH2A):c.2299delg', ('/api/variant/create?variant_chgvs=NM_206933.2%3Ac.2299del&caller=browser'), 302),
@@ -95,33 +96,34 @@ def test_basic_variant_page(client):
     ('c12ORF4', '/gene/C12orf4', 302),
     ('C12oRf4', '/gene/C12orf4', 302),
     ('C12orf4', '/gene/C12orf4', 302),
-    ('rs1057516028', '/api/variant/268/browser/', 302),
+    ('rs1057516028', '/api/variant/3783/browser/', 302),
     ('S100G', '/gene/S100G', 302),
     ('S100g', '/gene/S100G', 302),
     ('S100g', '/gene/S100G', 302),
-    ('1-216422237:G-A', b'/api/variant/240/browser/', 307),
-    ('hg38-1-216422237-G-A', b'/api/variant/240/browser/', 307),
-    ('grCh38:1-216422237-G-A', b'/api/variant/240/browser/', 307),
-    ('Hg19:1:216595579-G-A', b'/api/variant/240/browser/', 307),
-    ('GrcH37:1-216422237-G-A', b'/api/variant/240/browser/', 307),
-    ('GrcH37_1_216422237_G_A', b'/api/variant/240/browser/', 307),
-    ('GrcH37:1_216422237-G-A', b'/api/variant/240/browser/', 307),
+    ('1-216422237:G-A', b'/api/variant/98756/browser/', 307),
+    ('hg38-1-216422237-G-A', b'/api/variant/98756/browser/', 307),
+    ('grCh38:1-216422237-G-A', b'/api/variant/98756/browser/', 307),
+    ('Hg19:1:216595579-G-A', b'/api/variant/98756/browser/', 307),
+    ('GrcH37:1-216422237-G-A', b'/api/variant/98756/browser/', 307),
+    ('GrcH37_1_216422237_G_A', b'/api/variant/98756/browser/', 307),
+    ('GrcH37:1_216422237-G-A', b'/api/variant/98756/browser/', 307),
     ))
 def test_search_engine(client, app, t_search, url, status_code):
-    response = client.post(
-        '/search_engine',
-        data={'search': t_search}
-    )
-    print(response.status_code)
-    if status_code == 200:
-        print(response.get_data())
-        assert url in response.get_data()
-    elif status_code == 302:
-        print(response.headers['Location'] + 'http://localhost/{}'.format(url))
-        assert url == response.headers['Location']
-        assert url == response.headers['Location']
-    else:
-        assert status_code == response.status_code
+    with app.app_context():
+        response = client.post(
+            url_for('md.search_engine'),
+            data={'search': t_search}
+        )
+        print(response.status_code)
+        if status_code == 200:
+            print(response.get_data())
+            assert url in response.get_data()
+        elif status_code == 302:
+            print(response.headers['Location'] + 'http://mddev.pmmg.priv:5001{}'.format(url))
+            assert 'http://mddev.pmmg.priv:5001{}'.format(url) == response.headers['Location']
+            # assert url == response.headers['Location']
+        else:
+            assert status_code == response.status_code
 
 # test all variants in dev db except c.1A>T (too numerous as used to test variant creation)
 

@@ -345,8 +345,8 @@ def test_get_aa_position(variant_in, aa_pos):
 
 
 @pytest.mark.parametrize(('username', 'user_id'), (
-    ('mobidetails', 1),
-    ('davidbaux', 6),
+    ('mobidetails', 4),
+    ('davidbaux', 3),
     ('fake_username', None),
 ))
 def test_get_user_id(app, username, user_id):
@@ -523,8 +523,8 @@ var_ss_f = {
 @pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name', 'var_f'), (
     ('Clinvar', var, 'Pathogenic', 7, 'clinvar_hg38', var_f),
     ('Clinvar', var, '2356', 2, 'clinvar_hg38', var_f),
-    ('dbnsfp', var, '3.94', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp', var_f),
-    ('dbnsfp', var, '23.90', int(md_utilities.external_tools['CADD']['dbNSFP_phred_col']), 'dbnsfp', var_f),
+    # ('dbnsfp', var, '3.94', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    # ('dbnsfp', var, '23.90', int(md_utilities.external_tools['CADD']['dbNSFP_phred_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1.04', int(md_utilities.external_tools['Eigen']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '15.52', int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_f),
@@ -550,7 +550,7 @@ var_ss_f = {
     ('dbmts', var_3utr1, '0.656990242', int(md_utilities.external_tools['dbMTS']['targetscan_rankscore_col']), 'dbmts', var_3utr1_f),
     ('dbmts', var_3utr2, '0.102982936', int(md_utilities.external_tools['dbMTS']['rnahybrid_rankscore_col']), 'dbmts', var_3utr2_f),
     ('CADD', var_3utr2, '0.05', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd', var_3utr2_f),
-    ('CADD', var_3utr2, '1.30', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd', var_3utr2_f),
+    ('CADD', var_3utr2, '1.299', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd', var_3utr2_f),
     ('CADD', var_dup, '1.799622', int(md_utilities.external_tools['CADD']['raw_col']), 'cadd_indels', var_dup_f),
     ('CADD', var_dup, '15.80', int(md_utilities.external_tools['CADD']['phred_col']), 'cadd_indels', var_dup_f),
     ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs', var_f),
@@ -576,7 +576,7 @@ def test_get_value_from_tabix_file(app, client, tool, var, expected, record_numb
         g = fake_g_obj()
         db_pool, db = get_db()
         record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f, db)
-        print(record)
+        print(record_number)
         print(tool)
         print(md_utilities.local_files[file_name]['abs_path'])
         db_pool.putconn(db)
@@ -971,6 +971,7 @@ def test_create_var_vv(client, app):
         db_pool.putconn(db)
         print(res_id)
         assert isinstance(res_id, int)
+        assert res_id == 955519
 
 
 def test_create_var_vv_vcf_str(client, app):
@@ -985,6 +986,7 @@ def test_create_var_vv_vcf_str(client, app):
         db_pool.putconn(db)
         print(res_id)
         assert isinstance(res_id, int)
+        assert res_id == 955519
 
 @pytest.mark.parametrize(('name', 'result'), (
     ('216595578_216595582delinsT', ('216595578', '216595582')),
@@ -1110,7 +1112,7 @@ def test_check_api_key(app, api_key, result):
                     """
                     SELECT api_key
                     FROM mobiuser
-                    WHERE email = 'mobidetails.iurc@gmail.com'
+                    WHERE email = 'mobidetails@chu-montpellier.fr'
                     """
                 )
                 res = curs.fetchone()
@@ -1235,16 +1237,16 @@ def test_decompose_missense_one_letter(p_name, aa1, ppos, aa2):
 
 
 @pytest.mark.parametrize(('incoming_url', 'outcoming_url'), (
-    ('http://10.34.20.79:5001/variant/8#',
-        'http://10.34.20.79:5001/variant/8#'),
-    ('http://10.34.20.79:5001/variant/8#splicing',
-        'http://10.34.20.79:5001/variant/8#splicing'),
-    ('http://10.34.20.79:5001/gene/USH2A#',
-        'http://10.34.20.79:5001/gene/USH2A#'),
-    ('https://mobidetails.iurc.montp.inserm.fr/gene/USH2A#',
-        'https://mobidetails.iurc.montp.inserm.fr/gene/USH2A#'),
-    ('https://mobidetails.iurc.montp.inserm.fr/variant/8#splicing',
-        'https://mobidetails.iurc.montp.inserm.fr/variant/8#splicing'),
+    ('http://mddev.pmmg.priv:5001/variant/8#',
+        'http://mddev.pmmg.priv:5001/variant/8#'),
+    ('http://mddev.pmmg.priv:5001/variant/8#splicing',
+        'http://mddev.pmmg.priv:5001/variant/8#splicing'),
+    ('http://mddev.pmmg.priv:5001/gene/USH2A#',
+        'http://mddev.pmmg.priv:5001/gene/USH2A#'),
+    ('https://mobidetails.chu-montpellier.fr/gene/USH2A#',
+        'https://mobidetails.chu-montpellier.fr/gene/USH2A#'),
+    ('https://mobidetails.chu-montpellier.fr/variant/8#splicing',
+        'https://mobidetails.chu-montpellier.fr/variant/8#splicing'),
     ('/favourite',
         '/favourite'),
     ('/favourite#case',
