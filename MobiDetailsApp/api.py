@@ -371,14 +371,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'revelPred': None,
             'clinpredScore': None,
             'clinpredPred': None,
-            'fathmmScore': None,
-            'fathmmPred': None,
-            'fathmmMklScore': None,
-            'fathmmMklPred': None,
+            'fathmmxfScore': None,
+            'fathmmxfPred': None,
+            # 'fathmmMklScore': None,
+            # 'fathmmMklPred': None,
             'proveanScore': None,
             'proveanPred': None,
-            'lrtScore': None,
-            'lrtPred': None,
+            # 'lrtScore': None,
+            # 'lrtPred': None,
             'mutationTasterScore': None,
             'mutationTasterPred': None,
             'metaSVMScore': None,
@@ -480,10 +480,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'polyphen2HdivColor': None,
             'polyphen2HvarStar': None,
             'polyphen2HvarColor': None,
-            'fathmmStar': None,
-            'fathmmColor': None,
-            'fathmmMklStar': None,
-            'fathmmMklColor': None,
+            'fathmmxfStar': None,
+            'fathmmxfColor': None,
+            # 'fathmmMklStar': None,
+            # 'fathmmMklColor': None,
             'proveanStar': None,
             'lrtStar': None,
             'mutationTasterStar': None,
@@ -1079,26 +1079,26 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 mpa_missense += 1
                             if external_data['missensePredictions']['polyphen2HvarPred'] != 'no prediction':
                                 mpa_avail += 1
-                        # fathmm
-                        external_data['missensePredictions']['fathmmScore'], external_data['missensePredictions']['fathmmPred'], internal_data['missensePredictions']['fathmmStar'] = md_utilities.getdbNSFP_results(
-                            transcript_index, int(md_utilities.external_tools['FatHMM']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+                        # fathmm-XF - replaces ftahmm in dbNSFP v5
+                        external_data['missensePredictions']['fathmmxfScore'], external_data['missensePredictions']['fathmmxfPred'], internal_data['missensePredictions']['fathmmStar'] = md_utilities.getdbNSFP_results(
+                            transcript_index, int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_pred_col']), ';', 'basic', -0.1, 'gt', record
                         )
 
-                        internal_data['missensePredictions']['fathmmColor'] = md_utilities.get_preditor_single_threshold_reverted_color(external_data['missensePredictions']['fathmmScore'], 'fathmm')
-                        if external_data['missensePredictions']['fathmmPred'] == 'Damaging':
+                        internal_data['missensePredictions']['fathmmxfColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['fathmmxfScore'], 'fathmmxf')
+                        if external_data['missensePredictions']['fathmmxfPred'] == 'Damaging':
                             mpa_missense += 1
-                        if external_data['missensePredictions']['fathmmPred'] != 'no prediction':
+                        if external_data['missensePredictions']['fathmmxfPred'] != 'no prediction':
                             mpa_avail += 1
-                        # fathmm-mkl -- not displayed
-                        external_data['missensePredictions']['fathmmMklScore'], external_data['missensePredictions']['fathmmMklPred'], internal_data['missensePredictions']['fathmmMklStar'] = md_utilities.getdbNSFP_results(
-                            transcript_index, int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
-                        )
+                        # fathmm-mkl -- not displayed - removed from dbNSFP v5
+                        # external_data['missensePredictions']['fathmmMklScore'], external_data['missensePredictions']['fathmmMklPred'], internal_data['missensePredictions']['fathmmMklStar'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
+                        # )
 
-                        internal_data['missensePredictions']['fathmmMklColor'] = md_utilities.get_preditor_single_threshold_reverted_color(external_data['missensePredictions']['fathmmMklScore'], 'fathmm-mkl')
-                        if external_data['missensePredictions']['fathmmMklPred'] == 'Damaging':
-                            mpa_missense += 1
-                        if external_data['missensePredictions']['fathmmMklPred'] != 'no prediction':
-                            mpa_avail += 1
+                        # internal_data['missensePredictions']['fathmmMklColor'] = md_utilities.get_preditor_single_threshold_reverted_color(external_data['missensePredictions']['fathmmMklScore'], 'fathmm-mkl')
+                        # if external_data['missensePredictions']['fathmmMklPred'] == 'Damaging':
+                        #     mpa_missense += 1
+                        # if external_data['missensePredictions']['fathmmMklPred'] != 'no prediction':
+                        #     mpa_avail += 1
                         # provean -- not displayed
                         external_data['missensePredictions']['proveanScore'], external_data['missensePredictions']['proveanPred'], internal_data['missensePredictions']['proveanStar'] = md_utilities.getdbNSFP_results(
                             transcript_index, int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['Provean']['dbNSFP_pred_col']), ';', 'basic', 20, 'lt', record
@@ -1107,15 +1107,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             mpa_missense += 1
                         if external_data['missensePredictions']['proveanPred'] != 'no prediction':
                             mpa_avail += 1
-                        # LRT -- not displayed
-                        external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
-                            transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
-                        )
+                        # LRT -- not displayed removed in dbNSFP v5
+                        # external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
+                        #     transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
+                        # )
 
-                        if external_data['missensePredictions']['lrtPred'] == 'Damaging':
-                            mpa_missense += 1
-                        if re.search(r'^[DUN]', external_data['missensePredictions']['lrtPred']):
-                            mpa_avail += 1
+                        # if external_data['missensePredictions']['lrtPred'] == 'Damaging':
+                        #     mpa_missense += 1
+                        # if re.search(r'^[DUN]', external_data['missensePredictions']['lrtPred']):
+                        #     mpa_avail += 1
                         # MutationTaster -- not displayed
                         external_data['missensePredictions']['mutationTasterScore'], external_data['missensePredictions']['mutationTasterPred'], internal_data['missensePredictions']['mutationTasterStar'] = md_utilities.getdbNSFP_results(
                             transcript_index, int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_pred_col']), ';', 'mt', -1, 'gt', record
@@ -1151,6 +1151,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             if isinstance(external_data['missensePredictions']['revelScore'], float):
                                 external_data['missensePredictions']['revelPred'] = md_utilities.build_revel_pred(external_data['missensePredictions']['revelScore'])
                                 internal_data['missensePredictions']['revelColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['revelScore'], 'revel_min', 'revel_max', 'no_effect')
+                            # revel replaces fathmm-mkl in mpa score
+                            if external_data['missensePredictions']['revelPred'] == 'Damaging':
+                                mpa_missense += 1
+                            if external_data['missensePredictions']['revelPred'] != 'no prediction':
+                                mpa_avail += 1
                         # alphamissense
                         alphamissense = md_utilities.get_value_from_tabix_file('AlphaMissense', md_utilities.local_files['alphamissense']['abs_path'], var, variant_features)
                         if isinstance(alphamissense, str):
@@ -1164,6 +1169,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         if isinstance(external_data['missensePredictions']['amScore'], float):
                             external_data['missensePredictions']['amPred'] = md_utilities.predictors_translations['alphamissense'][alphamissense[int(md_utilities.external_tools['AlphaMissense']['pred_col'])]]
                             internal_data['missensePredictions']['amColor'] = md_utilities.get_preditor_double_threshold_color(external_data['missensePredictions']['amScore'], 'am_min', 'am_max', 'no_effect')
+                        # am replaces lrt in mpa score
+                        if external_data['missensePredictions']['amPred'] == 'Damaging':
+                            mpa_missense += 1
+                        if external_data['missensePredictions']['amPred'] != 'no prediction':
+                            mpa_avail += 1
                         # meta SVM
                         external_data['missensePredictions']['metaSVMScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
                         internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')

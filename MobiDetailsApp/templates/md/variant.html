@@ -1422,10 +1422,10 @@
 						</tr>
 						{% endif %}
 						<tr><!--FATHMM-->
-							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm" rel="noopener noreferrer">Fathmm</a>:</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmScore, internal_data.missensePredictions.fathmmColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
-							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmPred, internal_data.missensePredictions.fathmmColor) }}</td>
-							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmm }} for Damaging - <strong>single score</strong></em></td>
+							<td class="w3-left-align"><a href="{{ urls.fathmm }}" target="_blank" title="Visit fathmm" rel="noopener noreferrer">Fathmm-XF</a>:</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmxfScore, internal_data.missensePredictions.fathmmxfColor) }}{{ internal_data.missensePredictions.fathmmstar }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.missensePredictions.fathmmxfPred, internal_data.missensePredictions.fathmmxfColor) }}</td>
+							<td class="w3-left-align"><em class="w3-small">Threshold &le; {{ thresholds.fathmmxf }} for Damaging - <strong>single score</strong></em></td>
 						</tr>
 					{% endif %}
 					<tr><!--AlphaMissense-->

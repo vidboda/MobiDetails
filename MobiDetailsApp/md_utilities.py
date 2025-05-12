@@ -956,6 +956,7 @@ def get_preditor_single_threshold_color(val, predictor):
 
 
 def get_preditor_single_threshold_reverted_color(val, predictor):
+    # NOT USED ANYMORE 20250512
     # returns an html color depending on a single threshold
     # (reverted, e.g. for fathmm)
     # function to get green or red
