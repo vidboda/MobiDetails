@@ -208,13 +208,13 @@
   #   '2': 'http://194.167.35.195:8000/'
   #   '3': 'https://rest.variantvalidator.org/'
   'rest_vv_browser': 
-    '1': 'http://restvv1.chu-montpellier.fr/'
-    '2': 'http://restvv2.chu-montpellier.fr/'
-    '3': 'https://rest.variantvalidator.org/'
+    '1': 'http://rvv.chu-montpellier.fr/'
+    '2': 'http://rvv.chu-montpellier.fr/'
+    '3': 'http://rvv.chu-montpellier.fr/'
   'rest_vv_api': 
-    '1': 'http://restvv2.chu-montpellier.fr/'
-    '2': 'http://restvv1.chu-montpellier.fr/'
-    '3': 'https://rest.variantvalidator.org/'
+    '1': 'http://rvv.chu-montpellier.fr/'
+    '2': 'http://rvv.chu-montpellier.fr/'
+    '3': 'http://rvv.chu-montpellier.fr/'
   # 'rest_vv': 
   #   '1': 'http://194.167.35.197/'
   #   '2': 'https://rest.variantvalidator.org/'
@@ -290,7 +290,7 @@
     'description': 'Dataset of splicing predictions'
     'short_name': 'dbscsnv'
   'dbsnp':
-    'rel_path': '/static/resources/dbsnp/hg38/v156/GCF_000001405.40.gz'
+    'rel_path': '/static/resources/dbsnp/hg38/v157/GCF_000001405.40.gz'
     'name': 'dbSNP'
     'description': 'Database of human genetic variations'
     'short_name': 'ncbi_dbsnp'
@@ -531,7 +531,7 @@
     'firstauthor': 'Sherry'
     'year': '2001'
     'paper': '11125122'
-    'version': 'v156'
+    'version': 'v157'
     'short_name': 'ncbi_dbsnp'
   'EpiSignature':
     'firstauthor': 'Foroutan'
@@ -637,9 +637,9 @@
     'version': 'Live web site'
     'short_name': 'miztli'
   'MorfeeDB':
-    'firstauthor': 'Tregouet'
-    'year': '2023'
-    'paper': 'None'
+    'firstauthor': 'Meguerditchian'
+    'year': '2025'
+    'paper': '40109352'
     'version': '1.0'
     'short_name': 'morfeedb'
     'enst_col': '4'
