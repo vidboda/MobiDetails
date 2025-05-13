@@ -11,11 +11,11 @@ It consists in a website where users can easily create variants and retrieve man
 
 It also includes an API for programmatic access.
 
-https://mobidetails.iurc.montp.inserm.fr/MD/
+https://mobidetails.chu-montpellier.fr
 
 Access to the Swagger API:
 
-http://mobidetails.iurc.montp.inserm.fr/MDAPI/
+http://mobidetails.chu-montpellier.fr/MDAPI/
 
 Please cite:
 
