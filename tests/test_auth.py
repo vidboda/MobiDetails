@@ -38,7 +38,7 @@ def test_register(client, app):
 
 @pytest.mark.parametrize(('username', 'password', 'institute', 'email', 'country', 'message'), (
     ('djsdlm', 'ss9kghgF', 'IURC ,;.-()', 'david.baux@inserm.fr', 'Albania', b'is already registered.'),
-    ('david', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
+    ('davidbaux', 'ss9kghgF', 'IURC ,;.-()', 'kevin@inserm.fr', 'Albania', b'is already registered.'),
     ('1', 's', 'IURC ,;.-()', 'v', 'Albania', b'Username should be at least 5 characters'),
     ('djsdlm', 's', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),
     ('djsdlm', 'sfafg', 'IURC ,;.-()', 'v', 'Albania', b'Password should be at least 8 characters and mix at least letters (upper and lower case) and numbers.'),

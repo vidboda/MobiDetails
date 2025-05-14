@@ -591,8 +591,8 @@ def test_get_value_from_tabix_file(app, client, tool, var, expected, record_numb
 
 def test_getdbNSFP_results():
     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, var_f)
-    score, pred, star = md_utilities.getdbNSFP_results(0, 37, 39, ';', 'basic', 1.1, 'lt', record)
-    assert score == '0.0'
+    score, pred, star = md_utilities.getdbNSFP_results(0, 147, 149, ';', 'basic', 1.1, 'gt', record)
+    assert score == '0.815541'
     assert pred == 'Damaging'
     assert star == ''
 
@@ -637,13 +637,14 @@ def test_get_preditor_single_threshold_color(client, value, result_color, predic
     assert color == result_color
 
 
-@pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
-    (0, '#00A020', 'fathmm'),
-    (-5.88, '#FF0000', 'fathmm')
-))
-def test_get_preditor_single_threshold_reverted_color(client, value, result_color, predictor):
-    color = md_utilities.get_preditor_single_threshold_reverted_color(value, predictor)
-    assert color == result_color
+# not used anymore fathmm-xl is now not reverted
+# @pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
+#     (0, '#00A020', 'fathmm'),
+#     (-5.88, '#FF0000', 'fathmm')
+# ))
+# def test_get_preditor_single_threshold_reverted_color(client, value, result_color, predictor):
+#     color = md_utilities.get_preditor_single_threshold_reverted_color(value, predictor)
+#     assert color == result_color
 
 
 @pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max', 'mid_effect_color'), (
@@ -924,7 +925,7 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
-    ('http://restvv1.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv1.chu-montpellier.fr/'),
+    ('http://rvv.chu-montpellier.fr/hello/?content-type=application/json', 'http://rvv.chu-montpellier.fr/'),
     ('https://github.com', None),
     ('abcgcece', None),
 ))
@@ -933,10 +934,10 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
-    ('browser', 'http://restvv1.chu-montpellier.fr/'),
-    ('cli', 'http://restvv2.chu-montpellier.fr/'),
-    ('nothing', 'http://restvv2.chu-montpellier.fr/'),
-    (None, 'http://restvv1.chu-montpellier.fr/'),
+    ('browser', 'http://rvv.chu-montpellier.fr/'),
+    ('cli', 'http://rvv.chu-montpellier.fr/'),
+    ('nothing', 'http://rvv.chu-montpellier.fr/'),
+    (None, 'http://rvv.chu-montpellier.fr/'),
 ))
 def test_get_vv_api_url(caller, vv_api_url):
     # with app.test_request_context(headers={'user-agent': ua}):
@@ -971,7 +972,7 @@ def test_create_var_vv(client, app):
         db_pool.putconn(db)
         print(res_id)
         assert isinstance(res_id, int)
-        assert res_id == 955519
+        assert res_id == 955514
 
 
 def test_create_var_vv_vcf_str(client, app):
@@ -986,7 +987,7 @@ def test_create_var_vv_vcf_str(client, app):
         db_pool.putconn(db)
         print(res_id)
         assert isinstance(res_id, int)
-        assert res_id == 955519
+        assert res_id == 955514
 
 @pytest.mark.parametrize(('name', 'result'), (
     ('216595578_216595582delinsT', ('216595578', '216595582')),
