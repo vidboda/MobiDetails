@@ -210,11 +210,11 @@
   'rest_vv_browser': 
     '1': 'http://rvv.chu-montpellier.fr/'
     '2': 'http://rvv.chu-montpellier.fr/'
-    '3': 'http://rvv.chu-montpellier.fr/'
+    '3': 'https://rest.variantvalidator.org/'
   'rest_vv_api': 
     '1': 'http://rvv.chu-montpellier.fr/'
     '2': 'http://rvv.chu-montpellier.fr/'
-    '3': 'http://rvv.chu-montpellier.fr/'
+    '3': 'https://rest.variantvalidator.org/'
   # 'rest_vv': 
   #   '1': 'http://194.167.35.197/'
   #   '2': 'https://rest.variantvalidator.org/'
