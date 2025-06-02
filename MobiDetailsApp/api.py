@@ -318,6 +318,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'eigenPhred': None,
             'mpaScore': None,
             'mpaImpact': None,
+            'gpnmsa': None,
+            'cactus241way': None,
+        },
+        'nonCodingPredictions':{
+            'mobideep': None,
+            'remm': None,
+        },
+        'functionalStudies':{
+            'mave_db': None,
         },
         'splicingPredictions': {
             'mes5': None,
@@ -445,6 +454,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'overallPredictions': {
             'mpaColor': None,
+            'gpnmsa': None,
+            'cactus241way': None,
+        },
+        'nonCodingPredictions':{
+            'mobideep': None,
+            'remm': None,
+        },
+        'functionalStudies':{
+            'mave_db': None,   
         },
         'splicingPredictions': {
             'splicingRadarLabels': [],
@@ -512,7 +530,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'dbmts': None,
             'spliceai': None,
             'episignature': None,
-            'morfeedb': None
+            'morfeedb': None,
+            'gpnmsa': None,
+            'cactus241way': None,
+            'remm': None,
+            'mave_db': None,
+            'mobideep': None,
         }
     }
 
