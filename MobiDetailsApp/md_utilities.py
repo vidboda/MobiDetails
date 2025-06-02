@@ -13,6 +13,9 @@ import tempfile
 import subprocess
 import gzip
 import bgzip
+import pyBigWig
+import numpy as np
+
 from urllib.parse import urlparse
 from flask import (
     url_for, request, render_template, current_app as app, g
@@ -197,6 +200,21 @@ local_files['uniprot']['abs_path'] = '{0}{1}'.format(
 local_files['variant_validator']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['variant_validator']['rel_path']
 )
+
+# new additions for MOBIDEEP
+local_files['gpnmsa']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['gpnmsa']['rel_path']
+)
+local_files['remm']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['remm']['rel_path']
+)
+local_files['cactus241way_bw']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['cactus241way_bw']['rel_path']
+)
+local_files['phylop_primates_bw']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['phylop_primates_bw']['rel_path']
+)
+
 
 predictor_thresholds = resources['predictor_thresholds']
 predictor_colors = resources['predictor_colors']
@@ -694,6 +712,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
             text == 'MorfeeDB' or \
+            text == 'ReMM' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -725,7 +744,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             ) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
-            text == 'MorfeeDB':
+            text == 'MorfeeDB'or \
+            text == 'gpnmsa' :
         i -= 1
     aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     spliceai_last_record = ''
@@ -812,6 +832,10 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                         if 'c.{}'.format(variant_features['c_name']) in c_list:
                             record_list.append(record)
+            # gpn msa for MOBIDEEP
+            elif text == 'gpnmsa':
+                return record
+
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
@@ -846,9 +870,105 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         return record
     if text == 'AbSplice':
         return 'No significant score in {}'.format(text)
+
+
+
+
+
     if record_list:
         return record_list
     return 'No match in {}'.format(text)
+
+# big wig files function
+
+def get_bigwig_score(text, bigwig_file_path, var):
+    """
+    Fetches a score from a BigWig file for a given variant position.
+    Args:
+        text (str): Name of the tool/BigWig source (e.g., "CACTUS241way").
+        bigwig_file_path (str): Absolute path to the .bw file.
+        var (dict): Dictionary containing variant info, must have 'chr' and 'pos'.
+                    'chr' is expected without "chr" prefix (e.g., "1", "X").
+
+    Returns:
+        float: The score if found and is a valid number.
+        str: An error message or "No score found" message string on failure or no data.
+    """
+    bw = None
+    query_chrom_raw = str(var.get('chr', ''))
+    query_pos_str = str(var.get('pos', ''))
+
+    if not query_chrom_raw or not query_pos_str:
+        # This indicates a programming error before calling this function.
+        return f"Invalid input for {text} (missing chr/pos)"
+
+    # BigWig files usually require "chr" prefix.
+    query_chrom_for_bw = query_chrom_raw
+    if not query_chrom_for_bw.startswith("chr"):
+        query_chrom_for_bw = f"chr{query_chrom_for_bw}"
+
+    try:
+        query_pos_1based = int(query_pos_str)
+    except ValueError:
+        # Bad position format
+        return f"Invalid position for {text}: {query_pos_str}"
+
+    try:
+        bw = pyBigWig.open(bigwig_file_path)
+
+        # Check if chromosome exists in the BigWig file
+        if query_chrom_for_bw not in bw.chroms():
+            return f"No score found in {text}" # Chromosome not present
+
+        # pyBigWig.values uses 0-based start, 1-based end for query.
+        start_0based = query_pos_1based - 1
+        end_1based_exclusive = query_pos_1based # Query a single base [start, end)
+
+        # Check if position is within chromosome bounds
+        chrom_len = bw.chroms(query_chrom_for_bw)
+        if not (0 <= start_0based < end_1based_exclusive <= chrom_len):
+            return f"No score found in {text}" # Position out of bounds
+
+        score_list = bw.values(query_chrom_for_bw, start_0based, end_1based_exclusive)
+
+        if score_list: # If list is not empty
+            score_value = score_list[0]
+
+            # Check if score_value is None or NaN (Not a Number)
+            if score_value is None: # pyBigWig might return None
+                return f"No score found in {text}"
+            
+            # Check for float NaN (nan != nan is a common check) or numpy.nan
+            is_nan_value = False
+            if isinstance(score_value, float) and score_value != score_value:
+                 is_nan_value = True
+            else: # Check for numpy.nan if pyBigWig.numpy is available
+                try:
+                    if pyBigWig.numpy.isnan(score_value): # type: ignore
+                        is_nan_value = True
+                except (AttributeError, TypeError): # pyBigWig.numpy might not be exposed or score not numpy type
+                    pass
+            
+            if not is_nan_value:
+                return float(score_value) # Successfully got a valid float score
+            else:
+                return f"No score found in {text}" # Score was NaN
+        else:
+            # score_list was empty, meaning no data block covered that exact base
+            return f"No score found in {text}"
+
+    except FileNotFoundError:
+        # good practice for BigWig as these files are essential.
+        return f"Error accessing data from {text} (file missing)" # General error to caller
+    except Exception as e:
+        # Catch-all for truly unexpected errors during the BigWig processing.
+        return f"Error accessing data from {text} (unexpected)"
+    finally:
+        if bw:
+            try:
+                bw.close()
+            except Exception: # Don't let a close error mask the original error or cause a new one
+                pass
 
 
 def decompose_missense(p_name):
