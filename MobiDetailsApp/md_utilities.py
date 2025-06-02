@@ -542,9 +542,11 @@ def get_exon_neighbours(db, positions):
 
 def get_exon_sequence(positions, chrom, strand):
     # get DNA sequence for a given exon
+    chrom_regexp = regexp['nochr_chrom']
+    ncbi_transcript_regexp = regexp['ncbi_transcript']
     if isinstance(positions['number'], int) and \
-            re.search(r'^NM_\d+\.\d+$', positions['refseq']) and \
-            re.search(r'^\d+$', chrom) and \
+            re.search(rf'^{ncbi_transcript_regexp}$', positions['refseq']) and \
+            re.search(rf'^{chrom_regexp}$', chrom) and \
             re.search(r'^[\+-]+', strand):
         genome = twobitreader.TwoBitFile(
             '{}.2bit'.format(local_files['human_genome_hg38']['abs_path'])
