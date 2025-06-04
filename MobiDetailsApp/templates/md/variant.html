@@ -1512,7 +1512,7 @@
 				</div>
 			</div>
 			{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, am=external_data.missensePredictions.amScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmm=external_data.missensePredictions.fathmmScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=5, num_non_aca_single=3, num_aca_meta=5, num_non_aca_meta=3) %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, am=external_data.missensePredictions.amScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmmxf=external_data.missensePredictions.fathmmxfScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=5, num_non_aca_single=3, num_aca_meta=5, num_non_aca_meta=3) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
@@ -1539,8 +1539,8 @@
 					{% set missense_pred.clinpred = 0 %}
 					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
 				{% endif %}
-				{% if external_data.missensePredictions.fathmmPred == 'no prediction' %}
-					{% set missense_pred.fathmm = 10.64 %}
+				{% if external_data.missensePredictions.fathmmxfPred == 'no prediction' %}
+					{% set missense_pred.fathmmxf = 10.64 %}
 					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
 					{% set missense_pred.num_non_aca_single = missense_pred.num_non_aca_single - 1 %}
 				{% endif %}
@@ -1573,11 +1573,11 @@
 						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 						return parseFloat(new_val);
 					}
-					var normalisedFathmm = 1-normalizeData({{ missense_pred.fathmm }}, [-16.13,10.64]);
+					var normalisedFathmmxf = 1-normalizeData({{ missense_pred.fathmmxf }}, [-16.13,10.64]);
 					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
 					var numberOfScoresSingle = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_single }} {% else %} {{ missense_pred.num_non_aca_single }} {% endif %};
 					var numberOfScoresMeta = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_meta }} {% else %} {{ missense_pred.num_non_aca_meta }} {% endif %};
-					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmm) + ({{ missense_pred.am }})).toFixed(3);
+					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmmxf) + ({{ missense_pred.am }})).toFixed(3);
 					var totalNormalisedScoresMeta = ((normalisedMetasvm) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3)
 					var meanNormalisedScoresSingle = (totalNormalisedScoresSingle / numberOfScoresSingle).toFixed(3);
 					var meanNormalisedScoresMeta = (totalNormalisedScoresMeta / numberOfScoresMeta).toFixed(3);
@@ -1585,10 +1585,10 @@
 					new Chart($("#missense_radar"), {
 						type: 'radar',
 						data: {
-							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'FATHMM', 'AlphaMissense', 'MetaSVM', 'MetaLR', 'Mistic'],
+							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'Fathmm-XF', 'AlphaMissense', 'MetaSVM', 'MetaLR', 'Mistic'],
 							datasets: [{
 								label: 'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmm, {{ missense_pred.am }}, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmmxf, {{ missense_pred.am }}, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
 								fill: true,
 								backgroundColor: 'rgb(255, 99, 132, 0.2)',
 								borderColor: 'rgb(255, 99, 132)',
