@@ -832,10 +832,9 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                         if 'c.{}'.format(variant_features['c_name']) in c_list:
                             record_list.append(record)
-            # gpn msa for MOBIDEEP
-            elif text == 'gpnmsa':
-                return record
-
+            # # gpn msa for MOBIDEEP
+            # elif text == 'gpnmsa':
+            #     return record
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
