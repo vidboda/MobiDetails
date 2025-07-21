@@ -51,8 +51,6 @@ def get_resource_current_version(resource_dir, regexp, excluded_date=None):
     files = os.listdir(resource_dir)
     dates = []
     for current_file in files:
-        # print(current_file)
-        # match_obj = re.search(rf'clinvar_(\d+).vcf.gz$', current_file)
         match_obj = re.search(rf'{regexp}$', current_file)
         if match_obj:
             if excluded_date and \
@@ -152,6 +150,9 @@ local_files['lovd_ref']['abs_path'] = '{0}{1}'.format(
 local_files['lovd_api_json']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['lovd_api_json']['rel_path']
 )
+local_files['mavedb']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['mavedb']['rel_path']
+)
 local_files['maxentscan']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['maxentscan']['rel_path']
 )
@@ -175,6 +176,9 @@ local_files['oncokb_genes']['abs_path'] = '{0}{1}cancerGeneList_{2}.tsv'.format(
     app_path,
     local_files['oncokb_genes']['rel_path'],
     oncokb_genes_version
+)
+local_files['promoterai']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['promoterai']['rel_path']
 )
 local_files['revel']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['revel']['rel_path']
@@ -713,6 +717,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'AlphaMissense' or \
             text == 'MorfeeDB' or \
             text == 'ReMM' or \
+            text == 'PromoterAI' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -739,17 +744,22 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         return 'Match failed in {}'.format(text)
     i = 3
     if re.search(
-            r'(dbNSFP|whole_genome_SNVs|dbscSNV|dbMTS|revel|MISTIC|CADD/hg38/v1\.7/gnomad.genomes\.r4\.0\.indel)',
+            r'(dbNSFP|whole_genome_SNVs|dbscSNV|promoterAI|dbMTS|revel|MISTIC|CADD/hg38/v1\.7/gnomad.genomes\.r4\.0\.indel)',
             tabix_file
             ) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
             text == 'MorfeeDB'or \
-            text == 'gpnmsa' :
+            text == 'GPN-MSA' :
         i -= 1
-    aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
+    if 'p_name' in variant_features:
+        aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     spliceai_last_record = ''
     for record in records:
+        # ReMM is chr1    216422351       0.902701
+        # no further validation needed
+        if text == 'ReMM':
+            return record
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
         # print(record)
@@ -832,9 +842,6 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                         if 'c.{}'.format(variant_features['c_name']) in c_list:
                             record_list.append(record)
-            # # gpn msa for MOBIDEEP
-            # elif text == 'gpnmsa':
-            #     return record
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
@@ -869,16 +876,12 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         return record
     if text == 'AbSplice':
         return 'No significant score in {}'.format(text)
-
-
-
-
-
     if record_list:
         return record_list
     return 'No match in {}'.format(text)
 
 # big wig files function
+
 
 def get_bigwig_score(text, bigwig_file_path, var):
     """

@@ -320,13 +320,18 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'mpaImpact': None,
             'gpnmsa': None,
             'cactus241way': None,
+            'phylop_primates': None
         },
         'nonCodingPredictions':{
             'mobideep': None,
+            'promoterai': None,
             'remm': None,
         },
         'functionalStudies':{
-            'mave_db': None,
+            'mavedb_score': None,
+            'mavedb_prot': None,
+            'mavedb_urn': None,
+            'mavedb_var_urn': None
         },
         'splicingPredictions': {
             'mes5': None,
@@ -382,12 +387,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'clinpredPred': None,
             'fathmmxfScore': None,
             'fathmmxfPred': None,
-            # 'fathmmMklScore': None,
-            # 'fathmmMklPred': None,
             'proveanScore': None,
             'proveanPred': None,
-            # 'lrtScore': None,
-            # 'lrtPred': None,
             'mutationTasterScore': None,
             'mutationTasterPred': None,
             'metaSVMScore': None,
@@ -415,7 +416,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
     internal_data = {
         'admin': {
             'creationUser': None,
-            # 'creationUserEmail': None,
             'creationUserEmailPref': None,
             'otherIds': None,
             'mappedCanonical': None,
@@ -424,7 +424,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'nomenclatures': {
             'cName': None,
-            # 'ngName': None,
             'pName': None,
             'oneLetterpName': None
         },
@@ -454,15 +453,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'overallPredictions': {
             'mpaColor': None,
-            'gpnmsa': None,
-            'cactus241way': None,
-        },
-        'nonCodingPredictions':{
-            'mobideep': None,
-            'remm': None,
-        },
-        'functionalStudies':{
-            'mave_db': None,   
+            'gpnmsaColor': None,
+            'phylop_primatesColor': None,
+            'cactus241wayColor': None,
         },
         'splicingPredictions': {
             'splicingRadarLabels': [],
@@ -513,6 +506,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'metaLRColor': None,
             'misticColor': None,
         },
+        'nonCodingPredictions': {
+            'remmColor': None,
+            'promoteraiColor': None,
+        },
         'episignature': {
             'referenceArticle': None,
             'pubmedID': None,
@@ -530,12 +527,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'dbmts': None,
             'spliceai': None,
             'episignature': None,
+            'mavedb': None,
             'morfeedb': None,
             'gpnmsa': None,
             'cactus241way': None,
             'remm': None,
-            'mave_db': None,
+            'mavedb': None,
             'mobideep': None,
+            'phylop_primates': None,
+            'promoterai': None
         }
     }
 
@@ -1028,31 +1028,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 else:
                     external_data['frequenciesDatabases']['gnomADv4Exome'] = record[int(md_utilities.external_tools['gnomAD']['annovar_format_af_col'])]
                 # dbNSFP and others
+                # if variant_features['prot_type'] == 'missense':
+                record = md_utilities.get_value_from_tabix_file(
+                    'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
+                )
+                # Eigen
+                try:
+                    external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
+                    external_data['overallPredictions']['eigenPhred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
+                except Exception:
+                    internal_data['noMatch']['eigen'] = 'No match in dbNSFP for Eigen'
+                if 'eigenRaw' in external_data['overallPredictions'] and \
+                        external_data['overallPredictions']['eigenRaw'] == '.':
+                    internal_data['noMatch']['eigen'] = 'No score in dbNSFP for Eigen'
+                # record comes from Eigen section above
                 if variant_features['prot_type'] == 'missense':
-                    # Eigen
-                    record = md_utilities.get_value_from_tabix_file(
-                        'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
-                    )
-                    # print(record)
-                    # if academic is True:
-                    #     try:
-                    #         external_data['overallPredictions']['caddRaw'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_value_col'])]), '.2f')
-                    #         external_data['overallPredictions']['caddPhred'] = format(float(record[int(md_utilities.external_tools['CADD']['dbNSFP_phred_col'])]), '.2f')
-                    #     except Exception:
-                    #         internal_data['noMatch']['cadd'] = 'No match in dbNSFP for CADD'
-                    #     if 'caddRaw' in external_data['overallPredictions'] and \
-                    #             external_data['overallPredictions']['caddRaw'] == '.':
-                    #         internal_data['noMatch']['cadd'] = 'No score in dbNSFP for CADD'
-                    # Eigen
-                    try:
-                        external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
-                        external_data['overallPredictions']['eigenPhred'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_pred_col'])]), '.2f')
-                    except Exception:
-                        internal_data['noMatch']['eigen'] = 'No match in dbNSFP for Eigen'
-                    if 'eigenRaw' in external_data['overallPredictions'] and \
-                            external_data['overallPredictions']['eigenRaw'] == '.':
-                        internal_data['noMatch']['eigen'] = 'No score in dbNSFP for Eigen'
-                    # record comes from Eigen section above
                     if isinstance(record, str):
                         internal_data['noMatch']['dbnsfp'] = "{0} {1}".format(record, md_utilities.external_tools['dbNSFP']['version'])
                     else:
@@ -1287,7 +1277,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 # CADD
                 if academic is True:
                     if variant_features['dna_type'] == 'substitution':
-                        # if variant_features['prot_type'] != 'missense':
                         # specific file for CADD
                         record = md_utilities.get_value_from_tabix_file('CADD', md_utilities.local_files['cadd']['abs_path'], var, variant_features)
                         if isinstance(record, str):
@@ -1303,6 +1292,44 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['overallPredictions']['caddRaw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
                             external_data['overallPredictions']['caddPhred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
                 if variant_features['dna_type'] == 'substitution':
+                    # promoterAI
+                    # if variant_features['start_segment_type'] == '5UTR':
+                    if re.search(r'^-', variant_features['c_name']):
+                        record = md_utilities.get_value_from_tabix_file('PromoterAI', md_utilities.local_files['promoterai']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            internal_data['noMatch']['promoterai'] = "{0} {1}".format(record, md_utilities.external_tools['PromoterAI']['version'])
+                        else:
+                            external_data['nonCodingPredictions']['promoterai'] = format(float(record[int(md_utilities.external_tools['PromoterAI']['raw_col'])]), '.2f')
+                            internal_data['nonCodingPredictions']['promoteraiColor'] = md_utilities.get_preditor_single_threshold_color(abs(float(external_data['nonCodingPredictions']['promoterai'])), 'promoterai')
+                    # GPN-MSA
+                    record = md_utilities.get_value_from_tabix_file('GPN-MSA', md_utilities.local_files['gpnmsa']['abs_path'], var, variant_features)
+                    if isinstance(record, str):
+                        internal_data['noMatch']['gpnmsa'] = "{0} {1}".format(record, md_utilities.external_tools['GPN-MSA']['version'])
+                    else:
+                        external_data['overallPredictions']['gpnmsa'] = format(float(record[int(md_utilities.external_tools['GPN-MSA']['raw_col'])]), '.2f')
+                        internal_data['overallPredictions']['gpnmsaColor'] = md_utilities.get_preditor_single_threshold_reverted_color(float(external_data['overallPredictions']['gpnmsa']), 'gpnmsa')
+                    # ReMM
+                    if variant_features['prot_type'] == 'unknown':
+                        record = md_utilities.get_value_from_tabix_file('ReMM', md_utilities.local_files['remm']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            internal_data['noMatch']['remm'] = "{0} {1}".format(record, md_utilities.external_tools['ReMM']['version'])
+                        else:
+                            external_data['nonCodingPredictions']['remm'] = format(float(record[int(md_utilities.external_tools['ReMM']['raw_col'])]), '.3f')
+                            internal_data['nonCodingPredictions']['remmColor'] = md_utilities.get_preditor_double_threshold_color(float(external_data['nonCodingPredictions']['remm']), 'remm_lp', 'remm_p')
+                    # Phylop-Pri
+                    record = md_utilities.get_bigwig_score('phyloPPrimates', md_utilities.local_files['phylop_primates_bw']['abs_path'], var)
+                    if isinstance(record, str):
+                        internal_data['noMatch']['phylop_primates'] = "{0} {1}".format(record, md_utilities.external_tools['phylop_primates']['version'])                        
+                    else:
+                        external_data['overallPredictions']['phylop_primates'] = format(float(record), '.3f')
+                        internal_data['overallPredictions']['phylop_primatesColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['overallPredictions']['phylop_primates']), 'phylop_primates')
+                    # cactus 241 way
+                    record = md_utilities.get_bigwig_score('Cactus_241_way', md_utilities.local_files['cactus241way_bw']['abs_path'], var)
+                    if isinstance(record, str):
+                        internal_data['noMatch']['cactus241way'] = "{0} {1}".format(record, md_utilities.external_tools['cactus241way']['version'])
+                    else:
+                        external_data['overallPredictions']['cactus241way'] = format(float(record), '.3f')
+                        internal_data['overallPredictions']['cactus241wayColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['overallPredictions']['cactus241way']), 'cactus241way')
                     # dbscSNV
                     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
                     if isinstance(record, str):
@@ -1342,6 +1369,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                  float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
                                 external_data['overallPredictions']['mpaScore'] = 10
                                 external_data['overallPredictions']['mpaImpact'] = 'High splice'
+                # MaveDB
+                record = md_utilities.get_value_from_tabix_file('MaveDB', md_utilities.local_files['mavedb']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    internal_data['noMatch']['mavedb'] = "{0} {1}".format(record, md_utilities.external_tools['MaveDB']['version'])
+                else:
+                    external_data['functionalStudies']['mavedb_score'] = format(float(record[int(md_utilities.external_tools['MaveDB']['score_col'])]), '.2f')
+                    external_data['functionalStudies']['mavedb_prot'] = record[int(md_utilities.external_tools['MaveDB']['prot_col'])]
+                    external_data['functionalStudies']['mavedb_urn'] = record[int(md_utilities.external_tools['MaveDB']['urn_col'])]
+                    external_data['functionalStudies']['mavedb_var_urn'] = record[int(md_utilities.external_tools['MaveDB']['variant_urn_col'])]
                 # spliceAI 1.3
                 # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
                 # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
