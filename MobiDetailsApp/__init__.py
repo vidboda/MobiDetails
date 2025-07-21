@@ -10,6 +10,7 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
 from psycopg2 import pool
+# import joblib
 
 mail = Mail()
 csrf = CSRFProtect()
@@ -51,6 +52,10 @@ def create_app(test_config=None):
     csrf.init_app(app)
     paranoid = Paranoid(app)
     paranoid.redirect_view = 'md.index'
+    # mobideep MLP model
+    # sklearn version is too old on dev - requires 1.6.1 + related or not numpy error
+    # see https://github.com/mlrequest/sklearn-json from https://stackoverflow.com/questions/65702949/update-scikit-model-so-it-is-compatible-with-newest-version
+    # mobideep_model=joblib.load(app.root_path + '/' + app.config['MOBIDEEP_MODEL'])
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html

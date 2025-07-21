@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250306" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250616" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -128,6 +128,9 @@
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
 		<a href="#literature" class="w3-bar-item w3-button w3-mobile">Literature</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
+		{% if external_data.functionalStudies.mavedb_score is not none or internal_data.episignature.ExpertACMGClassification is not none %}
+		<a href="#functional" class="w3-bar-item w3-button w3-mobile">Functional Studies</a>
+		{% endif %}
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
 		<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
 		{% if external_data.positions.proteinType == 'missense' %}
@@ -136,12 +139,12 @@
 		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
 		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
-		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
+		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) %}
+		<a href="#non-coding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
+		{% endif%}
+		{# {% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 		<a href="#morfeedb" class="w3-bar-item w3-button w3-mobile">upORF Predictions</a>
-		{% endif %}
-		{% if internal_data.episignature.ExpertACMGClassification is not none %}
-		<a href="#episignature" class="w3-bar-item w3-button w3-mobile">EpiSignature</a>
-		{% endif %}
+		{% endif %} #}
 		<a href="#class" class="w3-bar-item w3-button w3-mobile">Classification</a>
 		<a href="#admin" class="w3-bar-item w3-button w3-mobile">Admin info</a>
 		<a href="{{ url_for('md.about', _anchor='disclaimer') }}" target="_blank" class="w3-bar-item w3-button w3-mobile" rel="noopener noreferrer">Cite</a>
@@ -757,6 +760,61 @@
 			<span style="visibility:hidden" id="dna_type">{{ external_data.positions.DNAType }}</span>
 			<span style="visibility:hidden" id="strand">{{ external_data.gene.strand }}</span>
 		</div>
+		<!-- Section : functional predictions -->
+		{% if external_data.functionalStudies.mavedb_score is not none or internal_data.episignature.ExpertACMGClassification is not none %}
+		{{ section_title('functional', 'Functional studies') }}
+		{% if internal_data.episignature.ExpertACMGClassification is not none %}
+		{{ content("The next table notably presents DNA methylation 'episignature'. The majority of genomic DNA methylation data has utilized genomic microarrays (currently the Illumina Infinium Methylation arrays). The DNA methylation pattern can be used as biomarker for the diagnosis of genetic diseases using easily accessible tissues such as peripheral blood and may help to classify variants (<a href='%s32644126' target='_blank' rel='noopener noreferrer'>Sadikovic et al. 2020</a>)."|format(urls.ncbi_pubmed)) }}
+		{% endif %}
+		<div class="w3-responsive w3-container">
+			<table class="w3-table w3-centered display compact" style="width:90%" id="functional_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align" width="40%">Values</th>
+						<th class="w3-left-align">Descriptions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% if external_data.functionalStudies.mavedb_score is not none %}
+					<tr><!--MaveDB-->
+						<td class="w3-left-align"><a href="{{ urls.mavedb }}" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">MaveDB</a>:</td>
+						{# <td class="w3-left-align"><a href="#" onclick="window.open('{{ urls.mavedb }}score-sets/{{ external_data.functionalStudies.mavedb_urn }}?variant=' + encodeURIComponent('{{ external_data.functionalStudies.mavedb_var_urn }}'))" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">{{ external_data.functionalStudies.mavedb_score }}</a></td> #}
+						<td class="w3-left-align"><a href="#" onclick="window.open('{{ urls.mavedb }}score-sets/{{ external_data.functionalStudies.mavedb_urn }}?variant={{ external_data.functionalStudies.mavedb_var_urn }}')" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">{{ external_data.functionalStudies.mavedb_score }}</a></td>
+						<td class="w3-left-align"><em class="w3-small">Variant recorded as {{ external_data.functionalStudies.mavedb_prot }} in MaveDB.</em></td>
+					</tr>
+					{% endif %}
+					{% if internal_data.episignature.ExpertACMGClassification is not none %}
+					<!--WDSTS Episignature-->
+					<tr>
+						<td class="w3-left-align">DNA Methylation pattern</td>
+						<td class="w3-left-align">{{ internal_data.episignature.DNAMethylationPattern }}</td>
+						<td class="w3-left-align"><em class="w3-small">{{ internal_data.episignature.Description }}</em></td>
+					</tr>
+					<!--ACMG Classification-->
+					<tr>
+						<td class="w3-left-align">Expert opinion</td>
+						<td class="w3-left-align"><span style="color:{{ internal_data.episignature.htmlCode }};">Class {{ internal_data.episignature.ExpertACMGClassification }} ({{ internal_data.episignature.ACMGTranslation }})</span></td>
+						<td class="w3-left-align"><em class="w3-small">Expert opinion after DNA methylation study (Pr. Anne-Sophie Lebre)</em></td>
+					</tr>
+					<!--Reference Article-->
+					<tr>
+						<td class="w3-left-align">Reference Article</td>
+						<td class="w3-left-align">
+							{# {% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %} #}
+							{% if internal_data.episignature.pubmedID %}
+									<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank" rel="noopener noreferrer">{{ internal_data.episignature.referenceArticle }}</a>
+							{% else %}
+								{{ internal_data.episignature.referenceArticle }}
+							{% endif %}
+						</td>
+						<td class="w3-left-align"><em class="w3-small">Reference data</em></td>
+					</tr>
+					{% endif %}
+				</tbody>
+			</table><br/><br/>
+		</div>
+		{% endif %}
 		<!-- Section : Overall predictions-->
 		<hr />
 		{{ section_title('predictions', 'Overall predictions') }}
@@ -791,7 +849,7 @@
 							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
 						</tr>
 					{% endif %}
-					{% if internal_data.noMatch.eigen is none or external_data.overallPredictions.eigenRaw is not none %}
+					{% if internal_data.noMatch.eigen is not none or external_data.overallPredictions.eigenRaw is not none %}
 						<tr><!--Eigen raw-->
 							<td class="w3-left-align"><a href="{{ urls.eigen }}" target="_blank" title="Visit Eigen" rel="noopener noreferrer">Eigen</a> raw:</td>
 							{% if internal_data.noMatch.eigen is none %}
@@ -821,6 +879,39 @@
 							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.mpaImpact.capitalize(), internal_data.overallPredictions.mpaColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Impact type</em></td>
 					</tr>
+					{% if internal_data.noMatch.gpnmsa is none or external_data.overallPredictions.gpnmsa is not none %}
+					<tr><!--GPN-MSA raw-->
+						<td class="w3-left-align"><a href="{{ urls.gpnmsa }}" target="_blank" title="Visit GPN-MSA" rel="noopener noreferrer">GPN-MSA</a> raw:</td>
+						{% if internal_data.noMatch.gpnmsa is none %}
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.gpnmsa, internal_data.overallPredictions.gpnmsaColor) }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.gpnmsa }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em class="w3-small">Log-likelihood ratio between alternate and reference allele. The lower the less likely to be observed. Threshold for pathogenicity around -7</em></td>
+					</tr>
+					{% endif %}
+					{% if internal_data.noMatch.phylop_primates is none or external_data.overallPredictions.phylop_primates is not none %}
+					<tr><!--PhyloP Primates-->
+						<td class="w3-left-align">PhyloP Primates score:</td>
+						{% if internal_data.noMatch.phylop_primates is none %}
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.phylop_primates, internal_data.overallPredictions.phylop_primatesColor) }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.phylop_primates }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em class="w3-small"> Detection of nonneutral substitution rates on a 239 primates genomes alignment. [0;1] The higher the more under selective pressure, threshold &ge; 0.304 for high selective pressure (non-coding variants)</em></td>
+					</tr>
+					{% endif %}
+					{% if internal_data.noMatch.cactus241way is none or external_data.overallPredictions.cactus241way is not none %}
+					<tr><!--cactus 241 vertebrates phyloP-->
+						<td class="w3-left-align"><a href="{{ urls.cactus241way }}" target="_blank" title="Visit Zoonomia" rel="noopener noreferrer">cactus 241 way</a> phyloP:</td>
+						{% if internal_data.noMatch.cactus241way is none %}
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.cactus241way, internal_data.overallPredictions.cactus241wayColor) }}</td>
+						{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.cactus241way }}</td>
+						{% endif %}
+						<td class="w3-left-align"><em class="w3-small">Detection of nonneutral substitution rates on a 241 vertebrates genomes alignment. [-20;30] Positive: conservation, Negative values: acceleration, threshold &ge; 1,345 for high selective pressure (non-coding variants)</em></td>
+					</tr>
+					{% endif %}
 				</tbody>
 			</table><br/><br/>
 		</div>
@@ -1064,34 +1155,34 @@
 				<br/><br/>
 				<div class="w3-row-padding">
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
-					{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
-						<!--Splicing radar chart-->
-						<div class="w3-col m4">
-							<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
-						</div>
-					{% endif %}
-					<!--spliceai lookup button-->
-					{% if external_data.positions.DNAType != 'indel' %}
-						<div class="w3-col m4" id="spliceai_lookup_button">
-							<button id="spliceai_lookup_button_span" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');$('#spliceai_lookup_button_span').addClass('w3-disabled');this.disabled=true;spliceai_lookup('{{ url_for('ajax.spliceai_lookup') }}', '{{ csrf_token() }}');$('#spliceai_lookup_wheel').html('<i class=\'fa fa-spinner w3-spin\' style=\'font-size:24px\'></i>');" title="Run SpliceAI lookup API with a distance of 500 bp instead of the default 50 bp - may be useful to identify e.g. deep intronic variant which trigger exonisation" style="width:100%">Run SpliceAI 500&nbsp;&nbsp;<span id="spliceai_lookup_wheel"></span></button>
-						</div>
-					{% endif %}
-			{% endif %}
-					<!--SpliceAI-visual full transcript button-->
-					<div class="w3-col m4" id="spliceai_visual_full_gene" style="display:none;">
-						<button id="spliceai_visual_full_gene_span" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');this.disabled=true;spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'spliceaivisual_full_button', '{{ csrf_token() }}');$('#spliceai_visual_full_wheel').html('<i class=\'fa fa-spinner w3-spin\' style=\'font-size:24px\'></i>');" title="Run SpliceAI-visual for the entire mutant transcript - may take several minutes to complete (e.g. 5 minutes for a 1Mb transcript)" style="width:100%">SpliceAI-visual (full transcript)<span id="spliceai_visual_full_wheel"></span></button>
-					</div>
+				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
+				<!--Splicing radar chart-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_splicing_modal').show();" title="Display a radar chart of splicing scores" style="width:100%">Show radar chart</span>
 				</div>
-				<br />
-				{% if internal_data.splicingPredictions.abSpliceResults is not none %}
-				<!--AbSplice full results button -->
-				<div class="w3-row-padding">
-					<div class="w3-col m4">
-						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#absplice_detailed').toggle();" title="Toggle full output of AbSplice" style="width:100%">Toggle full AbSplice results</span>
-					</div>
-				</div>
-				<br />
 				{% endif %}
+				<!--spliceai lookup button-->
+				{% if external_data.positions.DNAType != 'indel' %}
+				<div class="w3-col m4" id="spliceai_lookup_button">
+					<button id="spliceai_lookup_button_span" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');$('#spliceai_lookup_button_span').addClass('w3-disabled');this.disabled=true;spliceai_lookup('{{ url_for('ajax.spliceai_lookup') }}', '{{ csrf_token() }}');$('#spliceai_lookup_wheel').html('<i class=\'fa fa-spinner w3-spin\' style=\'font-size:24px\'></i>');" title="Run SpliceAI lookup API with a distance of 500 bp instead of the default 50 bp - may be useful to identify e.g. deep intronic variant which trigger exonisation" style="width:100%">Run SpliceAI 500&nbsp;&nbsp;<span id="spliceai_lookup_wheel"></span></button>
+				</div>
+				{% endif %}
+			{% endif %}
+				<!--SpliceAI-visual full transcript button-->
+				<div class="w3-col m4" id="spliceai_visual_full_gene" style="display:none;">
+					<button id="spliceai_visual_full_gene_span" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('html').css('cursor', 'progress');this.disabled=true;spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'spliceaivisual_full_button', '{{ csrf_token() }}');$('#spliceai_visual_full_wheel').html('<i class=\'fa fa-spinner w3-spin\' style=\'font-size:24px\'></i>');" title="Run SpliceAI-visual for the entire mutant transcript - may take several minutes to complete (e.g. 5 minutes for a 1Mb transcript)" style="width:100%">SpliceAI-visual (full transcript)<span id="spliceai_visual_full_wheel"></span></button>
+				</div>
+			</div>
+			<br />
+			{% if internal_data.splicingPredictions.abSpliceResults is not none %}
+			<!--AbSplice full results button -->
+			<div class="w3-row-padding">
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#absplice_detailed').toggle();" title="Toggle full output of AbSplice" style="width:100%">Toggle full AbSplice results</span>
+				</div>
+			</div>
+			<br />
+			{% endif %}
 			{% if external_data.positions.DNAType != 'indel' or (internal_data.positions.insSize is not none and internal_data.positions.insSize < 2) %}
 				{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
 					<div id="radar_splicing_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
@@ -1311,89 +1402,131 @@
 		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
-		<!-- Section : upORF prediction -->
-		{% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
+		<!-- Section : non-coding predictions -->
+		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
 			<hr />
-			{{ section_title('morfeedb', 'upORF prediction') }}
+			{{ section_title('non-coding', 'Non-coding variants predictions') }}
 			<div class="w3-responsive w3-container">
-				<!--dbMTS-->
-				{{ content("<strong>MORFEEdb</strong>: Annotation with MORFEE tool of more than 18,000,000 upstream ORFs (upORFs) resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts (Ensembl_GRCh38.p14). Variants annotated in MORFEEdb are predicted to:<ul><li>create upstream canonical (ATG) and non-canonical Translation Initiation Sites (uTIS)</li><li>create upstream Stop codons (TAA, TAG and TGA) (uStop), and/or</li><li>delete upstream Stop codons (uStop)</li></ul><br /> Multiple results are separated by a ';'. <strong>A track is displayed above in igv.js</strong> (if present) showing the potential upstream ORF(s).<br />The color code is the following:<ul><li>uTIS overlapping: <span style='color:rgb(153,0,0)'>red</span></li><li>uTIS not overlapping: <span style='color:rgb(39,78,245)'>blue</span></li><li>uTIS elongated CDS: <span style='color:rgb(60,179,113)'>green</span></li><li>uSTOP or new_uSTOP: <span style='color:rgb(100,100,100)'>grey</span></li><li><strong style='color:rgba(0,0,0, 0.75)'>Dark</strong> color is given to the upstream ORF when the <strong>Kozak sequence strength</strong> of a uTIS is <strong>moderate or strong AND the Kozak score is > 0.6</strong>. Otherwise the upstream ORF color is <strong style='color:rgba(0,0,0, 0.25)'>light</strong>.</li></ul>A manuscript describing MORFEEdb and its output is now publicly available. For any information related to MORFEEdb output, please contact <script>var s='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript to see this text.</noscript>.<br />The full MORFEE database (v%s) can be <a href='%s' target='_blank' download='download'>downloaded</a> as a gzipped txt file." | format(external_tools['MorfeeDB']['version'], url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz'))) }}
-				<!-- from https://www.wmtips.com/tools/html-obfuscator/#form -->
-				<table class="w3-table w3-centered display compact" style="width:90%" id="morfee_table">
+			{% if external_data.morfeedb[0].orfSNVs_type is not none %}
+			{{ section_subtitle('morfeedb', 'uORF prediction') }}
+			<!--MORFEE-->
+			{{ content("<strong>MORFEEdb</strong>: Annotation with MORFEE tool of more than 18,000,000 upstream ORFs (upORFs) resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts(Ensembl_GRCh38.p14). Variants annotated in MORFEEdb are predicted to:<ul><li>create upstream canonical (ATG) and non-canonical Translation Initiation Sites (uTIS)</li><li>create upstream Stop codons (TAA, TAG andTGA) (uStop), and/or</li><li>delete upstream Stop codons (uStop)</li></ul><br /> Multiple results are separated by a ';'. <strong>A track is displayed above in igv.js</strong> (if present) showing the potentialupstream ORF(s).<br />The color code is the following:<ul><li>uTIS overlapping: <span style='color:rgb(153,0,0)'>red</span></li><li>uTIS not overlapping: <span style='color:rgb(39,78,245)'>blue</span></li><li>uTISelongated CDS: <span style='color:rgb(60,179,113)'>green</span></li><li>uSTOP or new_uSTOP: <span style='color:rgb(100,100,100)'>grey</span></li><li><strong style='color:rgba(0,0,0, 0.75)'>Dark</strong> color isgiven to the upstream ORF when the <strong>Kozak sequence strength</strong> of a uTIS is <strong>moderate or strong AND the Kozak score is > 0.6</strong>. Otherwise the upstream ORF color is <strongstyle='color:rgba(0,0,0, 0.25)'>light</strong>.</li></ul>A manuscript describing MORFEEdb and its output is now publicly available. For any information related to MORFEEdb output, please contact <script>vars='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript tosee this text.</noscript>.<br />The full MORFEE database (v%s) can be <a href='%s' target='_blank' download='download'>downloaded</a> as a gzipped txt file." | format(external_tools['MorfeeDB']['version'], url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz'))) }}
+			<!-- from https://www.wmtips.com/tools/html-obfuscator/#form -->
+			<table class="w3-table w3-centered display compact" style="width:90%" id="morfee_table">
+				<thead>
+					<tr>
+						<th class="w3-left-align">Features</th>
+						<th class="w3-left-align">Values</th>
+						<th class="w3-left-align">Descriptions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for uporf in external_data.morfeedb %}
+						<tr><!--category-->
+							<td class="w3-left-align"><strong>orfSNVs type:</strong></td>
+							<td class="w3-left-align"><strong>{{ uporf.orfSNVs_type }}</strong></td>
+							<td class="w3-left-align"><em class="w3-small">uTIS: creation of an upstream TIS (ATG, CTG, TTG, GTG, AAG, ACG, AGG, ATC, ATA, ATT).<br />uSTOP: deletion of an upstream STOP codon.<br />new_uSTOP: creation of an upstream STOP codon</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">orfSNVs frame:</td>
+							<td class="w3-left-align">{{ uporf.orfSNVs_frame }}</td>
+							<td class="w3-left-align"><em class="w3-small">in_frame or out_of_frame according to whether the new TIS or the new or deleted STOP is in frame or not with the main ATG</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Type of generated ORF:</td>
+							<td class="w3-left-align">{{ uporf.type_of_generated_ORF }}</td>
+							<td class="w3-left-align"><em class="w3-small">Possible values are *overlapping*, *not_overlapping* or *elongated_CDS* according to the type of the predicted upstream /downstream/internal ORF compared to the canonical CDS</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">Ratio length pred/obs:</td>
+							<td class="w3-left-align">{{ uporf.Ratio_length_pred_obs }}</td>
+							<td class="w3-left-align"><em class="w3-small">Ratio of the length of the predicted ORF over that of the CDS</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">STOP sequence:</td>
+							<td class="w3-left-align">{{ uporf.STOP_sequence }}</td>
+							<td class="w3-left-align"><em class="w3-small">STOP codon sequence of the new predicted ORF or of the deleted STOP</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">TIS c.pos:</td>
+							<td class="w3-left-align">{{ uporf.TIS_c_pos }}</td>
+							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the TIS on the corresponding transcript(s)</em></td>
+						</tr>
+						<tr><!--category-->
+							<td class="w3-left-align">STOP c.pos:</td>
+							<td class="w3-left-align">{{ uporf.STOP_c_pos }}</td>
+							<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the Stop codon on the corresponding transcript(s)</em></td>
+						</tr>
+						{% if uporf.orfSNVs_type == 'uTIS' %}
+							<tr><!--category-->
+								<td class="w3-left-align">TIS sequence:</td>
+								<td class="w3-left-align">{{ uporf.TIS_sequence }}</td>
+								<td class="w3-left-align"><em class="w3-small">Sequence of new TIS detected by MORFEE</em></td>
+							</tr>
+							<tr><!--category-->
+								<td class="w3-left-align">Kozak sequence:</td>
+								<td class="w3-left-align">{{ uporf.Kozak_sequence }}</td>
+								<td class="w3-left-align"><em class="w3-small">Kozak sequence of the new predicted TIS (sequence of the TIS with 10 nicleotides from each side)</em></td>
+							</tr>
+							<tr><!--category-->
+								<td class="w3-left-align">Kozak score:</td>
+								<td class="w3-left-align">{{ uporf.Kozak_score }}</td>
+								<td class="w3-left-align"><em class="w3-small">Kozak score of the new predicted TIS as calculated by the TIS-predictor algorithm (KSS score)</em></td>
+							</tr>
+							<tr><!--category-->
+								<td class="w3-left-align">Kozak strength:</td>
+								<td class="w3-left-align">{{ uporf.Kozak_strength }}</td>
+								<td class="w3-left-align"><em class="w3-small">Kozak strength of the new predicted TIS by taking into account the most conserved positions -3 and +4 regarding the first nucleotide of the TIS</em></td>
+							</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+			</table>
+			</div>
+			{% elif internal_data.noMatch.morfeedb is not none %}
+				<hr />
+				{{ section_subtitle('morfeedb', 'uORF prediction') }}
+				{{ content(internal_data.noMatch.morfeedb) }}
+			{% endif %}
+			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none %}
+			{{ section_subtitle('overall_nc_predictors', 'Overall non-coding predictors') }}
+			<div class="w3-responsive w3-container">
+				<table class="w3-table w3-centered display compact" style="width:90%" id="noncoding_table">
 					<thead>
 						<tr>
 							<th class="w3-left-align">Features</th>
-							<th class="w3-left-align">Values</th>
+							<th class="w3-left-align" width="40%">Values</th>
 							<th class="w3-left-align">Descriptions</th>
 						</tr>
 					</thead>
 					<tbody>
-						{% for uporf in external_data.morfeedb %}
-							<tr><!--category-->
-								<td class="w3-left-align"><strong>orfSNVs type:</strong></td>
-								<td class="w3-left-align"><strong>{{ uporf.orfSNVs_type }}</strong></td>
-								<td class="w3-left-align"><em class="w3-small">uTIS: creation of an upstream TIS (ATG, CTG, TTG, GTG, AAG, ACG, AGG, ATC, ATA, ATT).<br />uSTOP: deletion of an upstream STOP codon.<br />new_uSTOP: creation of an upstream STOP codon</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">orfSNVs frame:</td>
-								<td class="w3-left-align">{{ uporf.orfSNVs_frame }}</td>
-								<td class="w3-left-align"><em class="w3-small">in_frame or out_of_frame according to whether the new TIS or the new or deleted STOP is in frame or not with the main ATG</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">Type of generated ORF:</td>
-								<td class="w3-left-align">{{ uporf.type_of_generated_ORF }}</td>
-								<td class="w3-left-align"><em class="w3-small">Possible values are *overlapping*, *not_overlapping* or *elongated_CDS* according to the type of the predicted upstream /downstream/internal ORF compared to the canonical CDS</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">Ratio length pred/obs:</td>
-								<td class="w3-left-align">{{ uporf.Ratio_length_pred_obs }}</td>
-								<td class="w3-left-align"><em class="w3-small">Ratio of the length of the predicted ORF over that of the CDS</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">STOP sequence:</td>
-								<td class="w3-left-align">{{ uporf.STOP_sequence }}</td>
-								<td class="w3-left-align"><em class="w3-small">STOP codon sequence of the new predicted ORF or of the deleted STOP</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">TIS c.pos:</td>
-								<td class="w3-left-align">{{ uporf.TIS_c_pos }}</td>
-								<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the TIS on the corresponding transcript(s)</em></td>
-							</tr>
-							<tr><!--category-->
-								<td class="w3-left-align">STOP c.pos:</td>
-								<td class="w3-left-align">{{ uporf.STOP_c_pos }}</td>
-								<td class="w3-left-align"><em class="w3-small">Coordinates of the first nucleotide of the Stop codon on the corresponding transcript(s)</em></td>
-							</tr>
-							{% if uporf.orfSNVs_type == 'uTIS' %}
-								<tr><!--category-->
-									<td class="w3-left-align">TIS sequence:</td>
-									<td class="w3-left-align">{{ uporf.TIS_sequence }}</td>
-									<td class="w3-left-align"><em class="w3-small">Sequence of new TIS detected by MORFEE</em></td>
-								</tr>
-								<tr><!--category-->
-									<td class="w3-left-align">Kozak sequence:</td>
-									<td class="w3-left-align">{{ uporf.Kozak_sequence }}</td>
-									<td class="w3-left-align"><em class="w3-small">Kozak sequence of the new predicted TIS (sequence of the TIS with 10 nicleotides from each side)</em></td>
-								</tr>
-								<tr><!--category-->
-									<td class="w3-left-align">Kozak score:</td>
-									<td class="w3-left-align">{{ uporf.Kozak_score }}</td>
-									<td class="w3-left-align"><em class="w3-small">Kozak score of the new predicted TIS as calculated by the TIS-predictor algorithm (KSS score)</em></td>
-								</tr>
-								<tr><!--category-->
-									<td class="w3-left-align">Kozak strength:</td>
-									<td class="w3-left-align">{{ uporf.Kozak_strength }}</td>
-									<td class="w3-left-align"><em class="w3-small">Kozak strength of the new predicted TIS by taking into account the most conserved positions -3 and +4 regarding the first nucleotide of the TIS</em></td>
-								</tr>
+						{% if internal_data.noMatch.remm is not none or external_data.nonCodingPredictions.remm is not none %}
+						<tr><!--ReMM-->
+							<td class="w3-left-align"><a href="{{ urls.remm }}" target="_blank" title="Visit ReMM" rel="noopener noreferrer">ReMM</a>:</td>
+							{% if internal_data.noMatch.promoterai is none %}
+							<td class="w3-left-align">{{ span_color(external_data.nonCodingPredictions.remm, internal_data.nonCodingPredictions.remmColor) }}</td>
+							{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.remm }}</td>
 							{% endif %}
-						{% endfor %}
+							<td class="w3-left-align"><em class="w3-small">Threshold &gt; 0.924|0.961 for Likely Pathogenic and Pathogenic</em></td>
+						</tr>
+						{% endif %}
+						{% if internal_data.noMatch.promoterai is not none or external_data.nonCodingPredictions.promoterai is not none %}
+						<tr><!--PromoterAI-->
+							<td class="w3-left-align"><a href="{{ urls.promoterai }}" target="_blank" title="Visit PromoterAI" rel="noopener noreferrer">PromoterAI</a>:</td>
+							{% if internal_data.noMatch.promoterai is none %}
+							<td class="w3-left-align">{{ span_color(external_data.nonCodingPredictions.promoterai, internal_data.nonCodingPredictions.promoteraiColor) }}</td>
+							{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.promoterai }}</td>
+							{% endif %}
+							<td class="w3-left-align"><em class="w3-small">Prediction of expression altering promoter variants; Thresholds &le; -0.5 for under expression and &ge; 0.5 for over expression </em></td>
+						</tr>
+						{% endif %}
 					</tbody>
-				</table>
+				</table><br/><br/>
 			</div>
-		{% elif internal_data.noMatch.morfeedb is not none %}
-			<hr />
-			{{ section_title('morfeedb', 'uORF prediction') }}
-			{{ content(internal_data.noMatch.morfeedb) }}
+			{% endif %}
+		</div>
 		{% endif %}
 		<!-- Section : Missense section-->
 		{% if external_data.positions.proteinType == 'missense' %}

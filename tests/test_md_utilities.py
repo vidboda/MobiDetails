@@ -449,6 +449,23 @@ var_indel_f = {
     'prot_type': 'missense',
     'p_name': 'Val467Ile'
 }
+var_indel2 = {
+    'chr': '1',
+    'pos': '1339622',
+    'pos_ref': 'GC',
+    'pos_alt': 'CA'
+}
+var_indel2_f = {
+    'dna_type': 'indel',
+    'prot_type': 'missense',
+    'p_name': 'Cys93Leu'
+}
+var_prom1 = {
+    'chr': '1',
+    'pos': '64918',
+    'pos_ref': 'T',
+    'pos_alt': 'A'
+}
 var_5utr1 = {
     'chr': '1',
     'pos': '216422351',
@@ -569,7 +586,18 @@ var_ss_f = {
     ('dbscSNV', var_ss, '0.9999', 14, 'dbscsnv', var_ss_f),
     ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f),
     ('MorfeeDB', var_5utr1, 'uTIS', 10, 'morfeedb', var_5utr1_f),
-    ('MorfeeDB', var_5utr1, 'not_overlapping; overlapping_0.32%', 12, 'morfeedb', var_5utr1_f)
+    ('MorfeeDB', var_5utr1, 'not_overlapping; overlapping_0.32%', 12, 'morfeedb', var_5utr1_f),
+    ('GPN-MSA', var_5utr1, '-4.60', 4,  'gpnmsa', var_5utr1_f),
+    ('GPN-MSA', var_3utr1, '-1.64', 4,  'gpnmsa', var_3utr1_f),
+    ('GPN-MSA', var_3utr2, '-1.50', 4,  'gpnmsa', var_3utr2_f),
+    ('ReMM', var_5utr1, '0.902701', 2,  'remm', var_5utr1_f),
+    ('ReMM', var_3utr1, '0.649029', 2,  'remm', var_3utr1_f),
+    ('ReMM', var_3utr2, '0.804145', 2,  'remm', var_3utr2_f),
+    ('MaveDB', var_indel2, '0.211525773117628', 16,  'mavedb', var_indel2_f),
+    ('MaveDB', var_indel2, 'p.Cys93Leu', 15,  'mavedb', var_indel2_f),
+    ('MaveDB', var_indel2, 'urn:mavedb:00000789-a-1', 6,  'mavedb', var_indel2_f),
+    ('MaveDB', var_indel2, 'urn:mavedb:00000789-a-1#954', 12,  'mavedb', var_indel2_f),
+    ('PromoterAI', var_prom1, '-0.0024', 9,  'promoterai', '')
 ))
 def test_get_value_from_tabix_file(app, client, tool, var, expected, record_number, file_name, var_f):
     with app.app_context():
@@ -579,6 +607,7 @@ def test_get_value_from_tabix_file(app, client, tool, var, expected, record_numb
         print(record_number)
         print(tool)
         print(md_utilities.local_files[file_name]['abs_path'])
+        print(record)
         db_pool.putconn(db)
         if tool == 'MorfeeDB':
             assert re.search(expected, record[0][record_number])
@@ -587,6 +616,30 @@ def test_get_value_from_tabix_file(app, client, tool, var, expected, record_numb
         # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
         # assert re.search('Pathogenic', record[7])
         # assert re.search('2356', record[2])
+
+
+@pytest.mark.parametrize(('tool', 'var', 'expected', 'file_name', 'var_f'), (
+    ('phyloPPrimates', var_3utr1, '0.1080', 'phylop_primates_bw', var_3utr1_f),
+    ('Cactus_241_way', var_3utr1, '-0.0820', 'cactus241way_bw', var_3utr1_f),
+    ('phyloPPrimates', var, '0.9980', 'phylop_primates_bw', var_f),
+    ('Cactus_241_way', var, '6.8870', 'cactus241way_bw', var_f),
+    ('phyloPPrimates', var_5utr1, '0.4860', 'phylop_primates_bw', var_5utr1_f),
+    ('Cactus_241_way', var_5utr1, '0.1710', 'cactus241way_bw', var_5utr1_f),
+    ('phyloPPrimates', var_3utr2, '0.0209', 'phylop_primates_bw', var_3utr2_f),
+    ('Cactus_241_way', var_3utr2, '0.3370', 'cactus241way_bw', var_3utr2_f)
+    # ('phyloPPrimates exome', var_prom1, '', 'phylop_primates_bw', ''),
+    # ('Cactus_241_way', var_prom1, '', 'cactus241way_bw', ''),
+))
+def test_get_bigwig_score(app, client, tool, var, expected, file_name, var_f):
+    with app.app_context():
+        g = fake_g_obj()
+        db_pool, db = get_db()
+        record = md_utilities.get_bigwig_score(tool, md_utilities.local_files[file_name]['abs_path'], var)
+        print(tool)
+        print(md_utilities.local_files[file_name]['abs_path'])
+        print(record)
+        db_pool.putconn(db)
+        assert re.search(expected, str(record))
 
 
 def test_getdbNSFP_results():
@@ -630,21 +683,28 @@ def test_get_most_other_deleterious_pred(
 
 @pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
     (0.12, '#00A020', 'dbscsnv'),
-    (0.85, '#FF0000', 'dbscsnv')
+    (0.85, '#FF0000', 'dbscsnv'),
+    (0.12, '#00A020', 'phylop_primates'),
+    (0.85, '#FF0000', 'phylop_primates'),
+    (0.12, '#00A020', 'cactus241way'),
+    (1.85, '#FF0000', 'cactus241way'),
+    (0.12, '#00A020', 'promoterai'),
+    (0.85, '#FF0000', 'promoterai')
 ))
 def test_get_preditor_single_threshold_color(client, value, result_color, predictor):
     color = md_utilities.get_preditor_single_threshold_color(value, predictor)
     assert color == result_color
 
 
-# not used anymore fathmm-xl is now not reverted
-# @pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
-#     (0, '#00A020', 'fathmm'),
-#     (-5.88, '#FF0000', 'fathmm')
-# ))
-# def test_get_preditor_single_threshold_reverted_color(client, value, result_color, predictor):
-#     color = md_utilities.get_preditor_single_threshold_reverted_color(value, predictor)
-#     assert color == result_color
+@pytest.mark.parametrize(('value', 'result_color', 'predictor'), (
+    # (0, '#00A020', 'fathmm'),
+    # (-5.88, '#FF0000', 'fathmm')
+    (-5.88, '#00A020', 'gpnmsa'),
+    (-7.88, '#FF0000', 'gpnmsa')
+))
+def test_get_preditor_double_threshold_color(client, value, result_color, predictor):
+    color = md_utilities.get_preditor_single_threshold_reverted_color(value, predictor)
+    assert color == result_color
 
 
 @pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max', 'mid_effect_color'), (
@@ -656,6 +716,9 @@ def test_get_preditor_single_threshold_color(client, value, result_color, predic
     (0.1, '#00A020', 'am_min', 'am_max', ''),
     (0.4, '#000000', 'am_min', 'am_max', 'no_effect'),
     (0.6, '#FF0000', 'am_min', 'am_max', ''),
+    (0.97, '#FF0000', 'remm_lp', 'remm_p', ''),
+    (0.94, '#FF6020', 'remm_lp', 'remm_p', ''),
+    (0.91, '#00A020', 'remm_lp', 'remm_p', '')
 ))
 def test_get_preditor_double_threshold_color(client, value, result_color, predictor_min, predictor_max, mid_effect_color):
     if mid_effect_color != '':

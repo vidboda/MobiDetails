@@ -886,6 +886,8 @@ $(document).ready(function() {
         };
       }));
     }
+    var overall_threshold = -7
+    var noncoding_threshold = -7
     for (var i = 0, ien = data.body.length; i < ien; i++) {
       rows.push($.map(data.body[i], function(d) {
         var color_style = '#000000';
@@ -945,6 +947,21 @@ $(document).ready(function() {
           if (d === 'High missense' || d === 'Clinvar pathogenic' || d === 'High splice' || d === 'nonsense' || d === 'frameshift') {color_style = '#FF0000'}
           if (d === 'Moderate missense' || d === 'Moderate splice') {color_style = '#FF6020'}
           if (d === 'Low missense' || d === 'Low splice' || d ==='Splice indel') {color_style = '#FFA020'}
+          if (d === 'PhyloP Primates score:') {overall_threshold = 0.304}
+          else if (d === 'cactus 241 way phyloP:') {overall_threshold = 1.345}
+          if (overall_threshold === -7 && d <= overall_threshold) {color_style = '#FF0000'}
+          else if (overall_threshold !== -7) {
+            if (d >= overall_threshold) {color_style = '#FF0000'}
+          }
+        }
+        else if (table_title === 'Non coding variants predictions'){
+          if (d === 'ReMM:') {noncoding_threshold = 0.961; var noncoding_lp = 0.924}
+          else if (d === 'PromoterAI:') {noncoding_threshold = 0.5}
+          if (noncoding_threshold === 0.961) {
+            if (d >= noncoding_lp && d < noncoding_threshold) {color_style = '#FF6020'}
+            else if (d >= noncoding_threshold) {color_style = '#FF0000'}
+          }
+          else if (Math.abs(d) >= noncoding_threshold) {color_style = '#FF0000'}
         }
         else if (table_title === 'Classification history' || table_title === 'Epigenetic signature') {
           var split_str = d.split(" ");
@@ -1104,6 +1121,9 @@ $(document).ready(function() {
     if ($("#population_table").length) {
       doc = convert_dt(config, "population_table", "Population frequencies and databases", "table_title", doc);
     }
+    if ($("#functional_table").length) {
+      doc = convert_dt(config, "functional_table", "Functional studies", "table_title", doc);
+    }
     if ($("#prediction_table").length) {
       doc = convert_dt(config, "prediction_table", "Overall predictions", "table_title", doc);
     }
@@ -1186,12 +1206,15 @@ $(document).ready(function() {
     if ($('#dbmts_table').length) {
       doc = convert_dt(config, "dbmts_table", "dbMTS results", "table_title", doc);
     }
-    if ($('#morfee_table').length) {
-      doc = convert_dt(config, "morfee_table", "MORFEE results", "table_title", doc);
+    // if ($('#morfee_table').length) {
+    //   doc = convert_dt(config, "morfee_table", "MORFEE results", "table_title", doc);
+    // }
+    if ($("#noncoding_table").length) {
+      doc = convert_dt(config, "noncoding_table", "Non coding variants predictions", "table_title", doc);
     }
-    if ($('#episignature_table').length) {
-      doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);
-    }
+    // if ($('#episignature_table').length) {
+    //   doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);
+    // }
     if ($('#class_table').length) {
       doc = convert_dt(config, "class_table", "Classification history", "table_title", doc);
     }
