@@ -1319,14 +1319,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # Phylop-Pri
                     record = md_utilities.get_bigwig_score('phyloPPrimates', md_utilities.local_files['phylop_primates_bw']['abs_path'], var)
                     if isinstance(record, str):
-                        internal_data['noMatch']['phylop_primates'] = "{0} {1}".format(record, md_utilities.external_tools['phylop_primates']['version'])                        
+                        internal_data['noMatch']['phylop_primates'] = "{0} {1}".format(record, md_utilities.external_tools['phyloPPrimates']['version'])                        
                     else:
                         external_data['overallPredictions']['phylop_primates'] = format(float(record), '.3f')
                         internal_data['overallPredictions']['phylop_primatesColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['overallPredictions']['phylop_primates']), 'phylop_primates')
                     # cactus 241 way
                     record = md_utilities.get_bigwig_score('Cactus_241_way', md_utilities.local_files['cactus241way_bw']['abs_path'], var)
                     if isinstance(record, str):
-                        internal_data['noMatch']['cactus241way'] = "{0} {1}".format(record, md_utilities.external_tools['cactus241way']['version'])
+                        internal_data['noMatch']['cactus241way'] = "{0} {1}".format(record, md_utilities.external_tools['Cactus_241_way']['version'])
                     else:
                         external_data['overallPredictions']['cactus241way'] = format(float(record), '.3f')
                         internal_data['overallPredictions']['cactus241wayColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['overallPredictions']['cactus241way']), 'cactus241way')
@@ -1369,6 +1369,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                  float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
                                 external_data['overallPredictions']['mpaScore'] = 10
                                 external_data['overallPredictions']['mpaImpact'] = 'High splice'
+                else:
+                    internal_data['noMatch']['gpnmsa'] = "No precomputed score for GPN-MSA {0}".format(md_utilities.external_tools['GPN-MSA']['version'])
+                    internal_data['noMatch']['cactus241way'] = "No precomputed score for cactus241way {0}".format(md_utilities.external_tools['Cactus_241_way']['version'])
+                    internal_data['noMatch']['phylop_primates'] = "No precomputed score for PhyloP Primates {0}".format(md_utilities.external_tools['phyloPPrimates']['version'])
                 # MaveDB
                 record = md_utilities.get_value_from_tabix_file('MaveDB', md_utilities.local_files['mavedb']['abs_path'], var, variant_features)
                 if isinstance(record, str):

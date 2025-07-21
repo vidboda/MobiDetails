@@ -879,7 +879,7 @@
 							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.mpaImpact.capitalize(), internal_data.overallPredictions.mpaColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Impact type</em></td>
 					</tr>
-					{% if internal_data.noMatch.gpnmsa is none or external_data.overallPredictions.gpnmsa is not none %}
+					{% if internal_data.noMatch.gpnmsa is not none or external_data.overallPredictions.gpnmsa is not none %}
 					<tr><!--GPN-MSA raw-->
 						<td class="w3-left-align"><a href="{{ urls.gpnmsa }}" target="_blank" title="Visit GPN-MSA" rel="noopener noreferrer">GPN-MSA</a> raw:</td>
 						{% if internal_data.noMatch.gpnmsa is none %}
@@ -890,7 +890,7 @@
 						<td class="w3-left-align"><em class="w3-small">Log-likelihood ratio between alternate and reference allele. The lower the less likely to be observed. Threshold for pathogenicity around -7</em></td>
 					</tr>
 					{% endif %}
-					{% if internal_data.noMatch.phylop_primates is none or external_data.overallPredictions.phylop_primates is not none %}
+					{% if internal_data.noMatch.phylop_primates is not none or external_data.overallPredictions.phylop_primates is not none %}
 					<tr><!--PhyloP Primates-->
 						<td class="w3-left-align">PhyloP Primates score:</td>
 						{% if internal_data.noMatch.phylop_primates is none %}
@@ -901,7 +901,7 @@
 						<td class="w3-left-align"><em class="w3-small"> Detection of nonneutral substitution rates on a 239 primates genomes alignment. [0;1] The higher the more under selective pressure, threshold &ge; 0.304 for high selective pressure (non-coding variants)</em></td>
 					</tr>
 					{% endif %}
-					{% if internal_data.noMatch.cactus241way is none or external_data.overallPredictions.cactus241way is not none %}
+					{% if internal_data.noMatch.cactus241way is not none or external_data.overallPredictions.cactus241way is not none %}
 					<tr><!--cactus 241 vertebrates phyloP-->
 						<td class="w3-left-align"><a href="{{ urls.cactus241way }}" target="_blank" title="Visit Zoonomia" rel="noopener noreferrer">cactus 241 way</a> phyloP:</td>
 						{% if internal_data.noMatch.cactus241way is none %}
