@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250616" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250728" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -842,7 +842,7 @@
 						<tr><!--CADD phred-->
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD" rel="noopener noreferrer">CADD</a> phred:</td>
 							{% if internal_data.noMatch.cadd is none %}
-								<td class="w3-left-align">{{ external_data.overallPredictions.caddPhred }}</td>
+								<td class="w3-left-align" id="cadd_phred">{{ external_data.overallPredictions.caddPhred }}</td>
 							{% else %}
 								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
 							{% endif %}
@@ -883,7 +883,7 @@
 					<tr><!--GPN-MSA raw-->
 						<td class="w3-left-align"><a href="{{ urls.gpnmsa }}" target="_blank" title="Visit GPN-MSA" rel="noopener noreferrer">GPN-MSA</a> raw:</td>
 						{% if internal_data.noMatch.gpnmsa is none %}
-							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.gpnmsa, internal_data.overallPredictions.gpnmsaColor) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.gpnmsa, internal_data.overallPredictions.gpnmsaColor, 'gpnmsa_score') }}</td>
 						{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.gpnmsa }}</td>
 						{% endif %}
@@ -894,7 +894,7 @@
 					<tr><!--PhyloP Primates-->
 						<td class="w3-left-align">PhyloP Primates score:</td>
 						{% if internal_data.noMatch.phylop_primates is none %}
-							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.phylop_primates, internal_data.overallPredictions.phylop_primatesColor) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.phylop_primates, internal_data.overallPredictions.phylop_primatesColor, 'phylop_primates_score') }}</td>
 						{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.phylop_primates }}</td>
 						{% endif %}
@@ -905,7 +905,7 @@
 					<tr><!--cactus 241 vertebrates phyloP-->
 						<td class="w3-left-align"><a href="{{ urls.cactus241way }}" target="_blank" title="Visit Zoonomia" rel="noopener noreferrer">cactus 241 way</a> phyloP:</td>
 						{% if internal_data.noMatch.cactus241way is none %}
-							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.cactus241way, internal_data.overallPredictions.cactus241wayColor) }}</td>
+							<td class="w3-left-align">{{ span_color(external_data.overallPredictions.cactus241way, internal_data.overallPredictions.cactus241wayColor, 'cactus_241_score') }}</td>
 						{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.cactus241way }}</td>
 						{% endif %}
@@ -1403,14 +1403,16 @@
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
 		<!-- Section : non-coding predictions -->
+		{# {% if external_data.positions.proteinType == 'unknown' %} #}
 		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
 			<hr />
 			{{ section_title('non-coding', 'Non-coding variants predictions') }}
 			<div class="w3-responsive w3-container">
-			{% if external_data.morfeedb[0].orfSNVs_type is not none %}
+			{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none) %}
+			{# {% if external_data.morfeedb[0].orfSNVs_type is not none %} #}
 			{{ section_subtitle('morfeedb', 'uORF prediction') }}
 			<!--MORFEE-->
-			{{ content("<strong>MORFEEdb</strong>: Annotation with MORFEE tool of more than 18,000,000 upstream ORFs (upORFs) resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts(Ensembl_GRCh38.p14). Variants annotated in MORFEEdb are predicted to:<ul><li>create upstream canonical (ATG) and non-canonical Translation Initiation Sites (uTIS)</li><li>create upstream Stop codons (TAA, TAG andTGA) (uStop), and/or</li><li>delete upstream Stop codons (uStop)</li></ul><br /> Multiple results are separated by a ';'. <strong>A track is displayed above in igv.js</strong> (if present) showing the potentialupstream ORF(s).<br />The color code is the following:<ul><li>uTIS overlapping: <span style='color:rgb(153,0,0)'>red</span></li><li>uTIS not overlapping: <span style='color:rgb(39,78,245)'>blue</span></li><li>uTISelongated CDS: <span style='color:rgb(60,179,113)'>green</span></li><li>uSTOP or new_uSTOP: <span style='color:rgb(100,100,100)'>grey</span></li><li><strong style='color:rgba(0,0,0, 0.75)'>Dark</strong> color isgiven to the upstream ORF when the <strong>Kozak sequence strength</strong> of a uTIS is <strong>moderate or strong AND the Kozak score is > 0.6</strong>. Otherwise the upstream ORF color is <strongstyle='color:rgba(0,0,0, 0.25)'>light</strong>.</li></ul>A manuscript describing MORFEEdb and its output is now publicly available. For any information related to MORFEEdb output, please contact <script>vars='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript tosee this text.</noscript>.<br />The full MORFEE database (v%s) can be <a href='%s' target='_blank' download='download'>downloaded</a> as a gzipped txt file." | format(external_tools['MorfeeDB']['version'], url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz'))) }}
+			{{ content("<strong>MORFEEdb</strong>: Annotation with MORFEE tool of more than 18,000,000 upstream ORFs (upORFs) resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts(Ensembl_GRCh38.p14). Variants annotated in MORFEEdb are predicted to:<ul><li>create upstream canonical (ATG) and non-canonical Translation Initiation Sites (uTIS)</li><li>create upstream Stop codons (TAA, TAG andTGA) (uStop), and/or</li><li>delete upstream Stop codons (uStop)</li></ul><br /> Multiple results are separated by a ';'. <strong>A track is displayed above in igv.js</strong> (if present) showing the potentialupstream ORF(s).<br />The color code is the following:<ul><li>uTIS overlapping: <span style='color:rgb(153,0,0)'>red</span></li><li>uTIS not overlapping: <span style='color:rgb(39,78,245)'>blue</span></li><li>uTISelongated CDS: <span style='color:rgb(60,179,113)'>green</span></li><li>uSTOP or new_uSTOP: <span style='color:rgb(100,100,100)'>grey</span></li><li><strong style='color:rgba(0,0,0, 0.75)'>Dark</strong> color isgiven to the upstream ORF when the <strong>Kozak sequence strength</strong> of a uTIS is <strong>moderate or strong AND the Kozak score is > 0.6</strong>. Otherwise the upstream ORF color is <strongstyle='color:rgba(0,0,0, 0.25)'>light</strong>.</li></ul>A manuscript describing MORFEEdb and its output is now publicly available. For any information related to MORFEEdb output, please contact <script>var s='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript tosee this text.</noscript>.<br />The full MORFEE database (v%s) can be <a href='%s' target='_blank' download='download'>downloaded</a> as a gzipped txt file." | format(external_tools['MorfeeDB']['version'], url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz'))) }}
 			<!-- from https://www.wmtips.com/tools/html-obfuscator/#form -->
 			<table class="w3-table w3-centered display compact" style="width:90%" id="morfee_table">
 				<thead>
@@ -1488,7 +1490,8 @@
 				{{ section_subtitle('morfeedb', 'uORF prediction') }}
 				{{ content(internal_data.noMatch.morfeedb) }}
 			{% endif %}
-			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none %}
+			{# {% if external_data.positions.proteinType == 'unknown' %} #}
+			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.promoterai is not none %}
 			{{ section_subtitle('overall_nc_predictors', 'Overall non-coding predictors') }}
 			<div class="w3-responsive w3-container">
 				<table class="w3-table w3-centered display compact" style="width:90%" id="noncoding_table">
@@ -1503,8 +1506,8 @@
 						{% if internal_data.noMatch.remm is not none or external_data.nonCodingPredictions.remm is not none %}
 						<tr><!--ReMM-->
 							<td class="w3-left-align"><a href="{{ urls.remm }}" target="_blank" title="Visit ReMM" rel="noopener noreferrer">ReMM</a>:</td>
-							{% if internal_data.noMatch.promoterai is none %}
-							<td class="w3-left-align">{{ span_color(external_data.nonCodingPredictions.remm, internal_data.nonCodingPredictions.remmColor) }}</td>
+							{% if internal_data.noMatch.remm is none %}
+							<td class="w3-left-align">{{ span_color(external_data.nonCodingPredictions.remm, internal_data.nonCodingPredictions.remmColor, 'remm_score') }}</td>
 							{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.remm }}</td>
 							{% endif %}
@@ -1522,10 +1525,17 @@
 							<td class="w3-left-align"><em class="w3-small">Prediction of expression altering promoter variants; Thresholds &le; -0.5 for under expression and &ge; 0.5 for over expression </em></td>
 						</tr>
 						{% endif %}
+						<!--hidden tr for MobiDeep called by ajax-->
+						<tr id="mobideep_tr" style="display:none;">
+							<td class="w3-left-align"><a href="{{ urls.mobideep }}" target="_blank" title="Visit MobiDeep" rel="noopener noreferrer">MobiDeep</a>:</td>
+							<td class="w3-left-align" id="mobideep_score"></td>
+							<td class="w3-left-align"><em class="w3-small">MobiDeep raw score [0-1] (log scoreThreshold [0-6]) see below for thresholds</em></td>
+						</tr>
 					</tbody>
 				</table><br/><br/>
 			</div>
 			{% endif %}
+			{{ content ("<strong>MobiDeep</strong> is a metascore for non-coding variants (SNVs only) based on a multilayer perceptron using 5 features: REMM v.0.4, CADD 1.7, GPN-MSA, and two conservation scores (Cactus 241-way vertebrates and PhyloP primates) to capture different evolutionary depths.<br /><strong>Raw score</strong>: 0 = benign, 1 = maximum pathogenicity<br /><strong>Log score</strong>: logarithmic transformation using the formula: log_score = -log10(1 - raw_score)<br /><div><table class='w3-table w3-centered display compact'><thead><tr><th></th><th>Raw score</th><th>Log score</th></tr></thead><tbody><tr><td>Neutral</td><td style='color:#00A020'>&lt; 0.6</td><td style='color:#00A020'>&lt; 0.3979</td></tr><tr><td>Likely deleterious</td><td style='color:#FF6020'>&gt; 0.6</td><td style='color:#FF6020'>&gt; 0.3979</td></tr><tr><td>high confidence deleteriousnesss</td><td style='color:#FF0000'>&gt; 0.9684</td><td style='color:#FF0000'>&gt; 1.5</td></tr></tbody></table></div><br /><strong>How to use it</strong>:<br />Use the <span style='color:#FF6020'>orange</span> threshold for general pathogenicity prediction and the <span style='color:#FF0000'>red</span> threshold for high confidence deleteriousness assessment.") }}
 		</div>
 		{% endif %}
 		<!-- Section : Missense section-->
@@ -2005,8 +2015,7 @@
 												</div>
 											</div>
 											<span class="w3-center">
-												<input type="button" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}', '{{ csrf_token() }}');" value="submit"/>
-												<!--<input type="submit" id = "sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="$('#html').css('cursor', 'progress');$('#acmg_form').css('cursor', 'progress');" value="submit"/>-->
+												<input type="button" id="sub" class="w3-button w3-section w3-blue w3-ripple"  onclick="modify_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ url_for("ajax.modif_class") }}', '{{ csrf_token() }}');" value="submit"/>
 											</span>
 										</form>
 									</div>
@@ -2143,6 +2152,9 @@
 			genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
+			{% if external_data.positions.proteinType == 'unknown' %}
+			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}' + " " + '{{ external_data.overallPredictions.cactus241way }}', '{{ csrf_token() }}');
+			{% endif %}
 		});
 	</script>
 {% endblock %}
