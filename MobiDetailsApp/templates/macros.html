@@ -339,11 +339,11 @@
 	<a class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom" href="{{ link | replace('+', '%2B') | replace('\n', '%0A') }}" target="_blank" rel="noopener noreferrer">{{ text }}</a>
 {%- endmacro %}
 <!--create span with color for predictors-->
-{% macro span_color(value, color = None) %}
+{% macro span_color(value, color = None, identifier = None) %}
 	{% if color is defined %}
-		<span style="color:{{ color }};">{{ value }}</span>
+		<span style="color:{{ color }};" id="{{ identifier }}">{{ value }}</span>
 	{% else %}
-		<span >{{ value }}</span>
+		<span  id="{{ identifier }}">{{ value }}</span>
 	{% endif %}
 {% endmacro %}
 {% macro search_engine_manual() %}

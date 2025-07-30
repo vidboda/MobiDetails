@@ -760,6 +760,31 @@ function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
 	})
 }
 
+function mobideep(mobideep_url, input_scores, csrf_token) {
+	// ajax for mobideep
+	// send header for flask-wtf crsf security
+  // $("#mobideep_score").html(mobideep_url + input_scores);
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: mobideep_url,
+		data: {
+			mobideep_input_scores: input_scores
+		}
+	})
+	.done(function(html) {
+		$("#mobideep_score").html(html);
+	});
+  $("#mobideep_tr").show();
+}
+
+
 
 function myAccFunc(acc_id, icon_id) {
 	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion

@@ -2802,3 +2802,61 @@ def spliceai_lookup():
         return """
         <span class="w3-padding">Unable to run spliceAI lookup API (wrong parameter)</span>
         """
+
+
+# -------------------------------------------------------------------
+# web app - ajax to run MobiDeep
+
+
+@bp.route('/mobideep', methods=['POST'])
+def mobideep():
+    # print(request.form['mobideep_input_scores'])
+    if re.search(r'^[\w\.]+\s[\w\.-]+\s[\w\.]+\s[\w\.]+\s[\w\.-]+$', request.form['mobideep_input_scores']):
+        mobideep_input_scores = request.form['mobideep_input_scores']
+        mobideep_input_scores.replace("None", "NaN")
+        header = md_utilities.api_agent
+        try:
+            req_results = requests.post(
+                '{0}/mobideep'.format(md_utilities.urls['spliceai_internal_server']),
+                json={'mobideep_input': mobideep_input_scores},
+                headers={'Content-Type': 'application/json'}
+            )
+        except requests.exceptions.ConnectionError:
+                return '<p style="color:red">Failed to establish a connection to the MobiDeep server.</p>'
+        except Exception:
+            return """
+            <span class="w3-padding">Unable to run MobiDeep API - Error returned</span>
+            """
+        # print(req_results.status_code)
+        # print(req_results.content)
+        if req_results.status_code == 200:
+            mobideep_results = json.loads(req_results.content)
+            if mobideep_results['mobideep_return_code'] == 0 and \
+                    mobideep_results['error'] is None:
+                # check thresholds for color
+                raw_color = md_utilities.predictor_colors['min']
+                log_color = md_utilities.predictor_colors['min']
+                if float(mobideep_results['result']['MobiDeepRawscore']) > md_utilities.predictor_thresholds['mobideep_raw_sen']:
+                        raw_color = md_utilities.predictor_colors['mid_effect']
+                if float(mobideep_results['result']['MobiDeepRawscore']) > md_utilities.predictor_thresholds['mobideep_raw_spe']:
+                        raw_color = md_utilities.predictor_colors['max']
+                if float(mobideep_results['result']['MobiDeepLogScore']) > md_utilities.predictor_thresholds['mobideep_log_sen']:
+                        log_color = md_utilities.predictor_colors['mid_effect']
+                if float(mobideep_results['result']['MobiDeepLogScore']) > md_utilities.predictor_thresholds['mobideep_log_spe']:
+                        log_color = md_utilities.predictor_colors['max']
+                # return mobideep scores html formatted
+                return """
+                <span style='color:{0}'>{1}</span> (<span style='color:{2}'>{3}</span>)
+                """.format(
+                    raw_color,
+                    mobideep_results['result']['MobiDeepRawscore'],
+                    log_color,
+                    mobideep_results['result']['MobiDeepLogScore']
+                )
+        return """
+        <span class="w3-padding">No MobiDeep score computed</span>
+        """
+    else:
+        return """
+        <span class="w3-padding">Unable to run MobiDeep API (wrong parameter)</span>
+        """
