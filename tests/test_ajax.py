@@ -571,3 +571,20 @@ def test_spliceaivisual(client, app, gene, chrom, pos, ref, alt, variant_id, str
         print(response.status_code)
         assert return_value in response.get_data()
 
+# test mobideep
+
+
+@pytest.mark.parametrize(('mobideep_input', 'return_value'), (
+    ('21.20 -7.81 1.000 0.999 6.273', b'9.5732'),
+    ('4.43 -0.04 0.314 0.000 0.253', b'0.1187'),
+    ('-4.43 -0.04 0.314 0.000 0.253', b'Unable to run MobiDeep API'),
+    ('0.04 0.314 0.000 0.253', b'Unable to run MobiDeep API'),
+))
+def test_mobideep(client, app, mobideep_input, return_value):
+    with app.app_context():
+        assert client.get(url_for('ajax.mobideep')).status_code == 405
+        data_dict = dict(mobideep_input_scores=mobideep_input)
+        response = client.post(url_for('ajax.mobideep'), data=data_dict)
+        print(response.get_data())
+        print(response.status_code)
+        assert return_value in response.get_data()
