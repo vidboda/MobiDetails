@@ -2153,7 +2153,7 @@
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 			{% if external_data.positions.proteinType == 'unknown' %}
-			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}' + " " + '{{ external_data.overallPredictions.cactus241way }}', '{{ csrf_token() }}');
+			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ csrf_token() }}');
 			{% endif %}
 		});
 	</script>

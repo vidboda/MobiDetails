@@ -2811,7 +2811,7 @@ def spliceai_lookup():
 @bp.route('/mobideep', methods=['POST'])
 def mobideep():
     # print(request.form['mobideep_input_scores'])
-    if re.search(r'^[\w\.]+\s[\w\.-]+\s[\w\.]+\s[\w\.]+\s[\w\.-]+$', request.form['mobideep_input_scores']):
+    if re.search(r'^[\w\.]+\s[\w\.-]+\s[\w\.]+\s[\w\.-]+\s[\w\.]+$', request.form['mobideep_input_scores']):
         mobideep_input_scores = request.form['mobideep_input_scores']
         mobideep_input_scores.replace("None", "NaN")
         header = md_utilities.api_agent
