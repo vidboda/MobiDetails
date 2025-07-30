@@ -2849,9 +2849,9 @@ def mobideep():
                 <span style='color:{0}'>{1}</span> (<span style='color:{2}'>{3}</span>)
                 """.format(
                     raw_color,
-                    mobideep_results['result']['MobiDeepRawscore'],
+                    "{:.4f}".format(float(mobideep_results['result']['MobiDeepRawscore'])),
                     log_color,
-                    mobideep_results['result']['MobiDeepLogScore']
+                    "{:.4f}".format(float(mobideep_results['result']['MobiDeepLogScore']))
                 )
         return """
         <span class="w3-padding">No MobiDeep score computed</span>
