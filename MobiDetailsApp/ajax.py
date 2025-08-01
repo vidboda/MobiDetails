@@ -993,6 +993,7 @@ def lovd():
         refseq = match_ncbi_transcript.group(1)
         # for r. nomenclature
         rna_hgvs = ''
+        protein_hgvs = ''
         header = md_utilities.api_agent
         # pos_19 = request.form['pos']
         if re.search(r'=', g_name):
@@ -1106,8 +1107,13 @@ def lovd():
                     i += 1
                 # get LOVD effects e.g.
                 # https://databases.lovd.nl/shared/api/rest/variants/USH2A?search_position=g.216420460&show_variant_effect=1&format=application/json
-                lovd_api_url = '{0}{1}?search_position=g.{2}&show_variant_effect=1&format=application/json'.format(
-                    md_utilities.urls['lovd_api_variants'], gene, positions[0]
+                # if positions[0] == positions[1]:
+                #     lovd_api_url = '{0}{1}?search_position=g.{2}&show_variant_effect=1&format=application/json'.format(
+                #         md_utilities.urls['lovd_api_variants'], gene, positions[0]
+                #     )
+                # else:
+                lovd_api_url = '{0}{1}?search_position=g.{2}_{3}&show_variant_effect=1&format=application/json'.format(
+                    md_utilities.urls['lovd_api_variants'], gene, positions[0], positions[1]
                 )
                 lovd_effect = None
                 try:
@@ -1165,9 +1171,11 @@ def lovd():
                                             ),
                                             rna_hgvs
                                         )
-                                        # print(rna_hgvs)
+                                        # get also p. https://github.com/vidboda/MobiDetails/issues/92
+                                        protein_hgvs = '{0}<br />{1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
                                     elif not re.search(new_rna_hgvs, rna_hgvs):
                                         rna_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['RNA'], rna_hgvs)
+                                        protein_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
                 # print(rna_hgvs)
             else:
                 return md_utilities.lovd_error_html(
@@ -1175,13 +1183,16 @@ def lovd():
                 )
             html = """            
             <tr>
-                <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:<span id="lovd_rna_hgvs" style="display:none;visibility:hidden;">{0}</span></td>
-                <td class="w3-left-align"><ul>{1}</ul></td>
+                <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:
+                    <span id="lovd_rna_hgvs" style="display:none;visibility:hidden;">{0}</span>
+                    <span id="lovd_protein_hgvs" style="display:none;visibility:hidden;">{1}</span>
+                </td>
+                <td class="w3-left-align"><ul>{2}</ul></td>
                 <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;">
                     <em class="w3-small">LOVD match in public instances</em>
                 </td>
             </tr>
-            """.format(rna_hgvs, ''.join(html_list))
+            """.format(rna_hgvs, protein_hgvs, ''.join(html_list))
             # print(html)
             if lovd_effect_count is not None:
                 reported_effect_list = []

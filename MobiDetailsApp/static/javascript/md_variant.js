@@ -81,11 +81,14 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     // add new tr and rebuilt datatable
     $.each(new_rows, function(i, item){$('#population_table tbody').append(item);});
 
-    // RNA HGVS
+    // RNA and protein HGVS
+    // get hidden fields in html response and print them in the nomenclature table
     if ($('#lovd_rna_hgvs').text() !== '') {
       // alert($('#lovd_rna_hgvs').html());
-      $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html());
+      $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>Description from LOVD</div></div>");
       $('#lovd_rna_hgvs').empty();
+      $('#hgvs_p_name').html($('#lovd_protein_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>Description from LOVD</div></div>");
+      $('#lovd_protein_hgvs').empty();
       // $('#rna_hgvs_tr').show();
       var nomenclature_table = $('#nomenclature_table').DataTable();
       nomenclature_table
