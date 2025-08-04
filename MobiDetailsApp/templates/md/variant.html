@@ -1492,7 +1492,7 @@
 				{{ content(internal_data.noMatch.morfeedb) }}
 			{% endif %}
 			{# {% if external_data.positions.proteinType == 'unknown' %} #}
-			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.promoterai is not none %}
+			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.promoterai is not none or (external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution')%}
 			{{ section_subtitle('overall_nc_predictors', 'Overall non-coding predictors') }}
 			<div class="w3-responsive w3-container">
 				<table class="w3-table w3-centered display compact" style="width:90%" id="noncoding_table">
@@ -2153,7 +2153,7 @@
 			genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
-			{% if external_data.positions.proteinType == 'unknown' %}
+			{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
 			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ csrf_token() }}');
 			{% endif %}
 		});
