@@ -10,18 +10,38 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 # https://blog.miguelgrinberg.com/post/cookie-security-for-flask-applications
 from flask_paranoid import Paranoid
 from psycopg2 import pool
+from hashlib import sha256
 # import joblib
 
 mail = Mail()
 csrf = CSRFProtect()
 
+# https://flask-paranoid.readthedocs.io/en/latest/#
+# override the token generation to consider only user-agent and not ip adresses, when users have a load balancer and use multiple IPs
+# adapted form https://github.com/miguelgrinberg/flask-paranoid/blob/main/src/flask_paranoid/paranoid.py
+class MyParanoid(Paranoid):
+    def create_token(self):
+        """Create a session protection token for this client.
+
+        This method generates a session protection token for the cilent, which
+        consists in a hash of the user agent and the IP address. This method
+        can be overriden by subclasses to implement different token generation
+        algorithms.
+        """
+        user_agent = request.headers.get('User-Agent')
+        if user_agent is None:  # pragma: no cover
+            user_agent = 'no user agent'
+        h = sha256()
+        h.update(user_agent.encode('utf-8'))
+        return h.hexdigest()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
     @app.before_request
     def track_session():
-        if request.remote_addr == '159.180.241.131' or \
-                request.remote_addr == '159.180.241.149':
+        # if request.remote_addr == '159.180.241.131' or \
+        #         request.remote_addr == '159.180.241.149':
+        if request.remote_addr == '172.18.28.172':
             print(session)
     # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
@@ -55,7 +75,7 @@ def create_app(test_config=None):
     )
     mail.init_app(app)
     csrf.init_app(app)
-    paranoid = Paranoid(app)
+    paranoid = MyParanoid(app)
     paranoid.redirect_view = 'md.index'
     # cors
     # for swaggerUI
