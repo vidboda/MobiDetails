@@ -138,7 +138,7 @@ def request_entity_too_large_error(error):
     return render_template('errors/413.html'), 413
 
 
-def csrf_error(request, error):
+def csrf_error(error):
     flashed_messages = get_flashed_messages()
     csrf_message = 0
     if flashed_messages:
