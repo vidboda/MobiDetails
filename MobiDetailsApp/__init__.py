@@ -1,7 +1,7 @@
 import os
 import re
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, render_template, url_for, flash, redirect, get_flashed_messages, request
+from flask import Flask, session, render_template, url_for, flash, redirect, get_flashed_messages, request
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -18,6 +18,10 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
+    @app.before_request
+    def track_session():
+        if request.remote_addr == '159.180.241.131':
+            print(session)
     # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
     def remove_header(response):
@@ -52,10 +56,6 @@ def create_app(test_config=None):
     csrf.init_app(app)
     paranoid = Paranoid(app)
     paranoid.redirect_view = 'md.index'
-    # mobideep MLP model
-    # sklearn version is too old on dev - requires 1.6.1 + related or not numpy error
-    # see https://github.com/mlrequest/sklearn-json from https://stackoverflow.com/questions/65702949/update-scikit-model-so-it-is-compatible-with-newest-version
-    # mobideep_model=joblib.load(app.root_path + '/' + app.config['MOBIDEEP_MODEL'])
     # cors
     # for swaggerUI
     # https://idratherbewriting.com/learnapidoc/pubapis_swagger.html
@@ -123,7 +123,7 @@ def request_entity_too_large_error(error):
     return render_template('errors/413.html'), 413
 
 
-def csrf_error(error):
+def csrf_error(request, error):
     flashed_messages = get_flashed_messages()
     csrf_message = 0
     if flashed_messages:
