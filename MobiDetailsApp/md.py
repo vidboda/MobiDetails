@@ -5,7 +5,7 @@ import urllib3
 import certifi
 import json
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, current_app as app
+    Blueprint, flash, g, session, redirect, render_template, request, url_for, current_app as app
 )
 # from werkzeug.exceptions import abort
 import psycopg2
@@ -558,8 +558,7 @@ def variant(variant_id=None):
 
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
-    # print("--{}--".format(request.form['search']))
-    # query_engine = md_utilities.get_post_param(request, 'search') 
+    print(session)
     query_engine = request.form['search']
     # query_engine = query_engine.upper()
     error = None
