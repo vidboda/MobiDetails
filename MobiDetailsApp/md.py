@@ -558,7 +558,6 @@ def variant(variant_id=None):
 
 @bp.route('/search_engine', methods=['POST'])
 def search_engine():
-    print(session)
     query_engine = request.form['search']
     # query_engine = query_engine.upper()
     error = None
