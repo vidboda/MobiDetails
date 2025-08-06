@@ -37,12 +37,6 @@ class MyParanoid(Paranoid):
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
-    @app.before_request
-    def track_session():
-        # if request.remote_addr == '159.180.241.131' or \
-        #         request.remote_addr == '159.180.241.149':
-        if request.remote_addr == '172.18.28.172':
-            print(session)
     # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
     def remove_header(response):
