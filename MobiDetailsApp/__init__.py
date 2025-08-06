@@ -20,7 +20,8 @@ def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
     @app.before_request
     def track_session():
-        if request.remote_addr == '159.180.241.131':
+        if request.remote_addr == '159.180.241.131' or \
+                request.remote_addr == '159.180.241.149':
             print(session)
     # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
