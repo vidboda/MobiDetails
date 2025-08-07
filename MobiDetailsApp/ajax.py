@@ -1143,39 +1143,48 @@ def lovd():
                                 <a href={} target='_blank'>GV LOVD Shared</a>
                                 """.format(lovd_urls[0])
                             )
-                        if var['effect_reported'][0] not in \
-                                lovd_effect_count['effect_reported']:
-                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
-                        else:
-                            lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1
-                        if var['effect_concluded'][0] not in \
-                                lovd_effect_count['effect_concluded']:
-                            lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
-                        else:
-                            lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] += 1
-                        # for rna hgvs
+                        # check here whether we are looking at the correct variant
                         nm, nm_ver = md_utilities.decompose_transcript(refseq)
+                        # get rid of version !beware may lead to errors
+                        lovd_transcript = refseq
                         if 'variants_on_transcripts' in var:
                             for transcript in var['variants_on_transcripts']:
-                                if re.search(nm, transcript) and \
-                                        'RNA' in var['variants_on_transcripts'][transcript] and \
-                                        var['variants_on_transcripts'][transcript]['RNA'] != rna_hgvs:
-                                    new_rna_hgvs = re.escape(var['variants_on_transcripts'][transcript]['RNA'])
-                                    # print(new_rna_hgvs)
-                                    if 'id' in var and \
-                                            not re.search(f'{new_rna_hgvs}', rna_hgvs):
-                                        rna_hgvs = '{0} <br />{1}'.format(
-                                            '<a href="https://databases.lovd.nl/shared/variants/{0}" title="Check LOVD" target="_blank">{1}</a>'.format(
-                                                var['id'],
-                                                var['variants_on_transcripts'][transcript]['RNA']
-                                            ),
-                                            rna_hgvs
-                                        )
-                                        # get also p. https://github.com/vidboda/MobiDetails/issues/92
-                                        protein_hgvs = '{0}<br />{1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
-                                    elif not re.search(new_rna_hgvs, rna_hgvs):
-                                        rna_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['RNA'], rna_hgvs)
-                                        protein_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
+                                if re.search(nm, transcript):
+                                    lovd_transcript = transcript
+                            if lovd_transcript in var['variants_on_transcripts'] and \
+                                    (var['variants_on_transcripts'][lovd_transcript]['DNA'] == c_name \
+                                    or re.match(escape(c_name), var['variants_on_transcripts'][transcript]['DNA'])): 
+                                if var['effect_reported'][0] not in \
+                                        lovd_effect_count['effect_reported']:
+                                    lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1
+                                else:
+                                    lovd_effect_count['effect_reported'][var['effect_reported'][0]] += 1
+                                if var['effect_concluded'][0] not in \
+                                        lovd_effect_count['effect_concluded']:
+                                    lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] = 1
+                                else:
+                                    lovd_effect_count['effect_concluded'][var['effect_concluded'][0]] += 1
+                                # for rna hgvs
+                                for transcript in var['variants_on_transcripts']:
+                                    if 'RNA' in var['variants_on_transcripts'][transcript] and \
+                                            re.search(nm, transcript) and \
+                                            var['variants_on_transcripts'][transcript]['RNA'] != rna_hgvs:
+                                        new_rna_hgvs = re.escape(var['variants_on_transcripts'][transcript]['RNA'])
+                                        # print(new_rna_hgvs)
+                                        if 'id' in var and \
+                                                not re.search(f'{new_rna_hgvs}', rna_hgvs):
+                                            rna_hgvs = '{0} <br />{1}'.format(
+                                                '<a href="https://databases.lovd.nl/shared/variants/{0}" title="Check LOVD" target="_blank">{1}</a>'.format(
+                                                    var['id'],
+                                                    var['variants_on_transcripts'][transcript]['RNA']
+                                                ),
+                                                rna_hgvs
+                                            )
+                                            # get also p. https://github.com/vidboda/MobiDetails/issues/92
+                                            protein_hgvs = '{0}<br />{1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
+                                        elif not re.search(new_rna_hgvs, rna_hgvs):
+                                            rna_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['RNA'], rna_hgvs)
+                                            protein_hgvs = '{0}, {1}'.format(var['variants_on_transcripts'][transcript]['protein'], protein_hgvs)
                 # print(rna_hgvs)
             else:
                 return md_utilities.lovd_error_html(
