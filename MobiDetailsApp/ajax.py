@@ -2866,7 +2866,7 @@ def mobideep():
                         log_color = md_utilities.predictor_colors['max']
                 # return mobideep scores html formatted
                 return """
-                <span style='color:{0}'>{1}</span> (<span style='color:{2}'>{3}</span>)
+                <span id='mobideep_raw' style='color:{0}'>{1}</span> (<span id='mobideep_log' style='color:{2}'>{3}</span>)
                 """.format(
                     raw_color,
                     "{:.4f}".format(float(mobideep_results['result']['MobiDeepRawscore'])),

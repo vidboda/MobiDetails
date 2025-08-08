@@ -10,7 +10,7 @@
 	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}?20230915" type="text/javascript"></script>
 	<!-- 
 	igv.js update (the same for sweetalert or chart):
-	VERSION=2.15.8
+	VERSION=3.4.0
 	wget -O igv.${VERSION}.min.js https://cdn.jsdelivr.net/npm/igv@${VERSION}/dist/igv.min.js
 	wget -O igv.${VERSION}.min.js.map https://cdn.jsdelivr.net/npm/igv@${VERSION}/dist/igv.min.js.map
 	unlink igv.min.js
@@ -141,7 +141,7 @@
 		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) %}
-		<a href="#non-coding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
+		<a href="#noncoding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
 		{% endif%}
 		{# {% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 		<a href="#morfeedb" class="w3-bar-item w3-button w3-mobile">upORF Predictions</a>
@@ -1405,9 +1405,9 @@
 		{% endif %}
 		<!-- Section : non-coding predictions -->
 		{# {% if external_data.positions.proteinType == 'unknown' %} #}
-		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
+		{% if (external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution') and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
 			<hr />
-			{{ section_title('non-coding', 'Non-coding variants predictions') }}
+			{{ section_title('noncoding', 'Non-coding variants predictions') }}
 			<div class="w3-responsive w3-container">
 			{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none) %}
 			{# {% if external_data.morfeedb[0].orfSNVs_type is not none %} #}
@@ -1535,9 +1535,112 @@
 					</tbody>
 				</table><br/><br/>
 			</div>
+			<div class="w3-row-padding">
+				<!--mobiDeep radar chart-->
+				<div class="w3-col m4">
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_mobideep_modal').show();" title="Display a radar chart of stratified MobiDeep thresholds" style="width:100%">Show radar chart</span>
+				</div>
+			</div>
+			<div id="radar_mobideep_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
+				<div class="w3-modal-content w3-card-4 w3-display-middle w3-animate-opacity w3-mobile">
+					<header class="w3-container w3-blue">
+						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_mobideep_modal').hide();">X</span>
+						<br /><span class="w3-xlarge">Radar view of stratified Mobideep thresholds</span><br />
+						<p>Thresholds are presented per variant type and the MobiDeep raw score is also shown. If the Mobideep score is below the threshold, the variant is predicted as benign.</p>
+					</header>
+					<div class="w3-container">
+						<div class="chart-container" style="position: relative;">
+							<canvas id="mobideep_radar"><p>Radar Chart for mobideep predictions</p></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+			{# <div width="500px">
+				<canvas id="mobideep_thresholds"><p>Mixed Chart for MobiDeep regional thresholds</p></canvas>
+			</div> #}
+			<script>
+				//new Chart($("#mobideep_thresholds"), {
+				//	data: {
+				//		datasets: [{
+				//			type: 'bar',
+				//			label: 'Region-stratified thresholds for MobiDeep raw score',
+				//			// 5UTR 3UTR intronic non-coding exons upstream variant
+				//			data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
+				//			backgroundColor: 'rgba(60, 179, 113, 0.5)',
+				//			}, {
+				//			type: 'line',
+				//			label: 'Mobideep raw score',
+				//			data: [0.8541, 0.8541, 0.8541, 0.8541, 0.8541],
+				//			borderColor: 'rgba(0, 128, 255, 0.8)',
+				//			backgroundColor: 'rgba(0, 128, 255, 0.8)'
+				//		}],//end data sets
+				//		labels: ['3UTR', '5UTR', 'Intronic', 'non-coding exons', 'upstream']
+				//	}//end data
+				//});
+				mobideepChart = new Chart($("#mobideep_radar"), {
+					type: 'radar',            
+					data: {
+						datasets: [{
+								label: 'Region-stratified thresholds for MobiDeep raw score',
+								data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
+								fill: true,
+								backgroundColor: 'rgba(255, 99, 132, 0.2)',
+								borderColor: 'rgb(255, 99, 132)',
+								pointBackgroundColor: 'rgb(255, 99, 132)',
+								pointBorderColor: '#fff',
+								pointHoverBackgroundColor: '#fff',
+								pointHoverBorderColor: 'rgb(255, 99, 132)'
+							}, {
+								label: 'Mobideep raw score',
+								data: [0, 0, 0, 0, 0],
+								fill: true,
+								backgroundColor: 'rgba(54, 162, 235, 0.2)',
+								borderColor: 'rgb(54, 162, 235)',
+								pointBackgroundColor: 'rgb(54, 162, 235)',
+								pointBorderColor: '#fff',
+								pointHoverBackgroundColor: '#fff',
+								pointHoverBorderColor: 'rgb(54, 162, 235)'
+						}],//end data sets
+						labels: ['3UTR', '5UTR', 'Intronic', 'non-coding exons', 'upstream']
+					},//end data
+					options: {
+						locale: 'en-US',
+						elements: {
+							line: {
+								tension: 0,
+								borderWidth: 3
+							}
+						},
+						scales: {
+							r: {
+								pointLabels: {
+									 font: {
+										 size: point_font_size
+									 }
+								},
+								ticks: {
+									stepSize: 0.2
+								},
+								beginAtZero: true,
+								min:0,
+								max:1,
+							}
+						},
+						multiTooltipTemplate : "<%=label%> : <%=value%>",
+						onAnimationComplete: "done",
+						responsive: true,
+					}
+				});
+			</script>
 			{% endif %}
 			{{ content ("<strong>MobiDeep</strong> is a metascore for non-coding variants (SNVs only) based on a multilayer perceptron using 5 features: REMM v.0.4, CADD 1.7, GPN-MSA, and two conservation scores (Cactus 241-way vertebrates and PhyloP primates) to capture different evolutionary depths.<br /><strong>Raw score</strong>: 0 = benign, 1 = maximum pathogenicity<br /><strong>Log score</strong>: logarithmic transformation using the formula: log_score = -log10(1 - raw_score)<div><table class='w3-table w3-centered display compact' style='width:40%'><caption>MobiDeep scores and thresholds</caption><thead><tr><th></th><th>Raw score</th><th>Log score</th></tr></thead><tbody><tr><td>Neutral</td><td style='color:#00A020'>&lt; 0.6</td><td style='color:#00A020'>&lt; 0.3979</td></tr><tr><td>Likely deleterious</td><td style='color:#FF6020'>&gt; 0.6</td><td style='color:#FF6020'>&gt; 0.3979</td></tr><tr><td>high confidence deleteriousnesss</td><td style='color:#FF0000'>&gt; 0.9684</td><td style='color:#FF0000'>&gt; 1.5</td></tr></tbody></table></div><strong>How to use it</strong>:<br />Use the <span style='color:#FF6020'>orange</span> threshold for general pathogenicity prediction and the <span style='color:#FF0000'>red</span> threshold for high confidence deleteriousness assessment.") }}
 		</div>
+		{% endif %}
+		{# We begin to populate the modal list, to send it later to modal_js() in macros.html #}
+		{% if g.user %}
+			{% set modal_js_list = ['pubmed', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal'] %}
+		{% else %}
+			{% set modal_js_list = ['pubmed', 'defgen_modal_hg38'] %}
 		{% endif %}
 		<!-- Section : Missense section-->
 		{% if external_data.positions.proteinType == 'missense' %}
@@ -1703,129 +1806,95 @@
 					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
 					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
 				{% endif %}
-				<script>
-					//var ctx = document.getElementById("missense_radar").getContext('2d')
-					Chart.defaults.font.size=16
-					var point_font_size = 16
-					var wi = $(window).width();
-					if (wi < 400) {
-						Chart.defaults.font.size=12;
-						point_font_size = 12;
-					}
-					// normalisation function for scores not [0;1]
-					function normalizeData(val, my_array) {
-						var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
-						return parseFloat(new_val);
-					}
-					var normalisedFathmmxf = 1-normalizeData({{ missense_pred.fathmmxf }}, [-16.13,10.64]);
-					var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
-					var numberOfScoresSingle = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_single }} {% else %} {{ missense_pred.num_non_aca_single }} {% endif %};
-					var numberOfScoresMeta = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_meta }} {% else %} {{ missense_pred.num_non_aca_meta }} {% endif %};
-					var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmmxf) + ({{ missense_pred.am }})).toFixed(3);
-					var totalNormalisedScoresMeta = ((normalisedMetasvm) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3)
-					var meanNormalisedScoresSingle = (totalNormalisedScoresSingle / numberOfScoresSingle).toFixed(3);
-					var meanNormalisedScoresMeta = (totalNormalisedScoresMeta / numberOfScoresMeta).toFixed(3);
-					$('#total_missense_scores').html('<br/>Mean normalised score of all single predictors: ' + meanNormalisedScoresSingle + ' (' + totalNormalisedScoresSingle + ' / ' + numberOfScoresSingle + ') - for meta predictors: ' + meanNormalisedScoresMeta + ' (' + totalNormalisedScoresMeta + ' / ' + numberOfScoresMeta + ')');
-					new Chart($("#missense_radar"), {
-						type: 'radar',
-						data: {
-							labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'Fathmm-XF', 'AlphaMissense', 'MetaSVM', 'MetaLR', 'Mistic'],
-							datasets: [{
-								label: 'Missense predictors',
-								data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmmxf, {{ missense_pred.am }}, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
-								fill: true,
-								backgroundColor: 'rgb(255, 99, 132, 0.2)',
-								borderColor: 'rgb(255, 99, 132)',
-								pointBackgroundColor: 'rgb(255, 99, 132)',
-								pointBorderColor: '#fff',
-								pointHoverBackgroundColor: '#fff',
-								pointHoverBorderColor: 'rgb(255, 99, 132)'
-							}]
+			<script>
+				//var ctx = document.getElementById("missense_radar").getContext('2d')
+				Chart.defaults.font.size=16
+				var point_font_size = 16
+				var wi = $(window).width();
+				if (wi < 400) {
+					Chart.defaults.font.size=12;
+					point_font_size = 12;
+				}
+				// normalisation function for scores not [0;1]
+				function normalizeData(val, my_array) {
+					var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
+					return parseFloat(new_val);
+				}
+				var normalisedFathmmxf = 1-normalizeData({{ missense_pred.fathmmxf }}, [-16.13,10.64]);
+				var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
+				var numberOfScoresSingle = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_single }} {% else %} {{ missense_pred.num_non_aca_single }} {% endif %};
+				var numberOfScoresMeta = {% if g.user['academic'] or not g.user %} {{ missense_pred.num_aca_meta }} {% else %} {{ missense_pred.num_non_aca_meta }} {% endif %};
+				var totalNormalisedScoresSingle = ((1-{{ missense_pred.sift }}) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.pphdiv }}) + ({{ missense_pred.pphvar }}) + {% endif %} (normalisedFathmmxf) + ({{ missense_pred.am }})).toFixed(3);
+				var totalNormalisedScoresMeta = ((normalisedMetasvm) + {% if g.user['academic'] or not g.user %} ({{ missense_pred.revel }}) + ({{ missense_pred.clinpred }}) + {% endif %} ({{ missense_pred.metalr }}) + ({{ missense_pred.mistic }})).toFixed(3)
+				var meanNormalisedScoresSingle = (totalNormalisedScoresSingle / numberOfScoresSingle).toFixed(3);
+				var meanNormalisedScoresMeta = (totalNormalisedScoresMeta / numberOfScoresMeta).toFixed(3);
+				// $('#total_missense_scores').html('<br/>Mean normalised score of all single predictors: ' + meanNormalisedScoresSingle + ' (' + totalNormalisedScoresSingle + ' / ' + numberOfScoresSingle + ') - for meta predictors: meanNormalisedScoresMeta + ' (' + totalNormalisedScoresMeta + ' / ' + numberOfScoresMeta + ')');
+				$('#total_missense_scores').html('<br/>Mean normalised score of all single predictors: ' + meanNormalisedScoresSingle + ' (' + totalNormalisedScoresSingle + ' / ' + numberOfScoresSingle + ') - for meta predictors: ' + meanNormalisedScoresMeta + ' (' + totalNormalisedScoresMeta + ' / ' + numberOfScoresMeta + ')');
+				new Chart($("#missense_radar"), {
+					type: 'radar',
+					data: {
+						labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'Fathmm-XF', 'AlphaMissense', 'MetaSVM', 'MetaLR', 'Mistic'],
+						datasets: [{
+							label: 'Missense predictors',
+							data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmmxf, {{ missense_pred.am }}, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+							fill: true,
+							backgroundColor: 'rgb(255, 99, 132, 0.2)',
+							borderColor: 'rgb(255, 99, 132)',
+							pointBackgroundColor: 'rgb(255, 99, 132)',
+							pointBorderColor: '#fff',
+							pointHoverBackgroundColor: '#fff',
+							pointHoverBorderColor: 'rgb(255, 99, 132)'
+						}]
+					},
+					options: {
+						locale: 'en-US',
+						elements: {
+							line: {
+								tension: 0,
+								borderWidth: 3
+							}
 						},
-						options: {
-							locale: 'en-US',
-							elements: {
-								line: {
-									tension: 0,
-									borderWidth: 3
-								}
-							},
-							scales: {
-								r: {
-									pointLabels: {
-										 font: {
-											 size: point_font_size
-										 }
-									},
-									ticks: {
-
-										stepSize: 0.2
-									},
-									beginAtZero: true,
-									min:0,
-									max:1,
-								}
-							},
-							multiTooltipTemplate : "<%=label%> : <%=value%>",
-							onAnimationComplete: "done",
-							responsive: true,
-						}
-					});
-				</script>
-				{% if g.user %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-				{% else %}
-					{{ modal_js('pubmed', 'radar_splicing_modal', 'radar_missense_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-				{% endif %}
+						scales: {
+							r: {
+								pointLabels: {
+									 font: {
+										 size: point_font_size
+									 }
+								},
+								ticks: {
+									stepSize: 0.2
+								},
+								beginAtZero: true,
+								min:0,
+								max:1,
+							}
+						},
+						multiTooltipTemplate : "<%=label%> : <%=value%>",
+						onAnimationComplete: "done",
+						responsive: true,
+					}
+				});
+			</script>
+				{# add missense radar to modal_js_list #}
+				{% set _ = modal_js_list.append('radar_missense_modal') %}
+			{# {% endif %}
+			{% if internal_data.noMatch.dbnsfp is not none %} #}
+			{% else %}
+				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
 			{% endif %}
 		</div>
-			{% if internal_data.noMatch.dbnsfp is not none %}
-				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
-				{% if g.user %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% else %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% endif %}
-				{% else %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-					{% else %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
-					{% endif %}
-				{% endif %}
-			{% endif %}
-		{% else %}
-			{% if external_data.splicingPredictions.spliceai_DS_AG is not none  %}
-				{% if g.user %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% else %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% endif %}
-				{% else %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-					{% else %}
-						{{ modal_js('pubmed', 'radar_splicing_modal', 'defgen_modal_hg38') }}
-					{% endif %}
-				{% endif %}
-			{% else %}
-				{% if g.user %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% else %}
-						{{ modal_js('pubmed', 'defgen_modal_hg38', 'modify_class_modal', 'message_modal') }}
-					{% endif %}
-				{% else %}
-					{% if external_data.VCF.hg19.ncbiChr is not none %}
-						{{ modal_js('pubmed', 'defgen_modal_hg19', 'defgen_modal_hg38') }}
-					{% else %}
-						{{ modal_js('pubmed', 'defgen_modal_hg38') }}
-					{% endif %}
-				{% endif %}
-			{% endif %}
 		{% endif %}
+		{# add remaining stuff to modal_js_list #}
+		{% if external_data.splicingPredictions.spliceai_DS_AG is not none %}
+			{% set _ = modal_js_list.append('radar_splicing_modal') %}
+		{% endif %}
+		{% if external_data.VCF.hg19.ncbiChr is not none %}
+			{% set _ = modal_js_list.append('defgen_modal_hg19') %}
+		{% endif %}
+		{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
+			{% set _ = modal_js_list.append('radar_mobideep_modal') %}
+		{% endif %}
+		{{ modal_js(modal_js_list) }}
 		{% if external_data.positions.proteinType == 'missense' %}
 		<!-- Section : 3D modeling -->
 		<hr />
@@ -1865,7 +1934,6 @@
 					<tr>
 						<td class="w3-left-align">Reference Article</td>
 						<td class="w3-left-align">
-							{# {% if internal_data.episignature.pubmedID is number and internal_data.episignature.pubmedID > 0 %} #}
 							{% if internal_data.episignature.pubmedID %}
 									<a href="{{ urls.ncbi_pubmed }}{{ internal_data.episignature.pubmedID }}" target="_blank" rel="noopener noreferrer">{{ internal_data.episignature.referenceArticle }}</a>
 							{% else %}

@@ -285,6 +285,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'metaDomednds': None,
             'metaDomeTolerance': None,
             'metaDomeTranscriptId': None,
+            'variantLocation': None,
         },
         'admin': {
             'creationDate': None,

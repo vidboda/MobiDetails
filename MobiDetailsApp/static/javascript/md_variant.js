@@ -782,7 +782,27 @@ function mobideep(mobideep_url, input_scores, csrf_token) {
 		}
 	})
 	.done(function(html) {
+    // add mobideep score in table
 		$("#mobideep_score").html(html);
+    // update region thresholds with current score on graph
+    var raw_score = $('#mobideep_raw').text();
+    mobideepChart.data.datasets.forEach((dataset) => {
+      if (dataset.label === 'Mobideep raw score') {
+        // remove everything from the data list
+        dataset.data.pop();
+        dataset.data.pop();
+        dataset.data.pop();
+        dataset.data.pop();
+        dataset.data.pop();
+        // add raw score
+        dataset.data.push(raw_score);
+        dataset.data.push(raw_score);
+        dataset.data.push(raw_score);
+        dataset.data.push(raw_score);
+        dataset.data.push(raw_score);
+      }
+    });
+    mobideepChart.update();
 	});
   $("#mobideep_tr").show();
 }
@@ -900,6 +920,7 @@ $(document).ready(function() {
   // charts are displayed by default and then quickly hidden
   $('#radar_splicing_modal').hide();
   $('#radar_missense_modal').hide();
+  $('#radar_mobideep_modal').hide();
 
   function convert_dt(config, table_id, table_title, table_title_style, doc) {
     var dt = $('#' + table_id).DataTable();

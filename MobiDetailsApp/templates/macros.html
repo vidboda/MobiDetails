@@ -294,7 +294,20 @@
 	</div>
 {%- endmacro %}
 <!--js to close modals by cliking out of scope-->
-{% macro modal_js() -%}
+{% macro modal_js(modal_list) -%}
+	<!--* {{ varargs }} -->
+	<script>
+		// When the user clicks anywhere outside of the modal, close it
+		window.onclick = function(event) {
+			{% for modal_div in modal_list %}
+				if ($('#{{ modal_div }}').length && event.target == document.getElementById('{{ modal_div }}')) {
+					$('#{{ modal_div }}').hide();
+				}
+			{% endfor %}
+		}
+	</script>
+{%- endmacro %}
+{# {% macro modal_js_ori() -%}
 	<!--* {{ varargs }} -->
 	<script>
 		// When the user clicks anywhere outside of the modal, close it
@@ -306,7 +319,7 @@
 			{% endfor %}
 		}
 	</script>
-{%- endmacro %}
+{%- endmacro %} #}
 <!--create div for variants per gene view-->
 {% macro var_class_div(div_id, div_name) -%}
 	<div class="w3-container w3-animate-opacity" id="{{ div_id }}" style="display:none">
