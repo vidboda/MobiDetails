@@ -84,6 +84,13 @@
   '*': '*'
   '=': '='
   'Ter': '*'
+'mobideepGraphPosition':
+  '3UTR': 0
+  '5UTR': 1
+  'intron': 2
+  'non-coding_exon': 3
+  'upstream': 4
+  'exon': None
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
   'absplice': 'https://zenodo.org/record/7871809'

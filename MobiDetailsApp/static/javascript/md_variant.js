@@ -763,7 +763,7 @@ function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
 	})
 }
 
-function mobideep(mobideep_url, input_scores, csrf_token) {
+function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, csrf_token) {
 	// ajax for mobideep
 	// send header for flask-wtf crsf security
   // $("#mobideep_score").html(mobideep_url + input_scores);
@@ -787,19 +787,21 @@ function mobideep(mobideep_url, input_scores, csrf_token) {
     // update region thresholds with current score on graph
     var raw_score = $('#mobideep_raw').text();
     mobideepChart.data.datasets.forEach((dataset) => {
-      if (dataset.label === 'Mobideep raw score') {
+      if (dataset.label === mobideep_label) {
+        // alert(dataset.data[1]);
+        dataset.data[graph_position] = raw_score;
         // remove everything from the data list
-        dataset.data.pop();
-        dataset.data.pop();
-        dataset.data.pop();
-        dataset.data.pop();
-        dataset.data.pop();
-        // add raw score
-        dataset.data.push(raw_score);
-        dataset.data.push(raw_score);
-        dataset.data.push(raw_score);
-        dataset.data.push(raw_score);
-        dataset.data.push(raw_score);
+        // dataset.data.pop();
+        // dataset.data.pop();
+        // dataset.data.pop();
+        // dataset.data.pop();
+        // dataset.data.pop();
+        // // add raw score
+        // dataset.data.push(raw_score);
+        // dataset.data.push(raw_score);
+        // dataset.data.push(raw_score);
+        // dataset.data.push(raw_score);
+        // dataset.data.push(raw_score);
       }
     });
     mobideepChart.update();

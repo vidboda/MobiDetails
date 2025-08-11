@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250801" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250811" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -142,6 +142,7 @@
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) %}
 		<a href="#noncoding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
+		{% set mobideep_label = 'Mobideep raw score for the region of interest' %}
 		{% endif%}
 		{# {% if external_data.positions.DNAType == 'substitution' and external_data.morfeedb[0].orfSNVs_type is not none %}
 		<a href="#morfeedb" class="w3-bar-item w3-button w3-mobile">upORF Predictions</a>
@@ -1538,7 +1539,7 @@
 			<div class="w3-row-padding">
 				<!--mobiDeep radar chart-->
 				<div class="w3-col m4">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_mobideep_modal').show();" title="Display a radar chart of stratified MobiDeep thresholds" style="width:100%">Show radar chart</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="$('#radar_mobideep_modal').show();" title="Display a radar chart of stratified MobiDeep thresholds" style="width:100%">Show region-specific thresholds</span>
 				</div>
 			</div>
 			<div id="radar_mobideep_modal" class="w3-modal w3-animate-opacity" style="display:block;z-index:2002;">
@@ -1546,7 +1547,7 @@
 					<header class="w3-container w3-blue">
 						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_mobideep_modal').hide();">X</span>
 						<br /><span class="w3-xlarge">Radar view of stratified Mobideep thresholds</span><br />
-						<p>Thresholds are presented per variant type and the MobiDeep raw score is also shown. If the Mobideep score is below the threshold, the variant is predicted as benign.</p>
+						<p>Thresholds are presented per variant location together with the MobiDeep raw score (large blue dot). If the Mobideep score is below the threshold (i.e. in the white area), the variant is predicted as benign. Ns presented for each locations correspond to the number of pathogenic variants (previously hidden to the model) which, with 10Ns benign variants of each location, were used to build the thresholds.</p>
 					</header>
 					<div class="w3-container">
 						<div class="chart-container" style="position: relative;">
@@ -1583,25 +1584,35 @@
 						datasets: [{
 								label: 'Region-stratified thresholds for MobiDeep raw score',
 								data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
-								fill: true,
-								backgroundColor: 'rgba(255, 99, 132, 0.2)',
+								// fill: {
+								// 	target: 'origin',
+								// 	below: 'rgb(60, 179, 113, 0.2)'    // And green below the origin
+								// },
+								fill: {
+									target: {value: 1},
+									below: 'rgb(255, 99, 132, 0.2)'    // And red below value 1
+								},
+								// backgroundColor: 'rgba(60, 179, 113, 0.2)',
 								borderColor: 'rgb(255, 99, 132)',
 								pointBackgroundColor: 'rgb(255, 99, 132)',
 								pointBorderColor: '#fff',
 								pointHoverBackgroundColor: '#fff',
 								pointHoverBorderColor: 'rgb(255, 99, 132)'
 							}, {
-								label: 'Mobideep raw score',
-								data: [0, 0, 0, 0, 0],
-								fill: true,
-								backgroundColor: 'rgba(54, 162, 235, 0.2)',
+								label: '{{ mobideep_label }}',
+								// data: [0, 0, 0, 0, 0],
+								data: [],
+								// backgroundColor: 'rgba(54, 162, 235, 0.2)',
 								borderColor: 'rgb(54, 162, 235)',
+								backgroundColor: 'rgba(255, 255, 255, 0.2)',
+								// borderColor: 'rgb(255, 255, 255)',
 								pointBackgroundColor: 'rgb(54, 162, 235)',
 								pointBorderColor: '#fff',
 								pointHoverBackgroundColor: '#fff',
-								pointHoverBorderColor: 'rgb(54, 162, 235)'
+								pointHoverBorderColor: 'rgb(54, 162, 235)',
+								pointRadius: 10
 						}],//end data sets
-						labels: ['3UTR', '5UTR', 'Intronic', 'non-coding exons', 'upstream']
+						labels: ['3UTR (n=8)', '5UTR (n=35)', 'Intronic (n=19)', 'non-coding exons (n=96)', 'upstream (n=35)']
 					},//end data
 					options: {
 						locale: 'en-US',
@@ -2222,7 +2233,7 @@
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 			{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
-			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ csrf_token() }}');
+			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
 			{% endif %}
 		});
 	</script>

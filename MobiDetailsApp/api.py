@@ -483,6 +483,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'substitutionNature': None,
             'neighbourExonNumber': None,
             'insSize': None,
+            'locationMobiDeepGraph': None,
         },
         'missensePredictions': {
             'amColor': None,
@@ -626,6 +627,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['positions']['segmentEndType'] = variant_features['end_segment_type']
         external_data['positions']['segmentEndNumber'] = variant_features['end_segment_number']
         external_data['positions']['size'] = variant_features['variant_size']
+        external_data['positions']['variantLocation'] = md_utilities.get_var_genic_csq(variant_features['c_name'])
+        # convert into mobideep Charts.js position in graph [0-4] or None for exons
+        internal_data['positions']['locationMobiDeepGraph'] = md_utilities.mobideepGraphPosition[external_data['positions']['variantLocation']]
 
         external_data['admin']['creationDate'] = variant_features['creation_date']
         internal_data['admin']['creationUser'] = variant_features['mobiuser_id']

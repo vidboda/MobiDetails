@@ -62,6 +62,7 @@ def get_resource_current_version(resource_dir, regexp, excluded_date=None):
 
 one2three = resources['one2three']
 three2one = resources['three2one']
+mobideepGraphPosition = resources['mobideepGraphPosition']
 urls = resources['urls']
 local_files = resources['local_files']
 local_files['alphamissense']['abs_path'] = '{0}{1}'.format(
@@ -448,15 +449,18 @@ def get_var_genic_csq(var):
     # linked to function below => quick assessment of csq
     if re.search(r'^\d+[\+-]', var):
         return 'intron'
-    elif re.search(r'^\*?\d+[^\+-]', var):
+    elif re.search(r'^\d+[^\+-]', var):
+        # elif re.search(r'^\*?\d+[^\+-]', var):
         return 'exon'
     elif re.search(r'^-', var):
         return '5UTR'
+    elif re.search(r'^\*', var):
+        return '3UTR'
     return None
 
 
 def is_higher_genic_csq(new_csq, old_csq):
-    # function to assess exon>intron>5UTR (designed originally for vcf_str api endpoint but not used)
+    # function to assess exon>intron>5UTR=3UTR (designed originally for vcf_str api endpoint)
     if new_csq == 'exon' or \
             new_csq == old_csq:
         return True
@@ -464,6 +468,9 @@ def is_higher_genic_csq(new_csq, old_csq):
             old_csq == 'exon':
         return False
     elif new_csq == '5UTR' and \
+            old_csq == 'intron':
+        return False
+    elif new_csq == '3UTR' and \
             old_csq == 'intron':
         return False
     return True

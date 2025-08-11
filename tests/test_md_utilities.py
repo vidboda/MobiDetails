@@ -207,7 +207,7 @@ def test_decompose_transcript(full_transcript, transcript, version):
 
 
 @pytest.mark.parametrize(('var', 'result'), (
-    ('*145C>T', 'exon'),
+    ('*145C>T', '3UTR'),
     ('145del', 'exon'),
     ('145dup', 'exon'),
     ('145-3C>T', 'intron'),
@@ -217,6 +217,7 @@ def test_decompose_transcript(full_transcript, transcript, version):
     ('145dup', 'exon'),
     ('145-18_145-8del', 'intron'),
     ('-145_-112del', '5UTR'),
+    ('*145del', '3UTR'),
 ))
 def test_get_var_genic_csq(var, result):
     assert md_utilities.get_var_genic_csq(var) == result
@@ -232,6 +233,12 @@ def test_get_var_genic_csq(var, result):
     ('intron', 'intron', True),
     ('5UTR', 'exon', False),
     ('5UTR', 'intron', False),
+    ('3UTR', 'intron', False),
+    ('3UTR', 'exon', False),
+    ('intron', '3UTR', True),
+    ('exon', '3UTR', True),
+    ('5UTR', '3UTR', True),
+    ('3UTR', '5UTR', True),
 ))
 def test_is_higher_genic_csq(new_csq, old_csq, result):
     assert md_utilities.is_higher_genic_csq(new_csq, old_csq) == result
