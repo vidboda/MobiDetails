@@ -784,6 +784,9 @@ function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, cs
 	.done(function(html) {
     // add mobideep score in table
 		$("#mobideep_score").html(html);
+    if ($.fn.DataTable.isDataTable('#noncoding_table')) {
+      redraw_dt('noncoding_table', true);
+    }
     // update region thresholds with current score on graph
     var raw_score = $('#mobideep_raw').text();
     mobideepChart.data.datasets.forEach((dataset) => {
@@ -1203,11 +1206,11 @@ $(document).ready(function() {
       doc = convert_dt(config, "spip_full", "Full SPiP results", "table_subtitle", doc);
     }
     if ($('#splicing_radar').width() > 0) {
-      // attempt to transform radars into pdf
+      // transform radars into pdf
       var splicing_radar_image = document.querySelector('#splicing_radar').toDataURL();
       doc['content'].push(
         " ",
-        {text: "Splicing radar:", style: "table_subtitle"},
+        {text: "Splicing radar", style: "table_subtitle"},
         "Values are normalised (0-1), 0 being the less damaging and 1 the most for each predictor.",
         {image: splicing_radar_image, width: 350, alignment: 'center'}
       );
@@ -1216,7 +1219,7 @@ $(document).ready(function() {
       doc = convert_dt(config, "splicing_table", "dbscSNV, SpliceAI and AbSplice", "table_subtitle", doc);
     }
     if ($('#absplice_bar').width() > 0) {
-      // attempt to transform bar charts into pdf
+      // transform bar charts into pdf
       var absplice_bar_chart = document.querySelector('#absplice_bar').toDataURL();
       doc['content'].push(
         " ",
@@ -1243,7 +1246,7 @@ $(document).ready(function() {
         " ",
       );
       if ($('#missense_radar').width() > 0) {
-        // attempt to transform radars into pdf
+        // transform radars into pdf
         var missense_radar_image = document.querySelector('#missense_radar').toDataURL();
         doc['content'].push(
           " ",
@@ -1262,6 +1265,16 @@ $(document).ready(function() {
     // }
     if ($("#noncoding_table").length) {
       doc = convert_dt(config, "noncoding_table", "Non coding variants predictions", "table_title", doc);
+      if ($('#mobideep_radar').width() > 0) {
+      // transform radars into pdf
+      var mobideep_radar_image = document.querySelector('#mobideep_radar').toDataURL();
+      doc['content'].push(
+        " ",
+        {text: "MobiDeep radar", style: "table_subtitle"},
+        "Thresholds are presented per variant location together with the MobiDeep raw score (large blue dot). If the Mobideep score is below the threshold (i.e. in the white area), the variant is predicted as benign. Ns presented for each locations correspond to the number of pathogenic variants (previously hidden to the model) which, with 10Ns benign variants of each location, were used to build the thresholds.",
+        {image: mobideep_radar_image, width: 350, alignment: 'center'}
+      );
+    }
     }
     // if ($('#episignature_table').length) {
     //   doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);
