@@ -218,6 +218,9 @@ def test_decompose_transcript(full_transcript, transcript, version):
     ('145-18_145-8del', 'intron'),
     ('-145_-112del', '5UTR'),
     ('*145del', '3UTR'),
+    ('-145-112del', 'intron'),
+    ('*145+112del', 'intron'),
+    ('-145-112_-145-108del', 'intron'),
 ))
 def test_get_var_genic_csq(var, result):
     assert md_utilities.get_var_genic_csq(var) == result

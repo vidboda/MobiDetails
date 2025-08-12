@@ -447,7 +447,7 @@ def decompose_transcript(transcript):
 
 def get_var_genic_csq(var):
     # linked to function below => quick assessment of csq
-    if re.search(r'^\d+[\+-]', var):
+    if re.search(r'^[-\*]?\d+[\+-]', var):
         return 'intron'
     elif re.search(r'^\d+[^\+-]', var):
         # elif re.search(r'^\*?\d+[^\+-]', var):
