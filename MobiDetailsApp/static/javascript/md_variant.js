@@ -1009,11 +1009,19 @@ $(document).ready(function() {
           }
         }
         else if (table_title === 'Non coding variants predictions'){
-          if (d === 'ReMM:') {noncoding_threshold = 0.961; var noncoding_lp = 0.924}
+          if (d === 'ReMM:') {noncoding_threshold = 0.961; noncoding_lp = 0.924;}
+          else if (d === 'MobiDeep:') {noncoding_threshold = 0.9684; noncoding_lp = 0.6}
           else if (d === 'PromoterAI:') {noncoding_threshold = 0.5}
-          if (noncoding_threshold === 0.961) {
-            if (d >= noncoding_lp && d < noncoding_threshold) {color_style = '#FF6020'}
+          if (noncoding_threshold === 0.961) { // ReMM
+            if (d >= noncoding_lp && d < noncoding_threshold) {color_style = '#FF6020';}
             else if (d >= noncoding_threshold) {color_style = '#FF0000'}
+          }
+          else if (noncoding_threshold === 0.9684) { // MobiDeep
+            if (/^[0-1]\.\d{4}/.test(d)) {
+              let mobideep_raw = d.match(/^([0-1]\.\d{4})/);
+              if (mobideep_raw[0] >= noncoding_lp && mobideep_raw[0] < noncoding_threshold) {color_style = '#FF6020';}
+              else if (mobideep_raw[0] >= noncoding_threshold) {color_style = '#FF0000'}
+            }
           }
           else if (Math.abs(d) >= noncoding_threshold) {color_style = '#FF0000'}
         }
