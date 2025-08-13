@@ -1578,6 +1578,13 @@
 				//		labels: ['3UTR', '5UTR', 'Intronic', 'non-coding exons', 'upstream']
 				//	}//end data
 				//});
+				Chart.defaults.font.size=16
+				var point_font_size = 16
+				var wi = $(window).width();
+				if (wi < 400) {
+					Chart.defaults.font.size=12
+					point_font_size = 12;
+				}
 				mobideepChart = new Chart($("#mobideep_radar"), {
 					type: 'radar',            
 					data: {
