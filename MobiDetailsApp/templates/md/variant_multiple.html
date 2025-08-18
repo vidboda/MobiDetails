@@ -10,10 +10,10 @@
 	{% if unique_url_info is defined%}
 		<!-- {{ info("Below the variants for the list " + unique_url_info.list_name + ", created by " + unique_url_info.username) }} -->
 		{{ info("Below the variants for the list <strong>'{}'</strong>, created by <strong>{}</strong>, on {}".format(unique_url_info.list_name, unique_url_info.username, unique_url_info.creation_date)) }}
-	<!-- 'last' search in serach engine -->
+	<!-- 'last' search in search engine -->
 	{% elif variants[0].creation_date is defined%}
 		{{ info("Below the variants annotated during the last 7 days:") }}
-	<!-- simple search in serach engine -->
+	<!-- simple search in search engine -->
 	{% else %}
 		{{ info("Your query returned multiple results:") }}
 	{% endif %}

@@ -2707,12 +2707,12 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                                     continue
             # do we have an intronic variant?
             if hgvs_nc and \
-                    gene_symbols:  # and \
-                # not md_response:
+                    gene_symbols:
                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                 headers = md_utilities.api_agent
-                headers['api_key'] = g.user['api_key']
-                print(headers['api_key'])
+                # headers['api_key'] = g.user['api_key']
+                headers['api_key'] = md_utilities.get_api_key(curs)
+                print(headers)
                 for var_hgvs_nc in hgvs_nc:
                     for gene_hgnc in gene_symbols:
                         data = {

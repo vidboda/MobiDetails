@@ -87,7 +87,7 @@
 						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
 					</div>
 					{% endif %}
-					{% if g.user %}
+					{% if g.user and g.user.username != 'mobidetails' %}
 					<!--star for favourites variants-->
 					<div>
 						{% if favourite is defined and (favourite.type == 1 or favourite.type == 3) %}
