@@ -3637,6 +3637,7 @@ def get_api_key_from_request(request):
         str: API key or None
     """
     # get api_key from POST header, see https://github.com/vidboda/MobiDetails/issues/118
+    print(request.headers)
     if 'api_key' in request.headers:
         return request.headers.get('api_key')
     else:
