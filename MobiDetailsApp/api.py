@@ -2711,7 +2711,7 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                 # not md_response:
                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                 headers = md_utilities.api_agent
-                headers['Authorization'] = 'Bearer {0}'.format(g.user['api_key'])
+                headers['api_key'] = g.user['api_key']
                 for var_hgvs_nc in hgvs_nc:
                     for gene_hgnc in gene_symbols:
                         data = {

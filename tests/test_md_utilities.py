@@ -1236,13 +1236,9 @@ def test_get_api_key_from_request(client, app, api_key):
     if api_key == '':
         api_key = get_generic_api_key()
     headers = {
-        'Authorization': f'Bearer {api_key}'
+        'api_key': api_key
     }
-    # r = Request({
-
-    # })
     with app.test_request_context(headers=headers):
-        # fake_obj = json.dumps({'headers': headers})
         assert md_utilities.get_api_key_from_request(request) == api_key
 
 
