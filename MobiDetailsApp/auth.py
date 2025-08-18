@@ -744,7 +744,7 @@ def logout():
             (md_utilities.parse_url(request.referrer).hostname == md_utilities.host['dev'] or
                 md_utilities.parse_url(request.referrer).hostname == md_utilities.host['prod']):
         redirect_url = md_utilities.build_redirect_url(request.referrer)
-        print(redirect_url)
+        # print(redirect_url)
         return redirect(redirect_url, code=302)
     else:
         return redirect(url_for('index'), code=302)
