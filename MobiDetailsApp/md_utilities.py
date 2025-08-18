@@ -3626,6 +3626,44 @@ def get_api_key(curs, api_key=None, mode='key_only'):
     return api_key
 
 
+def get_api_key_from_request(request):
+    """
+    get the API key from a POST query
+
+    Args:
+        request (urllib3.request.Request): Request object with headers
+
+    Returns:
+        str: API key or None
+    """
+    # get api_key from POST header, see https://github.com/vidboda/MobiDetails/issues/118
+    if 'Authorization' in request.headers:
+        return get_bearer_token(request)
+    else:
+        # get it from POST param
+        return get_post_param(request, 'api_key')
+    return None
+
+
+def get_bearer_token(request):
+    """
+    get the bearer token
+
+    Args:
+        request (urllib3.request.Request): Request object with headers
+
+    Returns:
+        str: Bearer token or None
+    """
+    # Get the Authorization header from the request
+    authorization_header = request.headers.get('Authorization')
+    # Check if the header exists AND starts with 'Bearer '
+    if authorization_header and authorization_header.startswith('Bearer '):
+        # Returns the token afetr "Bearer "
+        return authorization_header.split('Bearer ')[1].strip()
+    return None
+
+
 def get_post_param(request, param):
     # swagger/curl sends request.args e.g.
     # curl -X POST "http://10.34.20.79:5001/api/variant/create?variant_chgvs=

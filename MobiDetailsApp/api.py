@@ -39,7 +39,7 @@ http = urllib3.PoolManager(
 
 @bp.route('/api/service/check_api_key', methods=['POST'])
 def check_api_key(api_key=None):
-    api_key = md_utilities.get_post_param(request, 'api_key')
+    api_key = md_utilities.get_api_key_from_request(request)
     if not api_key:
         return jsonify(
             mobidetails_error='I cannot fetch the right parameters',
@@ -1833,7 +1833,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
         # external API call - or non-connected user on webUI
-        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        # res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_api_key_from_request(request))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller == 'cli':
@@ -2190,7 +2191,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
         # external API call - or non-connected user on webUI
-        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        # res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_api_key_from_request(request))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller == 'cli':
@@ -2508,7 +2510,8 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
         # external API call - or non-connected user on webUI
-        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        # res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_api_key_from_request(request))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller == 'cli':
@@ -2707,17 +2710,17 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                     gene_symbols:  # and \
                 # not md_response:
                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
+                headers = md_utilities.api_agent
+                headers['Authorization'] = 'Bearer {0}'.format(g.user['api_key'])
                 for var_hgvs_nc in hgvs_nc:
                     for gene_hgnc in gene_symbols:
                         data = {
                             'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
                             'gene_hgnc': gene_hgnc,
                             'caller': 'cli',
-                            'api_key': g.user['api_key']
                         }
                         try:
-                            # print('{0}-{1}'.format(var_hgvs_nc, gene_hgnc))
-                            md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=md_utilities.api_agent, fields=data).data.decode('utf-8'))
+                            md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
                         except Exception as e:
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = {
                                 'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)
@@ -2805,7 +2808,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if not g.user:
         # external API call - or non-connected user on webUI
-        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        # res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+        res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_api_key_from_request(request))
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller == 'cli':
@@ -3166,7 +3170,8 @@ def api_update_acmg(variant_id=None, acmg_id=None, api_key=None):
         return jsonify(mobidetails_error='MobiDetails is currently in maintenance mode and cannot add new ACMG classes.')
     # check and get params
     db = get_db()
-    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    # res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_post_param(request, 'api_key'))
+    res_check_api_key = md_utilities.check_api_key(db, md_utilities.get_api_key_from_request(request))
     if 'mobidetails_error' in res_check_api_key:
         close_db()
         return jsonify(res_check_api_key)

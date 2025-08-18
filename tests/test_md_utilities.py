@@ -2,13 +2,14 @@
 import re
 import pytest
 import psycopg2
-# import json
-from flask import g
+import json
+from flask import g, request
 from MobiDetailsApp import md_utilities
 # python 3.9 style
 # from .test_ajax import get_db
 # python 3.6 style
 from test_ajax import get_db
+from test_api import get_generic_api_key
 
 # app_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -1223,6 +1224,26 @@ def test_get_api_key(app):
         print(user_object)
         assert len(user_object['api_key']) == 43
 
+
+@pytest.mark.parametrize(('api_key'), (
+    ('test'),
+    (''),
+))
+def test_get_api_key_from_request(client, app, api_key):
+    """
+    test api token retrieval either from headers
+    """
+    if api_key == '':
+        api_key = get_generic_api_key()
+    headers = {
+        'Authorization': f'Bearer {api_key}'
+    }
+    # r = Request({
+
+    # })
+    with app.test_request_context(headers=headers):
+        # fake_obj = json.dumps({'headers': headers})
+        assert md_utilities.get_api_key_from_request(request) == api_key
 
 
 @pytest.mark.parametrize(('criterion', 'color'), (

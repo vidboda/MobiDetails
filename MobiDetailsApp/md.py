@@ -864,7 +864,6 @@ def search_engine():
                                 'api.api_variant_create_rs',
                                 rs_id='rs{}'.format(pattern),
                                 caller='browser',
-                                # api_key=api_key
                             ),
                             code=307
                         )
