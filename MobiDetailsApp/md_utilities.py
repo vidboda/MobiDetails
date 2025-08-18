@@ -3636,33 +3636,32 @@ def get_api_key_from_request(request):
     Returns:
         str: API key or None
     """
-    # get api_key from POST header, see https://github.com/vidboda/MobiDetails/issues/118
-    print(request.headers)
-    if 'api_key' in request.headers:
-        return request.headers.get('api_key')
+    # get Authorization from POST header, see https://github.com/vidboda/MobiDetails/issues/118
+    if request.headers.get('Authorization'):
+        return get_bearer_token(request)
     else:
         # get it from POST param
         return get_post_param(request, 'api_key')
     return None
 
 
-# def get_bearer_token(request):
-#     """
-#     get the bearer token
+def get_bearer_token(request):
+    """
+    get the bearer token
 
-#     Args:
-#         request (urllib3.request.Request): Request object with headers
+    Args:
+        request (urllib3.request.Request): Request object with headers
 
-#     Returns:
-#         str: Bearer token or None
-#     """
-#     # Get the Authorization header from the request
-#     authorization_header = request.headers.get('Authorization')
-#     # Check if the header exists AND starts with 'Bearer '
-#     if authorization_header and authorization_header.startswith('Bearer '):
-#         # Returns the token afetr "Bearer "
-#         return authorization_header.split('Bearer ')[1].strip()
-#     return None
+    Returns:
+        str: Bearer token or None
+    """
+    # Get the Authorization header from the request
+    authorization_header = request.headers.get('Authorization')
+    # Check if the header exists AND starts with 'Bearer '
+    if authorization_header and authorization_header.startswith('Bearer '):
+        # Returns the token afetr "Bearer "
+        return authorization_header.split('Bearer ')[1].strip()
+    return None
 
 
 def get_post_param(request, param):
