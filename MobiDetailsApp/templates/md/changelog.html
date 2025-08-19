@@ -9,6 +9,11 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2025-08-19]
+		<ul>
+			<li>dbNSFP has been updated form 5.1 to 5.2</li>
+			<li>POST queries now accept API keys in the http header using Bearer authorization scheme, which means the headers can now include 'Authorization: Bearer <your_api_key>' pragma. If you are currently using POST queries and API keys, you are strongly encouraged to update</li>
+		</ul>") }}
 		{{ info("[2025-08-12] - Minor: a new graph representation for the MobiDeep score including region-specific thresholds is available.") }}
 		{{ info("[2025-08-06] - Bug fix: some users could not properly use the website for some technical reasons. The error was linked to CSRF tokens. See the <a href='https://github.com/vidboda/MobiDetails/issues/114#issuecomment-3157646717' target='_blank'>GitHub issue</a> for more details.") }}
 		{{ info("[2025-08-04]

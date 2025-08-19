@@ -296,7 +296,7 @@
     'description': 'Dataset of predictions for 3 UTR substitutions'
     'short_name': 'dbmts'
   'dbnsfp':
-    'rel_path': '/static/resources/dbNSFP/v5_1/dbNSFP5.1a_grch38.gz'
+    'rel_path': '/static/resources/dbNSFP/v5_2/dbNSFP5.2a_grch38.gz'
     'name': 'dbNSFP'
     'description': 'Dataset of predictions for missense'
     'short_name': 'dbnsfp'
@@ -532,8 +532,8 @@
     'paper': '30220433'
     'version': '2018_hg19'
     'short_name': 'clinpred'
-    'dbNSFP_value_col': '110'
-    'dbNSFP_pred_col': '112'
+    'dbNSFP_value_col': '109'
+    'dbNSFP_pred_col': '111'
   'ClinVar':
     'firstauthor': 'Landrum'
     'year': '2016'
@@ -602,8 +602,8 @@
     'paper': '26727659'
     'version': 'v1.1'
     'short_name': 'eigen'
-    'dbNSFP_value_col': '150'
-    'dbNSFP_pred_col': '152'
+    'dbNSFP_value_col': '149'
+    'dbNSFP_pred_col': '151'
     'dbMTS_value_col': '127'
     'dbMTS_pred_col': '128'
   # 'FatHMM':
@@ -620,8 +620,8 @@
     'paper': '28968714'
     'version': 'from dbNSFP'
     'short_name': 'fathmmxf'
-    'dbNSFP_value_col': '147'
-    'dbNSFP_pred_col': '149'
+    'dbNSFP_value_col': '146'
+    'dbNSFP_pred_col': '148'
   'genebe':
     'firstauthor': 'Stawinski'
     'year': '2024'
