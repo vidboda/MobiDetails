@@ -182,12 +182,9 @@
 		<div id="content">
 
 			<div id="warning_content" {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
-				{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
-				{{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }}
-				</div> #}
-				{# <div {% if request.endpoint == 'api.variant' %}style="margin-left:15%;margin-top:40px"{% endif %}>
-				{{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7am to 14 pm, GMT+2, on Tuesday, October the 22nd.") }}
-				</div> #}
+				{{ info("You can now follow us on <a href='https://www.linkedin.com/company/mobidic-montpellier-bioinformatique-pour-le-diagnostic-clinique' target='_blank'>LinkedIn <i class='w3-large fa fa-linkedin-square'></i></a>!") }}
+				{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails home will soon change. The new URL will be displayed here on each page and on our <a href='https://mastodon.online/@MoBiDiC_bioinfo' target='_blank'>mastodon account</a> as soon as possible. Stay tuned!") }} #}
+				{# {{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7am to 14 pm, GMT+2, on Tuesday, October the 22nd.") }} #}
 				{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails will be shut down from Monday, Frebruary, 13 around 17:30 Paris time (GMT+1) to Tuesday morning between 9:00 and 10:00 due to an intervention on the electrical network of the building.") }} #}
 				{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is back! However due to major power instability in the building this service will be shut down from Friday November, 18, 17h Paris time to Monday morning, November 21.") }} #}
 				{# {{ danger("IMPORTANT NOTICE:<br /> The SpliceAI-visual service is temporarily down. Sorry for the inconvenience. We're working on restoring it asap.") }} # }}
@@ -195,7 +192,7 @@
 				{# {{ info("From April, 8th, afternoon GMT+2 to April, 11th, morning the service remained unreachable due to a technical issue beyond our control. The full service is now restored.") }} #}
 				{# {{ danger("IMPORTANT NOTICE:<br /> Due to a planned power outage, MobiDetails won't be available from 7:45 to 10 am, GMT+2, on Wednesday, July 27th. Sorry for the short notice. In addition the SpliceAI-visual feature will be shut down on Tuesday, July 26th from 17-18 pm to the end of the power outage.") }} #}
 				{# {{ danger("IMPORTANT NOTICE:<br /> MobiDetails will be unavailable on Thursday, June 30th, from 12 to 14, GMT+2, due to a network maintenance. We apologise for any inconvenience.") }} #}
-				{#{{ danger("IMPORTANT NOTICE:<br /> Another important security improvement has been applied on the web server (2020/04/09). If you see an error page mentioning 'tokens', please close all MobiDetails tabs then just empty your <a href='https://www.wikihow.com/Clear-Your-Browser%27s-Cache#' target='_blank' rel='noopener noreferrer'>browser's cache</a> and come back to the site. The configuration should now be stable. Sorry for the inconvenience.") }}#}
+				{# {{ danger("IMPORTANT NOTICE:<br /> Another important security improvement has been applied on the web server (2020/04/09). If you see an error page mentioning 'tokens', please close all MobiDetails tabs then just empty your <a href='https://www.wikihow.com/Clear-Your-Browser%27s-Cache#' target='_blank' rel='noopener noreferrer'>browser's cache</a> and come back to the site. The configuration should now be stable. Sorry for the inconvenience.") }}#}
 			</div>
 			
 			{% block content %}{% endblock %}
