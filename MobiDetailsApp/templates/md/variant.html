@@ -50,7 +50,7 @@
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 				{% endif %}
 				{% if internal_data.frequenciesDatabases.dbSNPrsid is not none %}
-				{{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}}
+				{# {{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}} #}
 				{{ link("%srs%s"|format(urls.regulomedb_hg19_search, internal_data.frequenciesDatabases.dbSNPrsid), "RegulomeDB") }}
 				{% endif %}
 			</div>

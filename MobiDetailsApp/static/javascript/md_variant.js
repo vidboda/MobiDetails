@@ -793,24 +793,13 @@ function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, cs
       if (dataset.label === mobideep_label) {
         // alert(dataset.data[1]);
         dataset.data[graph_position] = raw_score;
-        // remove everything from the data list
-        // dataset.data.pop();
-        // dataset.data.pop();
-        // dataset.data.pop();
-        // dataset.data.pop();
-        // dataset.data.pop();
-        // // add raw score
-        // dataset.data.push(raw_score);
-        // dataset.data.push(raw_score);
-        // dataset.data.push(raw_score);
-        // dataset.data.push(raw_score);
-        // dataset.data.push(raw_score);
       }
     });
     mobideepChart.update();
 	});
   $("#mobideep_tr").show();
 }
+
 
 function clingen_id(clingen_reg_url, hgvs_g) {
 	// ajax for clingenID
@@ -825,15 +814,18 @@ function clingen_id(clingen_reg_url, hgvs_g) {
     if (typeof json_object["@id"] === "string") {
       // const clingen_url = json_object["@id"];
       const clingen_id = json_object["@id"].split('/').filter(Boolean).pop();
-		  $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>");
-      if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
-        redraw_dt('nomenclature_table', true);
+      var clingen_regexp = /^CA\d+$/;
+      // sometimes ID is kindof weird e.g. https://reg.genome.network/allele?hgvs=NC_000007.14%3Ag.55174796_55174798delinsAAC
+      if (clingen_id.match(clingen_regexp)) {
+        $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>");
+        if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
+          redraw_dt('nomenclature_table', true);
+        }
+        $("#clingen_tr").show();
       }
-      $("#clingen_tr").show();
     }
 	});
 }
-
 
 
 function myAccFunc(acc_id, icon_id) {
