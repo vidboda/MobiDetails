@@ -825,7 +825,7 @@ function clingen_id(clingen_reg_url, hgvs_g) {
     if (typeof json_object["@id"] === "string") {
       // const clingen_url = json_object["@id"];
       const clingen_id = json_object["@id"].split('/').filter(Boolean).pop();
-		  $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=CA7708940' target='_blank'><span>" + clingen_id + "</span></a>");
+		  $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>");
       if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
         redraw_dt('nomenclature_table', true);
       }
