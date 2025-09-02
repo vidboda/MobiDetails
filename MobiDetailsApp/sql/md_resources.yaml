@@ -104,6 +104,7 @@
   'clingen_evrepo': 'https://erepo.clinicalgenome.org/evrepo/'
   'clingen_evrepo_api': 'https://erepo.genome.network/evrepo/api/'
   'clingen_gene_spec_web': 'https://cspec.genome.network/cspec/ui/svi/'
+  'clingen_reg': 'https://reg.genome.network/'
   'clinpred': 'https://sites.google.com/site/clinpred/home'
   'cosmic': 'https://cancer.sanger.ac.uk/cosmic'
   'dbmts': 'http://www.liulab.science/dbmts.html'

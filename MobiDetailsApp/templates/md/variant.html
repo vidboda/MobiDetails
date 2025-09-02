@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250812" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250902" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -333,6 +333,12 @@
 						<td class="w3-left-align">pseudo VCF (<span id="genome_38">hg38</span>):</td>
 						<td class="w3-left-align" id="hgvs_genomic_hg38_pvcf_nom"><span style="display:none;">hg38-</span><a href="{{ urls.variant_validator }}{{ external_data.VCF.chr }}-{{ external_data.VCF.hg38.pos }}-{{ external_data.VCF.hg38.ref }}-{{ external_data.VCF.hg38.alt }}&primary_assembly=GRCh38&alignment=splign" target="_blank" title="open VariantValidator" rel="noopener noreferrer"><span id="chrom_38">{{ external_data.VCF.chr }}</span>-<span id="pos_38">{{ external_data.VCF.hg38.pos }}</span>-<span id="ref_38">{{ external_data.VCF.hg38.ref }}</span>-<span id="alt_38">{{ external_data.VCF.hg38.alt }}</span></a></td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg38_pvcf_nom');$('#hgvs_genomic_hg38_pvcf_copied').html(field_copied_tag);" title="copy HGVS hg38 pseudo-VCF nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg38_pvcf_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;chr-pos-ref-alt (hg38)</em></td>
+					</tr>
+					<!--ClinGen cannonical ID-->
+					<tr id="clingen_tr" style="display:none;">
+						<td class="w3-left-align">ClinGen ID:</td>
+						<td class="w3-left-align" id="clingen_id"></td>
+						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('clingen_id');$('#clingen_id_copied').html(field_copied_tag);" title="copy ClinGen cannonical ID"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="clingen_id_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;ClinGen Cannonical Allele Identifier</em></td>
 					</tr>
 				</tbody>
 			</table><br/><br/>
@@ -2242,6 +2248,7 @@
 			{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
 			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
 			{% endif %}
+			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text());
 		});
 	</script>
 {% endblock %}
