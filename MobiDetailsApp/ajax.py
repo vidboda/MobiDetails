@@ -1054,6 +1054,14 @@ def lovd():
                     fields[4] = fields[4].replace('"', '')
                     if fields[4] == c_name or re.match(escape(c_name), fields[4]):
                         lovd_urls.append(fields[5])
+                        continue
+                    # for SNVs, if there is a discrepancy between NM versions (e.g. NM_020778.4 and NM_020778.5), c-nmae can be completely different
+                    # then we can allow a match in genomic position (from query) and in the substitution, e.g. G>A
+                    if re.search(r'>', c_name):
+                        csub = md_utilities.get_substitution_nature(c_name)
+                        field_sub = md_utilities.get_substitution_nature(fields[4])
+                        if csub == field_sub:
+                            lovd_urls.append(fields[5])
             if len(lovd_urls) > 0:
                 for url in lovd_urls:
                     lovd_name = None
@@ -1151,9 +1159,17 @@ def lovd():
                             for transcript in var['variants_on_transcripts']:
                                 if re.search(nm, transcript):
                                     lovd_transcript = transcript
+                            # for SNVs, if there is a discrepancy between NM versions (e.g. NM_020778.4 and NM_020778.5), c-nmae can be completely different
+                            # then we can allow a match in genomic position (from query) and in the substitution, e.g. G>A
+                            csub = None
+                            field_sub = None
+                            if re.search(r'>', c_name):
+                                csub = md_utilities.get_substitution_nature(c_name)
+                                field_sub = md_utilities.get_substitution_nature(var['variants_on_transcripts'][transcript]['DNA'])
                             if lovd_transcript in var['variants_on_transcripts'] and \
                                     (var['variants_on_transcripts'][lovd_transcript]['DNA'] == c_name \
-                                    or re.match(escape(c_name), var['variants_on_transcripts'][transcript]['DNA'])): 
+                                    or re.match(escape(c_name), var['variants_on_transcripts'][transcript]['DNA'])) or \
+                                    (csub and field_sub and csub == field_sub): 
                                 if var['effect_reported'][0] not in \
                                         lovd_effect_count['effect_reported']:
                                     lovd_effect_count['effect_reported'][var['effect_reported'][0]] = 1

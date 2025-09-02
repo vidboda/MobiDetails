@@ -9,11 +9,17 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2025-09-02] - Minor:
+			<ul>
+				<li>LOVD APi calls can deal, for SNVs, with discrepancies in HGVS nomenclatures between several RefSeq versions (e.g. NM_020778.5:c.322G>A VS NM_020778.4:c.928G>A). Thanks to Dr. Konstantinos Varvagiannis for reporting.</li>
+				<li>gnomAD links on the left menu have been removed, added a new link to UK Biobank 0.5M WGS instead. gnomAD links to v2 and v4 are still present in the 'Population Frequencies and Databases' section.</li>
+				<li>Added the ClinGen Allele ID retrieval, should appear ine the nomenclature section</li>
+			</ul>") }}
 		{{ info("[2025-08-19]
-		<ul>
-			<li>dbNSFP has been updated form 5.1 to 5.2</li>
-			<li>POST queries now accept API keys in the http header using Bearer authorization scheme, which means the headers can now include 'Authorization: Bearer &lt;your_api_key&gt;' pragma. If you are currently using POST queries and API keys, you are strongly encouraged to update</li>
-		</ul>") }}
+			<ul>
+				<li>dbNSFP has been updated form 5.1 to 5.2</li>
+				<li>POST queries now accept API keys in the http header using Bearer authorization scheme, which means the headers can now include 'Authorization: Bearer &lt;your_api_key&gt;' pragma. If you are currently using POST queries and API keys, you are strongly encouraged to update</li>
+			</ul>") }}
 		{{ info("[2025-08-12] - Minor: a new graph representation for the MobiDeep score including region-specific thresholds is available.") }}
 		{{ info("[2025-08-06] - Bug fix: some users could not properly use the website for some technical reasons. The error was linked to CSRF tokens. See the <a href='https://github.com/vidboda/MobiDetails/issues/114#issuecomment-3157646717' target='_blank'>GitHub issue</a> for more details.") }}
 		{{ info("[2025-08-04]

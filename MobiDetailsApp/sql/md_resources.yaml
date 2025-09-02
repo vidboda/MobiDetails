@@ -194,6 +194,7 @@
   'ucsc_hg38': 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position='
   'ucsc_hg38_session': '757151741_tUQRsEoYvqXsPekoiKpwY6Ork8eF'
   'ucsc_2bit': 'http://genome.ucsc.edu/goldenPath/help/twoBit.html'
+  'uk_biobank': 'https://afb.ukbiobank.ac.uk/'
   'uniprot_id': 'http://www.uniprot.org/uniprot/'
   'variant_validator': 'https://variantvalidator.org/service/validate/?variant='
   # variant validator rest selection

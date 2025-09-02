@@ -1305,6 +1305,19 @@ def test_get_vv_token(app):
         assert re.search(r'^[\w\.-]+$', vv_token)
 
 
+@pytest.mark.parametrize(('c_name', 'cpos', 'sub'), (
+    ('c.928G>A', '928', 'G>A'),
+    ('928G>A', '928', 'G>A'),
+    ('1239Phe', None, None),
+    ('928G>X', None, None),
+    ('928G>>A', None, None),
+    ('c928G>>A', None, None),
+))
+def test_decompose_snvs_cname(c_name, cpos, sub):
+    assert cpos == md_utilities.decompose_snvs_cname(c_name)[0]
+    assert sub == md_utilities.decompose_snvs_cname(c_name)[1]
+
+
 @pytest.mark.parametrize(('p_name', 'aa1', 'ppos', 'aa2'), (
     ('Pro1239Phe', 'P', '1239', 'F'),
     ('Pro1239X', None, None, None),

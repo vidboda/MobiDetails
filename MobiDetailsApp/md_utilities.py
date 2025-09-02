@@ -981,6 +981,12 @@ def get_bigwig_score(text, bigwig_file_path, var):
             except Exception: # Don't let a close error mask the original error or cause a new one
                 pass
 
+def decompose_snvs_cname(c_name):
+    # from c.928G>A or 928G>A to 928 and G>A
+    match_obj = re.search(r'^c?\.?(\d+)([ACGT]>[ACGT])', c_name)
+    if match_obj:
+        return match_obj.group(1), match_obj.group(2)
+    return None, None
 
 def decompose_missense(p_name):
     match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
