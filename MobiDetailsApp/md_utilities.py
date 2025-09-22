@@ -1307,7 +1307,6 @@ def get_vv_api_url(caller='browser'):
     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
     # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
     if caller == 'browser':
-    # if request.headers.get('User-Agent') in user_agent_list:
         checked_url = test_vv_api_url(
             '{0}{1}'.format(urls['rest_vv_browser']['1'], urls['rest_vv_hello_str']),
             urls['rest_vv_browser']['1']

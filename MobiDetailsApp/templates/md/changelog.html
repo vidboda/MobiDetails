@@ -9,6 +9,7 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2025-09-22] - Architecture: added a second VV server. The first one is dedicated to web browsers calls, while the second is dedicated to API calls. If one crashes, the second will be in charge of both types.") }}
 		{{ info("[2025-09-02] - Minor:
 			<ul>
 				<li>LOVD APi calls can deal, for SNVs, with discrepancies in HGVS nomenclatures between several RefSeq versions (e.g. NM_020778.5:c.322G>A VS NM_020778.4:c.928G>A). Thanks to Dr. Konstantinos Varvagiannis for reporting.</li>
