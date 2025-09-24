@@ -789,7 +789,7 @@
 					<tr><!--MaveDB-->
 						<td class="w3-left-align"><a href="{{ urls.mavedb }}" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">MaveDB</a>:</td>
 						{# <td class="w3-left-align"><a href="#" onclick="window.open('{{ urls.mavedb }}score-sets/{{ external_data.functionalStudies.mavedb_urn }}?variant=' + encodeURIComponent('{{ external_data.functionalStudies.mavedb_var_urn }}'))" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">{{ external_data.functionalStudies.mavedb_score }}</a></td> #}
-						<td class="w3-left-align"><a href="#" onclick="window.open('{{ urls.mavedb }}score-sets/{{ external_data.functionalStudies.mavedb_urn }}?variant={{ external_data.functionalStudies.mavedb_var_urn }}')" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">{{ external_data.functionalStudies.mavedb_score }}</a></td>
+						<td class="w3-left-align"><a href="{{ urls.mavedb }}score-sets/{{ external_data.functionalStudies.mavedb_urn }}?variant={{ external_data.functionalStudies.mavedb_var_urn }}" target="_blank" title="Visit MaveDB" rel="noopener noreferrer">{{ external_data.functionalStudies.mavedb_score }}</a></td>
 						<td class="w3-left-align"><em class="w3-small">Variant recorded as {{ external_data.functionalStudies.mavedb_prot }} in MaveDB.</em></td>
 					</tr>
 					{% endif %}
