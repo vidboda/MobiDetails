@@ -97,7 +97,7 @@ def file_upload():
                             # send var to api
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
                             # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
-                            print(md_api_url)
+                            # print(md_api_url)
                             data = {
                                 'variant_chgvs': urllib.parse.quote(
                                     '{0}:{1}'.format(
@@ -108,8 +108,8 @@ def file_upload():
                                 'caller': 'cli',
                                 'api_key': api_key
                             }
-                            print(header)
-                            print(data)
+                            # print(header)
+                            # print(data)
                             try:
                                 md_response = json.loads(
                                     http.request(
