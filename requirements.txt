@@ -67,7 +67,7 @@ pyBigWig==0.3.24
 pytest==8.3.3
 pytest-cov==6.1.1
 python-gnupg==0.5.3
-python-ldap==3.4.4
+python-ldap==3.4.5
 PyYAML==6.0.2
 pyzmq==26.2.0
 requests==2.32.4
