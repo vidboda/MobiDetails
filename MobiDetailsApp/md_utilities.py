@@ -3728,7 +3728,6 @@ def get_acmg_criterion_color(criterion):
 def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     # send job to dedicated server
     spip_input = "{0}\t{1}:c.{2}".format(gene_symbol, nm_acc, c_name)
-    print(spip_input)
     try:
         req_results = requests.post(
             '{0}/spip'.format(urls['spliceai_internal_server']),
