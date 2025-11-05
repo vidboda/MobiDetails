@@ -17,7 +17,8 @@
 		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
 		<a href="#source_code" class="w3-bar-item w3-button w3-mobile">Source code</a>
 		<a href="#credits" class="w3-bar-item w3-button w3-mobile">Credits</a>
-		<a href="#data_sharing" class="w3-bar-item w3-button w3-mobile">Data Sharing</a>
+		<a href="#data_sharing" class="w3-bar-item w3-button w3-mobile">Data sharing</a>
+		<a href="#api_rules" class="w3-bar-item w3-button w3-mobile">API rules</a>
 		<a href="#non_academic" class="w3-bar-item w3-button w3-mobile">Non academic access</a>
 		<a href="#privacy_policy" class="w3-bar-item w3-button w3-mobile">Privacy policy</a>
 	</div><br />
@@ -166,6 +167,12 @@
 		{{ info('<strong>MobiDetails and <a href="http://www.lovd.nl" target="_blank" rel="noopener noreferrer">LOVD</a> are working together to ensure a persistent sharing of the variants and annotations.</strong><br /> \
 					When a MobiDetails user defines an ACMG class, this action triggers the submission of the variant to the <a href="https://databases.lovd.nl/shared/genes" target="_blank" rel="noopener noreferrer">Global Variome LOVD shared</a> database. As in MobiDetails the variants are not related to any patient or sample, this will also be the case with the LOVD submissions. Only the HGVS nomenclatures, definition of the variant and the ACMG class will be sent. The MobiDetails user will not be listed as "Submitter" in the LOVD instance (The submitter will be identified as "MobiDetails"). This behaviour can be modified in the profile page of the MobiDetails user.<br />\
 					This integration of the 2 system will ensure a larger diffusion of the useful data present in MobiDetails.') }}
+		<h3 id="api_rules">API rules:</h3>
+		{{ info('MobiDetails provides an <a href="/MDAPI/" target="_blank" rel="noopener noreferrer">API</a> to generate and retrieve annotations. There are two severe bottlenecks to its usage:
+				<ul>
+					<li>New HGVS annotations are performed by a dedicated VariantValidator server. However this server does not deal well with many parallel queries. So please ensure that your script will perform sequential requests</li>
+					<li>SPiP results can be retieved using the API, using a special keyword "clispip" (see the <a href="/MDAPI/" target="_blank" rel="noopener noreferrer">swagger page</a> for more details) but it will last more than 10s per variant if the variant is new. So consider it before trying to get SPiP results for many variants</li>
+				</ul>') }}
 		<h3 id="non_academic">Non academic users:</h3>
 		{{ info('MobiDetails is free for use, but non-academic users must register and be identified as such.<br/> \
 				Their access to data will be slightly modified in order to comply with different tools terms of distribution. \

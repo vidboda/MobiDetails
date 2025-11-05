@@ -6,6 +6,7 @@ import psycopg2.extras
 import tabix
 import urllib3
 import certifi
+import requests
 import json
 import yaml
 import twobitreader
@@ -3725,39 +3726,64 @@ def get_acmg_criterion_color(criterion):
 
 
 def run_spip(gene_symbol, nm_acc, c_name, variant_id):
-    tf = tempfile.NamedTemporaryFile(suffix='.txt')
-    # temp file replaced w/ real file to perform caching
-    tf.write(
-        bytes('gene\tvarID\n{0}\t{1}:c.{2}'.format(
-            gene_symbol, nm_acc, c_name
-        ), encoding='utf-8')
-    )
-    tf.seek(0)
-    # SPiP v1:
-    # '-f',
-    # '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
-    # '-s',
-    # '{}'.format(ext_exe['samtools']),
-    result = subprocess.run(
-        [
-            ext_exe['Rscript'],
-            '{}'.format(ext_exe['spip']),
-            '-I',
-            '{}'.format(tf.name),
-            '-O',
-            '{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id),
-            '-g',
-            'hg38'
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.STDOUT
-    )
-    if result.returncode == 0:
-        # print('SPiP: {}'.format(result_file))
-        with  open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r") as spip_out:
-            result_file = spip_out.read()
-        return result_file
+    # send job to dedicated server
+    spip_input = "{0}\t{1}:c.{2}".format(gene_symbol, nm_acc, c_name)
+    print(spip_input)
+    try:
+        req_results = requests.post(
+            '{0}/spip'.format(urls['spliceai_internal_server']),
+            json={'spip_input': spip_input},
+            headers={'Content-Type': 'application/json'}
+        )
+    except requests.exceptions.ConnectionError:
+            return '<p style="color:red">Failed to establish a connection to the SPiP server.</p>'
+    except Exception:
+        return """
+        <span class="w3-padding">Unable to run SPiP API - Error returned</span>
+        """
+    if req_results.status_code == 200:
+        spip_results = json.loads(req_results.content)
+        if spip_results['spip_return_code'] == 0 and \
+                spip_results['error'] is None:
+            # cache
+            with open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "w") as spip_out:
+                spip_out.write(spip_results['result'])
+            return spip_results['result']
     return 'There has been an error while processing SPiP'
+    # LOCAL execution of SPiP
+    # tf = tempfile.NamedTemporaryFile(suffix='.txt')
+    # # temp file replaced w/ real file to perform caching
+    # tf.write(
+    #     bytes('gene\tvarID\n{0}\t{1}:c.{2}'.format(
+    #         gene_symbol, nm_acc, c_name
+    #     ), encoding='utf-8')
+    # )
+    # tf.seek(0)
+    # # SPiP v1:
+    # # '-f',
+    # # '{}.fa'.format(local_files['human_genome_hg38']['abs_path']),
+    # # '-s',
+    # # '{}'.format(ext_exe['samtools']),
+    # result = subprocess.run(
+    #     [
+    #         ext_exe['Rscript'],
+    #         '{}'.format(ext_exe['spip']),
+    #         '-I',
+    #         '{}'.format(tf.name),
+    #         '-O',
+    #         '{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id),
+    #         '-g',
+    #         'hg38'
+    #     ],
+    #     stdout=subprocess.DEVNULL,
+    #     stderr=subprocess.STDOUT
+    # )
+    # if result.returncode == 0:
+    #     # print('SPiP: {}'.format(result_file))
+    #     with open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "r") as spip_out:
+    #         result_file = spip_out.read()
+    #     return result_file
+    # return 'There has been an error while processing SPiP'
 
 
 def format_spip_result(result_spip, caller):
