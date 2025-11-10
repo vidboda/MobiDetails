@@ -65,15 +65,15 @@ def about():
 # web app - VEPTC 2025
 
 
-@bp.route('/veptc')
-def veptc():
-    return render_template(
-        'md/veptc.html',
-        run_mode=md_utilities.get_running_mode(),
-        urls=md_utilities.urls,
-        local_files=md_utilities.local_files,
-        external_tools=md_utilities.external_tools
-    )
+# @bp.route('/veptc')
+# def veptc():
+#     return render_template(
+#         'md/veptc.html',
+#         run_mode=md_utilities.get_running_mode(),
+#         urls=md_utilities.urls,
+#         local_files=md_utilities.local_files,
+#         external_tools=md_utilities.external_tools
+#     )
 
 # -------------------------------------------------------------------
 # web app - changelog

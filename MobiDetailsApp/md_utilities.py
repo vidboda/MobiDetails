@@ -762,7 +762,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'MorfeeDB'or \
             text == 'GPN-MSA' :
         i -= 1
-    if 'p_name' in variant_features:
+    if 'p_name' in variant_features and variant_features['p_name'] is not None:
         aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     spliceai_last_record = ''
     for record in records:
@@ -1242,67 +1242,6 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     return None
 
 
-# def get_vv_api_url(caller='browser'):
-#      # variant validator rest selection
-#     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
-#     # api => dedicated internal server, backup, browser dedicated internal server, backup, english server
-#     if caller == 'browser':
-#     # if request.headers.get('User-Agent') in user_agent_list:
-#         checked_url = test_vv_api_url(
-#             '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
-#             urls['rest_vv_browser']
-#         )
-#         if checked_url:
-#             return checked_url
-#         else:
-#             checked_url = test_vv_api_url(
-#                 '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
-#                 urls['rest_vv_api']
-#             )
-#         if checked_url:
-#             return checked_url
-#         else:
-#             checked_url = test_vv_api_url(
-#                 '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
-#                 urls['rest_vv_genuine']
-#             )
-#             return checked_url        
-#     else:
-#         # the other way around
-#         checked_url = test_vv_api_url(
-#                 '{0}{1}'.format(urls['rest_vv_api'], urls['rest_vv_hello_str']),
-#                 urls['rest_vv_api']
-#         )
-#         if checked_url:
-#             return checked_url
-#         else:
-#             checked_url = test_vv_api_url(
-#                 '{0}{1}'.format(urls['rest_vv_browser'], urls['rest_vv_hello_str']),
-#                 urls['rest_vv_browser']
-#             )
-#             if checked_url:
-#                 return checked_url
-#             else:
-#                 checked_url = test_vv_api_url(
-#                     '{0}{1}'.format(urls['rest_vv_genuine'], urls['rest_vv_hello_str']),
-#                     urls['rest_vv_genuine']
-#                 )
-#             if checked_url:
-#                 return checked_url
-#             else:
-#                 send_error_email(
-#                 prepare_email_html(
-#                     'MobiDetails VariantValidator error',
-#                     '<p>VariantValidator looks down!!<br /> - from {0}</p>'
-#                     .format(
-#                         os.path.basename(__file__)
-#                     )
-#                 ),
-#                 '[MobiDetails - VariantValidator Error]'
-#             )
-#     return None
-
-
 def get_vv_api_url(caller='browser'):
      # variant validator rest selection
     # browser => dedicated internal server, backup, api dedicated internal server, backup, english server
@@ -1363,39 +1302,6 @@ def get_vv_api_url(caller='browser'):
     return None
 
 
-
-# def get_vv_api_url(caller='browser'):
-#     # variant validator rest selection
-#     # v2023 comment all above
-
-#     checked_url = test_vv_api_url(
-#         '{0}{1}'.format(urls['rest_vv']['1'], urls['rest_vv_hello_str']),
-#         urls['rest_vv']['1']
-#     )
-#     if checked_url:
-#         return checked_url
-#     else:
-#         checked_url = test_vv_api_url(
-#             '{0}{1}'.format(urls['rest_vv']['2'], urls['rest_vv_hello_str']),
-#             urls['rest_vv']['2']
-#         )
-#     if checked_url:
-#         return checked_url
-#     else:
-#         send_error_email(
-#             prepare_email_html(
-#                 'MobiDetails VariantValidator error',
-#                 '<p>VariantValidator looks down!!<br /> - from {0}</p>'
-#                 .format(
-#                     os.path.basename(__file__)
-#                 )
-#             ),
-#             '[MobiDetails - VariantValidator Error]'
-#         )
-#     return None
-
-
-
 def vv_internal_server_error(caller, vv_data, vv_key_var):
     if 'message' in vv_data and vv_data['message'] == 'Internal Server Error':
         if caller == 'browser':
@@ -1422,6 +1328,7 @@ def vv_internal_server_error(caller, vv_data, vv_key_var):
 def create_var_vv(
         vv_key_var, gene, acc_no, new_variant,
         original_variant, vv_data, caller, db, g):
+    # WARNING GENIC VERSION ONLY
     vf_d = {}
     # deal with various warnings
     # docker up?
@@ -2232,7 +2139,8 @@ def create_var_vv(
     db.commit()
     return vf_id
 
-# duplicate in order to avoid concurrency between cretate and create_vcf_str
+# duplicate in order to avoid concurrency between create and create_vcf_str
+# now accepts INTERGENIC VARIANTS
 
 def create_var_vv_vcf_str(
         vv_key_var, gene, acc_no, new_variant,
@@ -2303,7 +2211,6 @@ def create_var_vv_vcf_str(
                 'mobidetails_error':
                 'A major validation error has occurred in VariantValidator'
             }
-    # print(vv_data['flag'])
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if 'validation_warning_1' in vv_data:
         first_level_key = 'validation_warning_1'
@@ -2359,6 +2266,9 @@ def create_var_vv_vcf_str(
             # print(vv_data[first_level_key])
             # print(warning)
             variant_regexp = regexp['variant']
+            # let intergenic continue
+            if re.search(r'No transcripts found that fully overlap the described variation in the genomic sequence', warning):
+                continue
             if re.search(r'automapped to NC_0000', warning):
                 continue
             elif re.search(r'Trailing digits are not permitted in HGVS variant descriptions', warning):
@@ -2531,6 +2441,23 @@ def create_var_vv_vcf_str(
     if res is not None:
         # now returns only id
         return res['id']
+    elif vv_key_var == 'intergenic_variant_1':
+        # check if intergenic variant exists
+        curs.execute(
+            """
+            SELECT feature_id
+            FROM variant
+            WHERE genome_version = %s
+                AND chr = %s
+                AND pos = %s
+                AND pos_ref = %s
+                AND pos_alt = %s
+            """,
+            (hg38_d['genome_version'], hg38_d['chr'], hg38_d['pos'], hg38_d['pos_ref'], hg38_d['pos_alt'])
+        )
+        res_inter = curs.fetchone()
+        if res_inter is not None:
+            return res_inter['feature_id']
     try:
         hg19_d = get_genomic_values('hg19', vv_data, vv_key_var)
         if 'mobidetails_error' in hg19_d:
@@ -2558,24 +2485,27 @@ def create_var_vv_vcf_str(
             )
         elif caller == 'cli':
             return {'mobidetails_error': error_text}
-    if 'c_name' not in vf_d:
+    
+    
+    if 'c_name' not in vf_d and \
+            vv_key_var != 'intergenic_variant_1':
         var_obj = re.search(r'^c?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
     # dna_type
-    if re.search('>', vf_d['c_name']):
+    if re.search('>', hg38_d['g_name']):
         vf_d['dna_type'] = 'substitution'
         vf_d['variant_size'] = 1
-    elif re.search(r'del.*ins', vf_d['c_name']):
+    elif re.search(r'del.*ins', hg38_d['g_name']):
         vf_d['dna_type'] = 'indel'
-    elif re.search('dup', vf_d['c_name']):
+    elif re.search('dup', hg38_d['g_name']):
         vf_d['dna_type'] = 'duplication'
-    elif re.search('ins', vf_d['c_name']):
+    elif re.search('ins', hg38_d['g_name']):
         vf_d['dna_type'] = 'insertion'
-    elif re.search('del', vf_d['c_name']):
+    elif re.search('del', hg38_d['g_name']):
         vf_d['dna_type'] = 'deletion'
-    elif re.search('inv', vf_d['c_name']):
+    elif re.search('inv', hg38_d['g_name']):
         vf_d['dna_type'] = 'inversion'
-    elif re.search('=', vf_d['c_name']):
+    elif re.search('=', hg38_d['g_name']):
         error_text = """
         Reference should not be equal to alternative to define a variant.
         """
@@ -2596,34 +2526,37 @@ def create_var_vv_vcf_str(
         elif caller == 'cli':
             return {'mobidetails_error':error_text}
     if 'variant_size' not in vf_d:
-        if not re.search('_', vf_d['c_name']):
+        if not re.search('_', hg38_d['g_name']):
             # one bp del or dup
             vf_d['variant_size'] = 1
         else:
             vf_d['variant_size'] = int(positions[1]) - int(positions[0]) + 1
-
+    # genic variants only
     # we need strand later
-    curs.execute(
-        """
-        SELECT strand
-        FROM gene
-        WHERE gene_symbol = %s
-            AND refseq = %s
-        """,
-        (gene, acc_no)
-    )
-    res_strand = curs.fetchone()
-    if res_strand is None:
-        error_text = """
-        No strand for gene {}, impossible to create a variant, please contact us
-        """.format(gene)
-        if caller == 'browser':
-            return danger_panel(
-                vv_key_var,
-                error_text
-            )
-        elif caller == 'cli':
-            return {'mobidetails_error': error_text}
+    if vv_key_var != 'intergenic_variant_1':
+        curs.execute(
+            """
+            SELECT strand
+            FROM gene
+            WHERE gene_symbol = %s
+                AND refseq = %s
+            """,
+            (gene, acc_no)
+        )
+        res_strand = curs.fetchone()
+        if res_strand is None:
+            error_text = """
+            No strand for gene {}, impossible to create a variant, please contact us
+            """.format(gene)
+            if caller == 'browser':
+                return danger_panel(
+                    vv_key_var,
+                    error_text
+                )
+            elif caller == 'cli':
+                return {'mobidetails_error': error_text}
+    else:
+        res_strand = {'strand': '+'}
 
     # p_name
     p_obj = re.search(
@@ -2660,150 +2593,152 @@ def create_var_vv_vcf_str(
                 vf_d['prot_type'] = 'missense'
             else:
                 vf_d['prot_type'] = 'unknown'
-    else:
+    elif vv_key_var != 'intergenic_variant_1':
         vf_d['p_name'] = '?'
         vf_d['prot_type'] = 'unknown'
 
     # deal with +1,+2 etc
     vf_d['rna_type'] = 'neutral inferred'
-    if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
-        vf_d['rna_type'] = 'altered inferred'
-    # exons pos, etc - based on hg38
-    # VV2 here we basically get "variant_exonic_positions"
-    # we need the NCBI hg38 chrom
-    # "NC_000004.12": {
-    #     "end_exon": "21",
-    #     "start_exon": "20i"
-    # },
     ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
-    if ncbi_chr[0] not in vv_data[vv_key_var]['variant_exonic_positions']:
-        # error
-        if caller == 'browser':
-            send_error_email(
-                prepare_email_html(
-                    'MobiDetails error',
-                    """
-                    <p>Insertion failed for variant features for {0} with args no chr:
-                    {1}</p>
-                    """.format(
-                        vv_key_var,
-                        ncbi_chr[0]
-                    )
-                ),
-                '[MobiDetails - MD variant creation Error]'
-            )
-            return danger_panel(
-                'MobiDetails error {}'.format(vv_key_var),
-                """
-                Sorry, an issue occured with the variant mapping. An admin has been warned.
-                """
-            )
-        elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """
-                Sorry, an issue occured with the variant mapping for {}.
-                """.format(vv_key_var)
-            }
+    # genic variants only
+    if vv_key_var != 'intergenic_variant_1':
+        if re.search(r'\d+[\+-][12][^\d]', vf_d['c_name']):
+            vf_d['rna_type'] = 'altered inferred'
+        # exons pos, etc - based on hg38
+        # VV2 here we basically get "variant_exonic_positions"
+        # we need the NCBI hg38 chrom
+        # "NC_000004.12": {
+        #     "end_exon": "21",
+        #     "start_exon": "20i"
+        # },
 
-    vf_d['start_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
-    vf_d['start_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
-    vf_d['end_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
-    vf_d['end_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
-    if vf_d['start_segment_type'] == 'segment_type_error' or \
-            vf_d['end_segment_type'] == 'segment_type_error' or \
-            vf_d['start_segment_number'] == 'segment_number_error' or \
-            vf_d['end_segment_number'] == 'segment_number_error':
-        if caller == 'browser':
-            send_error_email(
-                prepare_email_html(
-                    'MobiDetails error',
-                    """
-                    <p>Insertion failed for variant features for {0} with args start_segment_type:
-                    {1}-end_segment_type:{2}-start_segment_number:{3}-end_segment_number:{4}</p>
-                    """.format(
-                        vv_key_var,
-                        vf_d['start_segment_type'],
-                        vf_d['end_segment_type'],
-                        vf_d['start_segment_number'],
-                        vf_d['end_segment_number']
-                    )
-                ),
-                '[MobiDetails - MD variant creation Error]'
-            )
-            return danger_panel(
-                'MobiDetails error {}'.format(vv_key_var),
-                """
-                Sorry, an issue occured with the variant position and intron/exon definition. An admin has been warned
-                """
-            )
-        elif caller == 'cli':
-            return {
-                'mobidetails_error':
-                """
-                Sorry, an issue occured with the variant position and intron/exon definition for {}
-                """.format(vv_key_var)
-            }
-    if positions[0] != positions[1]:
-        # get IVS name
-        if vf_d['start_segment_type'] == 'intron':
-            ivs_obj = re.search(
-                r'^\d+([\+-]\d+)_\d+([\+-]\d+)(.+)$',
-                vf_d['c_name']
-            )
-            if ivs_obj:
-                vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(
-                    vf_d['start_segment_number'],
-                    ivs_obj.group(1),
-                    vf_d['end_segment_number'],
-                    ivs_obj.group(2),
-                    ivs_obj.group(3)
+        if ncbi_chr[0] not in vv_data[vv_key_var]['variant_exonic_positions']:
+            # error
+            if caller == 'browser':
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        """
+                        <p>Insertion failed for variant features for {0} with args no chr:
+                        {1}</p>
+                        """.format(
+                            vv_key_var,
+                            ncbi_chr[0]
+                        )
+                    ),
+                    '[MobiDetails - MD variant creation Error]'
                 )
-            else:
+                return danger_panel(
+                    'MobiDetails error {}'.format(vv_key_var),
+                    """
+                    Sorry, an issue occured with the variant mapping. An admin has been warned.
+                    """
+                )
+            elif caller == 'cli':
+                return {
+                    'mobidetails_error':
+                    """
+                    Sorry, an issue occured with the variant mapping for {}.
+                    """.format(vv_key_var)
+                }
+
+        vf_d['start_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+        vf_d['start_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['start_exon'])
+        vf_d['end_segment_type'] = get_segment_type_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+        vf_d['end_segment_number'] = get_segment_number_from_vv(vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr[0]]['end_exon'])
+        if vf_d['start_segment_type'] == 'segment_type_error' or \
+                vf_d['end_segment_type'] == 'segment_type_error' or \
+                vf_d['start_segment_number'] == 'segment_number_error' or \
+                vf_d['end_segment_number'] == 'segment_number_error':
+            if caller == 'browser':
+                send_error_email(
+                    prepare_email_html(
+                        'MobiDetails error',
+                        """
+                        <p>Insertion failed for variant features for {0} with args start_segment_type:
+                        {1}-end_segment_type:{2}-start_segment_number:{3}-end_segment_number:{4}</p>
+                        """.format(
+                            vv_key_var,
+                            vf_d['start_segment_type'],
+                            vf_d['end_segment_type'],
+                            vf_d['start_segment_number'],
+                            vf_d['end_segment_number']
+                        )
+                    ),
+                    '[MobiDetails - MD variant creation Error]'
+                )
+                return danger_panel(
+                    'MobiDetails error {}'.format(vv_key_var),
+                    """
+                    Sorry, an issue occured with the variant position and intron/exon definition. An admin has been warned
+                    """
+                )
+            elif caller == 'cli':
+                return {
+                    'mobidetails_error':
+                    """
+                    Sorry, an issue occured with the variant position and intron/exon definition for {}
+                    """.format(vv_key_var)
+                }
+        if positions[0] != positions[1]:
+            # get IVS name
+            if vf_d['start_segment_type'] == 'intron':
                 ivs_obj = re.search(
-                    r'^\d+([\+-]\d+)_(\d+)([^\+-].+)$',
+                    r'^\d+([\+-]\d+)_\d+([\+-]\d+)(.+)$',
                     vf_d['c_name']
                 )
                 if ivs_obj:
-                    vf_d['ivs_name'] = 'IVS{0}{1}_{2}{3}'.format(
+                    vf_d['ivs_name'] = 'IVS{0}{1}_IVS{2}{3}{4}'.format(
                         vf_d['start_segment_number'],
                         ivs_obj.group(1),
+                        vf_d['end_segment_number'],
                         ivs_obj.group(2),
                         ivs_obj.group(3)
                     )
                 else:
                     ivs_obj = re.search(
-                        r'^(\d+)_\d+([\+-]\d+)(.+)$',
+                        r'^\d+([\+-]\d+)_(\d+)([^\+-].+)$',
                         vf_d['c_name']
                     )
                     if ivs_obj:
-                        vf_d['ivs_name'] = '{0}_IVS{1}{2}{3}'.format(
-                            ivs_obj.group(1), vf_d['end_segment_number'],
-                            ivs_obj.group(2), ivs_obj.group(3)
+                        vf_d['ivs_name'] = 'IVS{0}{1}_{2}{3}'.format(
+                            vf_d['start_segment_number'],
+                            ivs_obj.group(1),
+                            ivs_obj.group(2),
+                            ivs_obj.group(3)
                         )
-    else:
-        # substitutions
-        if vf_d['start_segment_type'] == 'intron':
-            ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
-            if ivs_obj:
-                vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(
-                    vf_d['start_segment_number'],
-                    ivs_obj.group(1),
-                    ivs_obj.group(2)
-                )
-            else:
-                send_error_email(
-                    prepare_email_html(
-                        'MobiDetails error',
-                        """
-                        <p>Issue with gene segments definition {0} in md_utilities create_var_vv</p>
-                        """.format(vv_key_var)
-                    ),
-                    '[MobiDetails - MD variant creation Error]'
-                )
-    if 'ivs_name' not in vf_d:
-        vf_d['ivs_name'] = 'NULL'
-    # ncbi_chr = get_ncbi_chr_name(db, 'chr{}'.format(hg38_d['chr']), genome)
+                    else:
+                        ivs_obj = re.search(
+                            r'^(\d+)_\d+([\+-]\d+)(.+)$',
+                            vf_d['c_name']
+                        )
+                        if ivs_obj:
+                            vf_d['ivs_name'] = '{0}_IVS{1}{2}{3}'.format(
+                                ivs_obj.group(1), vf_d['end_segment_number'],
+                                ivs_obj.group(2), ivs_obj.group(3)
+                            )
+        else:
+            # substitutions
+            if vf_d['start_segment_type'] == 'intron':
+                ivs_obj = re.search(r'^[\*-]?\d+([\+-]\d+)(.+)$', vf_d['c_name'])
+                if ivs_obj:
+                    vf_d['ivs_name'] = 'IVS{0}{1}{2}'.format(
+                        vf_d['start_segment_number'],
+                        ivs_obj.group(1),
+                        ivs_obj.group(2)
+                    )
+                else:
+                    send_error_email(
+                        prepare_email_html(
+                            'MobiDetails error',
+                            """
+                            <p>Issue with gene segments definition {0} in md_utilities create_var_vv</p>
+                            """.format(vv_key_var)
+                        ),
+                        '[MobiDetails - MD variant creation Error]'
+                    )
+        if 'ivs_name' not in vf_d:
+            vf_d['ivs_name'] = 'NULL'
     hg38_d['chr'] = ncbi_chr[0]
     record = get_value_from_tabix_file(
         'dbsnp', local_files['dbsnp']['abs_path'], hg38_d, vf_d
@@ -2859,7 +2794,7 @@ def create_var_vv_vcf_str(
         # substitutions
         if vf_d['dna_type'] == 'substitution':
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
-            mt_obj = re.search(r'>([ATGC])$', vf_d['c_name'])
+            mt_obj = re.search(r'>([ATGC])$', hg38_d['g_name'])
             vf_d['mt_seq'] = "{0} {1} {2}".format(begin, mt_obj.group(1), end)
         elif vf_d['dna_type'] == 'inversion':
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
@@ -2867,7 +2802,7 @@ def create_var_vv_vcf_str(
                 begin, reverse_complement(middle), end
             )
         elif vf_d['dna_type'] == 'indel':
-            ins_obj = re.search(r'delins([ATGC]+)', vf_d['c_name'])
+            ins_obj = re.search(r'delins([ATGC]+)', hg38_d['g_name'])
             exp_size = abs(len(middle)-len(ins_obj.group(1)))
             exp = ''
             for i in range(0, exp_size):
@@ -2885,7 +2820,7 @@ def create_var_vv_vcf_str(
                     begin, ins_obj.group(1), end
                 )
         elif vf_d['dna_type'] == 'insertion':
-            ins_obj = re.search(r'ins([ATGC]+)', vf_d['c_name'])
+            ins_obj = re.search(r'ins([ATGC]+)', hg38_d['g_name'])
             exp = ''
             for i in range(0, len(ins_obj.group(1))):
                 exp += '-'
@@ -2919,8 +2854,10 @@ def create_var_vv_vcf_str(
     s = ", "
     # attributes =
     t = "', '"
-    vf_d['gene_symbol'] = gene
-    vf_d['refseq'] = acc_no
+    # genic variants only
+    if vv_key_var != 'intergenic_variant_1':
+        vf_d['gene_symbol'] = gene
+        vf_d['refseq'] = acc_no
     insert_variant_feature = """
         INSERT INTO variant_feature ({0})
         VALUES ('{1}')
@@ -3062,13 +2999,6 @@ def get_segment_size_from_vv(start, end):
         return str(end - start + 1)
     return 'segment_size_error'
 
-
-# deprecated see https://github.com/beboche/MobiDetails/issues/45
-# def get_segment_size_from_vv_cigar(cigar):
-#     match_obj = re.search(r'^(\d+)=', cigar)
-#     if match_obj:
-#         return str(match_obj.group(1))
-#     return 'cigar_error'
 
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
@@ -3244,28 +3174,31 @@ def check_vv_variant_data(vv_key_var, vv_data):
             return 'The variant is lacking reference description in the variant validation.'
         if 'alt' not in vv_data[vv_key_var]['primary_assembly_loci']['hg38']['vcf']:
             return 'The variant is lacking alternative description in the variant validation.'
-        if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
-            return 'The variant is lacking RefSeqGene description in the variant validation.'
-        if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
-            return 'The variant is lacking protein description in the variant validation.'
-        if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
-            return 'The variant is lacking protein description in the variant validation.'
-        if 'variant_exonic_positions' not in vv_data[vv_key_var]:
-            return 'The variant is lacking exonic description in the variant validation.'
-        else:
-            ncbi_chrom_regexp = regexp['ncbi_chrom']
-            variant_regexp = regexp['variant']
-            match_obj = re.search(
-                rf'^({ncbi_chrom_regexp}):g\.{variant_regexp}$',
-                vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
-            )
-            if match_obj:
-                ncbi_chr = match_obj.group(1)
-                if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
-                    return 'The variant is lacking chromosomic description in the variant validation.'
-                if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
-                        'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
-                    return 'The variant is lacking exonic description in the variant validation.'
+        # deprecated david 20251107 refgene is no longer mandatory
+        # if 'hgvs_refseqgene_variant' not in vv_data[vv_key_var]:
+        #     return 'The variant is lacking RefSeqGene description in the variant validation.'
+        # genic variants only
+        if vv_key_var != 'intergenic_variant_1':
+            if 'hgvs_predicted_protein_consequence' not in vv_data[vv_key_var]:
+                return 'The variant is lacking protein description in the variant validation.'
+            if 'tlr' not in vv_data[vv_key_var]['hgvs_predicted_protein_consequence']:
+                return 'The variant is lacking protein description in the variant validation.'
+            if 'variant_exonic_positions' not in vv_data[vv_key_var]:
+                return 'The variant is lacking exonic description in the variant validation.'
+            else:
+                ncbi_chrom_regexp = regexp['ncbi_chrom']
+                variant_regexp = regexp['variant']
+                match_obj = re.search(
+                    rf'^({ncbi_chrom_regexp}):g\.{variant_regexp}$',
+                    vv_data[vv_key_var]['primary_assembly_loci']['hg38']['hgvs_genomic_description']
+                )
+                if match_obj:
+                    ncbi_chr = match_obj.group(1)
+                    if ncbi_chr not in vv_data[vv_key_var]['variant_exonic_positions']:
+                        return 'The variant is lacking chromosomic description in the variant validation.'
+                    if 'start_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr] or \
+                            'end_exon' not in vv_data[vv_key_var]['variant_exonic_positions'][ncbi_chr]:
+                        return 'The variant is lacking exonic description in the variant validation.'
         return True
     # print(vv_data)
     return False

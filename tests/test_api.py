@@ -102,6 +102,8 @@ def get_generic_api_key():
 @pytest.mark.parametrize(('variant_id', 'key', 'value'), (
     (256, 'cName', 'c.20050T>C'),
     (97699, 'hg19PseudoVCF', '1-216420460-C-A'),
+    (955691, 'hg19PseudoVCF', 'X-48542179-C-T'),
+    (955691, 'hg38PseudoVCF', 'X-48683790-C-T'),
 ))
 def test_api_variant(client, app, variant_id, key, value):
     with app.app_context():
@@ -228,6 +230,8 @@ def test_api_variant_create_rs(client, app, rs_id, api_key, caller, return_key, 
     ('1-216247118-C-TAGCTA', 'GRCh38', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 955507),
     ('1-216247118-C-TAGCTA', 'hg38', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 955507),
     ('1-216420460-C-TAGCTA', 'hg19', '', 'cli', 'NM_206933.4:c.2276delinsTAGCTA', 955507),
+    ('X-48683790-C-T', 'hg38', '', 'cli', 'intergenic_variant_1', 955691),
+    ('X-48542179-C-T', 'hg19', '', 'cli', 'intergenic_variant_1', 955691),
 ))
 def test_api_variant_create_vcf_str(client, app, genome_version, vcf_str, api_key, caller, return_key, message):
     with app.app_context():

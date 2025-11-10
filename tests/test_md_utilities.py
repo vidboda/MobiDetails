@@ -654,9 +654,10 @@ def test_get_bigwig_score(app, client, tool, var, expected, file_name, var_f):
 
 
 def test_getdbNSFP_results():
+    # clinpred
     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, var_f)
-    score, pred, star = md_utilities.getdbNSFP_results(0, 147, 149, ';', 'basic', 1.1, 'gt', record)
-    assert score == '0.815541'
+    score, pred, star = md_utilities.getdbNSFP_results(0, 109, 111, ';', 'basic', 1.1, 'gt', record)
+    assert score == '0.883407413959503'
     assert pred == 'Damaging'
     assert star == ''
 
@@ -851,7 +852,6 @@ def test_get_genomic_transcript_positions_from_vv_json(app, gene_symbol, transcr
         print('start: {0}, end: {1}'.format(start, end))
         assert start == start_result and end == end_result
 
-
 vv_dict = {
   "flag": "gene_variant",
   "NM_206933.4:c.100_101delinsA": {
@@ -1000,6 +1000,7 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
     ('http://rvv.chu-montpellier.fr/hello/?content-type=application/json', 'http://rvv.chu-montpellier.fr/'),
+    ('http://restvv2.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv2.chu-montpellier.fr/'),
     ('https://github.com', None),
     ('abcgcece', None),
 ))
@@ -1009,8 +1010,8 @@ def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
     ('browser', 'http://rvv.chu-montpellier.fr/'),
-    ('cli', 'http://rvv.chu-montpellier.fr/'),
-    ('nothing', 'http://rvv.chu-montpellier.fr/'),
+    ('cli', 'http://restvv2.chu-montpellier.fr/'),
+    ('nothing', 'http://restvv2.chu-montpellier.fr/'),
     (None, 'http://rvv.chu-montpellier.fr/'),
 ))
 def test_get_vv_api_url(caller, vv_api_url):
@@ -1034,6 +1035,26 @@ def test_vv_internal_server_error():
     assert 'mobidetails_error' in md_utilities.vv_internal_server_error('cli', vv_error, 'NM_001322246.2:c.2del')
 
 
+vv_intergenic_dict = {'flag': 'intergenic', 'intergenic_variant_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {'ccds_ids': [], 'ensembl_gene_id': 'ENSG00000039068', 'entrez_gene_id': '999', 'hgnc_id': 'HGNC:1748', 'omim_id': ['192090'], 'ucsc_id': 'uc002ewg.2'}, 'gene_symbol': 'CDH1', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': 'LRG_301:g.4923G>A', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': 'NG_008021.1:g.4923G>A', 'hgvs_transcript_variant': '', 'lovd_corrections': None, 'lovd_messages': None,
+ 'primary_assembly_loci': {'grch37': {'hgvs_genomic_description': 'NC_000016.9:g.68771117G>A', 'vcf': {'alt': 'A', 'chr': '16', 'pos': '68771117', 'ref': 'G'}}, 'grch38': {'hgvs_genomic_description': 'NC_000016.10:g.68737214G>A', 'vcf': {'alt': 'A', 'chr': '16', 'pos': '68737214', 'ref': 'G'}}, 'hg19': {'hgvs_genomic_description': 'NC_000016.9:g.68771117G>A', 'vcf': {'alt': 'A', 'chr': 'chr16', 'pos': '68771117', 'ref': 'G'}}, 'hg38': {'hgvs_genomic_description': 'NC_000016.10:g.68737214G>A', 'vcf': {'alt': 'A', 'chr': 'chr16', 'pos': '68737214', 'ref': 'G'}}}, 'reference_sequence_records': {'lrg': 'http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_301.xml', 'refseqgene': 'https://www.ncbi.nlm.nih.gov/nuccore/NG_008021.1'}, 'refseqgene_context_intronic_sequence': '', 'rna_variant_descriptions': None, 'selected_assembly': 'GRCh38', 'submitted_variant': '16:68737214:G:A', 'transcript_description': '', 'validation_warnings': ['No transcripts found that fully overlap the described variation in the genomic sequence'], 'variant_exonic_positions': None}, 'metadata': {'variantvalidator_hgvs_version': '2.2.1.dev7+g59392c5', 'variantvalidator_version': '3.0.2.dev98+g89a7f1c', 'vvdb_version': 'vvdb_2025_3', 'vvseqrepo_db': 'VV_SR_2025_02/master', 'vvta_version': 'vvta_2025_02'}}
+
+# hg38_intergenic_test_d = {
+#     'genome_version': 'hg38',
+#     'g_name': '68737214G>A',
+#     'chr': '16',
+#     'pos_ref': 'G',
+#     'pos': '216422236',
+#     'pos_alt': 'A'
+# }
+# hg19_intergenic_test_d = {
+#     'genome_version': 'hg19',
+#     'g_name': '68771117G>A',
+#     'chr': '16',
+#     'pos_ref': 'G',
+#     'pos': '216595578',
+#     'pos_alt': 'A'
+# }
+
 def test_create_var_vv(client, app):
     with app.app_context():
         g = fake_g_obj()
@@ -1053,15 +1074,24 @@ def test_create_var_vv_vcf_str(client, app):
     with app.app_context():
         g = fake_g_obj()
         db_pool, db = get_db()
-        res_id = md_utilities.create_var_vv_vcf_str(
+        res_id_1 = md_utilities.create_var_vv_vcf_str(
+            'intergenic_variant_1', None, None,
+            'c.None', None, vv_intergenic_dict,
+            'test', db, g
+        )
+        res_id_2 = md_utilities.create_var_vv_vcf_str(
             'NM_206933.4:c.100_101delinsA', 'USH2A', 'NM_206933.4',
             'c.100_101delinsA', 'c.100_101delinsA', vv_dict,
             'test', db, g
         )
         db_pool.putconn(db)
-        print(res_id)
-        assert isinstance(res_id, int)
-        assert res_id == 955514
+        print(res_id_1)
+        print(res_id_2)
+        assert isinstance(res_id_1, int)
+        assert res_id_1 == 955690
+        assert isinstance(res_id_2, int)
+        assert res_id_2 == 955514
+     
 
 @pytest.mark.parametrize(('name', 'result'), (
     ('216595578_216595582delinsT', ('216595578', '216595582')),

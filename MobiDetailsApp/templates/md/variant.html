@@ -36,18 +36,20 @@
 			<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg19_acc', 'hg19_icon');">hg19 <i class="fa fa-caret-down" id="hg19_icon"></i></button>
 			<div class="w3-show" id="hg19_acc">
 				{{ link("%schr%s:%s-%s&highlight=hg19.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg19, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end, urls.ucsc_hg19_session), "hg19 UCSC")}}
-				{{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end), "ESP6500") }}
+				{# {{ link("%s&chromosome=%s&chromoStart=%s&chromoEnd=%s&x=0&y=0"|format(urls.evs, external_data.VCF.chr, external_data.VCF.hg19.pos, positions.end), "ESP6500") }} #}
 				{# {{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "gnomAD v2")}} #}
 				{% if external_data.positions.DNAType == 'substitution' %}
-					{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "CADD")}}
-					{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
-					{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "hg19 InterVar")}}
-					{% endif %}
+				{{ link("%ssnv/GRCh37-%s/%s:%s_%s_%s"|format(urls.cadd, external_tools.CADD.version, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "CADD")}}
+				{% if internal_data.nomenclatures.cName is not none and external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
+				{{ link("%shg19_updated.v.201904&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt), "hg19 InterVar")}}
 				{% endif %}
+				{% endif %}
+				{% if external_data.nomenclatures.cName is not none %}
 				{% if external_data.positions.proteinTypeSoAccession is not none %}
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome] AND \"so %s\"[Molecular consequence])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.positions.proteinTypeSoAccession, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
 				{% else %}
 				{{ link("%s?term=(((%s[Base Position for Assembly GRCh37]) AND %s[Chromosome])) OR ((%s):c.%s [Variant name])"|format(urls.ncbi_clinvar, external_data.VCF.hg19.pos, external_data.VCF.chr, external_data.gene.symbol, internal_data.nomenclatures.cName), "Clinvar search")}}
+				{% endif %}
 				{% endif %}
 				{% if internal_data.frequenciesDatabases.dbSNPrsid is not none %}
 				{# {{ link("%srs%s"|format(urls.ncbi_dbsnp, internal_data.frequenciesDatabases.dbSNPrsid), "dbSNP")}} #}
@@ -77,10 +79,12 @@
 			{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 			{{ link("%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "hg38 InterVar")}}
 			{% endif %}
+			{% if external_data.nomenclatures.cName is not none %}
 			{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
 			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
 			{% else %}
 			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
+			{% endif %}
 			{% endif %}
 			{% endif %}
 		</div>
@@ -95,18 +99,21 @@
 			{% endif %}
 		</div>
 		{% endif %}
+		{% if internal_data.nomenclatures.cName is not none or g.user %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('bonus_acc', 'bonus_icon');">bonus <i class="fa fa-caret-down" id="bonus_icon"></i></button>
 		<div class="w3-show" id="bonus_acc">
-			{{ link("%s/search?genes=%s&phenotypes="|format(urls.pubmatcher, external_data.gene.symbol), 'PubMatcher') }}
-			{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
-			{% elif not external_data.gene.proteinSize %}
-			{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+			{% if internal_data.nomenclatures.cName is not none %}
+				{{ link("%s/search?genes=%s&phenotypes="|format(urls.pubmatcher, external_data.gene.symbol), 'PubMatcher') }}
+				{% if external_data.gene.proteinSize and external_data.gene.proteinSize < 2700 %}
+					{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+				{% elif not external_data.gene.proteinSize %}
+					{{ link("%sentry/%s"|format(urls.alphafold, external_data.gene.uniprotId), 'AlphaFold') }}
+				{% endif %}
+				{% if external_data.gene.clingenCriteriaSpec %}
+					{{ link("%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
+				{% endif %}
+				{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 			{% endif %}
-			{% if external_data.gene.clingenCriteriaSpec %}
-			{{ link("%sdoc/%s"|format(urls.clingen_gene_spec_web, external_data.gene.clingenCriteriaSpec), 'ClinGen') }}
-			{% endif %}
-			{{ link(url_for('md.gene', gene_symbol=external_data.gene.symbol), "MD %s"|format(external_data.gene.symbol)) }}
 			{% if g.user %}
 				{% if favourite is none or favourite.type == 2 %}
 				<span class="w3-bar-item w3-button w3-large w3-hover-blue w3-border-bottom w3-center" id="favour_span" name='mark' onclick="favourite('{{ external_data.variantId }}', 'add', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" title="Mark as favourite"><i id="favour" class="fa fa-star"></i>
@@ -123,23 +130,28 @@
 				</span>
 				{% endif %}
 			{% endif %}
+		{% endif %}
 		</div>
 	</div>
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:601;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
+		{% if internal_data.nomenclatures.cName is not none %}
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
+		{% endif %}
 		<a href="#literature" class="w3-bar-item w3-button w3-mobile">Literature</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		{% if external_data.functionalStudies.mavedb_score is not none or internal_data.episignature.ExpertACMGClassification is not none %}
 		<a href="#functional" class="w3-bar-item w3-button w3-mobile">Functional Studies</a>
 		{% endif %}
 		<a href="#predictions" class="w3-bar-item w3-button w3-mobile">Predictions</a>
-		<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
-		{% if external_data.positions.proteinType == 'missense' %}
-		<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
-		{% endif %}
-		{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
-		<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
+		{% if internal_data.nomenclatures.cName is not none %}
+			<a href="#splicing" class="w3-bar-item w3-button w3-mobile">Splicing</a>
+			{% if external_data.positions.proteinType == 'missense' %}
+			<a href="#missense" class="w3-bar-item w3-button w3-mobile">Missense</a>
+			{% endif %}
+			{% if external_data.positions.DNAType == 'substitution' and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
+			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
+			{% endif %}
 		{% endif %}
 		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) %}
 		<a href="#noncoding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
@@ -153,8 +165,9 @@
 		<a href="{{ url_for('md.about', _anchor='disclaimer') }}" target="_blank" class="w3-bar-item w3-button w3-mobile" rel="noopener noreferrer">Cite</a>
 	</div>
 	<div id="global_content" style="margin-left:15%">
-		<hr />
 		<input type="hidden" name="variant_id" id="variant_id" value="{{ external_data.variantId }}" />
+		{% if internal_data.nomenclatures.cName is not none %}
+		<hr />
 		<!--alternative mappings-->
 		{% if internal_data.admin.otherIds is not none %}
 		<div class="w3-margin w3-panel w3-pale-green w3-leftbar">
@@ -162,7 +175,7 @@
 			<ul>
 				{% for id in internal_data.admin.otherIds %}
 				<li>
-				{% autoescape false %}
+					{% autoescape false %}
 					<a href="{{ url_for('api.variant', variant_id=id.feature_id, caller='browser') }}" onclick="show_loader();">{{ "%s(<em>%s</em>):c.%s" | format(id.refseq, id.gene_symbol, id.c_name) }}</a>
 					{% if id.canonical %}
 					<div class="w3-tag w3-round w3-green" style="padding:3px">
@@ -172,27 +185,27 @@
 					</div>
 					{% endif %}
 					{% if internal_data.admin.transcript_road_signs is not none  and id.refseq in internal_data.admin.transcript_road_signs%}
-						{% if internal_data.admin.transcript_road_signs[id.refseq]['mane_select'] %}
-						<div class="w3-tag w3-round w3-green" style="padding:3px">
-							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-								MANE Select
-							</div>
+					{% if internal_data.admin.transcript_road_signs[id.refseq]['mane_select'] %}
+					<div class="w3-tag w3-round w3-green" style="padding:3px">
+						<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+							MANE Select
 						</div>
-						{% elif internal_data.admin.transcript_road_signs[id.refseq]['mane_plus_clinical'] %}
-						<div class="w3-tag w3-round w3-green" style="padding:3px">
-							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-								MANE Plus Select
-							</div>
+					</div>
+					{% elif internal_data.admin.transcript_road_signs[id.refseq]['mane_plus_clinical'] %}
+					<div class="w3-tag w3-round w3-green" style="padding:3px">
+						<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+							MANE Plus Select
 						</div>
-						{% elif internal_data.admin.transcript_road_signs[id.refseq]['refseq_select'] %}
-						<div class="w3-tag w3-round w3-green" style="padding:3px">
-							<div class="w3-tag w3-round w3-green w3-border w3-border-white">
-								RefSeq Select
-							</div>
+					</div>
+					{% elif internal_data.admin.transcript_road_signs[id.refseq]['refseq_select'] %}
+					<div class="w3-tag w3-round w3-green" style="padding:3px">
+						<div class="w3-tag w3-round w3-green w3-border w3-border-white">
+							RefSeq Select
 						</div>
-						{% endif %}
+					</div>
 					{% endif %}
-				{% endautoescape %}
+					{% endif %}
+					{% endautoescape %}
 				</li>
 				{% endfor %}
 			</ul>
@@ -200,7 +213,7 @@
 		{% endif %}
 		{% if internal_data.admin.mappedCanonical is not none %}
 		{{ danger('This variant may be annotated on the current canonical isoform (%s) using the following expression, <br /> directly in the search engine at the bottom of the page or by using the blue button below: <br />
-		%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
+			%s:g.%s;%s' | format(internal_data.admin.mappedCanonical, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName, external_data.gene.symbol))}}
 		<div class="w3-margin w3-panel w3-pale-red w3-leftbar">
 			<p>
 				<span id="annnotation_launcher" class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="submit_create_var_g('{{ url_for('api.api_variant_g_create') }}', '{{ internal_data.admin.apiKey }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');$('#annnotation_launcher').hide();$('#result_display').show();">Try annotation on the canonical {{ internal_data.admin.mappedCanonical }}</span>
@@ -208,12 +221,13 @@
 			</p>
 		</div>
 		{% endif %}
+		{% endif %}
 		<!-- Section : Nomenclatures -->
 		<div id="mobile_var_name" class="w3-center w3-blue" style="display:none;">{{ "%s:%s:c.%s"|format(external_data.gene.symbol, external_data.gene.RefSeqTranscript, internal_data.nomenclatures.cName) }}</div>
 		<hr />
 		{{ section_title('nomenclatures', 'Nomenclatures') }}
 		{% if external_data.VCF.hg19.ncbiChr is none %}
-			{{ danger('This variant was not correctly mapped onto the hg19 version of the human genome. Therefore, some links/resources are not reachable.') }}
+		{{ danger('This variant was not correctly mapped onto the hg19 version of the human genome. Therefore, some links/resources are not reachable.') }}
 		{% endif %}
 		<div class="w3-container w3-responsive">
 			<table class="w3-table w3-centered display compact" style="width:90%" id="nomenclature_table">
@@ -226,6 +240,7 @@
 				</thead>
 				<tbody>
 					<script>var field_copied_tag = '<div class="w3-tag w3-round w3-grey" style="padding:2px"><div class="w3-tag w3-round w3-grey w3-border w3-border-white">Field copied!</div></div>';</script>
+					{% if internal_data.nomenclatures.cName is not none %}
 					<!--HGNC gene symbol-->
 					<tr>
 						<td class="w3-left-align">HGNC gene symbol (ID):</td>
@@ -286,6 +301,7 @@
 						<td class="w3-left-align" id="hgvs_np_nom"><a href="{{ urls.ncbi_prot }}{{ external_data.gene.RefSeqNp }}" target="_blank" title="open NCBI page for {{ external_data.gene.RefSeqNp }}" rel="noopener noreferrer">{{ external_data.gene.RefSeqNp }}</a>:<span id="hgvs_p_name">p.({{ internal_data.nomenclatures.pName }})</span></td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_np_nom');$('#hgvs_np_copied').html(field_copied_tag);" title="copy HGVS NP nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_np_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at protein level</em></td>
 					</tr>
+					{% endif %}
 					<!--HGVS genomic (gene) removed-->
 					{#
 					{% if external_data.gene.RefSeqNg != 'NG_000000.0' and internal_data.nomenclatures.ngName is not none %}
@@ -359,6 +375,7 @@
 				</div>
 			</div>
 		</div>
+		{% if internal_data.nomenclatures.cName is not none %}
 		<!-- Section : Positions -->
 		<hr />
 		{{ section_title('positions', 'Positions') }}
@@ -376,49 +393,49 @@
 					<tr><!--Position in transcript-->
 						<td class="w3-left-align">Position in transcript:</td>
 						{% if external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
-							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}</td>
+						<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}</td>
 						{% else %}
-							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
+						<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}</em></td>
 					</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
 					{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
 						{% if pos_splice is not none %}
-							<tr>
-								<td class="w3-left-align">Position / splice site</td>
-								<td class="w3-left-align">{{ external_data.positions.nearestSsDist }} bp from {{ external_data.positions.nearestSsType }}</td>
-								<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
-							</tr>
+						<tr>
+							<td class="w3-left-align">Position / splice site</td>
+							<td class="w3-left-align">{{ external_data.positions.nearestSsDist }} bp from {{ external_data.positions.estSsType }}</td>
+							<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
+						</tr>
 						{% endif %}
 						{% if external_data.positions.proteinType != 'unknown' %}
 						{{ external_data.positions.proteinSize }}
-							{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
-								<!-- in case prot size is wrong-->
-								<tr><!--protein-->
-									<td class="w3-left-align">Position / protein</td>
-									<td class="w3-left-align">
-										<span>{{ external_data.positions.aaPositionStart }}</span>
-										{% if external_data.positions.aaPositionStart != external_data.positions.aaPositionEnd %}
-											<span> - {{ external_data.positions.aaPositionEnd }}</span>
-										{%endif %}
-									 <span> / {{ external_data.gene.proteinSize }}</span>
-									</td>
-									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
-								</tr><!--protein domain-->
+						{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
+						<!-- in case prot size is wrong-->
+						<tr><!--protein-->
+							<td class="w3-left-align">Position / protein</td>
+							<td class="w3-left-align">
+								<span>{{ external_data.positions.aaPositionStart }}</span>
+								{% if external_data.positions.aaPositionStart != external_data.positions.aaPositionEnd %}
+								<span> - {{ external_data.positions.aaPositionEnd }}</span>
+								{%endif %}
+							 <span> / {{ external_data.gene.proteinSize }}</span>
+							</td>
+							<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
+						</tr><!--protein domain-->
+						{% endif %}
+						<tr>
+							<td class="w3-left-align">Position / domain</td>
+							{% if external_data.positions.proteinDomain[0] is defined %}
+							<td class="w3-left-align">
+								{% for dom in external_data.positions.proteinDomain  %}
+								{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
+								{% endfor %}
+							</td>
+							{% else %}
+							<td class="w3-left-align">Not in a UNIPROT defined domain</td>
 							{% endif %}
-							<tr>
-								<td class="w3-left-align">Position / domain</td>
-								{% if external_data.positions.proteinDomain[0] is defined %}
-									<td class="w3-left-align">
-									{% for dom in external_data.positions.proteinDomain  %}
-										{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
-									{% endfor %}
-									</td>
-								{% else %}
-									<td class="w3-left-align">Not in a UNIPROT defined domain</td>
-								{% endif %}
-								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
-							</tr>
+							<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
+						</tr>
 						{% endif %}
 						{% if external_data.positions.metaDomednds is not none %}
 							<td class="w3-left-align">Position tolerance</td>
@@ -429,28 +446,30 @@
 					<tr>
 						<td class="w3-left-align">Wild type sequence</td>
 						<td class="w3-left-align txt" id="wt_seq">{{ external_data.sequences.wildType }}</td>
-						<!-- <td class="w3-left-align txt"><textarea id="wt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.wildType }}</textarea></td> -->
-						<!-- <td class="w3-left-align"><em class="w3-small">Wild type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('wt_seq');" title="copy wild type sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td> -->
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('wt_seq');$('#wt_seq_copied').html(field_copied_tag);" title="copy wild-type sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="wt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Wild type DNA sequence +/- 25 bp</em></td>
 					</tr>
 					<tr>
 						<td class="w3-left-align">Mutant sequence</td>
 						<td class="w3-left-align txt" id="mt_seq">{{ external_data.sequences.mutant }}</td>
-						<!-- <td class="w3-left-align txt"><textarea id="mt_seq" rows="3" cols="30" readonly>{{ external_data.sequences.mutant }}</textarea></td>
-						<td class="w3-left-align"><em class="w3-small">Mutant type DNA sequence +/- 25 bp&nbsp;&nbsp;&nbsp;<button onclick="copy_text('mt_seq');" title="copy mutant sequence to clipboard"><i class="fa fa-clipboard" aria-hidden="true"></i></button></em></td> -->
 						<td class="w3-left-align"><em class="w3-small"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('mt_seq');$('#mt_seq_copied').html(field_copied_tag);" title="copy mutant sequence"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="mt_seq_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;Mutant DNA sequence +/- 25 bp</em></td>
 					</tr>
 				</tbody>
-			</table><br/><br/>
+			</table><br /><br />
+		</div>
+		{% endif %}
+		{% if internal_data.nomenclatures.cName is none %}
+		<br /><br />
+		{% endif %}
+		<div class="w3-responsive w3-container">
 			<div class="w3-row-padding">
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
 				<div class="w3-col m6" id="defgen_hg19">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file the variant" style="width:100%" id="defgen_btn_hg19" onclick="defgen_export('hg19', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg19)</span>
 					<div class="w3-modal" id="defgen_modal_hg19" style="z-index:2002;"></div>
 				</div>
 				{% endif %}
 				<div class="w3-col m6" id="defgen_hg38">
-					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file for the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
+					<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" title="generates a DEFGEN compliant csv file the variant" style="width:100%" id="defgen_btn_hg38" onclick="defgen_export('hg38', '{{ external_data.variantId }}', '{{ url_for('ajax.defgen') }}', '{{ csrf_token() }}');">Export to DEFGEN (hg38)</span>
 					<div class="w3-modal" id="defgen_modal_hg38" style="z-index:2002;"></div>
 				</div>
 			</div>
@@ -548,17 +567,7 @@
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2ExomeNonCancer }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Exomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
 					</tr>
-					<!-- <tr>gnomAD genome non cancer - removed 20230703 always empty dataset see issue #55
-						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r2_1'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg19.pos, external_data.VCF.hg19.ref, external_data.VCF.hg19.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> genome (non cancer):</td>
-						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv2GenomeNonCancer }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v2.1.1 Genomes <strong>MAX MAF</strong> for non-cancer dataset</em></td>
-					</tr> -->
 					{% endif %}
-					{# <tr><!--gnomAD v3 removed 20231128 -->
-						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r3'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> v3:</td>
-						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv3 }}</td>
-						<td class="w3-left-align"><em class="w3-small"> v3 Genomes <strong>global MAF</strong></em></td>
-					</tr> #}
 					<tr><!--gnomAD v4 genome-->
 						<td class="w3-left-align"><a href="{{ '%svariant/%s-%s-%s-%s?dataset=gnomad_r4'|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Visit gnomAD for this variant" rel="noopener noreferrer">gnomAD</a> v4 Genome:</td>
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv4Genome }}</td>
@@ -718,8 +727,7 @@
 						</td>
 					</tr>
 					{% endif %}
-					{% if external_data.frequenciesDatabases.clinvarSci  is not none %}
-					{% endif %}
+					{% if external_data.nomenclatures.cName is not none %}
 					<tr><!-- ClinGen Evidence Repository -->
 						<td class="w3-left-align">ClinGen EvRepo:</td>
 						<td class="w3-left-align">
@@ -727,6 +735,7 @@
 						</td>
 						<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.clingen_evrepo }}" target="_blank" title="Visit ClinGen EvRepo" rel="noopener noreferrer">ClinGen Evidence Repository</a> Classification for the variant</em></td>
 					</tr>
+					{% endif %}
 					{% if external_data.gene.clingenCriteriaSpec %}
 					<tr><!-- ClinGen Specification Registry -->
 						<td class="w3-left-align">ClinGen Criteria:</td>
@@ -747,6 +756,7 @@
 							</td>
 						</tr>
 					{% endif %}
+					{% if external_data.nomenclatures.cName is not none %}
 					<tr id="genebe_tr" onmouseout="$('#genebe_acmg_info').text('');"><!--genebe-->
 						<td class="w3-left-align"><a href="{{ '%s/variant/hg38/%s-%s-%s-%s'|format(urls.genebe, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt) }}" target="_blank" title="Check and adjust ACMG class at GeneBe" rel="noopener noreferrer">GeneBe</a>:</td>
 						<td class="w3-left-align">
@@ -762,6 +772,7 @@
 						</td>
 						<td class="w3-left-align" id="lovd_description"><em class="w3-small">LOVD match in public instances</em></td>
 					</tr>
+					{% endif %}
 				</tbody>
 			</table><br/><br/>
 			<!--hidden values to trigger intervar/spliceaivisual ajax-->
@@ -924,6 +935,7 @@
 				</tbody>
 			</table><br/><br/>
 		</div>
+		{% if external_data.nomenclatures.cName is not none %}
 		<!-- Section : Splicing predictions -->
 		<hr />
 		{{ section_title('splicing', 'Splicing predictions') }}		
@@ -1411,9 +1423,10 @@
 		{% elif internal_data.noMatch.dbmts is not none %}
 			{{ info(internal_data.noMatch.dbmts) }}
 		{% endif %}
+		{% endif %} {# end no splice, 3'UTR for intergenic #}
 		<!-- Section : non-coding predictions -->
 		{# {% if external_data.positions.proteinType == 'unknown' %} #}
-		{% if (external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution') and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
+		{% if ((external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown') and external_data.positions.DNAType == 'substitution') and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none) %}
 			<hr />
 			{{ section_title('noncoding', 'Non-coding variants predictions') }}
 			<div class="w3-responsive w3-container">
@@ -1916,7 +1929,7 @@
 		{% if external_data.VCF.hg19.ncbiChr is not none %}
 			{% set _ = modal_js_list.append('defgen_modal_hg19') %}
 		{% endif %}
-		{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
+		{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown') and external_data.positions.DNAType == 'substitution' %}
 			{% set _ = modal_js_list.append('radar_mobideep_modal') %}
 		{% endif %}
 		{{ modal_js(modal_js_list) }}
@@ -2202,7 +2215,7 @@
 				{{ info("The first <a href='%s'>logged in</a> user to assign a classification to this variant will become its \"owner\" (<a href='%s' target='_blank' rel='noopener noreferrer'>create an account</a>)."|format(url_for('auth.login'), url_for('auth.register'))) }}
 			{% endif %}
 		</div>
-		<br/><br/><br />
+		<br/><br /><br />
 		<div class="w3-container w3-padding-64 w3-center" id="res_versions" style="display:none">
 			<div class="w3-responsive w3-container">
 				<table class="w3-table w3-centered display compact" style="width:90%" id="resource_table">
@@ -2236,6 +2249,7 @@
 	<script>
 		$(document).ready(function() {
 			litvar2('{{ url_for('ajax.litvar2') }}', '{{ csrf_token() }}');
+			{% if external_data.nomenclatures.cName is not none %}
 			clingen_evrepo('{{ urls.clingen_evrepo_api }}', $('#hgvs_strict_genomic_hg38').text(), '{{ url_for('md.about', _anchor='cite') }}');
 			{% if external_data.VCF.hg19.ncbiChr is not none %}
 				lovd('{{ url_for('ajax.lovd') }}', $('#genome_19').text(), $('#chrom_19').text(), $('#hg19_g_name').text(), '{{ csrf_token() }}');
@@ -2243,10 +2257,13 @@
 			{% else %}
 				lovd('{{ url_for('ajax.lovd') }}', $('#genome_38').text(), $('#chrom_38').text(), $('#hg38_g_name').text(), '{{ csrf_token() }}');
 			{% endif %}
+			{% endif %}
+			{% if external_data.nomenclatures.cName is not none %}
 			genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
-			{% if external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution' %}
+			{% endif %}
+			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown')  and external_data.positions.DNAType == 'substitution' %}
 			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
 			{% endif %}
 			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text());

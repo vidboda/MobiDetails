@@ -198,20 +198,46 @@ def defgen():
             (variant_id, genome)
         )
         vf = curs.fetchone()
-        file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
+        if vf:
+            file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
+    VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;\
+    REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;\
+    NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
+            rsid = ''
+            if vf['dbsnp_id']:
+                rsid = 'rs{0}'.format(vf['dbsnp_id'])
+            file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
+;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
+                vf['gene_symbol'], vf['refseq'],
+                vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
+                rsid, vf['prot_type'], vf['chr'], genome,
+                vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
+            )
+        else:
+             # intergenic variant
+            curs.execute(
+                """
+                SELECT *
+                FROM variant_feature a, variant b
+                WHERE a.id = b.feature_id
+                    AND a.id = %s
+                    AND b.genome_version = %s
+                """,
+                (variant_id, genome)
+            )
+            vf = curs.fetchone()
+            file_content = "GENE;VARIANT;A_ENREGISTRER;ETAT;RESULTAT;VARIANT_P;\
 VARIANT_C;ENST;NM;POSITION_GENOMIQUE;CLASSESUR5;CLASSESUR3;COSMIC;RS;\
 REFERENCES;CONSEQUENCES;COMMENTAIRE;CHROMOSOME;GENOME_REFERENCE;\
 NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
-        rsid = ''
-        if vf['dbsnp_id']:
-            rsid = 'rs{0}'.format(vf['dbsnp_id'])
-        file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
-;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
-            vf['gene_symbol'], vf['refseq'],
-            vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
-            rsid, vf['prot_type'], vf['chr'], genome,
-            vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
-        )
+            rsid = ''
+            if vf['dbsnp_id']:
+                rsid = 'rs{0}'.format(vf['dbsnp_id'])
+            file_content += ";;;;;;;;;{0};;;;{1};;;;\
+chr{2};{3};chr{2}:g.{4};;;;;\r\n".format(
+                vf['pos'], rsid, vf['chr'], genome,
+                vf['g_name']
+            )
         # print(file_content)
         app_path = os.path.dirname(os.path.realpath(__file__))
         file_loc = "defgen/{0}-{1}-{2}{3}-{4}.csv".format(
@@ -220,11 +246,16 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
         with open("{0}/static/{1}".format(app_path, file_loc), "w") as defgen_file:
             defgen_file.write(file_content)
         close_db()
+        variant = "chr{0}:g.{1}".format(
+                vf['chr'], vf['g_name']
+            )
+        if vf['c_name']:
+            variant = "{0}:c.{1}".format(
+                vf['refseq'], vf['c_name']
+            )
         return render_template(
             'ajax/defgen.html',
-            variant="{0}:c.{1}".format(
-                vf['refseq'], vf['c_name']
-            ),
+            variant=variant,
             defgen_file=file_loc,
             genome=genome
         )

@@ -26,7 +26,12 @@
 		<title>
 		{% block title %}
 			{% if external_data is defined %}
-			{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
+				{% if internal_data.nomenclatures.cName is not none %}
+					{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
+				{% else %}
+					{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}
+				{% endif %}
+
 			{% endif %}
 		{% endblock %} - MobiDetails</title>
 	</head>
@@ -84,7 +89,11 @@
 					</div>
 					<!--page title-->
 					<div>
+						{% if internal_data.nomenclatures.cName is not none %}
 						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
+						{% else %}
+						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</span>
+						{% endif %}
 					</div>
 					{% endif %}
 					{% if g.user and g.user.username != 'mobidetails' %}

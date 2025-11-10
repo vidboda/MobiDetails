@@ -52,20 +52,19 @@ function litvar2(litvar_url, csrf_token) {
 function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security
-    $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-          xhr.setRequestHeader("X-CSRFToken", csrf_token);
-        }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
       }
-    });
+    }
+  });
 	$.ajax({
 		type: "POST",
 		url: lovd_url,
 		data: {
 			genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene: $('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
 		}
-        // pos: $('#pos_19').text(),
 	})
 	.done(function(html) {
     // selector for datatable
