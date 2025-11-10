@@ -89,7 +89,7 @@
   '5UTR': 1
   'intron': 2
   'non-coding_exon': 3
-  'upstream': 4
+  'intergenic': 4
   'exon': None
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
