@@ -678,7 +678,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         
         if variant_features['dna_type'] == 'indel' \
                 or variant_features['dna_type'] == 'insertion':
-            match_obj = re.search(r'ins([ATGC]+)$', variant['g_name'])
+            match_obj = re.search(r'ins([ATGC]+)$', variant[0]['g_name'])
             if match_obj:
                 internal_data['positions']['insSize'] = len(match_obj.group(1))
 
