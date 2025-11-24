@@ -598,10 +598,14 @@ def search_engine():
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 curs.execute(
                     """
-                    SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq, a.creation_user, a.creation_date, b.username
-                    FROM variant_feature a, mobiuser b
+                    SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq,
+                        a.creation_user, a.creation_date, b.username,
+                        c.g_name, c.chr, c.genome_version
+                    FROM variant_feature a, mobiuser b, variant c
                     WHERE a.creation_user = b.id
+                        AND a.id = c.feature_id
                         AND a.creation_date > CURRENT_DATE - 7
+                        AND c.genome_version = 'hg38'
                     ORDER BY creation_date DESC
                     """
                 )

@@ -20,7 +20,12 @@
 	<div class="w3-container w3-padding-32 w3-margin w3-mobile" id="multiple_vars">
 		<ul  class="w3-ul">
 		{% for var in variants %}
-			<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page"><span><em>{{ var.gene_symbol }}</em> - {{ "%s:c.%s - p.(%s)"|format(var.refseq, var.c_name, var.p_name) }}</span>
+			<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+			{% if var.gene_symbol is not none %}
+			<span><em>{{ var.gene_symbol }}</em> - {{ "%s:c.%s - p.(%s)"|format(var.refseq, var.c_name, var.p_name) }}</span>
+			{% else %}
+			<span><em>{{ var.genome_version }}</em> - {{ "chr%s:g.%s"|format(var.chr, var.g_name) }} (intergenic variant)</span>
+			{% endif%}
 			{% if var.creation_date is defined%}
 				<span class="w3-right">{{ var.username }} - {{ var.creation_date }}</span>
 			{% endif %}
