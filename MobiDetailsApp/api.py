@@ -647,8 +647,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             # convert into mobideep Charts.js position in graph [0-4] or None for exons
             # internal_data['positions']['locationMobiDeepGraph'] = md_utilities.mobideepGraphPosition[external_data['positions']['variantLocation']]
         else:
-            external_data['positions']['variantLocation']  = 'enhancer'
+            external_data['positions']['variantLocation']  = 'intergenic'
         # convert into mobideep Charts.js position in graph [0-5] or None for exons
+        print(external_data['positions']['variantLocation'])
+        print(md_utilities.mobideepGraphPosition)
         internal_data['positions']['locationMobiDeepGraph'] = md_utilities.mobideepGraphPosition[external_data['positions']['variantLocation']]
 
 
