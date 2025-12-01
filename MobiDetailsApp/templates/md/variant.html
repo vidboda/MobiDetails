@@ -66,6 +66,9 @@
 		{% endif %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('hg38_acc', 'hg38_icon');">hg38 <i class="fa fa-caret-down" id="hg38_icon"></i></button>
 		<div class="w3-show" id="hg38_acc">
+			{% if (external_data.positions.proteinTypeSoAccession is not none and (external_data.positions.proteinTypeSoAccession == '0001589' or external_data.positions.proteinTypeSoAccession == '0001587' or external_data.positions.proteinTypeSoAccession == '0001582')) or (external_data.positions.segmentStartType == 'intron' and internal_data.positions.distFromExon < 3) %}
+			{{ link("%svariant/hg38/chr%s-%s-%s-%s"|format(urls.autopvs1, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "AutoPVS1")}}
+			{% endif %}
 			{{ link("%schr%s:%s-%s&highlight=hg38.chr%s:%s-%s&hgsid=%s"|format(urls.ucsc_hg38, external_data.VCF.chr, positions.min, positions.max, external_data.VCF.chr, external_data.VCF.hg38.pos, positions.end, urls.ucsc_hg38_session), "hg38 UCSC") }}
 			{{ link("%ssequence-variant/%s-%s-%s-%s"|format(urls.decipher, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "DECIPHER")}}
 			{# {{ link("%svariant/%s-%s-%s-%s?dataset=gnomad_r4"|format(urls.gnomad, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "gnomAD v4")}} #}

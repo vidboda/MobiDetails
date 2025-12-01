@@ -97,6 +97,7 @@
   'allofus': 'https://databrowser.researchallofus.org/snvsindels'
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'alphamissense': 'https://github.com/deepmind/alphamissense'
+  'autopvs1': 'https://autopvs1.bgi.com/'
   'cactus241way': 'https://zoonomiaproject.org/the-data/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'cancervar': 'https://cancervar.wglab.org/'
