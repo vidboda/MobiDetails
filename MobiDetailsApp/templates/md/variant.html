@@ -2269,7 +2269,7 @@
 			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown')  and external_data.positions.DNAType == 'substitution' %}
 			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
 			{% endif %}
-			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text());
+			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text(), '{{ urls.mavedb }}', '{{ url_for('static', filename='') }}');
 		});
 	</script>
 {% endblock %}

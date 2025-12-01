@@ -800,7 +800,7 @@ function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, cs
 }
 
 
-function clingen_id(clingen_reg_url, hgvs_g) {
+function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
 	// ajax for clingenID
   // alert(clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g));
 	$.ajax({
@@ -816,7 +816,7 @@ function clingen_id(clingen_reg_url, hgvs_g) {
       var clingen_regexp = /^CA\d+$/;
       // sometimes ID is kindof weird e.g. https://reg.genome.network/allele?hgvs=NC_000007.14%3Ag.55174796_55174798delinsAAC
       if (clingen_id.match(clingen_regexp)) {
-        $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>");
+        $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "mavemd?searchType=clinGenAlleleId&search=" + clingen_id + "' target='_blank'><img src='"+ static_path + "img/mavemd-logo.png' height='30'/></a></span>");
         if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
           redraw_dt('nomenclature_table', true);
         }
