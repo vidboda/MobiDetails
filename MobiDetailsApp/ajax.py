@@ -233,10 +233,15 @@ SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
             rsid = ''
             if vf['dbsnp_id']:
                 rsid = 'rs{0}'.format(vf['dbsnp_id'])
-            file_content += ";;;;;;;;;{0};;;;{1};;;;\
-chr{2};{3};chr{2}:g.{4};;;;;\r\n".format(
-                vf['pos'], rsid, vf['chr'], genome,
-                vf['g_name']
+#             file_content += ";;;;;;;;;{0};;;;{1};;;;\
+# chr{2};{3};chr{2}:g.{4};;;;;\r\n".format(
+#                 vf['pos'], rsid, vf['chr'], genome,
+#                 vf['g_name']
+#             )
+            file_content += "intergenic;;;;;;{0}:chr{1}:g.{2};;intergenic;{3};;;;{4};;;;\
+chr{1};{3};chr{1}:g.{2};;;;;\r\n".format(
+                genome, vf['chr'], vf['g_name'],
+                vf['pos'], rsid
             )
         # print(file_content)
         app_path = os.path.dirname(os.path.realpath(__file__))
