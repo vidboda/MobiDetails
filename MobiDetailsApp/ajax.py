@@ -239,7 +239,7 @@ SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
 #                 vf['g_name']
 #             )
             file_content += "intergenic;;;;;;{0}:chr{1}:g.{2};;intergenic;{3};;;;{4};;;;\
-chr{1};{3};chr{1}:g.{2};;;;;\r\n".format(
+chr{1};{0};chr{1}:g.{2};;;;;\r\n".format(
                 genome, vf['chr'], vf['g_name'],
                 vf['pos'], rsid
             )
