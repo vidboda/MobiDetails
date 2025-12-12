@@ -97,6 +97,7 @@
 		<div class="w3-show" id="somatic_acc">
 			{{ link("%s/search?q=%s %s"|format(urls.cosmic, external_data.gene.symbol, internal_data.nomenclatures.cName), "COSMIC")}}
 			{{ link("%sgene/%s/%s"|format(urls.oncokb, external_data.gene.symbol, internal_data.nomenclatures.oneLetterpName), "OncoKB")}}
+			{{ link("%sgene/%s"|format(urls.oncokb, external_data.gene.symbol), "OncoKB Gene")}}
 			{% if external_data.positions.proteinType == 'missense' %}
 			{{ link("%s%s&pos=%s&ref=%s&alt=%s"|format(urls.cancervar_api, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CancerVar")}}
 			{% endif %}
