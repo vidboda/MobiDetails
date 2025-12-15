@@ -10,7 +10,7 @@ $(document).ready(function() {
 	//else if (wi <= 900) {
 	//	$('span.w3-xxlarge').removeClass('w3-xxlarge').addClass('w3-xlarge');
 	//}
-	$('.w3-table').DataTable({
+	$('#reference_table').DataTable({
 		responsive: true,
 		dom: 'Bft',
 		"order": [],
@@ -19,5 +19,14 @@ $(document).ready(function() {
 		buttons: [
 			'copy', 'excel', 'pdf'
 		]
+	});
+		$('#download_table').DataTable({
+		responsive: true,
+		searching: false,
+		paging: false,
+		ordering: false,
+		// dom: 'Bft',
+		//scrollY: 600,
+		"pageLength": 5,
 	});
 });

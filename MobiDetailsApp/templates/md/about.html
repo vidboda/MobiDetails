@@ -13,7 +13,8 @@
 		<a href="#clinvar_watch" class="w3-bar-item w3-button w3-mobile">Disclaimer</a>
 		<a href="#disclaimer" class="w3-bar-item w3-button w3-mobile">Cite</a>
 		<a href="#cite" class="w3-bar-item w3-button w3-mobile">Contact</a>
-		<a href="#contact" class="w3-bar-item w3-button w3-mobile">E-posters</a>
+		<a href="#contact" class="w3-bar-item w3-button w3-mobile">Download</a>
+		<a href="#download" class="w3-bar-item w3-button w3-mobile">E-posters</a>
 		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
 		<a href="#source_code" class="w3-bar-item w3-button w3-mobile">Source code</a>
 		<a href="#credits" class="w3-bar-item w3-button w3-mobile">Credits</a>
@@ -101,7 +102,7 @@
 		{{ info("<strong>This website and the associated API is maintained by the Laboratory of Molecular genetics, Montpellier University Hospital, France. The software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software of the use or other dealings in the software. It is distributed as a free software under the <a href='https://github.com/vidboda/MobiDetails/blob/master/LICENSE' target='_blank'>GNU General Public License</a>.</strong>") }}
 		<h3 id="cite">Cite:</h3>
 		{{ info('<ul><li><strong>To mention MobiDetails</strong>, please cite:<br />Baux, D., Van Goethem, C., Ardouin, O. et al. <em>MobiDetails: online DNA variants interpretation.</em> Eur J Hum Genet (2020). <a href="https://doi.org/10.1038/s41431-020-00755-z" target="_blank" rel="noopener noreferrer">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/33161418/" target="_blank" rel="noopener noreferrer">PubMed</a><span class="__dimensions_badge_embed__" data-doi="10.1038/s41431-020-00755-z" data-style="small_circle"></span><script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script></li><li><strong>To specifically cite SpliceAI-visual</strong>, please include the above citation and:<br />De Sainte Agathe, J-M., Filser, M. et al. <em>SpliceAI-visual: a free online tool to improve SpliceAI splicing variant interpretation.</em> Hum genomics (2023). <a href="https://doi.org/10.1186/s40246-023-00451-1" target="_blank" rel="noopener noreferrer">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/36765386/" target="_blank" rel="noopener noreferrer">PubMed</a><span class="__dimensions_badge_embed__" data-doi="10.1186/s40246-023-00451-1" data-style="small_circle"></span><script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script></li><li><strong>To specifically cite MORFEEdb</strong>, please include the above first citation and:<br />Meguerditchian, C, Baux, D et al. <em>Enhancing the annotation of small ORF-altering variants using MORFEE: introducing MORFEEdb, a comprehensive catalog of SNVs affecting upstream ORFs in human 5\'UTRs.</em> NAR Genom Bioinform (2025). <a href="https://doi.org/10.1093/nargab/lqaf017" target="_blank" rel="noopener noreferrer">DOI</a> - <a href="https://pubmed.ncbi.nlm.nih.gov/40109352/" target="_blank" rel="noopener noreferrer">PubMed</a><span class="__dimensions_badge_embed__" data-doi="10.1093/nargab/lqaf017" data-style="small_circle"></span><script async src="https://badge.dimensions.ai/badge.js" charset="utf-8"></script></li></ul>') }}
-		<h3 id= "contact">Contact:</h3>
+		<h3 id="contact">Contact:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 			<span class="w3-button w3-ripple w3-display-topright w3-large" onclick="this.parentElement.style.display='none';">X</span>
 			<p>For any inquiries, please send us an
@@ -132,6 +133,37 @@
 			//-->
 			</script><noscript>Sorry, you need Javascript on to email us.</noscript>
 			</p>
+		</div>
+		<h3 id="download">Download:</h3>
+		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
+			<br />
+			<table class="w3-table w3-centered display compact" style="width:90%" id="download_table">
+				<thead>
+					<tr>
+					<th>Name</th>
+					<th>Nature</th>
+					<th>Download</th>
+					<th>Size (Gb)</th>
+					<th>Comments</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>MORFEE db</strong></td>
+						<td>Annotation with MORFEE tool of more than 18,000,000 upstream ORFs resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts (Ensembl_GRCh38.p14)</td>
+						<td><a href="{{ url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz') }}" target="_blank" rel="noopener noreferrer"> Gzipped file v{{ external_tools['MorfeeDB']['version'] }}</a></td>
+						<td>1.3</td>
+						<td>For any information related to MORFEEdb output, please contact <script>var s='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript tosee this text.</noscript>.</td>
+					</tr>
+					<tr>
+						<td><strong>MobiDeep</strong></td>
+						<td>MobiDeep scores for 8,773,447,959 SNVs covering 94.70% of all genomic positions (GRCh38p14)</td>
+						<td><a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz') }}" target="_blank" rel="noopener noreferrer">Bgzipped file v{{ external_tools['MobiDeepDataset']['version']}}</a> and <a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz.tbi') }}" target="_blank" rel="noopener noreferrer">tabix index</a></td>
+						<td>105</td>
+						<td>This file contains predictions for coding regions, but keep in mind that the algorithm has not been designed nor trained nor assessed on those regions.</td>
+					</tr>
+				</tbody>
+			</table><br/>
 		</div>
 		<h3 id="eposters">E-posters:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">

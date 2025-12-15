@@ -716,12 +716,18 @@
     'paper': 'None'
     'version': 'Live web site'
     'short_name': 'miztli'
-  'MobiDeep':
+  'MobiDeepEngine':
     'firstauthor': 'Bouazzaoui'
     'year': '2025'
     'paper': ''
     'version': 'v1'
-    'short_name': 'mobideep'
+    'short_name': 'mobideep_engine'
+  'MobiDeepDataset':
+    'firstauthor': 'Bouazzaoui'
+    'year': '2025'
+    'paper': ''
+    'version': '20250512'
+    'short_name': 'mobideep_dataset'
   'MorfeeDB':
     'firstauthor': 'Meguerditchian'
     'year': '2025'
