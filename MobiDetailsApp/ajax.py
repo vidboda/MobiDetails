@@ -525,18 +525,18 @@ def genebe():
                 )
             ]
         except Exception as e:
-            md_utilities.send_error_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails API error',
-                    """
-                    <p>GeneBe API call failed for {0}-{1}-{2}-{3}-{4}- url: {5} <br /> - from {6} with args: {7}</p>
-                    """.format(
-                        genome, chrom, pos, ref, alt,
-                        genebe_url, os.path.basename(__file__), e.args
-                    )
-                ),
-                '[MobiDetails - API Error]'
-            )
+            # md_utilities.send_error_email(
+            #     md_utilities.prepare_email_html(
+            #         'MobiDetails API error',
+            #         """
+            #         <p>GeneBe API call failed for {0}-{1}-{2}-{3}-{4}- url: {5} <br /> - from {6} with args: {7}</p>
+            #         """.format(
+            #             genome, chrom, pos, ref, alt,
+            #             genebe_url, os.path.basename(__file__), e.args
+            #         )
+            #     ),
+            #     '[MobiDetails - API Error]'
+            # )
             return "<span>MD failed to query genebe.net</span>"
         try:
             genebe_acmg = genebe_data[0]['variants'][0]['acmg_classification']
@@ -545,17 +545,17 @@ def genebe():
                 genebe_criteria = genebe_data[0]['variants'][0]['acmg_criteria']
         except Exception as e:
             # print(genebe_data)
-            md_utilities.send_error_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails API error',
-                    """
-                    <p>AMCG class not retrieved in GeneBe object: {0}<br /> from {1} </p>
-                    """.format(
-                        genebe_data, genebe_url
-                    )
-                ),
-                '[MobiDetails - API Error]'
-            )
+            # md_utilities.send_error_email(
+            #     md_utilities.prepare_email_html(
+            #         'MobiDetails API error',
+            #         """
+            #         <p>AMCG class not retrieved in GeneBe object: {0}<br /> from {1} </p>
+            #         """.format(
+            #             genebe_data, genebe_url
+            #         )
+            #     ),
+            #     '[MobiDetails - API Error]'
+            # )
             return "<span>GeneBe returned no classification for this variant or MD was unable to interpret it.</span>"
         # print(genebe_data)
         html_criteria = ''
@@ -628,18 +628,18 @@ def genebe():
                 genebe_acmg_txt
             )
     else:
-        md_utilities.send_error_email(
-            md_utilities.prepare_email_html(
-                'MobiDetails API error',
-                """
-                <p>GeneBe API call failed from {0} with args: A mandatory argument is missing: {1}</p>
-                """.format(
-                    os.path.basename(__file__),
-                    request.form
-                )
-            ),
-            '[MobiDetails - API Error]'
-        )
+        # md_utilities.send_error_email(
+        #     md_utilities.prepare_email_html(
+        #         'MobiDetails API error',
+        #         """
+        #         <p>GeneBe API call failed from {0} with args: A mandatory argument is missing: {1}</p>
+        #         """.format(
+        #             os.path.basename(__file__),
+        #             request.form
+        #         )
+        #     ),
+        #     '[MobiDetails - API Error]'
+        # )
         return "<span>Bad request</span>"
 
 
