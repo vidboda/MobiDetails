@@ -139,9 +139,9 @@
 	</div>
 	<div class="w3-bar w3-light-grey" style="width:100%;z-index:601;position:fixed;top:50px;" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
-		{% if internal_data.nomenclatures.cName is not none %}
+		{# {% if internal_data.nomenclatures.cName is not none %} #}
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
-		{% endif %}
+		{# {% endif %} #}
 		<a href="#literature" class="w3-bar-item w3-button w3-mobile">Literature</a>
 		<a href="#frequencies" class="w3-bar-item w3-button w3-mobile">Frequencies</a>
 		{% if external_data.functionalStudies.mavedb_score is not none or internal_data.episignature.ExpertACMGClassification is not none %}
@@ -379,7 +379,7 @@
 				</div>
 			</div>
 		</div>
-		{% if internal_data.nomenclatures.cName is not none %}
+		{# {% if internal_data.nomenclatures.cName is not none %} #}
 		<!-- Section : Positions -->
 		<hr />
 		{{ section_title('positions', 'Positions') }}
@@ -394,6 +394,7 @@
 					</tr>
 				</thead>
 				<tbody>
+					{% if internal_data.nomenclatures.cName is not none %}
 					<tr><!--Position in transcript-->
 						<td class="w3-left-align">Position in transcript:</td>
 						{% if external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
@@ -403,48 +404,49 @@
 						{% endif %}
 						<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}</em></td>
 					</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
-					{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
-						{% if pos_splice is not none %}
-						<tr>
-							<td class="w3-left-align">Position / splice site</td>
-							<td class="w3-left-align">{{ external_data.positions.nearestSsDist }} bp from {{ external_data.positions.estSsType }}</td>
-							<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
-						</tr>
-						{% endif %}
-						{% if external_data.positions.proteinType != 'unknown' %}
-						{{ external_data.positions.proteinSize }}
-						{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
-						<!-- in case prot size is wrong-->
-						<tr><!--protein-->
-							<td class="w3-left-align">Position / protein</td>
-							<td class="w3-left-align">
-								<span>{{ external_data.positions.aaPositionStart }}</span>
-								{% if external_data.positions.aaPositionStart != external_data.positions.aaPositionEnd %}
-								<span> - {{ external_data.positions.aaPositionEnd }}</span>
-								{%endif %}
-							 <span> / {{ external_data.gene.proteinSize }}</span>
-							</td>
-							<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
-						</tr><!--protein domain-->
-						{% endif %}
-						<tr>
-							<td class="w3-left-align">Position / domain</td>
-							{% if external_data.positions.proteinDomain[0] is defined %}
-							<td class="w3-left-align">
-								{% for dom in external_data.positions.proteinDomain  %}
-								{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
-								{% endfor %}
-							</td>
-							{% else %}
-							<td class="w3-left-align">Not in a UNIPROT defined domain</td>
+						{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
+							{% if pos_splice is not none %}
+							<tr>
+								<td class="w3-left-align">Position / splice site</td>
+								<td class="w3-left-align">{{ external_data.positions.nearestSsDist }} bp from {{ external_data.positions.estSsType }}</td>
+								<td class="w3-left-align"><em class="w3-small">Position relative to the nearest splice site</em></td>
+							</tr>
 							{% endif %}
-							<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
-						</tr>
-						{% endif %}
-						{% if external_data.positions.metaDomednds is not none %}
-							<td class="w3-left-align">Position tolerance</td>
-							<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
-							<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome" rel="noopener noreferrer">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
+							{% if external_data.positions.proteinType != 'unknown' %}
+							{{ external_data.positions.proteinSize }}
+							{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
+							<!-- in case prot size is wrong-->
+							<tr><!--protein-->
+								<td class="w3-left-align">Position / protein</td>
+								<td class="w3-left-align">
+									<span>{{ external_data.positions.aaPositionStart }}</span>
+									{% if external_data.positions.aaPositionStart != external_data.positions.aaPositionEnd %}
+									<span> - {{ external_data.positions.aaPositionEnd }}</span>
+									{%endif %}
+								<span> / {{ external_data.gene.proteinSize }}</span>
+								</td>
+								<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
+							</tr><!--protein domain-->
+							{% endif %}
+							<tr>
+								<td class="w3-left-align">Position / domain</td>
+								{% if external_data.positions.proteinDomain[0] is defined %}
+								<td class="w3-left-align">
+									{% for dom in external_data.positions.proteinDomain  %}
+									{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
+									{% endfor %}
+								</td>
+								{% else %}
+								<td class="w3-left-align">Not in a UNIPROT defined domain</td>
+								{% endif %}
+								<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
+							</tr>
+							{% endif %}
+							{% if external_data.positions.metaDomednds is not none %}
+								<td class="w3-left-align">Position tolerance</td>
+								<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
+								<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome" rel="noopener noreferrer">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
+							{% endif %}
 						{% endif %}
 					{% endif %}
 					<tr>
@@ -460,10 +462,10 @@
 				</tbody>
 			</table><br /><br />
 		</div>
-		{% endif %}
+		{# {% endif %}
 		{% if internal_data.nomenclatures.cName is none %}
 		<br /><br />
-		{% endif %}
+		{% endif %} #}
 		<div class="w3-responsive w3-container">
 			<div class="w3-row-padding">
 				{% if external_data.VCF.hg19.ncbiChr is not none %}
