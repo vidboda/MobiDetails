@@ -151,14 +151,14 @@
 					<tr>
 						<td><strong>MORFEE db</strong></td>
 						<td>Annotation with MORFEE tool of more than 18,000,000 upstream ORFs resulting from the in silico mutational saturation of the 5'UTR of 55 304 human transcripts (Ensembl_GRCh38.p14)</td>
-						<td><a href="{{ url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz') }}" target="_blank" rel="noopener noreferrer"> Gzipped file v{{ external_tools['MorfeeDB']['version'] }}</a></td>
+						<td><a href="{{ url_for('static', filename='resources/morfeedb/morfee.20231213.txt.gz') }}" target="_blank" rel="noopener noreferrer" download="morfee_20231213.txt.gz"> Gzipped file v{{ external_tools['MorfeeDB']['version'] }}</a></td>
 						<td>1.3</td>
 						<td>For any information related to MORFEEdb output, please contact <script>var s='=b!isfg>#nbjmup;pnbs/tpvlbsjfiAjotfsn/gs#?Es/!Pnbs!Tpvlbsjfi=0b?';var m='';for(var i=0;i<s.length;i++)m+=String.fromCharCode(s.charCodeAt(i)-1);document.write(m);</script><noscript>You must enable JavaScript tosee this text.</noscript>.</td>
 					</tr>
 					<tr>
 						<td><strong>MobiDeep</strong></td>
 						<td>MobiDeep scores for 8,773,447,959 SNVs covering 94.70% of all genomic positions (GRCh38p14). <strong>Download is free for academic usage. Commercial entities should contact us to set up a proper plan.</strong></td>
-						<td><a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz') }}" target="_blank" rel="noopener noreferrer">Bgzipped file v{{ external_tools['MobiDeepDataset']['version']}}</a> and <a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz.tbi') }}" target="_blank" rel="noopener noreferrer">tabix index</a></td>
+						<td><a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz') }}" target="_blank" rel="noopener noreferrer" downlaod="non_coding_snv_mobideep_scored_20251205.tsv.bgz">Bgzipped file v{{ external_tools['MobiDeepDataset']['version']}}</a> and <a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20251205.tsv.bgz.tbi') }}" target="_blank" rel="noopener noreferrer" download="non_coding_snv_mobideep_scored_20251205.tsv.bgz.tbi">tabix index</a></td>
 						<td>105</td>
 						<td>This file contains predictions for coding regions, but keep in mind that the algorithm has not been designed nor trained nor assessed on those regions.</td>
 					</tr>
