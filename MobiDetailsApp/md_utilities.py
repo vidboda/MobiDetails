@@ -716,6 +716,44 @@ def acmg2lovd(acmg_class, db):
     return None
 
 
+def get_max_value_from_tabix_region(text, tabix_file, chrom, start_pos, end_pos):
+    # when multiple values are requires, e.g. for deletions
+    # open a file with tabix and look for a record:
+    tb = tabix.open(tabix_file)
+    query = "{0}:{1}-{2}".format(chrom, start_pos, end_pos)
+    if text == 'ReMM':
+        query = "chr{0}:{1}-{2}".format(chrom, start_pos, end_pos)
+    try:
+        records = tb.querys(query)
+    except Exception as e:
+        send_error_email(
+            prepare_email_html(
+                'MobiDetails error',
+                """
+                <p>A tabix failed</p><p>tabix {0} {1}<br />for region:{2}:{3}-{4}</p>
+                """.format(
+                    tabix_file, query, chrom, start_pos, end_pos
+                )
+            ),
+            '[MobiDetails - Tabix Error]'
+        )
+        return 'Match failed in {}'.format(text)
+    if isinstance(records, str):
+        return records
+    return records
+
+#get the max value from an iterator
+
+
+def max_val(iterator, i=2):
+    ret = 0
+    for val in iterator:
+        if float(val[2]) < float(ret):
+            continue
+        else:
+            ret = val[2]
+    return ret
+
 def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
@@ -1167,7 +1205,7 @@ def compute_pos_end(g_name):
 
 
 def compute_start_end_pos(name):
-    # slightly diffenent as above as start can differ
+    # slightly different as above as start can differ
     # from VCF and HGVS - for variants > 1bp
     match_object = re.search(r'(\d+)_(\d+)[di]', name)
     if match_object is not None:

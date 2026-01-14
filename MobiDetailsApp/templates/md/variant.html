@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20250902" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260112" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -157,7 +157,7 @@
 			<a href="#dbmts" class="w3-bar-item w3-button w3-mobile">miRNA target sites</a>
 			{% endif %}
 		{% endif %}
-		{% if external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) %}
+		{% if (external_data.positions.DNAType == 'substitution' and (external_data.morfeedb[0].orfSNVs_type is not none or external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.mobideep is not none or external_data.nonCodingPredictions.promoterai is not none) or ((external_data.positions.DNAType == 'deletion' or external_data.positions.DNAType == 'indel') and external_data.nonCodingPredictions.remm is not none)) %}
 		<a href="#noncoding" class="w3-bar-item w3-button w3-mobile">Non-coding</a>
 		{% set mobideep_label = 'Mobideep raw score for the region of interest' %}
 		{% endif%}
@@ -1586,24 +1586,6 @@
 				<canvas id="mobideep_thresholds"><p>Mixed Chart for MobiDeep regional thresholds</p></canvas>
 			</div> #}
 			<script>
-				//new Chart($("#mobideep_thresholds"), {
-				//	data: {
-				//		datasets: [{
-				//			type: 'bar',
-				//			label: 'Region-stratified thresholds for MobiDeep raw score',
-				//			// 5UTR 3UTR intronic non-coding exons upstream variant
-				//			data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
-				//			backgroundColor: 'rgba(60, 179, 113, 0.5)',
-				//			}, {
-				//			type: 'line',
-				//			label: 'Mobideep raw score',
-				//			data: [0.8541, 0.8541, 0.8541, 0.8541, 0.8541],
-				//			borderColor: 'rgba(0, 128, 255, 0.8)',
-				//			backgroundColor: 'rgba(0, 128, 255, 0.8)'
-				//		}],//end data sets
-				//		labels: ['3UTR', '5UTR', 'Intronic', 'non-coding exons', 'upstream']
-				//	}//end data
-				//});
 				Chart.defaults.font.size=16
 				var point_font_size = 16
 				var wi = $(window).width();
@@ -1679,6 +1661,80 @@
 			{% endif %}
 			{{ content("<strong>MobiDeep</strong> is a metascore for non-coding variants (SNVs only) based on a multilayer perceptron using 5 features: REMM v.0.4, CADD 1.7, GPN-MSA, and two conservation scores (Cactus 241-way vertebrates and PhyloP primates) to capture different evolutionary depths.<br /><strong>Raw score</strong>: 0 = benign, 1 = maximum pathogenicity<br /><strong>Log score</strong>: logarithmic transformation using the formula: log_score = -log10(1 - raw_score)<div><table class='w3-table w3-centered display compact' style='width:40%'><caption>MobiDeep scores and thresholds</caption><thead><tr><th></th><th>Raw score</th><th>Log score</th></tr></thead><tbody><tr><td>Neutral</td><td style='color:#00A020'>&lt; 0.6</td><td style='color:#00A020'>&lt; 0.3979</td></tr><tr><td>Likely deleterious</td><td style='color:#FF6020'>&gt; 0.6</td><td style='color:#FF6020'>&gt; 0.3979</td></tr><tr><td>high confidence deleteriousnesss</td><td style='color:#FF0000'>&gt; 0.9684</td><td style='color:#FF0000'>&gt; 1.5</td></tr></tbody></table></div><strong>How to use it</strong>:<br />Use the <span style='color:#FF6020'>orange</span> threshold for general pathogenicity prediction and the <span style='color:#FF0000'>red</span> threshold for high confidence deleteriousness assessment.<br /><strong>Download:</strong><br />You can <a href='{0}' target='_blank' rel='noopener noreferrer'>download</a> the MobiDeep precomputed dataset.").format(url_for('md.about', _anchor='contact')) }}
 		</div>
+		{% elif external_data.nonCodingPredictions.remm is not none %}
+		{{ section_title('noncoding', 'Overall non-coding predictors') }}
+		{{ section_subtitle('remm_chart', 'ReMM scores for deleted positions') }}
+		{{ content('Below are presented the ReMM score(s) for the positions affected by the deletion. If one or several nucleotides with high scores are removed, the deletion is may have an impact.') }}
+		{# Remm for deletions #}
+		{% if external_data['positions']['size'] == 1 %}
+		<div class="w3-responsive w3-container">
+				<table class="w3-table w3-centered display compact" style="width:90%" id="noncoding_table">
+					<thead>
+						<tr>
+							<th class="w3-left-align">Features</th>
+							<th class="w3-left-align" width="40%">Values</th>
+							<th class="w3-left-align">Descriptions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr><!--ReMM-->
+							<td class="w3-left-align"><a href="{{ urls.remm }}" target="_blank" title="Visit ReMM" rel="noopener noreferrer">ReMM score for deleted position</a>:</td>
+							{% if internal_data.noMatch.remm is none %}
+							<td class="w3-left-align">{{ span_color(external_data.nonCodingPredictions.remm[0][2], external_data.nonCodingPredictions.remm[0][3], 'remm_score') }}</td>
+							{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.remm }}</td>
+							{% endif %}
+							<td class="w3-left-align"><em class="w3-small">Threshold &gt; 0.924|0.961 for Likely Pathogenic and Pathogenic</em></td>
+						</tr>
+					</tbody>
+				</table><br/><br/>
+			</div>
+		{% elif external_data['positions']['size'] > 1 %}
+		<div class="w3-responsive w3-container">
+			<div class="chart-container" style="position: relative;">
+				<canvas id="remm_linechart"><p>Line Chart for ReMM predictions</p></canvas>
+			</div>
+		</div>
+		<script>
+			new Chart($("#remm_linechart"), {
+				data: {
+					datasets: [{
+						type: 'line',
+						label: 'ReMM scores for deleted positions',
+						data: [{% for record in external_data.nonCodingPredictions.remm %}{{ record[2] }},{% endfor %}],
+						backgroundColor: '#D6D3D1',
+						pointBackgroundColor: [{% for record in external_data.nonCodingPredictions.remm %}'{{ record[3] }}',{% endfor %}],
+						options: {
+							scales: {
+								y: {
+									min: 0,
+									max: 1
+								}
+							}
+						}
+					},
+					{
+						type: 'line',
+						label: 'ReMM threshold for Likely Pathogenic',
+						data: [{% for record in external_data.nonCodingPredictions.remm %}0.924,{% endfor %}],
+						backgroundColor: 'rgba(255, 96, 32, 0.5)',
+						borderColor: 'rgba(255, 96, 32, 0.5)',
+						pointRadius: 0
+					},
+					{
+						type: 'line',
+						label: 'ReMM threshold for Pathogenic',
+						data: [{% for record in external_data.nonCodingPredictions.remm %}0.961,{% endfor %}],
+						backgroundColor: 'rgba(179, 0, 0, 0.5)',
+						borderColor: 'rgba(179, 0, 0, 0.5)',
+						pointRadius: 0
+					}],//end data sets
+					labels: [{% for record in external_data.nonCodingPredictions.remm %}'{{ record[0] }}:{{ record[1] }}',{% endfor %}],
+					clip: -50
+				}//end data
+			});
+		</script>
+		{% endif %}
 		{% endif %}
 		{# We begin to populate the modal list, to send it later to modal_js() in macros.html #}
 		{% if g.user %}

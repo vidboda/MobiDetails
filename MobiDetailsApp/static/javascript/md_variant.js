@@ -1295,7 +1295,17 @@ $(document).ready(function() {
         "Thresholds are presented per variant location together with the MobiDeep raw score (large blue dot). If the Mobideep score is below the threshold (i.e. in the white area), the variant is predicted as benign. Ns presented for each locations correspond to the number of pathogenic variants (previously hidden to the model) which, with 10Ns benign variants of each location, were used to build the thresholds.",
         {image: mobideep_radar_image, width: 350, alignment: 'center'}
       );
+      }
     }
+    if ($('#remm_linechart').width() > 0) {
+      // transform radars into pdf
+      var remm_linechart_image = document.querySelector('#remm_linechart').toDataURL();
+      doc['content'].push(
+        " ",
+        {text: "ReMM scores for deleted positions", style: "table_subtitle", tocItem: true},
+        "Below are presented the ReMM score(s) for the positions affected by the deletion. The idea being that if one or several nucleotides with high scores are removed, the deletion is likely to have an impact.",
+        {image: remm_linechart_image, width: 350, alignment: 'center'}
+      );
     }
     // if ($('#episignature_table').length) {
     //   doc = convert_dt(config, "episignature_table", "Epigenetic signature", "table_title", doc);

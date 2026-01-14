@@ -1398,6 +1398,30 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     internal_data['noMatch']['gpnmsa'] = "No precomputed score for GPN-MSA {0}".format(md_utilities.external_tools['GPN-MSA']['version'])
                     internal_data['noMatch']['cactus241way'] = "No precomputed score for cactus241way {0}".format(md_utilities.external_tools['Cactus_241_way']['version'])
                     internal_data['noMatch']['phylop_primates'] = "No precomputed score for PhyloP Primates {0}".format(md_utilities.external_tools['phyloPPrimates']['version'])
+                    # ReMM indels
+                    # ReMM gives scores per positions not per variant
+                    # we can return a table of all scores encompassing the del - what could be done for ins?
+                    if (variant_features['dna_type'] == 'deletion' or \
+                            variant_features['dna_type'] == 'indel') and \
+                            not variant_features['prot_type'] or \
+                            variant_features['prot_type'] == 'unknown':
+                        start_del = end_del = external_data['VCF']['hg38']['pos']
+                        if variant_features['variant_size'] > 1:
+                            start_del, end_del = md_utilities.compute_start_end_pos(external_data['nomenclatures']['hg38gName'])
+                        records = md_utilities.get_max_value_from_tabix_region('ReMM', md_utilities.local_files['remm']['abs_path'], external_data['VCF']['chr'], start_del, end_del)
+                        if isinstance(records, str):
+                            internal_data['noMatch']['remm'] = "{0} {1}".format(record, md_utilities.external_tools['ReMM']['version'])
+                        else:
+                            # external_data['nonCodingPredictions']['remm'] = records
+                            # transform tabix.iter object into list otherwise jinja does not want to iterate on it
+                            remm_del = []
+                            for record in records:
+                                tmp_list = record
+                                tmp_list.append(md_utilities.get_preditor_double_threshold_color(record[2], 'remm_lp', 'remm_p'))
+                                remm_del.append(tmp_list)
+                                # remm_del.append(record)
+                                # print(record)
+                            external_data['nonCodingPredictions']['remm'] = remm_del
                 if var_type == 'genic':
                     # MaveDB
                     record = md_utilities.get_value_from_tabix_file('MaveDB', md_utilities.local_files['mavedb']['abs_path'], var, variant_features)
