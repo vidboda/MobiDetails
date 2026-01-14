@@ -1562,6 +1562,7 @@
 					</tbody>
 				</table><br/><br/>
 			</div>
+			{% if external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50) %}
 			<div class="w3-row-padding">
 				<!--mobiDeep radar chart-->
 				<div class="w3-col m4">
@@ -1658,8 +1659,9 @@
 					}
 				});
 			</script>
-			{% endif %}
 			{{ content("<strong>MobiDeep</strong> is a metascore for non-coding variants (SNVs only) based on a multilayer perceptron using 5 features: REMM v.0.4, CADD 1.7, GPN-MSA, and two conservation scores (Cactus 241-way vertebrates and PhyloP primates) to capture different evolutionary depths.<br /><strong>Raw score</strong>: 0 = benign, 1 = maximum pathogenicity<br /><strong>Log score</strong>: logarithmic transformation using the formula: log_score = -log10(1 - raw_score)<div><table class='w3-table w3-centered display compact' style='width:40%'><caption>MobiDeep scores and thresholds</caption><thead><tr><th></th><th>Raw score</th><th>Log score</th></tr></thead><tbody><tr><td>Neutral</td><td style='color:#00A020'>&lt; 0.6</td><td style='color:#00A020'>&lt; 0.3979</td></tr><tr><td>Likely deleterious</td><td style='color:#FF6020'>&gt; 0.6</td><td style='color:#FF6020'>&gt; 0.3979</td></tr><tr><td>high confidence deleteriousnesss</td><td style='color:#FF0000'>&gt; 0.9684</td><td style='color:#FF0000'>&gt; 1.5</td></tr></tbody></table></div><strong>How to use it</strong>:<br />Use the <span style='color:#FF6020'>orange</span> threshold for general pathogenicity prediction and the <span style='color:#FF0000'>red</span> threshold for high confidence deleteriousness assessment.<br /><strong>Download:</strong><br />You can <a href='{0}' target='_blank' rel='noopener noreferrer'>download</a> the MobiDeep precomputed dataset.").format(url_for('md.about', _anchor='contact')) }}
+			{% endif %}
+			{% endif %}
 		</div>
 		{% elif external_data.nonCodingPredictions.remm is not none %}
 		{{ section_title('noncoding', 'Overall non-coding predictors') }}
@@ -2325,7 +2327,7 @@
 			run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 			spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 			{% endif %}
-			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown')  and external_data.positions.DNAType == 'substitution' %}
+			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown')  and external_data.positions.DNAType == 'substitution' and (external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50)) %}
 			mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
 			{% endif %}
 			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text(), '{{ urls.mavedb }}', '{{ url_for('static', filename='') }}');
