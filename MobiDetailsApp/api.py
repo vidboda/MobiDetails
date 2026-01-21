@@ -1403,8 +1403,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # we can return a table of all scores encompassing the del - what could be done for ins?
                     if (variant_features['dna_type'] == 'deletion' or \
                             variant_features['dna_type'] == 'indel') and \
-                            not variant_features['prot_type'] or \
-                            variant_features['prot_type'] == 'unknown':
+                            (not variant_features['prot_type'] or \
+                            variant_features['prot_type'] == 'unknown'):
                         start_del = end_del = external_data['VCF']['hg38']['pos']
                         if variant_features['variant_size'] > 1:
                             start_del, end_del = md_utilities.compute_start_end_pos(external_data['nomenclatures']['hg38gName'])
