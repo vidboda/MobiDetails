@@ -98,6 +98,7 @@
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'alphamissense': 'https://github.com/deepmind/alphamissense'
   'autopvs1': 'https://autopvs1.bgi.com/'
+  'bayedel': 'https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html'
   'cactus241way': 'https://zoonomiaproject.org/the-data/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'cancervar': 'https://cancervar.wglab.org/'
@@ -507,6 +508,14 @@
     'missense_col': 7
     'value_col': 8
     'pred_col': 9
+  'BayesDel':
+    'firstauthor': 'Feng'
+    'year': '2017'
+    'paper': '27995669'
+    'version': 'from dbNSFP'
+    'short_name': 'bayesdel'
+    'dbNSFP_value_col': '103'
+    'dbNSFP_pred_col': '105'
   'Cactus_241_way':
     'firstauthor': 'Christmas'
     'year': '2023'
@@ -880,6 +889,8 @@
 'predictor_thresholds':
   'am_min': 0.34
   'am_max': 0.564
+  'bayesdel': 0.13
+  # bayesdel correspond to PP3_S see https://pmc.ncbi.nlm.nih.gov/articles/PMC9748256 and https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html
   'cactus241way': 1.345
   'clinpred': 0.5
   'dbscsnv': 0.8
