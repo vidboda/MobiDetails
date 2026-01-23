@@ -1123,7 +1123,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['missensePredictions']['fathmmxfScore'], external_data['missensePredictions']['fathmmxfPred'], internal_data['missensePredictions']['fathmmStar'] = md_utilities.getdbNSFP_results(
                                 transcript_index, int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_pred_col']), ';', 'basic', -0.1, 'gt', record
                             )
-                            external_data['missensePredictions']['fathmmxfScore'] = format(float(external_data['missensePredictions']['fathmmxfScore']), '.3f')
+                            try:
+                                external_data['missensePredictions']['fathmmxfScore'] = format(float(external_data['missensePredictions']['fathmmxfScore']), '.3f')
+                                internal_data['missensePredictions']['fathmmxfColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['fathmmxfScore'], 'fathmmxf')
+                            except Exception:
+                                pass
                             internal_data['missensePredictions']['fathmmxfColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['fathmmxfScore'], 'fathmmxf')
                             if external_data['missensePredictions']['fathmmxfPred'] == 'Damaging':
                                 mpa_missense += 1
@@ -1151,11 +1155,19 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['missensePredictions']['bayesDelScore'], external_data['missensePredictions']['bayesDelPred'], internal_data['missensePredictions']['bayesDelStar'] = md_utilities.getdbNSFP_results(
                                 transcript_index, int(md_utilities.external_tools['BayesDel']['dbNSFP_value_col']), int(md_utilities.external_tools['BayesDel']['dbNSFP_pred_col']), ';', 'basic', -2, 'lt', record
                             )
-                            external_data['missensePredictions']['bayesDelScore'] = format(float(external_data['missensePredictions']['bayesDelScore']), '.3f')
-                            # threshold for bayesdel does not follow dbNSFP, see md_resources
-                            if (float(external_data['missensePredictions']['bayesDelScore']) < float(md_utilities.predictor_thresholds['bayesdel'])):
-                                external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
-                            internal_data['missensePredictions']['bayesDelColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['bayesDelScore'], 'bayesdel')
+                            # bayesdel score in dbNSFP, contrary to some other scores, presents with 9-10 numbers after '.'
+                            try:
+                                external_data['missensePredictions']['bayesDelScore'] = format(float(external_data['missensePredictions']['bayesDelScore']), '.3f')
+                                internal_data['missensePredictions']['bayesDelColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['bayesDelScore'], 'bayesdel')
+                                if (float(external_data['missensePredictions']['bayesDelScore']) < float(md_utilities.predictor_thresholds['bayesdel'])):
+                                    external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
+                            except Exception:
+                                pass
+                            # external_data['missensePredictions']['bayesDelScore'] = format(float(external_data['missensePredictions']['bayesDelScore']), '.3f')
+                            # # threshold for bayesdel does not follow dbNSFP, see md_resources
+                            # if (float(external_data['missensePredictions']['bayesDelScore']) < float(md_utilities.predictor_thresholds['bayesdel'])):
+                            #     external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
+                            # internal_data['missensePredictions']['bayesDelColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['bayesDelScore'], 'bayesdel')
                             # LRT -- not displayed removed in dbNSFP v5
                             # external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
                             #     transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
@@ -1179,7 +1191,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 external_data['missensePredictions']['clinpredScore'], external_data['missensePredictions']['clinpredPred'], internal_data['missensePredictions']['clinpredStar'] = md_utilities.getdbNSFP_results(
                                     transcript_index, int(md_utilities.external_tools['ClinPred']['dbNSFP_value_col']), int(md_utilities.external_tools['ClinPred']['dbNSFP_pred_col']), ';', 'basic', '-1', 'gt', record
                                 )
-                                # clinpred score in dbNSFP, contrary to other scores, presents with 9-10 numbers after '.'
+                                # clinpred score in dbNSFP, contrary to some other scores, presents with 9-10 numbers after '.'
                                 try:
                                     external_data['missensePredictions']['clinpredScore'] = format(float(external_data['missensePredictions']['clinpredScore']), '.3f')
                                     internal_data['missensePredictions']['clinpredColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['clinpredScore'], 'clinpred')
@@ -1225,8 +1237,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 mpa_avail += 1
                             # meta SVM
                             external_data['missensePredictions']['metaSVMScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm'])]
-                            internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')
-                            external_data['missensePredictions']['metaSVMScore'] = format(float(external_data['missensePredictions']['metaSVMScore']), '.3f')
+                            # internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')
+                            # metasvm score in dbNSFP, contrary to some other scores, presents with 4 digits after '.'
+                            try:
+                                external_data['missensePredictions']['metaSVMScore'] = format(float(external_data['missensePredictions']['metaSVMScore']), '.3f')
+                                internal_data['missensePredictions']['metaSVMColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaSVMScore'], 'meta-svm')
+                            except Exception:
+                                pass
                             external_data['missensePredictions']['metaSVMPred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_msvm'])]]
                             if external_data['missensePredictions']['metaSVMPred'] == 'Damaging':
                                 mpa_missense += 1
@@ -1234,8 +1251,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 mpa_avail += 1
                             # meta LR
                             external_data['missensePredictions']['metaLRScore'] = record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_mlr'])]
-                            internal_data['missensePredictions']['metaLRColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaLRScore'], 'meta-lr')
-                            external_data['missensePredictions']['metaLRScore'] = format(float(external_data['missensePredictions']['metaLRScore']), '.3f')
+                            try:
+                                external_data['missensePredictions']['metaLRScore'] = format(float(external_data['missensePredictions']['metaLRScore']), '.3f')
+                                internal_data['missensePredictions']['metaLRColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['metaLRScore'], 'meta-lr')
+                            except Exception:
+                                pass
                             external_data['missensePredictions']['metaLRPred'] = md_utilities.predictors_translations['basic'][record[int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_pred_mlr'])]]
                             if external_data['missensePredictions']['metaLRPred'] == 'Damaging':
                                 mpa_missense += 1
