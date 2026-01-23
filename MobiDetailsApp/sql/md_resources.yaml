@@ -98,7 +98,7 @@
   'alphafold': 'https://alphafold.ebi.ac.uk/'
   'alphamissense': 'https://github.com/deepmind/alphamissense'
   'autopvs1': 'https://autopvs1.bgi.com/'
-  'bayedel': 'https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html'
+  'bayesdel': 'https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html'
   'cactus241way': 'https://zoonomiaproject.org/the-data/'
   'cadd': 'https://cadd.gs.washington.edu/'
   'cancervar': 'https://cancervar.wglab.org/'

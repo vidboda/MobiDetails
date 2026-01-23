@@ -1154,7 +1154,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['missensePredictions']['bayesDelScore'] = format(float(external_data['missensePredictions']['bayesDelScore']), '.3f')
                             # threshold for bayesdel does not follow dbNSFP, see md_resources
                             if (float(external_data['missensePredictions']['bayesDelScore']) < float(md_utilities.predictor_thresholds['bayesdel'])):
-                                external_data['missensePredictions']['bayesDelPred'] = 'T'
+                                external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
                             internal_data['missensePredictions']['bayesDelColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['bayesDelScore'], 'bayesdel')
                             # LRT -- not displayed removed in dbNSFP v5
                             # external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
