@@ -9,6 +9,7 @@
 		-New dataset
 	#}
 	<div class="w3-container">
+		{{ info("[2026-01-23] - New predictor: added BayesDel for missense predictions.") }}
 		{{ info("[2026-01-14] - New feature: for non_coding deletions, you now have access to the ReMM scores of the deleted nucleotides, presented either as a table (for single base pair deletions) or as a graph. In addition, the mobideep score is not anymore computed for intronic variants lying less than 50 bp from the exon/intron boundary.") }}
 		{{ info("[2025-12-15] - New dataset: the MobiDeep precomputed dataset for 8,773,447,959 SNVs covering 94.70% of all genomic positions (GRCh38p13) is now available for download <a href='{0}' target='_blank'>here</a>.").format(url_for('md.about', _anchor='contact')) }}
 		{{ info("[2025-12-04]
