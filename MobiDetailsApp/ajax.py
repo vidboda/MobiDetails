@@ -1351,12 +1351,15 @@ def modif_class():
         )
     # tr_html = 'notok'
     match_variant_id = re.search(r'^(\d+)$', request.form['variant_id'])
-    match_acmg_select = re.search(r'^(\d+)$', request.form['acmg_select']) 
+    match_acmg_select = re.search(r'^(\d+)$', request.form['acmg_select'])
+    match_class_type = re.search(r'^(germline|somatic)$', request.form['class_type'])
     if match_variant_id and \
             match_acmg_select and \
+            match_class_type and \
             'acmg_comment' in request.form:
         variant_id = match_variant_id.group(1)
         acmg_select = match_acmg_select.group(1)
+        class_type = match_class_type.group(1)
         acmg_comment = request.form['acmg_comment']
         today = datetime.datetime.now()
         date = '{0}-{1}-{2}'.format(
@@ -1376,8 +1379,9 @@ def modif_class():
                 WHERE variant_feature_id = %s
                     AND acmg_class = %s
                     AND mobiuser_id = %s
+                    AND class_type = %s
                 """,
-                (variant_id, acmg_select, g.user['id'])
+                (variant_id, acmg_select, g.user['id'], class_type)
             )
             res = curs.fetchone()
             if res:
@@ -1385,10 +1389,11 @@ def modif_class():
                     # print(("{0}-{1}").format(res['class_date'], date))
                     tr_html = """
                     <tr id='already_classified'>
-                        <td>You already classified this variant with the same class today.
-                        If you just want to modify comments, remove the previous classification
-                        and start from scratch.
+                        <td>You already classified this variant with the same class and same type today.
+                        If you just want to modify the comments, you can just remove the previous 
+                        classification and start from scratch.
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -1404,8 +1409,9 @@ def modif_class():
                     WHERE variant_feature_id = %s
                         AND acmg_class = %s
                         AND mobiuser_id = %s
+                        AND class_type = %s
                     """,
-                    (date, acmg_comment, variant_id, acmg_select, g.user['id'])
+                    (date, acmg_comment, variant_id, acmg_select, g.user['id'], class_type)
                 )
             else:
                 # if first classification and current owner ==
@@ -1449,10 +1455,10 @@ def modif_class():
                         )
                 curs.execute(
                     """
-                    INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment)
-                    VALUES (%s, %s, %s, %s, %s )
+                    INSERT INTO class_history (variant_feature_id, acmg_class, mobiuser_id, class_date, comment, class_type)
+                    VALUES (%s, %s, %s, %s, %s, %s )
                     """,
-                    (variant_id, acmg_select, g.user['id'], date, acmg_comment)
+                    (variant_id, acmg_select, g.user['id'], date, acmg_comment, class_type)
                 )
             db.commit()
             curs.execute(
@@ -1495,22 +1501,24 @@ def modif_class():
             )
             res_var = curs.fetchone()
             tr_html = """
-            <tr id='{0}-{1}-{2}'>
-                <td class='w3-left-align'>{3}(<em>{4}</em>):c.{5}</td>
-                <td class='w3-left-align'>{6}</td>
+            <tr id='{0}-{1}-{2}-{3}'>
+                <td class='w3-left-align'>{4}(<em>{5}</em>):c.{6}</td>
                 <td class='w3-left-align'>{7}</td>
+                <td class='w3-left-align'>{8}</td>
                 <td class='w3-left-align'>
-                    <span style='color:{8};'>Class {1} ({9})</span>
+                    <span style='color:{9};'>Class {1} ({10})</span>
                 </td>
+                <td class='w3-left-align'>{3}</td>
                 <td>
                     <div class='w3-cell-row'>
-                        <span class='w3-container w3-left-align w3-cell'> {10}</span>
+                        <span class='w3-container w3-left-align w3-cell'> {11}</span>
                     </div>
                 </td>
             </tr>""".format(
                     g.user['id'],
                     escape(acmg_select),
                     escape(variant_id),
+                    escape(class_type.capitalize()),
                     res_var['refseq'],
                     res_var['gene_symbol'],
                     res_var['c_name'],
@@ -1525,8 +1533,9 @@ def modif_class():
             # WHEN LOVD FEATURE IS READY
             if g.user['lovd_export'] is True and \
                     genome_version == 'hg19' and \
-                    acmg_select != 7:
-                    # risk factor not sent to LOVD for the moment
+                    acmg_select != 7 and \
+                    class_type == 'germline':
+                    # risk factor and somatic classifications not sent to LOVD for the moment
                 with open(
                     md_utilities.local_files['lovd_api_json']['abs_path']
                 ) as json_file:
@@ -1639,9 +1648,11 @@ def remove_class():
             run_mode=md_utilities.get_running_mode()
         )
     if re.search(r'^\d+$', request.form['variant_id']) and \
-            re.search(r'^\d+$', request.form['acmg_class']):
+            re.search(r'^\d+$', request.form['acmg_class']) and \
+            re.search(r'^(germline|somatic)$', request.form['class_type']):
         variant_id = request.form['variant_id']
         acmg_class = request.form['acmg_class']
+        class_type = request.form['class_type']
         db = get_db()
         curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
         try:
@@ -1652,8 +1663,9 @@ def remove_class():
                 WHERE variant_feature_id = %s
                     AND acmg_class = %s
                     AND mobiuser_id = %s
+                    AND class_type = %s
                 """,
-                (variant_id, acmg_class, g.user['id'])
+                (variant_id, acmg_class, g.user['id'], class_type)
             )
             db.commit()
             return 'ok'

@@ -1749,7 +1749,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         curs.execute(
             """
             SELECT a.variant_feature_id, a.acmg_class, a.class_date,
-            a.comment, b.id, b.email, b.email_pref, b.username,
+            a.comment, a.class_type, b.id, b.email, b.email_pref, b.username,
             c.html_code, c.acmg_translation, d.c_name, d.gene_symbol, d.refseq
             FROM class_history a, mobiuser b, valid_class c, variant_feature d
             WHERE a.mobiuser_id = b.id

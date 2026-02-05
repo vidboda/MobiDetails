@@ -1,4 +1,4 @@
-{% from 'macros.html' import danger, info, content, link, span_color, section_title, section_subtitle, modal_js, fa, field_copied_tag %}
+{% from 'macros.html' import danger, info, content, link, span_color, section_title, section_subtitle, modal_js, fa, field_copied_tag, sentence_case %}
 {% extends "base.html" %}
 {% block more_head %}
 	<link rel="stylesheet" href="{{ url_for('static', filename='styles/datatables.1.11.5.min.css') }}" type="text/css">
@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260112" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260205" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -2085,6 +2085,7 @@
 						<th class="w3-left-align">User</th>
 						<th class="w3-left-align">Date</th>
 						<th class="w3-left-align">ACMG Classification*</th>
+						<th class="w3-left-align">Type**</th>
 						<th class="w3-left-align">Comments</th>
 					</tr>
 				</thead>
@@ -2096,10 +2097,11 @@
 					<td></td>
 					<td>No classification defined yet for this variant</td>
 					<td></td>
+					<td></td>
 				</tr>
 				{% else %}
 					{% for classif in class_history %}
-					<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ classif.variant_feature_id }}"><!--classification infos-->
+					<tr id="{{ classif.id }}-{{ classif.acmg_class }}-{{ classif.variant_feature_id }}-{{ classif.class_type }}"><!--classification infos-->
 						{% autoescape false %}
 						<td>{{ "%s(<em>%s</em>):c.%s" | format(classif.refseq, classif.gene_symbol, classif.c_name) }}
 						{% if classif.refseq == external_data.gene.RefSeqTranscript %}
@@ -2129,19 +2131,20 @@
 						{% endif %}
 						<td class="w3-left-align">{{ classif.class_date }}</td>
 						<td class="w3-left-align"><span style="color:{{ classif.html_code }};">Class {{ classif.acmg_class }} ({{ classif.acmg_translation }})</span></td>
+						<td class="w3-left-align">{{ sentence_case(classif.class_type) }}</td>
 						<td>
 							<div class="w3-cell-row">
-								<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}">
+								<span class="w3-container w3-left-align w3-cell" id="comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}-{{ classif.class_type }}">
 								</span>
 								{% autoescape false %}
 								<script type="application/x-javascript">
-										$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}").html(unescape('{{ classif.comment }}'));
+										$("#comment_{{ classif.id }}-{{ classif.acmg_class }}-{{ external_data.variantId }}-{{ classif.class_type }}").html(unescape('{{ classif.comment }}'));
 								</script>
 								{% endautoescape %}
 								{% if classif.username == g.user['username'] %}
 									{% if run_mode  and run_mode == 'on' %}
 									<span class="w3-container w3-right-align w3-cell">
-										<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
+										<i class="fa fa-times w3-xlarge" style="color:red;cursor:pointer;" aria-hidden="true" title="click to remove this classification" onclick="remove_class('{{ external_data.variantId }}', '{{ g.user['id'] }}', '{{ classif.acmg_class }}', '{{ classif.class_type }}', '{{ url_for("ajax.remove_class") }}', '{{ csrf_token() }}')"></i>
 									</span>
 									{% endif %}
 								{% endif %}
@@ -2176,7 +2179,7 @@
 											<h3>This will be visible to all users:</h3><br />
 											<div class="w3-row w3-section">
 												<div class="w3-quarter w3-left-align">
-													<label for="acmg_select" form="acmg_form">ACMG class:</label>
+													<label for="acmg_select" form="acmg_form">Type:</label>
 												</div>
 												<div class="w3-rest">
 													<select class="w3-select w3-border" name="acmg_select" id="acmg_select" form="acmg_form">
@@ -2186,6 +2189,17 @@
 														<option value="4" style="color:#FF6020;">Likely Pathogenic</option>
 														<option value="5" style="color:#FF0000;">Pathogenic</option>
 														<option value="7" style="color:#F1C40F;">Risk Factor</option>
+													</select>
+												</div><br /><br />
+											</div>
+											<div class="w3-row w3-section">
+												<div class="w3-quarter w3-left-align">
+													<label for="class_type" form="acmg_form">ACMG class:</label>
+												</div>
+												<div class="w3-rest">
+													<select class="w3-select w3-border" name="class_type" id="class_type" form="acmg_form">
+														<option value="germline">Germline</option>
+														<option value="somatic">Somatic</option>
 													</select>
 												</div><br /><br />
 											</div>
@@ -2244,7 +2258,7 @@
 			{% else %}
 				{{ info("To modify the classification history, you must be <a href='%s'>logged in</a> (you might want to <a href='%s' target='_blank' rel='noopener noreferrer'>create an account</a> before)."|format(url_for('auth.login'), url_for('auth.register'))) }}
 			{% endif %}
-			{{ info("* We added an additional 'risk factor' class to the 5 ACMG classes in order to describe low penetrance risk factor variants. Currently, these variants are not sent to the LOVD Global Variome instance.") }}
+			{{ info("* We added an additional 'risk factor' class to the 5 ACMG classes in order to describe low penetrance risk factor variants. Currently, these variants are not sent to the LOVD Global Variome instance.<br />** Germline or Somatic.") }}
 		</div>
 		<br/><br/>
 		<!-- Section : Administrative information -->

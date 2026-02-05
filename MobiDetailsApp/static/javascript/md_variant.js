@@ -406,6 +406,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
   // alert(html_comment);
 	// html_comment = encodeURIComponent(html_comment);
   var acmg = $("#acmg_select").val();
+  var class_type = $("#class_type").val();
 	// send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
@@ -418,7 +419,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 		type: "POST",
 		url: modify_class_url,
 		data: {
-			variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment
+			variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment, class_type: class_type
 		}
 	})
 	.done(function(tr_html) {
@@ -427,9 +428,9 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 	  // if (tr_html !== 'notok') {
   	  var re = /already_classified/;
       // alert("#" + mobiuser_id + "-" + acmg + "-" + variant_id);
-  		if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id).length > 0 ) {
+  		if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).length > 0 ) {
   			if (!re.test(tr_html)) {
-  				$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).hide();
+  				$("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).hide();
   			}
   			// else {
   			// 	$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
@@ -441,7 +442,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
       // var table_class = $('#class_table').DataTable();
       $('#class_table').DataTable().destroy();
       $("#class_table>tbody:last").append(unescape(tr_html));
-  		$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+  		$("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).css('font-weight', 'bold');
   		$("#acmg_comment").val('');
   		if ($("#no_class").length > 0) {
         // $("#no_class").hide();
@@ -468,7 +469,7 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
 }
 
 
-function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csrf_token) {
+function remove_class(variant_id, mobiuser_id, acmg_class, class_type, remove_class_url, csrf_token) {
 	// ajax to remove variant class
 	// send header for flask-wtf crsf security
   $.ajaxSetup({
@@ -482,13 +483,13 @@ function remove_class(variant_id, mobiuser_id, acmg_class, remove_class_url, csr
 		type: "POST",
 		url: remove_class_url,
 		data: {
-			variant_id: variant_id, acmg_class: acmg_class
+			variant_id: variant_id, acmg_class: acmg_class, class_type: class_type
 		}
 	})
 	.done(function(return_code) {
 		if (return_code == 'ok') {
       $('#class_table').DataTable()
-        .row($("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id))
+        .row($("#" + mobiuser_id + "-" + acmg_class + "-" + variant_id + "-" + class_type))
         .remove()
         .draw();
       // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
