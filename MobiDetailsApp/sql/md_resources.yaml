@@ -170,6 +170,7 @@
   'phylop_primates': ''
   'pdb': 'https://www.rcsb.org'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
+  'popeve': 'https://pop.evemodel.org'
   'pubmatcher': 'https://www.pubmatcher.fr'
   'promoterai': 'https://github.com/Illumina/PromoterAI'
   'regulomedb': 'https://regulomedb.org'
@@ -300,7 +301,7 @@
     'description': 'Dataset of predictions for 3 UTR substitutions'
     'short_name': 'dbmts'
   'dbnsfp':
-    'rel_path': '/static/resources/dbNSFP/v5_2/dbNSFP5.2a_grch38.gz'
+    'rel_path': '/static/resources/dbNSFP/v5_3_1/dbNSFP5.3.1a_grch38.gz'
     'name': 'dbNSFP'
     'description': 'Dataset of predictions for missense'
     'short_name': 'dbnsfp'
@@ -484,14 +485,14 @@
   #   'dbNSFP_value_col': '125'
   #   'dbNSFP_pred_col': '127'
   'Provean':
-    'dbNSFP_value_col': '67'
-    'dbNSFP_pred_col': '69'
+    'dbNSFP_value_col': '69'
+    'dbNSFP_pred_col': '71'
   # 'LRT':
   #   'dbNSFP_value_col': '49'
   #   'dbNSFP_pred_col': '51'
   'MutationTaster':
-    'dbNSFP_value_col': '58'
-    'dbNSFP_pred_col': '60'
+    'dbNSFP_value_col': '60'
+    'dbNSFP_pred_col': '62'
 'external_tools':
   'AbSplice':
     'firstauthor': 'Wagner'
@@ -514,8 +515,8 @@
     'paper': '27995669'
     'version': 'from dbNSFP'
     'short_name': 'bayesdel'
-    'dbNSFP_value_col': '103'
-    'dbNSFP_pred_col': '105'
+    'dbNSFP_value_col': '111'
+    'dbNSFP_pred_col': '113'
   'Cactus_241_way':
     'firstauthor': 'Christmas'
     'year': '2023'
@@ -544,8 +545,8 @@
     'paper': '30220433'
     'version': '2018_hg19'
     'short_name': 'clinpred'
-    'dbNSFP_value_col': '109'
-    'dbNSFP_pred_col': '111'
+    'dbNSFP_value_col': '117'
+    'dbNSFP_pred_col': '119'
   'ClinVar':
     'firstauthor': 'Landrum'
     'year': '2016'
@@ -583,7 +584,7 @@
     'firstauthor': 'Liu'
     'year': '2016'
     'paper': '26555599'
-    'version': 'v5.2a'
+    'version': 'v5.3.1a'
     'short_name': 'dbnsfp'
   'dbscSNV':
     'firstauthor': 'Jian'
@@ -614,8 +615,8 @@
     'paper': '26727659'
     'version': 'v1.1'
     'short_name': 'eigen'
-    'dbNSFP_value_col': '149'
-    'dbNSFP_pred_col': '151'
+    'dbNSFP_value_col': '160'
+    'dbNSFP_pred_col': '162'
     'dbMTS_value_col': '127'
     'dbMTS_pred_col': '128'
   # 'FatHMM':
@@ -632,8 +633,8 @@
     'paper': '28968714'
     'version': 'from dbNSFP'
     'short_name': 'fathmmxf'
-    'dbNSFP_value_col': '146'
-    'dbNSFP_pred_col': '148'
+    'dbNSFP_value_col': '156'
+    'dbNSFP_pred_col': '158'
   'genebe':
     'firstauthor': 'Stawinski'
     'year': '2024'
@@ -707,11 +708,11 @@
     'paper': '25552646'
     'version': 'from dbNSFP'
     'short_name': 'dbnsfp'
-    'dbNSFP_value_col_msvm': '72'
-    'dbNSFP_value_pred_msvm': '74'
-    'dbNSFP_value_col_mlr': '75'
-    'dbNSFP_value_pred_mlr': '77'
-    'dbNSFP_value_col_mrel': '78'
+    'dbNSFP_value_col_msvm': '74'
+    'dbNSFP_value_pred_msvm': '76'
+    'dbNSFP_value_col_mlr': '77'
+    'dbNSFP_value_pred_mlr': '79'
+    'dbNSFP_value_col_mrel': '80'
   'Mistic':
     'firstauthor': 'Chennen, Weber'
     'year': '2020'
@@ -809,10 +810,18 @@
     'paper': '20354512'
     'version': 'from dbNSFP'
     'short_name': 'pph2'
-    'dbNSFP_value_col_hdiv': '52'
-    'dbNSFP_pred_col_hdiv': '54'
-    'dbNSFP_value_col_hvar': '55'
-    'dbNSFP_pred_col_hvar': '57'
+    'dbNSFP_value_col_hdiv': '54'
+    'dbNSFP_pred_col_hdiv': '56'
+    'dbNSFP_value_col_hvar': '57'
+    'dbNSFP_pred_col_hvar': '59'
+  'PopEve':
+    'firstauthor': 'Orenburg'
+    'year': '2025'
+    'paper': '41286104'
+    'version': 'from dbNSFP'
+    'short_name': 'popeve'
+    'dbNSFP_value_col': '143'
+    'dbNSFP_pred_col': '144'
   'PromoterAI':
     'firstauthor': 'Jaganathan'
     'year': '2025'
@@ -848,8 +857,8 @@
     'paper': '16824020'
     'version': 'from dbNSFP'
     'short_name': 'sift'
-    'dbNSFP_value_col': '46'
-    'dbNSFP_pred_col': '48'
+    'dbNSFP_value_col': '48'
+    'dbNSFP_pred_col': '50'
   'SPiP':
     'firstauthor': 'Leman'
     'year': '2022'
@@ -919,6 +928,8 @@
   'pph2_hdiv_mid': 0.454
   'pph2_hvar_max': 0.909
   'pph2_hvar_mid': 0.447
+  'popeve_mid': -4.617
+  'popeve_max': -5.056
   'promoterai': 0.5
   'provean': -2.5
   'remm_lp': 0.924

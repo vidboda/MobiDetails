@@ -861,7 +861,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                     return record
             elif re.search(r'dbNSFP', tabix_file):
                 j = 4
-                ppos_list = re.split(';', record[j+7])
+                ppos_list = re.split(';', record[j+9])
                 # print('{}-{}-{}-{}-{}-{}'.format(aa1, record[j], aa2, record[j+1], ppos, ppos_list))
                 if aa1 == record[j] and \
                         aa2 == record[j+1] and \
@@ -2830,9 +2830,15 @@ def create_var_vv_vcf_str(
         middle = seq_slice[marker:len(seq_slice)-marker]
         end = seq_slice[-marker:]
         # substitutions
+        # depending on whether we are genic or not
+        # and if the gene is on strand - we want c. nucleotides
+        temp_hgvs = hg38_d['g_name']
+        if vv_key_var != 'intergenic_variant_1' and \
+                'c_name' in vf_d:
+            temp_hgvs = vf_d['c_name']
         if vf_d['dna_type'] == 'substitution':
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
-            mt_obj = re.search(r'>([ATGC])$', hg38_d['g_name'])
+            mt_obj = re.search(r'>([ATGC])$', temp_hgvs)
             vf_d['mt_seq'] = "{0} {1} {2}".format(begin, mt_obj.group(1), end)
         elif vf_d['dna_type'] == 'inversion':
             vf_d['wt_seq'] = "{0} {1} {2}".format(begin, middle, end)
@@ -2840,7 +2846,7 @@ def create_var_vv_vcf_str(
                 begin, reverse_complement(middle), end
             )
         elif vf_d['dna_type'] == 'indel':
-            ins_obj = re.search(r'delins([ATGC]+)', hg38_d['g_name'])
+            ins_obj = re.search(r'delins([ATGC]+)', temp_hgvs)
             exp_size = abs(len(middle)-len(ins_obj.group(1)))
             exp = ''
             for i in range(0, exp_size):
@@ -2858,7 +2864,7 @@ def create_var_vv_vcf_str(
                     begin, ins_obj.group(1), end
                 )
         elif vf_d['dna_type'] == 'insertion':
-            ins_obj = re.search(r'ins([ATGC]+)', hg38_d['g_name'])
+            ins_obj = re.search(r'ins([ATGC]+)', temp_hgvs)
             exp = ''
             for i in range(0, len(ins_obj.group(1))):
                 exp += '-'
@@ -2888,7 +2894,6 @@ def create_var_vv_vcf_str(
     vf_d['creation_date'] = '{0}-{1}-{2}'.format(
         today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")
     )
-
     s = ", "
     # attributes =
     t = "', '"

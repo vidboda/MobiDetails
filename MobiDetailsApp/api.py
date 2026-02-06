@@ -1059,6 +1059,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     record = md_utilities.get_value_from_tabix_file(
                         'dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, variant_features
                     )
+                    # print(record)
                     # Eigen
                     try:
                         external_data['overallPredictions']['eigenRaw'] = format(float(record[int(md_utilities.external_tools['Eigen']['dbNSFP_value_col'])]), '.2f')
