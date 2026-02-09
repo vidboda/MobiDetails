@@ -558,7 +558,7 @@ var_ss_f = {
     ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp', var_f),
-    ('dbnsfp', var, '0.815541', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.56853', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
@@ -656,7 +656,7 @@ def test_get_bigwig_score(app, client, tool, var, expected, file_name, var_f):
 def test_getdbNSFP_results():
     # clinpred
     record = md_utilities.get_value_from_tabix_file('dbnsfp', md_utilities.local_files['dbnsfp']['abs_path'], var, var_f)
-    score, pred, star = md_utilities.getdbNSFP_results(0, 109, 111, ';', 'basic', 1.1, 'gt', record)
+    score, pred, star = md_utilities.getdbNSFP_results(0, 117, 119, ';', 'basic', 1.1, 'gt', record)
     assert score == '0.883407413959503'
     assert pred == 'Damaging'
     assert star == ''

@@ -912,7 +912,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                     return record
             else:
                 j = 4
-                ppos_list = re.split(';', record[j+7])
+                ppos_list = re.split(';', record[j+9])
                 if aa1 == record[j] and \
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
