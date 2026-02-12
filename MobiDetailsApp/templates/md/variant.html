@@ -535,13 +535,13 @@
 					</div>
 				</div>
 			</div>
-			<div>
+			{# <div>
 				{{ section_subtitle('other-literature', 'Alternative automated literature tools') }}
 
 				<ul>
 					<li><a href="{{ '%s/detail?gene=%s&mutation=%s:g.%s'|format(urls.mastermind, external_data.gene.symbol, external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName) | replace('+', '%2B') | replace('\n', '%0A') }}" target="_blank" title="Vist Mastermind" rel="noopener noreferrer">Mastermind</a> : Search engine to identify gene, variant, disease, phenotype, and therapy evidence from scientific articles.</li>
 				</ul>
-			</div>
+			</div> #}
 			{% endif %}
 		</div>
 		<!-- Section : Population Frequencies and Databases -->
