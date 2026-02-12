@@ -95,7 +95,8 @@
 		{% if (external_data.gene.isOncogene or external_data.gene.isTumorSuppressor) and (external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?') %}
 		<button class="w3-button w3-block w3-left-align w3-large w3-hover-blue w3-border-bottom w3-blue" onclick="myAccFunc('somatic_acc', 'somatic_icon');">somatic <i class="fa fa-caret-down" id="somatic_icon"></i></button>
 		<div class="w3-show" id="somatic_acc">
-			{{ link("%s/search?q=%s %s"|format(urls.cosmic, external_data.gene.symbol, internal_data.nomenclatures.cName), "COSMIC")}}
+			{# {{ link("%s/search?q=%s %s"|format(urls.cosmic, external_data.gene.symbol, internal_data.nomenclatures.cName), "COSMIC")}} #}
+			{{ link("%s"|format(urls.sovad), "SoVaD")}}
 			{{ link("%sgene/%s/%s"|format(urls.oncokb, external_data.gene.symbol, internal_data.nomenclatures.oneLetterpName), "OncoKB")}}
 			{{ link("%sgene/%s"|format(urls.oncokb, external_data.gene.symbol), "OncoKB Gene")}}
 			{% if external_data.positions.proteinType == 'missense' %}
