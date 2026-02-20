@@ -594,6 +594,7 @@ var_ss_f = {
     ('gnomADv4 exome', var, '0.0015', 5, 'gnomad_4_exome', var_f),
     ('gnomADv4 exome', var_dup, '1.0000', 5, 'gnomad_4_exome', var_dup_f),
     ('Mistic', var, '0.876', 4, 'mistic', var_f),
+    ('NCBoost', var_5utr1, '0.1424310803413391', 8, 'ncboost', var_5utr1_f),
     ('dbscSNV', var_ss, '0.9999', 14, 'dbscsnv', var_ss_f),
     ('dbscSNV', var_ss, '0.928', 15, 'dbscsnv', var_ss_f),
     ('MorfeeDB', var_5utr1, 'uTIS', 10, 'morfeedb', var_5utr1_f),

@@ -324,6 +324,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'nonCodingPredictions':{
             'mobideep': None,
+            'ncboostRaw': None,
+            'ncboostPhred': None,
             'promoterai': None,
             'remm': None,
         },
@@ -534,6 +536,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'episignature': None,
             'mavedb': None,
             'morfeedb': None,
+            'ncboost': None, 
             'gpnmsa': None,
             'cactus241way': None,
             'remm': None,
@@ -1361,6 +1364,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         else:
                             external_data['nonCodingPredictions']['promoterai'] = format(float(record[int(md_utilities.external_tools['PromoterAI']['raw_col'])]), '.2f')
                             internal_data['nonCodingPredictions']['promoteraiColor'] = md_utilities.get_preditor_single_threshold_color(abs(float(external_data['nonCodingPredictions']['promoterai'])), 'promoterai')
+
+
+
+                    # NCBoostv2
+                    if variant_features['prot_type'] == 'unknown':
+                        record = md_utilities.get_value_from_tabix_file('NCBoost', md_utilities.local_files['ncboost']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            internal_data['noMatch']['ncboost'] = "{0} {1}".format(record, md_utilities.external_tools['NCBoost']['version'])
+                        else:
+                            external_data['nonCodingPredictions']['ncboostRaw'] = format(float(record[int(md_utilities.external_tools['NCBoost']['raw_col'])]), '.4f')
+                            external_data['nonCodingPredictions']['ncboostPhred'] = format(float(record[int(md_utilities.external_tools['NCBoost']['phred_col'])]), '.4f')
+                            # internal_data['nonCodingPredictions']['promoteraiColor'] = md_utilities.get_preditor_single_threshold_color(abs(float(external_data['nonCodingPredictions']['ncboost'])), 'ncboost')
+
+
+
                     # GPN-MSA
                     record = md_utilities.get_value_from_tabix_file('GPN-MSA', md_utilities.local_files['gpnmsa']['abs_path'], var, variant_features)
                     if isinstance(record, str):

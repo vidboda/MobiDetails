@@ -1520,7 +1520,7 @@
 				{{ content(internal_data.noMatch.morfeedb) }}
 			{% endif %}
 			{# {% if external_data.positions.proteinType == 'unknown' %} #}
-			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.promoterai is not none or (external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution')%}
+			{% if external_data.nonCodingPredictions.remm is not none or external_data.nonCodingPredictions.promoterai is not none or external_data.nonCodingPredictions.ncboostRaw is not none or (external_data.positions.proteinType == 'unknown' and external_data.positions.DNAType == 'substitution')%}
 			{{ section_subtitle('overall_nc_predictors', 'Overall non-coding predictors') }}
 			<div class="w3-responsive w3-container">
 				<table class="w3-table w3-centered display compact" style="width:90%" id="noncoding_table">
@@ -1532,7 +1532,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% if internal_data.noMatch.remm is not none or external_data.nonCodingPredictions.remm is not none %}
+						{% if internal_data.noMatch.remm is none or external_data.nonCodingPredictions.remm is not none %}
 						<tr><!--ReMM-->
 							<td class="w3-left-align"><a href="{{ urls.remm }}" target="_blank" title="Visit ReMM" rel="noopener noreferrer">ReMM</a>:</td>
 							{% if internal_data.noMatch.remm is none %}
@@ -1543,7 +1543,7 @@
 							<td class="w3-left-align"><em class="w3-small">Threshold &gt; 0.924|0.961 for Likely Pathogenic and Pathogenic</em></td>
 						</tr>
 						{% endif %}
-						{% if internal_data.noMatch.promoterai is not none or external_data.nonCodingPredictions.promoterai is not none %}
+						{% if internal_data.noMatch.promoterai is none or external_data.nonCodingPredictions.promoterai is not none %}
 						<tr><!--PromoterAI-->
 							<td class="w3-left-align"><a href="{{ urls.promoterai }}" target="_blank" title="Visit PromoterAI" rel="noopener noreferrer">PromoterAI</a>:</td>
 							{% if internal_data.noMatch.promoterai is none %}
@@ -1552,6 +1552,17 @@
 							<td class="w3-left-align">{{ internal_data.noMatch.promoterai }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">Prediction of expression altering promoter variants; Thresholds &le; -0.5 for under expression and &ge; 0.5 for over expression </em></td>
+						</tr>
+						{% endif %}
+						{% if internal_data.noMatch.ncboost is none or external_data.nonCodingPredictions.ncboostRaw is not none %}
+						<tr id="ncboost_tr">
+							<td class="w3-left-align"><a href="{{ urls.ncboost }}" target="_blank" title="Visit NCBoost v2" rel="noopener noreferrer">NCBoost v2</a>:</td>
+							{% if internal_data.noMatch.ncboost is none %}
+							<td class="w3-left-align" id="ncboost_score">{{ external_data.nonCodingPredictions.ncboostRaw }} ({{  external_data.nonCodingPredictions.ncboostPhred}}) </td>
+							{% else %}
+							<td class="w3-left-align">{{ internal_data.noMatch.ncboost }}</td>
+							{% endif %}
+							<td class="w3-left-align"><em class="w3-small">NCBoost raw score [0-1] (rank perc.). The rank percentile expresses the ranking of the variant among all variants lying in the same chromosome. The higher the most likely to have an impact</em></td>
 						</tr>
 						{% endif %}
 						<!--hidden tr for MobiDeep called by ajax-->

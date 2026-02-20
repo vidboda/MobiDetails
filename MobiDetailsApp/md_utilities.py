@@ -170,6 +170,9 @@ local_files['morfeedb']['abs_path'] = '{0}{1}'.format(
 local_files['morfeedb_folder']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['morfeedb_folder']['rel_path']
 )
+local_files['ncboost']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['ncboost']['rel_path']
+)
 oncokb_genes_version = get_resource_current_version(
     '{0}{1}'.format(app_path, local_files['oncokb_genes']['rel_path']),
     r'cancerGeneList_(\d+).tsv'
@@ -798,6 +801,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
             text == 'MorfeeDB'or \
+            text == 'NCBoost' or \
             text == 'GPN-MSA' :
         i -= 1
     if 'p_name' in variant_features and variant_features['p_name'] is not None:

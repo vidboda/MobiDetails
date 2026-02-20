@@ -163,6 +163,7 @@
   'ncbi_litvar_apiv2': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/variant/get/litvar%40'
   'ncbi_litvar_apiv2_sensor': 'https://www.ncbi.nlm.nih.gov/research/litvar2-api/sensor/'
   'ncbi_snp_api': 'https://api.ncbi.nlm.nih.gov/variation/v0/refsnp/'
+  'ncboost': 'https://github.com/RausellLab/NCBoost-2'
   'oncokb': 'https://www.oncokb.org/'
   'omim': 'http://omim.org/'
   'panelapp': 'https://panelapp.genomicsengland.co.uk/'
@@ -406,6 +407,11 @@
     'name': 'MMorfee scores'
     'description': 'bed files for MorfeeDB individual variants'
     'short_name': 'morfeedb_folder'
+  'ncboost':
+    'rel_path': '/static/resources/ncboost/ncboost_v2_hg38_20260202_light.tsv.gz'
+    'name': 'NCBoost v2 scores for 1.88 billion positions'
+    'description': 'Pre-computed NCBoost v2 scores'
+    'short_name': 'ncboost'
   'oncokb_genes':
     'rel_path': '/static/resources/oncokb/'
     'name': 'OncoKB cancer gene list'
@@ -785,6 +791,14 @@
     'paper': ' 27154141'
     'version': 'API'
     'short_name': 'mygene.info'
+  'NCBoost':
+    'firstauthor': 'Caron'
+    'year': '2026'
+    'paper': ''
+    'version': 'v20260202'
+    'short_name': 'ncboost'
+    'raw_col': '8'
+    'phred_col': '9'
   'OncoKBGenes':
     'firstauthor': 'Chakravarty'
     'year': '2017'
