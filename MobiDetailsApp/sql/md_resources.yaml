@@ -640,8 +640,8 @@
     'paper': '28968714'
     'version': 'from dbNSFP'
     'short_name': 'fathmmxf'
-    'dbNSFP_value_col': '156'
-    'dbNSFP_pred_col': '158'
+    'dbNSFP_value_col': '157'
+    'dbNSFP_pred_col': '159'
   'genebe':
     'firstauthor': 'Stawinski'
     'year': '2024'
