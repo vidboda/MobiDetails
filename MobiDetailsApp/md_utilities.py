@@ -1614,8 +1614,8 @@ def create_var_vv(
                 return danger_panel(
                     vv_key_var,
                     """
-                    VariantValidator did not return a valid value for this variant: {0} {1}
-                    """.format(vv_warning, vv_variant_data_check)
+                    VariantValidator did not return a valid value for this variant: {0}
+                    """.format(vv_warning)
                 )
         elif caller == 'cli':
             return {
@@ -2432,8 +2432,8 @@ def create_var_vv_vcf_str(
                 return danger_panel(
                     vv_key_var,
                     """
-                    VariantValidator did not return a valid value for this variant: {0} {1}
-                    """.format(vv_warning, vv_variant_data_check)
+                    VariantValidator did not return a valid value for this variant: {0}
+                    """.format(vv_warning)
                 )
         elif caller == 'cli':
             return {
@@ -3259,45 +3259,66 @@ def return_vv_validation_warnings(vv_data):
     # lies outside of the reference sequence is not HGVS-compliant
     # - base start position must be <= end position
     # - lacking characters
+    # recent VV also return:
+    #  "LovdSyntaxcheckWarning: An insertion must be provided with the two positions between which the insertion has taken place.",
+    #  "LovdSyntaxcheckError: The inserted sequence must be provided for insertions.",
+    #  "LovdSyntaxcheckSuggestions: [NM_001943.5:c.705_706ins, 0.07]",
+    #  "LovdSyntaxcheckSuggestions: [NM_001943.5:c.706_707ins, 0.03]",
+    # interesting to return warning, error and suggestion with p > 0.5
     for key in vv_data:
         if key == 'validation_warning_1':
             for field in vv_data[key]:
                 if field == 'validation_warnings':
+                    vv_lovd_error = ''
                     for warning in vv_data[key][field]:
+                        # LOVD syntax check treatment
+                        lovd_syntax_obj = re.search(r'^LovdSyntaxcheck[EW]\w+:\s(.+)$', warning)
+                        if lovd_syntax_obj:
+                            vv_lovd_error = '{0}<br />- {1}'.format(vv_lovd_error, lovd_syntax_obj.group(1))
+                            continue
+                        variant_regexp = regexp['variant']
+                        ncbi_transcript_regexp = regexp['ncbi_transcript']
+                        lovd_sugg_obj = re.search(rf'LovdSyntaxcheckSuggestions:\s\[({ncbi_transcript_regexp}:c.{variant_regexp}),\s([\d\.]+)\]$', warning)
+                        if lovd_sugg_obj:
+                            if float(lovd_sugg_obj.group(2)) >= 0.5:
+                                vv_lovd_error = '{0}<br />- Did you mean {1}? (Suggestion provided by LOVDSyntaxChecker)'.format(vv_lovd_error, lovd_sugg_obj.group(1))
+                            continue
+                        if vv_lovd_error != '':
+                            return vv_lovd_error
                         if re.search('does not agree with reference sequence', warning):
-                            return warning
-                        if re.search('base start position must be <= end position:', warning):
-                            return warning
-                        if re.search('Removing redundant reference bases from variant description', warning):
-                            return warning
+                            return '<br />- {0}'.format(warning)
+                        #if re.search('base start position must be <= end position:', warning):
+                        #    return warning
+                        # if re.search('Removing redundant reference bases from variant description', warning):
+                        #     return warning
                         if re.search('does not correspond with an exon boundary for transcript', warning):
-                            return warning
-                        if re.search('expected one of', warning):
-                            return warning
-                        if re.search('end of input', warning):
-                            return warning
-                        if re.search('is not formatted following the HGVS guidelines', warning):
-                            return warning
+                            return '<br />- {0}'.format(warning)
+                        # if re.search('expected one of', warning):
+                        #     return warning
+                        # if re.search('end of input', warning):
+                        #     return warning
+                        # if re.search('is not formatted following the HGVS guidelines', warning):
+                        #     return warning
                         if re.search('Variant coordinate is out of the bound of CDS region', warning):
-                            return warning
-                        if re.search('insertion length must be', warning):
-                            return warning
+                            return '<br />- {0}'.format(warning)
+                        # if re.search('insertion length must be', warning):
+                        #     return warning
                         if re.search('start or end or both are beyond the bounds of transcript record', warning):
-                            return warning
-                        if re.search('base start position must be <= end position', warning):
-                            return warning
+                            return '<br />- {0}'.format(warning)
+                        # if re.search('base start position must be <= end position', warning):
+                        #     return warning
                         if re.search('The given coordinate is outside the bounds of the reference sequence.', warning):
-                            return warning
-                        if re.search('Interval end position', warning):
-                            return warning
-                        if re.search('An insertion must be provided with the two positions between which the insertion has taken place', warning):
-                            return warning
-                        if re.search('Variant start position and/or end position are beyond the CDS end position and likely also beyond the end of the selected reference sequence', warning):
-                            return warning
-                        if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
-                            return warning
-                        if re.search('Length implied by coordinates must equal sequence deletion length', warning):
-                            return warning
+                            return '<br />- {0}'.format(warning)
+                        # if re.search('Interval end position', warning):
+                        #     return warning
+                        # if re.search('An insertion must be provided with the two positions between which the insertion has taken place', warning):
+                        #     return warning
+                        # if re.search('Variant start position and/or end position are beyond the CDS end position and likely also beyond the end of the selected reference sequence', warning):
+                        #     return warning
+                        # if re.search('The inserted sequence must be provided for insertions or deletion-insertions', warning):
+                        #     return warning
+                        # if re.search('Length implied by coordinates must equal sequence deletion length', warning):
+                        #     return warning
                         match_obj = re.search('(Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant)[:\.].*', warning)
                         if match_obj:
                             return match_obj.group(1)

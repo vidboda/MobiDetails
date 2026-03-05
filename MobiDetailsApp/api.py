@@ -2124,8 +2124,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         else:
                             flash(
                                 """
-                                VariantValidator did not return a valid value for the variant {0}: {1} {2}
-                                """.format(vv_key_var, vv_warning, vv_variant_data_check),
+                                VariantValidator did not return a valid value for the variant {0}: {1}
+                                """.format(vv_key_var, vv_warning),
                                 'w3-pale-red'
                             )
                         return redirect(url_for('md.index'), code=302)
