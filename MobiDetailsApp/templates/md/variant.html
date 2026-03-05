@@ -1558,11 +1558,11 @@
 						<tr id="ncboost_tr">
 							<td class="w3-left-align"><a href="{{ urls.ncboost }}" target="_blank" title="Visit NCBoost v2" rel="noopener noreferrer">NCBoost v2</a>:</td>
 							{% if internal_data.noMatch.ncboost is none %}
-							<td class="w3-left-align" id="ncboost_score">{{ external_data.nonCodingPredictions.ncboostRaw }} ({{  external_data.nonCodingPredictions.ncboostPhred}}) </td>
+							<td class="w3-left-align" id="ncboost_score">{{  external_data.nonCodingPredictions.ncboostPhred}}</td>
 							{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.ncboost }}</td>
 							{% endif %}
-							<td class="w3-left-align"><em class="w3-small">NCBoost raw score [0-1] (rank perc.). The rank percentile expresses the ranking of the variant among all variants lying in the same chromosome. The higher the most likely to have an impact</em></td>
+							<td class="w3-left-align"><em class="w3-small">NCBoost rank percentile score [0-1]. The rank percentile expresses the ranking of the variant among all variants lying in the same chromosome. The higher the most likely to have an impact</em></td>
 						</tr>
 						{% endif %}
 						<!--hidden tr for MobiDeep called by ajax-->
