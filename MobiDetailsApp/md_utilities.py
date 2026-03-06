@@ -3274,6 +3274,8 @@ def return_vv_validation_warnings(vv_data):
                         # LOVD syntax check treatment
                         lovd_syntax_obj = re.search(r'^LovdSyntaxcheck[EW]\w+:\s(.+)$', warning)
                         if lovd_syntax_obj:
+                            if lovd_syntax_obj.group(1) == "To verify intronic positions, add a genomic context to the transcript reference sequence.":
+                                continue
                             vv_lovd_error = '{0}<br />- {1}'.format(vv_lovd_error, lovd_syntax_obj.group(1))
                             continue
                         variant_regexp = regexp['variant']
@@ -3287,10 +3289,10 @@ def return_vv_validation_warnings(vv_data):
                             return vv_lovd_error
                         if re.search('does not agree with reference sequence', warning):
                             return '<br />- {0}'.format(warning)
-                        #if re.search('base start position must be <= end position:', warning):
-                        #    return warning
-                        # if re.search('Removing redundant reference bases from variant description', warning):
-                        #     return warning
+                        if re.search('base start position must be <= end position:', warning):
+                            return '<br />- {0}'.format(warning)
+                        if re.search('Removing redundant reference bases from variant description', warning):
+                            return '<br />- {0}'.format(warning)
                         if re.search('does not correspond with an exon boundary for transcript', warning):
                             return '<br />- {0}'.format(warning)
                         # if re.search('expected one of', warning):

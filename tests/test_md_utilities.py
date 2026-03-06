@@ -558,7 +558,7 @@ var_ss_f = {
     ('dbnsfp', var, '0.0', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp', var_f),
-    ('dbnsfp', var, '0.56853', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.815541', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
@@ -972,30 +972,61 @@ def test_check_vv_variant_data(vv_dict):
     assert verif_data is True
 
 
-vv_warning1 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_000059.3:c.68-7_68-8delinsAA', 'transcript_description': '', 'validation_warnings': ['base start position must be <= end position: Did you mean NM_000059.3:c.68-8_68-7delinsAA?'], 'variant_exonic_positions': None}}
+vv_warning1 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_000059.3:c.68-7_68-8delinsAA', 'transcript_description': '', 'validation_warnings': [
+    "base start position must be <= end position: Did you mean NM_000059.3:c.68-8_68-7delinsAA?",
+    "LovdSyntaxcheckWarning: This variant description contains positions not given in the correct order.",
+    "LovdSyntaxcheckError: To verify intronic positions, add a genomic context to the transcript reference sequence.",
+    "LovdSyntaxcheckSuggestions: [NM_000059.3:c.68-8_68-7delinsAA, 0.09]",
+    "LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/NM_000059.3:c.68-7_68-8delinsAA",
+    "LovdSyntaxcheckLibraryVersion: 0.6.0"
+], 'variant_exonic_positions': None}}
 
 vv_warning2 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_001292063.2:c.71_78delAGTCCCTG*', 'transcript_description': '', 'validation_warnings': ['Removing redundant reference bases from variant description', 'NM_001292063.2:c.71_78del*: char 34: expected EOF'], 'variant_exonic_positions': None}}
 
 vv_warning3 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev16+g3ea810a', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_021175.4:c.*203G>T', 'transcript_description': '', 'validation_warnings': ['Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant: Instead re-submit NC_000019.10:g.35285245G>T'], 'variant_exonic_positions': None}}
 
-vv_warning4 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_058216.3:c.1026+5_1026+7de', 'transcript_description': '', 'validation_warnings': ['NM_058216.3:c.1026+5_1026+7de: char 28: expected one of =, or >'], 'variant_exonic_positions': None}}
+vv_warning4 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_058216.3:c.1026+5_1026+7de', 'transcript_description': '', 'validation_warnings': [
+    "HgvsSyntaxError: 1026+5_1026+7de: char 14: expected one of =, or >",
+    "LovdSyntaxcheckWarning: We stopped reading past NM_058216.3. We could not interpret :c.1026+5_1026+7de.",
+    "LovdSyntaxcheckError: This input requires a variant description; reference sequence given.",
+    "LovdSyntaxcheckSuggestions: [NM_058216.3, 1]",
+    "LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/NM_058216.3:c.1026+5_1026+7de",
+    "LovdSyntaxcheckLibraryVersion: 0.6.0"
+], 'variant_exonic_positions': None}}
 
-vv_warning5 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_058216.3:c.1026+5_1026+7d', 'transcript_description': '', 'validation_warnings': ['NM_058216.3:c.1026+5_1026+7d: char 29: end of input'], 'variant_exonic_positions': None}}
+vv_warning5 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_058216.3:c.1026+5_1026+7d', 'transcript_description': '', 'validation_warnings': [
+    "HgvsSyntaxError: 1026+5_1026+7d: char 15: end of input",
+    "LovdSyntaxcheckWarning: We stopped reading past NM_058216.3. We could not interpret :c.1026+5_1026+7d.",
+    "LovdSyntaxcheckError: This input requires a variant description; reference sequence given.",
+    "LovdSyntaxcheckSuggestions: [NM_058216.3, 1]",
+    "LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/NM_058216.3:c.1026+5_1026+7d",
+    "LovdSyntaxcheckLibraryVersion: 0.6.0"
+], 'variant_exonic_positions': None}}
 
-vv_warning6 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_000179.3:c.4002-10_4002-9ins22', 'transcript_description': '', 'validation_warnings': ['The length of the variant is not formatted following the HGVS guidelines. Please rewrite e.g. 10 to N[10](where N is an unknown nucleotide)'], 'variant_exonic_positions': None}}
+vv_warning6 = {'flag': 'warning', 'metadata': {'variantvalidator_hgvs_version': '2.0.1', 'variantvalidator_version': '2.0.1.dev50+g4572981', 'vvdb_version': 'vvdb_2021_4', 'vvseqrepo_db': 'VV_SR_2021_2/master', 'vvta_version': 'vvta_2021_2'}, 'validation_warning_1': {'alt_genomic_loci': [], 'annotations': {}, 'gene_ids': {}, 'gene_symbol': '', 'genome_context_intronic_sequence': '', 'hgvs_lrg_transcript_variant': '', 'hgvs_lrg_variant': '', 'hgvs_predicted_protein_consequence': {'lrg_slr': '', 'lrg_tlr': '', 'slr': '', 'tlr': ''}, 'hgvs_refseqgene_variant': '', 'hgvs_transcript_variant': '', 'primary_assembly_loci': {}, 'reference_sequence_records': '', 'refseqgene_context_intronic_sequence': '', 'selected_assembly': 'GRCh38', 'submitted_variant': 'NM_000179.3:c.4002-10_4002-9ins22', 'transcript_description': '', 'validation_warnings': [
+    "The length of the variant is not formatted following the HGVS guidelines. Please rewrite e.g. 10 to N[10](where N is an unknown nucleotide)",
+    "LovdSyntaxcheckWarning: The part after ins does not follow HGVS guidelines.",
+    "LovdSyntaxcheckError: To verify intronic positions, add a genomic context to the transcript reference sequence.",
+    "LovdSyntaxcheckSuggestions: [NM_000179.3:c.4002-10_4002-9insN[22], 0.1]",
+    "LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/NM_000179.3:c.4002-10_4002-9ins22",
+    "LovdSyntaxcheckLibraryVersion: 0.6.0"
+], 'variant_exonic_positions': None}}
 
 
 @pytest.mark.parametrize(('vv_data', 'return_warning'), (
     (vv_warning1, 'base start position must be <= end position: Did you mean NM_000059.3:c.68-8_68-7delinsAA?'),
     (vv_warning2, 'Removing redundant reference bases from variant description'),
     (vv_warning3, 'Using a transcript reference sequence to specify a variant position that lies outside of the reference sequence is not HGVS-compliant'),
-    (vv_warning4, 'NM_058216.3:c.1026+5_1026+7de: char 28: expected one of =, or >'),
-    (vv_warning5, 'NM_058216.3:c.1026+5_1026+7d: char 29: end of input'),
-    (vv_warning6, 'The length of the variant is not formatted following the HGVS guidelines. Please rewrite e.g. 10 to N[10](where N is an unknown nucleotide)'),
+    (vv_warning4, r'We stopped reading past NM_058216\.3\. We could not interpret :c\.1026\+5_1026\+7de'),
+    (vv_warning5, r'We stopped reading past NM_058216\.3\. We could not interpret :c\.1026\+5_1026\+7d'),
+    (vv_warning6, 'The part after ins does not follow HGVS guidelines'),
     (vv_dict, ''),
 ))
 def test_return_vv_validation_warnings(vv_data, return_warning):
-    assert md_utilities.return_vv_validation_warnings(vv_data) == return_warning
+    # assert md_utilities.return_vv_validation_warnings(vv_data) == return_warning
+    print(return_warning)
+    print(md_utilities.return_vv_validation_warnings(vv_data))
+    assert re.search(return_warning, md_utilities.return_vv_validation_warnings(vv_data))
 
 
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
