@@ -1179,14 +1179,16 @@ def lovd():
                         'effect_concluded': {}
                     }
                     for var in lovd_effect:
-                        if var['owned_by'][0] == 'MobiDetails' and \
-                                len(lovd_urls) == 1:
-                            return md_utilities.lovd_error_html(
-                                """
-                                No match in LOVD public instances except a MobiDetails\' previous submission to \
-                                <a href={} target='_blank'>GV LOVD Shared</a>
-                                """.format(lovd_urls[0])
-                            )
+                        if var['owned_by'][0] == 'MobiDetails':
+                            if len(lovd_effect) == 1:
+                                # len(lovd_urls) == 1:
+                                return md_utilities.lovd_error_html(
+                                    """
+                                    No match in LOVD public instances except a MobiDetails\' previous submission to \
+                                    <a href={} target='_blank'>GV LOVD Shared</a>
+                                    """.format(lovd_urls[0])
+                                )
+                            continue
                         # check here whether we are looking at the correct variant
                         nm, nm_ver = md_utilities.decompose_transcript(refseq)
                         # get rid of version !beware may lead to errors
