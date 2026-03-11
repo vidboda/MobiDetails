@@ -91,6 +91,15 @@
   'non-coding_exon': 3
   'intergenic': 4
   'exon': None
+caddPhredThresholds:
+  '3UTR': 11.08
+  '5UTR': 16.79
+  'intron': 12.76
+  'splicing': 25.5
+  'intergenic': 11.0
+  'exon': None
+  'upstream': 34.0
+  'downstream': 0.82
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files
 'urls':
   'absplice': 'https://zenodo.org/record/7871809'
@@ -101,6 +110,7 @@
   'bayesdel': 'https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html'
   'cactus241way': 'https://zoonomiaproject.org/the-data/'
   'cadd': 'https://cadd.gs.washington.edu/'
+  'cadd_noncoding_thresholds': 'https://doi.org/10.1093/nargab/lqaf157'
   'cancervar': 'https://cancervar.wglab.org/'
   'cancervar_api': 'https://cancervar.wglab.org/results_new_pos.php?queryType=position&build=hg38&chr='
   'clingen_evrepo': 'https://erepo.clinicalgenome.org/evrepo/'

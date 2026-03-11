@@ -64,6 +64,7 @@ def get_resource_current_version(resource_dir, regexp, excluded_date=None):
 one2three = resources['one2three']
 three2one = resources['three2one']
 mobideepGraphPosition = resources['mobideepGraphPosition']
+caddPhredThresholds = resources['caddPhredThresholds']
 urls = resources['urls']
 local_files = resources['local_files']
 local_files['alphamissense']['abs_path'] = '{0}{1}'.format(
@@ -772,7 +773,6 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    # print('{}-{}'.format(text, query))
     try:
         records = tb.querys(query)
     except tabix.TabixError:

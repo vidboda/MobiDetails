@@ -456,6 +456,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'posExonCanvas': None,
         },
         'overallPredictions': {
+            'caddThreshold': None,
+            'caddThresholdColor': None,
+            'annovarLocation': None,
             'mpaColor': None,
             'gpnmsaColor': None,
             'phylop_primatesColor': None,
@@ -1353,6 +1356,23 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         else:
                             external_data['overallPredictions']['caddRaw'] = record[int(md_utilities.external_tools['CADD']['raw_col'])]
                             external_data['overallPredictions']['caddPhred'] = record[int(md_utilities.external_tools['CADD']['phred_col'])]
+                    # define threshold
+                    if internal_data['noMatch']['cadd'] is None:
+                        # noncoding
+                        internal_data['overallPredictions']['annovarLocation'] = external_data['positions']['variantLocation']
+                        if external_data['positions']['variantLocation'] != 'exon':
+                            # discriminate between intronic and splicing in the paper (splicing being annovar definition 2bp near ss)
+                            if external_data['positions']['variantLocation'] == 'intron' and \
+                                    internal_data['positions']['distFromExon'] <= 2:
+                                internal_data['overallPredictions']['annovarLocation'] = 'splicing'
+                                internal_data['overallPredictions']['caddThreshold'] = md_utilities.caddPhredThresholds['splicing']
+                            else:
+                                internal_data['overallPredictions']['caddThreshold'] = md_utilities.caddPhredThresholds[external_data['positions']['variantLocation']]
+                        if internal_data['overallPredictions']['caddThreshold']:
+                            internal_data['overallPredictions']['caddThresholdColor'] = '#00A020'
+                            if float(external_data['overallPredictions']['caddPhred']) >= float(internal_data['overallPredictions']['caddThreshold']):
+                                internal_data['overallPredictions']['caddThresholdColor'] = '#FF0000'
+
                 if variant_features['dna_type'] == 'substitution':
                     # promoterAI
                     # if variant_features['start_segment_type'] == '5UTR':
@@ -1368,7 +1388,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
 
                     # NCBoostv2
-                    if variant_features['prot_type'] == 'unknown':
+                    if variant_features['prot_type'] == 'unknown' or variant_features['prot_type'] is None:
                         record = md_utilities.get_value_from_tabix_file('NCBoost', md_utilities.local_files['ncboost']['abs_path'], var, variant_features)
                         if isinstance(record, str):
                             internal_data['noMatch']['ncboost'] = "{0} {1}".format(record, md_utilities.external_tools['NCBoost']['version'])

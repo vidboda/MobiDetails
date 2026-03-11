@@ -860,20 +860,29 @@
 							<!--https://cadd.gs.washington.edu/snv/GRCh37-v1.6_inclAnno/22:43451447_C_A-->
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD" rel="noopener noreferrer">CADD</a> raw:</td>
 							{% if internal_data.noMatch.cadd is none %}
-								<td class="w3-left-align">{{ external_data.overallPredictions.caddRaw }}</td>
+							<td class="w3-left-align">{{ external_data.overallPredictions.caddRaw }}</td>
 							{% else %}
-								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
+							<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
 							{% endif %}
 							<td class="w3-left-align"><em class="w3-small">[-6.41;35.5] The higher the less likely to be observed</em></td>
 						</tr>
 						<tr><!--CADD phred-->
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD" rel="noopener noreferrer">CADD</a> phred:</td>
 							{% if internal_data.noMatch.cadd is none %}
+								{% if internal_data.overallPredictions.caddThreshold is not none %}
+								<td class="w3-left-align">{{ span_color(external_data.overallPredictions.caddPhred, internal_data.overallPredictions.caddThresholdColor) }}</td>
+								{% else %}
 								<td class="w3-left-align" id="cadd_phred">{{ external_data.overallPredictions.caddPhred }}</td>
+								{% endif %}
 							{% else %}
-								<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
+							<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
 							{% endif %}
-							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score</em></td>
+							<td class="w3-left-align"><em class="w3-small">Phred-like scaling of raw score
+							{% if internal_data.overallPredictions.caddThreshold is not none %}
+							. (Threshold > {{ internal_data.overallPredictions.caddThreshold }} for deleteriousness for {{ internal_data.overallPredictions.annovarLocation }} from <a href = "{{ urls.cadd_noncoding_thresholds }}" target="_blank">Tenywa et al., 2025</a>)
+							{% endif %}
+							</em>
+							</td>
 						</tr>
 					{% endif %}
 					{% if internal_data.noMatch.eigen is not none or external_data.overallPredictions.eigenRaw is not none %}
@@ -1532,7 +1541,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% if internal_data.noMatch.remm is none or external_data.nonCodingPredictions.remm is not none %}
+						{% if internal_data.noMatch.remm is not none or external_data.nonCodingPredictions.remm is not none %}
 						<tr><!--ReMM-->
 							<td class="w3-left-align"><a href="{{ urls.remm }}" target="_blank" title="Visit ReMM" rel="noopener noreferrer">ReMM</a>:</td>
 							{% if internal_data.noMatch.remm is none %}
@@ -1543,7 +1552,7 @@
 							<td class="w3-left-align"><em class="w3-small">Threshold &gt; 0.924|0.961 for Likely Pathogenic and Pathogenic</em></td>
 						</tr>
 						{% endif %}
-						{% if internal_data.noMatch.promoterai is none or external_data.nonCodingPredictions.promoterai is not none %}
+						{% if internal_data.noMatch.promoterai is not none or external_data.nonCodingPredictions.promoterai is not none %}
 						<tr><!--PromoterAI-->
 							<td class="w3-left-align"><a href="{{ urls.promoterai }}" target="_blank" title="Visit PromoterAI" rel="noopener noreferrer">PromoterAI</a>:</td>
 							{% if internal_data.noMatch.promoterai is none %}
@@ -1554,7 +1563,7 @@
 							<td class="w3-left-align"><em class="w3-small">Prediction of expression altering promoter variants; Thresholds &le; -0.5 for under expression and &ge; 0.5 for over expression </em></td>
 						</tr>
 						{% endif %}
-						{% if internal_data.noMatch.ncboost is none or external_data.nonCodingPredictions.ncboostRaw is not none %}
+						{% if internal_data.noMatch.ncboost is not none or external_data.nonCodingPredictions.ncboostRaw is not none %}
 						<tr id="ncboost_tr">
 							<td class="w3-left-align"><a href="{{ urls.ncboost }}" target="_blank" title="Visit NCBoost v2" rel="noopener noreferrer">NCBoost v2</a>:</td>
 							{% if internal_data.noMatch.ncboost is none %}
