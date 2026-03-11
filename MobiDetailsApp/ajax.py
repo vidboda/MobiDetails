@@ -147,10 +147,11 @@ def litvar2():
                     ).data.decode('utf-8')
                 )
             except Exception as e:
-                # litvar_sesnor is not mandatory
+                # litvar_sensor is not mandatory
                 pass
             litvar_link = None
-            if 'rsid' in litvar_sensor and \
+            if 'litvar_sensor' in locals() and \
+                    'rsid' in litvar_sensor and \
                     litvar_sensor['rsid'] == rsid and \
                     'link' in litvar_sensor:
                 litvar_link = litvar_sensor['link']
