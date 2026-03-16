@@ -59,7 +59,7 @@ pycodestyle==2.12.1
 pycosat==0.6.6
 pycparser==2.22
 pyflakes==3.2.0
-pyOpenSSL==24.2.1
+pyOpenSSL==26.0.0
 pyparsing==3.2.0
 pyproject_hooks==1.2.0
 pytabix==0.1
