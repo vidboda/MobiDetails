@@ -67,13 +67,15 @@
 			</div>
 		</div>
 
-		<div class="w3-col l4 m6" id="mastodon_feed" style="padding:16px">
+		<div class="w3-col l4 m6" id="mastodon_feed_parent" style="padding-top:16px">
+            <div id="mastodon_feed" style="padding:16px;background-color:#ecf0f140">
 			<!-- Thanks https://mastodon.online/@idotj for the widget https://gitlab.com/idotj/mastodon-embed-feed-timeline-->
 			<div class="mt-timeline">
 				<div id="mt-body" class="mt-body" role="feed">
 					<div class="loading-spinner"></div>
 				</div>
 			</div>
+            </div>
 		</div>
 
 		<script>
@@ -84,20 +86,20 @@
 				if ($(window).width() > 600) {
 					h = (document.getElementById('informations').offsetHeight -0);
 				}
-				$('#mastodon_feed').css( "height", h + "px" )
+				$('#mastodon_feed').css( "height", h-32 + "px" )
 			};
 		</script>
 	</div>
 
-	<div class="w3-content w3-row w3-center" style="margin-bottom:54px;margin-top:16px;display:flex;flex-flow:row wrap;align-items:center;justify-content:center;">
+	<div class="w3-row w3-center" style="margin-bottom:54px;margin-top:16px;display:flex;flex-flow:row wrap;align-items:center;justify-content:center;">
 		<a href="http://www.chu-montpellier.fr/en/patients-and-visitors/" target="_blank" title="Montpellier University Hospital" rel="noopener noreferrer">
 			<img src="{{ url_for('static', filename='img/logo_CHU.svg') }}" alt="CHU Montpellier" width="300" class="test w3-padding" style="width:300px;max-width:50%;vertical-align:middle;margin:5px 10px 5px 0;padding:10px;"/>
 		</a>
+		<a href="https://github.com/mobidic" target="_blank" title="MOntpellier BIoinformatique pour le DIagnotic Clinique" rel="noopener noreferrer">
+			<img src="{{ url_for('static', filename='img/logo-mobidic.svg') }}" alt="MoBiDiC - Montpellier Bioinformatics Diagnostic" width="350" class="test w3-padding" style="width:350px;max-width:50%;vertical-align:middle;margin:5px 10px 5px 0;padding:10px;"/>
+		</a>
 		<a href="https://www.inserm.fr/" target="_blank" title="INSERM" rel="noopener noreferrer">
 			<img src="{{ url_for('static', filename='img/logo-inserm.svg') }}" alt="INSERM" width="350" class="test w3-padding" style="width:350px;max-width:50%;vertical-align:middle;margin:5px 10px 5px 0;padding:10px;"/>
-		</a>
-		<a href="https://pmmg.iurc.montp.inserm.fr/mobidic/" target="_blank" title="MOntpellier BIoinformatique pour le DIagnotic Clinique" rel="noopener noreferrer">
-			<img src="{{ url_for('static', filename='img/logo-mobidic.svg') }}" alt="MoBiDiC - Montpellier Bioinformatics Diagnostic" width="350" class="test w3-padding" style="width:350px;max-width:50%;vertical-align:middle;margin:5px 10px 5px 0;padding:10px;"/>
 		</a>
 		<!-- <a href="https://www.umontpellier.fr/university-of-montpellier" target="_blank" title="Montpellier University" rel="noopener noreferrer">
 			<img src="{{ url_for('static', filename='img/logo_UM.svg') }}" alt="Université de Montpellier" width="150" class="test w3-padding" style="width:150px;max-width:50%;vertical-align: middle;margin: 5px 10px 5px 0;padding: 10px;"/>

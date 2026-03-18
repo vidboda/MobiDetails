@@ -22,8 +22,8 @@
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
-	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" id="smart_menu" style="top:99px;max-height:86%;height:auto;z-index:11">
-		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="w3_close()" title="Close sidebar">X</span>
+	<div class="w3-sidebar w3-bar-block w3-card w3-animate-left md-scroller" id="smart_menu" style="z-index:11">
+		<span class="w3-bar-item w3-button w3-large w3-border-bottom w3-hover-blue" onclick="toggle_smart_menu()" title="Close sidebar">X</span>
 		{# hg19 #}
 		{# deal with position for genome browsers #}
 		{% if external_data.VCF.hg19.ncbiChr is not none %}
@@ -82,13 +82,6 @@
 			{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' %}
 			{{ link("%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "hg38 InterVar")}}
 			{% endif %}
-			{% if external_data.nomenclatures.cName is not none %}
-			{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
-			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
-			{% else %}
-			{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
-			{% endif %}
-			{% endif %}
 			{% endif %}
 		</div>
 		{# somatic #}
@@ -138,7 +131,7 @@
 		{% endif %}
 		</div>
 	</div>
-	<div class="w3-bar w3-light-grey" style="width:100%;z-index:601;position:fixed;top:60px;" id="page_menu">
+	<div class="w3-hide-medium w3-hide-small w3-bar w3-light-grey w3-card" style="width:100%;z-index:500;position:fixed" id="page_menu">
 		<a href="#nomenclatures" class="w3-bar-item w3-button w3-mobile">Nomenclatures</a>
 		{# {% if internal_data.nomenclatures.cName is not none %} #}
 		<a href="#positions" class="w3-bar-item w3-button w3-mobile">Positions</a>
@@ -2380,4 +2373,18 @@
 			clingen_id('{{ urls.clingen_reg }}', $('#hgvs_strict_genomic_hg38').text(), '{{ urls.mavedb }}', '{{ url_for('static', filename='') }}');
 		});
 	</script>
+
+    <script>
+        window.addEventListener("load", onLoadFunction);
+        window.addEventListener("resize", onLoadFunction);
+        function onLoadFunction(event){
+            full_height = $(window).height();
+            h_footer = document.getElementById('search_form').offsetHeight;
+            h_header = document.getElementById('sub-header').offsetHeight;
+            h_menu = document.getElementById('page_menu') ? document.getElementById('page_menu').offsetHeight : 0;
+            $('#page_menu').css( "top", h_header + "px" )
+            $('#smart_menu').css( "height", full_height-h_footer-h_header-h_menu + "px" )
+            $('#smart_menu').css( "top", h_header+h_menu + "px" )
+        };
+    </script>
 {% endblock %}
