@@ -14,7 +14,7 @@ ConfigArgParse==1.7
 configobj==5.0.9
 configparser==7.1.0
 coverage==7.6.4
-cryptography==44.0.1
+cryptography==46.0.5
 entrypoints==0.4
 exceptiongroup==1.2.2
 flake8==7.1.1
