@@ -49,6 +49,43 @@ function litvar2(litvar_url, csrf_token) {
 }
 
 
+function frog(frog_url, static_path, csrf_token) {
+	//ajax for litvar		// send header for flask-wtf crsf security
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+				xhr.setRequestHeader("X-CSRFToken", csrf_token);
+			}
+		}
+	});
+	$.ajax({
+		type: "POST",
+		url: frog_url,
+		data: {
+			hgnc_id: $('#hgnc_id').text(), hgvs_var: $('#hgvs_genomic_hg19_ncbi_nom').text()
+		}
+	})
+	.done(function(frog_link) {
+    if (frog_link !== 'error') {
+      var population_table = $('#population_table').DataTable();
+      var row_node = population_table.row
+        .add([
+          "<span class='w3-left-align'>FrOG:</span>",
+          "<span class='w3-left-align'><a href='" + frog_link + "' target='_blank'>this variant is present in <img src='"+ static_path + "img/frog.png' height='30'/></a></a></span>",
+          // "<span class='w3-left-align'><a href='" + frog_link + "' target='_blank'>FrOG link</a></span>",
+          "<em class='w3-small'>Direct link to the FroG database (registered users only)</em>"
+        ])
+        .draw()
+        .node();
+      $(row_node)
+        .find('td')
+        .addClass('w3-left-align');
+      // redraw_dt('population_table', false);
+    }
+	});
+}
+
+
 function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
 	// ajax for LOVD
 	//send header for flask-wtf crsf security

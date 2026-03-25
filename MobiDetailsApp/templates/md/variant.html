@@ -18,7 +18,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260205" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260325" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -242,7 +242,7 @@
 					<!--HGNC gene symbol-->
 					<tr>
 						<td class="w3-left-align">HGNC gene symbol (ID):</td>
-						<td class="w3-left-align" id="hgnc_symbol"><a href="{{ urls.hgnc_gene }}{{ external_data.gene.hgncId }}" target="_blank" title="open HGNC page for {{ external_data.gene.symbol }}" rel="noopener noreferrer"><span id="gene_symbol"><em>{{ external_data.gene.symbol }}</em></span><span>&nbsp;({{ external_data.gene.hgncId }})</span></td>
+						<td class="w3-left-align" id="hgnc_symbol"><a href="{{ urls.hgnc_gene }}{{ external_data.gene.hgncId }}" target="_blank" title="open HGNC page for {{ external_data.gene.symbol }}" rel="noopener noreferrer"><span id="gene_symbol"><em>{{ external_data.gene.symbol }}</em></span>&nbsp;(<span id="hgnc_id">{{ external_data.gene.hgncId }}</span>)</td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('gene_symbol');$('#gene_symbol_copied').html(field_copied_tag);" title="copy gene HGNC symbol"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="gene_symbol_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGNC gene symbol and corresponding ID</em></td>
 					</tr>
 					<!--HGVS DNA on transcript-->
@@ -2355,12 +2355,15 @@
 			litvar2('{{ url_for('ajax.litvar2') }}', '{{ csrf_token() }}');
 			{% if external_data.nomenclatures.cName is not none %}
 			clingen_evrepo('{{ urls.clingen_evrepo_api }}', $('#hgvs_strict_genomic_hg38').text(), '{{ url_for('md.about', _anchor='cite') }}');
-			{% if external_data.VCF.hg19.ncbiChr is not none %}
+				{% if external_data.VCF.hg19.ncbiChr is not none %}
 				lovd('{{ url_for('ajax.lovd') }}', $('#genome_19').text(), $('#chrom_19').text(), $('#hg19_g_name').text(), '{{ csrf_token() }}');
 				intervar('{{ url_for('ajax.intervar') }}', '{{ csrf_token() }}');
-			{% else %}
+				{% else %}
 				lovd('{{ url_for('ajax.lovd') }}', $('#genome_38').text(), $('#chrom_38').text(), $('#hg38_g_name').text(), '{{ csrf_token() }}');
+				{% endif %}
 			{% endif %}
+			{% if external_data.gene.isFrog %}
+			frog('{{ url_for('ajax.frog') }}', '{{ url_for('static', filename='') }}', '{{ csrf_token() }}')
 			{% endif %}
 			{% if external_data.nomenclatures.cName is not none %}
 			genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');

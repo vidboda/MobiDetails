@@ -1512,6 +1512,33 @@ def test_get_oncokb_genes_info(gene_symbol, is_oncogene, is_tumor_suppressor):
     assert oncokb_dict['is_oncogene'] == is_oncogene
     assert oncokb_dict['is_tumor_suppressor'] == is_tumor_suppressor
 
+
+@pytest.mark.parametrize(('hgnc_id', 'is_frog'), (
+    (12829, True),
+    (1749, False),
+    ('USH2A', False),
+    (-117, False),
+))
+def test_is_frog_gene(hgnc_id, is_frog):
+    is_frog_gene = md_utilities.is_frog_gene(hgnc_id)
+    print(is_frog_gene)
+    assert is_frog_gene == is_frog
+
+
+@pytest.mark.parametrize(('hgnc_id', 'nc_var', 'field', 'is_frog'), (
+    (11998, 'NC_000017.10:g.41245900T>G', 'link', 'https://frog-db.fr/variant/NC_000017.10%3Ag.41245900T%3EG/general'),
+    (11998, 'NC_000017.10:g.41245900T>', 'error', 'Variant not found'),
+    (11997, 'NC_000017.10:g.41245900T>G', 'error', 'Gene not found'),
+    ('USH2A', 'NC_000017.10:g.41245900T>G', 'error', 'Gene not found'),
+    (-117, 'NC_000017.10:g.41245900T>G', 'error', 'Gene not found'),
+))
+def test_frog_variant_link(app, hgnc_id, nc_var, field, is_frog):
+    with app.app_context():
+        frog_variant = md_utilities.frog_variant_link(hgnc_id, nc_var)
+        print(frog_variant)
+        assert frog_variant[field] == is_frog
+
+
 @pytest.mark.parametrize(('gene_symbol', 'transcript', 'is_mane', 'is_mane_plus_clinical', 'is_refseq_select'), (
     ('PCDH15', 'NM_001384140.1', True, False, True),
     ('PCDH15','NM_001142769.2', False, False, True),

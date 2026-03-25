@@ -31,6 +31,7 @@ def app():
         'MAIL_USERNAME': md_conf['mail_username'].replace('"', ''),
         'MAIL_ERROR_RECIPIENT': md_conf['mail_error_recipient'].replace('"', ''),
         'SERVER_NAME': md_conf['server_name'].replace('"', ''),
+        'FROG_API_KEY': md_conf['frog_api_key'].replace('"', ''),
     })
     with app.app_context():
         init_db()

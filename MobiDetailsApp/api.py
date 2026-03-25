@@ -233,7 +233,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'uniprotId': None,
             'clingenCriteriaSpec': None,
             'isOncogene': None,
-            'isTumorSuppressor': None
+            'isTumorSuppressor': None,
+            'isFrog': None,
         },
         'nomenclatures': {
             'cName': None,
@@ -647,6 +648,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             oncokb_info = md_utilities.get_oncokb_genes_info(external_data['gene']['symbol'])
             external_data['gene']['isOncogene'] = oncokb_info['is_oncogene']
             external_data['gene']['isTumorSuppressor'] = oncokb_info['is_tumor_suppressor']
+            external_data['gene']['isFrog'] = md_utilities.is_frog_gene(external_data['gene']['hgncId'])
             external_data['positions']['proteinType'] = variant_features['prot_type']
             external_data['positions']['proteinTypeSoAccession'] = variant_features['so_accession']
             external_data['positions']['segmentStartType'] = variant_features['start_segment_type']

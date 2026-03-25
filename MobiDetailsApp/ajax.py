@@ -998,6 +998,26 @@ def spliceaivisual():
 
 
 # -------------------------------------------------------------------
+# web app - ajax for FrOG API
+
+
+@bp.route('/frog', methods=['POST'])
+def frog():
+    variant_regexp = md_utilities.regexp['variant']
+    ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
+    match_hgnc_id = re.search(r'^(\d+)$', request.form['hgnc_id'])
+    match_hgvs_var = re.search(rf'^({ncbi_chrom_regexp}:g.{variant_regexp})$', request.form['hgvs_var'])
+    if match_hgnc_id and \
+            match_hgvs_var:
+        hgnc_id = match_hgnc_id.group(1)
+        hgvs_var = match_hgvs_var.group(1)
+        frog_response = md_utilities.frog_variant_link(hgnc_id, hgvs_var)
+        if 'link' in frog_response:
+            return frog_response['link']
+    return 'error'
+
+
+# -------------------------------------------------------------------
 # web app - ajax for LOVD API
 
 

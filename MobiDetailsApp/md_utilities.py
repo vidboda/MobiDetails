@@ -120,6 +120,9 @@ local_files['dbsnp']['abs_path'] = '{0}{1}'.format(
 local_files['episignature']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['episignature']['rel_path']
 )
+local_files['frog_gene_list']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['frog_gene_list']['rel_path']
+)
 local_files['gnomad_exome_hg19']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['gnomad_exome_hg19']['rel_path']
 )
@@ -4100,6 +4103,46 @@ def get_oncokb_genes_info(gene_symbol):
             oncokb_dict['is_tumor_suppressor'] = translate_yn_to_bool(oncokb_list[int(external_tools['OncoKBGenes']['is_tumor_suppressor_gene_col'])])
             return oncokb_dict
     return oncokb_dict
+
+
+def is_frog_gene(hgnc_id):
+    try:
+        json_file = open(local_files['frog_gene_list']['abs_path'], 'r')
+    except IOError:
+        return False
+    frog_gene_list = json.load(json_file)
+    # print(frog_gene_list)
+    for elem in frog_gene_list:
+        if elem == 'genes':
+            for gene in frog_gene_list[elem]:
+                # print(gene['hgnc_id'])
+                if gene['hgnc_id'] == 'HGNC:{0}'.format(hgnc_id):
+                    return True
+    return False
+
+
+def frog_variant_link(hgnc_id, nc_var):
+    frog_api_agent = api_agent
+    frog_api_agent['API-Key'] = app.config['FROG_API_KEY']
+    try:
+        is_frog_var = json.loads(
+            http.request(
+                'GET',
+                '{0}/api/variants/HGNC:{1}/{2}'.format(urls['frog_api'], hgnc_id, nc_var),
+                headers=frog_api_agent
+            ).data.decode('utf-8')
+        )
+        # print(is_frog_var)
+        # print('{0}/api/variants/{1}/{2}'.format(urls['frog_api'], hgnc_id, nc_var),)
+        if 'id' in is_frog_var and \
+                is_frog_var['id'] == nc_var:
+            return is_frog_var
+        elif 'error' in is_frog_var:
+            return is_frog_var
+    except Exception:
+        return {'error': 'FrOG APi unreachable'}
+
+
 
 
 def get_transcript_road_signs(gene_symbol, gene_info):
