@@ -129,6 +129,7 @@ caddPhredThresholds:
   'episignature': ''
   'evs': 'http://evs.gs.washington.edu/EVS/PopStatsServlet?searchBy=chromosome'
   'fathmm': 'http://fathmm.biocompute.org.uk/'
+  'frog_api': 'https://api.frog-db.fr'
   'genebe_api': 'https://api.genebe.net'
   'genebe': 'https://genebe.net'
   'gnomad': 'http://gnomad.broadinstitute.org/'
@@ -332,6 +333,11 @@ caddPhredThresholds:
     'name': 'epiSignature'
     'description': 'Database of episignatures'
     'short_name': 'episignature'
+  'frog_gene_list': 
+    'rel_path': '/static/resources/frog/gene_list.json'
+    'name': 'FrOG genes'
+    'description': 'List of genes present in FrOG'
+    'short_name': 'frog_genes'
   'gnomad_exome_hg19':
     'rel_path': '/static/resources/gnomad/hg19_gnomad_exome_sorted.txt.gz'
     'name': 'gnomAD exome'
