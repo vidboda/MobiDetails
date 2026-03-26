@@ -2312,7 +2312,8 @@ def create_var_vv_vcf_str(
             # print(warning)
             variant_regexp = regexp['variant']
             # let intergenic continue
-            if re.search(r'No transcripts found that fully overlap the described variation in the genomic sequence', warning):
+            if re.search(r'No transcripts found that fully overlap the described variation in the genomic sequence', warning) or \
+                    re.search(r'No individual transcripts have been identified that fully overlap the described variation in the genomic sequence', warning):
                 continue
             if re.search(r'automapped to NC_0000', warning):
                 continue
