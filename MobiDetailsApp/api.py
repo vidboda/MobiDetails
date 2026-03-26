@@ -2,7 +2,7 @@ import re
 import os
 import gzip
 from flask import (
-    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template
+    Blueprint, g, request, url_for, jsonify, redirect, flash, render_template, current_app as app
 )
 from markupsafe import escape
 import psycopg2
@@ -23,8 +23,6 @@ http = urllib3.PoolManager(
 )
 # headers for http requests
 header = md_utilities.api_agent
-vv_header = header
-vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
 
 # removes content-encoding HTTP header
 # https://github.com/igvteam/igv.js/issues/1654
@@ -1956,16 +1954,6 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                 return redirect(url_for('md.index'), code=302)
         else:
             g.user = res_check_api_key['mobiuser']
-    # header = md_utilities.api_agent
-    # # code for when vv will require a token
-    # vv_header = header
-    # vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
-    # # vv_header = urllib3.make_headers(
-    # #     basic_auth='{0}:'.format(md_utilities.get_vv_token()),
-    # #     user_agent=md_utilities.user_agent
-    # # )
-    # print(vv_header)
-    # basic_auth='{0}:'.format(md_utilities.get_vv_token()),
     if caller and \
             match_variant_chgvs:
         variant_chgvs = match_variant_chgvs.group(1)
@@ -2055,7 +2043,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                             'w3-pale-red'
                         )
                         return redirect(url_for('md.index'), code=302)
-
+                vv_header = header
+                vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
                 vv_base_url = md_utilities.get_vv_api_url(caller)
                 # print(vv_base_url)
                 if not vv_base_url:
@@ -2074,6 +2063,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         http.request(
                             'GET',
                             vv_url,
+                            headers=header
                         ).data.decode('utf-8')
                     )
                     # print(vv_header)
@@ -2108,7 +2098,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                                     """.format(
                                         vv_key_var,
                                         vv_url,
-                                        header
+                                        vv_header
                                     )
                                 ),
                                 '[MobiDetails - MD variant creation Error: VV timeout]'
@@ -2139,7 +2129,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                                         vv_data,
                                         vv_variant_data_check,
                                         vv_url,
-                                        header
+                                        vv_header
                                     )
                                 ),
                                 '[MobiDetails - MD variant creation Error: VV check]'
@@ -2388,6 +2378,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                             return redirect(url_for('api.variant', variant_id=res['feature_id'], caller='browser'), code=302)
                     else:
                         # creation
+                        vv_header = header
+                        vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
                         vv_base_url = md_utilities.get_vv_api_url(caller)
                         # print(vv_base_url)
                         if not vv_base_url:
@@ -3022,6 +3014,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                     # return redirect(url_for('md.variant_multiple', vars_rs=vars_vcf), code=302)
         else:
             # creation
+            vv_header = header
+            vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
             vv_base_url = md_utilities.get_vv_api_url(caller)
             # print(vv_base_url)
             if not vv_base_url:

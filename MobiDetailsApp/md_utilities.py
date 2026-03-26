@@ -1269,13 +1269,16 @@ def info_panel(text, var='', id_var='', color_class='w3-sand'):
 def test_vv_api_url(vv_api_hello_url, vv_api_url):
     checked_vv_api_hello_url = validate_url(vv_api_hello_url)
     checked_vv_api_url = validate_url(vv_api_url)
+    vv_header = api_agent
+    vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
     if checked_vv_api_hello_url and \
             checked_vv_api_url:
         try:
             hello = json.loads(
                 http.request(
                     'GET',
-                    vv_api_hello_url
+                    vv_api_hello_url,
+                    headers=vv_header
                 ).data.decode('utf-8')
             )
             if hello['status'] == "hello_world":

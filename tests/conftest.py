@@ -32,6 +32,7 @@ def app():
         'MAIL_ERROR_RECIPIENT': md_conf['mail_error_recipient'].replace('"', ''),
         'SERVER_NAME': md_conf['server_name'].replace('"', ''),
         'FROG_API_KEY': md_conf['frog_api_key'].replace('"', ''),
+        'VV_TOKEN': md_conf['vv_token'].replace('"', ''),
     })
     with app.app_context():
         init_db()
