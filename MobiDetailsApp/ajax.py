@@ -1266,7 +1266,7 @@ def lovd():
                     <span id="lovd_rna_hgvs" style="display:none;visibility:hidden;">{0}</span>
                     <span id="lovd_protein_hgvs" style="display:none;visibility:hidden;">{1}</span>
                 </td>
-                <td class="w3-left-align"><ul>{2}</ul></td>
+                <td class="w3-left-align"><ul style="padding-left:0">{2}</ul></td>
                 <td class="w3-left-align" id="lovd_description" style="vertical-align:middle;">
                     <em class="w3-small">LOVD match in public instances</em>
                 </td>

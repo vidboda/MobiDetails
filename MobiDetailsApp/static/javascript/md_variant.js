@@ -79,7 +79,8 @@ function frog(frog_url, static_path, csrf_token) {
         .node();
       $(row_node)
         .find('td')
-        .addClass('w3-left-align');
+        .addClass('w3-left-align')
+        .css('vertical-align', 'middle');
       // redraw_dt('population_table', false);
     }
 	});
