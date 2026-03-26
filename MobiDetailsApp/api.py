@@ -21,6 +21,10 @@ http = urllib3.PoolManager(
     cert_reqs='CERT_REQUIRED',
     ca_certs=certifi.where()
 )
+# headers for http requests
+header = md_utilities.api_agent
+vv_header = header
+vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
 
 # removes content-encoding HTTP header
 # https://github.com/igvteam/igv.js/issues/1654
@@ -108,9 +112,9 @@ def check_vv_instance():
         #         URL=vv_url
         #     )
     return jsonify(
-            variant_validator_instance='No VV running',
-            URL='None'
-        )
+        variant_validator_instance='No VV running',
+        URL='None'
+    )
 
 
 # -------------------------------------------------------------------
@@ -1952,12 +1956,15 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                 return redirect(url_for('md.index'), code=302)
         else:
             g.user = res_check_api_key['mobiuser']
-    header = md_utilities.api_agent
-    # code for when vv will require a token
-    # vv_header = urllib3.make_headers(
-    #     basic_auth='{0}:'.format(md_utilities.get_vv_token()),
-    #     user_agent=md_utilities.user_agent
-    # )
+    # header = md_utilities.api_agent
+    # # code for when vv will require a token
+    # vv_header = header
+    # vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
+    # # vv_header = urllib3.make_headers(
+    # #     basic_auth='{0}:'.format(md_utilities.get_vv_token()),
+    # #     user_agent=md_utilities.user_agent
+    # # )
+    # print(vv_header)
     # basic_auth='{0}:'.format(md_utilities.get_vv_token()),
     if caller and \
             match_variant_chgvs:
@@ -2182,18 +2189,6 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                     # get variant name for this transcript
                     # need another call to VV
                     if vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description']:
-                        # special code for vv
-                        # vv_special = ''
-                        # # vv_provider = md_utilities.urls['rest_vv_genuine']
-                        # vv_provider = md_utilities.urls['rest_vv_browser']['3']
-                        # # vv_provider = md_utilities.urls['rest_vv']['2']
-                        # if re.match(rf'{vv_provider}', vv_base_url):
-                        #     vv_special = 'auth_'
-                        # vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/{2}all?content-type=application/json".format(
-                        #     vv_base_url,
-                        #     vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'],
-                        #     vv_special
-                        # )
                         # restvv 2025 - comment all above
                         vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}/auth_all?content-type=application/json".format(
                             vv_base_url,
@@ -2204,7 +2199,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                                 http.request(
                                     'GET',
                                     vv_url,
-                                    headers=header
+                                    headers=vv_header
                                 ).data.decode('utf-8')
                             )
                             vv_key_var_can = None
@@ -2426,7 +2421,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                                 http.request(
                                     'GET',
                                     vv_url,
-                                    headers=header
+                                    headers=vv_header
                                 ).data.decode('utf-8')
                             )
                         except Exception:
@@ -3062,7 +3057,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                     http.request(
                         'GET',
                         vv_url,
-                        headers=header
+                        headers=vv_header
                     ).data.decode('utf-8')
                 )
             except Exception:

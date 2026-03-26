@@ -866,11 +866,6 @@ def spliceaivisual():
                 mt_seq = md_utilities.reverse_complement(mt_seq)
             # spliceai call
             try:
-                # req_results = requests.get(
-                #     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
-                #     json={'mt_seq': mt_seq},
-                #     headers=md_utilities.api_agent
-                # )
                 req_results = requests.post(
                     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                     json={'mt_seq': mt_seq},
@@ -1797,7 +1792,10 @@ def send_var_message():
 def create():
     # This method will have to be merged with /api/variant/create in a future version
     # start_time = time.time()
-    header = {'User-Agent': md_utilities.api_agent['User-Agent']}
+    # header = {'User-Agent': md_utilities.api_agent['User-Agent']}
+    header = md_utilities.api_agent
+    vv_header = header
+    vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
     if (md_utilities.get_running_mode() == 'maintenance'):
         return render_template(
             'md/index.html',
@@ -1884,7 +1882,7 @@ def create():
                     http.request(
                         'GET',
                         vv_url,
-                        headers=header
+                        headers=vv_header
                     ).data.decode('utf-8')
                 )
             except Exception:
@@ -2008,7 +2006,7 @@ def create():
                         http.request(
                             'GET',
                             vv_url,
-                            headers=header
+                            headers=vv_header
                         ).data.decode('utf-8')
                     )
                 except Exception:
@@ -2846,9 +2844,6 @@ def spliceai_lookup():
             match_obj_transcript:
         variant = match_obj_variant.group(1)
         transcript = match_obj_transcript.group(1).split(".")[0]
-        # print('{0}{1}'.format(
-        #     md_utilities.urls['spliceai_api'],
-        #     variant))
         try:
             spliceai500 = json.loads(
                 http.request(
@@ -2860,19 +2855,6 @@ def spliceai_lookup():
                     headers=header
                 ).data.decode('utf-8')
             )
-        # except urllib3.exceptions.MaxRetryError:
-        #     try:
-        #         http_dangerous = urllib3.PoolManager(cert_reqs='CERT_NONE', ca_certs=certifi.where())
-        #         spliceai500 = json.loads(
-        #                     http_dangerous.request(
-        #                         'GET',
-        #                         '{0}{1}'.format(
-        #                             md_utilities.urls['spliceai_api'],
-        #                             variant
-        #                         ),
-        #                         headers=header
-        #                     ).data.decode('utf-8')
-        #                 )
         except Exception:
             return """
             <span class="w3-padding">Unable to run spliceAI lookup API - Error returned</span>

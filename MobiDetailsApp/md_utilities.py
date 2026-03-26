@@ -3865,6 +3865,10 @@ def get_vv_token():
     return app.config['VV_TOKEN']
 
 
+def get_frog_token():
+    return app.config['FROG_API_KEY']
+
+
 def build_redirect_url(incoming_url=None):
     # method to rebuild URL and avoid Untrusted URL redirection
     # if re.search(r'https?:\/\/', incoming_url):
@@ -4124,7 +4128,7 @@ def is_frog_gene(hgnc_id):
 
 def frog_variant_link(hgnc_id, nc_var):
     frog_api_agent = api_agent
-    frog_api_agent['API-Key'] = app.config['FROG_API_KEY']
+    frog_api_agent['API-Key'] = get_frog_token()
     try:
         is_frog_var = json.loads(
             http.request(
@@ -4142,8 +4146,6 @@ def frog_variant_link(hgnc_id, nc_var):
             return is_frog_var
     except Exception:
         return {'error': 'FrOG APi unreachable'}
-
-
 
 
 def get_transcript_road_signs(gene_symbol, gene_info):
