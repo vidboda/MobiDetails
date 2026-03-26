@@ -1270,7 +1270,7 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
     checked_vv_api_hello_url = validate_url(vv_api_hello_url)
     checked_vv_api_url = validate_url(vv_api_url)
     vv_header = api_agent
-    vv_header['Authorization'] = 'Bearer {0}'.format(md_utilities.get_vv_token())
+    vv_header['Authorization'] = 'Bearer {0}'.format(get_vv_token())
     if checked_vv_api_hello_url and \
             checked_vv_api_url:
         try:
