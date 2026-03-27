@@ -3798,8 +3798,11 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
 def format_spip_result(result_spip, caller):
     spip_list = re.split('\n', result_spip)
     # print(result_spip[0])
-    headers_spip = re.split('\t', spip_list[0])
-    scores_spip = re.split('\t', spip_list[1])
+    try:
+        headers_spip = re.split('\t', spip_list[0])
+        scores_spip = re.split('\t', spip_list[1])
+    except IndexError:
+        return 'There has been an error while processing SPiP'
     i = 0
     dict_spip = {}
     for header in headers_spip:

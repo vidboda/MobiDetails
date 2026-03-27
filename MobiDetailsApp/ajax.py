@@ -2821,10 +2821,31 @@ def spip():
                     spip_cache = 1
         if spip_cache == 0:
             result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
-        if result_spip == 'There has been an error while processing SPiP':
+        if result_spip == 'There has been an error while processing SPiP - An admin has been warned':
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'SPiP execution error',
+                    '<p>SPiP error with variant id {0}</p>'.format(variant_id)
+                    .format(
+                        os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
             return result_spip
-
         dict_spip = md_utilities.format_spip_result(result_spip, 'browser')
+        if isinstance(dict_spip, str):
+            md_utilities.send_error_email(
+                md_utilities.prepare_email_html(
+                    'SPiP formatting error',
+                    '<p>SPiP error with variant id {0}</p>'.format(variant_id)
+                    .format(
+                        os.path.basename(__file__), e.args
+                    )
+                ),
+                '[MobiDetails - API Error]'
+            )
+            return 'SPiP formatting error - An admin has been warned'
         return render_template('ajax/spip.html', spip_results=dict_spip)
     else:
         return 'received bad parameters to run SPiP.'
