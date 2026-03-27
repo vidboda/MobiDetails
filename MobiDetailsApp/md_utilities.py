@@ -4130,25 +4130,26 @@ def is_frog_gene(hgnc_id):
 
 
 def frog_variant_link(hgnc_id, nc_var):
-    frog_api_agent = api_agent
-    frog_api_agent['API-Key'] = get_frog_token()
+    frog_api_header = api_agent
+    frog_api_header['Authorization'] = 'Bearer {0}'.format(get_frog_token())
+    # frog_api_header['API-Key'] = get_frog_token()
+    # print(frog_api_header)
     try:
         is_frog_var = json.loads(
             http.request(
                 'GET',
                 '{0}/api/variants/HGNC:{1}/{2}'.format(urls['frog_api'], hgnc_id, nc_var),
-                headers=frog_api_agent
+                headers=frog_api_header
             ).data.decode('utf-8')
         )
         # print(is_frog_var)
         # print('{0}/api/variants/{1}/{2}'.format(urls['frog_api'], hgnc_id, nc_var),)
-        if 'id' in is_frog_var and \
-                is_frog_var['id'] == nc_var:
-            return is_frog_var
-        elif 'error' in is_frog_var:
+        if ('id' in is_frog_var and \
+                is_frog_var['id'] == nc_var) or \
+                'error' in is_frog_var:
             return is_frog_var
     except Exception:
-        return {'error': 'FrOG APi unreachable'}
+        return {'error': 'FrOG APi unreachable or unusual response'}
 
 
 def get_transcript_road_signs(gene_symbol, gene_info):
