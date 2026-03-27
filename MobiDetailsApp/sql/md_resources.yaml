@@ -247,7 +247,7 @@ caddPhredThresholds:
   'rest_vv_api': 
     '1': 'http://rvv.chu-montpellier.fr/'
     '2': 'http://restvv1.chu-montpellier.fr/'
-    '3': '//https://www181.lamp.le.ac.uk/'
+    '3': 'https://www181.lamp.le.ac.uk/'
   # 'rest_vv': 
   #   '1': 'http://194.167.35.197/'
   #   '2': 'https://rest.variantvalidator.org/'

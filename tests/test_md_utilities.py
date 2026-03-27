@@ -1030,32 +1030,34 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 
 
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
-    ('https://rest.variantvalidator.org/hello/?content-type=application/json', 'https://rest.variantvalidator.org/'),
+    ('https://www181.lamp.le.ac.uk/hello/?content-type=application/json', 'https://www181.lamp.le.ac.uk/'),
+    ('http://restvv1.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv1.chu-montpellier.fr/'),
     ('http://rvv.chu-montpellier.fr/hello/?content-type=application/json', 'http://rvv.chu-montpellier.fr/'),
     ('http://restvv2.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv2.chu-montpellier.fr/'),
     ('https://github.com', None),
     ('abcgcece', None),
 ))
-def test_test_vv_api_url(vv_api_hello_url, vv_api_url):
-    assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
+def test_test_vv_api_url(app, vv_api_hello_url, vv_api_url):
+    with app.test_request_context(headers={'user-agent': 'MobiDetails test'}):
+        assert  md_utilities.test_vv_api_url(vv_api_hello_url, vv_api_url) == vv_api_url
 
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
-    ('browser', 'http://rvv.chu-montpellier.fr/'),
-    ('cli', 'http://restvv2.chu-montpellier.fr/'),
-    ('nothing', 'http://restvv2.chu-montpellier.fr/'),
-    (None, 'http://rvv.chu-montpellier.fr/'),
+    ('browser', 'http://restvv1.chu-montpellier.fr/'),
+    ('cli', 'http://rvv.chu-montpellier.fr/'),
+    ('nothing', 'http://rvv.chu-montpellier.fr/'),
+    (None, 'http://restvv1.chu-montpellier.fr/'),
 ))
-def test_get_vv_api_url(caller, vv_api_url):
-    # with app.test_request_context(headers={'user-agent': ua}):
-    if caller:
-        api_url = md_utilities.get_vv_api_url(caller)
-        assert 'http' in api_url
-        assert api_url == vv_api_url
-    else:
-        api_url = md_utilities.get_vv_api_url()
-        assert 'http' in api_url
-        assert api_url == vv_api_url
+def test_get_vv_api_url(app, caller, vv_api_url):
+    with app.test_request_context(headers={'user-agent': 'MobiDetails test'}):
+        if caller:
+            api_url = md_utilities.get_vv_api_url(caller)
+            assert 'http' in api_url
+            assert api_url == vv_api_url
+        else:
+            api_url = md_utilities.get_vv_api_url()
+            assert 'http' in api_url
+            assert api_url == vv_api_url
 
 
 class fake_g_obj:
@@ -1363,7 +1365,7 @@ def test_get_tinyurl_api_key(app):
 def test_get_vv_token(app):
     with app.app_context():
         vv_token = md_utilities.get_vv_token()
-        assert len(vv_token) == 119
+        assert len(vv_token) == 168
         assert re.search(r'^[\w\.-]+$', vv_token)
 
 
