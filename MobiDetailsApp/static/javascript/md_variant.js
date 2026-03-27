@@ -73,7 +73,7 @@ function frog(frog_url, static_path, csrf_token) {
           "<span class='w3-left-align'>FrOG link:</span>",
           "<span class='w3-left-align'><a href='" + frog_link + "' target='_blank'><img src='"+ static_path + "img/frog.png' height='30'/ alt='" + frog_link +"'></a></a></span>",
           // "<span class='w3-left-align'><a href='" + frog_link + "' target='_blank'>FrOG link</a></span>",
-          "<em class='w3-small'>Direct link to the FroG database if the variant is recorded there (registered users only, beta API)</em>"
+          "<em class='w3-small'>Direct link to the FrOG database if the variant is recorded there (registered users only, beta API)</em>"
         ])
         .draw()
         .node();
