@@ -242,10 +242,10 @@ caddPhredThresholds:
   #   '3': 'https://rest.variantvalidator.org/'
   'rest_vv_browser': 
     '1': 'http://restvv1.chu-montpellier.fr/'
-    '2': 'http://rvv.chu-montpellier.fr/'
+    '2': 'http://restvv2.chu-montpellier.fr/'
     '3': 'https://www181.lamp.le.ac.uk/'
   'rest_vv_api': 
-    '1': 'http://rvv.chu-montpellier.fr/'
+    '1': 'http://restvv2.chu-montpellier.fr/'
     '2': 'http://restvv1.chu-montpellier.fr/'
     '3': 'https://www181.lamp.le.ac.uk/'
   # 'rest_vv': 
