@@ -127,6 +127,7 @@
 				locus: '{{ gene_symbol }}',
 				tracks: [
 				{# {% for transcript in spliceai_transcript_list %} #}
+				{% if main_iso.refseq.startswith('NM_') %}
 				{
 					name: 'SpliceAI {{ main_iso.refseq }}',
 					format: 'bedgraph',
@@ -136,6 +137,7 @@
 					label: 'SpliceAI raw scores for {{ main_iso.refseq }}',
 				},
 				{# {% endfor %} #}
+				{% endif %}
 				{
 					name: 'MANE transcripts',
 					url: '{{ url_for('static', filename='resources/mane/MANE.GRCh38.v1.0.refseq.bb') }}',
