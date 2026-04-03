@@ -37,7 +37,7 @@
 				<p class = "w3-center">Please wait for the end of the maintenance to annotate a new variant</p>
 			{% endif %}
 			{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, gene_info.uniprot_id, oncokb_info, urls) }}
-			{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
+			{{ modal_js(['gene_modal', 'var_modal', 'help_modal']) }}
 		</p><br />
 		<div id="created_var"></div>
 		{# requires jinja > 2.10 #}
@@ -76,7 +76,7 @@
 						{% set div_content.silent = div_content.silent + "<tr class='w3-hover-sand'><td>%s:c.%s</td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}
 					{% endif %}
 				{# match is a custom filter for regexp - see configuration.py, and loaded in __init__.py #}
-				{% elif variant.prot_type|match('inframe') %}
+				{% elif variant.prot_type and variant.prot_type|match('inframe') %}
 					{% set count.inframe_indels = count.inframe_indels + 1 %}
 					{% if variant.variant_creation == 'ok' or variant.variant_creation == 'hg19_mapping_default' %}
 						{% set div_content.inframe_indels = div_content.inframe_indels + "<tr class='w3-hover-sand'><td><a href='%s' target='_blank' rel='noopener noreferrer'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.vf_id, caller='browser'), variant.refseq, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) %}

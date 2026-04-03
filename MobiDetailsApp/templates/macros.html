@@ -280,7 +280,7 @@
 	{% endif %}
 {%- endmacro %}
 {% macro info_create_variant() -%}
-	<div class="w3-button w3-ripple w3-blue w3-border w3-border-blue w3-xxlarge w3-right" id="help_btn" onclick="document.getElementById('help_modal').style.display='block';$('#creation_form :input').prop('disabled', false);$('#new_variant').val('c.')">
+	<div class="w3-button w3-ripple w3-blue w3-border w3-border-blue w3-xxlarge w3-right" id="help_btn" onclick="document.getElementById('help_modal').style.display='block';$('#creation_form :input').prop('disabled', false);select_var_beginning();">
 		<i class="fa fa-info-circle" aria-hidden="true"></i>
 	</div>
 	<div class="w3-modal w3-animate-opacity" id="help_modal" style="z-index:1000">
@@ -348,9 +348,9 @@
 			<tbody>
 {%- endmacro %}
 <!-- not used because is displayed before the table in vars-->
-{% macro vars_tr(variant) -%}
+{# {% macro vars_tr(variant) -%}
 	{{ "<tr class='w3-hover-sand'><td><a href='%s' target='_blank'>%s:c.%s</a></td><td>p.(%s)</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"|format(url_for('api.variant', variant_id=variant.id, caller='browser'), variant.gene_symbol, variant.c_name, variant.p_name, variant.start_segment_type, variant.start_segment_number, variant.creation_date, variant.username) }}
-{%- endmacro %}
+{%- endmacro %} #}
 <!--create links for variants view-->
 {% macro link(link, text) -%}
 	<!-- for some reason jinja (2.10) urlencode filter does not encode this link and returns a wrong url-->
@@ -370,9 +370,9 @@
 	<ul> \
 		<li><strong>Retrieve pre-existing annotations</strong> - already added by users.\
 			<ul> \
-				<li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
+				<li>by exact HGVS c., n. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C>T', 'c.100c>t'...</li> \
 				<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G>A' or 'NC_000001.10:g.216595579G>A'<li> \
-				a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
+				a partial number match on HGVS c., n. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li> \
 				<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li> \
 				<li>gene symbol, e.g. 'USH2A', including HGNC previous symbols and HGNC aliases</li> \
 				<li>dbSNP rs identifier, e.g. 'rs863225293'</li> \
@@ -384,6 +384,8 @@
 			<ul> \
 				<li>NC_000001.11:g.216422237G>A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene symbol</li> \
 				<li>NM_206933.2:c.100C>T or NM_206933.2(USH2A):c.100C>T</li> \
+				<li>NR_023343.3:n.2A>G or NR_023343.3(RNU4ATAC):n.2A>G</li> \
+				<li>rs772808534 (can take up to 30-40s)</li> \
 				<li>rs772808534 (can take up to 10-15s)</li> \
 				<li>1-216422237-G-A, pseudo VCF expression (default hg38), or hg19-1-216595579-G-A, hg38:1:216422237:G:A, separator being ':', '_' or '-'. Genome version supports GRCh37, GRCh38, hg19, hg38, case insensitive.</li> \
 			</ul> \

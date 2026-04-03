@@ -240,6 +240,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'nomenclatures': {
             'cName': None,
+            'hgvsPrefix': None,
             # 'ngName': None,
             'ivsName': None,
             'pName': None,
@@ -622,6 +623,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         external_data['variantId'] = variant_features['var_id']
         if var_type == 'genic':
             external_data['nomenclatures']['cName'] = '{0}.{1}'.format(md_utilities.get_var_beginning(variant_features['refseq']), variant_features['c_name'])
+            external_data['nomenclatures']['hgvsPrefix'] = md_utilities.get_var_beginning(variant_features['refseq'])
             external_data['nomenclatures']['ivsName'] = variant_features['ivs_name']
             external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
              # for HTML webpages

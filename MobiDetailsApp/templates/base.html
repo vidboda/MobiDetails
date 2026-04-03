@@ -27,7 +27,7 @@
 		{% block title %}
 			{% if external_data is defined %}
 				{% if internal_data.nomenclatures.cName is not none %}
-					{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):c.{{ internal_data.nomenclatures.cName }}
+					{{ external_data.gene.RefSeqTranscript }}({{ external_data.gene.symbol }}):{{ external_data.nomenclatures.hgvsPrefix }}.{{ internal_data.nomenclatures.cName }}
 				{% else %}
 					{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}
 				{% endif %}
@@ -90,7 +90,7 @@
 					<!--page title-->
 					<div class="w3-hide-small w3-hide-medium">
 						{% if internal_data.nomenclatures.cName is not none %}
-						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):c.{{ internal_data.nomenclatures.cName }}</span>
+						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.gene.RefSeqTranscript }}(<em>{{ external_data.gene.symbol }}</em>):{{ external_data.nomenclatures.hgvsPrefix }}.{{ internal_data.nomenclatures.cName }}</span>
 						{% else %}
 						<span class="w3-bar-item w3-xlarge" id="variant_name">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</span>
 						{% endif %}
@@ -266,9 +266,9 @@
 								title: 'Search engine help',
 								html: "<span class='w3-small w3-left-align'><p>The search engine has two main functions:</p>" +
 									"<ul><li><strong>Retrieve pre-existing annotations</strong> - already added by users."+
-									"<ul><li>by exact HGVS c. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C&gt;T', 'c.100c&gt;t'...</li>"+
+									"<ul><li>by exact HGVS c., n. or p. (allowing variations), e.g. 'p.Arg34Ter', 'p.Arg34*', 'c.100C&gt;T', 'c.100c&gt;t'...</li>"+
 									"<li>by exact HGVS genomic nomenclature (hg19 or hg38), e.g. 'chr1:g.216595579G&gt;A' or 'NC_000001.10:g.216595579G&gt;A'</li>"+
-									"<li>a partial number match on HGVS c. or p. variant names, e.g. '229' would return all variants with 229 in c. name or p. name</li>"+
+									"<li>a partial number match on HGVS c., n. or p. variant names, e.g. '229' would return all variants with 229 in c/n. name or p. name</li>"+
 									"<li>you can also use a decorator '%' with numbers to look for exact matches, e.g. '%2299' would return variants that contain 2299 in c. name or p. name, but not 22991, for example</li>"+
 									"<li>gene symbol, e.g. 'USH2A', including HGNC previous symbols and HGNC aliases</li>"+
 									"<li>dbSNP rs identifier, e.g. 'rs863225293'</li>"+
@@ -277,6 +277,7 @@
 									"</ul><br></li><li><strong>Annotate new variants</strong> using the following formats:<ul>"+
 									"<li>NC_000001.11:g.216422237G&gt;A;USH2A - e.g. strict HGVS genomic (hg38/hg19) + ';' + HGNC gene symbol</li>"+
 									"<li>NM_206933.2:c.100C&gt;T or NM_206933.2(USH2A):c.100C&gt;T</li>"+
+									"<li>NR_023343.3:n.2A>G or NR_023343.3(RNU4ATAC):n.2A>G</li>"+
 									"<li>rs772808534 (can take up to 30-40s)</li>"+
 									"<li>1-216422237-G-A, pseudo VCF expression (default hg38), or hg19-1-216595579-G-A, hg38:1:216422237:G:A, separator being ':', '_' or '-'. Genome version supports GRCh37, GRCh38, hg19, hg38, case insensitive.</li></ul></li></ul></p>",
 							})

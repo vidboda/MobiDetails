@@ -46,7 +46,7 @@
 			</div>
 		{% endif %}
 		{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, main_iso.uniprot_id, oncokb_info, urls) }}
-		{{ modal_js('gene_modal', 'var_modal', 'help_modal') }}
+		{{ modal_js(['gene_modal', 'var_modal', 'help_modal']) }}
 		{#{{ danger("WARNING: currently, you can only create variants in canonical isoforms.") }}#}
 		<div id="created_var"></div>
 		<div class="w3-responsive" id="gene_table">
