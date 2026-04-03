@@ -207,9 +207,10 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
             rsid = ''
             if vf['dbsnp_id']:
                 rsid = 'rs{0}'.format(vf['dbsnp_id'])
-            file_content += "{0};{1}:c.{2};;;;p.{3};c.{2};{4};{1};{5};\
-;;;{6};;{7};;chr{8};{9};chr{8}:g.{10};{11} {12};;;;\r\n".format(
+            file_content += "{0};{1}:{2}.{3};;;;p.{4};{2}.{3};{5};{1};{6};\
+;;;{7};;{8};;chr{9};{9};chr{10}:g.{11};{12} {13};;;;\r\n".format(
                 vf['gene_symbol'], vf['refseq'],
+                md_utilities.get_var_beginning(vf['refseq']),
                 vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
                 rsid, vf['prot_type'], vf['chr'], genome,
                 vf['g_name'], vf['start_segment_type'], vf['start_segment_number']
@@ -256,8 +257,10 @@ chr{1};{0};chr{1}:g.{2};;;;;\r\n".format(
                 vf['chr'], vf['g_name']
             )
         if vf['c_name']:
-            variant = "{0}:c.{1}".format(
-                vf['refseq'], vf['c_name']
+            variant = "{0}:{1}.{2}".format(
+                vf['refseq'], 
+                md_utilities.get_var_beginning(vf['refseq']),
+                vf['c_name']
             )
         return render_template(
             'ajax/defgen.html',
@@ -1025,7 +1028,7 @@ def lovd():
     match_nochr_chrom = re.search(rf'^({nochr_chrom_regexp})$', request.form['chrom'])
     variant_regexp = md_utilities.regexp['variant']
     match_g_name = re.search(rf'^({variant_regexp})$', request.form['g_name'])
-    match_c_name = re.search(rf'^(c\.{variant_regexp})$', request.form['c_name'])
+    match_c_name = re.search(rf'^([cn]\.{variant_regexp})$', request.form['c_name'])
     gene_symbol_regexp = md_utilities.regexp['gene_symbol']
     match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene'])
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
@@ -1520,16 +1523,16 @@ def modif_class():
             res_var = curs.fetchone()
             tr_html = """
             <tr id='{0}-{1}-{2}-{3}'>
-                <td class='w3-left-align'>{4}(<em>{5}</em>):c.{6}</td>
-                <td class='w3-left-align'>{7}</td>
+                <td class='w3-left-align'>{4}(<em>{5}</em>):{6}.{7}</td>
                 <td class='w3-left-align'>{8}</td>
+                <td class='w3-left-align'>{9}</td>
                 <td class='w3-left-align'>
-                    <span style='color:{9};'>Class {1} ({10})</span>
+                    <span style='color:{10};'>Class {1} ({11})</span>
                 </td>
                 <td class='w3-left-align'>{3}</td>
                 <td>
                     <div class='w3-cell-row'>
-                        <span class='w3-container w3-left-align w3-cell'> {11}</span>
+                        <span class='w3-container w3-left-align w3-cell'> {12}</span>
                     </div>
                 </td>
             </tr>""".format(
@@ -1539,6 +1542,7 @@ def modif_class():
                     escape(class_type.capitalize()),
                     res_var['refseq'],
                     res_var['gene_symbol'],
+                    md_utilities.get_var_beginning(res_var['refseq']),
                     res_var['c_name'],
                     g.user['username'],
                     date,
@@ -1812,7 +1816,7 @@ def create():
     match_refseq = re.search(rf'^({refseq_regexp})$', request.form['acc_no'])
     variant_regexp = md_utilities.regexp['variant']
     match_variant = re.search(
-                rf'^(c\.{variant_regexp})$',
+                rf'^([cn]\.{variant_regexp})$',
                 request.form['new_variant']
             )
     if match_gene and \
@@ -1842,7 +1846,8 @@ def create():
             WHERE c_name = %s
                 AND refseq = %s
             """,
-            (new_variant.replace("c.", ""), acc_no)
+            (re.sub(r'^[cn]\.', '', new_variant), acc_no)
+            # (new_variant.replace("c.", ""), acc_no)
         )
         res = curs.fetchone()
         if res:
@@ -1853,7 +1858,7 @@ def create():
                 res['id']
             )
 
-        if re.search(r'c\..+', new_variant):
+        if re.search(r'[cn]\..+', new_variant):
             # is vv alive?
             vv_base_url = md_utilities.get_vv_api_url()
             # print(vv_base_url)
@@ -1918,7 +1923,7 @@ def create():
                     if re.search(escape(acc_no), key):
                         vv_key_var = key
                         # print(key)
-                        var_obj = re.search(r':(c\..+)$', key)
+                        var_obj = re.search(r':([cn]\..+)$', key)
                         if var_obj:
                             new_variant = var_obj.group(1)
             vv_variant_data_check = md_utilities.check_vv_variant_data(vv_key_var, vv_data)
@@ -1954,7 +1959,7 @@ def create():
             return md_utilities.danger_panel(
                 new_variant,
                 """
-                Please provide the variant name as HGVS c. nomenclature (including c.)
+                Please provide the variant name as HGVS c. (or n. for ncRNA) nomenclature (including c. or n.)
                 """
             )
 
@@ -2036,7 +2041,7 @@ def create():
                     # print(vv_data[vv_key_var]['primary_assembly_loci']['grch38']['hgvs_genomic_description'])
                     if re.search(res_can['refseq'], key):
                         vv_key_var_can = key
-                        var_obj = re.search(r':c\.(.+)$', key)
+                        var_obj = re.search(r':[cn]\.(.+)$', key)
                         if var_obj is not None:
                             new_variant_can = var_obj.group(1)
                             original_variant_can = new_variant_can
@@ -2060,7 +2065,11 @@ def create():
                 var_c_name = curs.fetchone()
                 can_output = md_utilities.info_panel(
                     'Successfully annotated the variant on the canonical isoform',
-                    '{0}:c.{1}'.format(var_c_name['refseq'], var_c_name['c_name']),
+                    '{0}:{1}.{2}'.format(
+                        var_c_name['refseq'],
+                        md_utilities.get_var_beginning(var_c_name['refseq']),
+                        var_c_name['c_name']
+                    ),
                     can_output,
                     'w3-pale-green'
                 )
@@ -2083,7 +2092,11 @@ def create():
             var_c_name = curs.fetchone()
             output = md_utilities.info_panel(
                 'Successfully annotated the variant',
-                '{0}:c.{1}'.format(var_c_name['refseq'], var_c_name['c_name']),
+                '{0}:{1}.{2}'.format(
+                    var_c_name['refseq'],
+                    md_utilities.get_var_beginning(var_c_name['refseq']),
+                    var_c_name['c_name']
+                ),
                 output,
                 'w3-pale-green'
             )
@@ -2625,7 +2638,7 @@ def autocomplete():
                 close_db()
                 return ('', 204)
         variant_regexp = md_utilities.regexp['variant']
-        match_object = re.search(rf'^c\.({variant_regexp})', query)
+        match_object = re.search(rf'^[cn]\.({variant_regexp})', query)
         if match_object:
             md_query = match_object.group(1)
             curs.execute(
@@ -2640,8 +2653,9 @@ def autocomplete():
             result = []
             for var in res:
                 result.append(
-                    '{0}:c.{1}'.format(
+                    '{0}:{1}.{2}'.format(
                         var['refseq'],
+                        md_utilities.get_var_beginning(var['refseq']),
                         var['name']
                     )
                 )
@@ -2702,11 +2716,12 @@ def autocomplete_var():
         # gene = request.form['gene']
         # match_object = re.search(r'^c\.([\w\d>_\*-]+)', query)
         variant_regexp = md_utilities.regexp['variant']
-        match_object = re.search(rf'^c\.({variant_regexp})', query)
+        match_object = re.search(rf'^[cn]\.({variant_regexp})', query)
         if match_object and \
                 match_obj_nm:
             md_query = match_object.group(1)
             acc_no = match_obj_nm.group(1)
+            var_begin = '{0}.'.format(md_utilites.get_var_beginning(acc_no))
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -2724,7 +2739,7 @@ def autocomplete_var():
             res = curs.fetchall()
             result = []
             for var in res:
-                result.append('c.{}'.format(var[0]))
+                result.append('{0}.{1}'.format(var_begin, var[0]))
             # print(json.dumps(result))
             close_db()
             if result is not None:
@@ -2796,7 +2811,7 @@ def is_panelapp_entity():
 def spip():
     match_variant_id = re.search(r'^(\d+)$', request.form['variant_id'])        
     variant_regexp = md_utilities.regexp['variant']
-    match_variant = re.search(rf'^c\.({variant_regexp})$', request.form['c_name'])
+    match_variant = re.search(rf'^[cn]\.({variant_regexp})$', request.form['c_name'])
     gene_symbol_regexp = md_utilities.regexp['gene_symbol']
     match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']

@@ -192,6 +192,15 @@ def test_decompose_vcf_str(vcf_str, chr, pos, ref, alt):
     assert  md_utilities.decompose_vcf_str(vcf_str) == (chr, pos, ref, alt)
 
 
+@pytest.mark.parametrize(('refseq', 'result'), (
+    ('NM_206933.2', 'c'),
+    ('NR_023343.3', 'n'),
+    ('NC_000012.2', False),
+))
+def test_get_var_beginning(refseq, result):
+    assert md_utilities.get_var_beginning(refseq) == result
+
+
 # @pytest.mark.parametrize(('full_transcript', 'result'), (
 #     ('NM_001005484.2', ('NM_001005484', 2)),
 #     ('NM_001005484.240', (None, None)),
@@ -199,6 +208,7 @@ def test_decompose_vcf_str(vcf_str, chr, pos, ref, alt):
 # ))
 @pytest.mark.parametrize(('full_transcript', 'transcript', 'version'), (
     ('NM_001005484.2', 'NM_001005484', 2),
+    ('NR_023343.3', 'NR_023343', 3),
     ('NM_001005484.240', None, None),
     ('XM_001005484.2', None, None),
 ))

@@ -81,7 +81,7 @@ def file_upload():
                     line = line.replace(' ', '')
                     variant_regexp = md_utilities.regexp['variant']
                     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-                    match_obj_c = re.search(rf'^({ncbi_transcript_regexp})\(*[\w-]*\)*:(c\.{variant_regexp})$', line)
+                    match_obj_c = re.search(rf'^({ncbi_transcript_regexp})\(*[\w-]*\)*:([cn]\.{variant_regexp})$', line)
                     if match_obj_c:
                         # check NM number and version
                         curs.execute(

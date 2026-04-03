@@ -677,15 +677,19 @@ def search_engine():
                     pattern = re.sub(r'\*', 'Ter', var)
                 else:
                     pattern = var
-        elif re.search(rf'^{ncbi_transcript_regexp}:[cC]\.{variant_regexp_flexible}$', query_engine) or \
-                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):[cC]\.{variant_regexp_flexible}$', query_engine):  # NM acc_no variant
-            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*:([cC]\.{variant_regexp_flexible})$', query_engine)
+        elif re.search(rf'^{ncbi_transcript_regexp}:[cCnN]\.{variant_regexp_flexible}$', query_engine) or \
+                re.search(rf'^{ncbi_transcript_regexp}\([A-Za-z0-9-]+\):[cCnN]\.{variant_regexp_flexible}$', query_engine):  # NM acc_no variant
+            match_obj = re.search(rf'^({ncbi_transcript_regexp})\(*[A-Za-z0-9-]*\)*:([cCnN]\.{variant_regexp_flexible})$', query_engine)
+            refseq = match_obj.group(1)
             if 'db' in locals():
                 close_db()
             return redirect(
                 url_for(
                     'api.api_variant_create',
-                    variant_chgvs='{0}:c.{1}'.format(match_obj.group(1), md_utilities.clean_var_name(match_obj.group(2))),
+                    variant_chgvs='{0}:{1}.{2}'.format(
+                        refseq,
+                        md_utilities.get_var_beginning(refseq),
+                        md_utilities.clean_var_name(match_obj.group(2))),
                     caller='browser',
                 ),
                 code=307

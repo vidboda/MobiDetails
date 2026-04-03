@@ -621,7 +621,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         # fill in dicts
         external_data['variantId'] = variant_features['var_id']
         if var_type == 'genic':
-            external_data['nomenclatures']['cName'] = 'c.{}'.format(variant_features['c_name'])
+            external_data['nomenclatures']['cName'] = '{0}.{1}'.format(md_utilities.get_var_beginning(variant_features['refseq']), variant_features['c_name'])
             external_data['nomenclatures']['ivsName'] = variant_features['ivs_name']
             external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
              # for HTML webpages
@@ -1624,7 +1624,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # MorfeeDB
                     # bgzipped tabixed file
                     # we may have multiple results per position, sep ';'
-                    if re.search(r'^c\.-.+', external_data['nomenclatures']['cName']) and \
+                    if re.search(r'^[cn]\.-.+', external_data['nomenclatures']['cName']) and \
                             external_data['positions']['segmentStartType'] == 'exon' and \
                             external_data['positions']['DNAType'] == 'substitution':
                         morfee_vf = variant_features
@@ -1936,7 +1936,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     if md_utilities.get_post_param(request, 'variant_chgvs'):
         match_variant_chgvs = re.search(
-            rf'^({ncbi_transcript_regexp}:c\.{variant_regexp})',
+            rf'^({ncbi_transcript_regexp}:[cn]\.{variant_regexp})',
             urllib.parse.unquote(md_utilities.get_post_param(request, 'variant_chgvs'))
         )
     db = get_db()
@@ -1958,7 +1958,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
             match_variant_chgvs:
         variant_chgvs = match_variant_chgvs.group(1)
         match_object = re.search(
-            rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})',
+            rf'^({ncbi_transcript_regexp}):[cn]\.({variant_regexp})',
             variant_chgvs
         )
         if match_object:
@@ -2054,10 +2054,13 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                     else:
                         flash('Variant Validator looks down!', 'w3-pale-red')
                         return redirect(url_for('md.index'), code=302)
-                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:c.{2}/all?content-type=application/json".format(
-                    vv_base_url, acc_no, new_variant
+                vv_url = "{0}VariantValidator/variantvalidator/GRCh38/{1}:{2}.{3}/all?content-type=application/json".format(
+                    vv_base_url,
+                    acc_no,
+                    md_utilities.get_var_beginning(acc_no),
+                    new_variant
                 )
-                vv_key_var = "{0}:c.{1}".format(acc_no, new_variant)
+                vv_key_var = "{0}:{1}.{2}".format(acc_no, md_utilities.get_var_beginning(acc_no), new_variant)
                 try:
                     vv_data = json.loads(
                         http.request(
@@ -2160,7 +2163,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                     if re.search(acc_no, key):
                         vv_key_var = key
                         # print(key)
-                        var_obj = re.search(r':c\.(.+)$', key)
+                        var_obj = re.search(r':[cn]\.(.+)$', key)
                         if var_obj is not None:
                             new_variant = var_obj.group(1)
                 # check if the transcript is canonical - if not, send 2 requests, one for the canonical, the other for the asked trancript
@@ -2196,23 +2199,29 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                             for key in vv_full_data.keys():
                                 if re.search(res_can['refseq'], key):
                                     vv_key_var_can = key
-                                    var_obj = re.search(r':c\.(.+)$', key)
+                                    var_obj = re.search(r':[cn]\.(.+)$', key)
                                     if var_obj is not None:
                                         new_variant_can = var_obj.group(1)
                                         original_variant_can = new_variant_can
                             if vv_key_var_can:
                                 md_utilities.create_var_vv(
                                     vv_key_var_can, res_gene['gene_symbol'], res_can['refseq'],
-                                    'c.{}'.format(new_variant_can), original_variant_can,
-                                    vv_full_data, caller, db, g
+                                    '{0}.{1}'.format(
+                                        md_utilities.get_var_beginning(res_can['refseq']),
+                                        new_variant_can
+                                    ),
+                                    original_variant_can, vv_full_data, caller, db, g
                                 )
                         except json.decoder.JSONDecodeError:
                             # empty JSON, move on
                             pass
                 creation_dict = md_utilities.create_var_vv(
                     vv_key_var, res_gene['gene_symbol'], acc_no,
-                    'c.{}'.format(new_variant), original_variant,
-                    vv_data, caller, db, g
+                    '{0}.{1}'.format(
+                        md_utilities.get_var_beginning(acc_no),
+                        new_variant
+                    ),
+                    original_variant, vv_data, caller, db, g
                 )
                 close_db()
                 if isinstance(creation_dict, int):
@@ -2469,7 +2478,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                         for key in vv_data.keys():
                             variant_regexp = md_utilities.regexp['variant']
                             ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-                            match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
+                            match_obj = re.search(rf'^({ncbi_transcript_regexp}):[cn]\.({variant_regexp})', key)
                             if match_obj:
                                 vv_refseq = match_obj.group(1)
                                 vv_variant = match_obj.group(2)
@@ -2478,7 +2487,11 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                                     new_variant = vv_variant
                                     nm_transcript = res_gene['refseq']
                                     gene_symbol = gene_hgnc
-                                    vv_key_var = "{0}:c.{1}".format(vv_refseq, vv_variant)
+                                    vv_key_var = "{0}:{1}.{2}".format(
+                                        vv_refseq,
+                                        md_utilities.get_var_beginning(vv_refseq),
+                                        vv_variant
+                                    )
                                     break
                                 elif not vv_key_var:
                                     # take into account non canonical isoforms
@@ -2498,12 +2511,16 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                                             new_variant = vv_variant
                                             nm_transcript = vv_refseq
                                             gene_symbol = res_symbol['gene_symbol']
-                                            vv_key_var = "{0}:c.{1}".format(vv_refseq, vv_variant)
+                                            vv_key_var = "{0}:{1}.{2}".format(
+                                                vv_refseq, 
+                                                md_utilities.get_var_beginning(vv_refseq),
+                                                vv_variant
+                                            )
                         if vv_key_var:
                             creation_dict = md_utilities.create_var_vv(
                                 vv_key_var, gene_symbol, nm_transcript,
-                                'c.{}'.format(new_variant), new_variant,
-                                vv_data, caller, db, g
+                                '{0}.{1}'.format(md_utilities.get_var_beginning(nm_transcript), new_variant),
+                                new_variant, vv_data, caller, db, g
                             )
                             close_db()
                             if isinstance(creation_dict, int):
@@ -2636,7 +2653,11 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
             if res_rs:
                 vars_rs = {}
                 for var in res_rs:
-                    current_var = '{0}:c.{1}'.format(var['refseq'], var['c_name'])
+                    current_var = '{0}:{1}.{2}'.format(
+                        var['refseq'],
+                        md_utilities.get_var_beginning(var['refseq']),
+                        var['c_name']
+                    )
                     vars_rs[current_var] = {
                         'mobidetails_id': var['id'],
                         'url': '{0}{1}'.format(
@@ -2994,7 +3015,11 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
             # genic variant already known
             vars_vcf = {}
             for var in res_vcf:
-                current_var = '{0}:c.{1}'.format(var['refseq'], var['c_name'])
+                current_var = '{0}:{1}.{2}'.format(
+                    var['refseq'],
+                    md_utilities.get_var_beginning(var['refseq']),
+                    var['c_name']
+                )
                 vars_vcf[current_var] = {
                     'mobidetails_id': var['feature_id'],
                     'url': '{0}{1}'.format(
@@ -3105,7 +3130,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                 for key in vv_data.keys():
                     variant_regexp = md_utilities.regexp['variant']
                     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
-                    match_obj = re.search(rf'^({ncbi_transcript_regexp}):c\.({variant_regexp})', key)
+                    match_obj = re.search(rf'^({ncbi_transcript_regexp}):[cn]\.({variant_regexp})', key)
                     if match_obj:
                         new_variant = match_obj.group(2)
                         vv_refseq = match_obj.group(1)
@@ -3150,8 +3175,14 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                 vars_vcf = {}
                 for gene in var_dict:
                     creation_dict = md_utilities.create_var_vv_vcf_str(
-                        var_dict[gene]['vv_key_var'], gene, var_dict[gene]['RefSeq_NM'],
-                        'c.{}'.format(var_dict[gene]['new_variant']), var_dict[gene]['new_variant'],
+                        var_dict[gene]['vv_key_var'],
+                        gene,
+                        var_dict[gene]['RefSeq_NM'],
+                        '{0}.{1}'.format(
+                            md_utilities.get_var_beginning(var_dict[gene]['RefSeq_NM']),
+                            var_dict[gene]['new_variant']
+                        ),
+                        var_dict[gene]['new_variant'],
                         vv_data, caller, db, g
                     )
                     if isinstance(creation_dict, int):

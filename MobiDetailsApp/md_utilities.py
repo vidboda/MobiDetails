@@ -288,7 +288,7 @@ def reverse_complement(seq):
 
 
 def clean_var_name(variant):
-    variant = re.sub(r'^[cCpPgG]\.', '', variant)
+    variant = re.sub(r'^[cCnNpPgG]\.', '', variant)
     variant = re.sub(r'\(', '', variant)
     variant = re.sub(r'\)', '', variant)
     if re.search('>', variant):
@@ -443,6 +443,14 @@ def decompose_vcf_str(vcf_str):
     if match_obj:
         return match_obj.group(1), int(match_obj.group(2)), match_obj.group(3).upper(), match_obj.group(4).upper()
     return None, None, None, None
+
+
+def get_var_beginning(refseq):
+    if refseq.startswith('NM_'):
+        return 'c'
+    elif refseq.startswith('NR_'):
+        return 'n'
+    return False
 
 
 def decompose_transcript(transcript):
@@ -1029,7 +1037,7 @@ def get_bigwig_score(text, bigwig_file_path, var):
 
 def decompose_snvs_cname(c_name):
     # from c.928G>A or 928G>A to 928 and G>A
-    match_obj = re.search(r'^c?\.?(\d+)([ACGT]>[ACGT])', c_name)
+    match_obj = re.search(r'^[cn]?\.?(\d+)([ACGT]>[ACGT])', c_name)
     if match_obj:
         return match_obj.group(1), match_obj.group(2)
     return None, None
@@ -1458,7 +1466,7 @@ def create_var_vv(
             if re.search('{}'.format(acc_no), key) and \
                     vv_data[key]['submitted_variant'] == vv_key_var:
                 vv_key_var = key
-                var_obj = re.search(r':c\.(.+)$', key)
+                var_obj = re.search(r':[cn]\.(.+)$', key)
                 vf_d['c_name'] = var_obj.group(1)
                 first_level_key = key
                 break
@@ -1506,10 +1514,10 @@ def create_var_vv(
             elif re.search(r'Refer to http://varnomen.hgvs.org/recommendations/DNA/variant/', warning):
                 continue
             elif re.search(
-                    rf'automapped to {acc_no}:c\.{variant_regexp}',
+                    rf'automapped to {acc_no}:[cn]\.{variant_regexp}',
                     warning):
                 match_obj = re.search(
-                    rf'automapped to {acc_no}:(c\.{variant_regexp})',
+                    rf'automapped to {acc_no}:([cn]\.{variant_regexp})',
                     warning
                 )
                 if match_obj:
@@ -1524,7 +1532,7 @@ def create_var_vv(
                     danger_panel(vv_key_var, warning)
             elif re.search('normalized', warning):
                 match_obj = re.search(
-                    rf'normalized to ({acc_no}:c\..+)',
+                    rf'normalized to ({acc_no}:[cn]\..+)',
                     warning
                 )
                 if match_obj and \
@@ -1658,6 +1666,7 @@ def create_var_vv(
         elif caller == 'cli':
             return {'mobidetails_error':  error_text}
     # check again if variant exist for this transcript
+    print(re.sub(r'^[cn]\.', '', new_variant))
     curs.execute(
         """
         SELECT id, c_name AS nm
@@ -1665,7 +1674,8 @@ def create_var_vv(
         WHERE c_name = %s
             AND refseq = %s
         """,
-        (new_variant.replace("c.", ""), acc_no)
+        (re.sub(r'^[cn]\.', '', new_variant), acc_no)
+        # (new_variant.replace("c.", ""), acc_no)
     )
     res = curs.fetchone()
     if res is not None:
@@ -1699,7 +1709,7 @@ def create_var_vv(
         elif caller == 'cli':
             return {'mobidetails_error': error_text}
     if 'c_name' not in vf_d:
-        var_obj = re.search(r'^c?\.?(.+)$', new_variant)
+        var_obj = re.search(r'^[cn]?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
     # dna_type
     if re.search('>', vf_d['c_name']):
@@ -1800,6 +1810,9 @@ def create_var_vv(
                 vf_d['prot_type'] = 'missense'
             else:
                 vf_d['prot_type'] = 'unknown'
+    elif re.search(r'^n\.', new_variant):
+        vf_d['p_name'] = 'NULL'
+        vf_d['prot_type'] = 'NULL'
     else:
         vf_d['p_name'] = '?'
         vf_d['prot_type'] = 'unknown'
@@ -2273,7 +2286,7 @@ def create_var_vv_vcf_str(
             if re.search('{}'.format(acc_no), key) and \
                     vv_data[key]['submitted_variant'] == vv_key_var:
                 vv_key_var = key
-                var_obj = re.search(r':c\.(.+)$', key)
+                var_obj = re.search(r':[cn]\.(.+)$', key)
                 vf_d['c_name'] = var_obj.group(1)
                 first_level_key = key
                 break
@@ -2325,10 +2338,10 @@ def create_var_vv_vcf_str(
             elif re.search(r'Refer to http://varnomen.hgvs.org/recommendations/DNA/variant/', warning):
                 continue
             elif re.search(
-                    rf'automapped to {acc_no}:c\.{variant_regexp}',
+                    rf'automapped to {acc_no}:[cn]\.{variant_regexp}',
                     warning):
                 match_obj = re.search(
-                    rf'automapped to {acc_no}:(c\.{variant_regexp})',
+                    rf'automapped to {acc_no}:([cn]\.{variant_regexp})',
                     warning
                 )
                 if match_obj:
@@ -2343,7 +2356,7 @@ def create_var_vv_vcf_str(
                     danger_panel(vv_key_var, warning)
             elif re.search('normalized', warning):
                 match_obj = re.search(
-                    rf'normalized to ({acc_no}:c\..+)',
+                    rf'normalized to ({acc_no}:[cn]\..+)',
                     warning
                 )
                 if match_obj and \
@@ -2484,7 +2497,8 @@ def create_var_vv_vcf_str(
         WHERE c_name = %s
             AND refseq = %s
         """,
-        (new_variant.replace("c.", ""), acc_no)
+        (re.sub(r'^[cn]\.', '', new_variant), acc_no)
+        # (new_variant.replace("c.", ""), acc_no)
     )
     res = curs.fetchone()
     if res is not None:
@@ -2538,7 +2552,7 @@ def create_var_vv_vcf_str(
     
     if 'c_name' not in vf_d and \
             vv_key_var != 'intergenic_variant_1':
-        var_obj = re.search(r'^c?\.?(.+)$', new_variant)
+        var_obj = re.search(r'^[cn]?\.?(.+)$', new_variant)
         vf_d['c_name'] = var_obj.group(1)
     # dna_type
     if re.search('>', hg38_d['g_name']):
@@ -2645,6 +2659,9 @@ def create_var_vv_vcf_str(
     elif vv_key_var != 'intergenic_variant_1':
         vf_d['p_name'] = '?'
         vf_d['prot_type'] = 'unknown'
+    elif re.search(r'^n\.', new_variant):
+        vf_d['p_name'] = 'NULL'
+        vf_d['prot_type'] = 'NULL'
 
     # deal with +1,+2 etc
     vf_d['rna_type'] = 'neutral inferred'
@@ -3205,11 +3222,11 @@ def check_vv_variant_data(vv_key_var, vv_data):
     if vv_key_var not in vv_data:
         variant_regexp = regexp['variant']
         ncbi_transcript_regexp = regexp['ncbi_transcript']
-        nm_match = re.search(rf'({ncbi_transcript_regexp}):c\.{variant_regexp}', vv_key_var)
+        nm_match = re.search(rf'({ncbi_transcript_regexp}):[cn]\.{variant_regexp}', vv_key_var)
         if nm_match:
             current_nm = nm_match.group(1)
             for vv_key in vv_data:
-                vv_nm_match = re.search(rf'{current_nm}:c\.{variant_regexp}', vv_key)
+                vv_nm_match = re.search(rf'{current_nm}:[cn]\.{variant_regexp}', vv_key)
                 if vv_nm_match:
                     vv_key_var = vv_key
     if vv_key_var in vv_data:
@@ -3287,7 +3304,7 @@ def return_vv_validation_warnings(vv_data):
                             continue
                         variant_regexp = regexp['variant']
                         ncbi_transcript_regexp = regexp['ncbi_transcript']
-                        lovd_sugg_obj = re.search(rf'LovdSyntaxcheckSuggestions:\s\[({ncbi_transcript_regexp}:c.{variant_regexp}),\s([\d\.]+)\]$', warning)
+                        lovd_sugg_obj = re.search(rf'LovdSyntaxcheckSuggestions:\s\[({ncbi_transcript_regexp}:[cn].{variant_regexp}),\s([\d\.]+)\]$', warning)
                         if lovd_sugg_obj:
                             if float(lovd_sugg_obj.group(2)) >= 0.5:
                                 vv_lovd_error = '{0}<br />- Did you mean {1}? (Suggestion provided by LOVDSyntaxChecker)'.format(vv_lovd_error, lovd_sugg_obj.group(1))
@@ -3737,7 +3754,12 @@ def get_acmg_criterion_color(criterion):
 
 def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     # send job to dedicated server
-    spip_input = "{0}\t{1}:c.{2}".format(gene_symbol, nm_acc, c_name)
+    spip_input = "{0}\t{1}:{2}.{3}".format(
+        gene_symbol,
+        nm_acc,
+        md_utilities.get_var_beginning(acc_no),
+        c_name
+    )
     try:
         req_results = requests.post(
             '{0}/spip'.format(urls['spliceai_internal_server']),

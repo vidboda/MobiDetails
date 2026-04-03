@@ -5,8 +5,7 @@ function create_var(create_url, csrf_token) {
 	$('#submit_btn').prop('disabled', true);
 	//alert($("#new_variant").val());
 	var new_variant = $('#new_variant').val().replace(/\s/g, "");
-	if (new_variant == '' || new_variant == 'c.') {
-	// if ($("#new_variant").val() == '' || $("#new_variant").val() == 'c.') {
+	if (new_variant == '' || new_variant == 'c.'  || new_variant == 'n.') {
 		$("#error_name").append('<span>Please enter a variant name</span>');
 		$('html').css('cursor', 'default');
 		$('.w3-btn').css('cursor', 'default');
@@ -50,4 +49,13 @@ function new_isoform() {
 function gene_loader() {
 	$('#loader').show();
 	$('.tab_content').hide();
+}
+
+function select_var_beginning() {
+	if ($('#acc_no').text().startsWith('NM_')) {
+		$('#new_variant').val('c.')
+	}
+	else if ($('#acc_no').text().startsWith('NR_')) {
+		$('#new_variant').val('n.')
+	}
 }
