@@ -2831,14 +2831,17 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                 md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
                 headers = md_utilities.api_agent
                 # headers['api_key'] = g.user['api_key']
-                headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
+                # headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
                 for var_hgvs_nc in hgvs_nc:
                     for gene_hgnc in gene_symbols:
+                        headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
                         data = {
                             'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
                             'gene_hgnc': gene_hgnc,
                             'caller': 'cli',
                         }
+                        print(data)
+                        print(headers)
                         try:
                             md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
                         except Exception as e:

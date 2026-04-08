@@ -3646,7 +3646,7 @@ def get_api_key(curs, api_key=None, mode='key_only'):
     # when we need an API key just to trigger an API action e.g. in upload.py => mode key_only
     # mode user_object called from API to hide default API key when redirecting
     if g.user:
-        api_key = g.user['api_key']
+        return g.user['api_key']
     else:
         curs.execute(
             """
@@ -3658,7 +3658,7 @@ def get_api_key(curs, api_key=None, mode='key_only'):
         res = curs.fetchone()
         if res:
             api_key = res['api_key'] if mode == 'key_only' else res
-    return api_key
+            return api_key
 
 
 def get_api_key_from_request(request):
