@@ -331,14 +331,16 @@
 		<p><span>{{ div_name }} variants recorded: </span>
 		<ul class="w3-ul w3-hoverable w3-center" style="width:50%">
 {%- endmacro %}
-{% macro vars_class_table(div_id, div_name) -%}
+{% macro vars_class_table(div_id, div_name, is_coding=true) -%}
 	<div class="w3-container w3-animate-opacity w3-responsive" id="{{ div_id }}" style="display:none;">
 		<table class="w3-table w3-striped w3-bordered w3-centered" id="{{ div_id }}_table">
 			<caption>{{ div_name }} variants recorded: </caption>
 			<thead>
 				<tr>
 					<th class="w3-left-align">HGVS DNA</th>
+					{% if is_coding is sameas true %}
 					<th class="w3-left-align">HGVS protein</th>
+					{% endif %}
 					<th class="w3-left-align">Segment type</th>
 					<th class="w3-left-align">Segment number</th>
 					<th class="w3-left-align">Creation date</th>
@@ -403,3 +405,11 @@
 {% macro sentence_case(text) %}
     {{ text[0]|upper}}{{text[1:] }}
 {% endmacro %}
+{# returns c or n for hgvs descriptions #}
+{% macro hgvs_prefix(refseq) %}
+	{%- if refseq.startswith('NM_') -%}<span>c</span>{%- elif refseq.startswith('NR_') -%}<span>n</span>{%- endif -%}
+{% endmacro %}
+{# for VV and LOVD tags #}
+{%- macro signal_tag(color, text) -%}
+	<div class='w3-tag w3-round {{ color }}' style='padding:3px'><div class='w3-tag w3-round {{ color }} w3-border w3-border-white'>{{ text }}</div></div>
+{%- endmacro -%}

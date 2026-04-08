@@ -1583,6 +1583,19 @@ def test_get_transcript_road_signs(app, gene_symbol, transcript, is_mane, is_man
         assert transcript_road_signs[transcript]['refseq_select'] == is_refseq_select
 
 
+@pytest.mark.parametrize(('gene_symbol', 'gene_info', 'is_coding'), (
+    ('USH2A', None, True),
+    ('RNU4ATAC', None, False),
+    ('RUN4ATAQ', None, False)
+))
+def test_is_coding_gene(app, gene_symbol, gene_info, is_coding):
+    with app.app_context():
+        db_pool, db = get_db()
+        assert md_utilities.is_coding_gene(db, gene_symbol, gene_info) == is_coding
+        db_pool.putconn(db)
+    
+
+
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

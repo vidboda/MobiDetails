@@ -461,12 +461,15 @@ def decompose_transcript(transcript):
     return None, None
 
 
-def get_var_genic_csq(var):
+def get_var_genic_csq(var, hgvs_prefix=None):
     # linked to function below => quick assessment of csq
     if re.search(r'^[-\*]?\d+[\+-]', var):
         return 'intron'
-    elif re.search(r'^\d+[^\+-]', var):
+    elif re.search(r'^\d+[^\+-]', var) and \
+            hgvs_prefix == 'n':
         # elif re.search(r'^\*?\d+[^\+-]', var):
+        return 'non_coding_exon'
+    elif re.search(r'^\d+[^\+-]', var):
         return 'exon'
     elif re.search(r'^-', var):
         return '5UTR'
@@ -1812,7 +1815,7 @@ def create_var_vv(
                 vf_d['prot_type'] = 'unknown'
     elif re.search(r'^n\.', new_variant):
         vf_d['p_name'] = 'NULL'
-        vf_d['prot_type'] = 'NULL'
+        vf_d['prot_type'] = 'no protein'
     else:
         vf_d['p_name'] = '?'
         vf_d['prot_type'] = 'unknown'
@@ -2661,7 +2664,7 @@ def create_var_vv_vcf_str(
         vf_d['prot_type'] = 'unknown'
     elif re.search(r'^n\.', new_variant):
         vf_d['p_name'] = 'NULL'
-        vf_d['prot_type'] = 'NULL'
+        vf_d['prot_type'] = 'no protein'
 
     # deal with +1,+2 etc
     vf_d['rna_type'] = 'neutral inferred'
@@ -3757,7 +3760,7 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
     spip_input = "{0}\t{1}:{2}.{3}".format(
         gene_symbol,
         nm_acc,
-        md_utilities.get_var_beginning(acc_no),
+        get_var_beginning(nm_acc),
         c_name
     )
     try:
@@ -4177,7 +4180,7 @@ def frog_variant_link(hgnc_id, nc_var):
         return {'error': 'FrOG APi unreachable or unusual response'}
 
 
-def get_transcript_road_signs(gene_symbol, gene_info):
+def get_transcript_road_signs(gene_symbol, gene_info, db=None):
     # get refseq select, mane, etc from vv json file
     no_vv_file = 0
     transcript_road_signs = {}
@@ -4197,16 +4200,18 @@ def get_transcript_road_signs(gene_symbol, gene_info):
             or ('message' in vv_json and
                 vv_json['message'] == 'Internal Server Error'):
             no_vv_file = 1
-            curs.execute(
-                """
-                UPDATE gene
-                SET variant_creation = 'not_in_vv_json'
-                WHERE gene_symbol = %s
-                    AND variant_creation <> 'not_in_vv_json'
-                """,
-                (gene_symbol,)
-            )
-            db.commit()
+            if db:
+                curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                curs.execute(
+                    """
+                    UPDATE gene
+                    SET variant_creation = 'not_in_vv_json'
+                    WHERE gene_symbol = %s
+                        AND variant_creation <> 'not_in_vv_json'
+                    """,
+                    (gene_symbol,)
+                )
+                db.commit()
         if no_vv_file == 0:
             for vv_transcript in vv_json['transcripts']:
                 for res in gene_info:
@@ -4227,3 +4232,24 @@ def get_transcript_road_signs(gene_symbol, gene_info):
     else:
         transcript_road_signs['error'] = 'IOError w/ vv file'
         return transcript_road_signs
+
+
+def is_coding_gene(db, gene_symbol, gene_info=None):
+    # check all transcript for a given gene and returns whether one of them is coding or not
+    if not gene_info:
+        curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        curs.execute(
+            """
+            SELECT gene_symbol, refseq, variant_creation
+            FROM gene
+            WHERE gene_symbol = %s
+            ORDER BY number_of_exons DESC
+            """,
+            (gene_symbol,)
+        )  # get all isoforms
+        gene_info = curs.fetchall()
+    for transcript in gene_info:
+        if transcript['refseq'].startswith('NM_'):
+            return True
+    return False
+

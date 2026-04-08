@@ -88,7 +88,7 @@
   '3UTR': 0
   '5UTR': 1
   'intron': 2
-  'non-coding_exon': 3
+  'non_coding_exon': 3
   'intergenic': 4
   'exon': None
 caddPhredThresholds:
@@ -98,6 +98,7 @@ caddPhredThresholds:
   'splicing': 25.5
   'intergenic': 11.0
   'exon': None
+  'non_coding_exon': None
   'upstream': 34.0
   'downstream': 0.82
 # urls identifier can be retrieved in other structure with 'short_name', e.g. in local_files

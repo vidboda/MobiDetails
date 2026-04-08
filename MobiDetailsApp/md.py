@@ -334,6 +334,7 @@ def gene(gene_symbol=None):
                             # print('error saving metadome json
                             # file for {}'.format(enst))
         if result_all is not None:
+            is_coding_gene =  md_utilities.is_coding_gene(None, gene_symbol, result_all)
             # get annotations
             curs.execute(
                 """
@@ -418,7 +419,8 @@ def gene(gene_symbol=None):
                     max_prot_size=res_size['size'],
                     clingen_criteria_specification_id=clingen_criteria_specification_id,
                     transcript_road_signs=transcript_road_signs,
-                    oncokb_info=oncokb_info
+                    oncokb_info=oncokb_info,
+                    is_coding_gene=is_coding_gene
                 )
             else:
                 close_db()
@@ -511,7 +513,7 @@ def vars(gene_symbol=None):
         result_all = curs.fetchall()
         num_iso = len(result_all)
         transcript_road_signs = md_utilities.get_transcript_road_signs(gene_symbol, result_all)
- 
+        is_coding_gene =  md_utilities.is_coding_gene(None, gene_symbol, result_all)
         curs.execute(
             """
             SELECT d.variant_creation, d.refseq, a.c_name, a.p_name, a.start_segment_type, a.start_segment_number, a.creation_date, c.username, a.prot_type, a.ivs_name, a.id as vf_id
@@ -550,7 +552,8 @@ def vars(gene_symbol=None):
             max_prot_size=res_size['size'],
             clingen_criteria_specification_id=clingen_criteria_specification_id,
             oncokb_info=oncokb_info,
-            transcript_road_signs=transcript_road_signs
+            transcript_road_signs=transcript_road_signs,
+            is_coding_gene=is_coding_gene
         )
     else:
         close_db()

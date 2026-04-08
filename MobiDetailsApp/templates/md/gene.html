@@ -42,7 +42,13 @@
 		<br /><br />
 		{% if main_iso.second_name %}
 			<div class="w3-margin w3-panel w3-sand w3-leftbar">
-				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }}</p>
+				<p><strong>HGNC previous symbols ; aliases:</strong> {{ main_iso.second_name }};<strong>
+				{% if is_coding_gene is sameas true %}
+				Coding gene
+				{% else %}
+				Non-coding gene
+				{% endif %}
+				</strong></p>
 			</div>
 		{% endif %}
 		{{ gene_redirection(gene_symbol, max_prot_size, clingen_criteria_specification_id, main_iso.uniprot_id, oncokb_info, urls) }}
@@ -105,7 +111,7 @@
 		<br /><br />
 		<!-- IGV browser -->
 		<div class="w3-margin w3-panel w3-sand w3-leftbar">
-			<p><strong>SpliceAI-visual pre-computed raw scores for <em>{{ gene_symbol }}</em>:</strong></p>
+			<p><strong>IGV view of the genomic region surrounding <em>{{ gene_symbol }}</em>:</strong></p>
 		</div>
 		<br /> <br />
 		<div id="igv_div"></div>

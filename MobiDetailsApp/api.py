@@ -625,18 +625,21 @@ def variant(variant_id=None, caller='browser', api_key=None):
             external_data['nomenclatures']['cName'] = '{0}.{1}'.format(md_utilities.get_var_beginning(variant_features['refseq']), variant_features['c_name'])
             external_data['nomenclatures']['hgvsPrefix'] = md_utilities.get_var_beginning(variant_features['refseq'])
             external_data['nomenclatures']['ivsName'] = variant_features['ivs_name']
-            external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
-             # for HTML webpages
+            # for HTML webpages
             internal_data['nomenclatures']['cName'] = var_cname
             # internal_data['nomenclatures']['ngName'] = variant_features['ng_name']
-            internal_data['nomenclatures']['pName'] = variant_features['p_name']
-            internal_data['nomenclatures']['oneLetterpName'] = md_utilities.three2one_fct(variant_features['p_name'])
+            if external_data['nomenclatures']['hgvsPrefix'] == 'c':
+                external_data['nomenclatures']['pName'] = 'p.{}'.format(variant_features['p_name'])
+                internal_data['nomenclatures']['pName'] = variant_features['p_name']
+                internal_data['nomenclatures']['oneLetterpName'] = md_utilities.three2one_fct(variant_features['p_name'])
+                external_data['gene']['proteinSize'] = variant_features['prot_size']
+                external_data['gene']['uniprotId'] = variant_features['uniprot_id']
+                external_data['gene']['ENSP'] = variant_features['ensp']
+                external_data['gene']['RefSeqNp'] = variant_features['np']
             external_data['gene']['symbol'] = variant_features['gene_symbol']
             external_data['gene']['RefSeqTranscript'] = variant_features['refseq']
             # external_data['gene']['RefSeqNg'] = variant_features['ng']
-            external_data['gene']['RefSeqNp'] = variant_features['np']
             external_data['gene']['ENST'] = variant_features['enst']
-            external_data['gene']['ENSP'] = variant_features['ensp']
             external_data['gene']['canonical'] = variant_features['canonical']
             external_data['gene']['previousSymbols_aliases'] = variant_features['second_name']
             external_data['gene']['hgncId'] = variant_features['hgnc_id']
@@ -644,8 +647,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
             external_data['gene']['strand'] = variant_features['strand']
             external_data['gene']['numberOfExons'] = variant_features['number_of_exons']
             external_data['gene']['hgncName'] = variant_features['hgnc_name']
-            external_data['gene']['proteinSize'] = variant_features['prot_size']
-            external_data['gene']['uniprotId'] = variant_features['uniprot_id']
             # get clingen spec
             external_data['gene']['clingenCriteriaSpec'] = md_utilities.get_clingen_criteria_specification_id(external_data['gene']['symbol'])
             # get oncoKB data
@@ -659,7 +660,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             external_data['positions']['segmentStartNumber'] = variant_features['start_segment_number']
             external_data['positions']['segmentEndType'] = variant_features['end_segment_type']
             external_data['positions']['segmentEndNumber'] = variant_features['end_segment_number']
-            external_data['positions']['variantLocation'] = md_utilities.get_var_genic_csq(variant_features['c_name'])
+            external_data['positions']['variantLocation'] = md_utilities.get_var_genic_csq(variant_features['c_name'], external_data['nomenclatures']['hgvsPrefix'])
             # convert into mobideep Charts.js position in graph [0-4] or None for exons
             # internal_data['positions']['locationMobiDeepGraph'] = md_utilities.mobideepGraphPosition[external_data['positions']['variantLocation']]
         else:
@@ -877,7 +878,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             )
                         # compute position in domain
                         # 1st get aa pos
-                        if variant_features['prot_type'] != 'unknown':
+                        if variant_features['prot_type'] != 'unknown' and \
+                                variant_features['prot_type'] != 'no protein':
                             aa_pos = md_utilities.get_aa_position(variant_features['p_name'])
                             external_data['positions']['aaPositionStart'] = aa_pos[0]
                             external_data['positions']['aaPositionEnd'] = aa_pos[1]
@@ -1366,7 +1368,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     if internal_data['noMatch']['cadd'] is None:
                         # noncoding
                         internal_data['overallPredictions']['annovarLocation'] = external_data['positions']['variantLocation']
-                        if external_data['positions']['variantLocation'] != 'exon':
+                        if external_data['positions']['variantLocation'] != 'exon' and \
+                                external_data['positions']['variantLocation'] != 'non_coding_exon':
                             # discriminate between intronic and splicing in the paper (splicing being annovar definition 2bp near ss)
                             if external_data['positions']['variantLocation'] == 'intron' and \
                                     internal_data['positions']['distFromExon'] <= 2:
@@ -1394,7 +1397,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
 
 
                     # NCBoostv2
-                    if variant_features['prot_type'] == 'unknown' or variant_features['prot_type'] is None:
+                    if not variant_features['prot_type'] or variant_features['prot_type'] == 'unknown' or variant_features['prot_type'] == 'no protein':
                         record = md_utilities.get_value_from_tabix_file('NCBoost', md_utilities.local_files['ncboost']['abs_path'], var, variant_features)
                         if isinstance(record, str):
                             internal_data['noMatch']['ncboost'] = "{0} {1}".format(record, md_utilities.external_tools['NCBoost']['version'])
@@ -1413,7 +1416,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         external_data['overallPredictions']['gpnmsa'] = format(float(record[int(md_utilities.external_tools['GPN-MSA']['raw_col'])]), '.2f')
                         internal_data['overallPredictions']['gpnmsaColor'] = md_utilities.get_preditor_single_threshold_reverted_color(float(external_data['overallPredictions']['gpnmsa']), 'gpnmsa')
                     # ReMM
-                    if not variant_features['prot_type'] or variant_features['prot_type'] == 'unknown':
+                    if not variant_features['prot_type'] or variant_features['prot_type'] == 'unknown' or variant_features['prot_type'] == 'no protein':
                         record = md_utilities.get_value_from_tabix_file('ReMM', md_utilities.local_files['remm']['abs_path'], var, variant_features)
                         if isinstance(record, str):
                             internal_data['noMatch']['remm'] = "{0} {1}".format(record, md_utilities.external_tools['ReMM']['version'])
@@ -1484,7 +1487,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     if (variant_features['dna_type'] == 'deletion' or \
                             variant_features['dna_type'] == 'indel') and \
                             (not variant_features['prot_type'] or \
-                            variant_features['prot_type'] == 'unknown'):
+                            variant_features['prot_type'] == 'unknown' or \
+                            variant_features['prot_type'] == 'no protein'):
                         start_del = end_del = external_data['VCF']['hg38']['pos']
                         if variant_features['variant_size'] > 1:
                             start_del, end_del = md_utilities.compute_start_end_pos(external_data['nomenclatures']['hg38gName'])

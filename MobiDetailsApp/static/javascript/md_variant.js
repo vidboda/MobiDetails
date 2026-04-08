@@ -122,9 +122,13 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     // get hidden fields in html response and print them in the nomenclature table
     if ($('#lovd_rna_hgvs').text() !== '') {
       // alert($('#lovd_rna_hgvs').html());
-      $('#hgvs_rna_nom').html($('#lovd_rna_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>Description from LOVD</div></div>");
+      // $('#hgvs_rna_nom').html($('#hgvs_rna_nom').html() + "<br />" + $('#lovd_rna_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>LOVD</div></div>");
+      $('#hgvs_rna_lovd_nom').html($('#lovd_rna_hgvs').html());
+      $('#rna_hgvs_lovd_tr').show();
       $('#lovd_rna_hgvs').empty();
-      $('#hgvs_p_name').html($('#lovd_protein_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>Description from LOVD</div></div>");
+      // $('#hgvs_p_name').html($('#hgvs_p_name').html() + "<br />" + $('#lovd_protein_hgvs').html() + "<div class='w3-tag w3-round w3-blue' style='padding:3px'><div class='w3-tag w3-round w3-blue w3-border w3-border-white'>LOVD</div></div>");
+      $('#hgvs_np_lovd_nom').html($('#lovd_protein_hgvs').html());
+      $('#prot_hgvs_lovd_tr').show();
       $('#lovd_protein_hgvs').empty();
       // $('#rna_hgvs_tr').show();
       var nomenclature_table = $('#nomenclature_table').DataTable();

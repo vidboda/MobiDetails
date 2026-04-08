@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'macros.html' import info %}
+{% from 'macros.html' import info, hgvs_prefix %}
 {% block title %} {{ mobiuser.username }} profile{% endblock %}
 {% block header %}
 	{% if view == 'own' %}
@@ -187,7 +187,7 @@
 								{% if var.type == 1 or var.type == 3 %}
 								<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 									<span>
-										{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+										{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
 									</span>
 									<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
 									<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
@@ -239,7 +239,7 @@
 									{% if var.type == 2 or var.type == 3 %}
 									<li id="clinvar_watched_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 										<span>
-											{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+											{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
 										</span>
 										<span class="w3-right">
 											{{ fa('heart', w3_class='xlarge') }}
@@ -347,7 +347,7 @@
 					{% for var in variants %}
 						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 							<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
-								{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":c.%s - p.(%s)"|format(var.c_name, var.p_name) }}
+								{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
@@ -378,7 +378,7 @@
 		<div class="w3-button w3-blue w3-hover-light-blue w3-block">
 			<span class="w3-xlarge">You have not created a variant yet.</span>
 		</div>
-		{{ info("To create a variant, get the variant HGVS transcript nomenclature c. and visit a gene page. Then click on a 'create variant' button.") }}
+		{{ info("To create a variant, get the variant HGVS transcript nomenclature c. (or n. for a non coding gene) and visit a gene page. Then click on a 'create variant' button.") }}
 	</div>
 	{% endif %}
 	<br /><br /><br /><br />

@@ -2841,9 +2841,6 @@ def spip():
                 md_utilities.prepare_email_html(
                     'SPiP execution error',
                     '<p>SPiP error with variant id {0}</p>'.format(variant_id)
-                    .format(
-                        os.path.basename(__file__), e.args
-                    )
                 ),
                 '[MobiDetails - API Error]'
             )
@@ -2854,9 +2851,6 @@ def spip():
                 md_utilities.prepare_email_html(
                     'SPiP formatting error',
                     '<p>SPiP error with variant id {0}</p>'.format(variant_id)
-                    .format(
-                        os.path.basename(__file__), e.args
-                    )
                 ),
                 '[MobiDetails - API Error]'
             )
