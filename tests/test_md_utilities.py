@@ -1042,7 +1042,7 @@ def test_return_vv_validation_warnings(vv_data, return_warning):
 @pytest.mark.parametrize(('vv_api_hello_url', 'vv_api_url'), (
     ('https://www181.lamp.le.ac.uk/hello/?content-type=application/json', 'https://www181.lamp.le.ac.uk/'),
     ('http://restvv1.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv1.chu-montpellier.fr/'),
-    ('http://rvv.chu-montpellier.fr/hello/?content-type=application/json', 'http://rvv.chu-montpellier.fr/'),
+    # ('http://rvv.chu-montpellier.fr/hello/?content-type=application/json', 'http://rvv.chu-montpellier.fr/'),
     ('http://restvv2.chu-montpellier.fr/hello/?content-type=application/json', 'http://restvv2.chu-montpellier.fr/'),
     ('https://github.com', None),
     ('abcgcece', None),
@@ -1054,8 +1054,8 @@ def test_test_vv_api_url(app, vv_api_hello_url, vv_api_url):
 
 @pytest.mark.parametrize(('caller', 'vv_api_url'), (
     ('browser', 'http://restvv1.chu-montpellier.fr/'),
-    ('cli', 'http://rvv.chu-montpellier.fr/'),
-    ('nothing', 'http://rvv.chu-montpellier.fr/'),
+    ('cli', 'http://restvv2.chu-montpellier.fr/'),
+    ('nothing', 'http://restvv2.chu-montpellier.fr/'),
     (None, 'http://restvv1.chu-montpellier.fr/'),
 ))
 def test_get_vv_api_url(app, caller, vv_api_url):
