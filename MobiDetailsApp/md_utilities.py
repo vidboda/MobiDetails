@@ -1669,7 +1669,6 @@ def create_var_vv(
         elif caller == 'cli':
             return {'mobidetails_error':  error_text}
     # check again if variant exist for this transcript
-    print(re.sub(r'^[cn]\.', '', new_variant))
     curs.execute(
         """
         SELECT id, c_name AS nm

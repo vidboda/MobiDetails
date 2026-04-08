@@ -320,14 +320,14 @@
 						<tr>
 							<td class="w3-left-align">HGVS genomic (hg19):</td>
 							<td class="w3-left-align" id="hgvs_genomic_hg19_nom">chr{{ external_data.VCF.chr }}<span style="display:none;">(hg19)</span>:g.<span id="hg19_g_name">{{ internal_data.VCF.hg19.gName }}</span></td>
-							<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}</td>
+							<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;{{ signal_tag('w3-blue', 'MD') }}</td>
 							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_nom');$('#hgvs_genomic_hg19_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg19)</em></td>
 						</tr>
 						<!--HGVS genomic strict (hg19)-->
 						<tr>
 							<td class="w3-left-align">HGVS strict genomic (hg19):</td>
 							<td class="w3-left-align" id="hgvs_genomic_hg19_ncbi_nom">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</td>
-							<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;&nbsp;&nbsp;&nbsp;{{ signal_tag('w3-blue', 'MD') }}</td>
+							<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}</td>
 							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_ncbi_nom');$('#hgvs_genomic_hg19_ncbi_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_ncbi_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg19)</em></td>
 						</tr>
 						<!--pseudo VCF (hg19)-->
@@ -342,14 +342,14 @@
 					<tr>
 						<td class="w3-left-align">HGVS genomic (hg38):</td>
 						<td class="w3-left-align" id="hgvs_genomic_hg38_nom">chr{{ external_data.VCF.chr }}<span style="display:none;">(hg38)</span>:g.<span id="hg38_g_name">{{ internal_data.VCF.hg38.gName }}</span></td>
-						<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}</td>
+						<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;{{ signal_tag('w3-blue', 'MD') }}</td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg38_nom');$('#hgvs_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--HGVS genomic strict (hg38)-->
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
 						<td class="w3-left-align" id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
-						<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;&nbsp;&nbsp;&nbsp;{{ signal_tag('w3-blue', 'MD') }}</td>
+						<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}</td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_strict_genomic_hg38');$('#hgvs_strict_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_strict_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--pseudo VCF (hg38)-->
