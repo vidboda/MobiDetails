@@ -2721,7 +2721,6 @@ def autocomplete_var():
                 match_obj_nm:
             md_query = match_object.group(1)
             acc_no = match_obj_nm.group(1)
-            var_begin = '{0}.'.format(md_utilities.get_var_beginning(acc_no))
             db = get_db()
             curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
             curs.execute(
@@ -2739,7 +2738,7 @@ def autocomplete_var():
             res = curs.fetchall()
             result = []
             for var in res:
-                result.append('{0}.{1}'.format(var_begin, var[0]))
+                result.append('{0}.{1}'.format(md_utilities.get_var_beginning(acc_no), var[0]))
             # print(json.dumps(result))
             close_db()
             if result is not None:
