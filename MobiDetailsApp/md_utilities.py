@@ -822,6 +822,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
     spliceai_last_record = ''
     for record in records:
+        # print(record)
         # ReMM is chr1    216422351       0.902701
         # no further validation needed
         if text == 'ReMM':
@@ -935,11 +936,12 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
                     return record
-    if text == 'SpliceAI' and \
+    if text == 'spliceAI' and \
             spliceai_last_record != '':
         # we're here because we could not match spliceai gene_symbol and MD's
-        record = spliceai_last_record.append('spliceai_warning_gene_symbol_not_found')
-        return record
+        # spliceai_last_record.append('spliceai_warning_gene_symbol_not_found')
+        spliceai_last_record.append(spliceai_gene_symbol)
+        return spliceai_last_record
     if text == 'AbSplice':
         return 'No significant score in {}'.format(text)
     if record_list:

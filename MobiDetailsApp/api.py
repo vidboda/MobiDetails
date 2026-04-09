@@ -481,7 +481,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DS_AL_color': None,
             'spliceai_DS_DG_color': None,
             'spliceai_DS_DL_color': None,
-            'spliceai_warning': None,
+            # 'spliceai_warning': None,
+            'spliceai_gene_symbol': None,
             'abSpliceResults': None,
             'abSpliceMaxColor': None,
             'abspliceDNAHeader': [],
@@ -1540,7 +1541,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             # check if warning coming from spliceai and gene symbol conflict
                             if len(record) == 9:
                                 # warning
-                                internal_data['spliceai_warning'] = record[8]
+                                # internal_data['splicingPredictions']['spliceai_warning'] = record[8]
+                                internal_data['splicingPredictions']['spliceai_gene_symbol'] = record[8]
                             spliceais = re.split(r'\|', record[7])
                             # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
                             splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
