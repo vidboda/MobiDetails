@@ -3192,7 +3192,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                         '{0}.{1}'.format(
                             md_utilities.get_var_beginning(var_dict[gene]['RefSeq_NM']),
                             var_dict[gene]['new_variant']
-                        ),
+                        ) if vv_data['flag'] != 'intergenic' else None,
                         var_dict[gene]['new_variant'],
                         vv_data, caller, db, g
                     )

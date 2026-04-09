@@ -2494,20 +2494,21 @@ def create_var_vv_vcf_str(
         elif caller == 'cli':
             return {'mobidetails_error':  error_text}
     # check again if variant exist for this transcript
-    curs.execute(
-        """
-        SELECT id, c_name AS nm
-        FROM variant_feature
-        WHERE c_name = %s
-            AND refseq = %s
-        """,
-        (re.sub(r'^[cn]\.', '', new_variant), acc_no)
-        # (new_variant.replace("c.", ""), acc_no)
-    )
-    res = curs.fetchone()
-    if res is not None:
-        # now returns only id
-        return res['id']
+    if vv_key_var != 'intergenic_variant_1':
+        curs.execute(
+            """
+            SELECT id, c_name AS nm
+            FROM variant_feature
+            WHERE c_name = %s
+                AND refseq = %s
+            """,
+            (re.sub(r'^[cn]\.', '', new_variant), acc_no)
+            # (new_variant.replace("c.", ""), acc_no)
+        )
+        res = curs.fetchone()
+        if res is not None:
+            # now returns only id
+            return res['id']
     elif vv_key_var == 'intergenic_variant_1':
         # check if intergenic variant exists
         curs.execute(
@@ -2660,12 +2661,13 @@ def create_var_vv_vcf_str(
                 vf_d['prot_type'] = 'missense'
             else:
                 vf_d['prot_type'] = 'unknown'
+    elif vv_key_var != 'intergenic_variant_1' and \
+            re.search(r'^n\.', new_variant):
+        vf_d['p_name'] = 'NULL'
+        vf_d['prot_type'] = 'no protein'
     elif vv_key_var != 'intergenic_variant_1':
         vf_d['p_name'] = '?'
         vf_d['prot_type'] = 'unknown'
-    elif re.search(r'^n\.', new_variant):
-        vf_d['p_name'] = 'NULL'
-        vf_d['prot_type'] = 'no protein'
 
     # deal with +1,+2 etc
     vf_d['rna_type'] = 'neutral inferred'
