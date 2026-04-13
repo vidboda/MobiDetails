@@ -2893,7 +2893,6 @@ def spliceai_lookup():
                 'error' not in spliceai500:
             # print(spliceai500)
             for score in spliceai500['scores']:
-                # print(score)
                 if 't_refseq_ids' in score and \
                         score['t_refseq_ids']:
                     for t_refseq_ids in score['t_refseq_ids']:
@@ -2913,6 +2912,49 @@ def spliceai_lookup():
                                 score['DS_DL'],
                                 score['DP_DL']
                             )
+            # no results 2nd iteration on gene_symbol or ENST
+            db = get_db()
+            curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            curs.execute(
+                """
+                SELECT gene_symbol, enst
+                FROM gene
+                WHERE refseq = '{0}'
+                """.format(
+                    match_obj_transcript.group(1),
+                )
+            )
+            res = curs.fetchone()
+            if res:
+                for score in spliceai500['scores']:
+                    # print(score)
+                    if 'g_name' in score and \
+                            score['g_name'] == res['gene_symbol']:
+                        return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                            score['DS_AG'],
+                            score['DP_AG'],
+                            score['DS_AL'],
+                            score['DP_AL'],
+                            score['DS_DG'],
+                            score['DP_DG'],
+                            score['DS_DL'],
+                            score['DP_DL']
+                        )
+                    if 't_id' in score and \
+                            score['t_id']:
+                        enst = res['enst']
+                        for t_id in score['t_id']:
+                            if re.search(rf'{enst}', t_id):
+                                return '{0} ({1});{2} ({3});{4} ({5});{6} ({7})'.format(
+                                    score['DS_AG'],
+                                    score['DP_AG'],
+                                    score['DS_AL'],
+                                    score['DP_AL'],
+                                    score['DS_DG'],
+                                    score['DP_DG'],
+                                    score['DS_DL'],
+                                    score['DP_DL']
+                                )
         return """
         <span class="w3-padding">No results found for transcipt {} in spliceAI lookup API results</span>
         """.format(transcript)

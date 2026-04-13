@@ -359,7 +359,7 @@ def one2three_fct(var):
 
 
 def get_ncbi_chr_name(db, chr_name, genome):
-    # get NCBI chr names for common names
+    # get NCBI chr names from common names
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if is_valid_full_chr(chr_name):
         short_chr = get_short_chr_name(chr_name)
@@ -381,7 +381,7 @@ def get_ncbi_chr_name(db, chr_name, genome):
 
 
 def get_common_chr_name(db, ncbi_name):
-    # get common chr names for NCBI names
+    # get common chr names from NCBI names
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if is_valid_ncbi_chr(ncbi_name):
         curs.execute(
@@ -1998,12 +1998,12 @@ def create_var_vv(
             x = pos_vcf - 25
             y = pos_vcf + int(vf_d['variant_size']) + 25
         # endbugfix
-        genome = twobitreader.TwoBitFile(
+        genome_fasta = twobitreader.TwoBitFile(
             '{}.2bit'.format(
                 local_files['human_genome_{}'.format(genome)]['abs_path']
             )
         )
-        current_chrom = genome['chr{}'.format(hg38_d['chr'])]
+        current_chrom = genome_fasta['chr{}'.format(hg38_d['chr'])]
         seq_slice = current_chrom[x:y].upper()
         # seq2 = current_chrom[int(positions[0])+1:int(positions[0])+2]
         # return seq2

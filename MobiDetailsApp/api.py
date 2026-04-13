@@ -8,6 +8,7 @@ from markupsafe import escape
 import psycopg2
 import psycopg2.extras
 import json
+import twobitreader
 import urllib3
 import certifi
 import urllib.parse
@@ -2709,6 +2710,7 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
             md_response = {}
             hgvs_nc = []
             gene_symbols = []
+            # print(ncbi_api_data)
             # can_nm = None
             if 'error' in ncbi_api_data:
                 close_db()
@@ -2724,146 +2726,226 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                     return redirect(url_for('md.index'), code=302)
             if 'primary_snapshot_data' in ncbi_api_data and \
                     'placements_with_allele' in ncbi_api_data['primary_snapshot_data']:
+                # list to avoid duplicates queries i.e onoe for hg38 and a second for hg19
+                ref_alt = []
                 for seq_details in ncbi_api_data['primary_snapshot_data']['placements_with_allele']:
                     if 'alleles' in seq_details:
                         for seq_details2 in seq_details['alleles']:
+                            # build chr-pos-ref-alt
+                            ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
                             if 'hgvs' in seq_details2 and \
-                                    not re.search(r'=', seq_details2['hgvs']):
-                                hgvs = seq_details2['hgvs']
-                                # works for exonic variants because mutalyzer returns no NM for intronic variants
-                                variant_regexp = md_utilities.regexp['variant']
-                                ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
-                                # intronic variant?
-                                # we need HGVS genomic to launch the API but also the gene - got from NG
-                                # f-strings usage https://stackoverflow.com/questions/6930982/how-to-use-a-variable-inside-a-regular-expression
-                                # https://www.python.org/dev/peps/pep-0498/
-                                match_nc = re.search(rf'^({ncbi_chrom_regexp}):g\.({variant_regexp})$', hgvs)
-                                if match_nc:
-                                    # if hg38, we keep it in a variable that can be useful later
-                                    curs.execute(
-                                        """
-                                        SELECT name, genome_version
-                                        FROM chromosomes
-                                        WHERE ncbi_name = %s
-                                        """,
-                                        (match_nc.group(1),)
+                                    not re.search(r'=', seq_details2['hgvs']) and \
+                                    'allele' in seq_details2 and \
+                                    'spdi' in seq_details2['allele'] and \
+                                    re.search(rf'^{ncbi_chrom_regexp}:', seq_details2['hgvs']):
+                                if '{0}-{1}'.format(seq_details2['allele']['spdi']['deleted_sequence'], seq_details2['allele']['spdi']['inserted_sequence']) not in ref_alt:
+                                    chrom, genome_version = md_utilities.get_common_chr_name(db, seq_details2['allele']['spdi']['seq_id'])
+                                    # SPDI positions are 0-based
+                                    # if the spdi used returns alt = '' or ref = ''
+                                    # then we need to get the nt at position seq_details2['allele']['spdi']['position'] 0-based
+                                    # to build the VCF-like query
+                                    deleted_seq = seq_details2['allele']['spdi']['deleted_sequence']
+                                    inserted_seq = seq_details2['allele']['spdi']['inserted_sequence']
+                                    query_pos = int(seq_details2['allele']['spdi']['position'])
+                                    if deleted_seq == '' or \
+                                            inserted_seq == '':
+                                        genome_fasta = twobitreader.TwoBitFile(
+                                            '{}.2bit'.format(
+                                                md_utilities.local_files['human_genome_{}'.format(genome_version)]['abs_path']
+                                            )
+                                        )
+                                        current_chrom = genome_fasta['chr{}'.format(chrom)]
+                                        seq_slice = current_chrom[query_pos - 1:query_pos].upper()
+                                        deleted_seq = '{0}{1}'.format(seq_slice, deleted_seq)
+                                        inserted_seq = '{0}{1}'.format(seq_slice, inserted_seq)
+
+                                    if re.search(r'^[ACGT]+$', seq_details2['allele']['spdi']['deleted_sequence']) and \
+                                            re.search(r'^[ACGT]+$', seq_details2['allele']['spdi']['inserted_sequence']):
+                                        query_pos = query_pos + 1
+
+                                    md_query = '{0}-{1}-{2}-{3}'.format(
+                                        chrom,
+                                        query_pos,
+                                        deleted_seq,
+                                        inserted_seq
                                     )
-                                    res_chr = curs.fetchone()
-                                    if res_chr and \
-                                            res_chr['genome_version'] == 'hg38':
-                                        hgvs_nc.append(hgvs)
-                                        # look for gene symbol
-                                        positions = md_utilities.compute_start_end_pos(match_nc.group(2))
-                                        if not gene_symbols:
-                                            # we want gene symbols spanning the genomic position
-                                            # we need to hit mygene.info with shtg like:
-                                            # https://mygene.info/v3/query?q=chr1%3A216524862-216524862&fields=symbol&species=human
-                                            # to get
-                                            # {
-                                            #   "took": 21,
-                                            #   "total": 1,
-                                            #   "max_score": 8.792146,
-                                            #   "hits": [
-                                            #     {
-                                            #       "_id": "2104",
-                                            #       "_score": 8.792146,
-                                            #       "symbol": "ESRRG"
-                                            #     }
-                                            #   ]
-                                            # }
-                                            # and then check if the gene is available in MD
-                                            mygene_info_url = '{0}query?q=chr{1}:{2}-{3}&fields=symbol&species=human'.format(md_utilities.urls['mygene.info'], res_chr['name'], positions[0], positions[1])
-                                            try:
-                                                mygene_response = json.loads(
-                                                    http.request(
-                                                        'GET',
-                                                        mygene_info_url,
-                                                        headers=header
-                                                    ).data.decode('utf-8')
+                                    headers = md_utilities.api_agent
+                                    headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
+                                    data = {
+                                        'vcf_str': urllib.parse.quote(md_query),
+                                        'genome_version': genome_version,
+                                        'caller': 'cli',
+                                    }
+                                    md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_create_vcf_str'))
+                                    try:
+                                        tmp_response = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
+                                        for var in tmp_response:
+                                            if var == 'intergenic_variant_1':
+                                                md_response[md_query] = tmp_response[var]
+                                            else:
+                                                md_response[var] = tmp_response[var]
+                                    except Exception as e:
+                                        md_response[md_query] = {
+                                            'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, md_query)
+                                        }
+                                        md_utilities.send_error_email(
+                                            md_utilities.prepare_email_html(
+                                                'MobiDetails API error',
+                                                """
+                                                <p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3}</p>
+                                                """.format(
+                                                    rs_id,
+                                                    md_query,
+                                                    os.path.basename(__file__),
+                                                    e.args
                                                 )
-                                            except Exception as e:
-                                                close_db()
-                                                if caller == 'cli':
-                                                    return {'mobidetails_error': 'mygene.info API did not answer our query. We cannot map the dbSNP id {0}'}
-                                                else:
-                                                    md_utilities.send_error_email(
-                                                        md_utilities.prepare_email_html(
-                                                            'MobiDetails API error',
-                                                            """
-                                                            <p>mygene.info API did not answer the query dbsnp creation for {0} using
-                                                            url {1}<br /> - from {2} with args: {3}</p>
-                                                            """.format(
-                                                                rs_id,
-                                                                mygene_info_url,
-                                                                os.path.basename(__file__),
-                                                                e.args
-                                                            )
-                                                        ),
-                                                        '[MobiDetails - MDAPI Error]'
-                                                    )
-                                                    flash(
-                                                        """
-                                                        mygene.info API did not answer our query. We cannot map the dbSNP id {0}.
-                                                        An admin has been warned.
-                                                        """.format(rs_id),
-                                                        'w3-pale-red'
-                                                    )
-                                                    return redirect(url_for('md.index'), code=302)
-                                            if "hits" in mygene_response:
-                                                for hit in mygene_response['hits']:
-                                                    if 'symbol' in hit:
-                                                        # now we check if gene symbol can be foud in MD
-                                                        curs.execute(
-                                                            """
-                                                            SELECT gene_symbol
-                                                            FROM gene
-                                                            WHERE gene_symbol = %s
-                                                            """,
-                                                            (hit['symbol'],)
-                                                        )
-                                                        res_gene = curs.fetchone()
-                                                        if res_gene and \
-                                                                res_gene['gene_symbol'] == hit['symbol']:
-                                                            gene_symbols.append(hit['symbol'])
-                                else:
-                                    continue
-            # do we have an intronic variant?
-            if hgvs_nc and \
-                    gene_symbols:
-                md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
-                headers = md_utilities.api_agent
-                # headers['api_key'] = g.user['api_key']
-                # headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
-                for var_hgvs_nc in hgvs_nc:
-                    for gene_hgnc in gene_symbols:
-                        headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
-                        data = {
-                            'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
-                            'gene_hgnc': gene_hgnc,
-                            'caller': 'cli',
-                        }
-                        print(data)
-                        print(headers)
-                        try:
-                            md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
-                        except Exception as e:
-                            md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = {
-                                'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)
-                            }
-                            md_utilities.send_error_email(
-                                md_utilities.prepare_email_html(
-                                    'MobiDetails API error',
-                                    """
-                                    <p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3}</p>
-                                    """.format(
-                                        rs_id,
-                                        var_hgvs_nc,
-                                        os.path.basename(__file__),
-                                        e.args
+                                            ),
+                                            '[MobiDetails - MDAPI Error]'
+                                        )
+
+                                    ref_alt.append('{0}-{1}'.format(
+                                        seq_details2['allele']['spdi']['deleted_sequence'],
+                                        seq_details2['allele']['spdi']['inserted_sequence'])
                                     )
-                                ),
-                                '[MobiDetails - MDAPI Error]'
-                            )
+                                
+
+
+
+            # DEPRECATED 20260413
+            #                 if 'hgvso' in seq_details2 and \
+            #                         not re.search(r'=', seq_details2['hgvs']):
+            #                     hgvs = seq_details2['hgvs']
+            #                     # works for exonic variants because mutalyzer returns no NM for intronic variants
+            #                     variant_regexp = md_utilities.regexp['variant']
+            #                     ncbi_chrom_regexp = md_utilities.regexp['ncbi_chrom']
+            #                     # intronic variant?
+            #                     # we need HGVS genomic to launch the API but also the gene - got from NG
+            #                     match_nc = re.search(rf'^({ncbi_chrom_regexp}):g\.({variant_regexp})$', hgvs)
+            #                     if match_nc:
+            #                         # if hg38, we keep it in a variable that can be useful later
+            #                         curs.execute(
+            #                             """
+            #                             SELECT name, genome_version
+            #                             FROM chromosomes
+            #                             WHERE ncbi_name = %s
+            #                             """,
+            #                             (match_nc.group(1),)
+            #                         )
+            #                         res_chr = curs.fetchone()
+            #                         if res_chr and \
+            #                                 res_chr['genome_version'] == 'hg38':
+            #                             hgvs_nc.append(hgvs)
+            #                             # look for gene symbol
+            #                             positions = md_utilities.compute_start_end_pos(match_nc.group(2))
+            #                             if not gene_symbols:
+            #                                 # we want gene symbols spanning the genomic position
+            #                                 # we need to hit mygene.info with shtg like:
+            #                                 # https://mygene.info/v3/query?q=chr1%3A216524862-216524862&fields=symbol&species=human
+            #                                 # to get
+            #                                 # {
+            #                                 #   "took": 21,
+            #                                 #   "total": 1,
+            #                                 #   "max_score": 8.792146,
+            #                                 #   "hits": [
+            #                                 #     {
+            #                                 #       "_id": "2104",
+            #                                 #       "_score": 8.792146,
+            #                                 #       "symbol": "ESRRG"
+            #                                 #     }
+            #                                 #   ]
+            #                                 # }
+            #                                 # and then check if the gene is available in MD
+            #                                 mygene_info_url = '{0}query?q=chr{1}:{2}-{3}&fields=symbol&species=human'.format(md_utilities.urls['mygene.info'], res_chr['name'], positions[0], positions[1])
+            #                                 try:
+            #                                     mygene_response = json.loads(
+            #                                         http.request(
+            #                                             'GET',
+            #                                             mygene_info_url,
+            #                                             headers=header
+            #                                         ).data.decode('utf-8')
+            #                                     )
+            #                                 except Exception as e:
+            #                                     close_db()
+            #                                     if caller == 'cli':
+            #                                         return {'mobidetails_error': 'mygene.info API did not answer our query. We cannot map the dbSNP id {0}'}
+            #                                     else:
+            #                                         md_utilities.send_error_email(
+            #                                             md_utilities.prepare_email_html(
+            #                                                 'MobiDetails API error',
+            #                                                 """
+            #                                                 <p>mygene.info API did not answer the query dbsnp creation for {0} using
+            #                                                 url {1}<br /> - from {2} with args: {3}</p>
+            #                                                 """.format(
+            #                                                     rs_id,
+            #                                                     mygene_info_url,
+            #                                                     os.path.basename(__file__),
+            #                                                     e.args
+            #                                                 )
+            #                                             ),
+            #                                             '[MobiDetails - MDAPI Error]'
+            #                                         )
+            #                                         flash(
+            #                                             """
+            #                                             mygene.info API did not answer our query. We cannot map the dbSNP id {0}.
+            #                                             An admin has been warned.
+            #                                             """.format(rs_id),
+            #                                             'w3-pale-red'
+            #                                         )
+            #                                         return redirect(url_for('md.index'), code=302)
+            #                                 if "hits" in mygene_response:
+            #                                     for hit in mygene_response['hits']:
+            #                                         if 'symbol' in hit:
+            #                                             # now we check if gene symbol can be foud in MD
+            #                                             curs.execute(
+            #                                                 """
+            #                                                 SELECT gene_symbol
+            #                                                 FROM gene
+            #                                                 WHERE gene_symbol = %s
+            #                                                 """,
+            #                                                 (hit['symbol'],)
+            #                                             )
+            #                                             res_gene = curs.fetchone()
+            #                                             if res_gene and \
+            #                                                     res_gene['gene_symbol'] == hit['symbol']:
+            #                                                 gene_symbols.append(hit['symbol'])
+            #                     else:
+            #                         continue
+            # # do we have an intronic variant?
+            # if hgvs_nc and \
+            #         gene_symbols:
+            #     md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
+            #     headers = md_utilities.api_agent
+            #     for var_hgvs_nc in hgvs_nc:
+            #         for gene_hgnc in gene_symbols:
+            #             headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
+            #             data = {
+            #                 'variant_ghgvs': urllib.parse.quote(var_hgvs_nc),
+            #                 'gene_hgnc': gene_hgnc,
+            #                 'caller': 'cli',
+            #             }
+            #             # print(data)
+            #             # print(headers)
+            #             try:
+            #                 md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
+            #             except Exception as e:
+            #                 md_response['{0};{1}'.format(var_hgvs_nc, gene_hgnc)] = {
+            #                     'mobidetails_error': 'MobiDetails returned an unexpected error for your request {0}: {1}'.format(rs_id, var_hgvs_nc)
+            #                 }
+            #                 md_utilities.send_error_email(
+            #                     md_utilities.prepare_email_html(
+            #                         'MobiDetails API error',
+            #                         """
+            #                         <p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3}</p>
+            #                         """.format(
+            #                             rs_id,
+            #                             var_hgvs_nc,
+            #                             os.path.basename(__file__),
+            #                             e.args
+            #                         )
+            #                     ),
+            #                     '[MobiDetails - MDAPI Error]'
+            #                 )
+            # print(md_response)
             if md_response:
                 close_db()
                 if caller == 'cli':
@@ -2890,7 +2972,7 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
             else:
                 flash(
                     """
-                    Using <a href="https://www.mutalyzer.nl/snp-converter?rs_id=rs{0}", target="_blank">Mutalyzer</a>,
+                    Using the NCBI API,
                     we did not find any suitable variant corresponding to your request rs{0}
                     """.format(trunc_rs_id),
                     'w3-pale-red'
@@ -3123,6 +3205,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
             # look for gene acc #
             # print(vv_data)
             var_dict = {}
+            # print(vv_data)
             # intergenic variants
             if vv_data['flag'] == 'intergenic':
                 var_dict['intergenic'] = {
