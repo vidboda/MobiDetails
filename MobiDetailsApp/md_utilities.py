@@ -882,9 +882,16 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                 j = 4
                 ppos_list = re.split(';', record[j+9])
                 # print('{}-{}-{}-{}-{}-{}'.format(aa1, record[j], aa2, record[j+1], ppos, ppos_list))
-                if aa1 == record[j] and \
+                # dbNSFP is queried for non missense variants to get the eigen score
+                if 'aa1' in locals() and \
+                        'aa2' in locals() and \
+                        aa1 == record[j] and \
                         aa2 == record[j+1] and \
                         ppos in ppos_list:
+                    return record
+                elif not 'aa1' in locals() or \
+                        not 'aa2' in locals():
+                    # no further check possible
                     return record
                 return 'The dbNSFP entry does not match the amino-acid position. dnNSFP returns as possible amino-acid position for this variant {0}. dbNSFP'.format(ppos_list)
             elif text == 'MorfeeDB':
