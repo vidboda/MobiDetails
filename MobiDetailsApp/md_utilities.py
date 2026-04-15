@@ -3793,6 +3793,8 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
             with open('{0}{1}.txt'.format(local_files['spip']['abs_path'], variant_id), "w") as spip_out:
                 spip_out.write(spip_results['result'])
             return spip_results['result']
+        elif spip_results['error']:
+            return spip_results['error']
     return 'There has been an error while processing SPiP'
     # LOCAL execution of SPiP
     # tf = tempfile.NamedTemporaryFile(suffix='.txt')
@@ -3832,12 +3834,11 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
 
 def format_spip_result(result_spip, caller):
     spip_list = re.split('\n', result_spip)
-    # print(result_spip[0])
     try:
         headers_spip = re.split('\t', spip_list[0])
         scores_spip = re.split('\t', spip_list[1])
     except IndexError:
-        return 'There has been an error while processing SPiP'
+        return 'There has been an error while processing SPiP {0}'.format(spip_list)
     i = 0
     dict_spip = {}
     for header in headers_spip:

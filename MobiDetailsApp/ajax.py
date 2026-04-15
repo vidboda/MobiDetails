@@ -2835,7 +2835,7 @@ def spip():
                     spip_cache = 1
         if spip_cache == 0:
             result_spip = md_utilities.run_spip(gene_symbol, nm_acc, c_name, variant_id)
-        if result_spip == 'There has been an error while processing SPiP - An admin has been warned':
+        if result_spip == 'There has been an error while processing SPiP':
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'SPiP execution error',
