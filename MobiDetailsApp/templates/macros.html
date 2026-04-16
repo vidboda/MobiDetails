@@ -407,7 +407,7 @@
 {% endmacro %}
 {# returns c or n for hgvs descriptions #}
 {% macro hgvs_prefix(refseq) %}
-	{%- if refseq.startswith('NM_') -%}<span>c</span>{%- elif refseq.startswith('NR_') -%}<span>n</span>{%- endif -%}
+	{%- if refseq.startswith('NM_') -%}c{%- elif refseq.startswith('NR_') -%}n{%- endif -%}
 {% endmacro %}
 {# for VV and LOVD tags #}
 {%- macro signal_tag(color, text) -%}

@@ -600,10 +600,15 @@ def profile(mobiuser_id=0):
             curs.execute(
                 """
                 SELECT a.id, a.c_name, a.gene_symbol, a.refseq,
-                    a.p_name, a.creation_date, b.mobiuser_id, b.type
+                    a.p_name, a.creation_date, b.mobiuser_id, b.type,
+                    c.chr, c.g_name
                 FROM variant_feature a
-                LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
+                LEFT JOIN mobiuser_favourite b
+                    ON a.id = b.feature_id
+                LEFt JOIN variant c
+                    ON a.id = c.feature_id
                 WHERE a.creation_user = %s
+                    AND c.genome_version = 'hg38'
                 ORDER BY a.creation_date DESC
                 """,
                 (g.user['id'],)
@@ -627,10 +632,15 @@ def profile(mobiuser_id=0):
             curs.execute(
                 """
                 SELECT a.id, a.c_name, a.ng_name, a.gene_symbol,
-                    a.refseq, a.p_name, b.type
+                    a.refseq, a.p_name, b.type,
+                    c.chr, c.g_name
                 FROM variant_feature a
-                LEFT JOIN mobiuser_favourite b ON a.id = b.feature_id
+                LEFT JOIN mobiuser_favourite b
+                    ON a.id = b.feature_id
+                LEFt JOIN variant c
+                    ON a.id = c.feature_id
                 WHERE b.mobiuser_id = %s
+                    AND c.genome_version = 'hg38'
                 ORDER BY a.gene_symbol, a.ng_name
                 """,
                 (g.user['id'],)
@@ -984,9 +994,16 @@ def variant_list(list_name):
             # print(res_ids_string)
             curs.execute(
                 """
-                SELECT a.id, a.c_name, a.p_name, a.gene_symbol, a.refseq, a.creation_user, a.creation_date, b.username
-                FROM variant_feature a, mobiuser b
-                WHERE  a.creation_user = b.id AND a.id IN {0}
+                SELECT a.id, a.c_name, a.p_name, a.gene_symbol, 
+                a.refseq, a.creation_user, a.creation_date,
+                b.username, a.chr, c.g_name, c.genome_version
+                FROM variant_feature a
+                LEFT JOIN mobiuser b
+                    ON a.creation_user = b.id
+                LEFT JOIN variant c
+                    ON a.id = c.feature_id
+                WHERE a.id IN {0}
+                    AND c.genome_version = 'hg38'
                 """.format(res_ids_string)
             )
             variants = curs.fetchall()

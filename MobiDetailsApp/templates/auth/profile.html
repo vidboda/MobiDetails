@@ -187,7 +187,11 @@
 								{% if var.type == 1 or var.type == 3 %}
 								<li id="favourite_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 									<span>
+										{% if var.refseq %}
 										{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
+										{% else %}
+										hg38:chr{{ var.chr }}:g.{{ var.g_name }} (intergenic variant)
+										{% endif %}
 									</span>
 									<!-- in case you want to unmark from there - but js favourite fn must be adapted -->
 									<!-- <span id="favour_span_{{ var.id }}" name="unmark" title="Unmark the variant" onclick="favourite('{{ var.id }}', '{{ url_for('ajax.favourite') }}', '{{ csrf_token() }}');" class="w3-right var_li">
@@ -239,7 +243,11 @@
 									{% if var.type == 2 or var.type == 3 %}
 									<li id="clinvar_watched_li_{{ var.id }}" class="w3-padding-large w3-large w3-light-grey w3-hover-blue var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
 										<span>
+											{% if var.refseq %}
 											{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
+											{% else %}
+											hg38:chr{{ var.chr }}:g.{{ var.g_name }} (intergenic variant)
+											{% endif %}
 										</span>
 										<span class="w3-right">
 											{{ fa('heart', w3_class='xlarge') }}
@@ -347,7 +355,11 @@
 					{% for var in variants %}
 						<li class="w3-padding-large w3-large w3-light-grey w3-hover-blue">
 							<span class="var_li" onclick="window.open('{{ url_for('api.variant', variant_id=var.id, caller='browser') }}')" title="Visit the variant page">
+								{% if var.refseq %}
 								{{ var.refseq }}(<em>{{ var.gene_symbol }}</em>){{ ":%s.%s - p.(%s)"|format(hgvs_prefix(var.refseq), var.c_name, var.p_name) }}
+								{% else %}
+								{{ var.chr }}:g.{{ var.g_name }}
+								{% endif %}
 							</span>
 							<span class="w3-right">
 								{{ var.creation_date }}
