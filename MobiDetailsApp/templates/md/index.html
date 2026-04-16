@@ -31,12 +31,12 @@
 	</div> -->
 	
 	<div class="w3-center" style="margin: 64px 0 64px 0;">
-		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form_index" onsubmit="show_loader();" >
+		<form method="post" action="{{ url_for('md.search_engine') }}" enctype="application/x-www-form-urlencoded" id="search_form_index" onsubmit="return check_search_engine_submission('engine_index');show_loader();" >
 			<div class="w3-content w3-padding" style="width:620px; max-width:100%">
 				<div class="w3-row" style="padding-left:16px"><span class="w3-text-deep-orange w3-hover-text-blue" style="cursor:pointer" onclick="open_help_engine()"><i class="fa fa-question-circle"></i> Search engine</span></div>
 				<div class="w3-border" style="border-radius:8px;display:flex;flex-direction:row;padding:0px;">
 					<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-					<input class="engine w3-input w3-border-0" type="text" name="search" id="engine_index" placeholder="Ask Mobidetails" style="border-radius:8px 0px 0px 8px;">
+					<input class="engine w3-input w3-border-0" type="text" name="search" id="engine_index" placeholder="Ask Mobidetails" style="border-radius:8px 0px 0px 8px;"/>
 					<button onclick="$('#search_form_index').submit();" class="submit_search w3-border-0 w3-blue w3-hover-gray" style="border-radius:0px 8px 8px 0px;cursor:pointer"><i class="fa fa-search"></i> Search</button>
 				</div>
 			</div>

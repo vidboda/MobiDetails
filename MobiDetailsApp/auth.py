@@ -379,16 +379,17 @@ def login():
             (email,)
         )
         user = curs.fetchone()
-        if user is None:
-            error = 'Unknown email.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+        if user is None or \
+                not check_password_hash(user['password'], password):
+            error = 'Unknown login and/or incorrect password.'
+        # elif not check_password_hash(user['password'], password):
+        #     error = 'Incorrect password.'
         elif user['activated'] is False:
             error = """
-            This account is not activated.
-            An email to activate your account
-            has been sent to {}
-            """.format(user['email'])
+            If this account exists, 
+            an email to activate it
+            has been sent.
+            """
             # message, mail_object, receiver
             md_utilities.send_email(
                 md_utilities.prepare_email_html(
@@ -585,8 +586,7 @@ def profile(mobiuser_id=0):
             md_utilities.send_error_email(
                 md_utilities.prepare_email_html(
                     'MobiDetails error',
-                    '<p>Bad profile attempt username: from id: {0} file: {1}\
-</p>'.format(
+                    '<p>Bad profile attempt username: from id: {0} file: {1}</p>'.format(
                         g.user['id'],
                         os.path.basename(__file__)
                     )
@@ -779,46 +779,47 @@ def forgot_pass():
                 (email,)
             )
             user = curs.fetchone()
-            if user is None:
-                close_db()
-                error = """
-                Your email address {} seems to be unknown by the system.
-                """.format(email)
-                flash(error, 'w3-pale-red')
-                return render_template('auth/forgot_pass.html')
+            # if user is None:
+            #     close_db()
+            #     error = """
+            #     Your email address {} seems to be unknown by the system.
+            #     """.format(email)
+            #     flash(error, 'w3-pale-red')
+            #     return render_template('auth/forgot_pass.html')
             # message, mail_object, receiver
-            md_utilities.send_email(
-                md_utilities.prepare_email_html(
-                    'MobiDetails - Reset your password',
-                    """
-                    Dear {0},
-                    <p>please follow the link below to reset your MobiDetails password:</p>
-                    <p><a href="{1}{2}" title="Reset your MD password">
-                    Reset your MD password</a></p>
-                    <p>If you do not know why you receive this email,
-                    do not follow the link and please alert
-                    {3}.</p><br />
-                    """.format(
-                        user['username'],
-                        request.host_url.rstrip('/'),
-                        url_for(
-                            'auth.reset_password',
-                            mobiuser_id=user['id'],
-                            api_key=user['api_key'],
-                            ts=datetime.timestamp(datetime.now())
+            if user:
+                md_utilities.send_email(
+                    md_utilities.prepare_email_html(
+                        'MobiDetails - Reset your password',
+                        """
+                        Dear {0},
+                        <p>please follow the link below to reset your MobiDetails password:</p>
+                        <p><a href="{1}{2}" title="Reset your MD password">
+                        Reset your MD password</a></p>
+                        <p>If you do not know why you receive this email,
+                        do not follow the link and please alert
+                        {3}.</p><br />
+                        """.format(
+                            user['username'],
+                            request.host_url.rstrip('/'),
+                            url_for(
+                                'auth.reset_password',
+                                mobiuser_id=user['id'],
+                                api_key=user['api_key'],
+                                ts=datetime.timestamp(datetime.now())
+                            ),
+                            app.config["MAIL_USERNAME"]
                         ),
-                        app.config["MAIL_USERNAME"]
+                        False
                     ),
-                    False
-                ),
-                '[MobiDetails - Password reset]',
-                [email]
-            )
+                    '[MobiDetails - Password reset]',
+                    [email]
+                )
             flash(
                 """
-                Please check your e-mail inbox.
-                You should have received a message with a link
-                to reset your password
+                If this account exists, 
+                an email to reset the password
+                has been sent.
                 """
                 , 'w3-pale-green'
             )

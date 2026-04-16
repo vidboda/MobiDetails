@@ -744,7 +744,7 @@ def search_engine():
             pattern = md_utilities.clean_var_name(query_engine)
         elif re.search(r'^[cC]\..+', query_engine):  # c. dna vars
             query_type = 'c_name'
-            print(md_utilities.clean_var_name(query_engine))
+            # print(md_utilities.clean_var_name(query_engine))
             pattern = md_utilities.clean_var_name(query_engine)
         elif re.search(r'^%\d+$', query_engine):  # only numbers: get matching variants (exact position match) - specific query
             match_obj = re.search(r'^%(\d+)$', query_engine)

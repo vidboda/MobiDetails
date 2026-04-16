@@ -5,6 +5,18 @@ function show_loader() {
 	if ($('header').length) {$('header').hide();}
 }
 
+// for bottom search engine
+function check_search_engine_submission(engine_id) {
+	var re = /[<{}#~\|&$]/;
+	if ($('#' + engine_id).val() === '') {return false;}
+	else if (re.test($('#' + engine_id).val()) === true) {
+	// else if ($('#' + engine_id).val().startsWith('<')) {
+		$('#' + engine_id).val('');
+		return false;
+	}
+}
+
+
 document.onreadystatechange = function() {
   if (document.readyState !== "complete") {
 		$('#loader').show();
