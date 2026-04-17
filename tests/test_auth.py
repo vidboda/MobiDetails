@@ -70,8 +70,8 @@ def test_register_validate_input(client, app, username, institute, password, ema
 
 
 @pytest.mark.parametrize(('email', 'password', 'message'), (
-    ('1', 's', b'Unknown email.'),
-    ('david.baux@inserm.fr', 'r', b'Incorrect password.'),
+    ('1', 's', b'Unknown login and/or incorrect password.'),
+    ('david.baux@inserm.fr', 'r', b'Unknown login and/or incorrect password.'),
 ))
 def test_login_validate_input(client, app, email, password, message):
     with app.app_context():
@@ -128,8 +128,8 @@ def test_logout(client, app):
 @pytest.mark.parametrize(('mobiuser_email', 'message'), (
     ('david.bauxinserm.fr', b'The email address does not look valid.'),
     ('david@insermfr', b'The email address does not look valid.'),
-    ('david@inserm.fr', b'seems to be unknown by the system.'),
-    ('david.baux@inserm.fr', b'Please check your e-mail inbox'),
+    ('david@inserm.fr', b'If this account exists,'),
+    ('david.baux@inserm.fr', b'If this account exists,'),
 ))
 def test_forgot_pass(client, app, mobiuser_email, message):
     with app.app_context():
