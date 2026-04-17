@@ -182,6 +182,7 @@ caddPhredThresholds:
   'panelapp_api': 'https://panelapp.genomicsengland.co.uk/api/v1/'
   'phylop_primates': ''
   'pdb': 'https://www.rcsb.org'
+  'prot_orthologues': 'https://prot-orthologues.fr'
   'pph2': 'http://genetics.bwh.harvard.edu/pph2/'
   'popeve': 'https://pop.evemodel.org'
   'pubmatcher': 'https://www.pubmatcher.fr'
