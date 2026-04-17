@@ -996,7 +996,7 @@ def variant_list(list_name):
                 """
                 SELECT a.id, a.c_name, a.p_name, a.gene_symbol, 
                 a.refseq, a.creation_user, a.creation_date,
-                b.username, a.chr, c.g_name, c.genome_version
+                b.username, c.chr, c.g_name, c.genome_version
                 FROM variant_feature a
                 LEFT JOIN mobiuser b
                     ON a.creation_user = b.id
