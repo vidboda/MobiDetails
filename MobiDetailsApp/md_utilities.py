@@ -3618,6 +3618,7 @@ def check_api_key(db, api_key=None):  # in api
     curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if api_key:        
         if len(api_key) != 43:
+            print(api_key)
             return {'mobidetails_error': 'Invalid API key'}
         else:
             api_match = re.search('^([\w-]+)$', api_key)
@@ -3717,10 +3718,10 @@ def get_post_param(request, param):
     # while
     # urllib3 request from create_vars_batch.py sends request.form
     if param:
-        if request.args.get('{}'.format(param)):
-            return request.args.get('{}'.format(param))
-        elif '{}'.format(param) in request.form:
-            return request.form['{}'.format(param)]
+        if request.args.get(param):
+            return request.args.get(param)
+        elif param in request.form:
+            return request.form[param]
     return None
 
 

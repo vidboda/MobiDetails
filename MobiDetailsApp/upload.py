@@ -61,8 +61,6 @@ def file_upload():
                 db = get_db()
                 curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-                # headers
-                header = md_utilities.api_agent
                 result = []
                 api_key = md_utilities.get_api_key(curs)
                 if api_key is None:
@@ -70,6 +68,8 @@ def file_upload():
                     close_db()
                     return render_template('upload/upload_form.html')
                     # return redirect(request.url)
+                # headers
+                headers = md_utilities.api_agent
                 # we need to check the format and send a proper query to the API
                 for line in lines:
                     # print('-{}-'.format(line))
@@ -96,8 +96,7 @@ def file_upload():
                         if res_gene:
                             # send var to api
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create'))
-                            # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
-                            # print(md_api_url)
+                            headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
                             data = {
                                 'variant_chgvs': urllib.parse.quote(
                                     '{0}:{1}'.format(
@@ -106,7 +105,7 @@ def file_upload():
                                     )
                                 ),
                                 'caller': 'cli',
-                                'api_key': api_key
+                                # 'api_key': api_key
                             }
                             # print(header)
                             # print(data)
@@ -115,7 +114,7 @@ def file_upload():
                                     http.request(
                                         'POST',
                                         md_api_url,
-                                        headers=header,
+                                        headers=headers,
                                         fields=data
                                     ).data.decode('utf-8')
                                 )
@@ -149,19 +148,20 @@ def file_upload():
                         if res_gene:
                             # send var to api
                             md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_g_create'))
+                            headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
                             # print(md_api_url)
                             data = {
                                 'variant_ghgvs': urllib.parse.quote(match_obj_g.group(1)),
                                 'gene_hgnc': match_obj_g.group(2),
                                 'caller': 'cli',
-                                'api_key': api_key
+                                # 'api_key': api_key
                             }
                             try:
                                 md_response = json.loads(
                                     http.request(
                                         'POST',
                                         md_api_url,
-                                        headers=header,
+                                        headers=headers,
                                         fields=data
                                     ).data.decode('utf-8')
                                 )
@@ -184,19 +184,18 @@ def file_upload():
                         continue
                     if re.search(r'^rs\d+$', line):
                         md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_variant_create_rs'))
-                        # md_api_url = '{0}/api/variant/create'.format(md_api_base_url)
-                        # print(md_api_url)
+                        headers['Authorization'] = 'Bearer {0}'.format(md_utilities.get_api_key(curs))
                         data = {
                             'rs_id': line,
                             'caller': 'cli',
-                            'api_key': api_key
+                            # 'api_key': api_key
                         }
                         try:
                             md_response = json.loads(
                                 http.request(
                                     'POST',
                                     md_api_url,
-                                    headers=header,
+                                    headers=headers,
                                     fields=data
                                 ).data.decode('utf-8')
                             )

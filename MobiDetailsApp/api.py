@@ -2075,7 +2075,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         http.request(
                             'GET',
                             vv_url,
-                            headers=header
+                            headers=vv_header
                         ).data.decode('utf-8')
                     )
                     # print(vv_header)
