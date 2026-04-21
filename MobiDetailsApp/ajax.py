@@ -729,60 +729,61 @@ def spliceaivisual():
                     response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header, position_file_basename, transcript_file_basename)
                 else:
                     # build new bedgraph from scratch
-                    return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
-                    # # get sequence and send it to the spliceai-visual server
-                    # genome = twobitreader.TwoBitFile(
-                    #     '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
-                    # )
-                    # current_chrom = genome['chr{}'.format(chrom)]
-                    # seq_slice = current_chrom[start_g:end_g].upper()
-                    # if spliceai_strand == 'minus':
-                    #     seq_slice = md_utilities.reverse_complement(seq_slice).upper()
-                    # try:
-                    #     req_results = requests.post(
-                    #         '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
-                    #         json={'mt_seq': seq_slice},
-                    #         headers={'Content-Type': 'application/json'}
-                    #     )
-                    # except requests.exceptions.ConnectionError:
-                    #     return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
-                    # if req_results.status_code == 200:
-                    #     # then build raw .txt.gz file
-                    #     spliceai_results = json.loads(req_results.content)
-                    #     # print(spliceai_results)
-                    #     with open(
-                    #         '{0}.txt.gz'.format(transcript_file_basename),
-                    #         'wb'
-                    #     ) as sai_raw_file:
-                    #         # print(spliceai_results['result']['mt_acceptor_scores'])
-                    #         sai_file_data = "chrom\tposition_hg38\twt_nucleotide\twt_acceptor_site_proba\twt_donor_site_proba"
-                    #         if spliceai_strand == 'plus':
-                    #             for i in range(1, len(spliceai_results['result']['mt_acceptor_scores'])):
-                    #                 g_pos = start_g + i - 2
-                    #                 sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
-                    #                     sai_file_data,
-                    #                     chrom,
-                    #                     g_pos,
-                    #                     spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
-                    #                     spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
-                    #                     spliceai_results['result']['mt_donor_scores'][str(i)][1]
-                    #                 )
-                    #         else:
-                    #             for i in range(len(spliceai_results['result']['mt_acceptor_scores']), 1, -1):
-                    #                 g_pos = start_g + (len(spliceai_results['result']['mt_acceptor_scores']) - i) + 1
-                    #                 sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
-                    #                     sai_file_data,
-                    #                     chrom,
-                    #                     g_pos,
-                    #                     spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
-                    #                     spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
-                    #                     spliceai_results['result']['mt_donor_scores'][str(i)][1]
-                    #                 )
-                    #         with bgzip.BGZipWriter(sai_raw_file) as bgzip_fh:
-                    #             bgzip_fh.write(bytes(sai_file_data, encoding='ascii'))
-                    # else:
-                    #     return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
-                        
+                    # return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
+                    # get sequence and send it to the spliceai-visual server
+                    genome = twobitreader.TwoBitFile(
+                        '{}.2bit'.format(md_utilities.local_files['human_genome_hg38']['abs_path'])
+                    )
+                    current_chrom = genome['chr{}'.format(chrom)]
+                    seq_slice = current_chrom[start_g:end_g].upper()
+                    if spliceai_strand == 'minus':
+                        seq_slice = md_utilities.reverse_complement(seq_slice).upper()
+                    try:
+                        req_results = requests.post(
+                            '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
+                            json={'mt_seq': seq_slice},
+                            headers={'Content-Type': 'application/json'}
+                        )
+                    except requests.exceptions.ConnectionError:
+                        return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
+                    if req_results.status_code == 200:
+                        # then build raw .txt.gz file
+                        spliceai_results = json.loads(req_results.content)
+                        # print(spliceai_results)
+                        with open(
+                            '{0}.txt.gz'.format(transcript_file_basename),
+                            'wb'
+                        ) as sai_raw_file:
+                            # print(spliceai_results['result']['mt_acceptor_scores'])
+                            sai_file_data = "chrom\tposition_hg38\twt_nucleotide\twt_acceptor_site_proba\twt_donor_site_proba"
+                            if spliceai_strand == 'plus':
+                                for i in range(1, len(spliceai_results['result']['mt_acceptor_scores'])):
+                                    g_pos = start_g + i
+                                    sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
+                                        sai_file_data,
+                                        chrom,
+                                        g_pos,
+                                        spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
+                                        spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
+                                        spliceai_results['result']['mt_donor_scores'][str(i)][1]
+                                    )
+                            else:
+                                for i in range(len(spliceai_results['result']['mt_acceptor_scores']), 1, -1):
+                                    g_pos = start_g + (len(spliceai_results['result']['mt_acceptor_scores']) - i) + 1
+                                    sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
+                                        sai_file_data,
+                                        chrom,
+                                        g_pos,
+                                        spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
+                                        spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
+                                        spliceai_results['result']['mt_donor_scores'][str(i)][1]
+                                    )
+                            with bgzip.BGZipWriter(sai_raw_file) as bgzip_fh:
+                                bgzip_fh.write(bytes(sai_file_data, encoding='ascii'))
+                        # build new bedgraph.gz from .txt.gz
+                        response = md_utilities.build_compress_bedgraph_from_raw_spliceai(chrom, header, transcript_file_basename)
+                    else:
+                        return '<p style="color:red">SpliceAI-visual is currently not available for this transcript.</p>'
 
         # files paths
         variant_file_basename = '{0}/variants/'.format(

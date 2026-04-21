@@ -1365,7 +1365,7 @@
 					</script>
 				</div>
 			{% endif %}
-			{% if external_data.positions.proteinType != "no protein" %}
+			{# {% if external_data.positions.proteinType != "no protein" %} #}
 			<!--spliceaivisual in igv.js-->
 			<br />
 			{{ section_subtitle('spliceai_visual_subtitle', 'SpliceAI-visual results') }}
@@ -1378,7 +1378,7 @@
 				<div id="igv_div">
 				</div>
 				<br />
-			{% endif %}
+			{# {% endif %} #}
 		</div>
 		<!-- Section : miRNA target sites predictions -->
 		{% if external_data.positions.DNAType == 'substitution' and internal_data.noMatch.dbmts is none and external_data.miRNATargetSitesPredictions.mirandaCategory is not none %}
@@ -2391,9 +2391,9 @@
 				{% endif %}
 				genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 				run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
-				{% if external_data.positions.proteinType != "no protein" %}
+				{# {% if external_data.positions.proteinType != "no protein" %} #}
 					spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
-				{% endif %}
+				{# {% endif %} #}
 			{% endif %}
 			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown' or external_data.positions.proteinType == 'no protein')  and external_data.positions.DNAType == 'substitution' and (external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50)) %}
 				mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
