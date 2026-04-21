@@ -1758,8 +1758,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
                 external_data['nomenclatures']['hg19PseudoVCF'] = '{0}-{1}-{2}-{3}'.format(var['chr'], var['pos'], var['pos_ref'], var['pos_alt'])
                 external_data['nomenclatures']['hg19StrictgName'] = '{0}:g.{1}'.format(res_chr['ncbi_name'], var['g_name'])
                 external_data['nomenclatures']['hg19gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
-                if var_type == 'genic':
-                    # if no REVEL score in hg38 (REVEL hg38 were obtained by liftover, https://sites.google.com/site/revelgenomics/downloads)
+                if var_type == 'genic' and \
+                        variant_features['prot_type'] == 'missense':
+                    # if no REVEL score in hg38 (REVEL hg38 scores were obtained by liftover, https://sites.google.com/site/revelgenomics/downloads)
                     # then try to retrieve in hg19
                     if academic is True:
                         if not isinstance(external_data['missensePredictions']['revelScore'], float):
