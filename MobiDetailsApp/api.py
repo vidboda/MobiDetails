@@ -1888,7 +1888,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             external_data['overallPredictions']['mpaScore'], 'mpa_mid', 'mpa_max'
         )
     if caller != 'browser':
-        if caller == 'clispip':
+        if caller == 'clispip' and\
+            var_type == 'genic':
             # we run spip here
             # spip_cache = 0
             result_spip = ''
