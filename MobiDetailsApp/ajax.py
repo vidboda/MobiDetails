@@ -208,7 +208,7 @@ NOMENCLATURE_HGVS;LOCALISATION;SEQUENCE_REF;LOCUS;ALLELE1;ALLELE2\r\n"
             if vf['dbsnp_id']:
                 rsid = 'rs{0}'.format(vf['dbsnp_id'])
             file_content += "{0};{1}:{2}.{3};;;;p.{4};{2}.{3};{5};{1};{6};\
-;;;{7};;{8};;chr{9};{9};chr{10}:g.{11};{12} {13};;;;\r\n".format(
+;;;{7};;{8};;chr{9};{10};chr{9}:g.{11};{12} {13};;;;\r\n".format(
                 vf['gene_symbol'], vf['refseq'],
                 md_utilities.get_var_beginning(vf['refseq']),
                 vf['c_name'], vf['p_name'], vf['enst'], vf['pos'],
