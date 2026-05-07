@@ -120,6 +120,9 @@ local_files['dbsnp']['abs_path'] = '{0}{1}'.format(
 local_files['episignature']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['episignature']['rel_path']
 )
+local_files['exons_enhancers']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['exons_enhancers']['rel_path']
+)
 local_files['frog_gene_list']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['frog_gene_list']['rel_path']
 )
@@ -4265,3 +4268,36 @@ def is_coding_gene(db, gene_symbol, gene_info=None):
             return True
     return False
 
+def check_position_in_bed(bed_file_path, chrom, pos_1_indexed, strand):
+    """
+    Check if a position is included in a bed file
+    Returns True if so, otherwise false
+    """
+    # convert pos to pos -1 for bed
+    pos_0_indexed =int(pos_1_indexed) - 1
+
+    try:
+        with open(bed_file_path, 'r') as f:
+            for line in f:
+                if line.startswith('#') or not line.strip():
+                    continue
+                
+                parts = line.strip().split('\t')
+                if len(parts) < 3:
+                    continue
+                
+                bed_chrom = parts[0]
+                bed_start = int(parts[1])
+                bed_end = int(parts[2])
+                bed_strand = parts[5]
+                
+                # Vérification du chromosome et de l'intervalle
+                if bed_chrom == 'chr{0}'.format(chrom):
+                    # Logique BED : start inclus, end exclus
+                    if bed_start <= pos_0_indexed < bed_end and \
+                        bed_strand == strand:
+                            return True
+        return False
+    except FileNotFoundError:
+        print(f"Fichier {bed_file_path} non trouvé.")
+        return False

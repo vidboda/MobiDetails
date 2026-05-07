@@ -87,7 +87,8 @@ def changelog():
     return render_template(
         'md/changelog.html',
         run_mode=md_utilities.get_running_mode(),
-        urls=md_utilities.urls
+        urls=md_utilities.urls,
+        external_tools=md_utilities.external_tools
     )
 
 # -------------------------------------------------------------------

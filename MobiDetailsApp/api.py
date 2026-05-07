@@ -290,6 +290,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'metaDomeTolerance': None,
             'metaDomeTranscriptId': None,
             'variantLocation': None,
+            'exonicEnhancer': None,
         },
         'admin': {
             'creationDate': None,
@@ -737,6 +738,12 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     res_chr['ncbi_name'], var['g_name']
                 )
                 external_data['nomenclatures']['hg38gName'] = 'chr{0}:g.{1}'.format(var['chr'], var['g_name'])
+                external_data['positions']['exonicEnhancer'] = md_utilities.check_position_in_bed(
+                    md_utilities.local_files['exons_enhancers']['abs_path'],
+                    external_data['gene']['chromosome'],
+                    external_data['VCF']['hg38']['pos'],
+                    external_data['gene']['strand']
+                )
                 if var_type == 'genic':
                     # same variant mapped on other isoforms
                     curs.execute(

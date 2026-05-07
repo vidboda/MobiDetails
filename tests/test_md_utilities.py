@@ -1594,7 +1594,17 @@ def test_is_coding_gene(app, gene_symbol, gene_info, is_coding):
         assert md_utilities.is_coding_gene(db, gene_symbol, gene_info) == is_coding
         db_pool.putconn(db)
     
-
+@pytest.mark.parametrize(('chromosome', 'position', 'strand', 'is_inbed'), (
+    ('chr1', '963110', '+', False),
+    ('chr1', '963110', '-', False),
+    ('chr1', 963110, '+', False),
+    ('1', '963110', '+', True),
+    ('1', 963110, '+', True),
+    ('1', '963110', '-', False),
+    ('1', 963108, '+', False)
+))
+def test_check_position_in_bed(chromosome, position, strand, is_inbed):
+    assert md_utilities.check_position_in_bed(md_utilities.local_files['exons_enhancers']['abs_path'], chromosome, position, strand) == is_inbed
 
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (

@@ -408,10 +408,14 @@
 						<tr><!--Position in transcript-->
 							<td class="w3-left-align">Position in transcript:</td>
 							{% if external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
-							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}</td>
+							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}
 							{% else %}
-							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}</td>
+							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}
 							{% endif %}
+							{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.exonicEnhancer %}
+								{{ signal_tag('w3-orange', 'ExonicEnhancer*') }}
+							{% endif %}
+							</td>
 							<td class="w3-left-align"><em class="w3-small">Exon/intron position in {{ external_data.gene.RefSeqTranscript }}</em></td>
 						</tr><!--position in exon  and internal_data.nomenclatures.cName|match('^[^\*-]')-->
 						{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
@@ -471,6 +475,9 @@
 					</tr>
 				</tbody>
 			</table><br /><br />
+			{% if external_data.positions.segmentStartType == 'exon' and external_data.positions.exonicEnhancer %}
+				{{ content('* as defined in <a href="{0}" target="_blank">{1} et al., {2}</a>').format(external_tools.Exons_Enhancers.paper, external_tools.Exons_Enhancers.firstauthor, external_tools.Exons_Enhancers.year) }}
+			{% endif %}
 		</div>
 		{# {% endif %}
 		{% if internal_data.nomenclatures.cName is none %}
