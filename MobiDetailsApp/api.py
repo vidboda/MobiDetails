@@ -432,6 +432,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'transcript_road_signs': None,
             'apiKey': api_key
         },
+        'gene': {
+            'inCanvar': False
+        },
         'nomenclatures': {
             'cName': None,
             'pName': None,
@@ -652,6 +655,9 @@ def variant(variant_id=None, caller='browser', api_key=None):
             external_data['gene']['hgncName'] = variant_features['hgnc_name']
             # get clingen spec
             external_data['gene']['clingenCriteriaSpec'] = md_utilities.get_clingen_criteria_specification_id(external_data['gene']['symbol'])
+            # is the gene in canvar?
+            if external_data['gene']['symbol'] in md_utilities.canvar_genes:
+                internal_data['gene']['inCanvar'] = True
             # get oncoKB data
             oncokb_info = md_utilities.get_oncokb_genes_info(external_data['gene']['symbol'])
             external_data['gene']['isOncogene'] = oncokb_info['is_oncogene']

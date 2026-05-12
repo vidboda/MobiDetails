@@ -92,6 +92,9 @@
 			{{ link("%s"|format(urls.sovad), "SoVaD")}}
 			{{ link("%sgene/%s/%s"|format(urls.oncokb, external_data.gene.symbol, internal_data.nomenclatures.oneLetterpName), "OncoKB")}}
 			{{ link("%sgene/%s"|format(urls.oncokb, external_data.gene.symbol), "OncoKB Gene")}}
+			{% if internal_data.gene.inCanvar %}
+				{{ link("%s/result/%s/%s"|format(urls.canvaruk, external_data.gene.symbol, external_data.nomenclatures.cName), "CanVar-UK")}}
+			{% endif %}
 			{% if external_data.positions.proteinType == 'missense' %}
 				{{ link("%s%s&pos=%s&ref=%s&alt=%s"|format(urls.cancervar_api, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "CancerVar")}}
 			{% endif %}
