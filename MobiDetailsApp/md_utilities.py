@@ -798,6 +798,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             # some files are just empty, e.g. 33867.tsv.gz
             # those return a 'query failed' error in tabix python module 
             return 'No significant score in {}'.format(text)
+        else:
+            return 'An error occured while querying {0}'.format(text)
     except Exception as e:
         send_error_email(
             prepare_email_html(
