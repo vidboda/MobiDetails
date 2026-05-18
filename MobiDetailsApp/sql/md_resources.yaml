@@ -136,7 +136,7 @@ caddPhredThresholds:
   'genebe': 'https://genebe.net'
   'gnomad': 'http://gnomad.broadinstitute.org/'
   'gpnmsa': 'https://huggingface.co/collections/songlab/gpn-msa-65319280c93c85e11c803887'
-  'hexosplice': 'http://bioinfo.univ-rouen.fr/HExoSplice/'
+  'hexosplice': 'https://litis-hexosplice.univ-rouen.fr/'
   'hgnc_gene': 'https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:'
   'hgvs': 'https://hgvs-nomenclature.org/'
   'intervar': 'https://wintervar.wglab.org/results.pos.php?queryType=position&build='

@@ -82,6 +82,13 @@
 				{% if external_data.positions.segmentStartType == 'exon' and internal_data.nomenclatures.pName != '?' and internal_data.nomenclatures.pName != 'Met1?' and external_data.nomenclatures.hgvsPrefix == 'c' %}
 					{{ link("%shg38&chr=%s&pos=%s&ref=%s&alt=%s"|format(urls.intervar, external_data.VCF.chr, external_data.VCF.hg38.pos, external_data.VCF.hg38.ref, external_data.VCF.hg38.alt), "hg38 InterVar")}}
 				{% endif %}
+				{% if external_data.nomenclatures.cName is not none %}
+				{% if external_data.positions.segmentStartType == 'exon' and internal_data.hexosplice.exonFirstNtCdnaPosition > 1 %}
+					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s\n%s&variation=c.%s&c=%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, internal_data.hexosplice.exonSequence, internal_data.nomenclatures.cName, internal_data.hexosplice.exonFirstNtCdnaPosition), "HexoSplice") }}
+					{% else %}
+					{{ link("%sresults.php?refSeq=>%s(%s)-%s%s(51bp)\n%s&variation=26:%s"|format(urls.hexosplice, external_data.gene.RefSeqTranscript, external_data.gene.symbol, external_data.positions.segmentStartType|capitalize, external_data.positions.segmentStartNumber, external_data.sequences.wildType|replace(' ', ''), internal_data.positions.substitutionNature), "HexoSplice") }}
+					{% endif %}
+				{% endif %}
 			{% endif %}
 		</div>
 		{# somatic #}
