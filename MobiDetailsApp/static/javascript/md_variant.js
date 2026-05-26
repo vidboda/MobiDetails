@@ -868,8 +868,9 @@ function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
           data: JSON.stringify({"clingenAlleleIds": [clingen_id]})
         })
         .done(function(mavemd_json) {
+          // ?searchType=clinGenAlleleId&search=
           if (mavemd_json[0]["exactMatch"] !== null) {
-            $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "mavemd?searchType=clinGenAlleleId&search=" + clingen_id + "' target='_blank'><img src='"+ static_path + "img/mavemd-logo.png' height='30'/></a></span>");
+            $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "variants/" + clingen_id + "' target='_blank'><img src='"+ static_path + "img/mavemd-logo.png' height='30'/></a></span>");
           }
           else {
             $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a></span>");
