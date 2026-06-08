@@ -459,7 +459,7 @@ def intervar():
             md_utilities.prepare_email_html(
                 'MobiDetails API error',
                 """
-                <p>GeneBe API call failed for from {0} with args: A mandatory argument is missing: {1}</p>
+                <p>Intervar API call failed for from {0} with args: A mandatory argument is missing: {1}</p>
                 """.format(
                     os.path.basename(__file__),
                     request.form
@@ -1311,7 +1311,7 @@ def lovd():
                 return md_utilities.lovd_error_html(
                     "No match in LOVD public instances"
                 )
-            html = """            
+            html = """
             <tr>
                 <td class="w3-left-align" id="lovd_feature"style="vertical-align:middle;">LOVD Matches:
                     <span id="lovd_rna_hgvs" style="display:none;visibility:hidden;">{0}</span>
@@ -1357,7 +1357,7 @@ def lovd():
                                 )
                             )
                 html = """
-                {0}$<tr>
+                {0}<tr>
                 <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
                     LOVD Effect Reported:
                 </td>
@@ -1367,7 +1367,7 @@ def lovd():
                 <td class="w3-left-align" id="lovd_r_feature" style="vertical-align:middle;">
                     <em class="w3-small">Effects reported by LOVD submitters</em>
                 </td>
-                </tr>,<tr>
+                </tr><tr>
                 <td class="w3-left-align" id="lovd_c_description" style="vertical-align:middle;">
                     LOVD Effect Concluded:
                 </td>
