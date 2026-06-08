@@ -1,5 +1,5 @@
 function defgen_export(genome, vf_id, defgen_url, csrf_token) {
-	// send header for flask-wtf crsf security
+    // send header for flask-wtf crsf security
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -7,65 +7,65 @@ function defgen_export(genome, vf_id, defgen_url, csrf_token) {
             }
         }
     });
-	$.ajax({
-		type: "POST",
-		url: defgen_url,
-		data: {
-			vfid: vf_id, genome: genome
-		}
-	})
-	.done(function(html) {
-		$('#defgen_modal_' + genome).html(html);
-		$('#defgen_modal_' + genome).show();
-	});
+    $.ajax({
+        type: "POST",
+        url: defgen_url,
+        data: {
+            vfid: vf_id, genome: genome
+        }
+    })
+    .done(function(html) {
+        $('#defgen_modal_' + genome).html(html);
+        $('#defgen_modal_' + genome).show();
+    });
 }
 
 
 function litvar2(litvar_url, csrf_token) {
-	//ajax for litvar
-	if ($('#dbsnp_id').text() !== '') {
-		// send header for flask-wtf crsf security
-		$.ajaxSetup({
-			beforeSend: function(xhr, settings) {
-				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-					xhr.setRequestHeader("X-CSRFToken", csrf_token);
-				}
-			}
-		});
-		$.ajax({
-			type: "POST",
-			url: litvar_url,
-			data: {
-				rsid: $('#dbsnp_id').text()
-			}
-		})
-		.done(function(html) {
-			$("#litvar_data").replaceWith(html);
-		});
-	}
-	else {
-		$("#litvar_data").replaceWith('<div class="w3-margin w3-panel w3-pale-yellow w3-leftbar w3-display-container"><p><i>Unfortunately, this variant does not have a dbSNP ID, which is required by LitVar2 for PubMed citations.</i></p><div>');
-	}
+    //ajax for litvar
+    if ($('#dbsnp_id').text() !== '') {
+        // send header for flask-wtf crsf security
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: litvar_url,
+            data: {
+                rsid: $('#dbsnp_id').text()
+            }
+        })
+        .done(function(html) {
+            $("#litvar_data").replaceWith(html);
+        });
+    }
+    else {
+        $("#litvar_data").replaceWith('<div class="w3-margin w3-panel w3-pale-yellow w3-leftbar w3-display-container"><p><i>Unfortunately, this variant does not have a dbSNP ID, which is required by LitVar2 for PubMed citations.</i></p><div>');
+    }
 }
 
 
 function frog(frog_url, static_path, csrf_token) {
-	//ajax for litvar		// send header for flask-wtf crsf security
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
-			}
-		}
-	});
-	$.ajax({
-		type: "POST",
-		url: frog_url,
-		data: {
-			hgnc_id: $('#hgnc_id').text(), hgvs_var: $('#hgvs_genomic_hg19_ncbi_nom').text()
-		}
-	})
-	.done(function(frog_link) {
+    //ajax for litvar        // send header for flask-wtf crsf security
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: frog_url,
+        data: {
+            hgnc_id: $('#hgnc_id').text(), hgvs_var: $('#hgvs_genomic_hg19_ncbi_nom').text()
+        }
+    })
+    .done(function(frog_link) {
     if (frog_link !== 'error') {
       var population_table = $('#population_table').DataTable();
       var row_node = population_table.row
@@ -83,13 +83,13 @@ function frog(frog_url, static_path, csrf_token) {
         .css('vertical-align', 'middle');
       // redraw_dt('population_table', false);
     }
-	});
+    });
 }
 
 
 function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
-	// ajax for LOVD
-	//send header for flask-wtf crsf security
+    // ajax for LOVD
+    //send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -97,14 +97,14 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
       }
     }
   });
-	$.ajax({
-		type: "POST",
-		url: lovd_url,
-		data: {
-			genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene: $('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
-		}
-	})
-	.done(function(html) {
+    $.ajax({
+        type: "POST",
+        url: lovd_url,
+        data: {
+            genome: genome, chrom: chrom, g_name: g_name, c_name: $('#c_name').text(), gene: $('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
+        }
+    })
+    .done(function(html) {
     // selector for datatable
     var population_table = $('#population_table').DataTable();
     // prepare js table from flask html tr
@@ -141,58 +141,58 @@ function lovd(lovd_url, genome, chrom, g_name, csrf_token) {
     }
 
     redraw_dt('population_table', false);
-	});
+    });
 }
 
 
 function intervar(intervar_url, csrf_token) {
-	// ajax for intervar
-	if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {
-		// send header for flask-wtf crsf security
-		$.ajaxSetup({
-			beforeSend: function(xhr, settings) {
-				if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-					xhr.setRequestHeader("X-CSRFToken", csrf_token);
-				}
-			}
-		});
-		$.ajax({
-			type: "POST",
-			url: intervar_url,
-			data: {
-				// genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_symbol').text()
+    // ajax for intervar
+    if ($('#dna_type').text() == 'substitution' && $('#segment_type').text() == 'exon' && $('#hgvs_p_name').text() != 'p.(?)' && $('#hgvs_p_name').text() != 'p.(Met1?)') {
+        // send header for flask-wtf crsf security
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+        $.ajax({
+            type: "POST",
+            url: intervar_url,
+            data: {
+                // genome: $('#genome_19').text(), chrom: $('#chrom_19').text(), pos: $('#pos_19').text(), ref: $('#ref_19').text(), alt: $('#alt_19').text(), gene:$('#gene_symbol').text()
         genome: $('#genome_38').text(), chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), gene:$('#gene_symbol').text()
-			}
-		})
-		.done(function(html) {
-			$('#intervar_data').replaceWith(html);
+            }
+        })
+        .done(function(html) {
+            $('#intervar_data').replaceWith(html);
       redraw_dt('population_table', true);
-		});
-	}
+        });
+    }
 }
 
 
 function genebe(genebe_url, csrf_token) {
-	// ajax for genebe to get semi-automated ACMG classification
-	// send header for flask-wtf crsf security
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
-			}
-		}
-	});
-	$.ajax({
-		type: "POST",
-		url: genebe_url,
-		data: {
+    // ajax for genebe to get semi-automated ACMG classification
+    // send header for flask-wtf crsf security
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: genebe_url,
+        data: {
       genome: $('#genome_38').text(), chrom: $('#chrom_38').text(), pos: $('#pos_38').text(), ref: $('#ref_38').text(), alt: $('#alt_38').text(), gene:$('#gene_symbol').text(), ncbi_transcript: $('#nm_acc').text()
-		}
-	})
-	.done(function(html) {
-		$('#genebe_data').replaceWith(html);
+        }
+    })
+    .done(function(html) {
+        $('#genebe_data').replaceWith(html);
     redraw_dt('population_table', true);
-	});
+    });
 }
 
 
@@ -437,7 +437,7 @@ async function add_morfee_bed_track(static_path, position) {
 
 
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
-	// ajax to modify variant class
+    // ajax to modify variant class
   $('html').css('cursor', 'progress');
   $('.w3-button').css('cursor', 'progress');
   $('.w3-modal').css('cursor', 'progress');
@@ -446,10 +446,10 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
   html_comment = escape(html_comment);
   // html_comment = html_comment.replace(/'/g,"\'");
   // alert(html_comment);
-	// html_comment = encodeURIComponent(html_comment);
+    // html_comment = encodeURIComponent(html_comment);
   var acmg = $("#acmg_select").val();
   var class_type = $("#class_type").val();
-	// send header for flask-wtf crsf security
+    // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -457,36 +457,36 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
       }
     }
   });
-	$.ajax({
-		type: "POST",
-		url: modify_class_url,
-		data: {
-			variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment, class_type: class_type
-		}
-	})
-	.done(function(tr_html) {
+    $.ajax({
+        type: "POST",
+        url: modify_class_url,
+        data: {
+            variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment, class_type: class_type
+        }
+    })
+    .done(function(tr_html) {
     var reg = /something went wrong with the addition of this annotation/;
     if (!reg.test(tr_html)) {
-	  // if (tr_html !== 'notok') {
-  	  var re = /already_classified/;
+      // if (tr_html !== 'notok') {
+        var re = /already_classified/;
       // alert("#" + mobiuser_id + "-" + acmg + "-" + variant_id);
-  		if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).length > 0 ) {
-  			if (!re.test(tr_html)) {
-  				$("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).hide();
-  			}
-  			// else {
-  			// 	$("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
-  			// }
+          if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).length > 0 ) {
+              if (!re.test(tr_html)) {
+                  $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).hide();
+              }
+              // else {
+              //     $("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+              // }
       }
-  		if ($("#already_classified").length > 0) {
+          if ($("#already_classified").length > 0) {
         $("#already_classified").remove();
       }
       // var table_class = $('#class_table').DataTable();
       $('#class_table').DataTable().destroy();
       $("#class_table>tbody:last").append(unescape(tr_html));
-  		$("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).css('font-weight', 'bold');
-  		$("#acmg_comment").val('');
-  		if ($("#no_class").length > 0) {
+          $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).css('font-weight', 'bold');
+          $("#acmg_comment").val('');
+          if ($("#no_class").length > 0) {
         // $("#no_class").hide();
         $('#class_table').DataTable()
           .row($('#no_class'))
@@ -499,21 +499,21 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
       }
       redraw_dt('class_table', false);
     }
-	  else {
-		     $("#message_return").html(tr_html);
-	  }
+      else {
+             $("#message_return").html(tr_html);
+      }
     $('html').css('cursor', 'default');
     $('.w3-button').css('cursor', 'default');
     $('.w3-modal').css('cursor', 'default');
     $('#sub').prop('disabled', false);
     $("#modify_class_modal").hide();
-	});
+    });
 }
 
 
 function remove_class(variant_id, mobiuser_id, acmg_class, class_type, remove_class_url, csrf_token) {
-	// ajax to remove variant class
-	// send header for flask-wtf crsf security
+    // ajax to remove variant class
+    // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -521,37 +521,37 @@ function remove_class(variant_id, mobiuser_id, acmg_class, class_type, remove_cl
       }
     }
   });
-	$.ajax({
-		type: "POST",
-		url: remove_class_url,
-		data: {
-			variant_id: variant_id, acmg_class: acmg_class, class_type: class_type
-		}
-	})
-	.done(function(return_code) {
-		if (return_code == 'ok') {
+    $.ajax({
+        type: "POST",
+        url: remove_class_url,
+        data: {
+            variant_id: variant_id, acmg_class: acmg_class, class_type: class_type
+        }
+    })
+    .done(function(return_code) {
+        if (return_code == 'ok') {
       $('#class_table').DataTable()
         .row($("#" + mobiuser_id + "-" + acmg_class + "-" + variant_id + "-" + class_type))
         .remove()
         .draw();
       // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
     }
-		else {
-			$("#message_return").html(return_code);
-		}
-	});
+        else {
+            $("#message_return").html(return_code);
+        }
+    });
 }
 
 
 function send_var_message(url, csrf_token) {
    // ajax to send email
-	var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
+    var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
   // alert(html_message);
   $('html').css('cursor', 'progress');
-	$('.w3-button').css('cursor', 'progress');
+    $('.w3-button').css('cursor', 'progress');
   $('.w3-modal').css('cursor', 'progress');
   $('#sub_message').prop('disabled', true);
-	// send header for flask-wtf crsf security
+    // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -559,26 +559,26 @@ function send_var_message(url, csrf_token) {
       }
     }
   });
-	$.ajax({
-		type: "POST",
-		url: url,
-		data: {
-			receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
-		}
-	})
-	.done(function(return_code) {
-		$("#message_return").html(return_code);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+            receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
+        }
+    })
+    .done(function(return_code) {
+        $("#message_return").html(return_code);
     $('html').css('cursor', 'default');
     $('.w3-button').css('cursor', 'default');
     $('.w3-modal').css('cursor', 'default');
-		$("#message_modal").hide();
+        $("#message_modal").hide();
     $('#sub_message').prop('disabled', false);
-	});
+    });
 }
 
 
 function run_spip(url, variant_id, csrf_token) {
-	// send header for flask-wtf crsf security
+    // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -586,15 +586,15 @@ function run_spip(url, variant_id, csrf_token) {
       }
     }
   });
-	$.ajax({
-		type: "POST",
-		url: url,
-		data: {
-			gene_symbol: $('#gene_symbol').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
-		}
-	})
-	.done(function(spip_result) {
-		$("#spip").html(spip_result);
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+            gene_symbol: $('#gene_symbol').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
+        }
+    })
+    .done(function(spip_result) {
+        $("#spip").html(spip_result);
     datatable = $('#spip_summary').DataTable({
       responsive: true,
       dom: 't',
@@ -611,7 +611,7 @@ function run_spip(url, variant_id, csrf_token) {
         "order": []
       });
     }
-	});
+    });
 }
 
 function redraw_dt(dtid, destroy) {
@@ -628,10 +628,10 @@ function redraw_dt(dtid, destroy) {
 
 function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
   $.ajax({
-		type: "GET",
-		url: clingen_evrepo_api_url + "interpretations?hgvs=" + encodeURIComponent(variant),
+        type: "GET",
+        url: clingen_evrepo_api_url + "interpretations?hgvs=" + encodeURIComponent(variant),
   })
-	.done(function(jsonResponse) {
+    .done(function(jsonResponse) {
     if ($.isEmptyObject(jsonResponse.variantInterpretations)) {
       $('#clingen_evrepo').replaceWith("This variant has not yet been assessed by the ClinGen experts groups.");
     }
@@ -651,27 +651,27 @@ function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
 }
 
 function spliceai_lookup(spliceai_lookup_url, csrf_token) {
-	// ajax for spliceai lookup
-	// send header for flask-wtf crsf security
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
-			}
-		}
-	});
-	$.ajax({
-		type: "POST",
-		url: spliceai_lookup_url,
-		data: {
-			variant: "chr" + $('#chrom_38').text() + "-" + $('#pos_38').text() + "-" + $('#ref_38').text() + "-" + $('#alt_38').text(), transcript: $('#nm_acc').text()
-		}
-	})
-	.done(function(spliceai_result) {
+    // ajax for spliceai lookup
+    // send header for flask-wtf crsf security
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: spliceai_lookup_url,
+        data: {
+            variant: "chr" + $('#chrom_38').text() + "-" + $('#pos_38').text() + "-" + $('#ref_38').text() + "-" + $('#alt_38').text(), transcript: $('#nm_acc').text()
+        }
+    })
+    .done(function(spliceai_result) {
     var re = /spliceAI lookup API/;
     if (!re.test(spliceai_result)) {
       var spliceai_split = spliceai_result.split(';');
-  		$("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
+          $("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
       $("#spliceai_lookup_al").html(spliceai_lookup_html(spliceai_split[1]));
       $("#spliceai_lookup_dg").html(spliceai_lookup_html(spliceai_split[2]));
       $("#spliceai_lookup_dl").html(spliceai_lookup_html(spliceai_split[3]));
@@ -694,7 +694,7 @@ function spliceai_lookup(spliceai_lookup_url, csrf_token) {
     $('#spliceai_lookup_wheel').empty();
     $('#spliceai_lookup_button').hide();
     $('html').css('cursor', 'default');
-	});
+    });
 }
 
 function spliceai_lookup_html(spliceai_str) {
@@ -712,20 +712,20 @@ function spliceai_lookup_html(spliceai_str) {
 
 function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
   // send header for flask-wtf crsf security
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
-			}
-		}
-	});
-	$.ajax({
-		type: "POST",
-		url: create_g_url,
-		data: {
-			variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_symbol').text(), caller: 'cli', api_key: api_key
-		}
-	})
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: create_g_url,
+        data: {
+            variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_symbol').text(), caller: 'cli', api_key: api_key
+        }
+    })
   .done(function(var_json) {
     if (var_json.mobidetails_error) {
       $('#result_display').html(var_json.mobidetails_error)
@@ -743,23 +743,23 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
 
 function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
   var swal_title = 'Add this variant to your clinvar watch list';
-	var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
-	var swal_confirm = 'Yes, add it!';
-	var swal_done = 'This pop-up will close automatically.';
-	if (operation === 'remove') {
-		var swal_title = 'Remove this variant from your clinvar watch list';
-		var swalt_text = 'You can add it again later if needed';
-		var swal_confirm = 'Yes, remove it!';
-	}
+    var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
+    var swal_confirm = 'Yes, add it!';
+    var swal_done = 'This pop-up will close automatically.';
+    if (operation === 'remove') {
+        var swal_title = 'Remove this variant from your clinvar watch list';
+        var swalt_text = 'You can add it again later if needed';
+        var swal_confirm = 'Yes, remove it!';
+    }
   Swal.fire({
-		title: swal_title,
-		text: swalt_text,
-		icon: 'warning',
-		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
-		confirmButtonText: swal_confirm
-	}).then((result) => {
+        title: swal_title,
+        text: swalt_text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: swal_confirm
+    }).then((result) => {
     if (result.isConfirmed) {
       // send header for flask-wtf crsf security
       $.ajaxSetup({
@@ -793,39 +793,39 @@ function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
         }
       });
       Swal.fire({
-				title: 'Done!',
-				html: swal_done,
+                title: 'Done!',
+                html: swal_done,
         timer: 1000,
         timerProgressBar: true,
         didOpen: () => {
           Swal.showLoading()
         },
       });
-		}
-	})
+        }
+    })
 }
 
 function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, csrf_token) {
-	// ajax for mobideep
-	// send header for flask-wtf crsf security
+    // ajax for mobideep
+    // send header for flask-wtf crsf security
   // $("#mobideep_score").html(mobideep_url + input_scores);
-	$.ajaxSetup({
-		beforeSend: function(xhr, settings) {
-			if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-				xhr.setRequestHeader("X-CSRFToken", csrf_token);
-			}
-		}
-	});
-	$.ajax({
-		type: "POST",
-		url: mobideep_url,
-		data: {
-			mobideep_input_scores: input_scores
-		}
-	})
-	.done(function(html) {
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            }
+        }
+    });
+    $.ajax({
+        type: "POST",
+        url: mobideep_url,
+        data: {
+            mobideep_input_scores: input_scores
+        }
+    })
+    .done(function(html) {
     // add mobideep score in table
-		$("#mobideep_score").html(html);
+        $("#mobideep_score").html(html);
     if ($.fn.DataTable.isDataTable('#noncoding_table')) {
       redraw_dt('noncoding_table', true);
     }
@@ -838,19 +838,19 @@ function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, cs
       }
     });
     mobideepChart.update();
-	});
+    });
   $("#mobideep_tr").show();
 }
 
 
 function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
-	// ajax for clingenID
+    // ajax for clingenID
   // alert(clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g));
-	$.ajax({
-		type: "GET",
-		url: clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g),
-	})
-	.done(function(json_object) {
+    $.ajax({
+        type: "GET",
+        url: clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g),
+    })
+    .done(function(json_object) {
     // add ClingenID in Nomenclature table
     // returned object is already a JSON object
     if (typeof json_object["@id"] === "string") {
@@ -885,25 +885,25 @@ function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
         $("#clingen_tr").show();
       }
     }
-	});
+    });
 }
 
 
 function myAccFunc(acc_id, icon_id) {
-	// adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
-	var x = document.getElementById(acc_id);
-	if (x.className.indexOf("w3-show") == -1) {
-		// x.className += " w3-show";
-		$('#' + acc_id).removeClass("w3-hide").addClass("w3-show");
-		x.previousElementSibling.className += " w3-blue";
-		$('#' + icon_id).removeClass("fa-caret-right").addClass("fa-caret-down");
-	} else {
-		// x.className = x.className.replace(" w3-show", "");
-		$('#' + acc_id).removeClass("w3-show").addClass("w3-hide");
-		x.previousElementSibling.className =
-		x.previousElementSibling.className.replace(" w3-blue", "");
-		$('#' + icon_id).removeClass("fa-caret-down").addClass("fa-caret-right");
-	}
+    // adapted from https://www.w3schools.com/w3css/tryit.asp?filename=tryw3css_sidebar_accordion
+    var x = document.getElementById(acc_id);
+    if (x.className.indexOf("w3-show") == -1) {
+        // x.className += " w3-show";
+        $('#' + acc_id).removeClass("w3-hide").addClass("w3-show");
+        x.previousElementSibling.className += " w3-blue";
+        $('#' + icon_id).removeClass("fa-caret-right").addClass("fa-caret-down");
+    } else {
+        // x.className = x.className.replace(" w3-show", "");
+        $('#' + acc_id).removeClass("w3-show").addClass("w3-hide");
+        x.previousElementSibling.className =
+        x.previousElementSibling.className.replace(" w3-blue", "");
+        $('#' + icon_id).removeClass("fa-caret-down").addClass("fa-caret-right");
+    }
 }
 
 // https://stackoverflow.com/questions/5684303/javascript-window-open-pass-values-using-post
@@ -940,26 +940,26 @@ function beforePrintHandler () {
 $(document).ready(function() {
   $('#third_br').remove();
   if ($(window).width() < 600) {
-  	$('#page_menu').remove();
+      $('#page_menu').remove();
     $('#second_br').remove();
     // hide left menu items
     if ($('#somatic_acc').length) {
-  	  myAccFunc('hg19_acc', 'hg19_icon');
+        myAccFunc('hg19_acc', 'hg19_icon');
     }
-  	myAccFunc('hg38_acc', 'hg38_icon');
+      myAccFunc('hg38_acc', 'hg38_icon');
     if ($('#somatic_acc').length) {
       myAccFunc('somatic_acc', 'somatic_icon');
     }
     if ($('#bonus_acc').length) {
       myAccFunc('bonus_acc', 'bonus_icon');
     }    
-  	$('#smart_menu').hide();
-  	$('#openNav').css('visibility', 'visible');
-  	$('#global_content').animate({marginLeft: '0%'});
-  	$('#warning_content').animate({marginLeft: '0%'});
-  	$('#mobile_var_name').show();
-  	$('#defgen_hg19').remove();
-  	$('#defgen_hg38').remove();
+      $('#smart_menu').hide();
+      $('#openNav').css('visibility', 'visible');
+      $('#global_content').animate({marginLeft: '0%'});
+      $('#warning_content').animate({marginLeft: '0%'});
+      $('#mobile_var_name').show();
+      $('#defgen_hg19').remove();
+      $('#defgen_hg38').remove();
   }
   else if ($(window).width() < 900) {
     $('#second_br').remove();
@@ -968,8 +968,8 @@ $(document).ready(function() {
     $('#smart_menu').find('span').removeClass('w3-large').addClass('w3-medium');
     $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
     $('#global_content').animate({marginLeft: '25%'});
-  	$('#warning_content').animate({marginLeft: '25%'});
-  	$('#smart_menu').width('25%');
+      $('#warning_content').animate({marginLeft: '25%'});
+      $('#smart_menu').width('25%');
   }
   else if($(window).width() < 1300) {
     $('#smart_menu').find('a').removeClass('w3-large').addClass('w3-medium');
@@ -980,16 +980,16 @@ $(document).ready(function() {
   }
 
   // transform all tables as datatables
-	$('.w3-table').DataTable({
-  	responsive: true,
-  	dom: 't',
-  	"order": [],
+    $('.w3-table').DataTable({
+      responsive: true,
+      dom: 't',
+      "order": [],
     "pageLength": 35,
-  	//scrollY: 600,
-  	buttons: [
-  		'copy', 'excel', 'pdf'
-  	]
-	});
+      //scrollY: 600,
+      buttons: [
+          'copy', 'excel', 'pdf'
+      ]
+    });
   // deal with dbscSNV/spliceai table which can be empty
   if (!$('#spliceai_ag_50_tr').length && !$('#dbscsnvada').length && !$('#dbscsnvrf').length && !$('#absplice_max').length && !$('#no_absplice_max').length) {
     $('#splicing_table').hide();
@@ -1050,13 +1050,13 @@ $(document).ready(function() {
         else if (table_title === 'Positions'){
           // we need to split str to get actual metadome values
           var split_str = d.split(/[:-]+/);
-          if (split_str[1] === '  	 		highly intolerant 	  ') {color_style = '#D7191C'}
-          else if (split_str[1] === '  	 		intolerant 	  ') {color_style = '#FF0000'}
-          else if (split_str[1] === '  	 		slightly intolerant 	  ') {color_style = '#00CCBC'}
-          else if (split_str[1] === '  	 		neutral 	  ') {color_style = '#F9D057'}
-          else if (split_str[1] === '  	 		slightly tolerant  	  ') {color_style = '#00CCBC'}
-          else if (split_str[1] === '  	 		tolerant 	  ') {color_style = '#2E64FE'}
-          else if (split_str[1] === '  	 		highly tolerant 	  ') {color_style = '#0404B4'}
+          if (split_str[1] === '               highly intolerant       ') {color_style = '#D7191C'}
+          else if (split_str[1] === '               intolerant       ') {color_style = '#FF0000'}
+          else if (split_str[1] === '               slightly intolerant       ') {color_style = '#00CCBC'}
+          else if (split_str[1] === '               neutral       ') {color_style = '#F9D057'}
+          else if (split_str[1] === '               slightly tolerant        ') {color_style = '#00CCBC'}
+          else if (split_str[1] === '               tolerant       ') {color_style = '#2E64FE'}
+          else if (split_str[1] === '               highly tolerant       ') {color_style = '#0404B4'}
         }
         else if (table_title === 'Population frequencies and databases') {
           var re = /Likely[\s_][Bb]enign/;
@@ -1154,34 +1154,34 @@ $(document).ready(function() {
     return js_date + js_time;// + "-" h + ":" + m + ":" + s;
   }
 
-	// adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
+    // adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
   // uses pdfMake https://pdfmake.github.io/docs
   // http://pdfmake.org/#/gettingstarted
-	// export multiple tables in one single pdf
+    // export multiple tables in one single pdf
 
-	$('#ExportPdf').on("click", function() {
-		var config = {
-  			className: "buttons-pdf buttons-html5",
-  			customize: null,
-  			download: "download",
-  			exportOptions: {},
-  			extension: ".pdf",
-  			filename: "*",
-  			footer: false,
-  			header: true,
-  			messageBottom: "*",
-  			messagetop: "*",
-  			namespace: ".dt-button-2",
-  			orientation: "portrait",
-  			pageSize: "A4",
-  			title: "*",
+    $('#ExportPdf').on("click", function() {
+        var config = {
+              className: "buttons-pdf buttons-html5",
+              customize: null,
+              download: "download",
+              exportOptions: {},
+              extension: ".pdf",
+              filename: "*",
+              footer: false,
+              header: true,
+              messageBottom: "*",
+              messagetop: "*",
+              namespace: ".dt-button-2",
+              orientation: "portrait",
+              pageSize: "A4",
+              title: "*",
         author:"MobiDetails",
-		};
+        };
 
 
     var doc = {
-			pageSize: config.pageSize,
-			pageOrientation: config.orientation,
+            pageSize: config.pageSize,
+            pageOrientation: config.orientation,
       footer: function(currentPage, pageCount) {
         return {
           margin:10,
@@ -1196,7 +1196,7 @@ $(document).ready(function() {
           text: formatDate()
         }
       },
-			content: [
+            content: [
         " ",
         " ",
         {
@@ -1208,31 +1208,31 @@ $(document).ready(function() {
         " ",
         {text: "Click on a page number to get to the corresponding page (i.e. page numbers are clickable ;) ).", pageBreak: "after"}
       ],
-			styles: {
-				tableHeader: {
-					bold: true,
-					fontSize: 11,
-					color: 'white',
-					fillColor: '#2d4154',
-					alignment: 'center'
-				},
-				tableBodyEven: {},
-				tableBodyOdd: {
-					fillColor: '#f3f3f3'
-				},
+            styles: {
+                tableHeader: {
+                    bold: true,
+                    fontSize: 11,
+                    color: 'white',
+                    fillColor: '#2d4154',
+                    alignment: 'center'
+                },
+                tableBodyEven: {},
+                tableBodyOdd: {
+                    fillColor: '#f3f3f3'
+                },
         damaging: {
           color: '#ff0000'
         },
-				tableFooter: {
-					bold: true,
-					fontSize: 11,
-					color: 'white',
-					fillColor: '#2d4154'
-				},
-				title: {
-					alignment: 'center',
-					fontSize: 14
-				},
+                tableFooter: {
+                    bold: true,
+                    fontSize: 11,
+                    color: 'white',
+                    fillColor: '#2d4154'
+                },
+                title: {
+                    alignment: 'center',
+                    fontSize: 14
+                },
         table_title: {
           fontSize: 12,
           bold: true,
@@ -1241,12 +1241,12 @@ $(document).ready(function() {
           fontSize: 12,
           italics: true,
         },
-				message: {},
-			},
-			defaultStyle: {
-				fontSize: 9
-			}
-		};
+                message: {},
+            },
+            defaultStyle: {
+                fontSize: 9
+            }
+        };
     if ($("#nomenclature_table").length) {
       var dt = $('#nomenclature_table').DataTable();
       var info = dt.buttons.exportInfo(config);
@@ -1408,39 +1408,39 @@ $(document).ready(function() {
     }
 
 
-		//get formatted date to report access time
-		// info.messageTop = formatDate();
+        //get formatted date to report access time
+        // info.messageTop = formatDate();
     // optional places for additional data
-		if (info.messageTop) {
-			doc.content.unshift({
-				text: info.messageTop,
-				style: 'message',
-				margin: [0, 0, 0, 12]
-			});
-		}
+        if (info.messageTop) {
+            doc.content.unshift({
+                text: info.messageTop,
+                style: 'message',
+                margin: [0, 0, 0, 12]
+            });
+        }
 
-		if (info.messageBottom) {
-			doc.content.push({
-				text: info.messageBottom,
-				style: 'message',
-				margin: [0, 0, 0, 12]
-			});
-		}
+        if (info.messageBottom) {
+            doc.content.push({
+                text: info.messageBottom,
+                style: 'message',
+                margin: [0, 0, 0, 12]
+            });
+        }
 
-		if (info.title) {
-			doc.content.unshift({
-				text: info.title,
-				style: 'title',
-				margin: [0, 0, 0, 12]
-			});
-		}
+        if (info.title) {
+            doc.content.unshift({
+                text: info.title,
+                style: 'title',
+                margin: [0, 0, 0, 12]
+            });
+        }
 
-		if (config.customize) {
-			config.customize(doc, config);
-		}
+        if (config.customize) {
+            config.customize(doc, config);
+        }
 
     // console.log(doc.content )
     //pdfmake comes with datatables
-		pdfMake.createPdf(doc).download($('#hgvs_nm_nom').text() + '.pdf');
-	});
+        pdfMake.createPdf(doc).download($('#hgvs_nm_nom').text() + '.pdf');
+    });
 });
