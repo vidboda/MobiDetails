@@ -417,6 +417,7 @@ def gene(gene_symbol=None):
                             current_chrom = genome['chr{}'.format(main['chr'])]
                             seq_slice = current_chrom[start_g:end_g].upper()
                             if spliceai_strand == 'minus':
+                                print(seq_slice)
                                 seq_slice = md_utilities.reverse_complement(seq_slice).upper()
                             try:
                                 req_results = requests.post(
@@ -425,41 +426,44 @@ def gene(gene_symbol=None):
                                     headers={'Content-Type': 'application/json'}
                                 )
                             except requests.exceptions.ConnectionError:
-                                return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
+                                flash('<p>Failed to establish a connection to the SpliceAI-visual server.</p>', 'w3-pale-red')
                             if req_results.status_code == 200:
                                 # then build raw .txt.gz file
                                 spliceai_results = json.loads(req_results.content)
-                                with open(
-                                    '{0}.txt.gz'.format(transcript_file_basename),
-                                    'wb'
-                                ) as sai_raw_file:
-                                    sai_file_data = "chrom\tposition_hg38\twt_nucleotide\twt_acceptor_site_proba\twt_donor_site_proba"
-                                    if spliceai_strand == 'plus':
-                                        for i in range(1, len(spliceai_results['result']['mt_acceptor_scores'])):
-                                            g_pos = start_g + i
-                                            sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
-                                                sai_file_data,
-                                                main['chr'],
-                                                g_pos,
-                                                spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
-                                                spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
-                                                spliceai_results['result']['mt_donor_scores'][str(i)][1]
-                                            )
-                                    else:
-                                        for i in range(len(spliceai_results['result']['mt_acceptor_scores']), 1, -1):
-                                            g_pos = start_g + (len(spliceai_results['result']['mt_acceptor_scores']) - i) + 1
-                                            sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
-                                                sai_file_data,
-                                                main['chr'],
-                                                g_pos,
-                                                spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
-                                                spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
-                                                spliceai_results['result']['mt_donor_scores'][str(i)][1]
-                                            )
-                                    with bgzip.BGZipWriter(sai_raw_file) as bgzip_fh:
-                                        bgzip_fh.write(bytes(sai_file_data, encoding='ascii'))
-                                # build new bedgraph.gz from .txt.gz
-                                response = md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, transcript_file_basename)
+                                if 'error' in spliceai_results:
+                                    flash('<p>Failed to get SpliceAI results for this gene. Error: {}</p>'.format(spliceai_results['error']), 'w3-pale-red')
+                                else:
+                                    with open(
+                                        '{0}.txt.gz'.format(transcript_file_basename),
+                                        'wb'
+                                    ) as sai_raw_file:
+                                        sai_file_data = "chrom\tposition_hg38\twt_nucleotide\twt_acceptor_site_proba\twt_donor_site_proba"
+                                        if spliceai_strand == 'plus':
+                                            for i in range(1, len(spliceai_results['result']['mt_acceptor_scores'])):
+                                                g_pos = start_g + i
+                                                sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
+                                                    sai_file_data,
+                                                    main['chr'],
+                                                    g_pos,
+                                                    spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
+                                                    spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
+                                                    spliceai_results['result']['mt_donor_scores'][str(i)][1]
+                                                )
+                                        else:
+                                            for i in range(len(spliceai_results['result']['mt_acceptor_scores']), 1, -1):
+                                                g_pos = start_g + (len(spliceai_results['result']['mt_acceptor_scores']) - i) + 1
+                                                sai_file_data = '{0}\n{1}\t{2}\t{3}\t{4}\t{5}'.format(
+                                                    sai_file_data,
+                                                    main['chr'],
+                                                    g_pos,
+                                                    spliceai_results['result']['mt_acceptor_scores'][str(i)][0],
+                                                    spliceai_results['result']['mt_acceptor_scores'][str(i)][1],
+                                                    spliceai_results['result']['mt_donor_scores'][str(i)][1]
+                                                )
+                                        with bgzip.BGZipWriter(sai_raw_file) as bgzip_fh:
+                                            bgzip_fh.write(bytes(sai_file_data, encoding='ascii'))
+                                    # build new bedgraph.gz from .txt.gz
+                                    response = md_utilities.build_compress_bedgraph_from_raw_spliceai(main['chr'], header, transcript_file_basename)
                 # get oncoKB gene data
                 oncokb_info = md_utilities.get_oncokb_genes_info(gene_symbol)
                 close_db()
