@@ -417,7 +417,6 @@ def gene(gene_symbol=None):
                             current_chrom = genome['chr{}'.format(main['chr'])]
                             seq_slice = current_chrom[start_g:end_g].upper()
                             if spliceai_strand == 'minus':
-                                print(seq_slice)
                                 seq_slice = md_utilities.reverse_complement(seq_slice).upper()
                             try:
                                 req_results = requests.post(
