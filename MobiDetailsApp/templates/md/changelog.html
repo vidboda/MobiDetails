@@ -9,12 +9,12 @@
 		-New dataset
 	#}
 	<div class="w3-container">
-    {{ info("[2026-05-19] - Removed feature: the Position / protein line in the Positions table has been removed temporarily as it could report inconsistant protein sizes") }}
-	{{ info("[2026-05-19] - Minor: the MaveMD icon (and link) now only appears when the mavemd API returns results for the variant") }}
+    {{ info("[2026-05-19] - Removed feature: the Position / protein line in the Positions table has been removed temporarily as it could report inconsistant protein sizes. thanks to Dr. Alice Bedois for reporting.") }}
+	{{ info("[2026-05-19] - Minor: the MaveMD icon (and link) now only appears when the mavemd API returns results for the variant.") }}
 	{{ info("[2026-05-12] - New link: Added link to <a href='{0}' target='_blank'>CanVar-UK</a> for somatic variants. If the link opens the CanVar homepage, then the variant is not recorded there.").format(urls.canvaruk) }}
 	{{ info("[2026-05-11] - New feature: Added exonic enhancers annotation extracted from <a href='{0}' target='_blank'>{1} et al., {2}</a>").format(external_tools.Exons_Enhancers.paper, external_tools.Exons_Enhancers.firstauthor, external_tools.Exons_Enhancers.year) }}
-	{{ info("[2026-04-21] - New feature: SpliceAI-visual now available for all transcripts, including ncRNA transcripts + various bug fixes") }}
-	{{ info("[2026-04-17] - New link: Added link to <a href='{0}' target='_blank'>prot-orthologues.fr</a> when a variant is mapped on a MANE or MANE Plus Clinical transcript").format(urls.prot_orthologues) }}
+	{{ info("[2026-04-21] - New feature: SpliceAI-visual now available for all transcripts, including ncRNA transcripts + various bug fixes.") }}
+	{{ info("[2026-04-17] - New link: Added link to <a href='{0}' target='_blank'>prot-orthologues.fr</a> when a variant is mapped on a MANE or MANE Plus Clinical transcript.").format(urls.prot_orthologues) }}
 		{{ info("[2026-04-15] - Major update:
 		<ul>
 			<li>It is now possible to use rsids to generate any kind of annotations (genic, intergenic) + bug fixes + code improvement for faster annotation</li>
@@ -24,8 +24,8 @@
 			<li>The SpliceAI lookup API call results are now searched for gene symbols and Ensembl transcript IDs in addition to RefSeq IDs</li>
 		</ul>")
 		 }}
-		{{ info("[2026-03-26] - New feature: Added link to FrOG when the variant is present") }}
-		{{ info("[2026-03-06] - Improved HGVS description errors handling including LOVD check") }}
+		{{ info("[2026-03-26] - New feature: Added link to FrOG when the variant is present.") }}
+		{{ info("[2026-03-06] - Improved HGVS description errors handling including LOVD check.") }}
 		{{ info("[2026-03-03] - New predictor: <a href='{0}' target='_blank'>NCBoost v2</a> has been added as a new predictor for non coding variations. Thanks to Barthélémy Caron and Antonio Rausell for providing the dataset.").format(urls.ncboost) }}
 		{{ info("[2026-02-12] - Some housekeeping: The link to COSMIC has been removed and replace with a link to SoVaD. In addition, the link to mastermind has been removed.") }}
 		{{ info("[2026-02-06] - dbNSFP has been updated from 5.2 to 5.3.1.") }}
