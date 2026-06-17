@@ -438,7 +438,7 @@
 							{% endif %}
 							{% if external_data.positions.proteinType != 'unknown' and external_data.positions.proteinType != "no protein" %}
 							{# {{ external_data.positions.proteinSize }} #}
-								{% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
+								{# {% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
 								<!-- in case prot size is wrong-->
 								<tr><!--protein-->
 									<td class="w3-left-align">Position / protein</td>
@@ -450,9 +450,9 @@
 									<span> / {{ external_data.gene.proteinSize }}</span>
 									</td>
 									<td class="w3-left-align"><em class="w3-small">Position relative to the protein</em>
-								</tr><!--protein domain-->
-								{% endif %}
-								<tr>
+								</tr>
+								{% endif %} #}
+								<tr><!--protein domain-->
 									<td class="w3-left-align">Position / domain</td>
 									{% if external_data.positions.proteinDomain[0] is defined %}
 									<td class="w3-left-align">
