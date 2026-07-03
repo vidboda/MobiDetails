@@ -437,7 +437,7 @@ async function add_morfee_bed_track(static_path, position) {
 
 
 function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
-    // ajax to modify variant class
+  // ajax to modify variant class
   $('html').css('cursor', 'progress');
   $('.w3-button').css('cursor', 'progress');
   $('.w3-modal').css('cursor', 'progress');
@@ -446,10 +446,10 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
   html_comment = escape(html_comment);
   // html_comment = html_comment.replace(/'/g,"\'");
   // alert(html_comment);
-    // html_comment = encodeURIComponent(html_comment);
+  // html_comment = encodeURIComponent(html_comment);
   var acmg = $("#acmg_select").val();
   var class_type = $("#class_type").val();
-    // send header for flask-wtf crsf security
+  // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -457,36 +457,36 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
       }
     }
   });
-    $.ajax({
-        type: "POST",
-        url: modify_class_url,
-        data: {
-            variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment, class_type: class_type
-        }
-    })
-    .done(function(tr_html) {
+  $.ajax({
+    type: "POST",
+    url: modify_class_url,
+    data: {
+        variant_id: variant_id, acmg_select: acmg, acmg_comment: html_comment, class_type: class_type
+    }
+  })
+  .done(function(tr_html) {
     var reg = /something went wrong with the addition of this annotation/;
     if (!reg.test(tr_html)) {
       // if (tr_html !== 'notok') {
-        var re = /already_classified/;
+      var re = /already_classified/;
       // alert("#" + mobiuser_id + "-" + acmg + "-" + variant_id);
-          if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).length > 0 ) {
-              if (!re.test(tr_html)) {
-                  $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).hide();
-              }
-              // else {
-              //     $("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
-              // }
+      if ($("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).length > 0 ) {
+        if (!re.test(tr_html)) {
+            $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).hide();
+        }
+        // else {
+        //     $("#" + mobiuser_id + "-" + acmg + "-" + variant_id).css('font-weight', 'bold');
+        // }
       }
-          if ($("#already_classified").length > 0) {
+      if ($("#already_classified").length > 0) {
         $("#already_classified").remove();
       }
       // var table_class = $('#class_table').DataTable();
       $('#class_table').DataTable().destroy();
       $("#class_table>tbody:last").append(unescape(tr_html));
-          $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).css('font-weight', 'bold');
-          $("#acmg_comment").val('');
-          if ($("#no_class").length > 0) {
+      $("#" + mobiuser_id + "-" + acmg + "-" + variant_id + "-" + class_type).css('font-weight', 'bold');
+      $("#acmg_comment").val('');
+      if ($("#no_class").length > 0) {
         // $("#no_class").hide();
         $('#class_table').DataTable()
           .row($('#no_class'))
@@ -499,21 +499,21 @@ function modify_class(variant_id, mobiuser_id, modify_class_url, csrf_token) {
       }
       redraw_dt('class_table', false);
     }
-      else {
-             $("#message_return").html(tr_html);
-      }
+    else {
+      $("#message_return").html(tr_html);
+    }
     $('html').css('cursor', 'default');
     $('.w3-button').css('cursor', 'default');
     $('.w3-modal').css('cursor', 'default');
     $('#sub').prop('disabled', false);
     $("#modify_class_modal").hide();
-    });
+  });
 }
 
 
 function remove_class(variant_id, mobiuser_id, acmg_class, class_type, remove_class_url, csrf_token) {
-    // ajax to remove variant class
-    // send header for flask-wtf crsf security
+  // ajax to remove variant class
+  // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -521,37 +521,37 @@ function remove_class(variant_id, mobiuser_id, acmg_class, class_type, remove_cl
       }
     }
   });
-    $.ajax({
-        type: "POST",
-        url: remove_class_url,
-        data: {
-            variant_id: variant_id, acmg_class: acmg_class, class_type: class_type
-        }
-    })
-    .done(function(return_code) {
-        if (return_code == 'ok') {
-      $('#class_table').DataTable()
-        .row($("#" + mobiuser_id + "-" + acmg_class + "-" + variant_id + "-" + class_type))
-        .remove()
-        .draw();
+  $.ajax({
+    type: "POST",
+    url: remove_class_url,
+    data: {
+        variant_id: variant_id, acmg_class: acmg_class, class_type: class_type
+    }
+  })
+  .done(function(return_code) {
+    if (return_code == 'ok') {
+    $('#class_table').DataTable()
+      .row($("#" + mobiuser_id + "-" + acmg_class + "-" + variant_id + "-" + class_type))
+      .remove()
+      .draw();
       // $("#"+mobiuser_id+"-"+acmg_class+"-"+variant_id).remove();
     }
-        else {
-            $("#message_return").html(return_code);
-        }
-    });
+    else {
+        $("#message_return").html(return_code);
+    }
+  });
 }
 
 
 function send_var_message(url, csrf_token) {
-   // ajax to send email
-    var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
+  // ajax to send email
+  var html_message = $("#message_body").val().replace(/\r\n|\r|\n/g,"<br />");
   // alert(html_message);
   $('html').css('cursor', 'progress');
-    $('.w3-button').css('cursor', 'progress');
+  $('.w3-button').css('cursor', 'progress');
   $('.w3-modal').css('cursor', 'progress');
   $('#sub_message').prop('disabled', true);
-    // send header for flask-wtf crsf security
+  // send header for flask-wtf crsf security
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -560,19 +560,19 @@ function send_var_message(url, csrf_token) {
     }
   });
     $.ajax({
-        type: "POST",
-        url: url,
-        data: {
-            receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
-        }
+      type: "POST",
+      url: url,
+      data: {
+        receiver_id: $("#receiver_id").val(), message: html_message, message_object: $("#message_object").text()
+      }
     })
     .done(function(return_code) {
-        $("#message_return").html(return_code);
-    $('html').css('cursor', 'default');
-    $('.w3-button').css('cursor', 'default');
-    $('.w3-modal').css('cursor', 'default');
-        $("#message_modal").hide();
-    $('#sub_message').prop('disabled', false);
+      $("#message_return").html(return_code);
+      $('html').css('cursor', 'default');
+      $('.w3-button').css('cursor', 'default');
+      $('.w3-modal').css('cursor', 'default');
+      $("#message_modal").hide();
+      $('#sub_message').prop('disabled', false);
     });
 }
 
@@ -586,21 +586,21 @@ function run_spip(url, variant_id, csrf_token) {
       }
     }
   });
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: {
-            gene_symbol: $('#gene_symbol').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
-        }
-    })
-    .done(function(spip_result) {
-        $("#spip").html(spip_result);
+  $.ajax({
+      type: "POST",
+      url: url,
+      data: {
+          gene_symbol: $('#gene_symbol').text(), nm_acc: $('#nm_acc').text(), c_name: $('#c_name').text(), variant_id: variant_id
+      }
+  })
+  .done(function(spip_result) {
+    $("#spip").html(spip_result);
     datatable = $('#spip_summary').DataTable({
       responsive: true,
       dom: 't',
       "order": [],
       buttons: [
-             'copy', 'excel', 'pdf'
+            'copy', 'excel', 'pdf'
       ]
     });
     if ($('#spip_interpretation').html() !== 'Not available') {
@@ -611,7 +611,7 @@ function run_spip(url, variant_id, csrf_token) {
         "order": []
       });
     }
-    });
+  });
 }
 
 function redraw_dt(dtid, destroy) {
@@ -619,25 +619,25 @@ function redraw_dt(dtid, destroy) {
     $('#' + dtid).DataTable().destroy();
   } 
   $('#' + dtid).DataTable({
-      responsive: true,
-      dom: 't',
-      "pageLength": 25,
-      "order": []
+    responsive: true,
+    dom: 't',
+    "pageLength": 25,
+    "order": []
   });
 }
 
 function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
   $.ajax({
-        type: "GET",
-        url: clingen_evrepo_api_url + "interpretations?hgvs=" + encodeURIComponent(variant),
+    type: "GET",
+    url: clingen_evrepo_api_url + "interpretations?hgvs=" + encodeURIComponent(variant),
   })
-    .done(function(jsonResponse) {
+  .done(function(jsonResponse) {
     if ($.isEmptyObject(jsonResponse.variantInterpretations)) {
       $('#clingen_evrepo').replaceWith("This variant has not yet been assessed by the ClinGen experts groups.");
     }
     else if (! $.isEmptyObject(jsonResponse.variantInterpretations[0].guidelines[0].outcome.label)) {
       var clingen_evrepo_url = jsonResponse.variantInterpretations[0]['@id']
-      $('#clingen_evrepo').replaceWith("<a href='" + clingen_evrepo_url.replace("/api/", "/ui/") + "' target='_blank'>" + jsonResponse.variantInterpretations[0].guidelines[0].outcome.label + "</a>");
+      $('#clingen_evrepo').replaceWith("<a href='" + clingen_evrepo_url.replace("/api/", "/ui/") + "' target='_blank'>" + jsResponse.variantInterpretations[0].guidelines[0].outcome.label + "</a>");
     }
     else {
       $('#clingen_evrepo').replaceWith("Error when parsing the data from ClinGen: you may want to warn an admin (<a href='" + contact_url + "' target = '_blank'>contact</a>)");
@@ -651,50 +651,50 @@ function clingen_evrepo(clingen_evrepo_api_url, variant, contact_url) {
 }
 
 function spliceai_lookup(spliceai_lookup_url, csrf_token) {
-    // ajax for spliceai lookup
-    // send header for flask-wtf crsf security
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
-    $.ajax({
-        type: "POST",
-        url: spliceai_lookup_url,
-        data: {
-            variant: "chr" + $('#chrom_38').text() + "-" + $('#pos_38').text() + "-" + $('#ref_38').text() + "-" + $('#alt_38').text(), transcript: $('#nm_acc').text()
-        }
-    })
-    .done(function(spliceai_result) {
-    var re = /spliceAI lookup API/;
-    if (!re.test(spliceai_result)) {
-      var spliceai_split = spliceai_result.split(';');
-          $("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
-      $("#spliceai_lookup_al").html(spliceai_lookup_html(spliceai_split[1]));
-      $("#spliceai_lookup_dg").html(spliceai_lookup_html(spliceai_split[2]));
-      $("#spliceai_lookup_dl").html(spliceai_lookup_html(spliceai_split[3]));
-      $("#spliceai_lookup_ag_tr").show();
-      $("#spliceai_lookup_al_tr").show();
-      $("#spliceai_lookup_dg_tr").show();
-      $("#spliceai_lookup_dl_tr").show();
+  // ajax for spliceai lookup
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      }
     }
-    else {
-      $("#spliceai_lookup_ag").html(spliceai_result);
-      $("#spliceai_lookup_ag_tr").show();
+  });
+  $.ajax({
+    type: "POST",
+    url: spliceai_lookup_url,
+    data: {
+      variant: "chr" + $('#chrom_38').text() + "-" + $('#pos_38').text() + "-" + $('#ref_38').text() + "-" + $('#alt_38').text(), transcript: $('#nm_acc').text()
     }
-    if ($.fn.DataTable.isDataTable('#splicing_table')) {
-      redraw_dt('splicing_table', true);
-    }
-    else {
-      redraw_dt('splicing_table', false);
-    }
-    $('#splicing_table').show();
-    $('#spliceai_lookup_wheel').empty();
-    $('#spliceai_lookup_button').hide();
-    $('html').css('cursor', 'default');
-    });
+  })
+  .done(function(spliceai_result) {
+  var re = /spliceAI lookup API/;
+  if (!re.test(spliceai_result)) {
+    var spliceai_split = spliceai_result.split(';');
+    $("#spliceai_lookup_ag").html(spliceai_lookup_html(spliceai_split[0]));
+    $("#spliceai_lookup_al").html(spliceai_lookup_html(spliceai_split[1]));
+    $("#spliceai_lookup_dg").html(spliceai_lookup_html(spliceai_split[2]));
+    $("#spliceai_lookup_dl").html(spliceai_lookup_html(spliceai_split[3]));
+    $("#spliceai_lookup_ag_tr").show();
+    $("#spliceai_lookup_al_tr").show();
+    $("#spliceai_lookup_dg_tr").show();
+    $("#spliceai_lookup_dl_tr").show();
+  }
+  else {
+    $("#spliceai_lookup_ag").html(spliceai_result);
+    $("#spliceai_lookup_ag_tr").show();
+  }
+  if ($.fn.DataTable.isDataTable('#splicing_table')) {
+    redraw_dt('splicing_table', true);
+  }
+  else {
+    redraw_dt('splicing_table', false);
+  }
+  $('#splicing_table').show();
+  $('#spliceai_lookup_wheel').empty();
+  $('#spliceai_lookup_button').hide();
+  $('html').css('cursor', 'default');
+  });
 }
 
 function spliceai_lookup_html(spliceai_str) {
@@ -712,20 +712,20 @@ function spliceai_lookup_html(spliceai_str) {
 
 function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
   // send header for flask-wtf crsf security
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
-    $.ajax({
-        type: "POST",
-        url: create_g_url,
-        data: {
-            variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_symbol').text(), caller: 'cli', api_key: api_key
-        }
-    })
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+      type: "POST",
+      url: create_g_url,
+      data: {
+          variant_ghgvs: $('#hgvs_strict_genomic_hg38').text() , gene_hgnc: $('#gene_symbol').text(), caller: 'cli', api_key: api_key
+      }
+  })
   .done(function(var_json) {
     if (var_json.mobidetails_error) {
       $('#result_display').html(var_json.mobidetails_error)
@@ -736,96 +736,95 @@ function submit_create_var_g(create_g_url, api_key, current_id, csrf_token) {
     else {
       $('#result_display').html("Mapping this variant on the canonical isoform of <em>" + encodeURIComponent($('#gene_symbol').text()) + "</em> is not possible.");
     }
-    }
-  );
+  });
 }
 
 
 function clinvar_watch(vf_id, operation, watch_url, csrf_token) {
   var swal_title = 'Add this variant to your clinvar watch list';
-    var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
-    var swal_confirm = 'Yes, add it!';
-    var swal_done = 'This pop-up will close automatically.';
-    if (operation === 'remove') {
-        var swal_title = 'Remove this variant from your clinvar watch list';
-        var swalt_text = 'You can add it again later if needed';
-        var swal_confirm = 'Yes, remove it!';
-    }
+  var swalt_text = 'This list of variants will be checked against each new release of ClinVar, and significant changes will be reported by email to you';
+  var swal_confirm = 'Yes, add it!';
+  var swal_done = 'This pop-up will close automatically.';
+  if (operation === 'remove') {
+      var swal_title = 'Remove this variant from your clinvar watch list';
+      var swalt_text = 'You can add it again later if needed';
+      var swal_confirm = 'Yes, remove it!';
+  }
   Swal.fire({
-        title: swal_title,
-        text: swalt_text,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: swal_confirm
-    }).then((result) => {
-    if (result.isConfirmed) {
-      // send header for flask-wtf crsf security
-      $.ajaxSetup({
-          beforeSend: function(xhr, settings) {
-              if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                  xhr.setRequestHeader("X-CSRFToken", csrf_token);
-              }
-          }
-      });
-      $.ajax({
-        type: "POST",
-        url: watch_url,
-        data: {
-          vf_id: vf_id, marker: $('#clinvar_watch_span').attr('name'), clinvar_watch: 1
+    title: swal_title,
+    text: swalt_text,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: swal_confirm
+  }).then((result) => {
+  if (result.isConfirmed) {
+    // send header for flask-wtf crsf security
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
         }
-      })
-      .done(function() {
-        if ($('#clinvar_watch_span').attr('name') === 'mark') {
-          $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'remove', watch_url, csrf_token)});
-          $('#clinvar_watch').toggleClass('fa-heart fa-heart-o');
-          $('#clinvar_watch_span').attr('title', 'Unwatch this variant!');
-          $('#clinvar_watch_span').attr('name', 'unmark');
-          $('#clinvar_watch_heart').show();          
-        }
-        else {
-          $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'add', watch_url, csrf_token)});
-          $('#clinvar_watch').toggleClass('fa-heart-o fa-heart');
-          $('#clinvar_watch_span').attr('title', 'Watch this variant!');
-          $('#clinvar_watch_span').attr('name', 'mark');
-          $('#clinvar_watch_heart').hide();
-        }
-      });
-      Swal.fire({
-                title: 'Done!',
-                html: swal_done,
-        timer: 1000,
-        timerProgressBar: true,
-        didOpen: () => {
-          Swal.showLoading()
-        },
-      });
-        }
+      }
+    });
+    $.ajax({
+      type: "POST",
+      url: watch_url,
+      data: {
+        vf_id: vf_id, marker: $('#clinvar_watch_span').attr('name'), clinvar_watch: 1
+      }
     })
+    .done(function() {
+      if ($('#clinvar_watch_span').attr('name') === 'mark') {
+        $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'remove', watch_url, csrf_token)});
+        $('#clinvar_watch').toggleClass('fa-heart fa-heart-o');
+        $('#clinvar_watch_span').attr('title', 'Unwatch this variant!');
+        $('#clinvar_watch_span').attr('name', 'unmark');
+        $('#clinvar_watch_heart').show();          
+      }
+      else {
+        $('#clinvar_watch_span').on('click', function() {clinvar_watch(vf_id , 'add', watch_url, csrf_token)});
+        $('#clinvar_watch').toggleClass('fa-heart-o fa-heart');
+        $('#clinvar_watch_span').attr('title', 'Watch this variant!');
+        $('#clinvar_watch_span').attr('name', 'mark');
+        $('#clinvar_watch_heart').hide();
+      }
+    });
+    Swal.fire({
+              title: 'Done!',
+              html: swal_done,
+      timer: 1000,
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading()
+      },
+    });
+      }
+  })
 }
 
 function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, csrf_token) {
-    // ajax for mobideep
-    // send header for flask-wtf crsf security
+  // ajax for mobideep
+  // send header for flask-wtf crsf security
   // $("#mobideep_score").html(mobideep_url + input_scores);
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrf_token);
-            }
-        }
-    });
-    $.ajax({
-        type: "POST",
-        url: mobideep_url,
-        data: {
-            mobideep_input_scores: input_scores
-        }
-    })
-    .done(function(html) {
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+    type: "POST",
+    url: mobideep_url,
+    data: {
+      mobideep_input_scores: input_scores
+    }
+  })
+  .done(function(html) {
     // add mobideep score in table
-        $("#mobideep_score").html(html);
+    $("#mobideep_score").html(html);
     if ($.fn.DataTable.isDataTable('#noncoding_table')) {
       redraw_dt('noncoding_table', true);
     }
@@ -833,59 +832,59 @@ function mobideep(mobideep_url, input_scores, graph_position, mobideep_label, cs
     var raw_score = $('#mobideep_raw').text();
     mobideepChart.data.datasets.forEach((dataset) => {
       if (dataset.label === mobideep_label) {
-        // alert(dataset.data[1]);
-        dataset.data[graph_position] = raw_score;
+          // alert(dataset.data[1]);
+          dataset.data[graph_position] = raw_score;
       }
     });
     mobideepChart.update();
-    });
+  });
   $("#mobideep_tr").show();
 }
 
 
 function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
-    // ajax for clingenID
+  // ajax for clingenID
   // alert(clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g));
-    $.ajax({
-        type: "GET",
-        url: clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g),
-    })
-    .done(function(json_object) {
-    // add ClingenID in Nomenclature table
-    // returned object is already a JSON object
-    if (typeof json_object["@id"] === "string") {
-      // const clingen_url = json_object["@id"];
-      const clingen_id = json_object["@id"].split('/').filter(Boolean).pop();
-      var clingen_regexp = /^CA\d+$/;
-      // sometimes ID is kindof weird e.g. https://reg.genome.network/allele?hgvs=NC_000007.14%3Ag.55174796_55174798delinsAAC
-      if (clingen_id.match(clingen_regexp)) {
-        // alert(JSON.stringify({"clingenAlleleIds": [clingen_id]}));
-        // check if mavemd has got some results for us
-        $.ajax({
-          type: "POST",
-          url: "https://api.mavedb.org/api/v1/variants/clingen-allele-id-lookups",
-          contentType: "application/json; charset=utf-8",
-          data: JSON.stringify({"clingenAlleleIds": [clingen_id]})
-        })
-        .done(function(mavemd_json) {
-          // ?searchType=clinGenAlleleId&search=
-          if (mavemd_json[0]["exactMatch"] !== null) {
-            $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "variants/" + clingen_id + "' target='_blank'><img src='"+ static_path + "img/mavemd-logo.png' height='30'/></a></span>");
-          }
-          else {
-            $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a></span>");
-          }
-        })
-        .fail(function() {
-          $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' target='_blank'><span>" + clingen_id + "</span></a></span>");
-        });
-        if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
-          redraw_dt('nomenclature_table', true);
+  $.ajax({
+      type: "GET",
+      url: clingen_reg_url + 'allele?hgvs=' + encodeURIComponent(hgvs_g),
+  })
+  .done(function(json_object) {
+  // add ClingenID in Nomenclature table
+  // returned object is already a JSON object
+  if (typeof json_object["@id"] === "string") {
+    // const clingen_url = json_object["@id"];
+    const clingen_id = json_object["@id"].split('/').filter(Boolean).pop();
+    var clingen_regexp = /^CA\d+$/;
+    // sometimes ID is kindof weird e.g. https://reg.genome.network/allele?hgvs=NC_000007.14%3Ag.55174796_55174798delinsAAC
+    if (clingen_id.match(clingen_regexp)) {
+      // alert(JSON.stringify({"clingenAlleleIds": [clingen_id]}));
+      // check if mavemd has got some results for us
+      $.ajax({
+        type: "POST",
+        url: "https://api.mavedb.org/api/v1/variants/clingen-allele-id-lookups",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify({"clingenAlleleIds": [clingen_id]})
+      })
+      .done(function(mavemd_json) {
+        // ?searchType=clinGenAlleleId&search=
+        if (mavemd_json[0]["exactMatch"] !== null) {
+          $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "variants/" + clingen_id + "' target='_blank'><img src='"+ atic_path + "img/mavemd-logo.png' height='30'/></a></span>");
         }
-        $("#clingen_tr").show();
+        else {
+          $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a></span>");
+        }
+      })
+      .fail(function() {
+        $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a></span>");
+      });
+      if ($.fn.DataTable.isDataTable('#nomenclature_table')) {
+        redraw_dt('nomenclature_table', true);
       }
+      $("#clingen_tr").show();
     }
-    });
+  }
+  });
 }
 
 
