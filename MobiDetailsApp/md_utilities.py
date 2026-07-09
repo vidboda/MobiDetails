@@ -16,6 +16,7 @@ import gzip
 import bgzip
 import pyBigWig
 import numpy as np
+from cyvcf2 import VCF
 
 from urllib.parse import urlparse
 from flask import (
@@ -176,6 +177,12 @@ local_files['morfeedb']['abs_path'] = '{0}{1}'.format(
 )
 local_files['morfeedb_folder']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['morfeedb_folder']['rel_path']
+)
+local_files['ms_visual_gnomad']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['ms_visual_gnomad']['rel_path']
+)
+local_files['ms_visual_clinvar']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['ms_visual_clinvar']['rel_path']
 )
 local_files['ncboost']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['ncboost']['rel_path']
@@ -1053,6 +1060,7 @@ def get_bigwig_score(text, bigwig_file_path, var):
             except Exception: # Don't let a close error mask the original error or cause a new one
                 pass
 
+
 def decompose_snvs_cname(c_name):
     # from c.928G>A or 928G>A to 928 and G>A
     match_obj = re.search(r'^[cn]?\.?(\d+)([ACGT]>[ACGT])', c_name)
@@ -1060,11 +1068,13 @@ def decompose_snvs_cname(c_name):
         return match_obj.group(1), match_obj.group(2)
     return None, None
 
+
 def decompose_missense(p_name):
     match_obj = re.search(r'^([A-Z][a-z]{2})(\d+)([A-Z][a-z]{2})$', p_name)
     if match_obj:
         return three2one[match_obj.group(1)], match_obj.group(2), three2one[match_obj.group(3)]
     return None, None, None
+
 
 def decompose_missense_one_letter(p_name):
     match_obj = re.search(r'^([A-Z])(\d+)([A-Z])$', p_name)
@@ -3074,6 +3084,7 @@ def create_var_vv_vcf_str(
     db.commit()
     return vf_id
 
+
 def get_segment_type_from_vv(vv_expr):
     if re.match(r'^\d+i$', vv_expr):
         return 'intron'
@@ -3088,7 +3099,6 @@ def get_segment_size_from_vv(start, end):
             end > start:
         return str(end - start + 1)
     return 'segment_size_error'
-
 
 
 def get_positions_dict_from_vv_json(gene_symbol, transcript, ncbi_chr, exon_number):
@@ -4271,6 +4281,7 @@ def is_coding_gene(db, gene_symbol, gene_info=None):
             return True
     return False
 
+
 def check_position_in_bed(bed_file_path, chrom, pos_1_indexed, strand):
     """
     Check if a position is included in a bed file
@@ -4304,3 +4315,80 @@ def check_position_in_bed(bed_file_path, chrom, pos_1_indexed, strand):
     except FileNotFoundError:
         print(f"Fichier {bed_file_path} non trouvé.")
         return False
+
+
+def to_float(value):
+    """Safely convert a value to float, returning np.nan on failure."""
+    if not value:
+        return None
+    try:
+        return round(float(value), 4)
+    except (ValueError, TypeError):
+        return None
+
+
+def ms_vis_parse_variant_record(variant, gene_symbol, refseq):
+    """
+    Helper function to parse a single variant record (from cyvcf2 or a dictionary).
+    Returns a list of variant data dictionaries (one for each relevant transcript).
+    code copied from https://github.com/JMdeSteAgathe/missense_visual/blob/main/app.py function parse_variant_record
+    """
+    parsed_variants = []
+    info_dict = variant.INFO
+    chrom, pos, ref, alt = variant.CHROM, variant.POS, variant.REF, ','.join(variant.ALT)
+    variant_id = str(variant.ID) if variant.ID else None
+    bcsq_string = info_dict.get('BCSQ')
+    if bcsq_string is None:
+        return []
+    for entry in bcsq_string.split(','):
+        fields = entry.split('|')
+        if len(fields) < 6:
+            continue
+        consequence, entry_gene, entry_transcript, biotype, strand, aa_change = fields[0:6]
+        if consequence != 'missense' or entry_gene != gene_symbol or not aa_change:
+            continue
+        
+        match = re.match(r'(\d+)', aa_change)
+        if not match:
+            continue
+        
+        aa_position = int(match.group(1))
+        variant_data = {
+            'chrom': chrom, 'pos': pos, 'ref': ref, 'alt': alt,
+            'variant_id': variant_id,
+            'gene': entry_gene, 'transcript': refseq, 'biotype': biotype,
+            'aa_position': aa_position, 'aa_change': aa_change,
+            'AC_joint': info_dict.get('AC_joint', 0),
+            'AC_genomes': info_dict.get('AC_genomes', 0),
+            'nhomalt_joint': info_dict.get('nhomalt_joint', 0),
+            'nhomalt_genomes': info_dict.get('nhomalt_genomes', 0),
+            # Convert all scores to float
+            'revel': to_float(info_dict.get('REVEL')),
+            'alphamissense': to_float(info_dict.get('am_pathogenicity')),
+            'cadd': to_float(info_dict.get('cadd_v1.7')),
+            'MPC': to_float(info_dict.get('MPC')),
+            'mistic': to_float(info_dict.get('MISTIC_score')),
+            'mistic_pred': info_dict.get('MISTIC_pred'),  # Keep as string
+            'popEVE': to_float(info_dict.get('popEVE')),
+            'bayesdel': to_float(info_dict.get('BayesDel_nsfp33a_noAF')),
+            'VARITY_R_LOO': to_float(info_dict.get('VARITY_R_LOO')),
+            # === CLINVAR SPECIFIC FIELDS ===
+            'CLNDN': info_dict.get('CLNDN'),
+            'CLNREVSTAT': info_dict.get('CLNREVSTAT'),
+            'CLNSIG': info_dict.get('CLNSIG')
+        }
+        parsed_variants.append(variant_data)
+    return parsed_variants
+
+
+def ms_vis_parse_gene_variant_record(vcf_file, chrom, start, end, gene_symbol, refseq):
+    """
+    Parse VCF file for a specific gene using coordinates.
+    """
+    variants = []
+    vcf = VCF(vcf_file)
+    region = "{0}:{1}-{2}".format(chrom, start, end)
+    
+    for variant in vcf(region):
+        variants.extend(ms_vis_parse_variant_record(variant, gene_symbol, refseq))
+    return variants

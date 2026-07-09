@@ -869,7 +869,7 @@ function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
       .done(function(mavemd_json) {
         // ?searchType=clinGenAlleleId&search=
         if (mavemd_json[0]["exactMatch"] !== null) {
-          $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "variants/" + clingen_id + "' target='_blank'><img src='"+ atic_path + "img/mavemd-logo.png' height='30'/></a></span>");
+          $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a>&nbsp;&nbsp;&nbsp;&nbsp;<span><a href='" + mavedb_url + "variants/" + clingen_id + "' target='_blank'><img src='"+ static_path + "img/mavemd-logo.png' height='30'/></a></span>");
         }
         else {
           $("#clingen_id").html("<a href = 'https://reg.clinicalgenome.org/redmine/projects/registry/genboree_registry/by_canonicalid?canonicalid=" + clingen_id + "' rget='_blank'><span>" + clingen_id + "</span></a></span>");
@@ -886,6 +886,593 @@ function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
   }
   });
 }
+
+
+// function missense_visual(ms_visual_url, predictor, filter_field, filter_threshold, csrf_token) {
+//   // ajax for missense_visual
+//   // send header for flask-wtf crsf security
+//   $.ajaxSetup({
+//       beforeSend: function(xhr, settings) {
+//           if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+//               xhr.setRequestHeader("X-CSRFToken", csrf_token);
+//           }
+//       }
+//   });
+//   $.ajax({
+//     type: "POST",
+//     url: ms_visual_url,
+//     data: {
+//       chrom: $('#chrom_38').text(), refseq: $('#nm_acc').text(), strand: $('#strand').text(), gene_symbol: $('#gene_symbol').text(), dataset: 'gnomad'
+//     },
+//     dataType: "json"
+//   })
+//   .done(function(gnomad_data) {
+//     // console.log("gnomad:", gnomad_data);
+//     // get clinvar
+//     $.ajax({
+//       type: "POST",
+//       url: ms_visual_url,
+//       data: {
+//         chrom: $('#chrom_38').text(), refseq: $('#nm_acc').text(), strand: $('#strand').text(), gene_symbol: $('#gene_symbol').text(), dataset: 'clinvar'
+//       },
+//       dataType: "json"
+//     })
+//     .done(function(clinvar_data) {
+//       // $("#missense_visual_div").html('ouhou');
+//       //   console.log("clinvar:", clinvar_data);
+//       var score = parseFloat($('#' + predictor + '_score').text());
+//       // =========================================
+//       // SINGLE PASS OVER GNOMAD_DATA
+//       // =========================================
+//       let x_gnomad = [], y_gnomad = [], texts_gnomad = [];
+//       let color_vals_raw = [];
+//       for (const v of gnomad_data) {
+//         if (parseFloat(v[filter_field]) > parseFloat(filter_threshold)) {
+//           // const filter_field_value = v[filter_field] || 0;
+//           if (v[predictor]) {
+//             const pred_score = v[predictor];
+            
+//             x_gnomad.push(v.aa_position);
+//             y_gnomad.push(pred_score);
+//             color_vals_raw.push(v[filter_field] || 0);
+            
+//             texts_gnomad.push(
+//                 `Variant: ${v.aa_change}<br>${predictor} score: ${pred_score.toFixed(3)}<br>gnomAD:<br>Allele count joint: ${v.AC_joint}<br>Allele count genomes: ${v.AC_genomes || 0}<br># homozygous joint: ${v.nhomalt_joint || 0}<br># homozygous genomes: ${v.nhomalt_genomes || 0}`
+//             );
+//           }
+//         }
+//       }
+      
+//       // reate log values for color mapping
+//       const color_vals_log = color_vals_raw.map(v => Math.log10(v + 1e-9));
+//       const min_log = Math.min(...color_vals_log);
+//       const max_log = Math.max(...color_vals_log);
+//       // Normalize to 0-1 for Plotly color mapping
+//       // const normalized_colors = color_vals_log.map(c => 
+//       //   max_log === min_log ? 0.5 : (c - min_log) / (max_log - min_log)
+//       // );
+      
+//       // =========================================
+//       // SINGLE PASS OVER CLINVAR_DATA
+//       // =========================================
+//       let x_clinvar = [], y_clinvar = [], texts_clinvar = [];
+      
+//       for (const v of clinvar_data) {
+//         x_clinvar.push(v.aa_position);
+//         y_clinvar.push(v[predictor]);
+//         texts_clinvar.push(
+//           `Variant: ${v.aa_change}<br>${predictor} score: ${v[predictor]}<br>CLNDN: ${v.CLNDN}<br>CLNREVSTAT: ${v.CLNREVSTAT}<br>CLNSIG: ${v.CLNSIG}`
+//         );
+//       }
+      
+//       // =========================================
+//       // BUILD PLOTLY TRACES
+//       // =========================================
+//       // Define tick positions in LOG space (for cmin/cmax matching)
+//       // const tick_positions = [1, 10, 100, 1000, 10000].map(x => Math.log10(x));
+//       // Dynamic tick positions based on actual data range
+//       const max_ac = Math.max(...color_vals_raw);
+//       const dynamic_ticks = [1, 10, 100, 1000, 10000, 100000].filter(t => t <= max_ac);
+//       const dynamic_tickvals = dynamic_ticks.map(x => Math.log10(x));
+//       const dynamic_ticktext = dynamic_ticks.map(String);
+      
+//       const trace1 = {
+//         x: x_gnomad,
+//         y: y_gnomad,
+//         mode: 'markers',
+//         type: 'scatter',
+//         name: 'gnomAD variants',
+//         marker: {
+//           size: 8,
+//           color: color_vals_log,
+//           colorscale: 'Viridis',
+//           cmin: min_log,
+//           cmax: max_log,
+//           opacity: 0.6,
+//           line: { color: 'LightGray', width: 0.5 },
+//           colorbar: {
+//             title: filter_field,
+//             titleside: 'right',
+//             tickmode: 'array',
+//             tickvals: dynamic_tickvals,  // Positions at log(1), log(10), etc.
+//             ticktext: dynamic_ticktext,  // Display as raw values
+//             len: 0.6,
+//             thickness: 12,
+//             x: 1.08,
+//             xpad: 5
+//           }
+//         },
+//         hovertemplate: '<b>%{text}</b><extra></extra>',
+//         text: texts_gnomad,
+//       };
+      
+//       const trace2 = {
+//         x: x_clinvar,
+//         y: y_clinvar,
+//         mode: 'markers',
+//         type: 'scatter',
+//         name: 'ClinVar P/LP variants',
+//         marker: {
+//           size: 10,
+//           color: 'darkred',
+//           symbol: 'diamond',
+//           opacity: 0.7,
+//         },
+//         text: texts_clinvar,
+//       };
+      
+//       const trace3 = {
+//         x: [parseInt($("#aa_position_start").text())],
+//         y: [score],
+//         mode: 'markers',
+//         type: 'scatter',
+//         name: $('#hgvs_p_name').text(),
+//         marker: {
+//           size: 16,
+//           color: 'gold',
+//           symbol: 'star',
+//           line: { color: 'White', width: 1 }
+//         },
+//         text: 'Variant: ' + $("#hgvs_p_name").text() + `<br> ${predictor} score: ${score}`,
+//       };
+      
+//       const layout = {
+//         title: 'Missense visual for ' + predictor + ' score',
+//         xaxis: {
+//           title: {text: 'Amino acid position'},
+//           zeroline: true
+//         },
+//         yaxis: {
+//           title: {text: `${predictor} score`},
+//         //   range: [0, 1]
+//         },
+//         showlegend: true,
+//         legend: {
+//           x: 1,
+//           xanchor: 'left',
+//           y: 1,
+//           yanchor: 'top'
+//         },
+//         margin: { l: 50, r: 100, t: 50, b: 50 },  // Increased right margin for colorbar
+//         paper_bgcolor: 'white',
+//         plot_bgcolor: 'white',
+//         hoverlabel: {
+//           bgcolor: 'white',
+//           font: { size: 12 }
+//         }
+//       };
+
+//       Plotly.newPlot('missense_visual_graph', [trace1, trace2, trace3], layout);
+//       $("#missense_visual_wait").hide();
+//       $("#missense_visual_div").show();
+
+//     });
+//   })
+// //   .fail(function() {
+// //     console.log("Erreur AJAX:", status);
+// //     // console.log("Réponse serveur:", xhr.responseText);
+// //   });
+// //   $("#missense_visual_div").show();
+// }
+
+
+
+// =========================================
+// Missense-visual - from JMDSA made with Lumo2
+// GLOBAL VARIABLES TO STORE DATA (CACHED AFTER FIRST LOAD)
+// =========================================
+let gnomad_data_global = [];
+let clinvar_data_global = [];
+let ms_visual_url_global = '';
+
+// =========================================
+// HELPER: VALIDATE INTEGER INPUT
+// =========================================
+function validateInteger(value, defaultVal = 0) {
+  const num = parseInt(value, 10);
+  if (isNaN(num)) {
+    console.warn(`Invalid integer input: "${value}", using default: ${defaultVal}`);
+    return defaultVal;
+  }
+  return num;
+}
+
+// =========================================
+// CALCULATE MEDIAN VALUE
+// =========================================
+function calculateMedian(array) {
+  if (array.length === 0) return null;
+  
+  const sorted = [...array].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  
+  // Even length: average of two middle values
+  if (sorted.length % 2 === 0) {
+    return (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+  
+  // Odd length: middle value
+  return sorted[mid];
+}
+
+// =========================================
+// MAIN INITIALIZATION FUNCTION (CALL ON PAGE LOAD)
+// =========================================
+function init_missense_visual(url, csrf_token) {
+  ms_visual_url_global = url;
+  // Hide result div, show loading indicator
+  $("#missense_visual_div").hide();
+  $("#missense_visual_wait").show();
+  
+  fetch_gnomad_and_clinvar(csrf_token);
+}
+
+// =========================================
+// FETCH DATA VIA AJAX (CALLED ONLY ONCE)
+// =========================================
+function fetch_gnomad_and_clinvar(csrf_token) {
+  const ajax_params = {
+    chrom: $('#chrom_38').text(),
+    refseq: $('#nm_acc').text(),
+    strand: $('#strand').text(),
+    gene_symbol: $('#gene_symbol').text(),
+    dataset: 'gnomad'
+  };
+
+  // AJAX 1: Fetch gnomAD data
+  // send header for flask-wtf crsf security
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
+  $.ajax({
+    type: "POST",
+    url: ms_visual_url_global,
+    data: ajax_params,
+    dataType: "json"
+  })
+  .done(function(gnomad_data) {
+    gnomad_data_global = gnomad_data;
+    // console.log(`Loaded ${gnomad_data_global.length} gnomAD variants`);
+    if (gnomad_data_global.length > 10000 && $('#gnomad_filter_value').val() === '') {
+      $('#gnomad_filter_value').val(10);
+    }
+    else if (gnomad_data_global.length > 1000 && $('#gnomad_filter_value').val() === '') {
+      $('#gnomad_filter_value').val(1);
+    }
+    else {
+      $('#gnomad_filter_value').val(0);
+    }
+    // Set dataset for ClinVar query
+    ajax_params.dataset = 'clinvar';
+    
+    // AJAX 2: Fetch ClinVar data
+    $.ajax({
+      type: "POST",
+      url: ms_visual_url_global,
+      data: ajax_params,
+      dataType: "json"
+    })
+    .done(function(clinvar_data) {
+      clinvar_data_global = clinvar_data;
+      // console.log('--' + $('#clinvar_filter_dropdown').val() + '--');
+      if (clinvar_data_global.length > 10000 && $('#clinvar_filter_dropdown').val() === null) {
+        $('#clinvar_filter_dropdown').val(2);
+      }
+      else if (clinvar_data_global.length > 1000 && $('#clinvar_filter_dropdown').val() === null) {
+        $('#clinvar_filter_dropdown').val(1);
+        // console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
+      }
+      else {
+        $('#clinvar_filter_dropdown').val(0);
+      }
+      // console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
+      
+      // First render with default parameters
+      const predictor = $('#predictor_dropdown').val() || 'revel';
+      const filter_field = $('#gnomad_filter_dropdown').val() || 'AC_joint';
+      const filter_threshold = validateInteger($('#gnomad_filter_value').val(), 0);
+      
+      render_missense_graph(predictor, filter_field, filter_threshold);
+    })
+    .fail(function(xhr, status, error) {
+      console.error("Error fetching ClinVar data:", error);
+      alert("Failed to load ClinVar data. Please try again.");
+    });
+  })
+  .fail(function(xhr, status, error) {
+    console.error("Error fetching gnomAD data:", error);
+    alert("Failed to load gnomAD data. Please try again.");
+  });
+}
+
+// =========================================
+// RENDER GRAPH WITHOUT AJAX (FAST RE-RENDER)
+// =========================================
+function render_missense_graph(predictor, filter_field, filter_threshold) {
+  // Show loading indicator for quick feedback
+  $("#missense_visual_wait").show();
+  $("#missense_visual_div").fadeOut(200, function() {
+    setTimeout(() => {
+      // Collect ALL score values for dynamic y-axis range calculation
+      let all_scores = [];
+      // Process gnomAD data with filtering
+      let x_gnomad = [], y_gnomad = [], texts_gnomad = [], color_vals_raw = [];
+      let gnomad_count = 0, clinvar_count = 0;
+      
+      for (const v of gnomad_data_global) {
+        const filter_value = parseFloat(v[filter_field]) || 0;
+        const threshold = parseFloat(filter_threshold) || 0;
+        
+        // Apply threshold filter
+        if (filter_value > threshold) {
+          if (v[predictor]) {
+            const pred_score = parseFloat(v[predictor]);
+            
+            x_gnomad.push(parseInt(v.aa_position));
+            y_gnomad.push(pred_score);
+            color_vals_raw.push(filter_value);
+            all_scores.push(pred_score);  // Track for y-axis range
+            
+            texts_gnomad.push(
+              `Variant: ${v.aa_change}<br>${predictor} score: ${pred_score.toFixed(3)}<br>gnomAD:<br>Allele count joint: ${v.AC_joint || 0}<br>Allele count genomes: ${v.AC_genomes || 0}<br># homozygous joint: ${v.nhomalt_joint || 0}<br># homozygous genomes: ${v.nhomalt_genomes || 0}`
+            );
+            gnomad_count++;
+          }
+        }
+      }
+      // Calculate median AFTER filtering
+      const median_score_gnomad = calculateMedian(all_scores);
+      // Check if any variants remain after filtering
+      if (color_vals_raw.length === 0) {
+        console.warn('No variants match the current filter criteria');
+        alert('No variants found matching your filter criteria.');
+        $("#missense_visual_wait").hide();
+        return;
+      }
+      
+      // console.log(`${gnomad_count} gnomAD variants passed filter (threshold: ${threshold})`);
+      
+      // Create log values for color mapping
+      const color_vals_log = color_vals_raw.map(v => Math.log10(v + 1e-9));
+      const min_log = Math.min(...color_vals_log);
+      const max_log = Math.max(...color_vals_log);
+      
+      // Process ClinVar data (no filtering)
+      let x_clinvar = [], y_clinvar = [], texts_clinvar = [];
+      const clinvar_star = {
+        'no_assertion_criteria_provided': 0,
+        'no_classification_provided': 0,
+        'no_classification_for_the_individual_variant': 0,
+        'criteria_provided,_single_submitter': 1,
+        'criteria provided,_conflicting_classifications': 1,
+        'criteria_provided,_multiple_submitters,_no_conflicts': 2,
+        'reviewed_by_expert_panel' : 3,
+        'practice_guideline': 4
+      };
+      const clinvar_filter = parseFloat($('#clinvar_filter_dropdown').val() || 0);
+      for (const v of clinvar_data_global) {
+        if (v[predictor] && v.aa_position) {
+          if (parseFloat(clinvar_star[v.CLNREVSTAT]) >= clinvar_filter) {
+            const clinvar_score = parseFloat(v[predictor]);
+            x_clinvar.push(parseInt(v.aa_position));
+            y_clinvar.push(clinvar_score);
+            all_scores.push(clinvar_score);  // Track for y-axis range
+            texts_clinvar.push(
+              `Variant: ${v.aa_change}<br>${predictor} score: ${clinvar_score}<br>CLNDN: ${v.CLNDN || 'N/A'}<br>CLNREVSTAT: ${v.CLNREVSTAT || 'N/A'}<br>CLNSIG: ${v.CLNSIG || 'N/A'}`
+            );
+            clinvar_count++;
+          }
+        }
+      }
+      // Calculate median AFTER filtering
+      const median_score_clinvar = calculateMedian(y_clinvar);
+      // Add target variant score to range calculation
+      const target_pos = parseInt($("#aa_position_start").text());
+      const target_score = parseFloat($('#' + predictor + '_score').text());
+      all_scores.push(target_score);
+
+      // Calculate dynamic y-axis range from ALL scores
+      const y_min = Math.min(...all_scores);
+      const y_max = Math.max(...all_scores);
+      const y_range = y_max - y_min;
+      
+      // Add padding (5% margin on top and bottom) to prevent points touching edges
+      const y_min_pad = y_min - (y_range * 0.05);
+      const y_max_pad = y_max + (y_range * 0.05);
+
+
+      // Generate dynamic ticks based on data range
+      const max_ac = Math.max(...color_vals_raw);
+      const dynamic_ticks = [1, 10, 100, 1000, 10000, 100000].filter(t => t <= max_ac);
+      const dynamic_tickvals = dynamic_ticks.map(x => Math.log10(x));
+      const dynamic_ticktext = dynamic_ticks.map(String);
+      
+      // Build trace 1: gnomAD variants
+      const trace1 = {
+        x: x_gnomad,
+        y: y_gnomad,
+        mode: 'markers',
+        type: 'scatter',
+        name: `gnomAD variants (${gnomad_count})`,
+        marker: {
+          size: 8,
+          color: color_vals_log,
+          colorscale: 'Viridis',
+          cmin: min_log,
+          cmax: max_log,
+          opacity: 0.6,
+          line: { color: 'LightGray', width: 0.5 },
+          colorbar: {
+            title: filter_field,
+            titleside: 'right',
+            tickmode: 'array',
+            tickvals: dynamic_tickvals,
+            ticktext: dynamic_ticktext,
+            len: 0.6,
+            thickness: 12,
+            x: 1.04,
+            y: 0.4,
+            xpad: 5
+          }
+        },
+        hovertemplate: '<b>%{text}</b><extra></extra>',
+        text: texts_gnomad,
+      };
+      
+      // Build trace 2: ClinVar P/LP variants
+      const trace2 = {
+        x: x_clinvar,
+        y: y_clinvar,
+        mode: 'markers',
+        type: 'scatter',
+        name: `ClinVar P/LP variants (${clinvar_count})`,
+        marker: {
+          size: 10,
+          color: '#8B0000',
+          symbol: 'diamond',
+          opacity: 0.9,
+          line: { color: 'White', width: 1.5 }
+        },
+        text: texts_clinvar,
+      };
+      
+      // Build trace 3: Target variant (highlighted)
+      const target_name = $('#hgvs_p_name').text();
+      
+      const trace3 = {
+        x: [target_pos],
+        y: [target_score],
+        mode: 'markers',
+        type: 'scatter',
+        name: target_name,
+        marker: {
+          size: 24,
+          color: 'gold',
+          symbol: 'star',
+          line: { color: 'White', width: 2 }
+        },
+        text: `Variant: ${target_name}<br>${predictor} score: ${target_score}`,
+        hoverinfo: 'text'
+      };
+      const containerWidth = document.getElementById('missense_visual_div').parentElement.offsetWidth; // fallback
+      // Build layout
+      const layout = {
+        title: `Missense visual for ${predictor} score<br><sup>Threshold: ${filter_field}  > ${filter_threshold}</sup>`,
+        width: containerWidth - 40,
+        xaxis: {
+          title: { text: 'Amino acid position' },
+          zeroline: true,
+          automargin: true
+        },
+        yaxis: {
+          title: { text: `${predictor} score` },
+          range: [y_min_pad, y_max_pad],  // DYNAMIC based on data min/max
+          autorange: false,  // Disable auto-range when using manual range
+          automargin: true
+        },
+        showlegend: true,
+        legend: {
+          x: 1,
+          xanchor: 'left',
+          y: 1,
+          yanchor: 'top'
+        },
+        margin: { l: 50, r: 100, t: 60, b: 50 },
+        paper_bgcolor: 'white',
+        plot_bgcolor: 'white',
+        hoverlabel: {
+          bgcolor: 'white',
+          font: { size: 12 }
+        }
+      };
+      // =========================================
+      // STEP 3: CREATE MEDIAN LINE TRACE
+      // =========================================
+      const trace_median_gnomad = {
+        x: [0, Math.max(...x_gnomad)],  // Line spans entire x-axis
+        y: [median_score_gnomad, median_score_gnomad], // Horizontal line at median
+        mode: 'lines',
+        type: 'scatter',
+        name: `gnomAD ${predictor} median (${median_score_gnomad?.toFixed(3)})`,
+        marker: {
+          color: 'blue',
+          line: {
+            width: 2,
+            dash: 'dash'  // Dashed line style
+          }
+        },
+        line: {
+          width: 2,
+          dash: 'dash'
+        },
+        hovertemplate: `<b>gnomAD median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
+        showlegend: true
+      };
+      const trace_median_clinvar = {
+        x: [0, Math.max(...x_clinvar)],  // Line spans entire x-axis
+        y: [median_score_clinvar, median_score_clinvar], // Horizontal line at median
+        mode: 'lines',
+        type: 'scatter',
+        name: `ClinVar ${predictor} median (${median_score_clinvar?.toFixed(3)})`,
+        marker: {
+          color: 'red',
+          line: {
+            width: 2,
+            dash: 'dash'  // Dashed line style
+          }
+        },
+        line: {
+          width: 2,
+          dash: 'dash'
+        },
+        hovertemplate: `<b>ClinVar median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
+        showlegend: true
+      };
+      // =========================================
+      // STEP 4: ADD TO PLOT
+      // =========================================
+      const finalTraces = [trace1, trace2, trace3];
+      
+      if (median_score_gnomad !== null) {
+        finalTraces.push(trace_median_gnomad);  // Add median line
+      }
+      if (median_score_clinvar !== null) {
+        finalTraces.push(trace_median_clinvar);  // Add median line
+      }
+      // Render Plotly graph
+      Plotly.newPlot('missense_visual_graph', finalTraces, layout);
+      // Hide loading indicator, show graph
+      $("#missense_visual_wait").hide();
+      $(this).fadeIn(300);
+    }, 50); // Small delay for smooth UX
+  });
+}
+
+
 
 
 function myAccFunc(acc_id, icon_id) {
@@ -928,6 +1515,96 @@ function myAccFunc(acc_id, icon_id) {
 //    document.body.removeChild(form);
 //}
 
+// Lumo2 pdf export from plotly svg
+async function safeCaptureGraph(graphId) {
+  try {
+    // Step 1: Wait for Plotly div to exist
+    const plotDiv = document.getElementById(graphId);
+    if (!plotDiv) {
+      throw new Error('Plot div not found: ' + graphId);
+    }
+    
+    // Step 2: Wait for SVG to be fully rendered
+    await new Promise((resolve) => {
+      const checkReady = () => {
+        const svg = plotDiv.querySelector('.main-svg');
+        if (svg && svg.getAttribute('width')) {
+          resolve();
+        } else if (Date.now() > timeout) {
+          resolve();
+        } else {
+          setTimeout(checkReady, 50);
+        }
+      };
+      
+      const timeout = Date.now() + 5000;
+      checkReady();
+    });
+    
+    // Step 3: Find the main SVG (THIS IS THE KEY FIX)
+    // Based on your debug: first SVG IS the main-svg element
+    const svgElement = plotDiv.querySelector('.main-svg');
+    
+    if (!svgElement) {
+      throw new Error('SVG element (.main-svg) not found');
+    }
+    
+    // console.log('Found main-svg element:', svgElement);
+    
+    // Step 4: Serialize SVG to string
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgElement);
+    // console.log('SVG serialized, length:', svgString.length);
+    
+    // Step 5: Convert SVG to Canvas
+    const canvas = document.createElement('canvas');
+    const width = parseInt(svgElement.getAttribute('width')) || 1537;
+    const height = parseInt(svgElement.getAttribute('height')) || 450;
+    
+    canvas.width = width * 2;  // 2x scale for better resolution
+    canvas.height = height * 2;
+    
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(svgBlob);
+    // console.log('Created SVG blob URL');
+    
+    return new Promise((resolve) => {
+      img.onload = function() {
+        console.log('Image loaded successfully');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Fill white background (SVG transparent areas become black by default)
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL('image/png', 1.0);
+        URL.revokeObjectURL(url);
+        
+        // console.log('✅ Captured PNG dataURL');
+        // console.log('Data URL length:', dataUrl.length);
+        // console.log('Data URL prefix:', dataUrl.substring(0, 50));
+        resolve(dataUrl);
+      };
+      
+      img.onerror = function(error) {
+        // console.error('❌ Image load error:', error);
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+      
+      img.src = url;
+    });
+    
+  } catch (error) {
+    // console.error('Safe capture error:', error);
+    // console.error('Stack:', error.stack);
+    return null;
+  }
+}
 
 // https://www.chartjs.org/docs/latest/general/responsive.html#important-note
 function beforePrintHandler () {
@@ -977,6 +1654,16 @@ $(document).ready(function() {
     $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
     if ($('#login_name').length) {$('#login_name').remove();}
   }
+  // press enter in 
+  $('#gnomad_filter_value').keydown(function (e) {
+    //alert(e.which);
+    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+      $('#missense_visual_submit_btn').click();
+      return false;
+    } else {
+      return true;
+    }
+  });
 
   // transform all tables as datatables
     $('.w3-table').DataTable({
@@ -1153,34 +1840,35 @@ $(document).ready(function() {
     return js_date + js_time;// + "-" h + ":" + m + ":" + s;
   }
 
-    // adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
+  
+
+  // adapted from https://sharepoint.stackexchange.com/questions/234464/datatables-plugin-print-multiple-tables-on-one-page
   // uses pdfMake https://pdfmake.github.io/docs
   // http://pdfmake.org/#/gettingstarted
-    // export multiple tables in one single pdf
+  // export multiple tables in one single pdf
 
-    $('#ExportPdf').on("click", function() {
-        var config = {
-              className: "buttons-pdf buttons-html5",
-              customize: null,
-              download: "download",
-              exportOptions: {},
-              extension: ".pdf",
-              filename: "*",
-              footer: false,
-              header: true,
-              messageBottom: "*",
-              messagetop: "*",
-              namespace: ".dt-button-2",
-              orientation: "portrait",
-              pageSize: "A4",
-              title: "*",
-        author:"MobiDetails",
-        };
-
+  $('#ExportPdf').on("click", async function() {
+    var config = {
+        className: "buttons-pdf buttons-html5",
+        customize: null,
+        download: "download",
+        exportOptions: {},
+        extension: ".pdf",
+        filename: "*",
+        footer: false,
+        header: true,
+        messageBottom: "*",
+        messagetop: "*",
+        namespace: ".dt-button-2",
+        orientation: "portrait",
+        pageSize: "A4",
+        title: "*",
+    author:"MobiDetails",
+    };
 
     var doc = {
-            pageSize: config.pageSize,
-            pageOrientation: config.orientation,
+      pageSize: config.pageSize,
+      pageOrientation: config.orientation,
       footer: function(currentPage, pageCount) {
         return {
           margin:10,
@@ -1195,7 +1883,7 @@ $(document).ready(function() {
           text: formatDate()
         }
       },
-            content: [
+      content: [
         " ",
         " ",
         {
@@ -1207,31 +1895,31 @@ $(document).ready(function() {
         " ",
         {text: "Click on a page number to get to the corresponding page (i.e. page numbers are clickable ;) ).", pageBreak: "after"}
       ],
-            styles: {
-                tableHeader: {
-                    bold: true,
-                    fontSize: 11,
-                    color: 'white',
-                    fillColor: '#2d4154',
-                    alignment: 'center'
-                },
-                tableBodyEven: {},
-                tableBodyOdd: {
-                    fillColor: '#f3f3f3'
-                },
+      styles: {
+        tableHeader: {
+          bold: true,
+          fontSize: 11,
+          color: 'white',
+          fillColor: '#2d4154',
+          alignment: 'center'
+        },
+        tableBodyEven: {},
+        tableBodyOdd: {
+            fillColor: '#f3f3f3'
+        },
         damaging: {
           color: '#ff0000'
         },
-                tableFooter: {
-                    bold: true,
-                    fontSize: 11,
-                    color: 'white',
-                    fillColor: '#2d4154'
-                },
-                title: {
-                    alignment: 'center',
-                    fontSize: 14
-                },
+        tableFooter: {
+          bold: true,
+          fontSize: 11,
+          color: 'white',
+          fillColor: '#2d4154'
+        },
+        title: {
+          alignment: 'center',
+          fontSize: 14
+        },
         table_title: {
           fontSize: 12,
           bold: true,
@@ -1240,12 +1928,12 @@ $(document).ready(function() {
           fontSize: 12,
           italics: true,
         },
-                message: {},
-            },
-            defaultStyle: {
-                fontSize: 9
-            }
-        };
+        message: {},
+      },
+      defaultStyle: {
+        fontSize: 9
+      }
+    };
     if ($("#nomenclature_table").length) {
       var dt = $('#nomenclature_table').DataTable();
       var info = dt.buttons.exportInfo(config);
@@ -1337,6 +2025,22 @@ $(document).ready(function() {
           {image: missense_radar_image, width: 350, alignment: 'center'}
         );
       }
+      // transform missense_visual plotly into pdf
+      if ($('#missense_visual_graph').width() > 0) {
+        await safeCaptureGraph('missense_visual_graph').then(imageData => {
+          if (imageData) {
+            // console.log('SUCCESS! Image captured.');
+            // console.log('Length:', imageData.length);
+            // Add to PDF
+            doc['content'].push(
+              " ",
+              { text: "Missense-visual", style: "table_subtitle", tocItem: true },
+              "gnomAD and Clinvar P/LP variants plotted on the protein",
+              { image: imageData, width: 500, alignment: 'center' }
+            );
+          }
+        });
+      }
       doc = convert_dt(config, "missense_table", "Missense predictions", "table_subtitle", doc);
     }
     if ($('#dbmts_table').length) {
@@ -1377,7 +2081,6 @@ $(document).ready(function() {
     // pubmed
     if ($('#list_from_litvar2').length && Array.from(document.getElementById('list_from_litvar2').getElementsByTagName('li')).map(item => item.textContent).length > 0) {
       const articles = $('#hidden_pubmed_results').text().split(';');
-
       doc['content'].push(
         " ",
         {text: "Pubmed citations", style: "table_title", tocItem: true},
@@ -1407,39 +2110,35 @@ $(document).ready(function() {
     }
 
 
-        //get formatted date to report access time
-        // info.messageTop = formatDate();
+    //get formatted date to report access time
+    // info.messageTop = formatDate();
     // optional places for additional data
-        if (info.messageTop) {
-            doc.content.unshift({
-                text: info.messageTop,
-                style: 'message',
-                margin: [0, 0, 0, 12]
-            });
-        }
-
-        if (info.messageBottom) {
-            doc.content.push({
-                text: info.messageBottom,
-                style: 'message',
-                margin: [0, 0, 0, 12]
-            });
-        }
-
-        if (info.title) {
-            doc.content.unshift({
-                text: info.title,
-                style: 'title',
-                margin: [0, 0, 0, 12]
-            });
-        }
-
-        if (config.customize) {
-            config.customize(doc, config);
-        }
-
-    // console.log(doc.content )
-    //pdfmake comes with datatables
-        pdfMake.createPdf(doc).download($('#hgvs_nm_nom').text() + '.pdf');
-    });
+    if (info.messageTop) {
+        doc.content.unshift({
+            text: info.messageTop,
+            style: 'message',
+            margin: [0, 0, 0, 12]
+        });
+    }
+    if (info.messageBottom) {
+        doc.content.push({
+            text: info.messageBottom,
+            style: 'message',
+            margin: [0, 0, 0, 12]
+        });
+    }
+    if (info.title) {
+        doc.content.unshift({
+            text: info.title,
+            style: 'title',
+            margin: [0, 0, 0, 12]
+        });
+    }
+    if (config.customize) {
+        config.customize(doc, config);
+    }
+    console.log(doc.content )
+    // pdfmake comes with datatables
+    pdfMake.createPdf(doc).download($('#hgvs_nm_nom').text() + '.pdf');
+  });
 });

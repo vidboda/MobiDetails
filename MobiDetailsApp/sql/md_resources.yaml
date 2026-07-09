@@ -431,6 +431,16 @@ caddPhredThresholds:
     'name': 'MMorfee scores'
     'description': 'bed files for MorfeeDB individual variants'
     'short_name': 'morfeedb_folder'
+  'ms_visual_gnomad':
+    'rel_path': '/static/resources/ms_visual/gnomad_ms.fully_annotated.vcf.gz'
+    'name': 'gnomAD missense visual'
+    'description': 'gnomAD VCF annotated for missense visual'
+    'short_name': 'ms_visual_gnomad'
+  'ms_visual_clinvar':
+    'rel_path': '/static/resources/ms_visual/clinvar_plp_ms.fully_annotated.vcf.gz'
+    'name': 'clinvar missense visual'
+    'description': 'clinvar VCF annotated for missense visual'
+    'short_name': 'ms_visual_clinvar'
   'ncboost':
     'rel_path': '/static/resources/ncboost/ncboost_v2_hg38_20260202_light.tsv.gz'
     'name': 'NCBoost v2 scores for 1.88 billion positions'

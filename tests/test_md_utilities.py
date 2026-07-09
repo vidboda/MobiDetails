@@ -1606,6 +1606,22 @@ def test_is_coding_gene(app, gene_symbol, gene_info, is_coding):
 def test_check_position_in_bed(chromosome, position, strand, is_inbed):
     assert md_utilities.check_position_in_bed(md_utilities.local_files['exons_enhancers']['abs_path'], chromosome, position, strand) == is_inbed
 
+
+@pytest.mark.parametrize(('file', 'chrom', 'start', 'end', 'gene_symbol', 'var_pos', 'searched_score', 'searched_field'), (
+    (md_utilities.local_files['ms_visual_gnomad']['abs_path'], 'X', 33211285, 33211287, 'DMD', 33211286, 15.670000076293945, 'cadd_v1.7'),
+    (md_utilities.local_files['ms_visual_gnomad']['abs_path'], 'X', 33211285, 33211287, 'DMD', 33211286, 'nan', 'bayesdel'),
+    (md_utilities.local_files['ms_visual_clinvar']['abs_path'], 'X', 33211255, 33211587, 'DMD', 33211312, 19.25, 'cadd_v1.7'),
+    (md_utilities.local_files['ms_visual_clinvar']['abs_path'], 'X', 33211255, 33211587, 'DMD', 33211312, 'Pathogenic', 'CLNSIG'),
+))
+def test_ms_vis_parse_gene_variant_record(file, chrom, start, end, gene_symbol, var_pos, searched_score, searched_field):
+    test_variants = md_utilities.ms_vis_parse_gene_variant_record(file, chrom, start, end, gene_symbol)
+    for test_variant in test_variants:
+        if 'pos' in test_variant and \
+                test_variant['pos'] == var_pos:
+            print(test_variant)
+            assert str(searched_score) == str(test_variant[searched_field])
+
+
 #
 # @pytest.mark.parametrize(('caller', 'param', 'value'), (
 #     ('cli', 'variant_g_hgvs', 'NC_000001.11:g.40817273T>G'),

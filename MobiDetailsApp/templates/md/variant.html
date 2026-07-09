@@ -8,6 +8,7 @@
 	<script src="{{ url_for('static', filename='javascript/pdfmake/0.2.5/vfs_fonts.min.js') }}" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/chart.min.js') }}?20230915" type="text/javascript"></script>
 	<script src="{{ url_for('static', filename='javascript/igv.min.js') }}?20230915" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/plotly.js') }}?20230915" type="text/javascript"></script>
 	<!-- 
 	igv.js update (the same for sweetalert or chart):
 	VERSION=3.4.0
@@ -18,7 +19,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260608" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260706" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -438,6 +439,7 @@
 							{% endif %}
 							{% if external_data.positions.proteinType != 'unknown' and external_data.positions.proteinType != "no protein" %}
 							{# {{ external_data.positions.proteinSize }} #}
+							<div style="display:none;" id="aa_position_start">{{ external_data.positions.aaPositionStart }}</div>
 								{# {% if external_data.positions.aaPositionStart|int <= external_data.gene.proteinSize|int %}
 								<!-- in case prot size is wrong-->
 								<tr><!--protein-->
@@ -896,9 +898,9 @@
 							<td class="w3-left-align"><a href="{{ urls.cadd }}" target="_blank" title="Visit CADD" rel="noopener noreferrer">CADD</a> phred:</td>
 							{% if internal_data.noMatch.cadd is none %}
 								{% if internal_data.overallPredictions.caddThreshold is not none %}
-								<td class="w3-left-align">{{ span_color(external_data.overallPredictions.caddPhred, internal_data.overallPredictions.caddThresholdColor) }}</td>
+								<td class="w3-left-align">{{ span_color(external_data.overallPredictions.caddPhred, internal_data.overallPredictions.caddThresholdColor, 'cadd_score') }}</td>
 								{% else %}
-								<td class="w3-left-align" id="cadd_phred">{{ external_data.overallPredictions.caddPhred }}</td>
+								<td class="w3-left-align" id="cadd_score">{{ external_data.overallPredictions.caddPhred }}</td>
 								{% endif %}
 							{% else %}
 							<td class="w3-left-align">{{ internal_data.noMatch.cadd }}</td>
@@ -1844,20 +1846,20 @@
 					{% endif %}
 					<tr><!--AlphaMissense-->
 						<td class="w3-left-align"><a href="{{ urls.alphamissense }}" target="_blank" title="Visit AlphaMissense" rel="noopener noreferrer">AlphaMissense</a>:</td>
-						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor) }}{{ internal_data.missensePredictions.amStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amScore, internal_data.missensePredictions.amColor, 'alphamissense_score') }}{{ internal_data.missensePredictions.amStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
 					<tr><!--BayesDel-->
 						<td class="w3-left-align"><a href="{{ urls.bayesdel }}" target="_blank" title="Visit BayesDel" rel="noopener noreferrer">BayesDel (with MaxAF)</a>:</td>
-						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelScore, internal_data.missensePredictions.bayesDelColor) }}{{ internal_data.missensePredictions.bayesDelStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelScore, internal_data.missensePredictions.bayesDelColor, 'bayesdel_score') }}{{ internal_data.missensePredictions.bayesDelStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelPred, internal_data.missensePredictions.bayesDelColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ thresholds['bayesdel'] }} for  Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
 					{% if g.user['academic'] or not g.user %}
 					<tr><!--REVEL-->
 						<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL" rel="noopener noreferrer">REVEL</a>:</td>
-						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor) }}{{ internal_data.missensePredictions.revelStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelScore, internal_data.missensePredictions.revelColor, 'revel_score') }}{{ internal_data.missensePredictions.revelStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.revelPred, internal_data.missensePredictions.revelColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds 0.2|0.5 for Benign, Uncertain, Damaging - <strong>meta score</strong></em></td>
 					</tr>
@@ -1886,7 +1888,7 @@
 					{% endif %}
 					<tr><!--Mistic-->
 						<td class="w3-left-align"><a href="{{ urls.mistic }}" target="_blank" title="Visit Mistic" rel="noopener noreferrer">Mistic</a>:</td>
-						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor) }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticScore, internal_data.missensePredictions.misticColor, 'mistic_score') }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.misticPred, internal_data.missensePredictions.misticColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Threshold &ge; {{ thresholds['mistic'] }}  for Damaging - <strong>meta score</strong></em></td>
 					</tr>
@@ -2050,6 +2052,52 @@
 			{% else %}
 				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
 			{% endif %}
+            <div id="missense_visual_wait"> {{ content('MobiDetails is working to bring you Missense-visual... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
+			<div id="missense_visual_div" style="diplay:none;">
+                {{ section_subtitle('missense_visual', 'Missense-visual: interpretation of missense variants') }}
+                {{ content('To optimize the graph visualization, when <ul><li>the number of gnomAD variants is &gt; 10,000, the \'Allele Count joint\' filter  is automatically set to 10</li><li>the number of gnomAD variants is &gt; 1,000, the same filter is set to 1</li><li>the number of ClinVar variants is &gt; 10,000, the \'ClinVar\' filter is automatically set to 2 stars</li><li>the number of ClinVar variants is &gt; 1,000, the same filter is set to 1 star</li></ul>') }}
+                <div class="w3-container">
+					<form method="post" action="#" enctype="application/x-www-form-urlencoded" class="u2_form" id="update_ms_visual_form">
+                        <div class="w3-panel w3-large w3-row-padding">
+                            <div class="w3-quarter">
+                                <select for="update_ms_visual_form" name="predictor_dropdown" id="predictor_dropdown" class="w3-select">
+                                    <option value="" disabled="disabled">Pathogenicity predictor</option>
+                                    <option value="revel" selected="selected">Revel</option>
+                                    <option value="alphamissense">AlphaMissense</option>
+                                    <option value="cadd">CADD phred</option>
+                                    <option value="mistic">Mistic</option>
+                                    <option value="bayesdel">BayesDel</option>
+                                </select>
+                            </div>
+                            <div class="w3-quarter">
+                                <select for="update_ms_visual_form" name="clinvar_filter_dropdown" id="clinvar_filter_dropdown" class="w3-select">
+                                    <option value="" disabled="disabled" selected="selected">Clinvar star filter</option>
+                                    <option value="0">☆ ☆ ☆ ☆</option>
+                                    <option value="1">★ ☆ ☆ ☆</option>
+                                    <option value="2">★ ★ ☆ ☆</option>
+                                    <option value="3">★ ★ ★ ☆</option>
+                                    <option value="4">★ ★ ★ ★</option>
+                                </select>
+                            </div>
+                            <div class="w3-quarter">
+                                <select for="update_ms_visual_form" name="gnomad_filter_dropdown" id="gnomad_filter_dropdown" class="w3-select">
+                                    <option value="" disabled="disabled">gnomAD filter field</option>
+                                    <option value="AC_joint" selected="selected">Allele Count joint</option>
+                                    <option value="AC_genomes">Allele Count genomes</option>
+                                    <option value="nhomalt_joint">Number of homozygous joint</option>
+                                    <option value="nhomalt_genomes">Number of homozygous genomes</option>
+                                </select>
+                            </div>
+                            <div class="w3-quarter"  style="display: flex; align-items: center; gap: 10px;">
+                                <span>&gt;</span>
+                                <input for="update_ms_visual_form" id="gnomad_filter_value" maxlength="10" size="10" name="gnomad_filter_value" type="text" placeholder="Numeric threshold for gnomAD filter" style="position:relative;padding:5px;"/>
+                                <input type="button" id="missense_visual_submit_btn" name="submit" value="Update!" onclick="render_missense_graph( $('#predictor_dropdown').val(), $('#gnomad_filter_dropdown').val(), validateInteger($('#gnomad_filter_value').val(), 0));" class="w3-btn w3-blue" for="update_ms_visual_form"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div id="missense_visual_graph"></div>
+            </div>
 		</div>
 		{% endif %}
 		{# add remaining stuff to modal_js_list #}
@@ -2409,8 +2457,11 @@
 				genebe('{{ url_for('ajax.genebe') }}', '{{ csrf_token() }}');
 				run_spip('{{ url_for('ajax.spip') }}', '{{ external_data.variantId }}', '{{ csrf_token() }}');
 				{# {% if external_data.positions.proteinType != "no protein" %} #}
-					spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
+				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 				{# {% endif %} #}
+				{% if external_data.positions.proteinType == "missense" %}
+					init_missense_visual('{{ url_for('ajax.ms_visual') }}', '{{ csrf_token() }}');
+				{% endif %}
 			{% endif %}
 			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown' or external_data.positions.proteinType == 'no protein')  and external_data.positions.DNAType == 'substitution' and (external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50)) %}
 				mobideep('{{ url_for('ajax.mobideep') }}', '{{ external_data.overallPredictions.caddPhred }}' + " " + '{{ external_data.overallPredictions.gpnmsa }}' + " " + '{{ external_data.nonCodingPredictions.remm }}' + " " + '{{ external_data.overallPredictions.cactus241way }}' + " " + '{{ external_data.overallPredictions.phylop_primates }}', '{{ internal_data.positions.locationMobiDeepGraph }}', '{{ mobideep_label }}', '{{ csrf_token() }}');
