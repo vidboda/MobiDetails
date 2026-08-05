@@ -435,12 +435,12 @@ caddPhredThresholds:
     'rel_path': '/static/resources/ms_visual/gnomad_ms.fully_annotated.vcf.gz'
     'name': 'gnomAD missense visual'
     'description': 'gnomAD VCF annotated for missense visual'
-    'short_name': 'ms_visual_gnomad'
+    'short_name': 'missense_visual_gnomad'
   'ms_visual_clinvar':
     'rel_path': '/static/resources/ms_visual/clinvar_plp_ms.fully_annotated.vcf.gz'
     'name': 'clinvar missense visual'
     'description': 'clinvar VCF annotated for missense visual'
-    'short_name': 'ms_visual_clinvar'
+    'short_name': 'missense_visual_clinvar'
   'ncboost':
     'rel_path': '/static/resources/ncboost/ncboost_v2_hg38_20260202_light.tsv.gz'
     'name': 'NCBoost v2 scores for 1.88 billion positions'
@@ -760,6 +760,18 @@ caddPhredThresholds:
     'dbNSFP_value_col_mlr': '77'
     'dbNSFP_value_pred_mlr': '79'
     'dbNSFP_value_col_mrel': '80'
+  'Missense_visual_ClinVar':
+    'firstauthor': 'de Sainte Agathe'
+    'year': 'None'
+    'paper': 'None'
+    'version': 'v20260523'
+    'short_name': 'missense_visual_clinvar'
+  'Missense_visual_gnomAD':
+    'firstauthor': 'de Sainte Agathe'
+    'year': 'None'
+    'paper': 'None'
+    'version': 'v4.1'
+    'short_name': 'missense_visual_gnomad'
   'Mistic':
     'firstauthor': 'Chennen, Weber'
     'year': '2020'
@@ -813,12 +825,12 @@ caddPhredThresholds:
     'paper': '29689380'
     'version': '1.1'
     'short_name': 'mpa'
-  'MuPIT':
-    'firstauthor': 'Niknafs'
-    'year': '2013'
-    'paper': '23793516'
-    'version': 'API'
-    'short_name': 'mupit'
+  # 'MuPIT':
+  #   'firstauthor': 'Niknafs'
+  #   'year': '2013'
+  #   'paper': '23793516'
+  #   'version': 'API'
+  #   'short_name': 'mupit'
   'Mutalyzer':
     'firstauthor': 'Wildeman'
     'year': '2008'

@@ -3104,16 +3104,47 @@ def ms_visual():
         start_g, end_g = md_utilities.get_genomic_transcript_positions_from_vv_json(gene_symbol, refseq, ncbi_chr['ncbi_name'], strand)
         close_db()
         # load gnomad or clinvar missense data for the gene
+        # try:
+        #     ms_visual_data = md_utilities.ms_vis_parse_gene_variant_record(
+        #         md_utilities.local_files['ms_visual_{}'.format(dataset)]['abs_path'],
+        #         chrom, start_g, end_g, gene_symbol, refseq
+        #     )
+        # except Exception as e:
+        #     return """
+        #     <span class="w3-padding">>Unable to run missense visual (dataset scores unreachable)</span>
+            # """
         try:
-            ms_visual_data = md_utilities.ms_vis_parse_gene_variant_record(
-                md_utilities.local_files['ms_visual_{}'.format(dataset)]['abs_path'],
-                chrom, start_g, end_g, gene_symbol, refseq
+            req_results = requests.post(
+                '{0}/missense_visual'.format(md_utilities.urls['spliceai_internal_server']),
+                json={
+                    'dataset': dataset,
+                    'gene_symbol': gene_symbol,
+                    'ncbi_refseq': refseq,
+                    'chromosome': chrom,
+                    'start': str(start_g),
+                    'end': str(end_g)
+                },
+                headers={'Content-Type': 'application/json'}
             )
-        except Exception as e:
+        except requests.exceptions.ConnectionError:
+                return '<p style="color:red">Failed to establish a connection to the Missense-visual server.</p>'
+        except Exception:
             return """
-            <span class="w3-padding">>Unable to run missense visual (dataset scores unreachable)</span>
+            <span class="w3-padding">Unable to run Missense-visual API - Error returned</span>
             """
-        return jsonify(sorted(ms_visual_data, key=lambda d:d['aa_position']))
+        if req_results.status_code == 200:
+            ms_visual_data = json.loads(req_results.content)
+            if ms_visual_data['ms_visual_return_code'] == 0 and \
+                    ms_visual_data['error'] is None and\
+                    dataset == ms_visual_data['result']['dataset']:
+                # return jsonify(sorted(ms_visual_data, key=lambda d:d['aa_position']))
+                # return jsonify(ms_visual_data)
+                # print(ms_visual_data['result']['ms_visual'])
+                return jsonify(ms_visual_data['result']['ms_visual'])
+        else:
+            return """
+            <span class="w3-padding">Something went wrong with Missense-visual results</span>
+            """
     else:
         return """
         <span class="w3-padding">Unable to run missense visual (wrong parameters)</span>

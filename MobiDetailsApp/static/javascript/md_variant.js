@@ -1157,10 +1157,14 @@ function fetch_gnomad_and_clinvar(csrf_token) {
   .done(function(gnomad_data) {
     gnomad_data_global = gnomad_data;
     // console.log(`Loaded ${gnomad_data_global.length} gnomAD variants`);
-    if (gnomad_data_global.length > 10000 && $('#gnomad_filter_value').val() === '') {
+    // console.log('gnomad_filter_value: ' + $('#gnomad_filter_value').val())
+    if (gnomad_data_global.length > 50000) {
+      $('#gnomad_filter_value').val(100);
+    }
+    else if (gnomad_data_global.length > 10000) {
       $('#gnomad_filter_value').val(10);
     }
-    else if (gnomad_data_global.length > 1000 && $('#gnomad_filter_value').val() === '') {
+    else if (gnomad_data_global.length > 1000) {
       $('#gnomad_filter_value').val(1);
     }
     else {
@@ -1378,6 +1382,125 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         text: `Variant: ${target_name}<br>${predictor} score: ${target_score}`,
         hoverinfo: 'text'
       };
+      // Build medianes lines traces
+      // const trace_median_gnomad = {
+      //   x: [0, Math.max(...x_gnomad)],  // Line spans entire x-axis
+      //   y: [median_score_gnomad, median_score_gnomad], // Horizontal line at median
+      //   mode: 'lines',
+      //   type: 'scatter',
+      //   name: `gnomAD ${predictor} median (${median_score_gnomad?.toFixed(3)})`,
+      //   marker: {
+      //     color: 'blue',
+      //     line: {
+      //       width: 2,
+      //       dash: 'dash'  // Dashed line style
+      //     }
+      //   },
+      //   line: {
+      //     width: 2,
+      //     dash: 'dash'
+      //   },
+      //   hovertemplate: `<b>gnomAD median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
+      //   showlegend: true
+      // };
+      // const trace_median_clinvar = {
+      //   x: [0, Math.max(...x_clinvar)],  // Line spans entire x-axis
+      //   y: [median_score_clinvar, median_score_clinvar], // Horizontal line at median
+      //   mode: 'lines',
+      //   type: 'scatter',
+      //   name: `ClinVar ${predictor} median (${median_score_clinvar?.toFixed(3)})`,
+      //   marker: {
+      //     color: 'red',
+      //     line: {
+      //       width: 2,
+      //       dash: 'dash'  // Dashed line style
+      //     }
+      //   },
+      //   line: {
+      //     width: 2,
+      //     dash: 'dash'
+      //   },
+      //   hovertemplate: `<b>ClinVar median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
+      //   showlegend: true
+      // };
+
+
+      // Build shapes array for medianes
+      const shapes = [];
+      const finalTraces = [trace1, trace2, trace3];
+      
+      if (median_score_gnomad !== null) {
+        shapes.push({
+          type: 'line',
+          xref: 'paper',
+          yref: 'y',
+          x0: 0,
+          y0: median_score_gnomad,
+          x1: 1,
+          y1: median_score_gnomad,
+          line: {
+            color: 'blue',
+            width: 2,
+            dash: 'dash'
+          },
+          layer: 'above'  // Draw above data points
+        });
+        // Hidden trace for legend only (don't show visually)
+        const trace_legend_gnomad = {
+          x: [NaN],  // No actual data point
+          y: [NaN],
+          mode: 'lines',
+          type: 'scatter',
+          name: `gnomAD median (${median_score_gnomad?.toFixed(3)})`,
+          line: {
+            color: 'blue',
+            width: 2,
+            dash: 'dash'
+          },
+          hoverinfo: 'none',
+          showlegend: true,
+          visible: true
+        };
+        finalTraces.push(trace_legend_gnomad);
+      
+      }
+      
+      if (median_score_clinvar !== null) {
+        shapes.push({
+          type: 'line',
+          xref: 'paper',
+          yref: 'y',
+          x0: 0,
+          y0: median_score_clinvar,
+          x1: 1,
+          y1: median_score_clinvar,
+          line: {
+            color: '#8B0000',
+            width: 2,
+            dash: 'dash'
+          },
+          layer: 'above'  // Draw above data points
+        });
+        // Hidden trace for legend only (don't show visually)
+        const trace_legend_clinvar = {
+          x: [NaN],
+          y: [NaN],
+          mode: 'lines',
+          type: 'scatter',
+          name: `ClinVar median (${median_score_clinvar?.toFixed(3)})`,
+          line: {
+            color: '#8B0000',
+            width: 2,
+            dash: 'dash'
+          },
+          hoverinfo: 'none',
+          showlegend: true,
+          visible: true
+        };
+        finalTraces.push(trace_legend_clinvar);
+      }
+      
+
       const containerWidth = document.getElementById('missense_visual_div').parentElement.offsetWidth; // fallback
       // Build layout
       const layout = {
@@ -1395,6 +1518,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           automargin: true
         },
         showlegend: true,
+        shapes: shapes,
         legend: {
           x: 1,
           xanchor: 'left',
@@ -1409,60 +1533,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           font: { size: 12 }
         }
       };
-      // =========================================
-      // STEP 3: CREATE MEDIAN LINE TRACE
-      // =========================================
-      const trace_median_gnomad = {
-        x: [0, Math.max(...x_gnomad)],  // Line spans entire x-axis
-        y: [median_score_gnomad, median_score_gnomad], // Horizontal line at median
-        mode: 'lines',
-        type: 'scatter',
-        name: `gnomAD ${predictor} median (${median_score_gnomad?.toFixed(3)})`,
-        marker: {
-          color: 'blue',
-          line: {
-            width: 2,
-            dash: 'dash'  // Dashed line style
-          }
-        },
-        line: {
-          width: 2,
-          dash: 'dash'
-        },
-        hovertemplate: `<b>gnomAD median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
-        showlegend: true
-      };
-      const trace_median_clinvar = {
-        x: [0, Math.max(...x_clinvar)],  // Line spans entire x-axis
-        y: [median_score_clinvar, median_score_clinvar], // Horizontal line at median
-        mode: 'lines',
-        type: 'scatter',
-        name: `ClinVar ${predictor} median (${median_score_clinvar?.toFixed(3)})`,
-        marker: {
-          color: 'red',
-          line: {
-            width: 2,
-            dash: 'dash'  // Dashed line style
-          }
-        },
-        line: {
-          width: 2,
-          dash: 'dash'
-        },
-        hovertemplate: `<b>ClinVar median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
-        showlegend: true
-      };
-      // =========================================
-      // STEP 4: ADD TO PLOT
-      // =========================================
-      const finalTraces = [trace1, trace2, trace3];
-      
-      if (median_score_gnomad !== null) {
-        finalTraces.push(trace_median_gnomad);  // Add median line
-      }
-      if (median_score_clinvar !== null) {
-        finalTraces.push(trace_median_clinvar);  // Add median line
-      }
+
       // Render Plotly graph
       Plotly.newPlot('missense_visual_graph', finalTraces, layout);
       // Hide loading indicator, show graph

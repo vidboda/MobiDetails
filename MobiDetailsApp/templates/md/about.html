@@ -15,7 +15,7 @@
 		<a href="#cite" class="w3-bar-item w3-button w3-mobile">Contact</a>
 		<a href="#contact" class="w3-bar-item w3-button w3-mobile">Download</a>
 		<a href="#download" class="w3-bar-item w3-button w3-mobile">E-posters</a>
-		<a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a>
+		{# <a href="#group" class="w3-bar-item w3-button w3-mobile">Group</a> #}
 		<a href="#source_code" class="w3-bar-item w3-button w3-mobile">Source code</a>
 		<a href="#credits" class="w3-bar-item w3-button w3-mobile">Credits</a>
 		<a href="#data_sharing" class="w3-bar-item w3-button w3-mobile">Data sharing</a>
@@ -158,28 +158,42 @@
 					<tr>
 						<td><strong>MobiDeep</strong></td>
 						<td>MobiDeep scores for 8,773,447,959 SNVs covering 94.70% of all genomic positions (GRCh38p14). <strong>Free for non-commercial academic research only. Commercial use prohibited without prior agreement.</strong></td>
-						<td><a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20260212.tsv.bgz') }}" target="_blank" rel="noopener noreferrer" downlaod="non_coding_snv_mobideep_scored_20260212.tsv.bgz">Bgzipped file v{{ external_tools['MobiDeepDataset']['version']}}</a> and <a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20260212.tsv.bgz.tbi') }}" target="_blank" rel="noopener noreferrer" download="non_coding_snv_mobideep_scored_20260212.tsv.bgz.tbi">tabix index</a></td>
+						<td><a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20260212.tsv.bgz') }}" target="_blank" rel="noopener noreferrer" download="non_coding_snv_mobideep_scored_20260212.tsv.bgz">Bgzipped file v{{ external_tools['MobiDeepDataset']['version']}}</a> and <a href="{{ url_for('static', filename='resources/mobideep/non_coding_snv_mobideep_scored_20260212.tsv.bgz.tbi') }}" target="_blank" rel="noopener noreferrer" download="non_coding_snv_mobideep_scored_20260212.tsv.bgz.tbi">tabix index</a></td>
 						<td>105</td>
 						<td>This file contains predictions for coding regions, but keep in mind that the algorithm has not been designed nor trained nor assessed on those regions.</td>
 					</tr>
+                    <tr>
+                        <td><strong>MobiDeep model</strong></td>
+                        <td>MobiDeep model file (joblib format)</td>
+                        <td><a href="{{ url_for('static', filename='resources/mobideep/mobideep_20250520.joblib') }}" target="_blank" rel="noopener noreferrer" download="mobideep_20250520.joblib">mobideep_20250520</a></td>
+                        <td>0.2</td>
+                        <td>v20250520</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MobiDeep Apptainer</strong></td>
+                        <td>MobiDeep Apptainer image (sif format)</td>
+                        <td><a href="{{ url_for('static', filename='resources/mobideep/mobideep.sif') }}" target="_blank" rel="noopener noreferrer" download="mobideep.sif">mobideep</a></td>
+                        <td>0.4</td>
+                        <td>v20250520</td>
+                    </tr>
 				</tbody>
 			</table><br/>
 		</div>
 		<h3 id="eposters">E-posters:</h3>
 		<div class="w3-margin w3-panel w3-sand w3-leftbar w3-display-container">
 			<ul>
-				<li><a href="https://mobidetails.chu-montpellier.fr/posters/md_poster_assises_2020.pdf" target="_blank" rel="noopener noreferrer">Assises de génétique humaine et médicale 2020</a></li>
-				<li><a href="https://mobidetails.chu-montpellier.fr/posters/md_eposter_jobim_virtual_2020.pdf" target="_blank" rel="noopener noreferrer">JOBIM 2020</a></li>
-				<li><a href="https://mobidetails.chu-montpellier.fr/posters/md_poster_eshg_2021.pdf" target="_blank" rel="noopener noreferrer">ESHG 2021</a></li>
-				<li><a href="https://mobidetails.chu-montpellier.fr/posters/md_poster_veptc_2021.mp4" target="_blank" rel="noopener noreferrer">VEPTC 2021</a></li>
-				<li><a href="https://bioinfo-diag.fr/" target="_blank">BioinfoDiag</a> award winning <a href="https://mobidetails.chu-montpellier.fr/posters/md_poster_assises_2022.pdf" target="_blank" rel="noopener noreferrer">poster @ Assises de génétique humaine et médicale 2022</a></li>
-				<li><a href="https://mobidetails.chu-montpellier.fr/posters/md_poster_assises_2024.pdf" target="_blank" rel="noopener noreferrer">Assises de génétique humaine et médicale 2024</a></li>
+				<li><a href="{{ url_for('static', filename='resources/posters/md_poster_assises_2020.pdf') }}" target="_blank" rel="noopener noreferrer">Assises de génétique humaine et médicale 2020</a></li>
+				<li><a href="{{ url_for('static', filename='resources/posters/md_eposter_jobim_virtual_2020.pdf') }}" target="_blank" rel="noopener noreferrer">JOBIM 2020</a></li>
+				<li><a href="{{ url_for('static', filename='resources/posters/md_poster_eshg_2021.pdf') }}" target="_blank" rel="noopener noreferrer">ESHG 2021</a></li>
+				<li><a href="{{ url_for('static', filename='resources/posters/md_poster_veptc_2021.mp4') }}" target="_blank" rel="noopener noreferrer">VEPTC 2021</a></li>
+				<li><a href="https://bioinfo-diag.fr/" target="_blank">BioinfoDiag</a> award winning <a href="{{ url_for('static', filename='resources/posters/md_poster_assises_2022.pdf') }}" target="_blank" rel="noopener noreferrer">poster @ Assises de génétique humaine et médicale 2022</a></li>
+				<li><a href="{{ url_for('static', filename='resources/posters/md_poster_assises_2024.pdf') }}" target="_blank" rel="noopener noreferrer">Assises de génétique humaine et médicale 2024</a></li>
 			</ul>
 		</div>
-		<h3 id="group">Group's websites:</h3>
+		{# <h3 id="group">Group's websites:</h3>
 		{{ info('<a href="https://pmmg.chu-montpellier.fr/lgm/usher/diag_en.html" target="_blank" rel="noopener noreferrer">Deafness and blindness group</a> at \
 					Laboratory of molecular genetics, Montpellier University Hospital</a><br /><br /> \
-					<a hef="https://pmmg.chu-montpellier.fr/mobidic/" target="_blank" rel="noopener noreferrer">MoBiDiC</a>, bioinformaticians at Montpellier University Hospital') }}
+					<a hef="https://pmmg.chu-montpellier.fr/mobidic/" target="_blank" rel="noopener noreferrer">MoBiDiC</a>, bioinformaticians at Montpellier University Hospital') }} #}
 		<h3 id="source_code">Source code:</h3>
 		{{ info('Available at <a href="https://github.com/vidboda/MobiDetails" target="_blank" rel="noopener noreferrer">https://github.com/vidboda/MobiDetails</a>') }}
 		<h3 id="credits">Credits:</h3>
