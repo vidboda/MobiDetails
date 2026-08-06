@@ -118,7 +118,7 @@
 				{% endif %}
 				{% if external_data.positions.proteinType != 'unknown' and external_data.positions.proteinType != "no protein" %}
 					{% if external_data.gene.MANE or external_data.gene.MANEPlusClinical %}
-						{{ link("%s/result?entryID=%s&AApos=%s"|format(urls.prot_orthologues, external_data.gene.RefSeqTranscript, external_data.positions.aaPositionStart), 'Prot-orthologues - NEW!!') }}
+						{{ link("%s/result?entryID=%s&AApos=%s"|format(urls.prot_orthologues, external_data.gene.RefSeqTranscript, external_data.positions.aaPositionStart), 'Prot-orthologues') }}
 					{% endif %}
 				{% endif %}
 				{% if external_data.gene.clingenCriteriaSpec %}
