@@ -1630,7 +1630,7 @@
 					<header class="w3-container w3-blue">
 						<span class="w3-button w3-display-topright w3-xlarge" onclick="$('#radar_mobideep_modal').hide();">X</span>
 						<br /><span class="w3-xlarge">Radar view of stratified Mobideep thresholds</span><br />
-						<p>Thresholds are presented per variant location together with the MobiDeep raw score (large blue dot). If the Mobideep score is below the threshold (i.e. in the white area), the variant is predicted as benign. Ns presented for each locations correspond to the number of pathogenic variants (previously hidden to the model) which, with 10Ns benign variants of each location, were used to build the thresholds.</p>
+						<p>Thresholds are presented per variant location together with the MobiDeep raw score (large blue dot). If the Mobideep score is below the threshold (i.e. in the white area), the variant is predicted as benign. Ns presented for each locations correspond to the number of pathogenic variants (previously hidden to the model) which, with 10Ns benign variants of each location, were used to build the thresholds. However, these thresholds rely on small cohorts of variants and should be considered with caution. Thresholds updated 20260806.</p>
 					</header>
 					<div class="w3-container">
 						<div class="chart-container" style="position: relative;">
@@ -1655,7 +1655,8 @@
 					data: {
 						datasets: [{
 								label: 'Region-stratified thresholds for MobiDeep raw score',
-								data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
+								// data: [0.9338, 0.5750, 0.4033, 0.8152, 0.6161],
+                                data: [0.815, 0.924, 0.984, 0.894, 0.578],
 								// fill: {
 								// 	target: 'origin',
 								// 	below: 'rgb(60, 179, 113, 0.2)'    // And green below the origin
@@ -1684,7 +1685,8 @@
 								pointHoverBorderColor: 'rgb(54, 162, 235)',
 								pointRadius: 10
 						}],//end data sets
-						labels: ['3UTR (n=8)', '5UTR (n=35)', 'Intronic (n=19)', 'non-coding exons (n=96)', 'intergenic (n=35)']
+                        labels: ['3UTR (n=7)', '5UTR (n=23)', 'Intronic (n=7)', 'non-coding exons (n=73)', 'intergenic (n=25)']
+						// labels: ['3UTR (n=8)', '5UTR (n=35)', 'Intronic (n=19)', 'non-coding exons (n=96)', 'intergenic (n=35)']
 					},//end data
 					options: {
 						locale: 'en-US',
