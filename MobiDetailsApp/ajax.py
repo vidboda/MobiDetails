@@ -3139,7 +3139,6 @@ def ms_visual():
                     dataset == ms_visual_data['result']['dataset']:
                 # return jsonify(sorted(ms_visual_data, key=lambda d:d['aa_position']))
                 # return jsonify(ms_visual_data)
-                # print(ms_visual_data['result']['ms_visual'])
                 return jsonify(ms_visual_data['result']['ms_visual'])
         else:
             return """

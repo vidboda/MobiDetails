@@ -881,7 +881,7 @@ caddPhredThresholds:
     'dbNSFP_pred_col_hdiv': '56'
     'dbNSFP_value_col_hvar': '57'
     'dbNSFP_pred_col_hvar': '59'
-  'PopEve':
+  'popEve':
     'firstauthor': 'Orenburg'
     'year': '2025'
     'paper': '41286104'
@@ -1031,6 +1031,11 @@ caddPhredThresholds:
   'pph2':
     'D': 'Probably Damaging'
     'P': 'Possibly Damaging'
+    'B': 'Benign'
+    '.': 'no prediction'
+  'popeve':
+    'S': 'Severely Damaging'
+    'M': 'Moderately Damaging'
     'B': 'Benign'
     '.': 'no prediction'
   'mt':

@@ -397,6 +397,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'clinpredPred': None,
             'fathmmxfScore': None,
             'fathmmxfPred': None,
+            'popeveScore': None,
+            'popevePred': None,
             'proveanScore': None,
             'proveanPred': None,
             'mutationTasterScore': None,
@@ -520,6 +522,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'mutationTasterStar': None,
             'clinpredStar': None,
             'clinpredColor': None,
+            'popeveStar': None,
+            'popeveColor': None,
             'revelStar': None,
             'amStar': None,
             'metaSVMColor': None,
@@ -1183,7 +1187,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 mpa_avail += 1
                             # BayesDel
                             external_data['missensePredictions']['bayesDelScore'], external_data['missensePredictions']['bayesDelPred'], internal_data['missensePredictions']['bayesDelStar'] = md_utilities.getdbNSFP_results(
-                                transcript_index, int(md_utilities.external_tools['BayesDel']['dbNSFP_value_col']), int(md_utilities.external_tools['BayesDel']['dbNSFP_pred_col']), ';', 'basic', -2, 'lt', record
+                                transcript_index, int(md_utilities.external_tools['BayesDel']['dbNSFP_value_col']), int(md_utilities.external_tools['BayesDel']['dbNSFP_pred_col']), ';', 'basic', -0.1, 'gt', record
                             )
                             # bayesdel score in dbNSFP, contrary to some other scores, presents with 9-10 numbers after '.'
                             try:
@@ -1193,15 +1197,15 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                     external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
                             except Exception:
                                 pass
-                            # external_data['missensePredictions']['bayesDelScore'] = format(float(external_data['missensePredictions']['bayesDelScore']), '.3f')
-                            # # threshold for bayesdel does not follow dbNSFP, see md_resources
-                            # if (float(external_data['missensePredictions']['bayesDelScore']) < float(md_utilities.predictor_thresholds['bayesdel'])):
-                            #     external_data['missensePredictions']['bayesDelPred'] = 'Tolerated'
-                            # internal_data['missensePredictions']['bayesDelColor'] = md_utilities.get_preditor_single_threshold_color(external_data['missensePredictions']['bayesDelScore'], 'bayesdel')
-                            # LRT -- not displayed removed in dbNSFP v5
-                            # external_data['missensePredictions']['lrtScore'], external_data['missensePredictions']['lrtPred'], internal_data['missensePredictions']['lrtStar'] = md_utilities.getdbNSFP_results(
-                            #     transcript_index, int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), int(md_utilities.hidden_external_tools['LRT']['dbNSFP_pred_col']), ';', 'basic', -1, 'gt', record
-                            # )
+                            # popEVE
+                            external_data['missensePredictions']['popeveScore'], external_data['missensePredictions']['popevePred'], internal_data['missensePredictions']['popeveStar'] = md_utilities.getdbNSFP_results(
+                                transcript_index, int(md_utilities.external_tools['popEve']['dbNSFP_value_col']), int(md_utilities.external_tools['popEve']['dbNSFP_pred_col']), ';', 'popeve', 10.379, 'lt', record
+                            )
+                            try:
+                                external_data['missensePredictions']['popeveScore'] = format(float(external_data['missensePredictions']['popeveScore']), '.3f')
+                                internal_data['missensePredictions']['popeveColor'] = md_utilities.get_preditor_double_threshold_reverted_color(external_data['missensePredictions']['popeveScore'], 'popeve_mid', 'popeve_max')
+                            except Exception:
+                                pass
 
                             # if external_data['missensePredictions']['lrtPred'] == 'Damaging':
                             #     mpa_missense += 1

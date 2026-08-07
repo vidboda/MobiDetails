@@ -1852,6 +1852,12 @@
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
+                    <tr><!--popEVE-->
+						<td class="w3-left-align"><a href="{{ urls.popeve }}" target="_blank" title="Visit popEVE" rel="noopener noreferrer">popEVE</a>:</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.popeveScore, internal_data.missensePredictions.popeveColor, 'popEVE_score') }}{{ internal_data.missensePredictions.popeveStar }}</td>
+						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.popevePred, internal_data.missensePredictions.popeveColor) }}</td>
+						<td class="w3-left-align"><em class="w3-small">Thresholds &le; {{ thresholds['popeve_mid'] }}|{{ thresholds['popeve_max'] }} for Moderately Pathogenic, Severely Pathogenic - <strong>single score</strong></em></td>
+					</tr>
 					<tr><!--BayesDel-->
 						<td class="w3-left-align"><a href="{{ urls.bayesdel }}" target="_blank" title="Visit BayesDel" rel="noopener noreferrer">BayesDel (with MaxAF)</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelScore, internal_data.missensePredictions.bayesDelColor, 'bayesdel_score') }}{{ internal_data.missensePredictions.bayesDelStar }}</td>
@@ -1925,7 +1931,7 @@
 				</div>
 			</div>
 			{# set missense predictors values to min when no values to plot radar chart #}
-				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, am=external_data.missensePredictions.amScore, bayesdel=external_data.missensePredictions.bayesDelScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmmxf=external_data.missensePredictions.fathmmxfScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, num_aca_single=6, num_non_aca_single=3, num_aca_meta=5, num_non_aca_meta=3) %}
+				{% set missense_pred = namespace(sift=external_data.missensePredictions.siftScore, pphvar=external_data.missensePredictions.polyphen2HvarScore, pphdiv=external_data.missensePredictions.polyphen2HdivScore, am=external_data.missensePredictions.amScore, bayesdel=external_data.missensePredictions.bayesDelScore, revel=external_data.missensePredictions.revelScore, clinpred=external_data.missensePredictions.clinpredScore, fathmmxf=external_data.missensePredictions.fathmmxfScore, metasvm=external_data.missensePredictions.metaSVMScore, metalr=external_data.missensePredictions.metaLRScore, mistic=external_data.missensePredictions.misticScore, popeve=external_data.missensePredictions.popeveScore, num_aca_single=7, num_non_aca_single=3, num_aca_meta=5, num_non_aca_meta=3) %}
 				{% if external_data.missensePredictions.siftPred == 'no prediction' %}
 					{% set missense_pred.sift = 1 %}
 					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
@@ -1977,6 +1983,11 @@
 					{% set missense_pred.num_aca_meta = missense_pred.num_aca_meta - 1 %}
 					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
 				{% endif %}
+                {% if external_data.missensePredictions.popevePred == 'no prediction' %}
+					{% set missense_pred.popeve = 10.378 %}
+					{% set missense_pred.num_aca_single = missense_pred.num_aca_single - 1 %}
+					{% set missense_pred.num_non_aca_meta = missense_pred.num_non_aca_meta - 1 %}
+				{% endif %}
 			<script>
 				//var ctx = document.getElementById("missense_radar").getContext('2d')
 				Chart.defaults.font.size=16
@@ -1991,6 +2002,7 @@
 					var new_val = val == 0 ? 0 : ((val - my_array[0]) / (my_array[1] - my_array[0])).toFixed(2);
 					return parseFloat(new_val);
 				}
+                var normalisedPopeve = 1-normalizeData({{ missense_pred.popeve }}, [-9.638,10.378]);
 				var normalisedFathmmxf = 1-normalizeData({{ missense_pred.fathmmxf }}, [-16.13,10.64]);
 				var normalisedMetasvm = normalizeData({{ missense_pred.metasvm }}, [-2,3]);
 				var normalisedBayesdel = normalizeData({{ missense_pred.bayesdel }}, [-1.29334,0.75731]);
@@ -2005,10 +2017,10 @@
 				new Chart($("#missense_radar"), {
 					type: 'radar',
 					data: {
-						labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'Fathmm-XF', 'AlphaMissense', 'BayesDel', 'MetaSVM', 'MetaLR', 'Mistic'],
+						labels: ['SIFT', {% if g.user['academic'] or not g.user %}'Polyphen 2 HDIV', 'Polyphen 2 HVAR', 'REVEL', 'ClinPred', {% endif %}'Fathmm-XF', 'AlphaMissense', 'BayesDel', 'MetaSVM', 'MetaLR', 'Mistic', 'popEVE'],
 						datasets: [{
 							label: 'Missense predictors',
-							data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmmxf, {{ missense_pred.am }}, normalisedBayesdel, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}],
+							data: [1-{{ missense_pred.sift }}, {% if g.user['academic'] or not g.user %} {{ missense_pred.pphdiv }}, {{ missense_pred.pphvar }}, {{ missense_pred.revel }}, {{ missense_pred.clinpred }}, {% endif %} normalisedFathmmxf, {{ missense_pred.am }}, normalisedBayesdel, normalisedMetasvm, {{ missense_pred.metalr }}, {{ missense_pred.mistic }}, normalisedPopeve],
 							fill: true,
 							backgroundColor: 'rgb(255, 99, 132, 0.2)',
 							borderColor: 'rgb(255, 99, 132)',
@@ -2068,7 +2080,8 @@
                                     <option value="alphamissense">AlphaMissense</option>
                                     <option value="cadd">CADD phred</option>
                                     <option value="mistic">Mistic</option>
-                                    <option value="bayesdel">BayesDel</option>
+                                    <option value="popEVE">popEVE</option>
+                                    {# <option value="bayesdel">BayesDel</option> - bayesDel not in gnaomd annotated file #}
                                 </select>
                             </div>
                             <div class="w3-quarter">

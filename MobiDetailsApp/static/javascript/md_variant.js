@@ -1062,6 +1062,8 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
       const median_score_gnomad = calculateMedian(all_scores);
       // Check if any variants remain after filtering
       if (color_vals_raw.length === 0) {
+        // console.log(predictor);
+        // console.log(gnomad_data_global);
         console.warn('No variants match the current filter criteria');
         alert('No variants found matching your filter criteria.');
         $("#missense_visual_wait").hide();

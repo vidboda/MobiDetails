@@ -1091,6 +1091,7 @@ def getdbNSFP_results(
     pred = 'no prediction'
     star = ''
     try:
+        # print('dbnsfp_record: {}'.format(dbnsfp_record[score_index]))
         score = re.split(
             '{}'.format(sep), dbnsfp_record[score_index]
         )[transcript_index]
@@ -1196,6 +1197,20 @@ def get_preditor_double_threshold_color(val, predictor_min, predictor_max, mid_e
         elif value > predictor_thresholds[predictor_min]:
             return predictor_colors[mid_effect_color]
         return predictor_colors['min']
+    return predictor_colors['no_effect']
+
+
+def get_preditor_double_threshold_reverted_color(val, predictor_min, predictor_max, mid_effect_color='mid_effect'):
+    # returns an html color depending on a double threshold
+    # (reverted, e.g. for popEVE)
+    # function to get green or red
+    if val != '.':
+        value = float(val)
+        if value > predictor_thresholds[predictor_min]:
+            return predictor_colors['min']
+        elif value < predictor_thresholds[predictor_max]:
+            return predictor_colors['max']
+        return predictor_colors[mid_effect_color]
     return predictor_colors['no_effect']
 
 
