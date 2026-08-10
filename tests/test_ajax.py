@@ -588,3 +588,25 @@ def test_mobideep(client, app, mobideep_input, return_value):
         print(response.get_data())
         print(response.status_code)
         assert return_value in response.get_data()
+
+
+# test missense-visual
+
+
+@pytest.mark.parametrize(('dataset', 'gene_symbol', 'refseq', 'chromosome', 'strand', 'return_size'), (
+    ('gnomad', 'WFS1', 'NM_006005.3', '4', '+', 17073250),
+    ('clinvar', 'WFS1', 'NM_006005.3', '4', '+', 971295),
+))
+def test_ms_visual(client, app, dataset, gene_symbol, refseq, chromosome, strand, return_size):
+    with app.app_context():
+        assert client.get(url_for('ajax.ms_visual')).status_code == 405
+        data_dict = dict(
+            chrom=chromosome,
+            strand=strand,
+            gene_symbol=gene_symbol,
+            refseq=refseq,
+            dataset=dataset
+        )
+        response = client.post(url_for('ajax.ms_visual'), data=data_dict)
+        print(response.status_code)
+        assert return_size == len(response.get_data())

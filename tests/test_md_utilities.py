@@ -436,6 +436,12 @@ var = {
     'pos_ref': 'C',
     'pos_alt': 'A'
 }
+var2 = {
+    'chr': '7',
+    'pos': '107701183',
+    'pos_ref': 'T',
+    'pos_alt': 'C'
+}
 var_spliceai = {
     'chr': '10',
     'pos': '71712814',
@@ -452,6 +458,12 @@ var_f = {
     'prot_type': 'missense',
     'p_name': 'Cys759Phe',
     'gene_symbol': 'USH2A'
+}
+var_f2 = {
+    'dna_type': 'substitution',
+    'prot_type': 'missense',
+    'p_name': 'Leu597Ser',
+    'gene_symbol': 'SLC26A4'
 }
 var_hg19 = {
     'chr': '1',
@@ -569,6 +581,7 @@ var_ss_f = {
     ('dbnsfp', var, '1.0', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hdiv']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.815541', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var2, '-3.456', int(md_utilities.external_tools['popEve']['dbNSFP_value_col']), 'dbnsfp', var_f2),
     # ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
@@ -748,6 +761,19 @@ def test_get_preditor_double_threshold_color(client, value, result_color, predic
         color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max, mid_effect_color)
     else:
         color = md_utilities.get_preditor_double_threshold_color(value, predictor_min, predictor_max)
+    assert color == result_color
+
+
+@pytest.mark.parametrize(('value', 'result_color', 'predictor_min', 'predictor_max', 'mid_effect_color'), (
+    (-4.8, '#FF6020', 'popeve_mid', 'popeve_max', ''),
+    (-6, '#FF0000', 'popeve_mid', 'popeve_max', ''),
+    (-3, '#00A020', 'popeve_mid', 'popeve_max', '')
+))
+def test_get_preditor_double_threshold_reverted_color(client, value, result_color, predictor_min, predictor_max, mid_effect_color):
+    if mid_effect_color != '':
+        color = md_utilities.get_preditor_double_threshold_reverted_color(value, predictor_min, predictor_max, mid_effect_color)
+    else:
+        color = md_utilities.get_preditor_double_threshold_reverted_color(value, predictor_min, predictor_max)
     assert color == result_color
 
 

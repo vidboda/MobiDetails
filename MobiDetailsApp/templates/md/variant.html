@@ -459,7 +459,10 @@
 									{% if external_data.positions.proteinDomain[0] is defined %}
 									<td class="w3-left-align">
 										{% for dom in external_data.positions.proteinDomain  %}
-										{{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp;
+                                        <span id="domain_name{{ loop.index }}">{{ dom[0] }}</span>
+                                        (<span id="domain_start{{ loop.index }}">{{ dom[1] }}</span>-
+                                        <span id="donmain_end{{ loop.index }}">{{ dom[2] }}</span>)&nbsp;&nbsp;
+										{# {{ dom[0] }} ({{ dom[1] }} - {{ dom[2] }})&nbsp;&nbsp; #}
 										{% endfor %}
 									</td>
 									{% else %}
