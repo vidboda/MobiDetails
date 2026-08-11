@@ -4395,15 +4395,16 @@ def ms_vis_parse_variant_record(variant, gene_symbol, refseq):
         parsed_variants.append(variant_data)
     return parsed_variants
 
+## Deprecated - function managed by missense_visual API, not used in MobiDetails anymore
 
-def ms_vis_parse_gene_variant_record(vcf_file, chrom, start, end, gene_symbol, refseq):
-    """
-    Parse VCF file for a specific gene using coordinates.
-    """
-    variants = []
-    vcf = VCF(vcf_file)
-    region = "{0}:{1}-{2}".format(chrom, start, end)
+# def ms_vis_parse_gene_variant_record(vcf_file, chrom, start, end, gene_symbol, refseq):
+#     """
+#     Parse VCF file for a specific gene using coordinates.
+#     """
+#     variants = []
+#     vcf = VCF(vcf_file)
+#     region = "{0}:{1}-{2}".format(chrom, start, end)
     
-    for variant in vcf(region):
-        variants.extend(ms_vis_parse_variant_record(variant, gene_symbol, refseq))
-    return variants
+#     for variant in vcf(region):
+#         variants.extend(ms_vis_parse_variant_record(variant, gene_symbol, refseq))
+#     return variants

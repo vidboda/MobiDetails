@@ -889,7 +889,9 @@ function clingen_id(clingen_reg_url, hgvs_g, mavedb_url, static_path) {
 
 // =========================================
 // Missense-visual - from JMDSA made with Lumo2
-// GLOBAL VARIABLES TO STORE DATA (CACHED AFTER FIRST LOAD)
+// =========================================
+// =========================================
+// Missense-visual - GLOBAL VARIABLES TO STORE DATA (CACHED AFTER FIRST LOAD)
 // =========================================
 let gnomad_data_global = [];
 let clinvar_data_global = [];
@@ -1027,6 +1029,19 @@ function fetch_gnomad_and_clinvar(csrf_token) {
 // RENDER GRAPH WITHOUT AJAX (FAST RE-RENDER)
 // =========================================
 function render_missense_graph(predictor, filter_field, filter_threshold) {
+  // deal with uniprot domain if present
+  let target_domain = null;
+  // console.log("domaine name length: ", $('#domain_name_1').length);
+  // console.log("domaine start length: ", $('#domain_start_1').length);
+  // console.log("domaine end length: ", $('#domain_end_1').length);
+  if ($('#domain_name_1').length && $('#domain_start_1').length && $('#domain_end_1').length) {
+    target_domain = {
+      name: $('#domain_name_1').text(),
+      start: parseInt($('#domain_start_1').text()),
+      end: parseInt($('#domain_end_1').text())
+    }
+  }
+  // console.log("target_domain: ", target_domain);
   // Show loading indicator for quick feedback
   $("#missense_visual_wait").show();
   $("#missense_visual_div").fadeOut(200, function() {
@@ -1090,6 +1105,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         'practice_guideline': 4
       };
       const clinvar_filter = parseFloat($('#clinvar_filter_dropdown').val() || 0);
+      const clinvar_urls = [];
       for (const v of clinvar_data_global) {
         if (v[predictor] && v.aa_position) {
           if (parseFloat(clinvar_star[v.CLNREVSTAT]) >= clinvar_filter) {
@@ -1097,9 +1113,23 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
             x_clinvar.push(parseInt(v.aa_position));
             y_clinvar.push(clinvar_score);
             all_scores.push(clinvar_score);  // Track for y-axis range
+
+            const clinvar_url = (v.variant_id) ? `https://www.ncbi.nlm.nih.gov/clinvar/variation/${v.variant_id}` : 'unknown';
+            clinvar_urls.push(clinvar_url); 
+
             texts_clinvar.push(
-              `Variant: ${v.aa_change}<br>${predictor} score: ${clinvar_score}<br>CLNDN: ${v.CLNDN || 'N/A'}<br>CLNREVSTAT: ${v.CLNREVSTAT || 'N/A'}<br>CLNSIG: ${v.CLNSIG || 'N/A'}`
+              `Variant: ${v.aa_change}<br>` +
+              `${predictor} score: ${clinvar_score}<br>` +
+              `CLNDN: ${v.CLNDN || 'N/A'}<br>` +
+              `CLNREVSTAT: ${v.CLNREVSTAT || 'N/A'}<br>` +
+              `CLNSIG: ${v.CLNSIG || 'N/A'}<br><br>` +
+              `<span style="color:#8B0000;text-decoration:underline;">
+                Click to see this variant on ClinVar →
+              </span>`
             );
+            // texts_clinvar.push(
+            //   `Variant: ${v.aa_change}<br>${predictor} score: ${clinvar_score}<br>CLNDN: ${v.CLNDN || 'N/A'}<br>CLNREVSTAT: ${v.CLNREVSTAT || 'N/A'}<br>CLNSIG: ${v.CLNSIG || 'N/A'}`
+            // );
             clinvar_count++;
           }
         }
@@ -1156,7 +1186,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           }
         },
         hovertemplate: '<b>%{text}</b><extra></extra>',
-        text: texts_gnomad,
+        text: texts_gnomad
       };
       
       // Build trace 2: ClinVar P/LP variants
@@ -1171,9 +1201,10 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           color: '#8B0000',
           symbol: 'diamond',
           opacity: 0.9,
-          line: { color: 'White', width: 1.5 }
+          line: { color: 'White', width: 1 }
         },
-        text: texts_clinvar,
+        hovertemplate: '%{text}<extra></extra>',
+        text: texts_clinvar        
       };
       
       // Build trace 3: Target variant (highlighted)
@@ -1194,48 +1225,6 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         text: `Variant: ${target_name}<br>${predictor} score: ${target_score}`,
         hoverinfo: 'text'
       };
-      // Build medianes lines traces
-      // const trace_median_gnomad = {
-      //   x: [0, Math.max(...x_gnomad)],  // Line spans entire x-axis
-      //   y: [median_score_gnomad, median_score_gnomad], // Horizontal line at median
-      //   mode: 'lines',
-      //   type: 'scatter',
-      //   name: `gnomAD ${predictor} median (${median_score_gnomad?.toFixed(3)})`,
-      //   marker: {
-      //     color: 'blue',
-      //     line: {
-      //       width: 2,
-      //       dash: 'dash'  // Dashed line style
-      //     }
-      //   },
-      //   line: {
-      //     width: 2,
-      //     dash: 'dash'
-      //   },
-      //   hovertemplate: `<b>gnomAD median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
-      //   showlegend: true
-      // };
-      // const trace_median_clinvar = {
-      //   x: [0, Math.max(...x_clinvar)],  // Line spans entire x-axis
-      //   y: [median_score_clinvar, median_score_clinvar], // Horizontal line at median
-      //   mode: 'lines',
-      //   type: 'scatter',
-      //   name: `ClinVar ${predictor} median (${median_score_clinvar?.toFixed(3)})`,
-      //   marker: {
-      //     color: 'red',
-      //     line: {
-      //       width: 2,
-      //       dash: 'dash'  // Dashed line style
-      //     }
-      //   },
-      //   line: {
-      //     width: 2,
-      //     dash: 'dash'
-      //   },
-      //   hovertemplate: `<b>ClinVar median ${predictor} score</b>: %{y:.3f}<extra></extra>`,
-      //   showlegend: true
-      // };
-
 
       // Build shapes array for medianes
       const shapes = [];
@@ -1311,7 +1300,6 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         };
         finalTraces.push(trace_legend_clinvar);
       }
-      
 
       const containerWidth = document.getElementById('missense_visual_div').parentElement.offsetWidth; // fallback
       // Build layout
@@ -1331,6 +1319,16 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         },
         showlegend: true,
         shapes: shapes,
+        annotations: target_domain ? [{ // render UNPROT domain name above the graph
+          x: (target_domain.start + target_domain.end) / 2,
+          y: 1.02,
+          xref: 'x',
+          yref: 'paper',
+          text: `<b>${target_domain.name}</b>`,
+          showarrow: false,
+          font: { size: 12, color: '#6d4aff', weight: 'bold' },
+          align: 'center'
+        }] : [],
         legend: {
           x: 1,
           xanchor: 'left',
@@ -1346,11 +1344,82 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         }
       };
 
+      // =========================================
+      // Show UNIPROT domain
+      // =========================================
+      if (target_domain) {
+        // Transparent rectangle under the graph to indicate domain position
+        shapes.push({
+            type: 'rect',
+            xref: 'x',
+            yref: 'paper',
+            x0: target_domain.start,
+            x1: target_domain.end,
+            y0: 0,
+            y1: 1,
+            fillcolor: '#6d4aff',
+            opacity: 0.15,
+            line: {
+            width: 2,
+            color: '#6d4aff',
+            dash: 'dot'
+            },
+            layer: 'below'
+        });
+        // small bar under the graph to indicate domain position
+        shapes.push({
+          type: 'rect',
+          xref: 'x',
+          yref: 'y',
+          x0: target_domain.start,
+          x1: target_domain.end,
+          y0: y_min_pad,
+          y1: y_min_pad + (y_range * 0.05),
+          fillcolor: '#6d4aff',
+          opacity: 0.8,
+          line: { width: 0 },
+          layer: 'below'
+        });
+        
+        // Annotation showing the domain name above the graph
+        layout.annotations = [{
+            x: (target_domain.start + target_domain.end) / 2,
+            y: 1.02,  // Just above the top of the plot
+            xref: 'x',
+            yref: 'paper',
+            text: `<b>${target_domain.name}</b>`,
+            showarrow: false,
+            font: {
+            size: 12,
+            color: '#6d4aff',
+            weight: 'bold'
+            },
+            align: 'center'
+        }];
+      }
+
+      const graphDiv = document.getElementById('missense_visual_graph');
+      // purge listeners
+      Plotly.purge(graphDiv);
+
       // Render Plotly graph
       Plotly.newPlot('missense_visual_graph', finalTraces, layout);
       // Hide loading indicator, show graph
       $("#missense_visual_wait").hide();
       $(this).fadeIn(300);
+      // activate click on clinvar hover to trigger redirect to clinvar page
+      graphDiv.on('plotly_click', function(data) {
+        const point = data.points[0];
+        // Check clinvar trace (index 1 in finalTraces)
+        if (point.curveNumber === 1 && clinvar_urls[point.pointIndex]) {
+          const url = clinvar_urls[point.pointIndex];
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      });
+      console.log('Test clic ClinVar:', {
+        nbUrls: clinvar_urls.length,
+        firstUrl: clinvar_urls[0]
+      });
     }, 50); // Small delay for smooth UX
   });
 }
@@ -1537,7 +1606,7 @@ $(document).ready(function() {
     $('#smart_menu').children().removeClass('w3-xxlarge').addClass('w3-medium');
     if ($('#login_name').length) {$('#login_name').remove();}
   }
-  // press enter in 
+  // press enter in missense-visual form to trigger it
   $('#gnomad_filter_value').keydown(function (e) {
     //alert(e.which);
     if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
@@ -1549,16 +1618,16 @@ $(document).ready(function() {
   });
 
   // transform all tables as datatables
-    $('.w3-table').DataTable({
-      responsive: true,
-      dom: 't',
-      "order": [],
-    "pageLength": 35,
-      //scrollY: 600,
-      buttons: [
-          'copy', 'excel', 'pdf'
-      ]
-    });
+  $('.w3-table').DataTable({
+    responsive: true,
+    dom: 't',
+    "order": [],
+  "pageLength": 35,
+    //scrollY: 600,
+    buttons: [
+        'copy', 'excel', 'pdf'
+    ]
+  });
   // deal with dbscSNV/spliceai table which can be empty
   if (!$('#spliceai_ag_50_tr').length && !$('#dbscsnvada').length && !$('#dbscsnvrf').length && !$('#absplice_max').length && !$('#no_absplice_max').length) {
     $('#splicing_table').hide();
