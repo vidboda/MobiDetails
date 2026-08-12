@@ -946,6 +946,7 @@ function fetch_gnomad_and_clinvar(csrf_token) {
   const ajax_params = {
     chrom: $('#chrom_38').text(),
     refseq: $('#nm_acc').text(),
+    enst: $('#enst').text(),
     strand: $('#strand').text(),
     gene_symbol: $('#gene_symbol').text(),
     dataset: 'gnomad'
@@ -1416,10 +1417,10 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           window.open(url, '_blank', 'noopener,noreferrer');
         }
       });
-      console.log('Test clic ClinVar:', {
-        nbUrls: clinvar_urls.length,
-        firstUrl: clinvar_urls[0]
-      });
+      // console.log('Test clic ClinVar:', {
+      //   nbUrls: clinvar_urls.length,
+      //   firstUrl: clinvar_urls[0]
+      // });
     }, 50); // Small delay for smooth UX
   });
 }

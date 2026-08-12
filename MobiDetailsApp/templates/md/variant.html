@@ -1905,7 +1905,7 @@
 					</tr>
 				</tbody>
 			</table>
-			{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' %}
+			{% if internal_data.missensePredictions.siftStar == '*' or internal_data.missensePredictions.polyphen2HdivStar == '*' or internal_data.missensePredictions.polyphen2HvarStar == '*' or external_data.missensePredictions.fathmmstar == '*' or external_data.missensePredictions.popeveStar == '*' %}
 			<p>*No score found for the current isoform. The reported score is the most deleterious found in other isoforms.</p>
 			{% endif %}
 			{% if internal_data.missensePredictions.revelStar == '**' or internal_data.missensePredictions.amStar == '**' %}
@@ -2456,6 +2456,7 @@
 			</div>
 		</div>
 	</div>
+    <div id="enst" style="display:none">{{ external_data.gene.ENST }}</div>
 	<script>
 		$(document).ready(function() {
 			litvar2('{{ url_for('ajax.litvar2') }}', '{{ csrf_token() }}');
@@ -2477,8 +2478,10 @@
 				{# {% if external_data.positions.proteinType != "no protein" %} #}
 				spliceaivisual('{{ url_for('ajax.spliceaivisual') }}', '{{ url_for('static', filename='') }}', 'automatic', '{{ csrf_token() }}');
 				{# {% endif %} #}
-				{% if external_data.positions.proteinType == "missense" %}
+				{% if external_data.positions.proteinType == "missense" and external_data.gene.ENST %}
 					init_missense_visual('{{ url_for('ajax.ms_visual') }}', '{{ csrf_token() }}');
+                {% elif external_data.positions.proteinType == "missense" %}
+                    $('"missense_visual_div').html({{ content("Missense-visual is not yet available for this transcript.") }})
 				{% endif %}
 			{% endif %}
 			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown' or external_data.positions.proteinType == 'no protein')  and external_data.positions.DNAType == 'substitution' and (external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50)) %}

@@ -3085,16 +3085,20 @@ def ms_visual():
     match_gene_symbol = re.search(rf'^({gene_symbol_regexp})$', request.form['gene_symbol'])
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     match_nm_acc = re.search(rf'^({ncbi_transcript_regexp})$', request.form['refseq'])
+    ens_transcript_regexp = md_utilities.regexp['ens_transcript']
+    match_ens_acc = re.search(rf'^({ens_transcript_regexp})$', request.form['enst'])
     match_strand = re.search(rf'^([\+-])$', request.form['strand'])
     match_dataset = re.search(rf'^(gnomad|clinvar)$', request.form['dataset'])
     if match_chrom and \
             match_gene_symbol and \
             match_nm_acc and \
+            match_ens_acc and \
             match_strand and \
             match_dataset:
         chrom = match_chrom.group(1)
         gene_symbol = match_gene_symbol.group(1)
         refseq = match_nm_acc.group(1)
+        enst = match_ens_acc.group(1)
         strand = match_strand.group(1)
         dataset = match_dataset.group(1)
         
@@ -3120,6 +3124,7 @@ def ms_visual():
                     'dataset': dataset,
                     'gene_symbol': gene_symbol,
                     'ncbi_refseq': refseq,
+                    'enst': enst,
                     'chromosome': chrom,
                     'start': str(start_g),
                     'end': str(end_g)
