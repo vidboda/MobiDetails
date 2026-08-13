@@ -2481,7 +2481,9 @@
 				{% if external_data.positions.proteinType == "missense" and external_data.gene.ENST %}
 					init_missense_visual('{{ url_for('ajax.ms_visual') }}', '{{ csrf_token() }}');
                 {% elif external_data.positions.proteinType == "missense" %}
-                    $('"missense_visual_div').html({{ content("Missense-visual is not yet available for this transcript.") }})
+                    $("#missense_visual_wait").hide();
+                    $("#missense_visual_div").html('<div class="w3-margin w3-panel w3-leftbar"><p>Missense-visual is not yet available for this transcript.</p></div>');
+                    $("#missense_visual_div").show();
 				{% endif %}
 			{% endif %}
 			{% if (external_data.positions.proteinType is none or external_data.positions.proteinType == 'unknown' or external_data.positions.proteinType == 'no protein')  and external_data.positions.DNAType == 'substitution' and (external_data.positions.variantLocation != 'intron' or (external_data.positions.variantLocation == 'intron' and internal_data.positions.distFromExon > 50)) %}
