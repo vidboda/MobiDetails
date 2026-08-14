@@ -648,6 +648,7 @@ def search_engine():
     nochr_captured_regexp = md_utilities.regexp['nochr_captured']
     ncbi_transcript_regexp = md_utilities.regexp['ncbi_transcript']
     vcf_str_regexp = md_utilities.regexp['vcf_str']
+    ens_transcript_regexp = md_utilities.regexp['ens_transcript']
 
     if query_engine is not None and \
             query_engine != '':
@@ -757,11 +758,19 @@ def search_engine():
                 ),
                 code=307
             )
-        elif re.search(r'^[Nn][Mm]_\d+', query_engine):  # NM acc_no
+        elif re.search(r'^[Nn][MmRr]_\d+', query_engine):  # NM acc_no
             sql_table = 'gene'
             query_type = 'refseq'
             col_names = 'gene_symbol'
-            match_object = re.search(r'^(^[Nn][Mm]_\d+)', query_engine)
+            match_object = re.search(r'^([Nn][MmRr]_\d+)', query_engine)
+            if match_object:
+                col_names = 'partial_name'
+                pattern = match_object.group(1)
+        elif re.search(rf'^{ens_transcript_regexp}\.?\d?', query_engine):  # ENST acc_no
+            sql_table = 'gene'
+            query_type = 'ENST'
+            col_names = 'gene_symbol'
+            match_object = re.search(rf'^({ens_transcript_regexp}\.?\d?)', query_engine)
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)
