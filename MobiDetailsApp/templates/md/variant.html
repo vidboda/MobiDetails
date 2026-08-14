@@ -1855,6 +1855,7 @@
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.amPred, internal_data.missensePredictions.amColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds {{ thresholds['am_min'] }}|{{ thresholds['am_max'] }} for Likely Benign, Ambiguous, Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
+                    {% if internal_data.noMatch.dbnsfp is none %}
                     <tr><!--popEVE-->
 						<td class="w3-left-align"><a href="{{ urls.popeve }}" target="_blank" title="Visit popEVE" rel="noopener noreferrer">popEVE</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.popeveScore, internal_data.missensePredictions.popeveColor, 'popEVE_score') }}{{ internal_data.missensePredictions.popeveStar }}</td>
@@ -1867,6 +1868,7 @@
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelPred, internal_data.missensePredictions.bayesDelColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ thresholds['bayesdel'] }} for  Likely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
+                    {% endif %}
 					{% if g.user['academic'] or not g.user %}
 					<tr><!--REVEL-->
 						<td class="w3-left-align"><a href="{{ urls.revel }}" target="_blank" title="Visit REVEL" rel="noopener noreferrer">REVEL</a>:</td>
@@ -2067,7 +2069,7 @@
 			{# {% endif %}
 			{% if internal_data.noMatch.dbnsfp is not none %} #}
 			{% else %}
-				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
+				{{ info("%s: no scores for SIFT, Polyphen2, clinpred, FATHMM, popEVE, BayesDel, meta-SVM and meta-LR."|format(internal_data.noMatch.dbnsfp)) }}
 			{% endif %}
             <div id="missense_visual_wait"> {{ content('MobiDetails is working to bring you Missense-visual... <i class="fa fa-spinner w3-spin" style="font-size:24px"></i>') }}</div>
 			<div id="missense_visual_div" style="diplay:none;">

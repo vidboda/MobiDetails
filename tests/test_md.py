@@ -92,6 +92,8 @@ def test_basic_variant_page(client):
     ('NM_206933.', '/gene/USH2A', 302),
     ('NM_206933.3', '/gene/USH2A', 302),
     ('NM_206933.33', '/gene/USH2A', 302),
+    ('ENST00000452971', '/gene/LINC01685', 302),
+    ('ENST00000452971.18', '/gene/LINC01685', 302),
     ('GPR98', '/gene/ADGRV1', 302),
     ('c12ORF42', '/gene/C12orf42', 302),
     ('C12oRf42', '/gene/C12orf42', 302),
@@ -115,6 +117,7 @@ def test_search_engine(client, app, t_search, url, status_code):
             data={'search': t_search}
         )
         print(response.status_code)
+        print(response.headers)
         if status_code == 200:
             print(response.get_data())
             assert url in response.get_data()

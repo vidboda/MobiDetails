@@ -542,7 +542,7 @@ def test_spip(client, app, gene_symbol, nm_acc, c_name, variant_id):
     ('chr1-216415508-CTTTTTTT-C', 'NM_206933.4', b'(-362)'),
     ('chr1-216247056-A-AGGTGTC', 'NM_206933.4', b'(-471)'),
     ('chr1-215625755-G-GCAT', 'NM_206933.4', b'(-324)'),
-    ('chr1-215680269-CAG-TTTA', 'NM_206933.4', b'0.00 (-27)')
+    ('chr1-215680269-CAG-TTTA', 'NM_206933.4', b'(-27)')
 ))
 def test_spliceai_lookup(client, app, variant, transcript, return_value):
     with app.app_context():
@@ -593,11 +593,11 @@ def test_mobideep(client, app, mobideep_input, return_value):
 # test missense-visual
 
 
-@pytest.mark.parametrize(('dataset', 'gene_symbol', 'refseq', 'chromosome', 'strand', 'return_size'), (
-    ('gnomad', 'WFS1', 'NM_006005.3', '4', '+', 17073250),
-    ('clinvar', 'WFS1', 'NM_006005.3', '4', '+', 971295),
+@pytest.mark.parametrize(('dataset', 'gene_symbol', 'refseq', 'enst', 'chromosome', 'strand', 'return_size'), (
+    ('gnomad', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 875419),
+    ('clinvar', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 51605),
 ))
-def test_ms_visual(client, app, dataset, gene_symbol, refseq, chromosome, strand, return_size):
+def test_ms_visual(client, app, dataset, gene_symbol, refseq, enst, chromosome, strand, return_size):
     with app.app_context():
         assert client.get(url_for('ajax.ms_visual')).status_code == 405
         data_dict = dict(
@@ -605,6 +605,7 @@ def test_ms_visual(client, app, dataset, gene_symbol, refseq, chromosome, strand
             strand=strand,
             gene_symbol=gene_symbol,
             refseq=refseq,
+            enst=enst,
             dataset=dataset
         )
         response = client.post(url_for('ajax.ms_visual'), data=data_dict)
