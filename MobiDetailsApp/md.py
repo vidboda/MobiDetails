@@ -429,7 +429,8 @@ def gene(gene_symbol=None):
                             if req_results.status_code == 200:
                                 # then build raw .txt.gz file
                                 spliceai_results = json.loads(req_results.content)
-                                if 'error' in spliceai_results:
+                                if 'error' in spliceai_results and \
+                                        spliceai_results['error'] is not None:
                                     flash('<p>Failed to get SpliceAI results for this gene. Error: {}</p>'.format(spliceai_results['error']), 'w3-pale-red')
                                 else:
                                     with open(
