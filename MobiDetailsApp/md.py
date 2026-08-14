@@ -766,11 +766,11 @@ def search_engine():
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)
-        elif re.search(rf'^{ens_transcript_regexp}\.?\d?', query_engine):  # ENST acc_no
+        elif re.search(rf'^{ens_transcript_regexp}\.?\d{{0,2}}', query_engine):  # ENST acc_no
             sql_table = 'gene'
             query_type = 'ENST'
             col_names = 'gene_symbol'
-            match_object = re.search(rf'^({ens_transcript_regexp}\.?\d?)', query_engine)
+            match_object = re.search(rf'^({ens_transcript_regexp})\.?\d{{0,2}}', query_engine)
             if match_object:
                 col_names = 'partial_name'
                 pattern = match_object.group(1)
