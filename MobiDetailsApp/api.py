@@ -909,7 +909,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                     AND (('{1}' BETWEEN aa_start AND aa_end) \
                                     OR ('{2}' BETWEEN aa_start AND aa_end))
                                 """.format(
-                                    variant_features['uniprot_id'], aa_pos[0], aa_pos[1]
+                                    variant_features['uniprot_id'], external_data['positions']['aaPositionStart'], external_data['positions']['aaPositionEnd']
                                 )
                             )
                             domains = curs.fetchall()
@@ -917,7 +917,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 external_data['positions']['proteinDomain'].append([urllib.parse.unquote(domain['name']), domain['aa_start'], domain['aa_end']])
 
                             # metadome data?
-                            if variant_features['dna_type'] == 'substitution':
+                            if variant_features['prot_type'] == 'missense' or \
+                                    variant_features['prot_type'] == 'inframe deletion':
                                 record = md_utilities.get_value_from_tabix_file(
                                     'MetaDome',
                                     md_utilities.local_files['metadome']['abs_path'],
@@ -928,9 +929,24 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 if isinstance(record, str):
                                     internal_data['noMatch']['metadome'] = 'No match in MetaDome'
                                 else:
-                                    external_data['positions']['metaDomednds'] = "{:.2f}".format(float(record[int(md_utilities.external_tools['MetaDome']['sw_dn_ds_col'])]))
-                                    [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
-                                    external_data['positions']['metaDomeTranscriptId'] = record[int(md_utilities.external_tools['MetaDome']['gencode_transciption_id_col'])]
+                                    # if variant_features['dna_type'] == 'substitution':
+                                    if variant_features['prot_type'] == 'missense':
+                                        # print('metadome record', record)
+                                        # missense
+                                        external_data['positions']['metaDomednds'] = "{:.2f}".format(float(record[int(md_utilities.external_tools['MetaDome']['sw_dn_ds_col'])]))
+                                        [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
+                                        external_data['positions']['metaDomeTranscriptId'] = record[int(md_utilities.external_tools['MetaDome']['gencode_transciption_id_col'])]
+                                    else:
+                                        # inframe deletion
+                                        for recor in record:
+                                            # get min(metaDomednds) for the region of the deletion
+                                            if int(recor[int(md_utilities.external_tools['MetaDome']['protein_pos_col'])]) >= int(aa_pos[0]) and \
+                                                    int(recor[int(md_utilities.external_tools['MetaDome']['protein_pos_col'])]) <= int(aa_pos[1]):
+                                                if external_data['positions']['metaDomednds'] is None or \
+                                                        float(recor[int(md_utilities.external_tools['MetaDome']['sw_dn_ds_col'])]) < float(external_data['positions']['metaDomednds']):
+                                                    external_data['positions']['metaDomednds'] = "{:.2f}".format(float(recor[int(md_utilities.external_tools['MetaDome']['sw_dn_ds_col'])]))
+                                                    [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
+                                                    external_data['positions']['metaDomeTranscriptId'] = recor[int(md_utilities.external_tools['MetaDome']['gencode_transciption_id_col'])]
                                 # metadome v1
                                 #  and \
                                 #     os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
@@ -945,6 +961,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 #                     [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
                                 #     if 'transcript_id' in metad_json:
                                 #         external_data['positions']['metadomeTranscript'] = metad_json['transcript_id']
+
                     if variant_features['start_segment_type'] == 'intron':
                         internal_data['positions']['distFromExon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
                         if variant_features['dna_type'] == 'substitution':

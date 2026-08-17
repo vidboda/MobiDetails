@@ -474,8 +474,18 @@
                             {# <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank" rel="noopener noreferrer"></a> #}
 							{% if external_data.positions.metaDomednds is not none %}
 								<td class="w3-left-align">Position tolerance</td>
+                                {% if external_data.positions.proteinType == 'missense' %}
 								<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "{{ urls.metadome }}dashboard/GRCh38.p14/{{ external_data.gene.symbol }}/{{ external_data.positions.metaDomeTranscriptId }}/?selected_positions={{ external_data.positions.aaPositionStart }}" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
-								<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome" rel="noopener noreferrer">MetaDome</a> {{ external_tools.MetaDome.version }} score, the closer to 0, the more intolerant to variation</em></td>
+                                {% elif external_data.positions.proteinType == 'inframe deletion' %}
+                                {# loop from aa_start to aa_end to create a list of positions separated by ',', inserted in the link #}
+                                {# {% set aaPositions = range(external_data.positions.aaPositionStart, external_data.positions.aaPositionEnd + 1) | join(',') %} #}
+                                <td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "{{ urls.metadome }}dashboard/GRCh38.p14/{{ external_data.gene.symbol }}/{{ external_data.positions.metaDomeTranscriptId }}/?selected_positions={{ range(external_data.positions.aaPositionStart | int, external_data.positions.aaPositionEnd | int + 1) | join(',') }}" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
+                                {% endif %}
+								<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome" rel="noopener noreferrer">MetaDome</a> {{ external_tools.MetaDome.version }} score, the closer to 0, the more intolerant to variation
+                                {% if external_data.positions.proteinType == 'inframe deletion' %}
+                                . The link will show the transcript view with all amino acids in the deletion highlighted. The score presented is the minimum score of all positions in the deletion.
+                                {% endif %}
+                                </em></td>
 							{% endif %}
 						{% endif %}
 					{% endif %}

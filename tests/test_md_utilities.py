@@ -458,7 +458,8 @@ var_f = {
     'prot_type': 'missense',
     'p_name': 'Cys759Phe',
     'gene_symbol': 'USH2A',
-    'refseq': 'NM_206933.4'
+    'refseq': 'NM_206933.4',
+    'variant_size': 1
 }
 var_f2 = {
     'dna_type': 'substitution',

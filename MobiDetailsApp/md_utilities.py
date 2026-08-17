@@ -791,7 +791,11 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     # by adding +1 for the second position we capture the correct line
     # no matter the position on the nt in the codon
     if text == 'MetaDome':
-        query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], int(var['pos']) + 1)
+        if variant_features['prot_type'] == 'inframe deletion':
+            start_pos, end_pos = compute_start_end_pos(var['g_name'])
+            query = "chr{0}:{1}-{2}".format(var['chr'], int(start_pos), int(end_pos))
+        else:
+            query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], int(var['pos']) + int(variant_features['variant_size']))
     # for morfeedb which may return several lines
     record_list = []
     if re.match('gnomADv4', text) or \
@@ -846,11 +850,19 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         if text == 'ReMM':
             return record
         elif text == 'MetaDome'and \
+                variant_features['prot_type'] == 'missense' and \
                 record[int(external_tools['MetaDome']['ref_aa_col'])] == aa1 and \
                 record[int(external_tools['MetaDome']['protein_pos_col'])] == ppos and \
                 record[int(external_tools['MetaDome']['refseq_ids_col'])] == variant_features['refseq'] and \
                 record[int(external_tools['MetaDome']['sw_dn_ds_col'])]:
+            # missense
             return record
+        elif text == 'MetaDome'and \
+                variant_features['prot_type'] == 'inframe deletion' and \
+                record[int(external_tools['MetaDome']['refseq_ids_col'])] == variant_features['refseq'] and \
+                record[int(external_tools['MetaDome']['sw_dn_ds_col'])]:
+            # inframe deletion
+            return records
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
         # print(record)
