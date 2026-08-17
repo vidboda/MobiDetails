@@ -457,7 +457,8 @@ var_f = {
     'dna_type': 'substitution',
     'prot_type': 'missense',
     'p_name': 'Cys759Phe',
-    'gene_symbol': 'USH2A'
+    'gene_symbol': 'USH2A',
+    'refseq': 'NM_206933.4'
 }
 var_f2 = {
     'dna_type': 'substitution',
@@ -632,7 +633,8 @@ var_ss_f = {
     ('MaveDB', var_indel2, 'p.Cys93Leu', 15,  'mavedb', var_indel2_f),
     ('MaveDB', var_indel2, 'urn:mavedb:00000789-a-1', 6,  'mavedb', var_indel2_f),
     ('MaveDB', var_indel2, 'urn:mavedb:00000789-a-1#954', 12,  'mavedb', var_indel2_f),
-    ('PromoterAI', var_prom1, '-0.0024', 9,  'promoterai', '')
+    ('PromoterAI', var_prom1, '-0.0024', 9,  'promoterai', ''),
+    ('MetaDome', var, '0.9000000000000001', 7,  'metadome', var_f),
 ))
 def test_get_value_from_tabix_file(app, client, tool, var, expected, record_number, file_name, var_f):
     with app.app_context():

@@ -137,206 +137,206 @@ def gene(gene_symbol=None):
         # if we have the main => next step
 
         # temp disabling of metadome 20250219, metadome v1 server is unreachable for a unknown period
-        # need to test metadome v2
-        if md_utilities.is_coding_gene(db, gene_symbol, result_all):
-            if not os.path.isfile(
-                '{0}{1}.json'.format(
-                    md_utilities.local_files['metadome']['abs_path'],
-                    main['enst']
-                )
-                    ):
-                for gene in result_all:
-                    if not os.path.isfile(
-                        '{0}{1}.json'.format(
-                            md_utilities.local_files['metadome']['abs_path'],
-                            gene['enst']
-                        )
-                            ):
-                        if gene['enst'] not in enst_ver:
-                            # get enst versions in a dict
-                            metad_ts = None
-                            try:
-                                metad_ts = json.loads(
-                                            http.request(
-                                                'GET',
-                                                '{0}get_transcripts/{1}'.format(
-                                                    md_utilities.urls['metadome_api'],
-                                                    gene['gene_symbol']
-                                                ),
-                                                headers=header
-                                            ).data.decode('utf-8')
-                                )
-                                if metad_ts is not None and \
-                                        'trancript_ids' in metad_ts:
-                                    for ts in metad_ts['trancript_ids']:
-                                        if ts['has_protein_data']:
-                                            match_obj = re.search(
-                                                r'^(ENST\d+)\.\d',
-                                                ts['gencode_id']
-                                            )
-                                            enst_ver[match_obj.group(1)] = ts['gencode_id']
-                            except Exception as e:
-                                md_utilities.send_error_email(
-                                    md_utilities.prepare_email_html(
-                                        'MobiDetails API error',
-                                        """
-                                        <p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
-                                        """.format(
-                                            gene_symbol,
-                                            gene['enst'],
-                                            os.path.basename(__file__),
-                                            e.args
-                                        )
-                                    ),
-                                    '[MobiDetails - API Error]'
-                                )
-                        break
+        # disabled with metadome v2 as zenodo provides a file
+        # if md_utilities.is_coding_gene(db, gene_symbol, result_all):
+        #     if not os.path.isfile(
+        #         '{0}{1}.json'.format(
+        #             md_utilities.local_files['metadome']['abs_path'],
+        #             main['enst']
+        #         )
+        #             ):
+        #         for gene in result_all:
+        #             if not os.path.isfile(
+        #                 '{0}{1}.json'.format(
+        #                     md_utilities.local_files['metadome']['abs_path'],
+        #                     gene['enst']
+        #                 )
+        #                     ):
+        #                 if gene['enst'] not in enst_ver:
+        #                     # get enst versions in a dict
+        #                     metad_ts = None
+        #                     try:
+        #                         metad_ts = json.loads(
+        #                                     http.request(
+        #                                         'GET',
+        #                                         '{0}get_transcripts/{1}'.format(
+        #                                             md_utilities.urls['metadome_api'],
+        #                                             gene['gene_symbol']
+        #                                         ),
+        #                                         headers=header
+        #                                     ).data.decode('utf-8')
+        #                         )
+        #                         if metad_ts is not None and \
+        #                                 'trancript_ids' in metad_ts:
+        #                             for ts in metad_ts['trancript_ids']:
+        #                                 if ts['has_protein_data']:
+        #                                     match_obj = re.search(
+        #                                         r'^(ENST\d+)\.\d',
+        #                                         ts['gencode_id']
+        #                                     )
+        #                                     enst_ver[match_obj.group(1)] = ts['gencode_id']
+        #                     except Exception as e:
+        #                         md_utilities.send_error_email(
+        #                             md_utilities.prepare_email_html(
+        #                                 'MobiDetails API error',
+        #                                 """
+        #                                 <p>MetaDome first block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
+        #                                 """.format(
+        #                                     gene_symbol,
+        #                                     gene['enst'],
+        #                                     os.path.basename(__file__),
+        #                                     e.args
+        #                                 )
+        #                             ),
+        #                             '[MobiDetails - API Error]'
+        #                         )
+        #                 break
 
         # we check if data exist at metadome
         # we have a set of metadome transcripts
-        for enst in enst_ver:
-            # print('enst: {}'.format(enst_ver[enst]))
-            # print('--{}--'.format(app.debug))
-            # print(json.dumps({'transcript_id': enst_ver[enst]}))
-            if not os.path.isfile(
-                '{0}{1}.json'.format(
-                    md_utilities.local_files['metadome']['abs_path'],
-                    enst
-                )
-                    ):
-                metad_data = None
-                try:
-                    metad_data = json.loads(
-                                    http.request(
-                                        'GET',
-                                        '{0}status/{1}/'.format(
-                                            md_utilities.urls['metadome_api'],
-                                            enst_ver[enst]
-                                        ),
-                                        headers=header
-                                    ).data.decode('utf-8')
-                                )
-                except Exception as e:
-                    md_utilities.send_error_email(
-                        md_utilities.prepare_email_html(
-                            'MobiDetails API error',
-                            """
-                            <p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
-                            """.format(
-                                gene_symbol,
-                                enst,
-                                os.path.basename(__file__),
-                                e.args
-                            )
-                        ),
-                        '[MobiDetails - API Error]'
-                    )
-                if metad_data is not None:
-                    if metad_data['status'] == 'PENDING':
-                        # get transcript_ids ?? coz of the version number
-                        # send request to build visualization to metadome
-                        vis_request = None
-                        # find out how to get app object
-                        try:
-                            # enst_metadome = {transcript_id: enst_ver[enst]}
-                            # header = md_utilities.api_agent
-                            header['Content-Type'] = 'application/json'
-                            vis_request = json.loads(
-                                            http.request(
-                                                'POST',
-                                                '{0}submit_visualization/'.format(
-                                                    md_utilities.urls['metadome_api']
-                                                ),
-                                                # headers={'Content-Type': 'application/json'},
-                                                headers=header,
-                                                body=json.dumps(
-                                                    {'transcript_id': enst_ver[enst]}
-                                                )
-                                            ).data.decode('utf-8')
-                            )
-                            if not app.debug:
-                                app.logger.info(
-                                    '{} submitted to metadome'.format(
-                                        vis_request['transcript_id']
-                                    )
-                                )
-                            else:
-                                print('{} submitted to metadome'.format(
-                                        vis_request['transcript_id']
-                                    )
-                                )
-                        except Exception as e:
-                            md_utilities.send_error_email(
-                                md_utilities.prepare_email_html(
-                                    'MobiDetails API error',
-                                    """
-                                    <p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>
-                                    """.format(
-                                        gene_symbol,
-                                        enst,
-                                        os.path.basename(__file__),
-                                        e.args
-                                    )
-                                ),
-                                '[MobiDetails - API Error]'
-                            )
-                            # print('Error with metadome
-                            # submission for {}'.format(enst))
-                    elif metad_data['status'] == 'SUCCESS':
-                        # get_request = None
-                        try:
-                            get_request = json.loads(
-                                            http.request(
-                                                'GET',
-                                                '{0}result/{1}/'.format(
-                                                    md_utilities.urls['metadome_api'],
-                                                    enst_ver[enst]
-                                                ),
-                                                headers=md_utilities.api_agent
-                                            ).data.decode('utf-8')
-                                        )
-                            # copy in file system
-                            with open(
-                                '{0}{1}.json'.format(
-                                    md_utilities.local_files['metadome']['abs_path'],
-                                    enst
-                                ),
-                                "w",
-                                encoding='utf-8'
-                            ) as metad_file:
-                                json.dump(
-                                    get_request,
-                                    metad_file,
-                                    ensure_ascii=False,
-                                    indent=4
-                                )
-                            if not app.debug:
-                                app.logger.info(
-                                    'saving metadome {} into local file system'
-                                    .format(enst_ver[enst])
-                                )
-                            else:
-                                print(
-                                    'saving metadome {} into local file system'
-                                    .format(enst_ver[enst])
-                                )
-                        except Exception as e:
-                            md_utilities.send_error_email(
-                                md_utilities.prepare_email_html(
-                                    'MobiDetails API error',
-                                    """
-                                    <p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>
-                                    """.format(
-                                        gene_symbol,
-                                        enst,
-                                        os.path.basename(__file__),
-                                        e.args
-                                    )
-                                ),
-                                '[MobiDetails - API Error]'
-                            )
-                            # print('error saving metadome json
-                            # file for {}'.format(enst))
+        # for enst in enst_ver:
+        #     # print('enst: {}'.format(enst_ver[enst]))
+        #     # print('--{}--'.format(app.debug))
+        #     # print(json.dumps({'transcript_id': enst_ver[enst]}))
+        #     if not os.path.isfile(
+        #         '{0}{1}.json'.format(
+        #             md_utilities.local_files['metadome']['abs_path'],
+        #             enst
+        #         )
+        #             ):
+        #         metad_data = None
+        #         try:
+        #             metad_data = json.loads(
+        #                             http.request(
+        #                                 'GET',
+        #                                 '{0}status/{1}/'.format(
+        #                                     md_utilities.urls['metadome_api'],
+        #                                     enst_ver[enst]
+        #                                 ),
+        #                                 headers=header
+        #                             ).data.decode('utf-8')
+        #                         )
+        #         except Exception as e:
+        #             md_utilities.send_error_email(
+        #                 md_utilities.prepare_email_html(
+        #                     'MobiDetails API error',
+        #                     """
+        #                     <p>MetaDome second block code failed for gene {0} ({1})<br /> - from {2} with args: {3}</p>
+        #                     """.format(
+        #                         gene_symbol,
+        #                         enst,
+        #                         os.path.basename(__file__),
+        #                         e.args
+        #                     )
+        #                 ),
+        #                 '[MobiDetails - API Error]'
+        #             )
+        #         if metad_data is not None:
+        #             if metad_data['status'] == 'PENDING':
+        #                 # get transcript_ids ?? coz of the version number
+        #                 # send request to build visualization to metadome
+        #                 vis_request = None
+        #                 # find out how to get app object
+        #                 try:
+        #                     # enst_metadome = {transcript_id: enst_ver[enst]}
+        #                     # header = md_utilities.api_agent
+        #                     header['Content-Type'] = 'application/json'
+        #                     vis_request = json.loads(
+        #                                     http.request(
+        #                                         'POST',
+        #                                         '{0}submit_visualization/'.format(
+        #                                             md_utilities.urls['metadome_api']
+        #                                         ),
+        #                                         # headers={'Content-Type': 'application/json'},
+        #                                         headers=header,
+        #                                         body=json.dumps(
+        #                                             {'transcript_id': enst_ver[enst]}
+        #                                         )
+        #                                     ).data.decode('utf-8')
+        #                     )
+        #                     if not app.debug:
+        #                         app.logger.info(
+        #                             '{} submitted to metadome'.format(
+        #                                 vis_request['transcript_id']
+        #                             )
+        #                         )
+        #                     else:
+        #                         print('{} submitted to metadome'.format(
+        #                                 vis_request['transcript_id']
+        #                             )
+        #                         )
+        #                 except Exception as e:
+        #                     md_utilities.send_error_email(
+        #                         md_utilities.prepare_email_html(
+        #                             'MobiDetails API error',
+        #                             """
+        #                             <p>Error with metadome submission for {0} ({1})<br /> - from {2} with args: {3}</p>
+        #                             """.format(
+        #                                 gene_symbol,
+        #                                 enst,
+        #                                 os.path.basename(__file__),
+        #                                 e.args
+        #                             )
+        #                         ),
+        #                         '[MobiDetails - API Error]'
+        #                     )
+        #                     # print('Error with metadome
+        #                     # submission for {}'.format(enst))
+        #             elif metad_data['status'] == 'SUCCESS':
+        #                 # get_request = None
+        #                 try:
+        #                     get_request = json.loads(
+        #                                     http.request(
+        #                                         'GET',
+        #                                         '{0}result/{1}/'.format(
+        #                                             md_utilities.urls['metadome_api'],
+        #                                             enst_ver[enst]
+        #                                         ),
+        #                                         headers=md_utilities.api_agent
+        #                                     ).data.decode('utf-8')
+        #                                 )
+        #                     # copy in file system
+        #                     with open(
+        #                         '{0}{1}.json'.format(
+        #                             md_utilities.local_files['metadome']['abs_path'],
+        #                             enst
+        #                         ),
+        #                         "w",
+        #                         encoding='utf-8'
+        #                     ) as metad_file:
+        #                         json.dump(
+        #                             get_request,
+        #                             metad_file,
+        #                             ensure_ascii=False,
+        #                             indent=4
+        #                         )
+        #                     if not app.debug:
+        #                         app.logger.info(
+        #                             'saving metadome {} into local file system'
+        #                             .format(enst_ver[enst])
+        #                         )
+        #                     else:
+        #                         print(
+        #                             'saving metadome {} into local file system'
+        #                             .format(enst_ver[enst])
+        #                         )
+        #                 except Exception as e:
+        #                     md_utilities.send_error_email(
+        #                         md_utilities.prepare_email_html(
+        #                             'MobiDetails API error',
+        #                             """
+        #                             <p>Error with metadome file writing for {0} ({1})<br /> - from {2} with args: {3}</p>
+        #                             """.format(
+        #                                 gene_symbol,
+        #                                 enst,
+        #                                 os.path.basename(__file__),
+        #                                 e.args
+        #                             )
+        #                         ),
+        #                         '[MobiDetails - API Error]'
+        #                     )
+        #                     # print('error saving metadome json
+        #                     # file for {}'.format(enst))
         if result_all is not None:
             is_coding_gene =  md_utilities.is_coding_gene(None, gene_symbol, result_all)
             # get annotations

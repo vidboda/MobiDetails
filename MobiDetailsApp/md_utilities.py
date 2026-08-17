@@ -787,6 +787,11 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
+    # for metadome we queery the codon
+    # by adding +1 for the second position we capture the correct line
+    # no matter the position on the nt in the codon
+    if text == 'MetaDome':
+        query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], int(var['pos']) + 1)
     # for morfeedb which may return several lines
     record_list = []
     if re.match('gnomADv4', text) or \
@@ -839,6 +844,12 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         # ReMM is chr1    216422351       0.902701
         # no further validation needed
         if text == 'ReMM':
+            return record
+        elif text == 'MetaDome'and \
+                record[int(external_tools['MetaDome']['ref_aa_col'])] == aa1 and \
+                record[int(external_tools['MetaDome']['protein_pos_col'])] == ppos and \
+                record[int(external_tools['MetaDome']['refseq_ids_col'])] == variant_features['refseq'] and \
+                record[int(external_tools['MetaDome']['sw_dn_ds_col'])]:
             return record
         ref_list = re.split(',', record[i])
         alt_list = re.split(',', record[i+1])
@@ -967,6 +978,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     if record_list:
         return record_list
     return 'No match in {}'.format(text)
+
 
 # big wig files function
 

@@ -917,19 +917,34 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 external_data['positions']['proteinDomain'].append([urllib.parse.unquote(domain['name']), domain['aa_start'], domain['aa_end']])
 
                             # metadome data?
-                            if variant_features['dna_type'] == 'substitution' and \
-                                    os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
+                            if variant_features['dna_type'] == 'substitution':
+                                record = md_utilities.get_value_from_tabix_file(
+                                    'MetaDome',
+                                    md_utilities.local_files['metadome']['abs_path'],
+                                    var,
+                                    variant_features,
+                                    db
+                                )
+                                if isinstance(record, str):
+                                    internal_data['noMatch']['metadome'] = 'No match in MetaDome'
+                                else:
+                                    external_data['positions']['metaDomednds'] = "{:.2f}".format(float(record[int(md_utilities.external_tools['MetaDome']['sw_dn_ds_col'])]))
+                                    [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
+                                    external_data['positions']['metaDomeTranscriptId'] = record[int(md_utilities.external_tools['MetaDome']['gencode_transciption_id_col'])]
+                                # metadome v1
+                                #  and \
+                                #     os.path.isfile('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst'])) is True:
                                 # get value in json file
-                                with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst']), "r") as metad_file:
-                                    metad_json = json.load(metad_file)
-                                    if 'positional_annotation' in metad_json:
-                                        for pos in metad_json['positional_annotation']:
-                                            if int(pos['protein_pos']) == int(aa_pos[0]):
-                                                if 'sw_dn_ds' in pos:
-                                                    external_data['positions']['metaDomednds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
-                                                    [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
-                                    if 'transcript_id' in metad_json:
-                                        external_data['positions']['metadomeTranscript'] = metad_json['transcript_id']
+                                # with open('{0}{1}.json'.format(md_utilities.local_files['metadome']['abs_path'], variant_features['enst']), "r") as metad_file:
+                                #     metad_json = json.load(metad_file)
+                                #     if 'positional_annotation' in metad_json:
+                                #         for pos in metad_json['positional_annotation']:
+                                #             if int(pos['protein_pos']) == int(aa_pos[0]):
+                                #                 if 'sw_dn_ds' in pos:
+                                #                     external_data['positions']['metaDomednds'] = "{:.2f}".format(float(pos['sw_dn_ds']))
+                                #                     [external_data['positions']['metaDomeTolerance'], internal_data['positions']['metaDomeColor']] = md_utilities.get_metadome_colors(external_data['positions']['metaDomednds'])
+                                #     if 'transcript_id' in metad_json:
+                                #         external_data['positions']['metadomeTranscript'] = metad_json['transcript_id']
                     if variant_features['start_segment_type'] == 'intron':
                         internal_data['positions']['distFromExon'], sign = md_utilities.get_pos_splice_site_intron(variant_features['c_name'])
                         if variant_features['dna_type'] == 'substitution':

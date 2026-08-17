@@ -471,9 +471,10 @@
 									<td class="w3-left-align"><em class="w3-small">Position in a protein domain (UNIPROT: <a href="{{ urls.uniprot_id }}{{ external_data.gene.uniprotId }}" target="_blank" title="Visit UNIPROT {{ external_data.gene.uniprotId }}" rel="noopener noreferrer">{{ external_data.gene.uniprotId }})</a></em></td>
 								</tr>
 							{% endif %}
+                            {# <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank" rel="noopener noreferrer"></a> #}
 							{% if external_data.positions.metaDomednds is not none %}
 								<td class="w3-left-align">Position tolerance</td>
-								<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ external_data.positions.metadomeTranscript }}/" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
+								<td class="w3-left-align">{{ external_data.positions.metaDomednds }} : {{ span_color(external_data.positions.metaDomeTolerance, internal_data.positions.metaDomeColor) }} - <a href = "{{ urls.metadome }}dashboard/GRCh38.p14/{{ external_data.gene.symbol }}/{{ external_data.positions.metaDomeTranscriptId }}/?selected_positions={{ external_data.positions.aaPositionStart }}" target="_blank" rel="noopener noreferrer">Transcript view</a></td>
 								<td class="w3-left-align"><em class="w3-small"><a href="{{ urls.metadome }}" target="_blank" title="Visit Metadome" rel="noopener noreferrer">MetaDome</a> score, the closer to 0, the more intolerant to variation</em></td>
 							{% endif %}
 						{% endif %}
