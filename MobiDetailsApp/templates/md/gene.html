@@ -63,12 +63,12 @@
 						<th class="w3-left-align">Chr</th>
 						<th class="w3-left-align">Strand</th>
 						<th class="w3-left-align">Gene name</th>
-						<th class="w3-left-align">Genomic Accession #</th>
+						<th class="w3-left-align">Genomic Accession number</th>
 						<th class="w3-left-align">Synonymous <br />obs/exp* (CI)</th>
 						<th class="w3-left-align">Missense <br />obs/exp* (CI)</th>
 						<th class="w3-left-align">Loss of function <br />obs/exp* (CI)</th>
-						<th class="w3-left-align">OncoKB*** <br />is oncogene?</th>
-						<th class="w3-left-align">OncoKB*** <br />is tumor suppressor?</th>
+						<th class="w3-left-align">OncoKB** <br />is oncogene?</th>
+						<th class="w3-left-align">OncoKB** <br />is tumor suppressor?</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -176,7 +176,7 @@
 				<caption>Transcript info table:</caption>
 				<thead>
 					<tr>
-						<th class="w3-left-align">RefSeq transcript**</th>
+						<th class="w3-left-align">RefSeq transcript***</th>
 						<th class="w3-left-align">Ensembl transcript</th>
 						<th class="w3-left-align">Number of exons</th>
 						<th class="w3-left-align">RefSeq protein</th>
@@ -258,7 +258,7 @@
 				</tbody>
 			</table>
 		</div><br /><br />
-		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>.<br/>***Version of the OncoKB cancer gene list available at the <a href='%s' target='_blank', 'noopener,noreferrer'>about</a> page."| format(url_for('md.about'))) }}
+		{{ info("*In gnomAD, the previous pLi, pRec and pNull scores have been replaced by the more accurate observed/expected scores.","Synonymous variants, nsSNVs (missense) and Loss of functions variants are reported for each gene, and compared with the expected numbers based on size and compositon of the gene. A Confidence Interval is given to better appreciate the value and if needed a threshold is defined: a class of variants is considered under constraint if the upper bound of the CI is < 0.35. See 'Gene constraint' explanations in gnomAD browser for more details.<br/>**Version of the OncoKB cancer gene list available at the <a href='%s' target='_blank', 'noopener,noreferrer'>about</a> page.<br/>**If the MD canonical transcript does not match the RefSeqSelect or MANESelect transcript and that there is no obvious reason to it, feel free to contact us in order to check and possibly change the MD canonical transcript. More information on the MANE project <a href='https://www.ncbi.nlm.nih.gov/refseq/MANE/' target='_blank'>here</a>."| format(url_for('md.about'))) }}
 		{% if mapping_warning.hg38_secured == 'yes' %}
 			{{ info("<strong><sup>#</sup> this tag means that variants on this transcript will map onto hg38, but may or may not correctly map on hg19, depending on the transcript and on the variant localisation. If the variant fails to map on hg19, some functionalities will be disabled in the variant analysis page. Missense predictions in particular may be incomplete.</strong>") }}
 		{% endif %}
