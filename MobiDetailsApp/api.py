@@ -2843,12 +2843,14 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                                             md_utilities.prepare_email_html(
                                                 'MobiDetails API error',
                                                 """
-                                                <p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3}</p>
+                                                <p>Error with MDAPI dbsnp creation for {0} ({1})<br /> - from {2} with args: {3} - url: {4}, data: {5}</p>
                                                 """.format(
                                                     rs_id,
                                                     md_query,
                                                     os.path.basename(__file__),
-                                                    e.args
+                                                    e.args,
+                                                    md_api_url,
+                                                    data
                                                 )
                                             ),
                                             '[MobiDetails - MDAPI Error]'

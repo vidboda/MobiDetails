@@ -153,6 +153,7 @@ caddPhredThresholds:
   'metadome_api': 'https://metadome.app/metadome/api/'
   # 'mirbase': 'http://www.mirbase.org/cgi-bin/mirna_entry.pl?acc='
   'mirbase': 'https://mirbase.org/results/?query='
+  'missense_visual': 'https://github.com/JMdeSteAgathe/missense_visual'
   'mistic': 'http://lbgi.fr/mistic'
   'miztli': 'https://miztli.biokerden.eu'
   'mobideep': 'https://github.com/mobidic/MobiDeep'
