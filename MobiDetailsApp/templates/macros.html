@@ -38,7 +38,7 @@
 <!--the same with an id -->
 {% macro content_id(div_id=None) -%}
 	{% autoescape false %}
-    <div class="w3-margin w3-panel w3-leftbar" id="{{ div_id }}">
+    <div class="w3-margin w3-panel w3-leftbar" id="{{ div_id }}" style="display:none;">
 		<p>
 			{% for text in varargs %}
 				<span>{{ text }}</span><br />
