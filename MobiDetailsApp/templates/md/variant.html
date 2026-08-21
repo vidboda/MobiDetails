@@ -2138,6 +2138,10 @@
                     </form>
                 </div>
                 <div id="missense_visual_graph"></div>
+                <div id="no_data_alert" style="display:none;" class="w3-margin w3-panel w3-leftbar">
+                    <span id="no_data_text">No variants match the current filter criteria.</span>
+                    <button id="reset_predictor_btn" class="btn btn-sm btn-primary" onclick="$('#predictor_dropdown').val('revel');render_missense_graph('revel', $('#gnomad_filter_dropdown').val(), validateInteger($('#gnomad_filter_value').val(), 0));$('#no_data_alert').hide();">Reset to REVEL predictor</button>
+                </div>
             </div>
 		</div>
 		{% endif %}

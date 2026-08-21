@@ -1090,19 +1090,11 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           if (!document.getElementById('missense_visual_graph')) {
               $('#missense_visual_div').append('<div id="missense_visual_graph"></div>');
           }
+          $('#no_data_text').text(`No variants match the current filter criteria ${predictor}.`);
+          $('#no_data_alert').show();
+          $('#missense_visual_wait').hide();
           
-          $('#missense_visual_div').append(
-              `<br /><div class="w3-margin w3-panel w3-leftbar" id="no_data_alert">
-                  No variants match the current filter criteria ${predictor}. 
-                  <button id="reset_predictor_btn" class="btn btn-sm btn-primary">Reset to REVEL predictor</button>
-              </div>`
-          );
-          
-          $('#reset_predictor_btn').on('click', function() {
-              $('#predictor_dropdown').val('revel');
-              render_missense_graph('revel', filter_field, filter_threshold);
-              $('#no_data_alert').hide();
-          });
+          return
         } else {
           // no REVEL data, switch to CADD
           $('#predictor_dropdown').val('cadd');
@@ -1119,30 +1111,8 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         $("#missense_visual_wait").hide();
         return;
       }
-      // if (color_vals_raw.length === 0) {
-      //   console.log(predictor);
-      //   if (predictor !== 'revel') {
-      //       // add a button to reinitialise the graph with revel predictor
-      //       $('#missense_visual_div').html(
-      //           `<br /><div class="alert alert-warning" role="alert">
-      //               No variants match the current filter criteria. 
-      //               <button id="reset_predictor_btn" class="btn btn-sm btn-primary">Reset to REVEL predictor</button>
-      //           </div>`
-      //       );
-      //       $('#reset_predictor_btn').on('click', function() {
-      //           $('#predictor_dropdown').val('revel');
-      //           render_missense_graph('revel', filter_field, filter_threshold);
-                
-      //       });
-      //       $('#missense_visual_div').show();
-      //   }
-      //   // console.log(gnomad_data_global);
-      //   console.warn('No variants match the current filter criteria');
-      //   // alert('No variants found matching your filter criteria.');
-      //   $("#missense_visual_wait").hide();
-      //   return;
-      // }
-      
+      $('#no_data_alert').hide();
+
       // console.log(`${gnomad_count} gnomAD variants passed filter (threshold: ${threshold})`);
       
       // Create log values for color mapping
