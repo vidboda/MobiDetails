@@ -545,8 +545,9 @@
 			</div>
 			{% if external_data.gene.symbol is not none %}
 			<div>
-				{{ section_subtitle('VarChat', 'VarChat : use AI to summarize scientific literature for genomic variant interpretation') }}
-				{{ content('VarChat is an open platform that leverages the power of generative artificial
+				{{ section_subtitle('VarChat', 'VarChat') }}
+                {{ content('VarChat : use AI to summarize scientific literature for genomic variant interpretation&nbsp;&nbsp;<span class="a_like" id="varchat_show" onclick="content_toggle(\'varchat_description\', \'varchat_show\');">Show More...</span>') }}
+				{{ content_id('varchat_description', 'VarChat is an open platform that leverages the power of generative artificial
 						intelligence to support the genomic variant interpretation process by searching
 						and condensing the scientific literature available for each variant into a brief 
 						yet very infomative text.
@@ -2515,6 +2516,7 @@
             $('#mobideep_description').hide();
             $('#spliceai_description').hide();
             $('#morfee_description').hide();
+            $('#varchat_description').hide();
 		});
 	</script>
 

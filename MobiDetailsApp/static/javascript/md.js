@@ -244,8 +244,9 @@ function escapeHtml(unsafe) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-function content_toggle(content_id, span_id) {
+async function content_toggle(content_id, span_id) {
     $(`#${content_id}`).toggle('slow');
+    await new Promise(r => setTimeout(r, 800));
     if($(`#${content_id}`).is(':visible')){
         $(`#${span_id}`).text('Show less...')
     }
