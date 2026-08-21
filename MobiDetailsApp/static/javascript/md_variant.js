@@ -1079,12 +1079,69 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
       // Check if any variants remain after filtering
       if (color_vals_raw.length === 0) {
         console.log(predictor);
-        // console.log(gnomad_data_global);
+        if (predictor !== 'revel') {
+          // hide graph and form
+          $('#missense_visual_graph').hide();
+          $('#update_ms_visual_form_div').hide();
+          // Insertion: Show div first so it exists in DOM
+          $('#missense_visual_div').show();
+          
+          // Insertion: Ensure graphDiv exists even if empty
+          if (!document.getElementById('missense_visual_graph')) {
+              $('#missense_visual_div').append('<div id="missense_visual_graph"></div>');
+          }
+          
+          $('#missense_visual_div').append(
+              `<br /><div class="w3-margin w3-panel w3-leftbar" id="no_data_alert">
+                  No variants match the current filter criteria ${predictor}. 
+                  <button id="reset_predictor_btn" class="btn btn-sm btn-primary">Reset to REVEL predictor</button>
+              </div>`
+          );
+          
+          $('#reset_predictor_btn').on('click', function() {
+              $('#predictor_dropdown').val('revel');
+              render_missense_graph('revel', filter_field, filter_threshold);
+              $('#no_data_alert').hide();
+          });
+        } else {
+          // no REVEL data, switch to CADD
+          $('#predictor_dropdown').val('cadd');
+          render_missense_graph('cadd', filter_field, filter_threshold);
+          // // For REVEL too, display a clear message
+          // $('#missense_visual_div').html(
+          //     `<div class="w3-margin w3-panel w3-leftbar">
+          //         No variant found for REVEL with these filtering criteria.
+          //     </div>`
+          // ).show();
+        }
+        
         console.warn('No variants match the current filter criteria');
-        // alert('No variants found matching your filter criteria.');
         $("#missense_visual_wait").hide();
         return;
       }
+      // if (color_vals_raw.length === 0) {
+      //   console.log(predictor);
+      //   if (predictor !== 'revel') {
+      //       // add a button to reinitialise the graph with revel predictor
+      //       $('#missense_visual_div').html(
+      //           `<br /><div class="alert alert-warning" role="alert">
+      //               No variants match the current filter criteria. 
+      //               <button id="reset_predictor_btn" class="btn btn-sm btn-primary">Reset to REVEL predictor</button>
+      //           </div>`
+      //       );
+      //       $('#reset_predictor_btn').on('click', function() {
+      //           $('#predictor_dropdown').val('revel');
+      //           render_missense_graph('revel', filter_field, filter_threshold);
+                
+      //       });
+      //       $('#missense_visual_div').show();
+      //   }
+      //   // console.log(gnomad_data_global);
+      //   console.warn('No variants match the current filter criteria');
+      //   // alert('No variants found matching your filter criteria.');
+      //   $("#missense_visual_wait").hide();
+      //   return;
+      // }
       
       // console.log(`${gnomad_count} gnomAD variants passed filter (threshold: ${threshold})`);
       
@@ -1417,6 +1474,10 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           window.open(url, '_blank', 'noopener,noreferrer');
         }
       });
+      if ($('#missense_visual_graph').is(":hidden")) {
+        $('#missense_visual_graph').show();
+        $('#update_ms_visual_form_div').show();
+      }
       // console.log('Test clic ClinVar:', {
       //   nbUrls: clinvar_urls.length,
       //   firstUrl: clinvar_urls[0]

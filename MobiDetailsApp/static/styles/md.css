@@ -1,8 +1,8 @@
-a {
+a,.a_like {
     color:#337AB7;
     text-decoration:none;
 }
-a:hover {
+a :hover,.a_like :hover {
 	color:#FF6020;
 	/*font-style:italic;*/
 }
@@ -10,7 +10,7 @@ a:hover {
 	font-family:monospace;
 	font-size:1.2em;
 }
-.var_li:hover {
+.var_li:hover, .a_like:hover {
 	cursor:pointer;
 }
 .star_fav {

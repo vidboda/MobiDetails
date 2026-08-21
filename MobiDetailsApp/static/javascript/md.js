@@ -244,6 +244,15 @@ function escapeHtml(unsafe) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+function content_toggle(content_id, span_id) {
+    $(`#${content_id}`).toggle('slow');
+    if($(`#${content_id}`).is(':visible')){
+        $(`#${span_id}`).text('Show less...')
+    }
+    else{
+        $(`#${span_id}`).text('Show more...')
+    }
+}
 $(document).ready(function(){
 	// $('#loader').hide();
 	// $('#content').show();

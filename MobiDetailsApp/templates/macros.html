@@ -35,6 +35,19 @@
 	{% endautoescape %}
 {%- endmacro %}
 
+<!--the same with an id -->
+{% macro content_id(div_id=None) -%}
+	{% autoescape false %}
+    <div class="w3-margin w3-panel w3-leftbar" id="{{ div_id }}">
+		<p>
+			{% for text in varargs %}
+				<span>{{ text }}</span><br />
+			{% endfor %}
+		</p>
+	</div>
+	{% endautoescape %}
+{%- endmacro %}
+
 <!--success panel -->
 {% macro success() -%}
 	{% autoescape false %}
