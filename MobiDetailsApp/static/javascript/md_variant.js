@@ -1199,7 +1199,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
           reversescale: true,
           cmin: min_log,
           cmax: max_log,
-          opacity: 0.6,
+          opacity: 1,
           line: { color: 'LightGray', width: 0.5 },
           colorbar: {
             title: filter_field,
