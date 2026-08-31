@@ -1195,7 +1195,8 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
         marker: {
           size: 8,
           color: color_vals_log,
-          colorscale: 'Viridis',
+          colorscale: 'YlGnBu',
+        //   reversescale: true,
           cmin: min_log,
           cmax: max_log,
           opacity: 0.6,
