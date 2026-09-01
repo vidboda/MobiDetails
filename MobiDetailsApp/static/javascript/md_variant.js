@@ -986,39 +986,50 @@ function fetch_gnomad_and_clinvar(csrf_token) {
     // Set dataset for ClinVar query
     ajax_params.dataset = 'clinvar';
     
-    // AJAX 2: Fetch ClinVar data
-    $.ajax({
-      type: "POST",
-      url: ms_visual_url_global,
-      data: ajax_params,
-      dataType: "json"
-    })
-    .done(function(clinvar_data) {
-      clinvar_data_global = clinvar_data;
-      // console.log('--' + $('#clinvar_filter_dropdown').val() + '--');
-      if (clinvar_data_global.length > 10000 && $('#clinvar_filter_dropdown').val() === null) {
-        $('#clinvar_filter_dropdown').val(2);
-      }
-      else if (clinvar_data_global.length > 1000 && $('#clinvar_filter_dropdown').val() === null) {
-        $('#clinvar_filter_dropdown').val(1);
-        // console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
-      }
-      else {
-        $('#clinvar_filter_dropdown').val(0);
-      }
-      console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
-      
-      // First render with default parameters
-      const predictor = $('#predictor_dropdown').val() || 'revel';
-      const filter_field = $('#gnomad_filter_dropdown').val() || 'AC_joint';
-      const filter_threshold = validateInteger($('#gnomad_filter_value').val(), 0);
-      
-      render_missense_graph(predictor, filter_field, filter_threshold);
-    })
-    .fail(function(xhr, status, error) {
-      console.error("Error fetching ClinVar data:", error);
-      alert("Failed to load ClinVar data. Please try again.");
-    });
+    if (gnomad_data_global.length > 0) {
+        // AJAX 2: Fetch ClinVar data
+        $.ajax({
+        type: "POST",
+        url: ms_visual_url_global,
+        data: ajax_params,
+        dataType: "json"
+        })
+        .done(function(clinvar_data) {
+        clinvar_data_global = clinvar_data;
+        // console.log('--' + $('#clinvar_filter_dropdown').val() + '--');
+        if (clinvar_data_global.length > 10000 && $('#clinvar_filter_dropdown').val() === null) {
+            $('#clinvar_filter_dropdown').val(2);
+        }
+        else if (clinvar_data_global.length > 1000 && $('#clinvar_filter_dropdown').val() === null) {
+            $('#clinvar_filter_dropdown').val(1);
+            // console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
+        }
+        else {
+            $('#clinvar_filter_dropdown').val(0);
+        }
+        console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
+        
+        // First render with default parameters
+        const predictor = $('#predictor_dropdown').val() || 'revel';
+        const filter_field = $('#gnomad_filter_dropdown').val() || 'AC_joint';
+        const filter_threshold = validateInteger($('#gnomad_filter_value').val(), 0);
+        
+        render_missense_graph(predictor, filter_field, filter_threshold);
+        })
+        .fail(function(xhr, status, error) {
+        console.error("Error fetching ClinVar data:", error);
+        alert("Failed to load ClinVar data. Please try again.");
+        });
+    }
+    else {
+        console.warn("No gnomAD data");
+        $("#missense_visual_wait").hide();
+        $('#missense_visual_div').show();
+        $('#update_ms_visual_form_div').hide();
+        $('#missense_visual_graph').hide();
+        $('#no_data_alert').html('<span><strong>Missense-visual could not find any data for this transcript</strong></span>');
+        $('#no_data_alert').show();
+    }
   })
   .fail(function(xhr, status, error) {
     console.error("Error fetching gnomAD data:", error);
