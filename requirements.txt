@@ -42,7 +42,7 @@ MarkupSafe==3.0.2
 mccabe==0.7.0
 mod_wsgi==5.0.1
 more-itertools==10.5.0
-msgpack==1.1.0
+msgpack==1.2.1
 numpy==2.2.4
 packaging==24.1
 pathtools==0.1.2
