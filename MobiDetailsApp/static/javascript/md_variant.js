@@ -969,7 +969,7 @@ function fetch_gnomad_and_clinvar(csrf_token) {
   })
   .done(function(gnomad_data) {
     gnomad_data_global = gnomad_data;
-    // console.log(`Loaded ${gnomad_data_global.length} gnomAD variants`);
+    console.log(`Loaded ${gnomad_data_global.length} gnomAD variants`);
     // console.log('gnomad_filter_value: ' + $('#gnomad_filter_value').val())
     if (gnomad_data_global.length > 50000) {
       $('#gnomad_filter_value').val(100);
@@ -1006,7 +1006,7 @@ function fetch_gnomad_and_clinvar(csrf_token) {
       else {
         $('#clinvar_filter_dropdown').val(0);
       }
-      // console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
+      console.log(`Loaded ${clinvar_data_global.length} ClinVar variants`);
       
       // First render with default parameters
       const predictor = $('#predictor_dropdown').val() || 'revel';
@@ -1078,7 +1078,7 @@ function render_missense_graph(predictor, filter_field, filter_threshold) {
       const median_score_gnomad = calculateMedian(all_scores);
       // Check if any variants remain after filtering
       if (color_vals_raw.length === 0) {
-        console.log(predictor);
+        // console.log(predictor);
         if (predictor !== 'revel') {
           // hide graph and form
           $('#missense_visual_graph').hide();
