@@ -758,14 +758,21 @@ def search_engine():
                 ),
                 code=307
             )
-        elif re.search(r'^[Nn][MmRr]_\d+', query_engine):  # NM acc_no
+        elif re.search(r'^[Nn][MmRr]_\d+\.\d{1,2}$', query_engine):  # NM acc_no w/ ver
+            sql_table = 'gene'
+            query_type = 'refseq'
+            col_names = 'gene_symbol'
+            match_object = re.search(r'^([Nn][MmRr]_\d+\.\d{1,2})$', query_engine)
+            if match_object:
+                pattern = match_object.group(1)
+        elif re.search(r'^[Nn][MmRr]_\d+', query_engine):  # NM acc_no no ver
             sql_table = 'gene'
             query_type = 'refseq'
             col_names = 'gene_symbol'
             match_object = re.search(r'^([Nn][MmRr]_\d+)', query_engine)
             if match_object:
                 col_names = 'partial_name'
-                pattern = match_object.group(1)
+                pattern = '{0}.'.format(match_object.group(1))
         elif re.search(rf'^{ens_transcript_regexp}\.?\d{{0,2}}', query_engine):  # ENST acc_no
             sql_table = 'gene'
             query_type = 'ENST'
