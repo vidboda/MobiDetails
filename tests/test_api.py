@@ -99,16 +99,25 @@ def get_generic_api_key():
 # test variant data
 
 
-@pytest.mark.parametrize(('variant_id', 'key', 'value'), (
-    (256, 'cName', 'c.20050T>C'),
-    (97699, 'hg19PseudoVCF', '1-216420460-C-A'),
-    (955691, 'hg19PseudoVCF', 'X-48542179-C-T'),
-    (955691, 'hg38PseudoVCF', 'X-48683790-C-T'),
+@pytest.mark.parametrize(('variant_id', 'key', 'value', 'api_key'), (
+    (256, 'cName', 'c.20050T>C', None),
+    (97699, 'hg19PseudoVCF', '1-216420460-C-A', None),
+    (955691, 'hg19PseudoVCF', 'X-48542179-C-T', None),
+    (955691, 'hg38PseudoVCF', 'X-48683790-C-T', None),
+    (256, 'cName', 'c.20050T>C', ','),
+    (97699, 'hg19PseudoVCF', '1-216420460-C-A', '258746324'),
+    (955691, 'hg19PseudoVCF', 'X-48542179-C-T', 'affzrer457f5dgdthfyhy527gf'),
+    (955691, 'hg38PseudoVCF', 'X-48683790-C-T', 'b'),
 ))
-def test_api_variant(client, app, variant_id, key, value):
+def test_api_variant(client, app, variant_id, key, value, api_key):
     with app.app_context():
-        json_response = json.loads(client.get(url_for('api.variant', variant_id=variant_id, caller='cli_spip')).data.decode('utf8'))
-        assert json_response['nomenclatures'][key] == value
+        if api_key == 'b':
+            api_key = get_generic_api_key()
+        json_response = json.loads(client.get(url_for('api.variant', variant_id=variant_id, caller='cli_spip', api_key=api_key)).data.decode('utf8'))
+        if not api_key or api_key == get_generic_api_key():
+            assert json_response['nomenclatures'][key] == value
+        else:
+            assert 'mobidetails_error' in json_response
 
 # 2nd test variant data
 

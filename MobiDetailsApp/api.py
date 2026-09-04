@@ -183,10 +183,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
     academic = True
     # typically calling from API - swagger sends ','
     # browser sends 'dom.css.map'
-    if api_key and \
-            api_key != ',' and \
-            len(api_key) == 43:
-        res_check_api_key = md_utilities.check_api_key(db, api_key)
+    if api_key:
+        if len(api_key) != 43:
+            res_check_api_key = {'mobidetails_error': 'Malformed URL, please check your input', 'api_key_pass_check': False, 'api_key_status': 'irrelevant'}
+        else:
+            res_check_api_key = md_utilities.check_api_key(db, api_key)
         if 'mobidetails_error' in res_check_api_key:
             close_db()
             if caller != 'browser':
