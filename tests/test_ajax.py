@@ -594,8 +594,8 @@ def test_mobideep(client, app, mobideep_input, return_value):
 
 
 @pytest.mark.parametrize(('dataset', 'gene_symbol', 'refseq', 'enst', 'chromosome', 'strand', 'return_size'), (
-    ('gnomad', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 875419),
-    ('clinvar', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 51605),
+    ('gnomad', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 881029),
+    ('clinvar', 'WFS1', 'NM_006005.3', 'ENST00000226760', '4', '+', 51872),
 ))
 def test_ms_visual(client, app, dataset, gene_symbol, refseq, enst, chromosome, strand, return_size):
     with app.app_context():

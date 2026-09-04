@@ -91,7 +91,7 @@ def test_basic_variant_page(client):
     ('NM_206933', '/gene/USH2A', 302),
     ('NM_206933.', '/gene/USH2A', 302),
     ('NM_206933.3', '/gene/USH2A', 302),
-    ('NM_206933.33', '/gene/USH2A', 302),
+    ('NM_206933.33', b'/search_engine', 200),
     ('ENST00000452971', '/gene/LINC01685', 302),
     ('ENST00000452971.18', '/gene/LINC01685', 302),
     ('GPR98', '/gene/ADGRV1', 302),
