@@ -25,6 +25,16 @@ Disallow: /search_engine
 Disallow: /spip
 Disallow: /spliceaivisual
 Disallow: /genebe
+Disallow: /frog
+Disallow: /send_var_message
+Disallow: /empty_favourite_list
+Disallow: /toggle_lock_variant_list
+Disallow: /create_unique_url
+Disallow: /delete_variant_list
+Disallow: /is_panelapp_entity
+Disallow: /spliceai_lookup
+Disallow: /mobideep
+Disallow: /ms_visual
 Crawl-delay: 10
 
 User-agent: Baiduspider
