@@ -115,7 +115,8 @@ def file_upload():
                                         'POST',
                                         md_api_url,
                                         headers=headers,
-                                        fields=data
+                                        fields=data,
+                                        timeout=urllib3.Timeout(connect=10, read=60)
                                     ).data.decode('utf-8')
                                 )
                                 result.append(
@@ -162,7 +163,8 @@ def file_upload():
                                         'POST',
                                         md_api_url,
                                         headers=headers,
-                                        fields=data
+                                        fields=data,
+                                        timeout=urllib3.Timeout(connect=10, read=60)
                                     ).data.decode('utf-8')
                                 )
                                 # print(md_response)
@@ -196,7 +198,8 @@ def file_upload():
                                     'POST',
                                     md_api_url,
                                     headers=headers,
-                                    fields=data
+                                    fields=data,
+                                    timeout=urllib3.Timeout(connect=10, read=60)
                                 ).data.decode('utf-8')
                             )
                             for var in md_response:

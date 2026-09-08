@@ -77,7 +77,8 @@ def litvar2():
                 http.request(
                     'GET',
                     escape(litvar_url),
-                    headers=header
+                    headers=header,
+                    timeout=urllib3.Timeout(connect=10, read=60)
                 ).data.decode('utf-8')
             )
         except Exception as e:
@@ -113,7 +114,8 @@ def litvar2():
                     http.request(
                         'GET',
                         togows_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
                 for article in pubmeds:
@@ -143,7 +145,8 @@ def litvar2():
                     http.request(
                         'GET',
                         escape(litvar_sensor_url),
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception as e:
@@ -332,7 +335,8 @@ def intervar():
                     http.request(
                         'GET',
                         intervar_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             ]
@@ -357,7 +361,8 @@ def intervar():
                     http.request(
                         'GET',
                         intervar_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
                 i = 0
@@ -524,7 +529,8 @@ def genebe():
                     http.request(
                         'GET',
                         genebe_url,
-                        headers=headers
+                        headers=headers,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             ]
@@ -1123,7 +1129,8 @@ def lovd():
                 http.request(
                     'GET',
                     lovd_url,
-                    headers=header
+                    headers=header,
+                    timeout=urllib3.Timeout(connect=10, read=60)
                 ).data.decode('utf-8')
             )
         except Exception as e:
@@ -1232,7 +1239,8 @@ def lovd():
                         http.request(
                             'GET',
                             lovd_api_url,
-                            headers=header
+                            headers=header,
+                            timeout=urllib3.Timeout(connect=10, read=60)
                         ).data.decode('utf-8')
                     )
                 except Exception:
@@ -1656,7 +1664,8 @@ def modif_class():
                         'POST',
                         md_utilities.urls['lovd_api_submissions'],
                         body=json.dumps(lovd_json).encode('utf-8'),
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                     print('LOVD submission for {0}:g.{1} : {2}'.format(
                         res_var['ncbi_name'],
@@ -1935,7 +1944,8 @@ def create():
                     http.request(
                         'GET',
                         vv_url,
-                        headers=vv_header
+                        headers=vv_header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception:
@@ -2059,7 +2069,8 @@ def create():
                         http.request(
                             'GET',
                             vv_url,
-                            headers=vv_header
+                            headers=vv_header,
+                            timeout=urllib3.Timeout(connect=10, read=60)
                         ).data.decode('utf-8')
                     )
                 except Exception:
@@ -2537,7 +2548,8 @@ def create_unique_url():
                         'POST',
                         md_utilities.urls['tinyurl_api'],
                         body=json.dumps(tinyurl_dict).encode('utf-8'),
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
                 if str(tinyurl_json['code']) == '0' and \
@@ -2814,7 +2826,8 @@ def is_panelapp_entity():
                                     'GET',
                                     '{0}genes/{1}/'.format(
                                         md_utilities.urls['panelapp_api'],
-                                        gene_symbol
+                                        gene_symbol,
+                                        timeout=urllib3.Timeout(connect=10, read=60)
                                     ),
                                     headers=md_utilities.api_agent
                                 ).data.decode('utf-8')
@@ -2927,7 +2940,8 @@ def spliceai_lookup():
                     'GET',
                     '{0}{1}'.format(
                         md_utilities.urls['spliceai_api'],
-                        variant
+                        variant,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ),
                     headers=header
                 ).data.decode('utf-8')

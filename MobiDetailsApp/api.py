@@ -2127,7 +2127,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                         http.request(
                             'GET',
                             vv_url,
-                            headers=vv_header
+                            headers=vv_header,
+                            timeout=urllib3.Timeout(connect=10, read=60)
                         ).data.decode('utf-8')
                     )
                     # print(vv_header)
@@ -2253,7 +2254,8 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                                 http.request(
                                     'GET',
                                     vv_url,
-                                    headers=vv_header
+                                    headers=vv_header,
+                                    timeout=urllib3.Timeout(connect=10, read=60)
                                 ).data.decode('utf-8')
                             )
                             vv_key_var_can = None
@@ -2483,7 +2485,8 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                                 http.request(
                                     'GET',
                                     vv_url,
-                                    headers=vv_header
+                                    headers=vv_header,
+                                    timeout=urllib3.Timeout(connect=10, read=60)
                                 ).data.decode('utf-8')
                             )
                         except Exception:
@@ -2744,7 +2747,8 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                     http.request(
                         'GET',
                         ncbi_api_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception:
@@ -2830,7 +2834,15 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                                     }
                                     md_api_url = '{0}{1}'.format(request.host_url[:-1], url_for('api.api_create_vcf_str'))
                                     try:
-                                        tmp_response = json.loads(http.request('POST', md_api_url, headers=headers, fields=data).data.decode('utf-8'))
+                                        tmp_response = json.loads(
+                                            http.request(
+                                                'POST',
+                                                md_api_url,
+                                                headers=headers,
+                                                fields=data,
+                                                timeout=urllib3.Timeout(connect=10, read=60)
+                                            ).data.decode('utf-8')
+                                        )
                                         for var in tmp_response:
                                             if var == 'intergenic_variant_1':
                                                 md_response[md_query] = tmp_response[var]
@@ -3223,7 +3235,8 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                     http.request(
                         'GET',
                         vv_url,
-                        headers=vv_header
+                        headers=vv_header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception:

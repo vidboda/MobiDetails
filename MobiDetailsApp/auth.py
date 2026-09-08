@@ -129,7 +129,8 @@ def register():
                     http.request(
                         'GET',
                         mv_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception:
@@ -184,7 +185,8 @@ def register():
                     http.request(
                         'GET',
                         sfs_url,
-                        headers=header
+                        headers=header,
+                        timeout=urllib3.Timeout(connect=10, read=60)
                     ).data.decode('utf-8')
                 )
             except Exception as e:
