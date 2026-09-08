@@ -1,7 +1,8 @@
 import os
 import re
+import hashlib
 from . import configuration  # lgtm [py/import-own-module]
-from flask import Flask, session, render_template, url_for, flash, redirect, get_flashed_messages, request
+from flask import Flask, session, render_template, url_for, flash, redirect, get_flashed_messages, request, g
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -11,10 +12,12 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_paranoid import Paranoid
 from psycopg2 import pool
 from hashlib import sha256
-# import joblib
 
 mail = Mail()
 csrf = CSRFProtect()
+
+# define what can be cached for 10 minutes - only API requests that are read-only and not user-specific
+CACHEABLE = re.compile(r'^/api/variant/(exists/|\d+/[^/]+/)')
 
 # https://flask-paranoid.readthedocs.io/en/latest/#
 # override the token generation to consider only user-agent and not ip adresses, when users have a load balancer and use multiple IPs
@@ -110,6 +113,41 @@ def create_app(test_config=None):
     app.register_blueprint(static_route.bp)
     from . import upload
     app.register_blueprint(upload.bp)
+
+    @app.before_request
+    def freeze_api_session():
+        # for read only API routes, freeze the session to avoid the cookie being updated and sent back to the client, which would prevent caching of the response
+        if request.path.startswith('/api/') and request.method in ('GET', 'HEAD'):
+            session.modified = False # no cookie for an anonymous API GET call
+            session.permanent = False
+
+    # add cache headers for API requests
+    @app.after_request
+    def add_http_cache_headers(response):
+        path = request.path
+        # JSON API only : content determined by the URL (+ key inside the URL) and not by the session,
+        # so we can cache it for 10 minutes - and never for users connected via the UI
+        is_api_readonly = (
+            request.method in ('GET', 'HEAD')
+            and response.status_code == 200
+            and path.startswith('/api/')
+            and getattr(g, 'user', None) is None
+            and CACHEABLE.match(path) is not None
+        )
+        if is_api_readonly:
+            try:
+                # remove any Set-Cookie headers, as they are not needed for API requests and can interfere with caching
+                # and define cache-control headers for API requests
+                response.headers.pop('Set-Cookie', None)
+                response.headers['Cache-Control'] = 'public, max-age=600'
+                if request.method == 'GET' and not response.direct_passthrough:
+                    response.set_etag(hashlib.sha256(response.get_data()).hexdigest()[:16])
+                    response.make_conditional(request)
+            except Exception:
+                pass # if error in setting cache headers, just ignore it and return the response without cache headers
+        elif 'Cache-Control' not in response.headers:
+            response.headers['Cache-Control'] = 'private, no-cache'
+        return response
     
     app.add_url_rule('/', endpoint='index')
     if app.debug:
@@ -148,3 +186,5 @@ def csrf_error(error):
     if csrf_message == 0:
         flash('{0} : {1}. This typically means that you need to reload a fresh page and resubmit your query.'.format(error.name, error.description), 'w3-pale-red')
     return redirect(url_for('md.index'))
+
+
