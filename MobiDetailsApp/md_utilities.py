@@ -1353,7 +1353,8 @@ def test_vv_api_url(vv_api_hello_url, vv_api_url):
                 http.request(
                     'GET',
                     vv_api_hello_url,
-                    headers=vv_header
+                    headers=vv_header,
+                    timeout=urllib3.Timeout(connect=10, read=60)
                 ).data.decode('utf-8')
             )
             if hello['status'] == "hello_world":
@@ -4045,7 +4046,8 @@ def spliceai_internal_api_hello():
             http.request(
                 'GET',
                 '{0}/hello'.format(urls['spliceai_internal_server']),
-                headers=api_agent
+                headers=api_agent,
+                timeout=urllib3.Timeout(connect=10, read=60)
             ).data.decode('utf-8')
         )
         if hello['spliceai_mtp_status'] == "running":
@@ -4234,7 +4236,8 @@ def frog_variant_link(hgnc_id, nc_var):
             http.request(
                 'GET',
                 '{0}/api/variants/HGNC:{1}/{2}'.format(urls['frog_api'], hgnc_id, nc_var),
-                headers=frog_api_header
+                headers=frog_api_header,
+                timeout=urllib3.Timeout(connect=10, read=60)
             ).data.decode('utf-8')
         )
         # print(is_frog_var)
