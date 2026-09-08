@@ -3,6 +3,7 @@ import re
 import hashlib
 from . import configuration  # lgtm [py/import-own-module]
 from flask import Flask, session, render_template, url_for, flash, redirect, get_flashed_messages, request, g
+from flask.sessions import SecureCookieSessionInterface
 from flask_mail import Mail
 from flask_cors import CORS
 # from logging.handlers import RotatingFileHandler
@@ -16,8 +17,9 @@ from hashlib import sha256
 mail = Mail()
 csrf = CSRFProtect()
 
-# define what can be cached for 10 minutes - only API requests that are read-only and not user-specific
-CACHEABLE = re.compile(r'^/api/variant/(exists/|\d+/[^/]+/)')
+# define what can be cached for 10 minutes - only API requests and static pages that are read-only and not user-specific
+# CACHEABLE = re.compile(r'^/api/variant/(exists/|\d+/[^/]+/)')
+CACHEABLE = re.compile(r'^/api/variant/(exists/.+|\d+/[^/]+/)|^/(about|changelog)/?$')
 
 # https://flask-paranoid.readthedocs.io/en/latest/#
 # override the token generation to consider only user-agent and not ip adresses, when users have a load balancer and use multiple IPs
@@ -38,8 +40,21 @@ class MyParanoid(Paranoid):
         h.update(user_agent.encode('utf-8'))
         return h.hexdigest()
 
+# override the session interface to not save the session for API requests and static pages that are read-only and not user-specific
+# and allow caching of these pages by not sending a Set-Cookie header
+EXEMPT_CACHE_PATHS = re.compile(r'^(/api/|/about/?$|/changelog/?$) ')
+class MySessionInterface(SecureCookieSessionInterface):
+    def save_session(self, app, session, response):
+        if (request.method in ('GET', 'HEAD')
+                and EXEMPT_CACHE_PATHS.match(request.path)
+                and getattr(g, 'user', None) is None):
+            return None
+        return super().save_session(app, session, response)
+
+
 def create_app(test_config=None):
     app = Flask(__name__, static_folder='static')
+    app.session_interface = MySessionInterface()
     # https://github.com/igvteam/igv.js/issues/1654
     @app.after_request
     def remove_header(response):
@@ -125,26 +140,26 @@ def create_app(test_config=None):
     @app.after_request
     def add_http_cache_headers(response):
         path = request.path
-        # JSON API only : content determined by the URL (+ key inside the URL) and not by the session,
-        # so we can cache it for 10 minutes - and never for users connected via the UI
-        is_api_readonly = (
-            request.method in ('GET', 'HEAD')
-            and response.status_code == 200
-            and path.startswith('/api/')
-            and getattr(g, 'user', None) is None
-            and CACHEABLE.match(path) is not None
-        )
-        if is_api_readonly:
+        if request.method not in ('GET', 'HEAD') or response.status_code != 200:
+            return response
+        if getattr(g, 'user', None) is not None:
+            return response
+
+        is_cacheable = CACHEABLE.match(path) is not None
+        if is_cacheable:
             try:
-                # remove any Set-Cookie headers, as they are not needed for API requests and can interfere with caching
-                # and define cache-control headers for API requests
                 response.headers.pop('Set-Cookie', None)
                 response.headers['Cache-Control'] = 'public, max-age=600'
-                if request.method == 'GET' and not response.direct_passthrough:
+                # ETag only if the content is deterministic and not user-specific, which is the case for:
+                # - JSON API : yes (dURL defined)
+                # - HTML (about/changelog) : instable (token CSRF) -> ETag useless
+                if (request.method == 'GET'
+                        and not response.direct_passthrough
+                        and response.mimetype == 'application/json'):
                     response.set_etag(hashlib.sha256(response.get_data()).hexdigest()[:16])
                     response.make_conditional(request)
             except Exception:
-                pass # if error in setting cache headers, just ignore it and return the response without cache headers
+                pass
         elif 'Cache-Control' not in response.headers:
             response.headers['Cache-Control'] = 'private, no-cache'
         return response
