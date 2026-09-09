@@ -3834,10 +3834,15 @@ def run_spip(gene_symbol, nm_acc, c_name, variant_id):
         req_results = requests.post(
             '{0}/spip'.format(urls['spliceai_internal_server']),
             json={'spip_input': spip_input},
-            headers={'Content-Type': 'application/json'}
+            headers={'Content-Type': 'application/json'},
+            timeout=(10, 60) # connect, read
         )
     except requests.exceptions.ConnectionError:
-            return '<p style="color:red">Failed to establish a connection to the SPiP server.</p>'
+        return '<p style="color:red">Failed to establish a connection to the SPiP server.</p>'
+    except requests.exceptions.ReadTimeout:
+        return '<p style="color:red">Spip server took too long to respond.</p>'
+    except requests.exceptions.Timeout:
+        return '<p style="color:red">Spip server timed out.</p>'
     except Exception:
         return """
         <span class="w3-padding">Unable to run SPiP API - Error returned</span>

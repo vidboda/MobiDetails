@@ -748,10 +748,15 @@ def spliceaivisual():
                         req_results = requests.post(
                             '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                             json={'mt_seq': seq_slice},
-                            headers={'Content-Type': 'application/json'}
+                            headers={'Content-Type': 'application/json'},
+                            timeout=(10, 600) # connect, read: 600 for long transcripts
                         )
                     except requests.exceptions.ConnectionError:
                         return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
+                    except requests.exceptions.ReadTimeout:
+                        return '<p style="color:red">SpliceAI-visual server took too long to respond.</p>'
+                    except requests.exceptions.Timeout:
+                        return '<p style="color:red">SpliceAI-visual server timed out.</p>'
                     if req_results.status_code == 200:
                         # then build raw .txt.gz file
                         spliceai_results = json.loads(req_results.content)
@@ -926,10 +931,15 @@ def spliceaivisual():
                 req_results = requests.post(
                     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                     json={'mt_seq': mt_seq},
-                    headers={'Content-Type': 'application/json'}
+                    headers={'Content-Type': 'application/json'},
+                    timeout=(10, 600) # connect, read 600 for long transcripts
                 )
             except requests.exceptions.ConnectionError:
                 return '<p style="color:red">Failed to establish a connection to the SpliceAI-visual server.</p>'
+            except requests.exceptions.ReadTimeout:
+                return '<p style="color:red">SpliceAI-visual server took too long to respond.</p>'
+            except requests.exceptions.Timeout:
+                return '<p style="color:red">SpliceAI-visual server timed out.</p>'
             # 1-based
             if req_results.status_code == 200:
                 spliceai_results = json.loads(req_results.content)
@@ -3041,14 +3051,19 @@ def mobideep():
             req_results = requests.post(
                 '{0}/mobideep'.format(md_utilities.urls['spliceai_internal_server']),
                 json={'mobideep_input': mobideep_input_scores},
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': 'application/json'},
+                timeout=(10, 60) # connect, read
             )
         except requests.exceptions.ConnectionError:
-                return '<p style="color:red">Failed to establish a connection to the MobiDeep server.</p>'
-        except Exception:
+            return '<p style="color:red">Failed to establish a connection to the MobiDeep server.</p>'
+        except requests.exceptions.Timeout:
+            return '<p style="color:red">The request to the MobiDeep server timed out.</p>'
+        except requests.exceptions.Timeout:
+            return '<p style="color:red">SpliceAI-visual server timed out.</p>'
+        except Exception as e:
             return """
-            <span class="w3-padding">Unable to run MobiDeep API - Error returned</span>
-            """
+            <span class="w3-padding">Unable to run MobiDeep API - Error returned {}</span>
+            """.format(str(e))
         # print(req_results.status_code)
         # print(req_results.content)
         if req_results.status_code == 200:
@@ -3143,14 +3158,19 @@ def ms_visual():
                     'start': str(start_g),
                     'end': str(end_g)
                 },
-                headers={'Content-Type': 'application/json'}
+                headers={'Content-Type': 'application/json'},
+                timeout=(10, 60) # connect, read
             )
         except requests.exceptions.ConnectionError:
-                return '<p style="color:red">Failed to establish a connection to the Missense-visual server.</p>'
-        except Exception:
+            return '<p style="color:red">Failed to establish a connection to the Missense-visual server.</p>'
+        except requests.exceptions.Timeout:
+            return '<p style="color:red">The request to the Missense-visual server timed out.</p>'
+        except requests.exceptions.ReadTimeout:
+            return '<p style="color:red">Missense-visual server took too long to respond.</p>'
+        except Exception as e:
             return """
-            <span class="w3-padding">Unable to run Missense-visual API - Error returned</span>
-            """
+            <span class="w3-padding">Unable to run Missense-visual API - Error returned {}</span>
+            """.format(str(e))
         if req_results.status_code == 200:
             ms_visual_data = json.loads(req_results.content)
             if ms_visual_data['ms_visual_return_code'] == 0 and \

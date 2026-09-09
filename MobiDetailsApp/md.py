@@ -218,10 +218,15 @@ def gene(gene_symbol=None):
                                 req_results = requests.post(
                                     '{0}/spliceai'.format(md_utilities.urls['spliceai_internal_server']),
                                     json={'mt_seq': seq_slice},
-                                    headers={'Content-Type': 'application/json'}
+                                    headers={'Content-Type': 'application/json'},
+                                    timeout=(10, 600) # connect, read 600 for long transcripts
                                 )
                             except requests.exceptions.ConnectionError:
                                 flash('<p>Failed to establish a connection to the SpliceAI-visual server.</p>', 'w3-pale-red')
+                            except requests.exceptions.ReadTimeout:
+                                flash('<p>SpliceAI-visual server took too long to respond.</p>', 'w3-pale-red')
+                            except requests.exceptions.Timeout:
+                                flash('<p>SpliceAI-visual server timed out.</p>', 'w3-pale-red')
                             if req_results.status_code == 200:
                                 # then build raw .txt.gz file
                                 spliceai_results = json.loads(req_results.content)
