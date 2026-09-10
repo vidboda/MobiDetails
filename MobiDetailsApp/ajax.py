@@ -1955,7 +1955,7 @@ def create():
                         'GET',
                         vv_url,
                         headers=vv_header,
-                        timeout=urllib3.Timeout(connect=10, read=60)
+                        timeout=urllib3.Timeout(connect=10, read=120)
                     ).data.decode('utf-8')
                 )
             except Exception:

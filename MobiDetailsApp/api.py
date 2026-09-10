@@ -2128,7 +2128,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                             'GET',
                             vv_url,
                             headers=vv_header,
-                            timeout=urllib3.Timeout(connect=10, read=60)
+                            timeout=urllib3.Timeout(connect=10, read=120)
                         ).data.decode('utf-8')
                     )
                     # print(vv_header)
@@ -2486,7 +2486,7 @@ def api_variant_g_create(variant_ghgvs=None, gene_hgnc=None, caller='browser', a
                                     'GET',
                                     vv_url,
                                     headers=vv_header,
-                                    timeout=urllib3.Timeout(connect=10, read=60)
+                                    timeout=urllib3.Timeout(connect=10, read=120)
                                 ).data.decode('utf-8')
                             )
                         except Exception:
@@ -3236,7 +3236,7 @@ def api_create_vcf_str(genome_version='hg38', vcf_str=None, caller='browser', ap
                         'GET',
                         vv_url,
                         headers=vv_header,
-                        timeout=urllib3.Timeout(connect=10, read=60)
+                        timeout=urllib3.Timeout(connect=10, read=120)
                     ).data.decode('utf-8')
                 )
             except Exception:
