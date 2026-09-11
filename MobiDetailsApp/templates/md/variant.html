@@ -19,7 +19,7 @@
 	unlink igv.min.js.map
 	ln -s igv.${VERSION}.min.js.map igv.min.js.map
 	-->
-	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260901" type="text/javascript"></script>
+	<script src="{{ url_for('static', filename='javascript/md_variant.js') }}?20260911" type="text/javascript"></script>
 {% endblock %}
 {% block content %}
 	<!--left menu (hidden at first)-->
@@ -340,9 +340,11 @@
 							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_nom');$('#hgvs_genomic_hg19_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg19)</em></td>
 						</tr>
 						<!--HGVS genomic strict (hg19)-->
+                        {# add here hg19 link to sashimi-viewer  https://benjamin-cogne.github.io/Sashimi-viewer/#variant=NC_000017.11:g.43094464G%3EA&label=BRCA1%20c.5266dupC&pad=100&reads=1 #}
+                        {# <span class="w3-right-align" onclick="https://benjamin-cogne.github.io/Sashimi-viewer/#variant=encode($('#hgvs_genomic_hg19_ncbi_nom').text())&label=$('#gene_symbol').text()%20$('#c_name')&pad=100&reads=1"><img src=""/></span> #}
 						<tr>
 							<td class="w3-left-align">HGVS strict genomic (hg19):</td>
-							<td class="w3-left-align" id="hgvs_genomic_hg19_ncbi_nom">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</td>
+							<td class="w3-left-align"><span id="hgvs_genomic_hg19_ncbi_nom">{{ external_data.VCF.hg19.ncbiChr }}:g.{{ internal_data.VCF.hg19.gName}}</span></td>
 							<td class="w3-left-align">{{ signal_tag('w3-blue', 'VariantValidator') }}</td>
 							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_ncbi_nom');$('#hgvs_genomic_hg19_ncbi_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_ncbi_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg19)</em></td>
 						</tr>
@@ -362,6 +364,7 @@
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg38_nom');$('#hgvs_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full nomenclature at genomic level (hg38)</em></td>
 					</tr>
 					<!--HGVS genomic strict (hg38)-->
+                    {# add here hg38 link to sashimi-viewer  https://benjamin-cogne.github.io/Sashimi-viewer/#variant=NC_000017.11:g.43094464G%3EA&label=BRCA1%20c.5266dupC&pad=100&reads=1 #}
 					<tr>
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
 						<td class="w3-left-align" id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</td>
