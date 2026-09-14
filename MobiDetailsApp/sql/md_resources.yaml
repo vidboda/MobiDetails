@@ -195,6 +195,8 @@ caddPhredThresholds:
   'remm': 'https://remm.bihealth.org/'
   'revel': 'https://sites.google.com/site/revelgenomics/'
   'rgc': 'https://rgc-research.regeneron.com/me/variant'
+  'sashimi_git': 'https://github.com/benjamin-cogne/Sashimi-viewer'
+  'sashimi_viewer': 'https://benjamin-cogne.github.io/Sashimi-viewer/'
   'sovad': 'https://somaticdb.geneticsandbioinformatics.eu/'
   'spice': 'https://sourceforge.net/p/spicev2-1/wiki/SPICE%20wiki/'
   'spip': 'https://github.com/raphaelleman/SPiP'
