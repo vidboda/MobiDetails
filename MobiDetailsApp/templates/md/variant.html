@@ -351,7 +351,7 @@
                                 {% else %}
                                     {% set sashimi_label_hg19 = "{0}:g.{1}".format(external_data.VCF.hg19.ncbiChr, internal_data.VCF.hg19.gName) %}
                                 {% endif %}
-                                {{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;<div class='w3-tag w3-round w3-white w3-border w3-border-blue' style='padding:3px;'><a href="{{ urls.sashimi_viewer }}#variant={{ external_data.VCF.hg19.ncbiChr }}g.{{ internal_data.VCF.hg19.gName}}&label={{ sashimi_label_hg19 }}&pad=100&reads=1" target="_blank" title="Visit benjamin Cogné's sashimi viewer (hg19) to visualize your RNA-Seq data"><img alt="sashimi-viewer" src="{{ url_for('static', filename='img/sashimi-viewer_logo.svg') }}" height="24px"/></a></div>
+                                {{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;<div class='w3-tag w3-round w3-white w3-border w3-border-blue' style='padding:3px;'><a href="{{ urls.sashimi_viewer }}#variant={{ external_data.VCF.hg19.ncbiChr }}g.{{ internal_data.VCF.hg19.gName}}&label={{ sashimi_label_hg19 }}&pad=100" target="_blank" title="Visit benjamin Cogné's sashimi viewer (hg19) to visualize your RNA-Seq data"><img alt="sashimi-viewer" src="{{ url_for('static', filename='img/sashimi-viewer_logo.svg') }}" height="24px"/></a></div>
                             </td>
 							<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_genomic_hg19_ncbi_nom');$('#hgvs_genomic_hg19_ncbi_copied').html(field_copied_tag);" title="copy HGVS hg19 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_genomic_hg19_ncbi_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg19)</em></td>
 						</tr>
@@ -375,9 +375,6 @@
 						<td class="w3-left-align">HGVS strict genomic (hg38):</td>
 						<td class="w3-left-align">
                             <span id="hgvs_strict_genomic_hg38">{{ external_data.VCF.hg38.ncbiChr }}:g.{{ internal_data.VCF.hg38.gName }}</span>
-                            {# <a href="{{ urls.sashimi_viewer }}#variant={{ external_data.VCF.hg38.ncbiChr }}g.{{ internal_data.VCF.hg38.gName}}&label={{ external_data.gene.symbol }}&nbsp;{{ external_data.nomenclatures.hgvsPrefix }}.{{ internal_data.nomenclatures.cName }}&pad=100&reads=1" target="_blank" title="Visit benjamin Cogné's sashimi viewer (hg38) to visualize your RNA-Seq data" style="float: right;">
-                                    <img alt="sashimi-viewer" src="{{ url_for('static', filename='img/sashimi-viewer_logo.svg') }}" height="30px"/>
-                                </a> #}
                         </td>
 						<td class="w3-left-align">
                             {% if internal_data.nomenclatures.cName is not none %}
@@ -385,7 +382,7 @@
                             {% else %}
                                 {% set sashimi_label_hg38 = "{0}:g.{1}".format(external_data.VCF.hg38.ncbiChr, internal_data.VCF.hg38.gName) %}
                             {% endif %}
-                            {{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;<div class='w3-tag w3-round w3-white w3-border w3-border-blue' style='padding:3px;'><a href="{{ urls.sashimi_viewer }}#variant={{ external_data.VCF.hg38.ncbiChr }}g.{{ internal_data.VCF.hg38.gName}}&label={{ sashimi_label_hg38 }}&pad=100&reads=1" target="_blank" title="Visit benjamin Cogné's sashimi viewer (hg38) to visualize your RNA-Seq data"><img alt="sashimi-viewer" src="{{ url_for('static', filename='img/sashimi-viewer_logo.svg') }}" height="24px"/></a></div>
+                            {{ signal_tag('w3-blue', 'VariantValidator') }}&nbsp;<div class='w3-tag w3-round w3-white w3-border w3-border-blue' style='padding:3px;'><a href="{{ urls.sashimi_viewer }}#variant={{ external_data.VCF.hg38.ncbiChr }}g.{{ internal_data.VCF.hg38.gName}}&label={{ sashimi_label_hg38 }}&pad=100" target="_blank" title="Visit benjamin Cogné's sashimi viewer (hg38) to visualize your RNA-Seq data"><img alt="sashimi-viewer" src="{{ url_for('static', filename='img/sashimi-viewer_logo.svg') }}" height="24px"/></a></div>
                         </td>
 						<td class="w3-left-align"><em class="w3-small"><button onclick="$('.field_copied_span').html('');copy_from_span('hgvs_strict_genomic_hg38');$('#hgvs_strict_genomic_hg38_copied').html(field_copied_tag);" title="copy HGVS hg38 genomic nomenclature"><i class="fa fa-clipboard" aria-hidden="true"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<span id="hgvs_strict_genomic_hg38_copied" class="field_copied_span"></span>&nbsp;&nbsp;&nbsp;&nbsp;HGVS full strict nomenclature at genomic level (hg38)</em></td>
 					</tr>
