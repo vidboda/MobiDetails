@@ -15,7 +15,7 @@ $(document).ready(function() {
 		dom: 'Bft',
 		"order": [],
 		//scrollY: 600,
-		"pageLength": 50,
+		"pageLength": 100,
 		buttons: [
 			'copy', 'excel', 'pdf'
 		]
