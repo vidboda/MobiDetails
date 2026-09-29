@@ -437,7 +437,12 @@
 						<tr><!--Position in transcript-->
 							<td class="w3-left-align">Position in transcript:</td>
 							{% if external_data.positions.segmentStartType == external_data.positions.segmentEndType and external_data.positions.segmentStartNumber == external_data.positions.segmentEndNumber %}
-							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }}
+                                {% if external_data.positions.segmentStartType == 'exon' %}
+                                    {% set segmentTotalNumber = external_data.gene.numberOfExons %}
+                                {% else %}
+                                    {% set segmentTotalNumber = external_data.gene.numberOfExons - 1 %}
+                                {% endif %}
+							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} / {{ segmentTotalNumber }}
 							{% else %}
 							<td class="w3-left-align">{{ external_data.positions.segmentStartType|capitalize }} {{ external_data.positions.segmentStartNumber }} - {{ external_data.positions.segmentEndType|capitalize }} {{ external_data.positions.segmentEndNumber }}
 							{% endif %}
