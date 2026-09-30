@@ -584,7 +584,7 @@ var_ss_f = {
     ('dbnsfp', var, '0.999', int(md_utilities.external_tools['Polyphen-2']['dbNSFP_value_col_hvar']), 'dbnsfp', var_f),
     ('dbnsfp', var, '0.815541', int(md_utilities.external_tools['FatHMM-XF']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var2, '-3.456', int(md_utilities.external_tools['popEve']['dbNSFP_value_col']), 'dbnsfp', var_f2),
-    # ('dbnsfp', var, '0.98828', int(md_utilities.hidden_external_tools['FatHMM-MKL']['dbNSFP_value_col']), 'dbnsfp', var_f),
+    ('dbnsfp', var, '0.481614', int(md_utilities.external_tools['BayesDel']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '9.39', int(md_utilities.hidden_external_tools['Provean']['dbNSFP_value_col']), 'dbnsfp', var_f),
     # ('dbnsfp', var, '0.000146', int(md_utilities.hidden_external_tools['LRT']['dbNSFP_value_col']), 'dbnsfp', var_f),
     ('dbnsfp', var, '1', int(md_utilities.hidden_external_tools['MutationTaster']['dbNSFP_value_col']), 'dbnsfp', var_f),

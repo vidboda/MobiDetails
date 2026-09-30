@@ -1906,7 +1906,7 @@
 						<td class="w3-left-align"><em class="w3-small">Thresholds &le; {{ thresholds['popeve_mid'] }}|{{ thresholds['popeve_max'] }} for Moderately Pathogenic, Severely Pathogenic - <strong>single score</strong></em></td>
 					</tr>
 					<tr><!--BayesDel-->
-						<td class="w3-left-align"><a href="{{ urls.bayesdel }}" target="_blank" title="Visit BayesDel" rel="noopener noreferrer">BayesDel (with MaxAF)</a>:</td>
+						<td class="w3-left-align"><a href="{{ urls.bayesdel }}" target="_blank" title="Visit BayesDel" rel="noopener noreferrer">BayesDel (no AF)</a>:</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelScore, internal_data.missensePredictions.bayesDelColor, 'bayesdel_score') }}{{ internal_data.missensePredictions.bayesDelStar }}</td>
 						<td class="w3-left-align">{{ span_color(external_data.missensePredictions.bayesDelPred, internal_data.missensePredictions.bayesDelColor) }}</td>
 						<td class="w3-left-align"><em class="w3-small">Thresholds &ge; {{ thresholds['bayesdel'] }} for  Likely Pathogenic - <strong>single score</strong></em></td>

@@ -787,7 +787,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     # open a file with tabix and look for a record:
     tb = tabix.open(tabix_file)
     query = "{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
-    # for metadome we queery the codon
+    # for metadome we query the codon
     # by adding +1 for the second position we capture the correct line
     # no matter the position on the nt in the codon
     if text == 'MetaDome':
