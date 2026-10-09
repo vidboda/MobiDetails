@@ -570,6 +570,17 @@ var_ss_f = {
     'prot_type': 'unknown',
     'p_name': '?'
 }
+var_silent = {
+    'chr': '5',
+    'pos': '112801365',
+    'pos_ref': 'A',
+    'pos_alt': 'C'
+}
+var_silent_f = {
+    'dna_type': 'substitution',
+    'prot_type': 'silent',
+    'p_name': 'Ala272='
+}
 
 
 @pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name', 'var_f'), (
@@ -593,6 +604,7 @@ var_ss_f = {
     ('dbnsfp', var_indel, '0.081', int(md_utilities.external_tools['SIFT']['dbNSFP_value_col']), 'dbnsfp', var_indel_f),
     ('AlphaMissense', var_indel, '0.0648', int(md_utilities.external_tools['AlphaMissense']['value_col']), 'alphamissense', var_indel_f),
     ('AlphaMissense', var, '0.9091', int(md_utilities.external_tools['AlphaMissense']['value_col']), 'alphamissense', var_f),
+    ('AlphaGenome', var, '1.425', int(md_utilities.external_tools['AlphaGenome']['avi_col']), 'alphagenome', var_f),
     ('REVEL', var_indel, '0.193', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_indel_f),
     ('REVEL', var, '0.902', int(md_utilities.external_tools['REVEL']['value_col']), 'revel', var_f),
     ('dbnsfp', var, '1.0888', int(md_utilities.external_tools['MetaSVM-LR']['dbNSFP_value_col_msvm']), 'dbnsfp', var_f),
@@ -636,6 +648,7 @@ var_ss_f = {
     ('MaveDB', var_indel2, 'urn:mavedb:00000789-a-1#954', 12,  'mavedb', var_indel2_f),
     ('PromoterAI', var_prom1, '-0.0024', 9,  'promoterai', ''),
     ('MetaDome', var, '0.9000000000000001', 7,  'metadome', var_f),
+    ('SynMall', var_silent, '0.3106537902425725', 8,  'synmall', var_silent_f)
 ))
 def test_get_value_from_tabix_file(app, client, tool, var, expected, record_number, file_name, var_f):
     with app.app_context():

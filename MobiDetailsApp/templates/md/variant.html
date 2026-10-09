@@ -1018,6 +1018,30 @@
 						<td class="w3-left-align"><em class="w3-small">Detection of nonneutral substitution rates on a 241 vertebrates genomes alignment. [-20;30] Positive: conservation, Negative values: acceleration, threshold &ge; 1,345 for high selective pressure (non-coding variants)</em></td>
 					</tr>
 					{% endif %}
+                    {% if g.user['academic'] or not g.user %}
+                        {% if internal_data.noMatch.alphagenome is not none or external_data.overallPredictions.alphagenome is not none %}
+                        <tr><!--alphagenome-->
+                            <td class="w3-left-align"><a href="{{ urls.alphagenome }}?m=variant&q=chr{{ external_data.VCF.chr }}%3A{{ external_data.VCF.hg38.pos }}%3A{{ external_data.VCF.hg38.ref }}>{{ external_data.VCF.hg38.alt }}" target="_blank" title="Visit AlphaGenome Atlas" rel="noopener noreferrer">AlphaGenome</a>:</td>
+                            {% if internal_data.noMatch.alphagenome is none %}
+                                <td class="w3-left-align">{{ external_data.overallPredictions.alphagenome }} ({{ external_data.overallPredictions.alphagenomePhred }})</td>
+                            {% else %}
+                                <td class="w3-left-align">{{ internal_data.noMatch.alphagenome }}</td>
+                            {% endif %}
+                            <td class="w3-left-align"><em class="w3-small">AlphaGenome Variant Impact (Phred score), priorization score combining AlphaGenome and AlphaMissense</em></td>
+                        </tr>
+                        {% endif %}
+                        {% if internal_data.noMatch.synmall is not none or external_data.overallPredictions.synmall is not none %}
+                        <tr><!--synmall-->
+                            <td class="w3-left-align"><a href="{{ urls.synmall }}#/detail?variant38={{ external_data.VCF.chr }}_{{ external_data.VCF.hg38.pos }}_{{ external_data.VCF.hg38.ref }}/{{ external_data.VCF.hg38.alt }}&transcript_id={{ external_data.gene.ENST }}" target="_blank" title="Visit SynMall" rel="noopener noreferrer">SynMall</a>:</td>
+                            {% if internal_data.noMatch.alphagenome is none %}
+                                <td class="w3-left-align">{{ span_color(external_data.overallPredictions.synmall, internal_data.overallPredictions.synmallColor, 'synmall') }}</td>
+                            {% else %}
+                                <td class="w3-left-align">{{ internal_data.noMatch.synmall }}</td>
+                            {% endif %}
+                            <td class="w3-left-align"><em class="w3-small">SynMall SynScore [0-1]: score built upon annotations for ACMG variant interpretation, including functional scores, AF and biological featuress</em></td>
+                        </tr>
+                        {% endif %}
+                    {% endif %}
 				</tbody>
 			</table><br/><br/>
 		</div>

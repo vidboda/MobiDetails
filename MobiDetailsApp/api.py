@@ -327,7 +327,10 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'mpaImpact': None,
             'gpnmsa': None,
             'cactus241way': None,
-            'phylop_primates': None
+            'phylop_primates': None,
+            'alphagenome': None,
+            'alphagenomePhred': None,
+            'synmall': None
         },
         'nonCodingPredictions':{
             'mobideep': None,
@@ -475,6 +478,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'gpnmsaColor': None,
             'phylop_primatesColor': None,
             'cactus241wayColor': None,
+            'synmallColor': None,
         },
         'splicingPredictions': {
             'splicingRadarLabels': [],
@@ -546,6 +550,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'noMatch': {
             'abSplice': None,
+            'alphagenome': None,
             'cadd': None,
             'eigen': None,
             'dbnsfp': None,
@@ -561,7 +566,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'mavedb': None,
             'mobideep': None,
             'phylop_primates': None,
-            'promoterai': None
+            'promoterai': None,
+            'synmall': None,
         }
     }
     # First, query to determine whether the vairant is genic or not:
@@ -1356,6 +1362,14 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 external_data['missensePredictions']['misticPred'] = 'Tolerated'
                                 if float(external_data['missensePredictions']['misticScore']) > md_utilities.predictor_thresholds['mistic']:
                                     external_data['missensePredictions']['misticPred'] = 'Damaging'
+                    # silent
+                    if variant_features['prot_type'] == 'silent':
+                        record = md_utilities.get_value_from_tabix_file('SynMall', md_utilities.local_files['synmall']['abs_path'], var, variant_features)
+                        if isinstance(record, str):
+                            external_data['overallPredictions']['synmall'] = record
+                        else:
+                            external_data['overallPredictions']['synmall'] = format(float(record[int(md_utilities.external_tools['SynMall']['value_col'])]), '.2f')
+                            internal_data['overallPredictions']['synmallColor'] = md_utilities.get_preditor_single_threshold_color(external_data['overallPredictions']['synmall'], 'synmall')
                     # dbMTS
                     if variant_features['dna_type'] == 'substitution' and \
                             re.search(r'^\*', variant_features['c_name']):
@@ -1433,7 +1447,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             internal_data['overallPredictions']['caddThresholdColor'] = '#00A020'
                             if float(external_data['overallPredictions']['caddPhred']) >= float(internal_data['overallPredictions']['caddThreshold']):
                                 internal_data['overallPredictions']['caddThresholdColor'] = '#FF0000'
-
+                # alphagenome
+                record = md_utilities.get_value_from_tabix_file('AlphaGenome', md_utilities.local_files['alphagenome']['abs_path'], var, variant_features)
+                if isinstance(record, str):
+                    internal_data['noMatch']['alphagenome'] = "{0} {1}".format(record, md_utilities.external_tools['AlphaGenome']['version'])
+                else:
+                    external_data['overallPredictions']['alphagenome'] = format(float(record[int(md_utilities.external_tools['AlphaGenome']['avi_col'])]), '.2f')
+                    external_data['overallPredictions']['alphagenomePhred'] = format(float(record[int(md_utilities.external_tools['AlphaGenome']['phred_col'])]), '.2f')
                 if variant_features['dna_type'] == 'substitution':
                     # promoterAI
                     # if variant_features['start_segment_type'] == '5UTR':

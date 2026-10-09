@@ -107,6 +107,7 @@ caddPhredThresholds:
   'absplice': 'https://zenodo.org/record/7871809'
   'allofus': 'https://databrowser.researchallofus.org/snvsindels'
   'alphafold': 'https://alphafold.ebi.ac.uk/'
+  'alphagenome': 'https://deepmind.google.com/science/alphagenome/atlas'
   'alphamissense': 'https://github.com/deepmind/alphamissense'
   'autopvs1': 'https://autopvs1.bgi.com/'
   'bayesdel': 'https://fenglab.chpc.utah.edu/BayesDel/BayesDel.html'
@@ -209,6 +210,7 @@ caddPhredThresholds:
   # 'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
   'sift': 'https://sift.bii.a-star.edu.sg/'
+  'synmall': 'https://bioinfo.ahu.edu.cn/synMall/'
   'tinyurl_api': 'https://api.tinyurl.com/create'
   'togows': 'http://togows.org'
   'topmed': 'https://bravo.sph.umich.edu'
@@ -280,6 +282,11 @@ caddPhredThresholds:
     'name': 'AbSplice predictions'
     'description': 'Predictions of splicing defects per tissue, combining SpliceAI and MMSplice'
     'short_name': 'absplice'
+  'alphagenome':
+    'rel_path': '/static/resources/alphagenome/alphagenome_variant_impact_score_snvs.tsv.gz'
+    'name': 'AlphaGeneome scores'
+    'description': 'Pre-computed alphagenome variant impact scores for all possible human SNV (hg38 version)'
+    'short_name': 'alphagenome'
   'alphamissense':
     'rel_path': '/static/resources/alphamissense/AlphaMissense_hg38.tsv.gz'
     'name': 'AlphaMissense scores'
@@ -490,6 +497,11 @@ caddPhredThresholds:
     'name': 'spliceAI Indels'
     'description': 'Dataset of splicing predictions'
     'short_name': 'spliceai'
+  'synmall':
+    'rel_path': '/static/resources/synmall_full/synScore.whole.genome.txt.gz'
+    'name': 'SynMall'
+    'description': 'SynMall scores for all possible human synonymous variant (hg38 version)'
+    'short_name': 'synmall'
   'uniprot':
     'rel_path': '/static/resources/uniprot/'
     'name': 'UNIPROT'
@@ -545,6 +557,14 @@ caddPhredThresholds:
     'paper': '37142848'
     'version': 'v1.0.0 (dataset)'
     'short_name': 'absplice'
+  'AlphaGenome':
+    'firstauthor': 'Avsec'
+    'year': '2026'
+    'paper': '41606153'
+    'version': 'v2026'
+    'short_name': 'alphagenome'
+    'avi_col': 4
+    'phred_col': 5
   'AlphaMissense':
     'firstauthor': 'Cheng'
     'year': '2023'
@@ -961,6 +981,13 @@ caddPhredThresholds:
     'paper': '36765386'
     'version': 'internal implementation'
     'short_name': 'spliceaivisual'
+  'SynMall':
+    'firstauthor': 'Chen'
+    'year': '2026'
+    'paper': '41407553'
+    'version': '2026'
+    'short_name': 'synmall'
+    'value_col': '8'
   'togows':
     'firstauthor': 'Katayama'
     'year': '2010'
@@ -1021,6 +1048,7 @@ caddPhredThresholds:
   'absplice_min': 0.01
   'absplice_mid': 0.05
   'absplice_max': 0.2
+  'synmall': 0.5
 'predictor_colors':
   'min': '#00A020'
   'highly_tolerant': '#0404B4'

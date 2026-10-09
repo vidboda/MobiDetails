@@ -68,6 +68,9 @@ mobideepGraphPosition = resources['mobideepGraphPosition']
 caddPhredThresholds = resources['caddPhredThresholds']
 urls = resources['urls']
 local_files = resources['local_files']
+local_files['alphagenome']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['alphagenome']['rel_path']
+)
 local_files['alphamissense']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['alphamissense']['rel_path']
 )
@@ -216,6 +219,9 @@ local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
 )
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_indels']['rel_path']
+)
+local_files['synmall']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['synmall']['rel_path']
 )
 local_files['uniprot']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['uniprot']['rel_path']
@@ -801,6 +807,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
     if re.match('gnomADv4', text) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
+            text == 'AlphaGenome' or \
             text == 'MorfeeDB' or \
             text == 'ReMM' or \
             text == 'PromoterAI' or \
@@ -836,6 +843,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             ) or \
             text == 'AbSplice' or \
             text == 'AlphaMissense' or \
+            text == 'AlphaGenome' or \
             text == 'MorfeeDB'or \
             text == 'NCBoost' or \
             text == 'GPN-MSA' :
