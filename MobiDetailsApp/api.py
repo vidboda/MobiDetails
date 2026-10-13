@@ -2275,7 +2275,7 @@ def api_variant_create(variant_chgvs=None, caller='browser', api_key=None):
                                     'GET',
                                     vv_url,
                                     headers=vv_header,
-                                    timeout=urllib3.Timeout(connect=10, read=60)
+                                    timeout=urllib3.Timeout(connect=10, read=120)
                                 ).data.decode('utf-8')
                             )
                             vv_key_var_can = None
