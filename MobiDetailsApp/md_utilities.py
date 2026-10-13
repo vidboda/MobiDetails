@@ -1297,7 +1297,7 @@ def compute_pos_end(g_name):
 def compute_start_end_pos(name):
     # slightly different as above as start can differ
     # from VCF and HGVS - for variants > 1bp
-    match_object = re.search(r'(\d+)_(\d+)[di]', name)
+    match_object = re.search(r'(\d+)_(\d+)[di=]', name)
     if match_object is not None:
         return match_object.group(1), match_object.group(2)
     else:
@@ -1769,6 +1769,7 @@ def create_var_vv(
                 return hg19_d
     except Exception:
         hg19_d = None
+    print(hg38_d)
     positions = compute_start_end_pos(hg38_d['g_name'])
     if positions[0] == '-1':
         error_text = """
