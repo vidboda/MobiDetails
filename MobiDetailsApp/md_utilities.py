@@ -1769,7 +1769,6 @@ def create_var_vv(
                 return hg19_d
     except Exception:
         hg19_d = None
-    print(hg38_d)
     positions = compute_start_end_pos(hg38_d['g_name'])
     if positions[0] == '-1':
         error_text = """
