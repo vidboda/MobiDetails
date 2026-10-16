@@ -597,7 +597,8 @@
 					We aim to reduce false positive gene and variant mentions, and aim to link them together appropriately.') }}
 				<div class="w3-row-padding">
 					<div class="w3-col " id="defgen_hg19">
-						{% set varaico_link = urls.varaico ~ "papers?gene=" ~ external_data.gene.symbol ~ "&chrom=chr" ~ external_data.VCF.chr ~ "&pos=" ~ external_data.VCF.hg38.pos ~ "&ref=" ~ external_data.VCF.hg38.ref ~ "&alt=" ~ external_data.VCF.hg38.alt ~ "&assembly=hg38" %}
+						{# {% set varaico_link = urls.varaico ~ "papers?gene=" ~ external_data.gene.symbol ~ "&chrom=chr" ~ external_data.VCF.chr ~ "&pos=" ~ external_data.VCF.hg38.pos ~ "&ref=" ~ external_data.VCF.hg38.ref ~ "&alt=" ~ external_data.VCF.hg38.alt ~ "&assembly=hg38" %} #}
+                        {% set varaico_link = urls.varaico ~ "papers/hg38/" ~ external_data.gene.symbol ~ "/chr" ~ external_data.VCF.chr ~ "-" ~ external_data.VCF.hg38.pos ~ "-" ~ external_data.VCF.hg38.ref ~ "-" ~ external_data.VCF.hg38.alt %}
 						<span class="w3-button w3-blue w3-ripple w3-hover-light-blue w3-padding-16 w3-large" onclick="window.open('{{ varaico_link }}', '_blank', 'noopener,noreferrer')" title="Query your variant on Varaico" style="width:100%">Query your variant on Varaico</span>
 					</div>
 				</div>
