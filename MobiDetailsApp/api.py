@@ -359,7 +359,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'spliceai_DP_DG': None,
             'spliceai_DP_DL': None,
             'SPiP': None,
-            'abSplice': {}
+            'abSplice': {},
+            'spliceai2Summary': None,
         },
         'miRNATargetSitesPredictions': {
             'mirandaCategory': None,
@@ -499,6 +500,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'abSpliceMaxColor': None,
             'abspliceDNAHeader': [],
             'abspliceDNAValues': [],
+            'spliceai2SummaryColor': None,
         },
         'positions': {
             'metaDomeColor': None,
@@ -556,6 +558,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
             'dbnsfp': None,
             'dbmts': None,
             'spliceai': None,
+            'spliceai2': None,
             'episignature': None,
             'mavedb': None,
             'morfeedb': None,
@@ -1509,46 +1512,46 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     else:
                         external_data['overallPredictions']['cactus241way'] = format(float(record), '.3f')
                         internal_data['overallPredictions']['cactus241wayColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['overallPredictions']['cactus241way']), 'cactus241way')
-                    if var_type == 'genic':
-                        # dbscSNV
-                        record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
-                        if isinstance(record, str):
-                            external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                            external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
-                            if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                                splicing_radar_labels.append('dbscSNV ADA')
-                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                            if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                                splicing_radar_labels.append('dbscSNV RF')
-                                splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                        else:
-                            try:
-                                external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
-                                internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
-                                if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
-                                    splicing_radar_labels.append('dbscSNV ADA')
-                                    splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
-                            except Exception:
-                                # "score" is '.'
-                                external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                            try:
-                                external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
-                                internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
-                                if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
-                                    splicing_radar_labels.append('dbscSNV RF')
-                                    splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
-                            except Exception:
-                                # "score" is '.'
-                                external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
-                            # dbscsnv_mpa_threshold = 0.8
-                            if not external_data['overallPredictions']['mpaScore'] or \
-                                    external_data['overallPredictions']['mpaScore'] < 10:
-                                if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
-                                    float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
-                                    (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
-                                    float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
-                                    external_data['overallPredictions']['mpaScore'] = 10
-                                    external_data['overallPredictions']['mpaImpact'] = 'High splice'
+                    # if var_type == 'genic':
+                    #     # dbscSNV - deprecated
+                    #     record = md_utilities.get_value_from_tabix_file('dbscSNV', md_utilities.local_files['dbscsnv']['abs_path'], var, variant_features)
+                    #     if isinstance(record, str):
+                    #         external_data['splicingPredictions']['dbscSNVADA'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                    #         external_data['splicingPredictions']['dbscSNVRF'] = "{0} {1}".format(record, md_utilities.external_tools['dbscSNV']['version'])
+                    #         if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                    #             splicing_radar_labels.append('dbscSNV ADA')
+                    #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                    #         if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                    #             splicing_radar_labels.append('dbscSNV RF')
+                    #             splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                    #     else:
+                    #         try:
+                    #             external_data['splicingPredictions']['dbscSNVADA'] = "{:.2f}".format(float(record[14]))
+                    #             internal_data['splicingPredictions']['dbscSNVADAColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVADA']), 'dbscsnv')
+                    #             if external_data['splicingPredictions']['dbscSNVADA'] != 'No match in dbscSNV v1.1':
+                    #                 splicing_radar_labels.append('dbscSNV ADA')
+                    #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVADA'])
+                    #         except Exception:
+                    #             # "score" is '.'
+                    #             external_data['splicingPredictions']['dbscSNVADA'] = "No score for dbscSNV ADA {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                    #         try:
+                    #             external_data['splicingPredictions']['dbscSNVRF'] = "{:.2f}".format(float(record[15]))
+                    #             internal_data['splicingPredictions']['dbscSNVRFColor'] = md_utilities.get_preditor_single_threshold_color(float(external_data['splicingPredictions']['dbscSNVRF']), 'dbscsnv')
+                    #             if external_data['splicingPredictions']['dbscSNVRF'] != 'No match in dbscSNV v1.1':
+                    #                 splicing_radar_labels.append('dbscSNV RF')
+                    #                 splicing_radar_values.append(external_data['splicingPredictions']['dbscSNVRF'])
+                    #         except Exception:
+                    #             # "score" is '.'
+                    #             external_data['splicingPredictions']['dbscSNVRF'] = "No score for dbscSNV RF {}".format(md_utilities.external_tools['dbscSNV']['version'])
+                    #         # dbscsnv_mpa_threshold = 0.8
+                    #         if not external_data['overallPredictions']['mpaScore'] or \
+                    #                 external_data['overallPredictions']['mpaScore'] < 10:
+                    #             if (isinstance(external_data['splicingPredictions']['dbscSNVADA'], float) and
+                    #                 float(external_data['splicingPredictions']['dbscSNVADA']) > md_utilities.predictor_thresholds['dbscsnv']) or \
+                    #                 (isinstance(external_data['splicingPredictions']['dbscSNVRF'], float) and
+                    #                 float(external_data['splicingPredictions']['dbscSNVRF']) > md_utilities.predictor_thresholds['dbscsnv']):
+                    #                 external_data['overallPredictions']['mpaScore'] = 10
+                    #                 external_data['overallPredictions']['mpaImpact'] = 'High splice'
                 else:
                     internal_data['noMatch']['gpnmsa'] = "No precomputed score for GPN-MSA {0}".format(md_utilities.external_tools['GPN-MSA']['version'])
                     internal_data['noMatch']['cactus241way'] = "No precomputed score for cactus241way {0}".format(md_utilities.external_tools['Cactus_241_way']['version'])
@@ -1592,56 +1595,97 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
                     # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
                     # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
-                    spliceai_res = False
-                    if variant_features['dna_type'] == 'substitution':
-                        record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features, db)
-                        spliceai_res = True
-                    elif ((variant_features['dna_type'] == 'insertion' and
-                            internal_data['positions']['insSize'] == 1) or
-                            (variant_features['dna_type'] == 'duplication' and
-                            variant_features['variant_size'] == 1) or
-                            (variant_features['dna_type'] == 'deletion' and
-                                variant_features['variant_size'] <= 4)):
-                        record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features, db)
-                        # print(record)
-                        spliceai_res = True
-                    if spliceai_res is True:
-                        if isinstance(record, str):
-                            internal_data['noMatch']['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
+                    if g.user == "academic" or not g.user:
+                        spliceai_res = False
+                        if variant_features['dna_type'] == 'substitution':
+                            record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features, db)
+                            spliceai_res = True
+                        elif ((variant_features['dna_type'] == 'insertion' and
+                                internal_data['positions']['insSize'] == 1) or
+                                (variant_features['dna_type'] == 'duplication' and
+                                variant_features['variant_size'] == 1) or
+                                (variant_features['dna_type'] == 'deletion' and
+                                    variant_features['variant_size'] <= 4)):
+                            record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_indels']['abs_path'], var, variant_features, db)
+                            # print(record)
+                            spliceai_res = True
+                        if spliceai_res is True:
+                            if isinstance(record, str):
+                                internal_data['noMatch']['spliceai'] = "{0} {1}".format(record, md_utilities.external_tools['spliceAI']['version'])
+                            else:
+                                # check if warning coming from spliceai and gene symbol conflict
+                                if len(record) == 9:
+                                    # warning
+                                    # internal_data['splicingPredictions']['spliceai_warning'] = record[8]
+                                    internal_data['splicingPredictions']['spliceai_gene_symbol'] = record[8]
+                                spliceais = re.split(r'\|', record[7])
+                                # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
+                                splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
+                                order_list = ['DS_AG', 'DS_AL', 'DS_DG', 'DS_DL', 'DP_AG', 'DP_AL', 'DP_DG', 'DP_DL']
+                                i = 2
+                                for tag in order_list:
+                                    identifier = "spliceai_{}".format(tag)
+                                    external_data['splicingPredictions'][identifier] = spliceais[i]
+                                    if re.search(r'DS_', tag):
+                                        splicing_radar_values.append(spliceais[i])
+                                    i += 1
+                                    if re.match('spliceai_DS_', identifier):
+                                        id_color = "{}_color".format(identifier)
+                                        internal_data['splicingPredictions'][id_color] = md_utilities.get_splice_predictor_color(
+                                            'spliceai',
+                                            float(external_data['splicingPredictions'][identifier])
+                                        )
+                                        if not external_data['overallPredictions']['mpaScore'] or \
+                                                external_data['overallPredictions']['mpaScore'] < 10:
+                                            if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
+                                                external_data['overallPredictions']['mpaScore'] = 10
+                                                external_data['overallPredictions']['mpaImpact'] = 'High splice'
+                                            elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
+                                                external_data['overallPredictions']['mpaScore'] = 8
+                                                external_data['overallPredictions']['mpaImpact'] = 'Moderate splice'
+                                            elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
+                                                external_data['overallPredictions']['mpaScore'] = 6
+                                                external_data['overallPredictions']['mpaImpact'] = 'Low splice'
+                        # SplceiAI2
+                        # first we check whether the variant has been scored, i.e. the position is present in the bedfile
+                        variant_type = 'snv' if variant_features['dna_type'] == 'substitution' else 'indel'
+                        isSpliceAI2Computed = md_utilities.get_value_from_tabix_file(
+                            'SpliceAI2Bed',
+                            "{0}{1}/spliceai2_covered.bed.gz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], variant_type),
+                            var,
+                            variant_features,
+                            db
+                        )
+                        # print("isSpliceAI2Computed: {0}".format(isSpliceAI2Computed))
+                        if isinstance(isSpliceAI2Computed, int) and isSpliceAI2Computed > 0:
+                            # then we get the results from the tabix file
+                            # variant is snv or indel?
+                            spliceia2_file = "{0}{1}/chr{2}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], variant_type, external_data['VCF']['chr'])
+                            record = md_utilities.get_value_from_tabix_file(
+                                'SpliceAI2',
+                                spliceia2_file,
+                                var,
+                                variant_features,
+                                db
+                            )
+                            # print("SpliceAI2 record: {0}".format(record))
+                            if isinstance(record, str):
+                                # no match means score == 0.0 (tsv files have been filtered out to gain space)
+                                external_data['splicingPredictions']['spliceai2Summary'] = 0.0
+                                internal_data['splicingPredictions']['spliceai2SummaryColor'] = md_utilities.get_splice_predictor_color(
+                                            'spliceai2',
+                                            0.0
+                                )
+                            else:
+                                external_data['splicingPredictions']['spliceai2Summary'] = record[md_utilities.external_tools['SpliceAI2']['summary_score_col']]
+                                internal_data['splicingPredictions']['spliceai2SummaryColor'] = md_utilities.get_splice_predictor_color(
+                                            'spliceai2',
+                                            float(external_data['splicingPredictions']['spliceai2Summary'])
+                                )
                         else:
-                            # check if warning coming from spliceai and gene symbol conflict
-                            if len(record) == 9:
-                                # warning
-                                # internal_data['splicingPredictions']['spliceai_warning'] = record[8]
-                                internal_data['splicingPredictions']['spliceai_gene_symbol'] = record[8]
-                            spliceais = re.split(r'\|', record[7])
-                            # ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL
-                            splicing_radar_labels.extend(['SpliceAI Acc Gain', 'SpliceAI Acc Loss', 'SpliceAI Donor Gain', 'SpliceAI Donor Loss'])
-                            order_list = ['DS_AG', 'DS_AL', 'DS_DG', 'DS_DL', 'DP_AG', 'DP_AL', 'DP_DG', 'DP_DL']
-                            i = 2
-                            for tag in order_list:
-                                identifier = "spliceai_{}".format(tag)
-                                external_data['splicingPredictions'][identifier] = spliceais[i]
-                                if re.search(r'DS_', tag):
-                                    splicing_radar_values.append(spliceais[i])
-                                i += 1
-                                if re.match('spliceai_DS_', identifier):
-                                    id_color = "{}_color".format(identifier)
-                                    internal_data['splicingPredictions'][id_color] = md_utilities.get_splice_predictor_color(
-                                        'spliceai',
-                                        float(external_data['splicingPredictions'][identifier])
-                                    )
-                                    if not external_data['overallPredictions']['mpaScore'] or \
-                                            external_data['overallPredictions']['mpaScore'] < 10:
-                                        if float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_max']:
-                                            external_data['overallPredictions']['mpaScore'] = 10
-                                            external_data['overallPredictions']['mpaImpact'] = 'High splice'
-                                        elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_mid']:
-                                            external_data['overallPredictions']['mpaScore'] = 8
-                                            external_data['overallPredictions']['mpaImpact'] = 'Moderate splice'
-                                        elif float(external_data['splicingPredictions'][identifier]) > md_utilities.predictor_thresholds['spliceai_min']:
-                                            external_data['overallPredictions']['mpaScore'] = 6
-                                            external_data['overallPredictions']['mpaImpact'] = 'Low splice'
+                            # spliecai score undefined
+                            internal_data['noMatch']['Spliceai2'] = "Variant not scored by SpliceAI2"
+                    # print("isSpliceAI2Computed: {0}".format(isSpliceAI2Computed))
                     # AbSplice
                     # results are stored in a tabix file, on file per gene
                     # so we need to get the file and then the results - 49 tissus, 49 results

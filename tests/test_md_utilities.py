@@ -621,6 +621,17 @@ var_silent_f = {
     ('spliceAI', var, 'SpliceAI=A|USH2A|0.00|0.00|0.01|0.00|-20|12|-20|46', 7, 'spliceai_snvs', var_f),
     ('spliceAI', var_spliceai, 'SpliceAI=A|CDH23|0.00|0.00|0.82|0.95|3|-1|3|-1', 7, 'spliceai_snvs', var_spliceai_f),
     ('spliceAI', var_dup, 'SpliceAI=AG|GBE1|0.00|0.00|0.00|0.00|32|50|-5|-12', 7, 'spliceai_indels', var_dup_f),
+    ('SpliceAI2', var_spliceai, '0.71', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_spliceai['chr']), var_spliceai_f),
+    ('SpliceAI2', var, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var['chr']), var_f),
+    ('SpliceAI2', var2, '0.02', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var2['chr']), var_f2),
+    ('SpliceAI2', var_indel, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}indel/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_indel['chr']), var_indel_f),
+    ('SpliceAI2', var_indel2, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}indel/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_indel2['chr']), var_indel2_f),
+    ('SpliceAI2', var_5utr1, '0.02', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_5utr1['chr']), var_5utr1_f),
+    ('SpliceAI2', var_3utr1, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_3utr1['chr']), var_3utr1_f),
+    ('SpliceAI2', var_3utr2, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_3utr2['chr']), var_3utr2_f),
+    ('SpliceAI2', var_dup, '0.01', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}indel/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_dup['chr']), var_dup_f),
+    ('SpliceAI2', var_ss, '0.7', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_ss['chr']), var_ss_f),
+    ('SpliceAI2', var_silent, 'No match in SpliceAI2', int(md_utilities.external_tools['SpliceAI2']['summary_score_col']), "{0}snv/chr{1}.filtered.tsv.bgz".format(md_utilities.local_files['spliceai2_folder']['abs_path'], var_silent['chr']), var_silent_f),
     ('gnomAD exome', var, '0.0010', 5, 'gnomad_exome_hg38', var_f),
     ('gnomAD exome', var, '0.0021', 20, 'gnomad_exome_hg38', var_f),
     ('gnomAD exome', var_dup, '1.0', 5, 'gnomad_exome_hg38', var_dup_f),
@@ -654,16 +665,17 @@ def test_get_value_from_tabix_file(app, client, tool, var, expected, record_numb
     with app.app_context():
         g = fake_g_obj()
         db_pool, db = get_db()
-        record = md_utilities.get_value_from_tabix_file(tool, md_utilities.local_files[file_name]['abs_path'], var, var_f, db)
+        tabix_file = file_name if tool == 'SpliceAI2' else md_utilities.local_files[file_name]['abs_path']
+        record = md_utilities.get_value_from_tabix_file(tool, tabix_file, var, var_f, db)
         print(record_number)
         print(tool)
-        print(md_utilities.local_files[file_name]['abs_path'])
+        print(md_utilities.local_files[file_name]['abs_path']) if tool != "SpliceAI2" else print(tabix_file)
         print(record)
         db_pool.putconn(db)
         if tool == 'MorfeeDB':
             assert re.search(expected, record[0][record_number])
         else:
-            assert re.search(expected, record[record_number])
+            assert expected == record if isinstance(record, str) else re.search(expected, record[record_number])
         # record = md_utilities.get_value_from_tabix_file('Clinvar', md_utilities.local_files['clinvar_hg38']['abs_path'], var)
         # assert re.search('Pathogenic', record[7])
         # assert re.search('2356', record[2])

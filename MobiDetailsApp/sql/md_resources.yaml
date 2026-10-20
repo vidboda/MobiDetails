@@ -209,6 +209,7 @@ caddPhredThresholds:
   'spliceai_internal_server': 'http://spliceaivisual.chu-montpellier.fr'
   # 'spliceai_internal_server': 'http://194.167.35.157:80'
   'spliceaivisual': 'https://tinyurl.com/spliceai-visual'
+  'spliceai2': 'https://github.com/Illumina/SpliceAI2'
   'sift': 'https://sift.bii.a-star.edu.sg/'
   'synmall': 'https://bioinfo.ahu.edu.cn/synMall/'
   'tinyurl_api': 'https://api.tinyurl.com/create'
@@ -497,6 +498,11 @@ caddPhredThresholds:
     'name': 'spliceAI Indels'
     'description': 'Dataset of splicing predictions'
     'short_name': 'spliceai'
+  'spliceai2_folder':
+    'rel_path': '/static/resources/spliceai/v2/GRCh38/'
+    'name': 'spliceAI2 predictions, with snv/indels files'
+    'description': 'Dataset of splicing predictions'
+    'short_name': 'spliceai2'
   'synmall':
     'rel_path': '/static/resources/synmall_full/synScore.whole.genome.txt.gz'
     'name': 'SynMall'
@@ -981,6 +987,13 @@ caddPhredThresholds:
     'paper': '36765386'
     'version': 'internal implementation'
     'short_name': 'spliceaivisual'
+  'SpliceAI2':
+    'firstauthor': 'Jaganathan'
+    'year': '2026'
+    'paper': 'None'
+    'version': '20261006'
+    'short_name': 'spliceai2'
+    'summary_score_col': 83
   'SynMall':
     'firstauthor': 'Chen'
     'year': '2026'
@@ -1045,6 +1058,9 @@ caddPhredThresholds:
   'spliceai_min': 0.2
   'spliceai_mid': 0.5
   'spliceai_max': 0.8
+  'spliceai2_min': 0.1
+  'spliceai2_mid': 0.25
+  'spliceai2_max': 0.5
   'absplice_min': 0.01
   'absplice_mid': 0.05
   'absplice_max': 0.2

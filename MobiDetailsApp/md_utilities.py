@@ -220,6 +220,9 @@ local_files['spliceai_snvs']['abs_path'] = '{0}{1}'.format(
 local_files['spliceai_indels']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['spliceai_indels']['rel_path']
 )
+local_files['spliceai2_folder']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['spliceai2_folder']['rel_path']
+)
 local_files['synmall']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['synmall']['rel_path']
 )
@@ -811,6 +814,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'MorfeeDB' or \
             text == 'ReMM' or \
             text == 'PromoterAI' or \
+            text == 'SpliceAI2Bed' or \
+            text == 'SpliceAI2' or \
             (re.search('MISTIC', tabix_file) and
                 var['chr'] == 'X'):
         query = "chr{0}:{1}-{2}".format(var['chr'], var['pos'], var['pos'])
@@ -822,7 +827,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             # those return a 'query failed' error in tabix python module 
             return 'No significant score in {}'.format(text)
         else:
-            return 'An error occured while querying {0}'.format(text)
+            return 'An error occured while querying {0} with query {1}'.format(text, query)
     except Exception as e:
         send_error_email(
             prepare_email_html(
@@ -836,6 +841,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             '[MobiDetails - Tabix Error]'
         )
         return 'Match failed in {}'.format(text)
+    if text == 'SpliceAI2Bed':
+        return len(list(records))
     i = 3
     if re.search(
             r'(dbNSFP|whole_genome_SNVs|dbscSNV|promoterAI|dbMTS|revel|MISTIC|CADD/hg38/v1\.7/gnomad.genomes\.r4\.0\.indel)',
@@ -846,7 +853,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
             text == 'AlphaGenome' or \
             text == 'MorfeeDB'or \
             text == 'NCBoost' or \
-            text == 'GPN-MSA' :
+            text == 'GPN-MSA' or \
+            text == 'SpliceAI2':
         i -= 1
     if 'p_name' in variant_features and variant_features['p_name'] is not None:
         aa1, ppos, aa2 = decompose_missense(variant_features['p_name'])
@@ -960,6 +968,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
                         c_list = re.split(';', record[int(external_tools['MorfeeDB']['hgvs_c'])].replace(' ', ''))
                         if 'c.{}'.format(variant_features['c_name']) in c_list:
                             record_list.append(record)
+            # elif text == 'SpliceAI2':
+            #     return record
             else:
                 return record
         elif re.search(r'(dbNSFP|revel|AlphaMissense)', tabix_file) and \
@@ -4360,9 +4370,9 @@ def check_position_in_bed(bed_file_path, chrom, pos_1_indexed, strand):
                 bed_end = int(parts[2])
                 bed_strand = parts[5]
                 
-                # Vérification du chromosome et de l'intervalle
+                # check chromosome and interval
                 if bed_chrom == 'chr{0}'.format(chrom):
-                    # Logique BED : start inclus, end exclus
+                    # BED logic : start included, end excluded
                     if bed_start <= pos_0_indexed < bed_end and \
                         bed_strand == strand:
                             return True
