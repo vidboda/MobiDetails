@@ -1685,7 +1685,6 @@ def variant(variant_id=None, caller='browser', api_key=None):
                         else:
                             # spliecai score undefined
                             internal_data['noMatch']['Spliceai2'] = "Variant not scored by SpliceAI2"
-                    # print("isSpliceAI2Computed: {0}".format(isSpliceAI2Computed))
                     # AbSplice
                     # results are stored in a tabix file, on file per gene
                     # so we need to get the file and then the results - 49 tissus, 49 results
