@@ -1595,7 +1595,7 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     # ##INFO=<ID=SpliceAI,Number=.,Type=String,Description="SpliceAIv1.3 variant annotation.
                     # These include delta scores (DS) and delta positions (DP) for acceptor gain (AG), acceptor loss (AL), donor gain (DG), and donor loss (DL).
                     # Format: ALLELE|SYMBOL|DS_AG|DS_AL|DS_DG|DS_DL|DP_AG|DP_AL|DP_DG|DP_DL">
-                    if g.user ['academic'] or not g.user:
+                    if not g.user or g.user['academic']:
                         spliceai_res = False
                         if variant_features['dna_type'] == 'substitution':
                             record = md_utilities.get_value_from_tabix_file('spliceAI', md_utilities.local_files['spliceai_snvs']['abs_path'], var, variant_features, db)
