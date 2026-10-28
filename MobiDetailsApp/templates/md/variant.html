@@ -1258,10 +1258,10 @@
 								<td class="w3-left-align">{{ span_color(external_data.splicingPredictions.spliceai2Summary, internal_data.splicingPredictions.spliceai2SummaryColor) }}</td>
 								<td class="w3-left-align"><em class="w3-small">SpliceAi v2, summary score coresponding to the max &Delta; score, range 0-1, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai2_min, thresholds.spliceai2_mid, thresholds.spliceai2_max) }} for impact</em></td>
 							</tr>
-                            {% elif internal_data.noMatch.spliceai2 is not none %}
+                            {% elif internal_data.noMatch.Spliceai2 is not none %}
                             <tr>
 								<td class="w3-left-align"><a href="{{ urls.spliceai2 }}" target="_blank" title="Visit spliceAI2" rel="noopener noreferrer">spliceAI2</a>:</td>
-								<td class="w3-left-align">{{ internal_data.noMatch.spliceai2 }}</td>
+								<td class="w3-left-align">{{ internal_data.noMatch.Spliceai2 }}</td>
 								<td class="w3-left-align"><em class="w3-small">SpliceAi v2, summary score coresponding to the max &Delta; score, range 0-1, thresholds &ge; {{ "%s|%s|%s"|format(thresholds.spliceai2_min, thresholds.spliceai2_mid, thresholds.splicea2i_max) }} for impact</em></td>
 							</tr>
                             {% endif %}
