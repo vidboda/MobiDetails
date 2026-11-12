@@ -184,6 +184,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
     # typically calling from API - swagger sends ','
     # browser sends 'dom.css.map'
     if api_key:
+        if not re.fullmatch(r'[-_A-Za-z0-9]{43}', api_key):
+            res_check_api_key = {'mobidetails_error': 'Malformed URL, please check your input', 'api_key_pass_check': False, 'api_key_status': 'irrelevant'}
         if len(api_key) != 43:
             res_check_api_key = {'mobidetails_error': 'Malformed URL, please check your input', 'api_key_pass_check': False, 'api_key_status': 'irrelevant'}
         else:
@@ -2903,7 +2905,7 @@ def api_variant_create_rs(rs_id=None, caller='browser', api_key=None):
                                                 md_api_url,
                                                 headers=headers,
                                                 fields=data,
-                                                timeout=urllib3.Timeout(connect=10, read=60)
+                                                timeout=urllib3.Timeout(connect=10, read=120)
                                             ).data.decode('utf-8')
                                         )
                                         for var in tmp_response:
