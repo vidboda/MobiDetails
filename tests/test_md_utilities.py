@@ -584,6 +584,7 @@ var_silent_f = {
 
 
 @pytest.mark.parametrize(('tool', 'var', 'expected', 'record_number', 'file_name', 'var_f'), (
+    ('biomnis', var, 'NS=22749;AN=45498;AF=0.0035606;AC=162;AC_Het=162;AC_Hom=0;AC_Hom_Ind=0;AF_Het=0.007121;AF_Hom=0', 7, 'biomnis', var_f),
     ('Clinvar', var, 'Pathogenic', 7, 'clinvar_hg38', var_f),
     ('Clinvar', var, '2356', 2, 'clinvar_hg38', var_f),
     # ('dbnsfp', var, '3.94', int(md_utilities.external_tools['CADD']['dbNSFP_value_col']), 'dbnsfp', var_f),

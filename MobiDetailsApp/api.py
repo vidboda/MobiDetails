@@ -459,6 +459,13 @@ def variant(variant_id=None, caller='browser', api_key=None):
         },
         'frequenciesDatabases': {
             'dbSNPrsid': None,
+            'biomnisNoMatch': None,
+            'biomnisNS': None,
+            'biomnisAN': None,
+            'biomnisAF': None,
+            'biomnisAC': None,
+            'biomnisACHet': None,
+            'biomnisACHom': None,
         },
         'hexosplice': {
             'exonSequence': None,
@@ -1096,6 +1103,18 @@ def variant(variant_id=None, caller='browser', api_key=None):
                                 variant_features['prot_type'] == 'frameshift':
                             external_data['overallPredictions']['mpaScore'] = 10
                             external_data['overallPredictions']['mpaImpact'] = variant_features['prot_type']
+                # biomnis
+                record = md_utilities.get_value_from_tabix_file('biomnis', md_utilities.local_files['biomnis']['abs_path'], var, variant_features)
+                if record == 'No match in biomnis':
+                    internal_data['frequenciesDatabases']['biomnisNoMatch'] = record
+                else:
+                    biomnis_info = re.split(';', record)
+                    internal_data['frequenciesDatabases']['biomnisNS'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['NS_col'])])[1]
+                    internal_data['frequenciesDatabases']['biomnisAN'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AN_col'])])[1]
+                    internal_data['frequenciesDatabases']['biomnisAF'] = format(float(re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AF_col'])])[1]), '.4f')
+                    internal_data['frequenciesDatabases']['biomnisAC'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_col'])])[1]
+                    internal_data['frequenciesDatabases']['biomnisACHet'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_Het_col'])])[1]
+                    internal_data['frequenciesDatabases']['biomnisACHom'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_Hom_col'])])[1]
                 # gnomadv2 ex + non cancer
                 record = md_utilities.get_value_from_tabix_file('gnomAD exome', md_utilities.local_files['gnomad_exome_hg38']['abs_path'], var, variant_features)
                 if isinstance(record, str):

@@ -80,6 +80,9 @@ local_files['alphamissense_hg19']['abs_path'] = '{0}{1}'.format(
 local_files['absplice']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['absplice']['rel_path']
 )
+local_files['biomnis']['abs_path'] = '{0}{1}'.format(
+    app_path, local_files['biomnis']['rel_path']
+)
 local_files['cadd']['abs_path'] = '{0}{1}'.format(
     app_path, local_files['cadd']['rel_path']
 )
@@ -885,6 +888,8 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
+            if text == 'biomnis':
+                return record[int(external_tools['Biomnis_Exomes']['INFO_col'])]
             if re.search(r'revel', tabix_file):
                 # need to validate amino acids - position can differ
                 if aa1 == record[int(external_tools['REVEL']['ref_aa_col'])] and \
