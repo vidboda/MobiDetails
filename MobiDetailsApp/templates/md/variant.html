@@ -653,43 +653,16 @@
 						<td class="w3-left-align">{{ external_data.frequenciesDatabases.gnomADv4Exome }}</td>
 						<td class="w3-left-align"><em class="w3-small"> v4.1.0 Exomes <strong>global MAF</strong></em></td>
 					</tr>
-                    {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in biomnis' %}
                     <tr><!--Biomnis Exomes-->
+                        
 						<td class="w3-left-align"><a href="{{ urls.biomnis }}" target="_blank">Biomnis</a> Exomes*:</td>
+                        {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in biomnis' %}
 						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }} ({{ internal_data.frequenciesDatabases.biomnisAN }} | {{ internal_data.frequenciesDatabases.biomnisAC }} | {{ internal_data.frequenciesDatabases.biomnisACHom }})</td>
+                        {% else %}
+                        <td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisNoMatch }} exomes</td>
+                        {% endif %}
 						<td class="w3-left-align"><em class="w3-small">Allele Frequency (Total Allele Number | Variant Allele Count | Homozygous Allele Count)</em></td>
 					</tr>
-                    {# <tr><!--Biomnis Exomes-->
-						<td class="w3-left-align"><a href="{{ urls.biomnis }}" target="_blank">Biomnis</a> Exomes*:</td>
-						<td class="w3-left-align"><table id="biomnis_subtable"><tbody><tr><td>{{ internal_data.frequenciesDatabases.biomnisAF }}</td><td>{{ internal_data.frequenciesDatabases.biomnisAN }}</td><td>{{ internal_data.frequenciesDatabases.biomnisAC }}</td><td>{{ internal_data.frequenciesDatabases.biomnisACHom }}</td></tr></tbody></table></td>
-						<td class="w3-left-align"><em class="w3-small">Allele Frequency | Total Allele Number | Variant Allele Count | Homozygous Allele Count</em></td>
-					</tr> #}
-                    {% endif %}
-                    {# <tr><!--Biomnis Exomes-->
-						<td class="w3-left-align">Biomnis Number of Samples</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisNS }}</td>
-						<td class="w3-left-align"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align">Biomnis Allele Number</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAN }}</td>
-						<td class="w3-left-align"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align">Biomnis Allele Frequency</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }}</td>
-						<td class="w3-left-align"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align">Biomnis Allele Count</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAC }}</td>
-						<td class="w3-left-align"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align">Biomnis Allele Count Homozygous</td>
-                    <td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisACHom }}</td>
-						<td class="w3-left-align"><em class="w3-small"></em></td>
-					</tr> #}
 					<tr><!--dbSNP id-->
 						<td class="w3-left-align">dbSNP rsid:</td>
 						<td class="w3-left-align">
@@ -887,47 +860,8 @@
 					{% endif %}
 				</tbody>
 			</table><br/><br/>
-            {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in biomnis' %}
             {{ content('*<strong>Only in MobiDetails: The Biomnis allele frequencies of about 38,000 exomes.</strong><br/><span class="a_like" id="biomnis_show" onclick="content_toggle(\'biomnis_description\', \'biomnis_show\');">Show more...</span>') }}
             {{ content_id('biomnis_description', '<a href="%s" target="_blank"><img alt="Biomnis" width="200" src="%s" /></a><ul><li>Cohort: Diagnostic exomes, including unaffected relatives</li><li>Capture kit: Human Exome 2.0 Plus Comprehensive Exome Spike-in</li><li>Sequencing: NovaSeq 6000, 2 x 150 bp paired-end reads</li><li>Bioinformatics: BiomniSeq4 pipeline based on GATK tools</li><li>Clinical indications: Kidney diseases, prenatal disorders, neurodevelopmental disorders, obesity</li><li>Geographical origin: Mainly France and French overseas territories, with international cases</li></ul>' | format(urls.biomnis, url_for('static', filename='img/biomnis.png'))) }}
-            <!--table for biomnis data-->
-            {# <table class="w3-table w3-centered display compact" style="width:90%" id="biomnis_table">
-				<thead>
-					<tr>
-						<th class="w3-left-align" width="25%">Features</th>
-						<th class="w3-left-align" width="45%">Values</th>
-						<th class="w3-left-align" width="30%">Descriptions</th>
-					</tr>
-				</thead>
-				<tbody>
-                    <tr>
-						<td class="w3-left-align" id="lovd_feature">Number of Samples</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisNS }}</td>
-						<td class="w3-left-align" id="lovd_description"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align" id="lovd_feature">Allele Number</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAN }}</td>
-						<td class="w3-left-align" id="lovd_description"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align" id="lovd_feature">Allele Frequency</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }}</td>
-						<td class="w3-left-align" id="lovd_description"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align" id="lovd_feature">Allele Count</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAC }}</td>
-						<td class="w3-left-align" id="lovd_description"><em class="w3-small"></em></td>
-					</tr>
-                    <tr>
-						<td class="w3-left-align" id="lovd_feature">Allele Count Homozygous</td>
-                    <td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisACHom }}</td>
-						<td class="w3-left-align" id="lovd_description"><em class="w3-small"></em></td>
-					</tr>
-                </tbody>
-            </table> #}
-            {% endif %}
 			<!--hidden values to trigger intervar/spliceaivisual ajax-->
 			<span style="visibility:hidden" id="segment_type">{{ external_data.positions.segmentStartType }}</span>
 			<span style="visibility:hidden" id="dna_type">{{ external_data.positions.DNAType }}</span>
