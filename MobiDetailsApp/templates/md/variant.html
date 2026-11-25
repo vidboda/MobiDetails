@@ -859,7 +859,7 @@
 					{% endif %}
 				</tbody>
 			</table><br/><br/>
-            {{ content('*<strong>Only in MobiDetails: The Biomnis allele frequencies of about 38,000 exomes.</strong><br/><span class="a_like" id="biomnis_show" onclick="content_toggle(\'biomnis_description\', \'biomnis_show\');">Show more...</span>') }}
+            {{ content('*<strong>Only in MobiDetails: The Biomnis allele frequencies of about 38,000 exomes, covering more than 4 millions unique variants.</strong><br/><span class="a_like" id="biomnis_show" onclick="content_toggle(\'biomnis_description\', \'biomnis_show\');">Show more...</span>') }}
             {{ content_id('biomnis_description', '<a href="%s" target="_blank"><img alt="Biomnis" width="200" src="%s" /></a><ul><li>Cohort: Diagnostic exomes, including unaffected relatives</li><li>Capture kit: Human Exome 2.0 Plus Comprehensive Exome Spike-in</li><li>Sequencing: NovaSeq 6000, 2 x 150 bp paired-end reads</li><li>Bioinformatics: BiomniSeq4 pipeline based on GATK tools</li><li>Clinical indications: Kidney diseases, prenatal disorders, neurodevelopmental disorders, obesity</li><li>Geographical origin: Mainly France and French overseas territories, with international cases</li></ul>' | format(urls.biomnis, url_for('static', filename='img/biomnis.png'))) }}
 			<!--hidden values to trigger intervar/spliceaivisual ajax-->
 			<span style="visibility:hidden" id="segment_type">{{ external_data.positions.segmentStartType }}</span>
