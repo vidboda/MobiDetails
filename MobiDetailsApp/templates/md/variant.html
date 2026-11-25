@@ -656,8 +656,8 @@
                     {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in biomnis' %}
                     <tr><!--Biomnis Exomes-->
 						<td class="w3-left-align"><a href="{{ urls.biomnis }}" target="_blank">Biomnis</a> Exomes*:</td>
-						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }} | {{ internal_data.frequenciesDatabases.biomnisAN }} | {{ internal_data.frequenciesDatabases.biomnisAC }} | {{ internal_data.frequenciesDatabases.biomnisACHom }}</td>
-						<td class="w3-left-align"><em class="w3-small">Allele Frequency | Total Allele Number | Variant Allele Count | Homozygous Allele Count</em></td>
+						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }} ({{ internal_data.frequenciesDatabases.biomnisAN }} | {{ internal_data.frequenciesDatabases.biomnisAC }} | {{ internal_data.frequenciesDatabases.biomnisACHom }})</td>
+						<td class="w3-left-align"><em class="w3-small">Allele Frequency (Total Allele Number | Variant Allele Count | Homozygous Allele Count)</em></td>
 					</tr>
                     {# <tr><!--Biomnis Exomes-->
 						<td class="w3-left-align"><a href="{{ urls.biomnis }}" target="_blank">Biomnis</a> Exomes*:</td>
