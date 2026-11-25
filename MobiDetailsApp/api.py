@@ -1111,7 +1111,11 @@ def variant(variant_id=None, caller='browser', api_key=None):
                     biomnis_info = re.split(';', record)
                     internal_data['frequenciesDatabases']['biomnisNS'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['NS_col'])])[1]
                     internal_data['frequenciesDatabases']['biomnisAN'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AN_col'])])[1]
-                    internal_data['frequenciesDatabases']['biomnisAF'] = format(float(re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AF_col'])])[1]), '.4f')
+                    biomnis_AF = float(re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AF_col'])])[1])
+                    if biomnis_AF < 0.0001:
+                        internal_data['frequenciesDatabases']['biomnisAF'] = format(biomnis_AF, '.3e')
+                    else:
+                        internal_data['frequenciesDatabases']['biomnisAF'] = format(biomnis_AF, '.4f')
                     internal_data['frequenciesDatabases']['biomnisAC'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_col'])])[1]
                     internal_data['frequenciesDatabases']['biomnisACHet'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_Het_col'])])[1]
                     internal_data['frequenciesDatabases']['biomnisACHom'] = re.split('=', biomnis_info[int(md_utilities.external_tools['Biomnis_Exomes']['AC_Hom_col'])])[1]
