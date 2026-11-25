@@ -654,9 +654,8 @@
 						<td class="w3-left-align"><em class="w3-small"> v4.1.0 Exomes <strong>global MAF</strong></em></td>
 					</tr>
                     <tr><!--Biomnis Exomes-->
-                        
 						<td class="w3-left-align"><a href="{{ urls.biomnis }}" target="_blank">Biomnis</a> Exomes*:</td>
-                        {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in biomnis' %}
+                        {% if internal_data.frequenciesDatabases.biomnisNoMatch != 'No match in Biomnis' %}
 						<td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisAF }} ({{ internal_data.frequenciesDatabases.biomnisAN }} | {{ internal_data.frequenciesDatabases.biomnisAC }} | {{ internal_data.frequenciesDatabases.biomnisACHom }})</td>
                         {% else %}
                         <td class="w3-left-align">{{ internal_data.frequenciesDatabases.biomnisNoMatch }} exomes</td>

@@ -1104,8 +1104,8 @@ def variant(variant_id=None, caller='browser', api_key=None):
                             external_data['overallPredictions']['mpaScore'] = 10
                             external_data['overallPredictions']['mpaImpact'] = variant_features['prot_type']
                 # biomnis
-                record = md_utilities.get_value_from_tabix_file('biomnis', md_utilities.local_files['biomnis']['abs_path'], var, variant_features)
-                if record == 'No match in biomnis':
+                record = md_utilities.get_value_from_tabix_file('Biomnis', md_utilities.local_files['biomnis']['abs_path'], var, variant_features)
+                if record == 'No match in Biomnis':
                     internal_data['frequenciesDatabases']['biomnisNoMatch'] = record
                 else:
                     biomnis_info = re.split(';', record)

@@ -888,7 +888,7 @@ def get_value_from_tabix_file(text, tabix_file, var, variant_features, db=None):
         # print('{}-{}-{}-{}'.format(var['pos_ref'], ref_list, var['pos_alt'], alt_list))
         if var['pos_ref'] in ref_list and \
                 var['pos_alt'] in alt_list:
-            if text == 'biomnis':
+            if text == 'Biomnis':
                 return record[int(external_tools['Biomnis_Exomes']['INFO_col'])]
             if re.search(r'revel', tabix_file):
                 # need to validate amino acids - position can differ
